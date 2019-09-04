@@ -1,0 +1,4 @@
+[submodule "csib/ipcores"]
+	path = csib/ipcores
+	url = git@thunder.matrox.com:amarchan/ipcores.git
+	branch = master
