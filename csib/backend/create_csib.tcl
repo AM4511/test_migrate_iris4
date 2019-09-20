@@ -46,7 +46,7 @@ set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_lp.tcl
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
