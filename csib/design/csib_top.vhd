@@ -65,10 +65,10 @@ entity csib_top is
     pcie_sys_clk_n : in  std_logic;
     pcie_sys_clk_p : in  std_logic;
     sys_rst_n      : in  std_logic;     -- Platform reset
-    pcie_rx_n      : in  std_logic;
-    pcie_rx_p      : in  std_logic;
-    pcie_tx_n      : out std_logic;
-    pcie_tx_p      : out std_logic;
+    pcie_rx_n      : in  std_logic_vector (1 to 0);
+    pcie_rx_p      : in  std_logic_vector (1 to 0);
+    pcie_tx_n      : out std_logic_vector (1 to 0);
+    pcie_tx_p      : out std_logic_vector (1 to 0);
 
 
     ---------------------------------------------------------------------------
@@ -159,10 +159,10 @@ architecture struct of csib_top is
       hispi_serial_clk_n_0    : in    std_logic_vector (5 downto 0);
       hispi_serial_clk_p_0    : in    std_logic_vector (5 downto 0);
       ncsi_clk_out            : out   std_logic;
-      pcie_rxn                : in    std_logic_vector (0 to 0);
-      pcie_rxp                : in    std_logic_vector (0 to 0);
-      pcie_txn                : out   std_logic_vector (0 to 0);
-      pcie_txp                : out   std_logic_vector (0 to 0);
+      pcie_rxn                : in    std_logic_vector (1 to 0);
+      pcie_rxp                : in    std_logic_vector (1 to 0);
+      pcie_txn                : out   std_logic_vector (1 to 0);
+      pcie_txp                : out   std_logic_vector (1 to 0);
       profinet_crs_dv         : in    std_logic;
       profinet_rx_er          : in    std_logic;
       profinet_rxd            : in    std_logic_vector (1 downto 0);
@@ -243,10 +243,10 @@ begin
       hispi_serial_clk_n_0      => hispi_serial_clk_n_0,
       hispi_serial_clk_p_0      => hispi_serial_clk_p_0,
       ncsi_clk_out              => ncsi_clk_out,
-      pcie_rxn(0)               => pcie_rx_n,
-      pcie_rxp(0)               => pcie_rx_p,
-      pcie_txn(0)               => pcie_tx_n,
-      pcie_txp(0)               => pcie_tx_p,
+      pcie_rxn               => pcie_rx_n,
+      pcie_rxp               => pcie_rx_p,
+      pcie_txn               => pcie_tx_n,
+      pcie_txp               => pcie_tx_p,
       profinet_crs_dv           => profinet_crs_dv,
       profinet_rx_er            => '0',
       profinet_rxd              => profinet_rxd,

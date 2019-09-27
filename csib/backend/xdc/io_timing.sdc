@@ -33,12 +33,12 @@ set_false_path -to [get_ports {user_data_out[*]}]
 ##
 ## Profinet Lan1 NCSI clocks : The PCB clock buffer generates the Profinet Lan1
 ##
-## Note : The clock profinet1_ncsi_clk is created "virtually". We know from measurment 
+## Note : The clock profinet1_ncsi_clk is created "virtually". We know from measurment
 ## on the bench that the phase difference between profinet1_ncsi_clk and profinet2_ncsi_clk
 ## is 2.4 ns (profinet1_ncsi_clk arrives 2,4 ns after profinet2_ncsi_clk at the i210
-## on the pcb). This is what we try ro emulate below with the 
-## create_generated_clock -name profinet1_ncsi_clk... command. This is a tricky 
-## way of creating a delayed clock for setiing decent set_input_delay and  
+## on the pcb). This is what we try ro emulate below with the
+## create_generated_clock -name profinet1_ncsi_clk... command. This is a tricky
+## way of creating a delayed clock for setiing decent set_input_delay and
 ## delay on the profinet 1 interface later below in this constraint file
 ##
 ###################################################################################
@@ -46,8 +46,8 @@ set_false_path -to [get_ports {user_data_out[*]}]
 
 
 ###################################################################################
-## Because of the PLL phase advance, we need to specify on which edge we want the 
-## setup analyse to occur 
+## Because of the PLL phase advance, we need to specify on which edge we want the
+## setup analyse to occur
 ###################################################################################
 # set_multicycle_path -from [get_clocks  "lan1_ncsi_clk"] -to [get_clocks  "ncsi_clk_int"] 2
 # set_multicycle_path -from [get_clocks  "lan2_ncsi_clk"] -to [get_clocks  "ncsi_clk_int"] 2
@@ -84,13 +84,9 @@ set_false_path -to [get_ports {user_data_out[*]}]
 
 # Tco min = 2.5ns
 # Tco max = 12.5 ns
-set NCSI_MAX_INPUT_DELAY 12.500
-set NCSI_MIN_INPUT_DELAY 2.500
 
 # Tsu min = 3ns
 # Thold min = -1ns
-set NCSI_MAX_OUTPUT_DELAY 3.000
-set NCSI_MIN_OUTPUT_DELAY -1.000
 
 # ###################################################################################
 # ## Profinet[1] NCSI
@@ -116,5 +112,6 @@ set NCSI_MIN_OUTPUT_DELAY -1.000
 
 #set_output_delay -clock profinet_clk -max $NCSI_MAX_OUTPUT_DELAY [get_ports profinet_txd*]
 #set_output_delay -clock profinet_clk -min $NCSI_MIN_OUTPUT_DELAY [get_ports profinet_txd*]
+
 
 

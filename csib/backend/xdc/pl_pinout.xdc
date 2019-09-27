@@ -82,11 +82,11 @@
 # set_property PACKAGE_PIN N21 [get_ports {ddr_dqs_p[2]}]
 set_property PACKAGE_PIN U5 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN V5 [get_ports pcie_sys_clk_n]
-set_property LOC GTPE2_CHANNEL_X0Y3 [get_cells {xsystem_pb_wrapper/system_pb_i/xdma_0/inst/system_pb_xdma_0_0_pcie2_to_pcie3_wrapper_i/pcie2_ip_i/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
-set_property PACKAGE_PIN Y6 [get_ports pcie_rx_n]
-set_property PACKAGE_PIN W6 [get_ports pcie_rx_p]
-set_property PACKAGE_PIN Y2 [get_ports pcie_tx_n]
-set_property PACKAGE_PIN W2 [get_ports pcie_tx_p]
+#set_property LOC GTPE2_CHANNEL_X0Y3 [get_cells {xsystem_pb_wrapper/system_pb_i/xdma_0/inst/system_pb_xdma_0_0_pcie2_to_pcie3_wrapper_i/pcie2_ip_i/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
+#set_property PACKAGE_PIN Y6 [get_ports pcie_rx_n]
+#set_property PACKAGE_PIN W6 [get_ports pcie_rx_p]
+#set_property PACKAGE_PIN Y2 [get_ports pcie_tx_n]
+#set_property PACKAGE_PIN W2 [get_ports pcie_tx_p]
 set_property PACKAGE_PIN U13 [get_ports {user_data_out[2]}]
 set_property PACKAGE_PIN AB22 [get_ports {fpga_rsvd[2]}]
 set_property PACKAGE_PIN AA20 [get_ports {fpga_rsvd[3]}]
@@ -751,5 +751,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports sys_rst_n]
 # set_property DIRECTION INOUT [get_ports ddr_ras_n]
 # set_property DIRECTION INOUT [get_ports ddr_reset_n]
 # set_property DIRECTION INOUT [get_ports ddr_we_n]
+
 
 
