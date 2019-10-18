@@ -1,7 +1,7 @@
 # ##################################################################################
 # File         : create_csib.tcl
-# Description  : TCL script used to create the MIOX fpga project. 
-#
+# Description  : TCL script used to create the CSIB fpga project. 
+#               use the device z7007s_clg225 13x13mm  
 # Example      : source $env(CSIB)/backend/create_csib.tcl
 #
 # ##################################################################################
@@ -16,8 +16,8 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_upgrade_xc7z015
-set DEVICE "xc7z015clg485-1"
+set BASE_NAME  csib_xc7z007s_espi
+set DEVICE "xc7z007sclg225-1"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -45,8 +45,8 @@ set XDC_DIR            ${BACKEND_DIR}/xdc
 set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system__xc7z012.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files_espi.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_xc7z007s_espi.tcl
 
 
 set SYNTH_RUN "synth_1"
