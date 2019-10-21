@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/create_csib_xc7z012.tcl
+# Example      : source $env(CSIB)/backend/create_csib.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -16,8 +16,8 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_upgrade_xc7z012
-set DEVICE "xc7z012sclg485-1"
+set BASE_NAME  csib_athena_hispi
+set DEVICE "xc7a35ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -45,8 +45,9 @@ set XDC_DIR            ${BACKEND_DIR}/xdc
 set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_xc7z012.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files_athena_hispi.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_athena_hispi.tcl
+
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
