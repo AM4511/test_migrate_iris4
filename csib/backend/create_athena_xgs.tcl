@@ -16,8 +16,8 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_upgrade_xc7a50t
-set DEVICE "xc7a50ticpg236-1L"
+set BASE_NAME  athena_xgs
+set DEVICE "xc7a35ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -42,10 +42,11 @@ set SYSTEM_DIR  ${TCL_DIR}/ipi_systems
 set SRC_DIR            ${WORKDIR}/design
 set SDK_DIR            ${WORKDIR}/sdk
 set XDC_DIR            ${BACKEND_DIR}/xdc
+#set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files_csib.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_csib.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files_athena_xgs.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_athena_xgs.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -112,6 +113,7 @@ export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 # Add project files (HDL, Constraints, IP, etc)
 ################################################
 source ${FILESET_SCRIPT}
+
 
 ################################################
 # Top level Generics

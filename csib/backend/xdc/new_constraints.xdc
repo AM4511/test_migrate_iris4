@@ -1,10 +1,9 @@
-#set_switching_activity -toggle_rate 0.000 -static_probability 0.000 [get_nets xsystem_pb_wrapper/system_pb_i/axiMaio_0/U0/xaxiMaio/xmaio_registerfile/p_0_in]
-#set_switching_activity -toggle_rate 0.000 -static_probability 0.000 [get_nets xsystem_pb_wrapper/system_pb_i/xdma_0/inst/system_pb_xdma_0_0_pcie2_to_pcie3_wrapper_i/pcie2_ip_i/U0/inst/user_reset_out]
-#set_switching_activity -toggle_rate 0.000 -static_probability 1.000 [get_nets {xsystem_pb_wrapper/system_pb_i/clk_reset_mngr/axi_reset_mngr/U0/peripheral_aresetn[0]}]
-#set_operating_conditions -grade extended
-
-set_operating_conditions -grade industrial
-set_operating_conditions -ambient_temp 80.0
-set_operating_conditions -board_layers 8to11
-set_operating_conditions -board small
-set_operating_conditions -heatsink high
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[1].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[0].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[2].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[0].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[1].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[2].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[3].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[4].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins {xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/G_HISPI_PHY[5].xhispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O}]] -group [get_clocks -of_objects [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]]
