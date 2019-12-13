@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/create_csib_xc7z012.tcl
+# Example      : source $env(CSIB)/backend/csib_xc7z012/create_csib_xc7z012.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -35,18 +35,18 @@ set FPGA_DEVICE_ID 0
 set WORKDIR     $env(CSIB)
 set IPCORES_DIR ${WORKDIR}/ipcores
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend
-set TCL_DIR     ${BACKEND_DIR}/tcl
-set SYSTEM_DIR  ${TCL_DIR}/ipi_systems
+set BACKEND_DIR ${WORKDIR}/backend/csib_xc7z012
+set TCL_DIR     ${BACKEND_DIR}
+set SYSTEM_DIR  ${BACKEND_DIR}
 
 set SRC_DIR            ${WORKDIR}/design
 set SDK_DIR            ${WORKDIR}/sdk
-set XDC_DIR            ${BACKEND_DIR}/xdc
-set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
+set XDC_DIR            ${BACKEND_DIR}
 
+set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_xc7z012.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ipi_system_hyperbus_eth_sw.tcl
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
@@ -117,10 +117,10 @@ source ${FILESET_SCRIPT}
 # Remove xilinx clashing constraints in the 
 # Xilinx ethernet IP-Core.
 ################################################
-set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
-foreach file $ETH_CLK_CONSTRAINTS {
-	set_property IS_ENABLED 0 $file
-}
+#set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
+#foreach file $ETH_CLK_CONSTRAINTS {
+#	set_property IS_ENABLED 0 $file
+#}
 
 
 

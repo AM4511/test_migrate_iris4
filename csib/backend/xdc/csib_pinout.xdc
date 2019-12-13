@@ -1,4 +1,4 @@
-set_property keep_compatible {xc7a15ticpg236 xc7a50ticpg236}  [current_design]
+set_property keep_compatible {xc7a15ticpg236 xc7a35ticpg236}  [current_design]
 
 set_property PACKAGE_PIN A16 [get_ports ref_clk]
 set_property PACKAGE_PIN C16 [get_ports {hispi_data_p[1]}]
