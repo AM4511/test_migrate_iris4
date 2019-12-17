@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/create_csib.tcl
+# Example      : source $env(CSIB)/backend/athena_hispi/create_csib_athena_hispi.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -17,7 +17,8 @@ set FPGA_SUB_MINOR_VERSION 1
 
 
 set BASE_NAME  csib_athena_hispi
-set DEVICE "xc7a35ticpg236-1L"
+#set DEVICE "xc7a35ticpg236-1L"
+set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -35,18 +36,18 @@ set FPGA_DEVICE_ID 0
 set WORKDIR     $env(CSIB)
 set IPCORES_DIR ${WORKDIR}/ipcores
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend
-set TCL_DIR     ${BACKEND_DIR}/tcl
-set SYSTEM_DIR  ${TCL_DIR}/ipi_systems
+set BACKEND_DIR ${WORKDIR}/backend/athena_hispi
+set TCL_DIR     ${BACKEND_DIR}
+set SYSTEM_DIR  ${BACKEND_DIR}
 
 set SRC_DIR            ${WORKDIR}/design
-set SDK_DIR            ${WORKDIR}/sdk
-set XDC_DIR            ${BACKEND_DIR}/xdc
-set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
+#set SDK_DIR            ${WORKDIR}/sdk
+set XDC_DIR            ${BACKEND_DIR}
+#set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files_athena_hispi.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_athena_hispi.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -118,10 +119,10 @@ source ${FILESET_SCRIPT}
 # Remove xilinx clashing constraints in the 
 # Xilinx ethernet IP-Core.
 ################################################
-set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
-foreach file $ETH_CLK_CONSTRAINTS {
-	set_property IS_ENABLED 0 $file
-}
+# set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
+# foreach file $ETH_CLK_CONSTRAINTS {
+	# set_property IS_ENABLED 0 $file
+# }
 
 
 
@@ -144,7 +145,7 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-launch_runs ${IMPL_RUN}  -to_step write_bitstream -jobs ${JOB_COUNT}
+launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
 
 
