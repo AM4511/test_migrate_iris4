@@ -1,5 +1,8 @@
 *.tmp
 vivado/**/*
+pnr/**/*
+download/**/*
+
 validation/java/bin/**/*
 validation/mti/work/**/*
 validation/mti/hallux.dep

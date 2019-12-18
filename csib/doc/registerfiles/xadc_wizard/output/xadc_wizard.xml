@@ -1,0 +1,4178 @@
+<?xml version="1.0"?>
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="xadc_wizard" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="d8374ccf-0485-473d-8616-4836334163c9" VersionGuid="16d47091-c614-422a-8a8b-b075da166fd9">
+	<Group Comment="RootCategoryGroup">
+		<Category Name="Root">
+			<Visibility>Beginner</Visibility>
+			<pFeature>SECTION_xadc_wizard_local_register</pFeature>
+			<pFeature>SECTION_xadc_wizard_interrupt_controller</pFeature>
+			<pFeature>SECTION_xadc_wizard_xadc_hard_macro</pFeature>
+			<pFeature>SECTION_xadc_wizard_control</pFeature>
+			<pFeature>SECTION_xadc_wizard_alarm_tresholds</pFeature>
+		</Category>
+		<Integer Name="ROOT_ADDRESS">
+			<Visibility>Beginner</Visibility>
+			<Value>0</Value>
+			<Representation>HexNumber</Representation>
+		</Integer>
+		<!--Section : local_register-->
+		<Group Comment="GROUP_xadc_wizard_local_register">
+			<Category Name="SECTION_xadc_wizard_local_register">
+				<Description>XADC Wizard Local Register Grouping</Description>
+				<DisplayName>local_register</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_xadc_wizard_local_register</pFeature>
+				<pFeature>REGISTER_xadc_wizard_local_register_ssr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_local_register_sr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_local_register_aosr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_local_register_convstr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_local_register_xadc_reset</pFeature>
+			</Category>
+			<Integer Name="OFFSET_xadc_wizard_local_register">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>0</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : ssr-->
+			<Group Comment="GROUP_xadc_wizard_local_register_ssr">
+				<Category Name="REGISTER_xadc_wizard_local_register_ssr">
+					<Description>Software Reset Register (SSR)</Description>
+					<DisplayName>ssr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_local_register_ssr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_local_register_ssr</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_ssr_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_local_register_ssr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_local_register_ssr_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_ssr_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_ssr_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_ssr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_local_register_ssr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_local_register</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_local_register_ssr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : sr-->
+			<Group Comment="GROUP_xadc_wizard_local_register_sr">
+				<Category Name="REGISTER_xadc_wizard_local_register_sr">
+					<Description>Status Register (SR)</Description>
+					<DisplayName>sr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_local_register_sr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_local_register_sr</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_jtag_busy</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_jtag_modified</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_jtag_locked</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_busy</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_eos</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_eoc</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_sr_channel</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_local_register_sr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_jtag_busy">
+					<DisplayName>jtag_busy</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_jtag_busy</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_jtag_busy">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_jtag_modified">
+					<DisplayName>jtag_modified</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_jtag_modified</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_jtag_modified">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_jtag_locked">
+					<DisplayName>jtag_locked</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_jtag_locked</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_jtag_locked">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_busy">
+					<DisplayName>busy</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_busy</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_busy">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_eos">
+					<DisplayName>eos</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_eos</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_eos">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_eoc">
+					<DisplayName>eoc</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_eoc</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_eoc">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_sr_channel">
+					<DisplayName>channel</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_sr_channel</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_sr_channel">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_sr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>4</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_local_register_sr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_local_register</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_local_register_sr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : aosr-->
+			<Group Comment="GROUP_xadc_wizard_local_register_aosr">
+				<Category Name="REGISTER_xadc_wizard_local_register_aosr">
+					<Description>Alarm Output Status Register (AOSR)</Description>
+					<DisplayName>aosr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_local_register_aosr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_local_register_aosr</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_7</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_6</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_5</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_4</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_3</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_alarm_0</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_aosr_over_temperature</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_local_register_aosr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_7">
+					<DisplayName>alarm_7</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_7</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_7">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_6">
+					<DisplayName>alarm_6</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_6</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_6">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_5">
+					<DisplayName>alarm_5</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_5</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_5">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_4">
+					<DisplayName>alarm_4</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_4</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_4">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_3">
+					<DisplayName>alarm_3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_3</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_3">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_2">
+					<DisplayName>alarm_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_2</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_2">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>3</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_1">
+					<DisplayName>alarm_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_1</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_1">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>2</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_alarm_0">
+					<DisplayName>alarm_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_0</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_alarm_0">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_aosr_over_temperature">
+					<DisplayName>over_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_aosr_over_temperature</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_aosr_over_temperature">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_aosr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_local_register_aosr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_local_register</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_local_register_aosr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : convstr-->
+			<Group Comment="GROUP_xadc_wizard_local_register_convstr">
+				<Category Name="REGISTER_xadc_wizard_local_register_convstr">
+					<Description>CONVST Register (CONVSTR)</Description>
+					<DisplayName>convstr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_local_register_convstr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_local_register_convstr</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_convstr_temp_rd_wait_cycle</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_convstr_temp_bus_update</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_convstr_convst</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_local_register_convstr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_local_register_convstr_temp_rd_wait_cycle">
+					<DisplayName>temp_rd_wait_cycle</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_convstr_temp_rd_wait_cycle</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_convstr_temp_rd_wait_cycle">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_convstr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>2</LSB>
+					<MSB>17</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_convstr_temp_bus_update">
+					<DisplayName>temp_bus_update</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_convstr_temp_bus_update</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_convstr_temp_bus_update">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_convstr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_local_register_convstr_convst">
+					<DisplayName>convst</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_convstr_convst</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_convstr_convst">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_convstr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_local_register_convstr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_local_register</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_local_register_convstr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : xadc_reset-->
+			<Group Comment="GROUP_xadc_wizard_local_register_xadc_reset">
+				<Category Name="REGISTER_xadc_wizard_local_register_xadc_reset">
+					<Description>XADC Hard Macro Reset Register</Description>
+					<DisplayName>xadc_reset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_local_register_xadc_reset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_local_register_xadc_reset</pFeature>
+					<pFeature>FIELD_xadc_wizard_local_register_xadc_reset_reset</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_local_register_xadc_reset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_local_register_xadc_reset_reset">
+					<DisplayName>reset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_local_register_xadc_reset_reset</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_local_register_xadc_reset_reset">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_local_register_xadc_reset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_local_register_xadc_reset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_local_register</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_local_register_xadc_reset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : interrupt_controller-->
+		<Group Comment="GROUP_xadc_wizard_interrupt_controller">
+			<Category Name="SECTION_xadc_wizard_interrupt_controller">
+				<Description>XADC Wizard Interrupt Controller</Description>
+				<DisplayName>interrupt_controller</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_xadc_wizard_interrupt_controller</pFeature>
+				<pFeature>REGISTER_xadc_wizard_interrupt_controller_global_interrupt</pFeature>
+				<pFeature>REGISTER_xadc_wizard_interrupt_controller_interrupt_status</pFeature>
+				<pFeature>REGISTER_xadc_wizard_interrupt_controller_interrupt_enable</pFeature>
+			</Category>
+			<Integer Name="OFFSET_xadc_wizard_interrupt_controller">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>92</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : global_interrupt-->
+			<Group Comment="GROUP_xadc_wizard_interrupt_controller_global_interrupt">
+				<Category Name="REGISTER_xadc_wizard_interrupt_controller_global_interrupt">
+					<Description>Global Interrupt Enable Register (GIER)</Description>
+					<DisplayName>global_interrupt</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_interrupt_controller_global_interrupt</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_interrupt_controller_global_interrupt</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_global_interrupt_enable</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_interrupt_controller_global_interrupt">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_global_interrupt_enable">
+					<DisplayName>enable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_global_interrupt_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_global_interrupt_enable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_global_interrupt</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>31</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_interrupt_controller_global_interrupt">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_interrupt_controller</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_interrupt_controller_global_interrupt</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : interrupt_status-->
+			<Group Comment="GROUP_xadc_wizard_interrupt_controller_interrupt_status">
+				<Category Name="REGISTER_xadc_wizard_interrupt_controller_interrupt_status">
+					<Description>IP Interrupt Status Register (IPISR)</Description>
+					<DisplayName>interrupt_status</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_interrupt_controller_interrupt_status</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_6</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_5</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_4</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_0_deactive</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_over_temperature_deactive</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_jtag_modified</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_jtag_locked</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_eoc</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_eos</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_3</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_0</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_status_over_temperature</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_interrupt_controller_interrupt_status">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_6">
+					<DisplayName>alarm_6</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_6</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_6">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>13</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_5">
+					<DisplayName>alarm_5</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_5</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_5">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>12</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_4">
+					<DisplayName>alarm_4</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_4</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_4">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>11</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_2">
+					<DisplayName>alarm_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_2</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_2">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_0_deactive">
+					<DisplayName>alarm_0_deactive</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_0_deactive</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_0_deactive">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_over_temperature_deactive">
+					<DisplayName>over_temperature_deactive</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_over_temperature_deactive</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_over_temperature_deactive">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_jtag_modified">
+					<DisplayName>jtag_modified</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_jtag_modified</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_jtag_modified">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_jtag_locked">
+					<DisplayName>jtag_locked</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_jtag_locked</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_jtag_locked">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_eoc">
+					<DisplayName>eoc</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_eoc</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_eoc">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_eos">
+					<DisplayName>eos</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_eos</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_eos">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_3">
+					<DisplayName>alarm_3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_3</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_3">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>3</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_1">
+					<DisplayName>alarm_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_1</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_1">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>2</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_alarm_0">
+					<DisplayName>alarm_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_0</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_alarm_0">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_status_over_temperature">
+					<DisplayName>over_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_over_temperature</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_status_over_temperature">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_interrupt_controller_interrupt_status">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_interrupt_controller</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_interrupt_controller_interrupt_status</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : interrupt_enable-->
+			<Group Comment="GROUP_xadc_wizard_interrupt_controller_interrupt_enable">
+				<Category Name="REGISTER_xadc_wizard_interrupt_controller_interrupt_enable">
+					<Description>IP Interrupt Enable Register (IPIER)</Description>
+					<DisplayName>interrupt_enable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_interrupt_controller_interrupt_enable</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_6</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_5</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_4</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0_deactive</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature_deactive</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_jtag_modified</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_jtag_locked</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_eoc</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_eos</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_3</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0</pFeature>
+					<pFeature>FIELD_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_interrupt_controller_interrupt_enable">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_6">
+					<DisplayName>alarm_6</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_6</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_6">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>13</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_5">
+					<DisplayName>alarm_5</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_5</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_5">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>12</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_4">
+					<DisplayName>alarm_4</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_4</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_4">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>11</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_2">
+					<DisplayName>alarm_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_2</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_2">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0_deactive">
+					<DisplayName>alarm_0_deactive</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0_deactive</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0_deactive">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature_deactive">
+					<DisplayName>over_temperature_deactive</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature_deactive</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature_deactive">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_jtag_modified">
+					<DisplayName>jtag_modified</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_jtag_modified</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_jtag_modified">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_jtag_locked">
+					<DisplayName>jtag_locked</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_jtag_locked</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_jtag_locked">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_eoc">
+					<DisplayName>eoc</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_eoc</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_eoc">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_eos">
+					<DisplayName>eos</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_eos</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_eos">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_3">
+					<DisplayName>alarm_3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_3</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_3">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>3</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_1">
+					<DisplayName>alarm_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_1</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_1">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>2</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0">
+					<DisplayName>alarm_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_alarm_0">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature">
+					<DisplayName>over_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_interrupt_controller_interrupt_enable_over_temperature">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_interrupt_controller_interrupt_enable">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_interrupt_controller</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_interrupt_controller_interrupt_enable</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : xadc_hard_macro-->
+		<Group Comment="GROUP_xadc_wizard_xadc_hard_macro">
+			<Category Name="SECTION_xadc_wizard_xadc_hard_macro">
+				<Description>XADC Wizard Hard Macro</Description>
+				<DisplayName>xadc_hard_macro</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_xadc_wizard_xadc_hard_macro</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_temperature</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcc_int</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcc_aux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vp_vn</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vref_p</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vref_n</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcc_bram</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_supply_a_offset</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_adc_a_offset</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_adc_a_gain</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcc_pint</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcc_paux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vcco_ddr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_vaux_p_n</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_temperature</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_int</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_aux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_bram</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_temperature</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_int</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_aux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_bram</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_pint</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_paux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_max_vcco_ddr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_pint</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_paux</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_main_vcco_ddr</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_supply_b_offset</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_adc_b_offset</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_adc_b_gain</pFeature>
+				<pFeature>REGISTER_xadc_wizard_xadc_hard_macro_flag</pFeature>
+			</Category>
+			<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>512</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : temperature-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_temperature">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_temperature">
+					<DisplayName>temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_temperature</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_temperature</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_temperature_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_temperature">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_temperature_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_temperature_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_temperature_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_temperature</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_temperature">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_temperature</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcc_int-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcc_int">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcc_int">
+					<DisplayName>vcc_int</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcc_int</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_int</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcc_int_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcc_int">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcc_int_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_int_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_int_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_int</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcc_int">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcc_int</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcc_aux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcc_aux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcc_aux">
+					<DisplayName>vcc_aux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcc_aux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_aux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcc_aux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcc_aux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcc_aux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_aux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_aux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_aux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcc_aux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcc_aux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vp_vn-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vp_vn">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vp_vn">
+					<DisplayName>vp_vn</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vp_vn</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vp_vn</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vp_vn_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vp_vn">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vp_vn_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vp_vn_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vp_vn_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vp_vn</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vp_vn">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vp_vn</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vref_p-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vref_p">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vref_p">
+					<DisplayName>vref_p</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vref_p</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vref_p</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vref_p_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vref_p">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vref_p_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vref_p_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vref_p_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vref_p</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vref_p">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vref_p</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vref_n-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vref_n">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vref_n">
+					<DisplayName>vref_n</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vref_n</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vref_n</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vref_n_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vref_n">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>20</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vref_n_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vref_n_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vref_n_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vref_n</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vref_n">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vref_n</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcc_bram-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcc_bram">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcc_bram">
+					<DisplayName>vcc_bram</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcc_bram</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_bram</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcc_bram_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcc_bram">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>24</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcc_bram_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_bram_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_bram_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_bram</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcc_bram">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcc_bram</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : supply_a_offset-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_supply_a_offset">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_supply_a_offset">
+					<DisplayName>supply_a_offset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_supply_a_offset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_supply_a_offset</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_supply_a_offset_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_supply_a_offset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>32</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_supply_a_offset_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_supply_a_offset_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_supply_a_offset_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_supply_a_offset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_supply_a_offset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_supply_a_offset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : adc_a_offset-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_adc_a_offset">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_adc_a_offset">
+					<DisplayName>adc_a_offset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_adc_a_offset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_offset</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_a_offset_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_adc_a_offset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>36</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_a_offset_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_offset_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_offset_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_offset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_offset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_adc_a_offset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : adc_a_gain-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_adc_a_gain">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_adc_a_gain">
+					<DisplayName>adc_a_gain</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_adc_a_gain</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_gain</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_a_gain_sign</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_a_gain_mag</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_adc_a_gain">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>40</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_a_gain_sign">
+					<DisplayName>sign</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_gain_sign</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_gain_sign">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_gain</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_a_gain_mag">
+					<DisplayName>mag</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_gain_mag</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_a_gain_mag">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_gain</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>5</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_adc_a_gain">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_adc_a_gain</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcc_pint-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcc_pint">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcc_pint">
+					<DisplayName>vcc_pint</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcc_pint</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_pint</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcc_pint_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcc_pint">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>52</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcc_pint_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_pint_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_pint_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_pint</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcc_pint">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcc_pint</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcc_paux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcc_paux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcc_paux">
+					<DisplayName>vcc_paux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcc_paux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_paux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcc_paux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcc_paux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>56</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcc_paux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_paux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcc_paux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcc_paux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcc_paux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcc_paux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcco_ddr-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vcco_ddr">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vcco_ddr">
+					<DisplayName>vcco_ddr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vcco_ddr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vcco_ddr</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vcco_ddr_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vcco_ddr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>60</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vcco_ddr_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcco_ddr_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vcco_ddr_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vcco_ddr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vcco_ddr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vcco_ddr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Array of register : vaux_p_n[15:0]-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_vaux_p_n">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_vaux_p_n">
+					<DisplayName>vaux_p_n[15:0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>SELECTOR_xadc_wizard_xadc_hard_macro_vaux_p_n</pFeature>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_vaux_p_n</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_vaux_p_n</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_vaux_p_n_value</pFeature>
+				</Category>
+				<Enumeration Name="SELECTOR_xadc_wizard_xadc_hard_macro_vaux_p_n">
+					<ToolTip>Select the array element</ToolTip>
+					<Description>Select the array element</Description>
+					<DisplayName>selector</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<ImposedAccessMode>RW</ImposedAccessMode>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_0">
+						<DisplayName>vaux_p_n[0]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>64</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_1">
+						<DisplayName>vaux_p_n[1]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>68</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_2">
+						<DisplayName>vaux_p_n[2]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>72</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_3">
+						<DisplayName>vaux_p_n[3]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>76</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_4">
+						<DisplayName>vaux_p_n[4]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>80</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_5">
+						<DisplayName>vaux_p_n[5]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>84</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_6">
+						<DisplayName>vaux_p_n[6]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>88</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_7">
+						<DisplayName>vaux_p_n[7]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>92</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_8">
+						<DisplayName>vaux_p_n[8]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>96</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_9">
+						<DisplayName>vaux_p_n[9]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>100</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_10">
+						<DisplayName>vaux_p_n[10]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>104</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_11">
+						<DisplayName>vaux_p_n[11]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>108</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_12">
+						<DisplayName>vaux_p_n[12]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>112</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_13">
+						<DisplayName>vaux_p_n[13]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>116</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_14">
+						<DisplayName>vaux_p_n[14]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>120</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_xadc_wizard_xadc_hard_macro_vaux_p_n_15">
+						<DisplayName>vaux_p_n[15]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>124</Value>
+					</EnumEntry>
+					<Value>64</Value>
+				</Enumeration>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_vaux_p_n">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pValue>SELECTOR_xadc_wizard_xadc_hard_macro_vaux_p_n</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_vaux_p_n_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_vaux_p_n_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_vaux_p_n_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_vaux_p_n</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_vaux_p_n">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_vaux_p_n</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_temperature-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_temperature">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_temperature">
+					<DisplayName>max_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_temperature</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_temperature</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_temperature_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_temperature">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>128</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_temperature_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_temperature_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_temperature_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_temperature</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_temperature">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_temperature</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcc_int-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcc_int">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_int">
+					<DisplayName>max_vcc_int</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_int</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_int</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcc_int_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_int">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>132</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcc_int_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_int_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_int_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_int</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_int">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_int</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcc_aux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcc_aux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_aux">
+					<DisplayName>max_vcc_aux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_aux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_aux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcc_aux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_aux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>136</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcc_aux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_aux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_aux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_aux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_aux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_aux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcc_bram-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcc_bram">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_bram">
+					<DisplayName>max_vcc_bram</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_bram</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_bram</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcc_bram_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_bram">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>140</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcc_bram_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_bram_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_bram_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_bram</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_bram">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_bram</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_temperature-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_temperature">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_temperature">
+					<DisplayName>min_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_temperature</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_temperature</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_temperature_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_temperature">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>144</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_temperature_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_temperature_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_temperature_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_temperature</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_temperature">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_temperature</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_vcc_int-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_vcc_int">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_int">
+					<DisplayName>min_vcc_int</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_int</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_int</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_vcc_int_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_int">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>148</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_vcc_int_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_int_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_int_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_int</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_int">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_int</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_vcc_aux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_vcc_aux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_aux">
+					<DisplayName>min_vcc_aux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_aux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_aux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_vcc_aux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_aux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>152</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_vcc_aux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_aux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_aux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_aux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_aux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_aux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_vcc_bram-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_vcc_bram">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_bram">
+					<DisplayName>min_vcc_bram</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_bram</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_bram</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_vcc_bram_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_bram">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>156</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_vcc_bram_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_bram_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_bram_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_bram</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_bram">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_bram</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcc_pint-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcc_pint">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_pint">
+					<DisplayName>max_vcc_pint</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_pint</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_pint</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcc_pint_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_pint">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>160</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcc_pint_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_pint_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_pint_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_pint</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_pint">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_pint</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcc_paux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcc_paux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcc_paux">
+					<DisplayName>max_vcc_paux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_paux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_paux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcc_paux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_paux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>164</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcc_paux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_paux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcc_paux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_paux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcc_paux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcc_paux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : max_vcco_ddr-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_max_vcco_ddr">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_max_vcco_ddr">
+					<DisplayName>max_vcco_ddr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_max_vcco_ddr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcco_ddr</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_max_vcco_ddr_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_max_vcco_ddr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>168</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_max_vcco_ddr_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcco_ddr_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_max_vcco_ddr_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_max_vcco_ddr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_max_vcco_ddr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_max_vcco_ddr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_vcc_pint-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_vcc_pint">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_pint">
+					<DisplayName>min_vcc_pint</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_pint</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_pint</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_vcc_pint_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_pint">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>176</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_vcc_pint_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_pint_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_pint_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_pint</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_pint">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_pint</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : min_vcc_paux-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_min_vcc_paux">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_min_vcc_paux">
+					<DisplayName>min_vcc_paux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_paux</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_paux</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_min_vcc_paux_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_paux">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>180</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_min_vcc_paux_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_paux_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_min_vcc_paux_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_paux</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_min_vcc_paux">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_min_vcc_paux</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : main_vcco_ddr-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_main_vcco_ddr">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_main_vcco_ddr">
+					<DisplayName>main_vcco_ddr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_main_vcco_ddr</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_main_vcco_ddr</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_main_vcco_ddr_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_main_vcco_ddr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>184</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_main_vcco_ddr_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_main_vcco_ddr_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_main_vcco_ddr_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_main_vcco_ddr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_main_vcco_ddr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_main_vcco_ddr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : supply_b_offset-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_supply_b_offset">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_supply_b_offset">
+					<DisplayName>supply_b_offset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_supply_b_offset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_supply_b_offset</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_supply_b_offset_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_supply_b_offset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>192</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_supply_b_offset_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_supply_b_offset_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_supply_b_offset_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_supply_b_offset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_supply_b_offset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_supply_b_offset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : adc_b_offset-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_adc_b_offset">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_adc_b_offset">
+					<DisplayName>adc_b_offset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_adc_b_offset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_offset</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_b_offset_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_adc_b_offset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>196</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_b_offset_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_offset_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_offset_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_offset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_offset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_adc_b_offset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : adc_b_gain-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_adc_b_gain">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_adc_b_gain">
+					<DisplayName>adc_b_gain</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_adc_b_gain</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_gain</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_b_gain_sign</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_adc_b_gain_mag</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_adc_b_gain">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>200</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_b_gain_sign">
+					<DisplayName>sign</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_gain_sign</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_gain_sign">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_gain</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_adc_b_gain_mag">
+					<DisplayName>mag</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_gain_mag</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_adc_b_gain_mag">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_gain</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>5</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_adc_b_gain">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_adc_b_gain</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : flag-->
+			<Group Comment="GROUP_xadc_wizard_xadc_hard_macro_flag">
+				<Category Name="REGISTER_xadc_wizard_xadc_hard_macro_flag">
+					<DisplayName>flag</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_xadc_hard_macro_flag</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_jtgd</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_jtgr</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_ref</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_6</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_5</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_4</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_3</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_over_temperature</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_0</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_xadc_hard_macro_flag">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>212</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_jtgd">
+					<DisplayName>jtgd</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_jtgd</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_jtgd">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>11</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_jtgr">
+					<DisplayName>jtgr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_jtgr</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_jtgr">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_ref">
+					<DisplayName>ref</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_ref</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_ref">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_6">
+					<DisplayName>alarm_6</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_6</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_6">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_5">
+					<DisplayName>alarm_5</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_5</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_5">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_4">
+					<DisplayName>alarm_4</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_4</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_4">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_3">
+					<DisplayName>alarm_3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_3</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_3">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_over_temperature">
+					<DisplayName>over_temperature</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_over_temperature</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_over_temperature">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>3</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_2">
+					<DisplayName>alarm_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_2</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_2">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>2</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_1">
+					<DisplayName>alarm_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_1</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_1">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_xadc_hard_macro_flag_alarm_0">
+					<DisplayName>alarm_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_0</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_xadc_hard_macro_flag_alarm_0">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_xadc_hard_macro_flag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_xadc_hard_macro_flag">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_xadc_hard_macro</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_xadc_hard_macro_flag</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : control-->
+		<Group Comment="GROUP_xadc_wizard_control">
+			<Category Name="SECTION_xadc_wizard_control">
+				<Description>XADC Control Registers</Description>
+				<DisplayName>control</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_xadc_wizard_control</pFeature>
+				<pFeature>REGISTER_xadc_wizard_control_config_0</pFeature>
+				<pFeature>REGISTER_xadc_wizard_control_config_1</pFeature>
+				<pFeature>REGISTER_xadc_wizard_control_config_2</pFeature>
+			</Category>
+			<Integer Name="OFFSET_xadc_wizard_control">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>768</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : config_0-->
+			<Group Comment="GROUP_xadc_wizard_control_config_0">
+				<Category Name="REGISTER_xadc_wizard_control_config_0">
+					<DisplayName>config_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_control_config_0</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_control_config_0</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_cavg</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_avg</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_mux</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_bu</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_ec</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_acq</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_0_input_channel</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_control_config_0">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_cavg">
+					<DisplayName>cavg</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_cavg</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_cavg">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>15</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_avg">
+					<DisplayName>avg</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_avg</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_avg">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>13</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_mux">
+					<DisplayName>mux</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_mux</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_mux">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>11</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_bu">
+					<DisplayName>bu</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_bu</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_bu">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_ec">
+					<DisplayName>ec</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_ec</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_ec">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_acq">
+					<DisplayName>acq</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_acq</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_acq">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_0_input_channel">
+					<DisplayName>input_channel</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_0_input_channel</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_0_input_channel">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>4</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_control_config_0">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_control</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_control_config_0</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : config_1-->
+			<Group Comment="GROUP_xadc_wizard_control_config_1">
+				<Category Name="REGISTER_xadc_wizard_control_config_1">
+					<DisplayName>config_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_control_config_1</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_control_config_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_seq</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_6_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_5_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_4_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_3_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_cal_enable_3</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_cal_enable_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_cal_enable_1</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_cal_enable_0</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_2_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_1_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_alarm_0_disable</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_1_ot_disable</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_control_config_1">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_seq">
+					<DisplayName>seq</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_seq</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_seq">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_6_disable">
+					<DisplayName>alarm_6_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_6_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_6_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>11</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_5_disable">
+					<DisplayName>alarm_5_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_5_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_5_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>10</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_4_disable">
+					<DisplayName>alarm_4_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_4_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_4_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_3_disable">
+					<DisplayName>alarm_3_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_3_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_3_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_cal_enable_3">
+					<DisplayName>cal_enable_3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_3</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_3">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>7</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_cal_enable_2">
+					<DisplayName>cal_enable_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_2</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_2">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>6</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_cal_enable_1">
+					<DisplayName>cal_enable_1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_1</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_1">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>5</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_cal_enable_0">
+					<DisplayName>cal_enable_0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_0</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_cal_enable_0">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_2_disable">
+					<DisplayName>alarm_2_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_2_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_2_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>3</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_1_disable">
+					<DisplayName>alarm_1_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_1_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_1_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>2</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_alarm_0_disable">
+					<DisplayName>alarm_0_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_alarm_0_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_alarm_0_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>1</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_1_ot_disable">
+					<DisplayName>ot_disable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_1_ot_disable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_1_ot_disable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_control_config_1">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_control</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_control_config_1</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : config_2-->
+			<Group Comment="GROUP_xadc_wizard_control_config_2">
+				<Category Name="REGISTER_xadc_wizard_control_config_2">
+					<DisplayName>config_2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_control_config_2</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_control_config_2</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_2_cd</pFeature>
+					<pFeature>FIELD_xadc_wizard_control_config_2_pd</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_control_config_2">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_control_config_2_cd">
+					<DisplayName>cd</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_2_cd</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_2_cd">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_2</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>8</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_xadc_wizard_control_config_2_pd">
+					<DisplayName>pd</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_control_config_2_pd</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_control_config_2_pd">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_control_config_2</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>5</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_control_config_2">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_control</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_control_config_2</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : alarm_tresholds-->
+		<Group Comment="GROUP_xadc_wizard_alarm_tresholds">
+			<Category Name="SECTION_xadc_wizard_alarm_tresholds">
+				<DisplayName>alarm_tresholds</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_xadc_wizard_alarm_tresholds</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_temperature_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccint_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccaux_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_ot_alarm_limit</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_temperature_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccint_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccaux_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_ot_alarm_reset</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccbram_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccpint_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccpaux_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vcco_ddr_upper</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccbram_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccpint_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vccpaux_lower</pFeature>
+				<pFeature>REGISTER_xadc_wizard_alarm_tresholds_vcco_ddr_lower</pFeature>
+			</Category>
+			<Integer Name="OFFSET_xadc_wizard_alarm_tresholds">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>832</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : temperature_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_temperature_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_temperature_upper">
+					<Description>Temperature upper  [alarm 0]</Description>
+					<DisplayName>temperature_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_temperature_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_temperature_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_temperature_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_temperature_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_temperature_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_temperature_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_temperature_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_temperature_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_temperature_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_temperature_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccint_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccint_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccint_upper">
+					<Description>VCCINT upper  [alarm 1]</Description>
+					<DisplayName>vccint_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccint_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccint_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccint_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccint_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccint_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccint_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccint_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccint_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccint_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccint_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccaux_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccaux_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccaux_upper">
+					<Description>VCCAUX upper [alarm 2]</Description>
+					<DisplayName>vccaux_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccaux_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccaux_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccaux_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccaux_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccaux_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccaux_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccaux_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccaux_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccaux_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccaux_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : ot_alarm_limit-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_ot_alarm_limit">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_ot_alarm_limit">
+					<Description>Over-temperature alarm limit</Description>
+					<DisplayName>ot_alarm_limit</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_limit</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_limit</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_ot_alarm_limit_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_limit">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_ot_alarm_limit_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_ot_alarm_limit_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_ot_alarm_limit_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_limit</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_limit">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_limit</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : temperature_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_temperature_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_temperature_lower">
+					<Description>OT alarm limit</Description>
+					<DisplayName>temperature_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_temperature_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_temperature_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_temperature_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_temperature_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_temperature_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_temperature_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_temperature_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_temperature_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_temperature_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_temperature_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccint_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccint_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccint_lower">
+					<Description>VCCINT lower [alarm 1]</Description>
+					<DisplayName>vccint_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccint_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccint_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccint_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccint_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>20</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccint_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccint_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccint_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccint_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccint_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccint_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccaux_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccaux_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccaux_lower">
+					<Description>VCCAUX lower  [alarm 2]</Description>
+					<DisplayName>vccaux_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccaux_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccaux_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccaux_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccaux_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>24</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccaux_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccaux_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccaux_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccaux_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccaux_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccaux_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : ot_alarm_reset-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_ot_alarm_reset">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_ot_alarm_reset">
+					<Description>Over-temperature alarm reset</Description>
+					<DisplayName>ot_alarm_reset</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_reset</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_reset</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_ot_alarm_reset_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_reset">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>28</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_ot_alarm_reset_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_ot_alarm_reset_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_ot_alarm_reset_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_reset</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_ot_alarm_reset">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_ot_alarm_reset</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccbram_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccbram_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccbram_upper">
+					<Description>VCCBRAM upper [alarm 3]</Description>
+					<DisplayName>vccbram_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccbram_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccbram_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccbram_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccbram_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>32</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccbram_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccbram_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccbram_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccbram_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccbram_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccbram_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccpint_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccpint_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccpint_upper">
+					<Description>VCCPINT upper [alarm 4]</Description>
+					<DisplayName>vccpint_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccpint_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccpint_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccpint_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccpint_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>36</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccpint_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpint_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpint_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccpint_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccpint_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccpint_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccpaux_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccpaux_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccpaux_upper">
+					<Description>VCCPAUX upper VCCBRAM lower [alarm 5]</Description>
+					<DisplayName>vccpaux_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccpaux_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccpaux_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccpaux_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>40</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccpaux_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpaux_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpaux_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccpaux_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcco_ddr_upper-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vcco_ddr_upper">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vcco_ddr_upper">
+					<Description>VCCO DDR upper [alarm 6]</Description>
+					<DisplayName>vcco_ddr_upper</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_upper</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_upper</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vcco_ddr_upper_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_upper">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>44</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vcco_ddr_upper_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vcco_ddr_upper_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vcco_ddr_upper_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_upper</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_upper">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_upper</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccbram_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccbram_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccbram_lower">
+					<Description>VCCBRAM lower [alarm 3]</Description>
+					<DisplayName>vccbram_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccbram_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccbram_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccbram_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccbram_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>48</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccbram_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccbram_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccbram_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccbram_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccbram_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccbram_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccpint_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccpint_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccpint_lower">
+					<Description>VCCPINT lower  [alarm 4]</Description>
+					<DisplayName>vccpint_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccpint_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccpint_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccpint_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccpint_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>52</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccpint_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpint_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpint_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccpint_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccpint_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccpint_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vccpaux_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vccpaux_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vccpaux_lower">
+					<Description>VCCPAUX lower [alarm 5]</Description>
+					<DisplayName>vccpaux_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vccpaux_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vccpaux_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vccpaux_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>56</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vccpaux_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpaux_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vccpaux_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vccpaux_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vccpaux_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : vcco_ddr_lower-->
+			<Group Comment="GROUP_xadc_wizard_alarm_tresholds_vcco_ddr_lower">
+				<Category Name="REGISTER_xadc_wizard_alarm_tresholds_vcco_ddr_lower">
+					<Description>VCCO DDR lower [alarm 6]</Description>
+					<DisplayName>vcco_ddr_lower</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_lower</pFeature>
+					<pFeature>ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_lower</pFeature>
+					<pFeature>FIELD_xadc_wizard_alarm_tresholds_vcco_ddr_lower_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_lower">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>60</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_xadc_wizard_alarm_tresholds_vcco_ddr_lower_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_xadc_wizard_alarm_tresholds_vcco_ddr_lower_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_xadc_wizard_alarm_tresholds_vcco_ddr_lower_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_lower</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>4</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_xadc_wizard_alarm_tresholds_vcco_ddr_lower">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_xadc_wizard_alarm_tresholds</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_xadc_wizard_alarm_tresholds_vcco_ddr_lower</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+	</Group>
+	<Port Name="Device" NameSpace="Standard">
+		<Visibility>Invisible</Visibility>
+	</Port>
+</RegisterDescription>

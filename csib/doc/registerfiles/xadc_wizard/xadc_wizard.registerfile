@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="11" name="xadc_wizard">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="local_register" alias="XADC Wizard Local Register Grouping" description="It is expected that the XADC Wizard IP core registers are accessed in their preferred-access mode only. If the write attempt is made to read-only registers, then there is not any effect on register contents. If the write-only registers are read, the result is undefined data. All the internal registers of the core have to be accessed in 32-bit format. If any other kind of access (like halfword or byte access) is done for the XADC Wizard IP core local 32-bit registers, the transaction is completed but with errors for the corresponding transaction." endAddress="10">
+    <registers name="ssr" alias="Software Reset Register (SSR)" description="The Software Reset register permits you to reset the XADC Wizard IP core including the XADC hard macro output ports (except JTAG related outputs), independently of other IP cores in the systems. To activate software reset, the value 0x0000_000A must be written to the register. Any other access, read or write, has undefined results. The bit assignment in the Software Reset register is shown in Figure 2-1 and described in Table 2-4.">
+      <fields name="value" size="32" implementReset="false">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="sr" alias="Status Register (SR)" description="The Status register contains the XADC Wizard IP core channel status, End of Conversion (EOC), End of Sequence (EOS), and Joint Test Action Group (JTAG) access signals. This register is read only. Any attempt to write to the bits of the register would not change the bits. The Status register bit definitions are shown in Figure 2-2 and explained in Table 2-5." offsetFromParent="4">
+      <fields name="jtag_busy" alias="JTAG busy" description="Used to indicate that a JTAG DRP transaction is in progress." lsb="10" readWrite="false" readOnly="true"/>
+      <fields name="jtag_modified" alias="JTAG modified" description="Used to indicate that a write to DRP through JTAG interface has occurred. This bit is cleared when a successful DRP read/write operation through the FPGA logic is performed. The DRP read/write through the FPGA logic fails, if JTAGLOCKED = 1." lsb="9" readWrite="false" readOnly="true"/>
+      <fields name="jtag_locked" alias="JTAG locked" description="Used to indicate that a DRP port lock request has been made by the Joint Test Action Group (JTAG) interface." lsb="8" readWrite="false" readOnly="true"/>
+      <fields name="busy" alias="ADC busy signal" description="This signal transitions High during an ADC&#xD;&#xA;conversion." lsb="7" readWrite="false" readOnly="true"/>
+      <fields name="eos" alias="End of Sequence" description="This signal transitions to an active-High when the measurement data from the last channel in the auto sequence is written to the Status registers. This bit is cleared when a read operation is performed on Status register." lsb="6" readWrite="false" readOnly="true"/>
+      <fields name="eoc" alias="End of Conversion signal" description="This signal transitions to an active-High at the end of an ADC conversion when the measurement is written to the XADC hard macro Status register. This bit is cleared when a read operation is performed on Status register." lsb="5" readWrite="false" readOnly="true"/>
+      <fields name="channel" alias="Channel selection outputs" description="The ADC input MUX channel selection for the current ADC conversion is placed on these outputs at the end of an ADC conversion." size="5" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="aosr" alias="Alarm Output Status Register (AOSR)" description="The Alarm Output Status register contains all the alarm outputs for the XADC Wizard IP core. This register is read-only. Any attempt to write to the bits of the register would not change the bits. The Alarm Output Status register bit definitions are shown in Figure 2-3 and explained in Table 2-6." offsetFromParent="8">
+      <fields name="alarm_7" alias="Logical ORing of ALARM bits 0 to 7" description="This is direct output from the XADC macro." lsb="8" readWrite="false" readOnly="true"/>
+      <fields name="alarm_6" alias="XADC VCCDDRO-Sensor Status" description="The XADC VCCDDRO-sensor alarm output interrupt occurs when VCCDDRO exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices." lsb="7" readWrite="false" readOnly="true"/>
+      <fields name="alarm_5" alias="XADC VCCPAUX-Sensor Status" description="The XADC VCCPAUX-sensor alarm output interrupt occurs when VCCPAUX exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices." lsb="6" readWrite="false" readOnly="true"/>
+      <fields name="alarm_4" alias="XADC VCCPINT-Sensor Status" description="The XADC VCCPINT-sensor alarm output interrupt occurs when VCCPINT exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices." lsb="5" readWrite="false" readOnly="true"/>
+      <fields name="alarm_3" alias="XADC VBRAM-Sensor Status" description="XADC VBRAM-sensor alarm output&#xD;&#xA;interrupt occurs when VBRAM exceeds user-defined threshold." lsb="4" readWrite="false" readOnly="true"/>
+      <fields name="alarm_2" alias="XADC VCCAUX-Sensor Status" description="XADC VCCAUX-sensor alarm output interrupt occurs when VCCAUX exceeds user-defined threshold." lsb="3" readWrite="false" readOnly="true"/>
+      <fields name="alarm_1" alias="XADC VCCINT-Sensor Status" description="XADC VCCINT-sensor alarm output interrupt occurs when VCCINT exceeds user-defined threshold." lsb="2" readWrite="false" readOnly="true"/>
+      <fields name="alarm_0" alias="XADC Temperature-Sensor Status" description="XADC temperature-sensor alarm output interrupt occurs when device temperature exceeds user-defined threshold." lsb="1" readWrite="false" readOnly="true"/>
+      <fields name="over_temperature" alias="XADC Over-Temperature Alarm Status" description="Over-Temperature alarm output interrupt occurs when the die temperature exceeds a factory set limit of 125°C." readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="convstr" alias="CONVST Register (CONVSTR)" description="The CONVST register is used for initiating a new conversion in the event-driven sampling mode. The output of this register is logically ORed with the external CONVST input signal. This register also defines enable for the Temperature Bus update logic and the wait cycle count. The attempt to read this register results in undefined data. The CONVST register bit definitions are shown in Figure 2-4 and explained in Table 2-7." offsetFromParent="C">
+      <fields name="temp_rd_wait_cycle" alias="Wait cycle for temperature update" description="Temperature update logic waits for this count of the S_AXI_ACLK before reading the Temperature register. This value should be such that the period is more than the ADC conversion rate." lsb="2" size="16" implementReset="false" valueAtReset="03E8"/>
+      <fields name="temp_bus_update" alias="Temperature bus update" description="Enable temperature update logic enables the temperature read from XADC and updates of TEMP_OUT port." lsb="1"/>
+      <fields name="convst" alias="Conversion Start" description="A rising edge on the CONVST input initiates start of ADC conversion in event-driven sampling mode. For the selected channel the CONVST bit in the register needs to be set to 1 and again reset to 0 to start a new conversion cycle. The conversion cycle ends with EOC bit going High."/>
+    </registers>
+    <registers name="xadc_reset" alias="XADC Hard Macro Reset Register" description="The XADC Reset register is used to reset only the XADC hard macro. As soon as the reset is&#xD;&#xA;released the ADC begins with a new conversion. If sequencing is enabled this conversion is the first in the sequence. This register resets the OT and ALM[n] output from the XADC hard macro. This register does not reset the interrupt registers if they are included in the design. Also any reset from the FPGA logic does not affect the RFI (Register File Interface) contents of XADC hard macro. The attempt to read this register results in undefined data. The XADC Reset register bit definitions are shown in Figure 2-5 and explained in Table 2-8." offsetFromParent="10">
+      <fields name="reset" description="Writing a 1 to this bit position resets the XADC hard macro. The reset is released only after 0 is written to this register.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Release the reset (Normal operation)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset the XADC&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupt_controller" alias="XADC Wizard Interrupt Controller" description="The Interrupt Controller Module is included in the XADC Wizard IP core design when&#xD;&#xA;C_INCLUDE_INTR = 1. The XADC Wizard has several distinct interrupts that are sent to the&#xD;&#xA;Interrupt Controller Module, which is one of the submodules of the XADC Wizard IP core.&#xD;&#xA;The Interrupt Controller Module allows each interrupt to be enabled independently (by the&#xD;&#xA;IP Interrupt Enable register (IPIER)). All the interrupt signals are rising-edge sensitive. Interrupt registers are strictly 32-bit accessible. If byte/halfword or without byte enables access is made, the core behavior is not guaranteed. The interrupt registers are in the Interrupt Controller Module. The XADC Wizard permits&#xD;&#xA;multiple conditions for an interrupt or an interrupt strobe which occurs only after the completion of a transfer." baseAddress="5C" endAddress="68">
+    <registers name="global_interrupt" alias="Global Interrupt Enable Register (GIER)" description="The Global Interrupt Enable register is used to globally enable the final interrupt output from the Interrupt Controller as shown in Figure 2-6 and described in Table 2-9. This bit is a read/write bit and is cleared upon reset.">
+      <fields name="enable" alias="Global Interrupt Enable" description="It enables all individually enabled interrupts to be passed to the interrupt controller." lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>All interrupts are disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>All interrupts are enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="interrupt_status" alias="IP Interrupt Status Register (IPISR)" description="The six unique interrupt conditions in the XADC Wizard IP core include:&#xD;&#xA;&#xD;&#xA;1) OT&#xD;&#xA;2) ALM[6:0]&#xD;&#xA;3) OT DEACTIVE,&#xD;&#xA;4) ALM[0] DEACTIVE,&#xD;&#xA;5) JTAG LOCKED/MODIFIED&#xD;&#xA;6) EOC/EOS&#xD;&#xA;&#xD;&#xA;The Interrupt Controller has a register that can enable each interrupt independently. Bit assignment in the Interrupt register for a 32-bit data bus is shown in Figure 2-7 and described in Table 2-10. The interrupt register is a read/toggle on write register and by writing a 1 to a bit position within the register causes the corresponding bit position in the register to toggle. All register bits are cleared upon reset." offsetFromParent="4" useReservedSpaceBelow="true">
+      <fields name="alarm_6" alias="XADC VCCDDRO-Sensor Interrupt" description="The XADC VCCDDRO-sensor alarm output interrupt occurs when VCCDDRO exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices." lsb="13" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_5" alias="XADC VCCPAUX-Sensor Interrupt" description="The XADC VCCPAUX-sensor alarm output interrupt occurs when VCCPAUX exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices." lsb="12" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_4" alias="XADC VCCPINT-Sensor Interrupt" description="The XADC VCCPINT-sensor alarm output interrupt occurs when VCCPINT exceeds the user-defined threshold. This bit is only valid for Zynq-7000 devices" lsb="11" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_2" alias="XADC VCCAUX-Sensor Interrupt" description="XADC VCCAUX-sensor alarm output interrupt occurs when VCCAUX exceeds the user-defined threshold." lsb="10" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_0_deactive" alias="ALM[0] Deactive Interrupt. " description="This signal indicates that the falling edge of the Over Temperature signal is detected. It is cleared by writing a 1 to this bit position. &#xD;&#xA;&#xD;&#xA;The ALM[0] signal is generated locally from the core. This signal indicates that the XADC macro has deactivated the Over Temperature signal output." lsb="9" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="over_temperature_deactive" alias="Over-Temperature Deactive Interrupt. " description="This signal indicates that falling edge of the Over Temperature signal is detected. It is cleared by writing a 1 to this bit position.&#xD;&#xA;&#xD;&#xA;The OT Deactive signal is generated locally from the core. This signal indicates that the XADC macro has deactivated the Over-Temperature signal output." lsb="8" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="jtag_modified" alias="JTAGMODIFIED Interrupt" description="This signal indicates that a write to DRP through the JTAG interface has occurred. It is cleared by writing a 1 to this bit position." lsb="7" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="jtag_locked" alias="JTAGLOCKED Interrupt" description="This signal is used to indicate that a DRP port lock request has been made by the Joint Test Action Group (JTAG) interface." lsb="6" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="eoc" alias="End of Sequence Interrupt" description="End of Conversion Signal Interrupt. This signal transitions to an active-High at the end of an ADC conversion when the measurement is written to the XADC hard macro Status register." lsb="5" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="eos" alias="End of Sequence Interrupt" description="This signal transitions to an active-High when the measurement data from the last channel in the auto sequence is written to the Status registers." lsb="4" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_3" alias="XADC VBRAM-Sensor Interrupt" description="XADC VBRAM-sensor alarm output interrupt occurs when VBRAM exceeds user-defined threshold." lsb="3" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_1" alias="XADC VCCINT-Sensor Interrupt" description="XADC VCCINT-sensor alarm output interrupt occurs when VCCINT exceeds the user-defined threshold." lsb="2" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_0" alias="XADC Temperature-Sensor Interrupt" description="XADC temperature-sensor alarm output interrupt occurs when device temperature exceeds the user-defined threshold." lsb="1" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="over_temperature" alias="Over-Temperature Alarm Interrupt" description="Over-Temperature alarm output interrupt occurs when the die temperature exceeds a&#xD;&#xA;factory set limit of 125 °C." readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="interrupt_enable" alias="IP Interrupt Enable Register (IPIER)" description="The IPIER has an enable bit for each defined bit of the IPISR as shown in Figure 2-8 and described in Table 2-11. All bits are cleared upon reset." offsetFromParent="C">
+      <fields name="alarm_6" alias="XADC VCCDDRO-Sensor Interrupt" description="" lsb="13">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_5" alias="XADC VCCPAUX-Sensor Interrupt" description="" lsb="12">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_4" alias="XADC VCCPINT-Sensor Interrupt" description="" lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_2" alias="XADC VCCAUX-Sensor Interrupt" description="" lsb="10">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_0_deactive" alias="ALM[0] Deactive Interrupt. " description="" lsb="9">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="over_temperature_deactive" alias="Over-Temperature Deactive Interrupt. " description="" lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="jtag_modified" alias="JTAGMODIFIED Interrupt" description="" lsb="7">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="jtag_locked" alias="JTAGLOCKED Interrupt" description="" lsb="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="eoc" alias="End of Sequence Interrupt" description="" lsb="5">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="eos" alias="End of Sequence Interrupt" description="" lsb="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_3" alias="XADC VBRAM-Sensor Interrupt" description="" lsb="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_1" alias="XADC VCCINT-Sensor Interrupt" description="" lsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_0" alias="XADC Temperature-Sensor Interrupt" description="" lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="over_temperature" alias="Over-Temperature Alarm Interrupt" description="">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="xadc_hard_macro" alias="XADC Wizard Hard Macro" description="The XADC hard macro register set consists of all the registers present in the XADC hard macro on 7 series FPGAs. The addresses of these registers are shown in Table 2-3. Because these registers are 16 bits wide but the processor data bus is 32 bits wide, the hard macro register data resides on the lower 16 bits of the 32-bit data bus. See Figure 2-9." baseAddress="200" endAddress="2D4">
+    <registers name="temperature" description="The result of the on-chip temperature sensor measurement is stored in this location. The data is MSB justified in the 16-bit register. The 12 MSBs correspond to the temperature sensor transfer function shown in Figure 2-9, page 33.">
+      <fields name="value" alias="Temperature value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcc_int" description="The result of the on-chip temperature sensor measurement is stored in this location. The data is MSB justified in the 16-bit register. The 12 MSBs correspond to the temperature sensor transfer function shown in Figure 2-9, page 33." offsetFromParent="4">
+      <fields name="value" alias="Vccint value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcc_aux" description="The result of the on-chip VCCAUX data supply monitor measurement is stored at this location. The data is MSB justified in the 16 bit register. The 12 MSBs correspond to the supply sensor transfer function shown in Figure 2-10." offsetFromParent="8">
+      <fields name="value" alias="Vccaux value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vp_vn" description="The result of a conversion on the dedicated analog input channel is stored in this register. The data is MSB justified in the 16-bit register. The 12 MSBs correspond to the transfer function shown in Figure 2-6, page 31 or&#xD;&#xA;Figure 2-7, page 32 depending on analog input mode settings." offsetFromParent="C">
+      <fields name="value" alias="Vp/Vn value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vref_p" description="The result of a conversion on the reference input VREFP is stored in this register. The 12 MSBs correspond to the ADC transfer function shown in Figure 2-10. The data is MSB justified in the 16-bit register. The supply sensor is used when measuring VREFP." offsetFromParent="10">
+      <fields name="value" alias="Vrefp value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vref_n" description="The result of a conversion on the reference input VREFN is stored in this register. This channel is measured in bipolar mode with a two's complement output coding as shown in Figure 2-3, page 27. By measuring in bipolar node, small positive and negative offset around 0V (VREFN) can be measured. The supply sensor is also used to measure VREFN, thus 1 LSB = 3V/4096. The data is MSB justified in the 16-bit register." offsetFromParent="14">
+      <fields name="value" alias="Vrefp value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcc_bram" description="The result of the on-chip VCCBRAM supply monitor&#xD;&#xA;measurement is stored at this location. The data is MSB&#xD;&#xA;justified in the 16-bit register. The 12 MSBs correspond to&#xD;&#xA;the supply sensor transfer function shown in Figure 2-10." offsetFromParent="18" useReservedSpaceBelow="true">
+      <fields name="value" alias="Vrefp value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="supply_a_offset" description="The calibration coefficient for the supply sensor offset using ADC A is stored at this location." offsetFromParent="20">
+      <fields name="value" alias="Supply A offset value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="adc_a_offset" description="The calibration coefficient for the ADC A offset is stored at this location" offsetFromParent="24">
+      <fields name="value" alias="ADC A offset value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="adc_a_gain" description="The calibration coefficient for the ADC A gain error is stored at this location." offsetFromParent="28" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="sign" alias="Gain sign" description="" lsb="6" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Negative gain&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Positive gain&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="mag" alias="Gain magnitude value" description="" size="6" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcc_pint" description="The result of a conversion on the PS supply, VCCPINT is stored in this register. The 12 MSBs correspond to the ADC transfer function shown in Figure 2-10, page 34. The data is MSB justified in the 16-bit register. The supply sensor is used when measuring VCCPINT." offsetFromParent="34">
+      <fields name="value" alias="Vcc Pint value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcc_paux" description="The result of a conversion on the PS supply, VCCPAUX is stored in this register. The 12 MSBs correspond to the ADC transfer function shown in Figure 2-10, page 34. The data is MSB justified in the 16-bit register. The supply sensor is used when measuring VCCPAUX." offsetFromParent="38">
+      <fields name="value" alias="Vcc Paux value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vcco_ddr" description="The result of a conversion on the PS supply, VCCO_DDR is stored in this register. The 12 MSBs correspond to the ADC transfer function shown in Figure 2-10, page 34. The data is MSB justified in the 16-bit register. The supply sensor is used when measuring VCCO_DDR." offsetFromParent="3C">
+      <fields name="value" alias="Vcco DDR value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="vaux_p_n" description="The results of the conversions on auxiliary analog input channels are stored in this register. The data is MSB&#xD;&#xA;justified in the 16-bit register. The 12 MSBs correspond to the transfer function shown in Figure 2-2, page 26 or&#xD;&#xA;Figure 2-3, page 27 depending on analog input mode settings." offsetFromParent="40" useMultiples="true" numberOfMultiples="16">
+      <fields name="value" alias="Vaux_P/Vaux_N value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_temperature" description="Maximum temperature measurement recorded since power-up or the last XADC reset." offsetFromParent="80">
+      <fields name="value" alias="Max temperature value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcc_int" description="Maximum VCCINT measurement recorded since power-up or the last XADC reset." offsetFromParent="84">
+      <fields name="value" alias="Max  Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcc_aux" description="Maximum VCCAUX measurement recorded since power-up or the last XADC reset" offsetFromParent="88">
+      <fields name="value" alias="Max  Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcc_bram" description="Maximum VCCBRAM measurement recorded since power-up or the last XADC reset." offsetFromParent="8C">
+      <fields name="value" alias="Max  Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_temperature" description="Minimum temperature measurement recorded since power-up or the last XADC reset." offsetFromParent="90">
+      <fields name="value" alias="Minimum  temperature value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_vcc_int" description="Minimum VCCINT measurement recorded since power-up or the last XADC reset." offsetFromParent="94">
+      <fields name="value" alias="Minimum Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_vcc_aux" description="Minimum VCCAUX measurement recorded since power-up or the last XADC reset." offsetFromParent="98">
+      <fields name="value" alias="Minimum Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_vcc_bram" description="Minimum VCCBRAM measurement recorded since power-up or the last XADC reset." offsetFromParent="9C">
+      <fields name="value" alias="Minimum Vcc int value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcc_pint" description="Maximum VCCPINT measurement recorded since power-up or the last XADC reset." offsetFromParent="A0">
+      <fields name="value" alias="Max  Vcc pint value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcc_paux" description="Maximum VCCPAUX measurement recorded since power-up or the last XADC reset." offsetFromParent="A4">
+      <fields name="value" alias="Max  Vcc paux  value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="max_vcco_ddr" description="Maximum VCCO_DDR measurement recorded since power-up or the last XADC reset." offsetFromParent="A8" useReservedSpaceBelow="true">
+      <fields name="value" alias="Max  Vcco DDR value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_vcc_pint" description="Minimum VCCPINT measurement recorded since power-up or the last XADC reset." offsetFromParent="B0">
+      <fields name="value" alias="Minimum Vcc pint value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="min_vcc_paux" description="Maximum VCCPAUX measurement recorded since power-up or the last XADC reset." offsetFromParent="B4">
+      <fields name="value" alias="Minimum Vcc paux  value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="main_vcco_ddr" description="Maximum VCCO_DDR measurement recorded since power-up or the last XADC reset." offsetFromParent="B8" useReservedSpaceBelow="true">
+      <fields name="value" alias="Minimum Vcco DDR value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="supply_b_offset" description="The calibration coefficient for the supply sensor offset using ADC A is stored at this location." offsetFromParent="C0">
+      <fields name="value" alias="Supply A offset value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="adc_b_offset" description="The calibration coefficient for the ADC A offset is stored at this location" offsetFromParent="C4">
+      <fields name="value" alias="ADC A offset value" description="" lsb="4" size="12" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="adc_b_gain" description="The calibration coefficient for the ADC A gain error is stored at this location." offsetFromParent="C8" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="sign" alias="Gain sign" description="" lsb="6" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Negative gain&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Positive gain&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="mag" alias="Gain magnitude value" description="" size="6" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="flag" offsetFromParent="D4">
+      <fields name="jtgd" alias="" description="A logic 1 indicates that the JTAG_XADC bitstream option has been used to restrict JTAG access to read only. See DRP JTAG Interface for more information." lsb="11" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="jtgr" alias="" description="A logic 1 indicates that the JTAG_XADC bitstream option has been used to disable all JTAG access. See DRP JTAG Interface for more information." lsb="10" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ref" alias="ADC reference voltage" description="When this bit is a logic 1, the ADC is using the internal voltage reference. When this bit is a logic 0, the external reference is being used." lsb="9" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>External reference voltage is used&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal reference voltage is used&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_6" alias="Alarm 6 output" description="These bits reflect the status of the alarm_6 output." lsb="7" readWrite="false" readOnly="true"/>
+      <fields name="alarm_5" alias="Alarm 5 output" description="These bits reflect the status of the alarm_5 output." lsb="6" readWrite="false" readOnly="true"/>
+      <fields name="alarm_4" alias="Alarm 4 output output" description="These bits reflect the status of the alarm_4 output." lsb="5" readWrite="false" readOnly="true"/>
+      <fields name="alarm_3" alias="Alarm 3 output" description="These bits reflect the status of the alarm_3 output." lsb="4" readWrite="false" readOnly="true"/>
+      <fields name="over_temperature" alias="Over temperature output" description="These bits reflect the status of the over temperature output." lsb="3" readWrite="false" readOnly="true"/>
+      <fields name="alarm_2" alias="Alarm 2 output" description="These bits reflect the status of the alarm_2 output." lsb="2" readWrite="false" readOnly="true"/>
+      <fields name="alarm_1" alias="Alarm 1 output" description="These bits reflect the status of the alarm_1 output." lsb="1" readWrite="false" readOnly="true"/>
+      <fields name="alarm_0" alias="Alarm 0 output" description="These bits reflect the status of the alarm_0 output." readWrite="false" readOnly="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="control" alias="XADC Control Registers" description="The XADC has 32 control registers that are located at DRP addresses 40h to 5Fh (see&#xD;&#xA;Table 3-3). These registers are used to configure the XADC operation. All XADC&#xD;&#xA;functionality is controlled through these registers.&#xD;&#xA;These control registers are initialized using the XADC attributes when the XADC is&#xD;&#xA;instantiated in a design. This means that the XADC can be configured to start in a&#xD;&#xA;predefined mode after FPGA configuration." baseAddress="300" endAddress="308">
+    <registers name="config_0">
+      <fields name="cavg" alias="Disable calculation averaging" description="This bit is used to disable averaging for the calculation of the calibration coefficients. Averaging is enabled by default (logic 0). To disable averaging, set this bit to logic 1. Averaging is fixed at 16 samples." lsb="15">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Averaging enabled (default)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Averaging disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="avg" alias="Averaging" description="These bits are used to set the amount of sample averaging on selected channels in both single channel and sequence modes (see Table 3-8 and Chapter 4, XADC Operating Modes)." lsb="12" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No averaging&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Average 16 samples&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Average 64 samples&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Average 256 samples&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="mux" description="This bit should be set to a logic 1 to enable external&#xD;&#xA;multiplexer mode. See External Multiplexer Mode for&#xD;&#xA;more information." lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal Mux&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>External mux&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="bu" description="This bit is used in single channel mode to select either&#xD;&#xA;unipolar or bipolar operating mode for the ADC analog&#xD;&#xA;inputs (see Analog Inputs, page 28). A logic 1 places the&#xD;&#xA;ADC in bipolar mode and a logic 0 places the ADC in&#xD;&#xA;unipolar mode." lsb="10">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Unipolar mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bipolar mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ec" description="This bit is used to select either continuous or event-driven sampling mode for the ADC (see Chapter 5, XADC Timing). A logic 1 places the ADC in event-driven sampling mode and a logic 0 places the ADC in continuous sampling mode." lsb="9">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Continuous sampling mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Event driven mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="acq" description="When using single channel mode, this bit is used to increase the settling time available on external analog inputs in continuous sampling mode by six ADCCLK&#xD;&#xA;cycles (see Chapter 2, Analog-to-Digital Converter and Chapter 5, XADC Timing). The acquisition time is increased by setting this bit to logic 1. (1)" lsb="8"/>
+      <fields name="input_channel" alias="ADC input channel" description="When operating in single channel mode or external multiplexer mode, these bits are used to select the ADC input channel. See Table 3-7 for the channel assignments." size="5">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>On-chip temperature&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCINT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCAUX&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VP , VN – Dedicated analog inputs&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VREFP (1.25V)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VREFN (0V)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCBRAM&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Invalid channel selection&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Carry out an XADC calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=9-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Invalid channel selection&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=13&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCPINT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCPAUX&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VCCO_DDR&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VAUXP[0], VAUXN[0] – Auxiliary&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>VAUXP[1], VAUXN[1] – Auxiliary&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="config_1" offsetFromParent="4">
+      <fields name="seq" description="These bits enable the channel-sequencer function. For the bit assignments, see Table 3-9. See Chapter 4, XADC Operating Modes, for more information." lsb="12" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Single pass sequence&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Continuous sequence mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Single channel mode (seq uencer off)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Simultaneous sampling mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Simultaneous sampling mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Simultaneous sampling mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Simultaneous sampling mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Independent ADC mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Independent ADC mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Independent ADC mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=11&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Independent ADC mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Independent ADC mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=13&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_6_disable" alias="Alarm 6 disable" description="This is used to disable  alarm 6 outputs. A logic 1 disables an alarm output." lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_5_disable" alias="Alarm 5 disable" description="This is used to disable  alarm 5 outputs. A logic 1 disables an alarm output." lsb="10">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_4_disable" alias="Alarm 4 disable" description="This is used to disable  alarm 4 outputs. A logic 1 disables an alarm output." lsb="9">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_3_disable" alias="Alarm 3 disable" description="This is used to disable  alarm 3 outputs. A logic 1 disables an alarm output." lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="cal_enable_3" alias="Supply sensor offset and gain correction enable" description="This bit enable the application of the calibration coefficients to the ADC and on-chip supply sensor measurements. A logic 1 enables calibration and a logic 0 disables calibration. For bit assignments, see Table 3-10.&#xD;&#xA;" lsb="7">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="cal_enable_2" alias="Supply sensor offset correction enable" description="This bit enable the application of the calibration coefficients to the ADC and on-chip supply sensor measurements. A logic 1 enables calibration and a logic 0 disables calibration. For bit assignments, see Table 3-10.&#xD;&#xA;" lsb="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="cal_enable_1" alias="ADCs offset and gain correction enable" description="This bit enable the application of the calibration coefficients to the ADC and on-chip supply sensor measurements. A logic 1 enables calibration and a logic 0 disables calibration. For bit assignments, see Table 3-10.&#xD;&#xA;" lsb="5">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="cal_enable_0" alias="ADCs offset correction enable" description="This bit enable the application of the calibration coefficients to the ADC and on-chip supply sensor measurements. A logic 1 enables calibration and a logic 0 disables calibration. For bit assignments, see Table 3-10.&#xD;&#xA;" lsb="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable calibration&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_2_disable" alias="Alarm 2 disable" description="This is used to disable  alarm 2 outputs. A logic 1 disables an alarm output." lsb="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_1_disable" alias="Alarm 0 disable" description="This is used to disable  alarm 0 outputs. A logic 1 disables an alarm output." lsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="alarm_0_disable" alias="Alarm 0 disable" description="This is used to disable  alarm 0 outputs. A logic 1 disables an alarm output." lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Alarm disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ot_disable" alias="Over temperature disable" description="This bit is used to disable the over-temperature signal. The alarm is disabled by setting this bit to logic 1.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Over temperature signal enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Over temperature signal disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="config_2" offsetFromParent="8">
+      <fields name="cd" alias="Clock division selection" description="These bits select the division ratio between the DRP clock (DCLK) and the lower frequency ADC clock (ADCCLK) used for the ADC (see Chapter 5, XADC Timing). For bit assignments, see Table 3-12.&#xD;&#xA;&#xD;&#xA;Note : Minimum division ratio is 2, for example, ADCCLK = DCLK/2." lsb="8" size="8" valueAtReset="1E">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Divider value = 2&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=3-255&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Divider value = field value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="pd" alias="Power down selection" description="Power-down bits for the XADC. The entire XADC block can be powered down permanently by setting PD1 = PD0 = 1. ADC B can also be powered down permanently by setting PD1 = 1 and PD0 = 0. See Table 3-11." lsb="4" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default. All XADC blocks powered up&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not valid – do not select&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>ADC B powered down&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>XADC powered down&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="alarm_tresholds" description="The XADC also generates an alarm signal on the logic outputs ALM[7:0] when an internal sensor measurement (Temperature, VCCINT, VCCAUX, VCCBRAM, VCCPINT, VCCPAUX, or VCCO_DDR) exceeds some user-defined thresholds. Only the values written to the status registers are used to generate alarms. If averaging has been enabled for a sensor channel, the averaged value is compared to the alarm threshold register contents. The alarm outputs are disabled by writing a 1 to bits ALM6 to ALM0 in configuration register 1. The alarm thresholds are stored in control registers 50h to 5Fh. Table 4-8 defines the alarm thresholds that are associated with specific control registers. The limits written to the threshold registers are MSB justified. Limits are derived from the temperature and power-supply sensor transfer functions (see Figure 2-9, page 33 and Figure 2-10, page 34)." baseAddress="340" endAddress="37C">
+    <registers name="temperature_upper" alias="Temperature upper  [alarm 0]">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccint_upper" alias="VCCINT upper  [alarm 1]" offsetFromParent="4">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccaux_upper" alias="VCCAUX upper [alarm 2]" offsetFromParent="8">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="ot_alarm_limit" alias="Over-temperature alarm limit" description="OT alarm limit and OT alarm reset are described in Thermal Management section of Xiling UG480." offsetFromParent="C">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="temperature_lower" alias="OT alarm limit" description="OT alarm limit and OT alarm reset are described in Thermal Management section of Xiling UG480." offsetFromParent="10">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccint_lower" alias="VCCINT lower [alarm 1]" offsetFromParent="14">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccaux_lower" alias="VCCAUX lower  [alarm 2]" offsetFromParent="18">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="ot_alarm_reset" alias="Over-temperature alarm reset" description="OT alarm limit and OT alarm reset are described in Thermal Management section of Xiling UG480." offsetFromParent="1C">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccbram_upper" alias="VCCBRAM upper [alarm 3]" description="" offsetFromParent="20">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccpint_upper" alias="VCCPINT upper [alarm 4]" description="" offsetFromParent="24">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccpaux_upper" alias="VCCPAUX upper VCCBRAM lower [alarm 5]" description="" offsetFromParent="28">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vcco_ddr_upper" alias="VCCO DDR upper [alarm 6]" description="" offsetFromParent="2C">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccbram_lower" alias="VCCBRAM lower [alarm 3]" description="" offsetFromParent="30">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccpint_lower" alias="VCCPINT lower  [alarm 4]" description="" offsetFromParent="34">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vccpaux_lower" alias="VCCPAUX lower [alarm 5]" description="" offsetFromParent="38">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+    <registers name="vcco_ddr_lower" alias="VCCO DDR lower [alarm 6]" description="" offsetFromParent="3C">
+      <fields name="value" lsb="4" size="12"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;regfile_&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>

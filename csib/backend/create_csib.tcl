@@ -16,8 +16,8 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_upgrade
-set DEVICE "xc7z015clg485-1"
+set BASE_NAME  csib_upgrade_xc7a50t
+set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -42,11 +42,11 @@ set SYSTEM_DIR  ${TCL_DIR}/ipi_systems
 set SRC_DIR            ${WORKDIR}/design
 set SDK_DIR            ${WORKDIR}/sdk
 set XDC_DIR            ${BACKEND_DIR}/xdc
-set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files_csib.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_csib.tcl
+
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
@@ -112,17 +112,6 @@ export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 # Add project files (HDL, Constraints, IP, etc)
 ################################################
 source ${FILESET_SCRIPT}
-
-################################################
-# Remove xilinx clashing constraints in the 
-# Xilinx ethernet IP-Core.
-################################################
-set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
-foreach file $ETH_CLK_CONSTRAINTS {
-	set_property IS_ENABLED 0 $file
-}
-
-
 
 ################################################
 # Top level Generics

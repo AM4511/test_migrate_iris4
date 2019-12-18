@@ -1,0 +1,171 @@
+VDD_PLL;C10;Power;PLL Power Supply;
+FWSI_EN;D10;Input;Connect to VDD_IO through a 10k resistor;
+SDATA;D11;Input;SPI Slave In;
+MONITOR_2;D7;Output;Monitor Output 2. If unused, do not connect.;
+MONITOR_1;D8;Output;Monitor Output 1. If unused, do not connect.;
+EXTCLK;D9;Input;External Clock Input;
+SDATAOUT;E10;Output;SPI Slave Out;
+TRIG_RD;E11;Input;Trigger Input for Readout Control. If unused, connect to ground.;
+DATA_0_N;E12;HiSPi;Differential Data Channel [0], Negative;
+DATA_0_P;E13;HiSPi;Differential Data Channel [0], Positive;
+DATA_2_N;E14;HiSPi;Differential Data Channel [2], Negative;
+DATA_2_P;E15;HiSPi;Differential Data Channel [2], Positive;
+DATA_3_P;E4;HiSPi;Differential Data Channel [3], Positive;
+DATA_3_N;E5;HiSPi;Differential Data Channel [3], Negative;
+DATA_1_P;E6;HiSPi;Differential Data Channel [1], Positive;
+DATA_1_N;E7;HiSPi;Differential Data Channel [1], Negative;
+MONITOR_0;E8;Output;Monitor Output 0. If unused, keep do not connect.;
+CS_N;E9;Input;SPI Chip Select (Active Low);
+TRIG_INT;F11;Input;Trigger Input for Integration Control. If unused, connect to ground.;
+D_CLK_0_N;F13;HiSPi;Differential Clock [0], Negative;
+D_CLK_0_P;F14;HiSPi;Differential Clock [0], Positive;
+D_CLK_1_P;F5;HiSPi;Differential Clock [1], Positive;
+D_CLK_1_N;F6;HiSPi;Differential Clock [1], Negative;
+RESET_N;F8;Input;Asynchronous Hard Reset (Active Low);
+SCLK;F9;Input;SPI Clock Input;
+DATA_4_N;G12;HiSPi;Differential Data Channel [4], Negative;
+DATA_4_P;G13;HiSPi;Differential Data Channel [4], Positive;
+DATA_6_N;G14;HiSPi;Differential Data Channel [6], Negative;
+DATA_6_P;G15;HiSPi;Differential Data Channel [6], Positive;
+DATA_7_P;G4;HiSPi;Differential Data Channel [7], Positive
+DATA_7_N;G5;HiSPi;Differential Data Channel [7], Negative
+DATA_5_P;G6;HiSPi;Differential Data Channel [5], Positive
+DATA_5_N;G7;HiSPi;Differential Data Channel [5], Negative
+DATA_8_N;H12;HiSPi;Differential Data Channel [8], Negative
+DATA_8_P;H13;HiSPi;Differential Data Channel [8], Positive
+DATA_10_N;H14;HiSPi;Differential Data Channel [10], Negative
+DATA_10_P;H15;HiSPi;Differential Data Channel [10], Positive
+DATA_11_P;H4;HiSPi;Differential Data Channel [11], Positive
+DATA_11_N;H5;HiSPi;Differential Data Channel [11], Negative
+DATA_9_P;H6;HiSPi;Differential Data Channel [9], Positive
+DATA_9_N;H7;HiSPi;Differential Data Channel [9], Negative
+D_CLK_2_N;J13;HiSPi;Differential Clock [2], Negative
+D_CLK_2_P;J14;HiSPi;Differential Clock [2], Positive
+D_CLK_3_P;J5;HiSPi;Differential Clock [3], Positive
+D_CLK_3_N;J6;HiSPi;Differential Clock [3], Negative
+DATA_12_N;K12;HiSPi;Differential Data Channel [12], Negative
+DATA_12_P;K13;HiSPi;Differential Data Channel [12], Positive
+DATA_14_N;K14;HiSPi;Differential Data Channel [14], Negative
+DATA_14_P;K15;HiSPi;Differential Data Channel [14], Positive
+DATA_15_P;K4;HiSPi;Differential Data Channel [15], Positive
+DATA_15_N;K5;HiSPi;Differential Data Channel [15], Negative
+DATA_13_P;K6;HiSPi;Differential Data Channel [13], Positive
+DATA_13_N;K7;HiSPi;Differential Data Channel [13], Negative
+DATA_16_N;L12;HiSPi;Differential Data Channel [16], Negative
+DATA_16_P;L13;HiSPi;Differential Data Channel [16], Positive
+DATA_18_N;L14;HiSPi;Differential Data Channel [18], Negative
+DATA_18_P;L15;HiSPi;Differential Data Channel [18], Positive
+DATA_19_P;L4;HiSPi;Differential Data Channel [19], Positive
+DATA_19_N;L5;HiSPi;Differential Data Channel [19], Negative
+DATA_17_P;L6;HiSPi;Differential Data Channel [17], Positive
+DATA_17_N;L7;HiSPi;Differential Data Channel [17], Negative
+D_CLK_4_N;M13;HiSPi;Differential Clock [4], Negative
+D_CLK_4_P;M14;HiSPi;Differential Clock [4], Positive
+D_CLK_5_P;M5;HiSPi;Differential Clock [5], Positive
+D_CLK_5_N;M6;HiSPi;Differential Clock [5], Negative
+DATA_20_N;N12;HiSPi;Differential Data Channel [20], Negative
+DATA_20_P;N13;HiSPi;Differential Data Channel [20], Positive
+DATA_22_N;N14;HiSPi;Differential Data Channel [22], Negative
+DATA_22_P;N15;HiSPi;Differential Data Channel [22], Positive
+DATA_23_P;N4;HiSPi;Differential Data Channel [23], Positive
+DATA_23_N;N5;HiSPi;Differential Data Channel [23], Negative
+DATA_21_P;N6;HiSPi;Differential Data Channel [21], Positive
+DATA_21_N;N7;HiSPi;Differential Data Channel [21], Negative
+VAA_PIX_A0;P10;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_A1;P11;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_A2;R10;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_A3;T11;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_A4;T12;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_A5;T6;Decoupling;External Noise Decoupling (0.1 uF + 4.7 uF to GND)
+VAA_PIX_B0;P8;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_B1;P9;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_B2;R8;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_B3;R9;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_B4;T7;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_B5;T8;Decoupling;External Noise Decoupling (0.1 uF + 2.2 uF to GND)
+VAA_PIX_C0;R11;Decoupling;External Noise Decoupling (0.1 uF to GND)
+VAA_PIX_C1;T13;Decoupling;External Noise Decoupling (0.1 uF to GND)
+GND;A1;Ground;Ground;
+GND;A18;Ground;Ground;
+GND;C3;Ground;Ground;
+GND;C7;Ground;Ground;
+GND;C12;Ground;Ground;
+GND;C16;Ground;Ground;
+GND;F4;Ground;Ground;
+GND;F15;Ground;Ground;
+GND;G3;Ground;Ground;
+GND;G16;Ground;Ground;
+GND;6;Ground;Ground;
+GND;M4;Ground;Ground;
+GND;M11;Ground;Ground;
+GND;M15;Ground;Ground;
+GND;N8;Ground;Ground;
+GND;N11;Ground;Ground;
+GND;P7;Ground;Ground;
+GND;P12;Ground;Ground;
+GND;T3;Ground;Ground;
+GND;T10;Ground;Ground;
+GND;TJ4;Ground;Ground;
+GND;J15;Ground;Ground;
+GND;K3;Ground;Ground;
+GND;K116;Ground;Ground;
+GND;V1;Ground;Ground;
+GND;V18;Ground;Ground;
+GND;D12;Ground;Ground;
+GND;F10;Ground;Ground;
+GND;G8;Ground;Ground;
+GND;G9;Ground;Ground;
+GND;G10;Ground;Ground;
+GND;G11;Ground;Ground;
+GND;P6;Ground;Ground;
+GND;P13;Ground;Ground;
+VAA;C5;Power;Analog Supply
+VAA;C14;Power;Analog Supply
+VAA;M9;Power;Analog Supply
+VAA;M10;Power;Analog Supply
+VAA;N3;Power;Analog Supply
+VAA;N9;Power;Analog Supply
+VAA;N10;Power;Analog Supply
+VAA;N16;Power;Analog Supply
+VAA;R5;Power;Analog Supply
+VAA;R6;Power;Analog Supply
+VAA;R13;Power;Analog Supply
+VAA;R14;Power;Analog Supply
+VAA;T9;Power;Analog Supply
+VAA_RD;C6;Power;Analog Supply for Row Driver
+VAA_RD;C13;Power;Analog Supply for Row Driver
+VAA_RD;T5;Power;Analog Supply for Row Driver
+VAA_RD;T14;Power;Analog Supply for Row Driver
+VDD_IO;C8;Power;I/O Supply
+VDD_IO;C9;Power;I/O Supply
+VDD_IO;C11;Power;I/O Supply
+VDD_IO;P3;Power;I/O Supply
+VDD_IO;P16;Power;I/O Supply
+VAA_PIX;D5;Power;Pixel Supply
+VAA_PIX;D14;Power;Pixel Supply
+VAA_PIX;P5;Power;Pixel Supply
+VAA_PIX;P14;Power;Pixel Supply
+VDD;D6;Power;Digital Supply
+VDD;D13;Power;Digital Supply
+VDD;E3;Power;Digital Supply
+VDD;E16;Power;Digital Supply
+VDD;F7;Power;Digital Supply
+VDD;F12;Power;Digital Supply
+VDD;H3;Power;Digital Supply
+VDD;H16;Power;Digital Supply
+VDD;J7;Power;Digital Supply
+VDD;J12;Power;Digital Supply
+VDD;L3;Power;Digital Supply
+VDD;L16;Power;Digital Supply
+VDD;M7;Power;Digital Supply
+VDD;M12;Power;Digital Supply
+VDD_SLVS;F3;Power;HiSPi Supply;
+VDD_SLVS;F16;Power;HiSPi Supply;
+VDD_SLVS;J3;Power;HiSPi Supply;
+VDD_SLVS;J16;Power;HiSPi Supply;
+VDD_SLVS;M3;Power;HiSPi Supply;
+VDD_SLVS;M16;Power;HiSPi Supply;
+VAA_PIX_BST;R7;Power;Pixel Booster Supply
+VAA_PIX_BST;R12;Power;Pixel Booster Supply
+RESERVED;P4;N/A Reserved (do not connect)
+RESERVED;P15;N/A Reserved (do not connect)
