@@ -1,0 +1,268 @@
+# - Section name
+# |                                                                                                   - Attribute
+# |                  - Group name                                                                     |
+# |                  |                                                                                |     - Strobe generation
+# |                  |                    - Register name                                             |     |
+# |                  |                    |                                                           |     |  - Unused
+# |                  |                    |                    - Multiple number                      |     |  |
+# |                  |                    |                    |                                      |     |  |  - Reset value
+# |                  |                    |                    |     - Field name         - MSB - LSB |     |  |  |
+# |                  |                    |                    |     |                    |     |     |     |  |  |        -- Static/Constrain
+# |                  |                    |                    |     |                    |     |     |     |  |  |        |     -- Comment
+# V                  V                    V                    V     V                    V     V     V     V  V  V        V     V
+
+local_register       no                   ssr                  1     value                31    0     rw    n  f  0        s      
+
+local_register       no                   sr                   1     jtag_busy            0     0     ro    n  f  0        c     jtag busy 
+local_register       no                   sr                   1     jtag_modified        0     0     ro    n  f  0        c     jtag modified 
+local_register       no                   sr                   1     jtag_locked          0     0     ro    n  f  0        c     jtag locked 
+local_register       no                   sr                   1     busy                 0     0     ro    n  f  0        c     adc busy signal 
+local_register       no                   sr                   1     eos                  0     0     ro    n  f  0        c     end of sequence 
+local_register       no                   sr                   1     eoc                  0     0     ro    n  f  0        c     end of conversion signal 
+local_register       no                   sr                   1     channel              4     0     ro    n  f  0        c     channel selection outputs 
+
+local_register       no                   aosr                 1     alarm_7              0     0     ro    n  f  0        c     logical oring of alarm bits 0 to 7 
+local_register       no                   aosr                 1     alarm_6              0     0     ro    n  f  0        c     xadc vccddro-sensor status 
+local_register       no                   aosr                 1     alarm_5              0     0     ro    n  f  0        c     xadc vccpaux-sensor status 
+local_register       no                   aosr                 1     alarm_4              0     0     ro    n  f  0        c     xadc vccpint-sensor status 
+local_register       no                   aosr                 1     alarm_3              0     0     ro    n  f  0        c     xadc vbram-sensor status 
+local_register       no                   aosr                 1     alarm_2              0     0     ro    n  f  0        c     xadc vccaux-sensor status 
+local_register       no                   aosr                 1     alarm_1              0     0     ro    n  f  0        c     xadc vccint-sensor status 
+local_register       no                   aosr                 1     alarm_0              0     0     ro    n  f  0        c     xadc temperature-sensor status 
+local_register       no                   aosr                 1     over_temperature     0     0     ro    n  f  0        c     xadc over-temperature alarm status 
+
+local_register       no                   convstr              1     temp_rd_wait_cycle   15    0     rw    n  f  03e8     s     wait cycle for temperature update 
+local_register       no                   convstr              1     temp_bus_update      0     0     rw    n  f  0        s     temperature bus update 
+local_register       no                   convstr              1     convst               0     0     rw    n  f  0        s     conversion start 
+
+local_register       no                   xadc_reset           1     reset                0     0     rw    n  f  0        s      
+
+
+interrupt_controller no                   global_interrupt     1     enable               0     0     rw    n  f  0        s     global interrupt enable 
+interrupt_controller no                   global_interrupt     1     rsvd0                30    0     ro    n  f  x        s     reserved
+
+interrupt_controller no                   interrupt_status     1     alarm_6              0     0     rwc   n  f  0        s     xadc vccddro-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_5              0     0     rwc   n  f  0        s     xadc vccpaux-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_4              0     0     rwc   n  f  0        s     xadc vccpint-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_2              0     0     rwc   n  f  0        s     xadc vccaux-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_0_deactive     0     0     rwc   n  f  0        s     alm[0] deactive interrupt.  
+interrupt_controller no                   interrupt_status     1     over_temperature_deactive0     0     rwc   n  f  0        s     over-temperature deactive interrupt.  
+interrupt_controller no                   interrupt_status     1     jtag_modified        0     0     rwc   n  f  0        s     jtagmodified interrupt 
+interrupt_controller no                   interrupt_status     1     jtag_locked          0     0     rwc   n  f  0        s     jtaglocked interrupt 
+interrupt_controller no                   interrupt_status     1     eoc                  0     0     rwc   n  f  0        s     end of sequence interrupt 
+interrupt_controller no                   interrupt_status     1     eos                  0     0     rwc   n  f  0        s     end of sequence interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_3              0     0     rwc   n  f  0        s     xadc vbram-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_1              0     0     rwc   n  f  0        s     xadc vccint-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     alarm_0              0     0     rwc   n  f  0        s     xadc temperature-sensor interrupt 
+interrupt_controller no                   interrupt_status     1     over_temperature     0     0     rwc   n  f  0        s     over-temperature alarm interrupt 
+interrupt_controller no                   dummy0               1     dummy0               0     0     du    n  f  x        s     reserved space 0
+
+interrupt_controller no                   interrupt_enable     1     alarm_6              0     0     rw    n  f  0        s     xadc vccddro-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_5              0     0     rw    n  f  0        s     xadc vccpaux-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_4              0     0     rw    n  f  0        s     xadc vccpint-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_2              0     0     rw    n  f  0        s     xadc vccaux-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_0_deactive     0     0     rw    n  f  0        s     alm[0] deactive interrupt.  
+interrupt_controller no                   interrupt_enable     1     over_temperature_deactive0     0     rw    n  f  0        s     over-temperature deactive interrupt.  
+interrupt_controller no                   interrupt_enable     1     jtag_modified        0     0     rw    n  f  0        s     jtagmodified interrupt 
+interrupt_controller no                   interrupt_enable     1     jtag_locked          0     0     rw    n  f  0        s     jtaglocked interrupt 
+interrupt_controller no                   interrupt_enable     1     eoc                  0     0     rw    n  f  0        s     end of sequence interrupt 
+interrupt_controller no                   interrupt_enable     1     eos                  0     0     rw    n  f  0        s     end of sequence interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_3              0     0     rw    n  f  0        s     xadc vbram-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_1              0     0     rw    n  f  0        s     xadc vccint-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     alarm_0              0     0     rw    n  f  0        s     xadc temperature-sensor interrupt 
+interrupt_controller no                   interrupt_enable     1     over_temperature     0     0     rw    n  f  0        s     over-temperature alarm interrupt 
+
+
+xadc_hard_macro      no                   temperature          1     value                11    0     ro    n  f  0        c     temperature value 
+xadc_hard_macro      no                   temperature          1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vcc_int              1     value                11    0     ro    n  f  0        c     vccint value 
+xadc_hard_macro      no                   vcc_int              1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vcc_aux              1     value                11    0     ro    n  f  0        c     vccaux value 
+xadc_hard_macro      no                   vcc_aux              1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vp_vn                1     value                11    0     ro    n  f  0        c     vp/vn value 
+xadc_hard_macro      no                   vp_vn                1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vref_p               1     value                11    0     ro    n  f  0        c     vrefp value 
+xadc_hard_macro      no                   vref_p               1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vref_n               1     value                11    0     ro    n  f  0        c     vrefp value 
+xadc_hard_macro      no                   vref_n               1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vcc_bram             1     value                11    0     ro    n  f  0        c     vrefp value 
+xadc_hard_macro      no                   vcc_bram             1     rsvd0                3     0     ro    n  f  x        s     reserved
+xadc_hard_macro      no                   dummy1               1     dummy1               0     0     du    n  f  x        s     reserved space 1
+
+xadc_hard_macro      no                   supply_a_offset      1     value                11    0     ro    n  f  0        c     supply a offset value 
+xadc_hard_macro      no                   supply_a_offset      1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   adc_a_offset         1     value                11    0     ro    n  f  0        c     adc a offset value 
+xadc_hard_macro      no                   adc_a_offset         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   adc_a_gain           1     sign                 0     0     ro    n  f  0        c     gain sign 
+xadc_hard_macro      no                   adc_a_gain           1     mag                  5     0     ro    n  f  0        c     gain magnitude value 
+xadc_hard_macro      no                   dummy2               1     dummy2               0     0     du    n  f  x        s     reserved space 2
+xadc_hard_macro      no                   dummy3               1     dummy3               0     0     du    n  f  x        s     reserved space 3
+
+xadc_hard_macro      no                   vcc_pint             1     value                11    0     ro    n  f  0        c     vcc pint value 
+xadc_hard_macro      no                   vcc_pint             1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vcc_paux             1     value                11    0     ro    n  f  0        c     vcc paux value 
+xadc_hard_macro      no                   vcc_paux             1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vcco_ddr             1     value                11    0     ro    n  f  0        c     vcco ddr value 
+xadc_hard_macro      no                   vcco_ddr             1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   vaux_p_n             16    value                11    0     ro    n  f  0        c     vaux_p/vaux_n value 
+xadc_hard_macro      no                   vaux_p_n             16    rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_temperature      1     value                11    0     ro    n  f  0        c     max temperature value 
+xadc_hard_macro      no                   max_temperature      1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcc_int          1     value                11    0     ro    n  f  0        c     max  vcc int value 
+xadc_hard_macro      no                   max_vcc_int          1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcc_aux          1     value                11    0     ro    n  f  0        c     max  vcc int value 
+xadc_hard_macro      no                   max_vcc_aux          1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcc_bram         1     value                11    0     ro    n  f  0        c     max  vcc int value 
+xadc_hard_macro      no                   max_vcc_bram         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   min_temperature      1     value                11    0     ro    n  f  0        c     minimum  temperature value 
+xadc_hard_macro      no                   min_temperature      1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   min_vcc_int          1     value                11    0     ro    n  f  0        c     minimum vcc int value 
+xadc_hard_macro      no                   min_vcc_int          1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   min_vcc_aux          1     value                11    0     ro    n  f  0        c     minimum vcc int value 
+xadc_hard_macro      no                   min_vcc_aux          1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   min_vcc_bram         1     value                11    0     ro    n  f  0        c     minimum vcc int value 
+xadc_hard_macro      no                   min_vcc_bram         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcc_pint         1     value                11    0     ro    n  f  0        c     max  vcc pint value 
+xadc_hard_macro      no                   max_vcc_pint         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcc_paux         1     value                11    0     ro    n  f  0        c     max  vcc paux  value 
+xadc_hard_macro      no                   max_vcc_paux         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   max_vcco_ddr         1     value                11    0     ro    n  f  0        c     max  vcco ddr value 
+xadc_hard_macro      no                   max_vcco_ddr         1     rsvd0                3     0     ro    n  f  x        s     reserved
+xadc_hard_macro      no                   dummy4               1     dummy4               0     0     du    n  f  x        s     reserved space 4
+
+xadc_hard_macro      no                   min_vcc_pint         1     value                11    0     ro    n  f  0        c     minimum vcc pint value 
+xadc_hard_macro      no                   min_vcc_pint         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   min_vcc_paux         1     value                11    0     ro    n  f  0        c     minimum vcc paux  value 
+xadc_hard_macro      no                   min_vcc_paux         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   main_vcco_ddr        1     value                11    0     ro    n  f  0        c     minimum vcco ddr value 
+xadc_hard_macro      no                   main_vcco_ddr        1     rsvd0                3     0     ro    n  f  x        s     reserved
+xadc_hard_macro      no                   dummy5               1     dummy5               0     0     du    n  f  x        s     reserved space 5
+
+xadc_hard_macro      no                   supply_b_offset      1     value                11    0     ro    n  f  0        c     supply a offset value 
+xadc_hard_macro      no                   supply_b_offset      1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   adc_b_offset         1     value                11    0     ro    n  f  0        c     adc a offset value 
+xadc_hard_macro      no                   adc_b_offset         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+xadc_hard_macro      no                   adc_b_gain           1     sign                 0     0     ro    n  f  0        c     gain sign 
+xadc_hard_macro      no                   adc_b_gain           1     mag                  5     0     ro    n  f  0        c     gain magnitude value 
+xadc_hard_macro      no                   dummy6               1     dummy6               0     0     du    n  f  x        s     reserved space 6
+xadc_hard_macro      no                   dummy7               1     dummy7               0     0     du    n  f  x        s     reserved space 7
+
+xadc_hard_macro      no                   flag                 1     jtgd                 0     0     ro    n  f  0        c      
+xadc_hard_macro      no                   flag                 1     jtgr                 0     0     ro    n  f  0        c      
+xadc_hard_macro      no                   flag                 1     ref                  0     0     ro    n  f  0        c     adc reference voltage 
+xadc_hard_macro      no                   flag                 1     rsvd0                0     0     ro    n  f  x        s     reserved
+xadc_hard_macro      no                   flag                 1     alarm_6              0     0     ro    n  f  0        c     alarm 6 output 
+xadc_hard_macro      no                   flag                 1     alarm_5              0     0     ro    n  f  0        c     alarm 5 output 
+xadc_hard_macro      no                   flag                 1     alarm_4              0     0     ro    n  f  0        c     alarm 4 output output 
+xadc_hard_macro      no                   flag                 1     alarm_3              0     0     ro    n  f  0        c     alarm 3 output 
+xadc_hard_macro      no                   flag                 1     over_temperature     0     0     ro    n  f  0        c     over temperature output 
+xadc_hard_macro      no                   flag                 1     alarm_2              0     0     ro    n  f  0        c     alarm 2 output 
+xadc_hard_macro      no                   flag                 1     alarm_1              0     0     ro    n  f  0        c     alarm 1 output 
+xadc_hard_macro      no                   flag                 1     alarm_0              0     0     ro    n  f  0        c     alarm 0 output 
+
+
+control              no                   config_0             1     cavg                 0     0     rw    n  f  0        s     disable calculation averaging 
+control              no                   config_0             1     rsvd0                0     0     ro    n  f  x        s     reserved
+control              no                   config_0             1     avg                  1     0     rw    n  f  0        s     averaging 
+control              no                   config_0             1     mux                  0     0     rw    n  f  0        s      
+control              no                   config_0             1     bu                   0     0     rw    n  f  0        s      
+control              no                   config_0             1     ec                   0     0     rw    n  f  0        s      
+control              no                   config_0             1     acq                  0     0     rw    n  f  0        s      
+control              no                   config_0             1     rsvd1                2     0     ro    n  f  x        s     reserved
+control              no                   config_0             1     input_channel        4     0     rw    n  f  0        s     adc input channel 
+
+control              no                   config_1             1     seq                  3     0     rw    n  f  0        s      
+control              no                   config_1             1     alarm_6_disable      0     0     rw    n  f  0        s     alarm 6 disable 
+control              no                   config_1             1     alarm_5_disable      0     0     rw    n  f  0        s     alarm 5 disable 
+control              no                   config_1             1     alarm_4_disable      0     0     rw    n  f  0        s     alarm 4 disable 
+control              no                   config_1             1     alarm_3_disable      0     0     rw    n  f  0        s     alarm 3 disable 
+control              no                   config_1             1     cal_enable_3         0     0     rw    n  f  0        s     supply sensor offset and gain correction enable 
+control              no                   config_1             1     cal_enable_2         0     0     rw    n  f  0        s     supply sensor offset correction enable 
+control              no                   config_1             1     cal_enable_1         0     0     rw    n  f  0        s     adcs offset and gain correction enable 
+control              no                   config_1             1     cal_enable_0         0     0     rw    n  f  0        s     adcs offset correction enable 
+control              no                   config_1             1     alarm_2_disable      0     0     rw    n  f  0        s     alarm 2 disable 
+control              no                   config_1             1     alarm_1_disable      0     0     rw    n  f  0        s     alarm 0 disable 
+control              no                   config_1             1     alarm_0_disable      0     0     rw    n  f  0        s     alarm 0 disable 
+control              no                   config_1             1     ot_disable           0     0     rw    n  f  0        s     over temperature disable 
+
+control              no                   config_2             1     cd                   7     0     rw    n  f  1e       s     clock division selection 
+control              no                   config_2             1     rsvd0                1     0     ro    n  f  x        s     reserved
+control              no                   config_2             1     pd                   1     0     rw    n  f  0        s     power down selection 
+control              no                   config_2             1     rsvd1                3     0     ro    n  f  x        s     reserved
+
+
+alarm_tresholds      no                   temperature_upper    1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   temperature_upper    1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccint_upper         1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccint_upper         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccaux_upper         1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccaux_upper         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   ot_alarm_limit       1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   ot_alarm_limit       1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   temperature_lower    1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   temperature_lower    1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccint_lower         1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccint_lower         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccaux_lower         1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccaux_lower         1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   ot_alarm_reset       1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   ot_alarm_reset       1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccbram_upper        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccbram_upper        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccpint_upper        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccpint_upper        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccpaux_upper        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccpaux_upper        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vcco_ddr_upper       1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vcco_ddr_upper       1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccbram_lower        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccbram_lower        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccpint_lower        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccpint_lower        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vccpaux_lower        1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vccpaux_lower        1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+alarm_tresholds      no                   vcco_ddr_lower       1     value                11    0     rw    n  f  0        s      
+alarm_tresholds      no                   vcco_ddr_lower       1     rsvd0                3     0     ro    n  f  x        s     reserved
+
+

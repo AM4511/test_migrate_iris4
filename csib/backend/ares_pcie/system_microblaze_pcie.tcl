@@ -761,13 +761,13 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
   current_bd_instance $oldCurInst
 }
 
-# Hierarchical cell: espi_host_system
-proc create_hier_cell_espi_host_system { parentCell nameHier } {
+# Hierarchical cell: pcie_host_system
+proc create_hier_cell_pcie_host_system { parentCell nameHier } {
 
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_espi_host_system() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_pcie_host_system() - Empty argument(s)!"}
      return
   }
 
@@ -856,6 +856,7 @@ proc create_hier_cell_espi_host_system { parentCell nameHier } {
   # Create instance: pcie2AxiMaster_0, and set properties
   set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:2.0 pcie2AxiMaster_0 ]
   set_property -dict [ list \
+   CONFIG.AXI_ID_WIDTH {6} \
    CONFIG.NUMB_IRQ {1} \
  ] $pcie2AxiMaster_0
 
@@ -961,20 +962,20 @@ proc create_root_design { parentCell } {
   set user_data_in [ create_bd_port -dir I -from 3 -to 0 user_data_in ]
   set user_data_out [ create_bd_port -dir O -from 2 -to 0 user_data_out ]
 
-  # Create instance: espi_host_system
-  create_hier_cell_espi_host_system [current_bd_instance .] espi_host_system
+  # Create instance: pcie_host_system
+  create_hier_cell_pcie_host_system [current_bd_instance .] pcie_host_system
 
   # Create instance: profinet_system
   create_hier_cell_profinet_system [current_bd_instance .] profinet_system
 
   # Create interface connections
-  connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports FPGA_Info_0] [get_bd_intf_pins espi_host_system/FPGA_Info_0]
-  connect_bd_intf_net -intf_net axiMaio_0_ext_sync [get_bd_intf_ports ext_sync] [get_bd_intf_pins espi_host_system/ext_sync]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_ports spi] [get_bd_intf_pins espi_host_system/qspi]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_STARTUP_IO [get_bd_intf_ports startup_io] [get_bd_intf_pins espi_host_system/STARTUP_IO]
-  connect_bd_intf_net -intf_net espi_host_system_mbox_axim [get_bd_intf_pins espi_host_system/mbox_axim] [get_bd_intf_pins profinet_system/mbox_axi]
-  connect_bd_intf_net -intf_net espi_host_system_mtxSPI_0 [get_bd_intf_ports mtxSPI_0] [get_bd_intf_pins espi_host_system/mtxSPI_0]
-  connect_bd_intf_net -intf_net espi_host_system_pcie_mgt_0 [get_bd_intf_ports pcie_mgt_0] [get_bd_intf_pins espi_host_system/pcie_mgt_0]
+  connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports FPGA_Info_0] [get_bd_intf_pins pcie_host_system/FPGA_Info_0]
+  connect_bd_intf_net -intf_net axiMaio_0_ext_sync [get_bd_intf_ports ext_sync] [get_bd_intf_pins pcie_host_system/ext_sync]
+  connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_ports spi] [get_bd_intf_pins pcie_host_system/qspi]
+  connect_bd_intf_net -intf_net axi_quad_spi_0_STARTUP_IO [get_bd_intf_ports startup_io] [get_bd_intf_pins pcie_host_system/STARTUP_IO]
+  connect_bd_intf_net -intf_net espi_host_system_mbox_axim [get_bd_intf_pins pcie_host_system/mbox_axim] [get_bd_intf_pins profinet_system/mbox_axi]
+  connect_bd_intf_net -intf_net espi_host_system_mtxSPI_0 [get_bd_intf_ports mtxSPI_0] [get_bd_intf_pins pcie_host_system/mtxSPI_0]
+  connect_bd_intf_net -intf_net espi_host_system_pcie_mgt_0 [get_bd_intf_ports pcie_mgt_0] [get_bd_intf_pins pcie_host_system/pcie_mgt_0]
   connect_bd_intf_net -intf_net sect_mb_UART_0 [get_bd_intf_ports uart] [get_bd_intf_pins profinet_system/uart]
   connect_bd_intf_net -intf_net sect_mb_rmii_0 [get_bd_intf_ports rmii] [get_bd_intf_pins profinet_system/rmii_0]
 
@@ -982,11 +983,11 @@ proc create_root_design { parentCell } {
   connect_bd_net -net Net [get_bd_ports RPC_RWDS_0] [get_bd_pins profinet_system/RPC_RWDS_0]
   connect_bd_net -net Net1 [get_bd_ports RPC_DQ_0] [get_bd_pins profinet_system/RPC_DQ_0]
   connect_bd_net -net PCIE_RESET_N_1 [get_bd_ports ext_rst_n] [get_bd_pins profinet_system/ext_rst_n]
-  connect_bd_net -net aclk_0_1 [get_bd_ports pcie_clk] [get_bd_pins espi_host_system/pcie_clk]
-  connect_bd_net -net axiMaio_0_user_data_out [get_bd_ports user_data_out] [get_bd_pins espi_host_system/user_data_out]
-  connect_bd_net -net espi_host_system_mbox_clk [get_bd_pins espi_host_system/mbox_clk] [get_bd_pins profinet_system/mbox_clk]
-  connect_bd_net -net espi_host_system_mbox_reset_n [get_bd_pins espi_host_system/mbox_reset_n] [get_bd_pins profinet_system/mbox_reset_n]
-  connect_bd_net -net pcie_reset_n [get_bd_ports espi_reset_n] [get_bd_pins espi_host_system/pcie_reset_n]
+  connect_bd_net -net aclk_0_1 [get_bd_ports pcie_clk] [get_bd_pins pcie_host_system/pcie_clk]
+  connect_bd_net -net axiMaio_0_user_data_out [get_bd_ports user_data_out] [get_bd_pins pcie_host_system/user_data_out]
+  connect_bd_net -net espi_host_system_mbox_clk [get_bd_pins pcie_host_system/mbox_clk] [get_bd_pins profinet_system/mbox_clk]
+  connect_bd_net -net espi_host_system_mbox_reset_n [get_bd_pins pcie_host_system/mbox_reset_n] [get_bd_pins profinet_system/mbox_reset_n]
+  connect_bd_net -net pcie_reset_n [get_bd_ports espi_reset_n] [get_bd_pins pcie_host_system/pcie_reset_n]
   connect_bd_net -net profinet_system_GPO_0 [get_bd_ports GPO_0] [get_bd_pins profinet_system/GPO_0]
   connect_bd_net -net profinet_system_IENOn_0 [get_bd_ports IENOn_0] [get_bd_pins profinet_system/IENOn_0]
   connect_bd_net -net profinet_system_RPC_CK_0 [get_bd_ports RPC_CK_0] [get_bd_pins profinet_system/RPC_CK_0]
@@ -996,12 +997,12 @@ proc create_root_design { parentCell } {
   connect_bd_net -net profinet_system_RPC_RESET_N_0 [get_bd_ports RPC_RESET_N_0] [get_bd_pins profinet_system/RPC_RESET_N_0]
   connect_bd_net -net profinet_system_RPC_WP_N_0 [get_bd_ports RPC_WP_N_0] [get_bd_pins profinet_system/RPC_WP_N_0]
   connect_bd_net -net ref_clk_100MHz_1 [get_bd_ports ref_clk_100MHz] [get_bd_pins profinet_system/ref_clk_100MHz]
-  connect_bd_net -net user_data_in_0_1 [get_bd_ports user_data_in] [get_bd_pins espi_host_system/user_data_in]
+  connect_bd_net -net user_data_in_0_1 [get_bd_ports user_data_in] [get_bd_pins pcie_host_system/user_data_in]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces espi_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs espi_host_system/axiMaio_0/s_axi/reg0] SEG_axiMaio_0_reg0
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces espi_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs espi_host_system/axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43600000 [get_bd_addr_spaces espi_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs profinet_system/mailbox_0/S0_AXI/Reg] SEG_mailbox_0_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces pcie_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs pcie_host_system/axiMaio_0/s_axi/reg0] SEG_axiMaio_0_reg0
+  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces pcie_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs pcie_host_system/axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x43600000 [get_bd_addr_spaces pcie_host_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs profinet_system/mailbox_0/S0_AXI/Reg] SEG_mailbox_0_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41E00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/sect_profinet/axi_dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg
   create_bd_addr_seg -range 0x00040000 -offset 0x40C00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/sect_profinet/axi_ethernet_0/s_axi/Reg0] SEG_axi_ethernet_0_Reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/axi_timer_0/S_AXI/Reg] SEG_axi_timer_0_Reg
