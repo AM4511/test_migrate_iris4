@@ -1,8 +1,8 @@
 # ##################################################################################
-# File         : create_csib.tcl
+# File         : create_athena_hispi.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/athena_hispi/create_csib_athena_hispi.tcl
+# Example      : source $env(CSIB)/backend/athena_hispi/create_athena_hispi.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_athena_hispi
+set BASE_NAME athena_hispi
 #set DEVICE "xc7a35ticpg236-1L"
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
@@ -39,11 +39,8 @@ set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 set BACKEND_DIR ${WORKDIR}/backend/athena_hispi
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
-
-set SRC_DIR            ${WORKDIR}/design
-#set SDK_DIR            ${WORKDIR}/sdk
-set XDC_DIR            ${BACKEND_DIR}
-#set SDK_SCRIPT         ${TCL_DIR}/sdk/create_flash_image.tcl
+set SRC_DIR     ${WORKDIR}/design
+set XDC_DIR     ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
@@ -114,15 +111,6 @@ export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 # Add project files (HDL, Constraints, IP, etc)
 ################################################
 source ${FILESET_SCRIPT}
-
-################################################
-# Remove xilinx clashing constraints in the 
-# Xilinx ethernet IP-Core.
-################################################
-# set ETH_CLK_CONSTRAINTS [get_files -regexp {.*bd_.*_mac_0_clocks.xdc}]
-# foreach file $ETH_CLK_CONSTRAINTS {
-	# set_property IS_ENABLED 0 $file
-# }
 
 
 
