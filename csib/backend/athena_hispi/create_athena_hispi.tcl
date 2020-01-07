@@ -120,7 +120,6 @@ source ${FILESET_SCRIPT}
 set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
-set_property keep_compatible {xc7a15ticpg236 xc7a35ticpg236}  [current_design]
 
 ################################################
 # Generate synthesis run
