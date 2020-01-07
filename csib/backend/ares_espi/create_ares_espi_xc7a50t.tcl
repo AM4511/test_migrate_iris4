@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/ares/create_csib_ares_xc7a50t.tcl
+# Example      : source $env(CSIB)/backend/ares_espi/create_ares_espi_xc7a50t.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  csib_ares
+set BASE_NAME  ares_espi_xc7a50t
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -36,7 +36,7 @@ set WORKDIR     $env(CSIB)
 set IPCORES_DIR ${WORKDIR}/ipcores
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 set VIVADO_DIR  "D:/vivado/2019.1"
-set BACKEND_DIR ${WORKDIR}/backend/ares
+set BACKEND_DIR ${WORKDIR}/backend/ares_espi
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
 
@@ -46,7 +46,7 @@ set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_microblaze.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 
 
 set SYNTH_RUN "synth_1"

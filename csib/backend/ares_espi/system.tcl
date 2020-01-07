@@ -125,10 +125,10 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:ip:clk_wiz:6.0\
 matrox.com:Imaging:axiMaio:1.7\
-xilinx.com:ip:axi_quad_spi:3.2\
-xilinx.com:ip:jtag_axi:1.2\
+matrox.com:Imaging:pcie2AxiMaster:2.0\
 xilinx.com:ip:axi_timer:2.0\
 xilinx.com:ip:axi_uartlite:2.0\
+xilinx.com:ip:util_vector_logic:2.0\
 xilinx.com:ip:mailbox:2.1\
 xilinx.com:ip:mdm:3.2\
 xilinx.com:ip:microblaze:11.0\
@@ -457,7 +457,6 @@ proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
   # Create pins
   create_bd_pin -dir O irq_event
   create_bd_pin -dir I -from 0 -to 0 irq_io
-  create_bd_pin -dir I -from 0 -to 0 irq_qspi
   create_bd_pin -dir I -from 0 -to 0 irq_tick
   create_bd_pin -dir I -from 0 -to 0 irq_tick_latch
   create_bd_pin -dir I -from 0 -to 0 irq_tick_wa
@@ -476,7 +475,7 @@ proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
   set util_reduced_logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_reduced_logic:2.0 util_reduced_logic_1 ]
   set_property -dict [ list \
    CONFIG.C_OPERATION {or} \
-   CONFIG.C_SIZE {22} \
+   CONFIG.C_SIZE {21} \
    CONFIG.LOGO_FILE {data/sym_orgate.png} \
  ] $util_reduced_logic_1
 
@@ -494,7 +493,7 @@ proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
    CONFIG.IN7_WIDTH {1} \
    CONFIG.IN8_WIDTH {8} \
    CONFIG.IN9_WIDTH {1} \
-   CONFIG.NUM_PORTS {8} \
+   CONFIG.NUM_PORTS {7} \
  ] $xlconcat_0
 
   # Create instance: xlconcat_1, and set properties
@@ -505,7 +504,6 @@ proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
  ] $xlconcat_1
 
   # Create port connections
-  connect_bd_net -net In7_0_1 [get_bd_pins irq_qspi] [get_bd_pins xlconcat_0/In7]
   connect_bd_net -net Net [get_bd_pins irq_timer_stop] [get_bd_pins xlconcat_0/In5] [get_bd_pins xlconcat_1/In1]
   connect_bd_net -net axiMaio_0_irq_event_io [get_bd_pins irq_io] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net axiMaio_0_irq_event_tick [get_bd_pins irq_tick] [get_bd_pins xlconcat_0/In1]
@@ -556,31 +554,28 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
   current_bd_instance $hier_obj
 
   # Create interface pins
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 mbox_axi
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 debug_uart
 
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:rmii_rtl:1.0 rmii_0
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 host_mbox
 
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 uart
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:rmii_rtl:1.0 rmii
 
 
   # Create pins
-  create_bd_pin -dir O -from 1 -to 0 GPO_0
-  create_bd_pin -dir O IENOn_0
-  create_bd_pin -dir O RPC_CK_0
-  create_bd_pin -dir O RPC_CK_N_0
-  create_bd_pin -dir O RPC_CS0_N_0
-  create_bd_pin -dir O RPC_CS1_N_0
-  create_bd_pin -dir IO -from 7 -to 0 RPC_DQ_0
-  create_bd_pin -dir O RPC_RESET_N_0
-  create_bd_pin -dir IO RPC_RWDS_0
-  create_bd_pin -dir O RPC_WP_N_0
+  create_bd_pin -dir O RPC_CK
+  create_bd_pin -dir O RPC_CK_N
+  create_bd_pin -dir O RPC_CS0_N
+  create_bd_pin -dir O RPC_CS1_N
+  create_bd_pin -dir IO -from 7 -to 0 RPC_DQ
+  create_bd_pin -dir O RPC_RESET_N
+  create_bd_pin -dir IO RPC_RWDS
+  create_bd_pin -dir O RPC_WP_N
   create_bd_pin -dir I dcm_locked
   create_bd_pin -dir I -type rst ext_rst_n
   create_bd_pin -dir I -type clk gtx_clk_125MHz_0
-  create_bd_pin -dir I -type clk mbox_clk
-  create_bd_pin -dir I -type rst mbox_reset_n
+  create_bd_pin -dir I -type clk host_mbox_clk
+  create_bd_pin -dir I -type rst host_mbox_reset_n
   create_bd_pin -dir I -type clk ncsi_clk_50MHz_0
-  create_bd_pin -dir O -from 0 -to 0 sys_rst_n
   create_bd_pin -dir I -type clk sysclk_100MHz
 
   # Create instance: axi_interconnect_0, and set properties
@@ -598,6 +593,14 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
 
   # Create instance: axi_uartlite_0, and set properties
   set axi_uartlite_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 axi_uartlite_0 ]
+
+  # Create instance: hyperram_irq_n, and set properties
+  set hyperram_irq_n [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 hyperram_irq_n ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {not} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_notgate.png} \
+ ] $hyperram_irq_n
 
   # Create instance: mailbox_0, and set properties
   set mailbox_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mailbox:2.1 mailbox_0 ]
@@ -641,7 +644,7 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
   # Create instance: microblaze_0_xlconcat, and set properties
   set microblaze_0_xlconcat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 microblaze_0_xlconcat ]
   set_property -dict [ list \
-   CONFIG.NUM_PORTS {9} \
+   CONFIG.NUM_PORTS {10} \
  ] $microblaze_0_xlconcat
 
   # Create instance: proc_sys_reset_0, and set properties
@@ -660,9 +663,9 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
   set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
 
   # Create interface connections
-  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins mbox_axi] [get_bd_intf_pins mailbox_0/S0_AXI]
-  connect_bd_intf_net -intf_net Conn3 [get_bd_intf_pins uart] [get_bd_intf_pins axi_uartlite_0/UART]
-  connect_bd_intf_net -intf_net Conn4 [get_bd_intf_pins rmii_0] [get_bd_intf_pins sect_profinet/rmii]
+  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins host_mbox] [get_bd_intf_pins mailbox_0/S0_AXI]
+  connect_bd_intf_net -intf_net Conn3 [get_bd_intf_pins debug_uart] [get_bd_intf_pins axi_uartlite_0/UART]
+  connect_bd_intf_net -intf_net Conn4 [get_bd_intf_pins rmii] [get_bd_intf_pins sect_profinet/rmii]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins mailbox_0/S1_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins rpc2_ctrl_controller_0/AXIm]
   connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axi_interconnect_0/M02_AXI] [get_bd_intf_pins rpc2_ctrl_controller_0/AXIr]
@@ -686,11 +689,11 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
 
   # Create port connections
   connect_bd_net -net ARESETN_1 [get_bd_pins microblaze_0_axi_periph/ARESETN] [get_bd_pins rst_Clk_100M/interconnect_aresetn]
-  connect_bd_net -net Net [get_bd_pins RPC_RWDS_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_RWDS]
-  connect_bd_net -net Net1 [get_bd_pins RPC_DQ_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_DQ]
+  connect_bd_net -net Net [get_bd_pins RPC_RWDS] [get_bd_pins rpc2_ctrl_controller_0/RPC_RWDS]
+  connect_bd_net -net Net1 [get_bd_pins RPC_DQ] [get_bd_pins rpc2_ctrl_controller_0/RPC_DQ]
   connect_bd_net -net PCIE_RESET_N_1 [get_bd_pins ext_rst_n] [get_bd_pins proc_sys_reset_0/ext_reset_in]
-  connect_bd_net -net S0_AXI_ACLK_0_1 [get_bd_pins mbox_clk] [get_bd_pins mailbox_0/S0_AXI_ACLK]
-  connect_bd_net -net S0_AXI_ARESETN_0_1 [get_bd_pins mbox_reset_n] [get_bd_pins mailbox_0/S0_AXI_ARESETN]
+  connect_bd_net -net S0_AXI_ACLK_0_1 [get_bd_pins host_mbox_clk] [get_bd_pins mailbox_0/S0_AXI_ACLK]
+  connect_bd_net -net S0_AXI_ARESETN_0_1 [get_bd_pins host_mbox_reset_n] [get_bd_pins mailbox_0/S0_AXI_ARESETN]
   connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In0]
   connect_bd_net -net axi_timer_1_interrupt [get_bd_pins axi_timer_1/interrupt] [get_bd_pins microblaze_0_xlconcat/In1]
   connect_bd_net -net axi_uartlite_0_interrupt [get_bd_pins axi_uartlite_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In2]
@@ -703,34 +706,34 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
   connect_bd_net -net microblaze_0_intr [get_bd_pins microblaze_0_axi_intc/intr] [get_bd_pins microblaze_0_xlconcat/dout]
   connect_bd_net -net ncsi_clk_50MHz_1 [get_bd_pins ncsi_clk_50MHz_0] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins sect_profinet/ncsi_clk_50MHz]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins rst_Clk_100M/ext_reset_in]
-  connect_bd_net -net rpc2_ctrl_controller_0_GPO [get_bd_pins GPO_0] [get_bd_pins rpc2_ctrl_controller_0/GPO]
-  connect_bd_net -net rpc2_ctrl_controller_0_IENOn [get_bd_pins IENOn_0] [get_bd_pins rpc2_ctrl_controller_0/IENOn]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CK [get_bd_pins RPC_CK_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_CK]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CK_N [get_bd_pins RPC_CK_N_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_CK_N]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CS0_N [get_bd_pins RPC_CS0_N_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_CS0_N]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CS1_N [get_bd_pins RPC_CS1_N_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_CS1_N]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_RESET_N [get_bd_pins RPC_RESET_N_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_RESET_N]
-  connect_bd_net -net rpc2_ctrl_controller_0_RPC_WP_N [get_bd_pins RPC_WP_N_0] [get_bd_pins rpc2_ctrl_controller_0/RPC_WP_N]
+  connect_bd_net -net rpc2_ctrl_controller_0_IENOn [get_bd_pins hyperram_irq_n/Op1] [get_bd_pins rpc2_ctrl_controller_0/IENOn]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CK [get_bd_pins RPC_CK] [get_bd_pins rpc2_ctrl_controller_0/RPC_CK]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CK_N [get_bd_pins RPC_CK_N] [get_bd_pins rpc2_ctrl_controller_0/RPC_CK_N]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CS0_N [get_bd_pins RPC_CS0_N] [get_bd_pins rpc2_ctrl_controller_0/RPC_CS0_N]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_CS1_N [get_bd_pins RPC_CS1_N] [get_bd_pins rpc2_ctrl_controller_0/RPC_CS1_N]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_RESET_N [get_bd_pins RPC_RESET_N] [get_bd_pins rpc2_ctrl_controller_0/RPC_RESET_N]
+  connect_bd_net -net rpc2_ctrl_controller_0_RPC_WP_N [get_bd_pins RPC_WP_N] [get_bd_pins rpc2_ctrl_controller_0/RPC_WP_N]
   connect_bd_net -net rst_Clk_100M_bus_struct_reset [get_bd_pins microblaze_0_local_memory/SYS_Rst] [get_bd_pins rst_Clk_100M/bus_struct_reset]
   connect_bd_net -net rst_Clk_100M_mb_reset [get_bd_pins microblaze_0/Reset] [get_bd_pins microblaze_0_axi_intc/processor_rst] [get_bd_pins rst_Clk_100M/mb_reset]
-  connect_bd_net -net rst_Clk_100M_peripheral_aresetn [get_bd_pins sys_rst_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_interconnect_0/S02_ARESETN] [get_bd_pins axi_interconnect_0/S03_ARESETN] [get_bd_pins axi_interconnect_0/S04_ARESETN] [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins mailbox_0/S1_AXI_ARESETN] [get_bd_pins mdm_1/S_AXI_ARESETN] [get_bd_pins microblaze_0_axi_intc/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/M06_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIm_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIr_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/RPC_RSTO_N] [get_bd_pins rst_Clk_100M/peripheral_aresetn] [get_bd_pins sect_profinet/sysrst_n]
+  connect_bd_net -net rst_Clk_100M_peripheral_aresetn [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_interconnect_0/S02_ARESETN] [get_bd_pins axi_interconnect_0/S03_ARESETN] [get_bd_pins axi_interconnect_0/S04_ARESETN] [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins mailbox_0/S1_AXI_ARESETN] [get_bd_pins mdm_1/S_AXI_ARESETN] [get_bd_pins microblaze_0_axi_intc/s_axi_aresetn] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/M06_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIm_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIr_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/RPC_RSTO_N] [get_bd_pins rst_Clk_100M/peripheral_aresetn] [get_bd_pins sect_profinet/sysrst_n]
   connect_bd_net -net sect_profinet_dmard_irq [get_bd_pins microblaze_0_xlconcat/In5] [get_bd_pins sect_profinet/dmard_irq]
   connect_bd_net -net sect_profinet_dmawr_irq [get_bd_pins microblaze_0_xlconcat/In6] [get_bd_pins sect_profinet/dmawr_irq]
   connect_bd_net -net sect_profinet_eth_irq [get_bd_pins microblaze_0_xlconcat/In4] [get_bd_pins sect_profinet/eth_irq]
   connect_bd_net -net sect_profinet_mac_irq [get_bd_pins microblaze_0_xlconcat/In3] [get_bd_pins sect_profinet/mac_irq]
+  connect_bd_net -net util_vector_logic_0_Res [get_bd_pins hyperram_irq_n/Res] [get_bd_pins microblaze_0_xlconcat/In9]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins rpc2_ctrl_controller_0/RPC_INT_N] [get_bd_pins xlconstant_0/dout]
 
   # Restore current instance
   current_bd_instance $oldCurInst
 }
 
-# Hierarchical cell: espi_host_system
-proc create_hier_cell_espi_host_system { parentCell nameHier } {
+# Hierarchical cell: host_if_system
+proc create_hier_cell_host_if_system { parentCell nameHier } {
 
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_espi_host_system() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_host_if_system() - Empty argument(s)!"}
      return
   }
 
@@ -759,20 +762,22 @@ proc create_hier_cell_espi_host_system { parentCell nameHier } {
   current_bd_instance $hier_obj
 
   # Create interface pins
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:display_startup_io:startup_io_rtl:1.0 STARTUP_IO
-
   create_bd_intf_pin -mode Master -vlnv matrox.com:user:ext_sync_rtl:1.0 ext_sync
+
+  create_bd_intf_pin -mode Slave -vlnv matrox.com:Imaging:FPGA_Info_rtl:1.0 fpga_Info
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 mbox_axim
 
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 qspi
+  create_bd_intf_pin -mode Master -vlnv matrox.com:MatroxIP:mtxSPI_rtl:1.0 mtxSPI
+
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie
 
 
   # Create pins
-  create_bd_pin -dir I -type clk espi_clk
-  create_bd_pin -dir O espi_irq
-  create_bd_pin -dir I -type rst espi_reset_n
-  create_bd_pin -dir I -type clk ext_spi_clk
+  create_bd_pin -dir O pcie_axi_clk
+  create_bd_pin -dir O pcie_axi_reset_n
+  create_bd_pin -dir I -type clk pcie_sys_clk_100MHz
+  create_bd_pin -dir I -type rst sys_rst_n
   create_bd_pin -dir I -from 3 -to 0 user_data_in
   create_bd_pin -dir O -from 2 -to 0 user_data_out
 
@@ -790,45 +795,31 @@ proc create_hier_cell_espi_host_system { parentCell nameHier } {
   # Create instance: axi_interconnect_1, and set properties
   set axi_interconnect_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_1 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {3} \
+   CONFIG.ENABLE_ADVANCED_OPTIONS {1} \
+   CONFIG.NUM_MI {2} \
  ] $axi_interconnect_1
-
-  # Create instance: axi_quad_spi_0, and set properties
-  set axi_quad_spi_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_quad_spi:3.2 axi_quad_spi_0 ]
-  set_property -dict [ list \
-   CONFIG.C_FIFO_DEPTH {16} \
-   CONFIG.C_NUM_SS_BITS {1} \
-   CONFIG.C_SCK_RATIO {2} \
-   CONFIG.C_SHARED_STARTUP {0} \
-   CONFIG.C_SPI_MODE {2} \
-   CONFIG.C_TYPE_OF_AXI4_INTERFACE {0} \
-   CONFIG.C_USE_STARTUP {1} \
-   CONFIG.C_USE_STARTUP_INT {1} \
-   CONFIG.C_XIP_MODE {0} \
- ] $axi_quad_spi_0
-
-  # Create instance: host_espi_emulation, and set properties
-  set host_espi_emulation [ create_bd_cell -type ip -vlnv xilinx.com:ip:jtag_axi:1.2 host_espi_emulation ]
-  set_property -dict [ list \
-   CONFIG.RD_TXN_QUEUE_LENGTH {4} \
-   CONFIG.WR_TXN_QUEUE_LENGTH {4} \
- ] $host_espi_emulation
 
   # Create instance: interrupt_mapping
   create_hier_cell_interrupt_mapping $hier_obj interrupt_mapping
 
+  # Create instance: pcie2AxiMaster_0, and set properties
+  set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:2.0 pcie2AxiMaster_0 ]
+  set_property -dict [ list \
+   CONFIG.AXI_ID_WIDTH {6} \
+ ] $pcie2AxiMaster_0
+
   # Create interface connections
-  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins mbox_axim] [get_bd_intf_pins axi_interconnect_1/M02_AXI]
+  connect_bd_intf_net -intf_net Conn2 [get_bd_intf_pins fpga_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
+  connect_bd_intf_net -intf_net Conn3 [get_bd_intf_pins pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
+  connect_bd_intf_net -intf_net Conn4 [get_bd_intf_pins mtxSPI] [get_bd_intf_pins pcie2AxiMaster_0/mtxSPI]
   connect_bd_intf_net -intf_net axiMaio_0_ext_sync [get_bd_intf_pins ext_sync] [get_bd_intf_pins axiMaio_0/ext_sync]
   connect_bd_intf_net -intf_net axi_interconnect_1_M00_AXI [get_bd_intf_pins axiMaio_0/s_axi] [get_bd_intf_pins axi_interconnect_1/M00_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_1_M01_AXI [get_bd_intf_pins axi_interconnect_1/M01_AXI] [get_bd_intf_pins axi_quad_spi_0/AXI_LITE]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_pins qspi] [get_bd_intf_pins axi_quad_spi_0/SPI_0]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_STARTUP_IO [get_bd_intf_pins STARTUP_IO] [get_bd_intf_pins axi_quad_spi_0/STARTUP_IO]
-  connect_bd_intf_net -intf_net jtag_axi_0_M_AXI [get_bd_intf_pins axi_interconnect_1/S00_AXI] [get_bd_intf_pins host_espi_emulation/M_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M01_AXI [get_bd_intf_pins mbox_axim] [get_bd_intf_pins axi_interconnect_1/M01_AXI]
+  connect_bd_intf_net -intf_net pcie2AxiMaster_0_M_AXI [get_bd_intf_pins axi_interconnect_1/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
 
   # Create port connections
-  connect_bd_net -net aclk_0_1 [get_bd_pins espi_clk] [get_bd_pins axiMaio_0/axi_aclk] [get_bd_pins axi_interconnect_1/ACLK] [get_bd_pins axi_interconnect_1/M00_ACLK] [get_bd_pins axi_interconnect_1/M01_ACLK] [get_bd_pins axi_interconnect_1/M02_ACLK] [get_bd_pins axi_interconnect_1/S00_ACLK] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins host_espi_emulation/aclk]
-  connect_bd_net -net aresetn_0_1 [get_bd_pins espi_reset_n] [get_bd_pins axiMaio_0/axi_aresetn] [get_bd_pins axi_interconnect_1/ARESETN] [get_bd_pins axi_interconnect_1/M00_ARESETN] [get_bd_pins axi_interconnect_1/M01_ARESETN] [get_bd_pins axi_interconnect_1/M02_ARESETN] [get_bd_pins axi_interconnect_1/S00_ARESETN] [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins host_espi_emulation/aresetn]
+  connect_bd_net -net aclk_0_1 [get_bd_pins pcie_axi_clk] [get_bd_pins axiMaio_0/axi_aclk] [get_bd_pins axi_interconnect_1/ACLK] [get_bd_pins axi_interconnect_1/M00_ACLK] [get_bd_pins axi_interconnect_1/M01_ACLK] [get_bd_pins axi_interconnect_1/S00_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk]
+  connect_bd_net -net aresetn_0_1 [get_bd_pins pcie_axi_reset_n] [get_bd_pins axiMaio_0/axi_aresetn] [get_bd_pins axi_interconnect_1/ARESETN] [get_bd_pins axi_interconnect_1/M00_ARESETN] [get_bd_pins axi_interconnect_1/M01_ARESETN] [get_bd_pins axi_interconnect_1/S00_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net axiMaio_0_irq_event_io [get_bd_pins axiMaio_0/irq_event_io] [get_bd_pins interrupt_mapping/irq_io]
   connect_bd_net -net axiMaio_0_irq_event_tick [get_bd_pins axiMaio_0/irq_event_tick] [get_bd_pins interrupt_mapping/irq_tick]
   connect_bd_net -net axiMaio_0_irq_event_tick_stamp_latched [get_bd_pins axiMaio_0/irq_event_tick_stamp_latched] [get_bd_pins interrupt_mapping/irq_tick_latch]
@@ -836,9 +827,9 @@ proc create_hier_cell_espi_host_system { parentCell nameHier } {
   connect_bd_net -net axiMaio_0_irq_event_timer_end [get_bd_pins axiMaio_0/irq_event_timer_end] [get_bd_pins interrupt_mapping/irq_timer_stop]
   connect_bd_net -net axiMaio_0_irq_event_timer_start [get_bd_pins axiMaio_0/irq_event_timer_start] [get_bd_pins interrupt_mapping/irq_timer_start]
   connect_bd_net -net axiMaio_0_user_data_out [get_bd_pins user_data_out] [get_bd_pins axiMaio_0/user_data_out]
-  connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins interrupt_mapping/irq_qspi]
-  connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins ext_spi_clk] [get_bd_pins axi_quad_spi_0/ext_spi_clk]
-  connect_bd_net -net interrupt_mapping_irq_event [get_bd_pins espi_irq] [get_bd_pins interrupt_mapping/irq_event]
+  connect_bd_net -net interrupt_mapping_irq_event [get_bd_pins interrupt_mapping/irq_event] [get_bd_pins pcie2AxiMaster_0/irq_event]
+  connect_bd_net -net pcie_sys_clk_0_1 [get_bd_pins pcie_sys_clk_100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
+  connect_bd_net -net pcie_sys_rst_n_0_1 [get_bd_pins sys_rst_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
   connect_bd_net -net user_data_in_0_1 [get_bd_pins user_data_in] [get_bd_pins axiMaio_0/user_data_in]
 
   # Restore current instance
@@ -879,33 +870,31 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
+  set debug_uart [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 debug_uart ]
+
   set ext_sync [ create_bd_intf_port -mode Master -vlnv matrox.com:user:ext_sync_rtl:1.0 ext_sync ]
+
+  set fpga_info [ create_bd_intf_port -mode Slave -vlnv matrox.com:Imaging:FPGA_Info_rtl:1.0 fpga_info ]
+
+  set mtxSPI [ create_bd_intf_port -mode Master -vlnv matrox.com:MatroxIP:mtxSPI_rtl:1.0 mtxSPI ]
+
+  set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
 
   set rmii [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:rmii_rtl:1.0 rmii ]
 
-  set spi [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 spi ]
-
-  set startup_io [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_startup_io:startup_io_rtl:1.0 startup_io ]
-
-  set uart [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 uart ]
-
 
   # Create ports
-  set GPO_0 [ create_bd_port -dir O -from 1 -to 0 GPO_0 ]
-  set IENOn_0 [ create_bd_port -dir O IENOn_0 ]
-  set RPC_CK_0 [ create_bd_port -dir O RPC_CK_0 ]
-  set RPC_CK_N_0 [ create_bd_port -dir O RPC_CK_N_0 ]
-  set RPC_CS0_N_0 [ create_bd_port -dir O RPC_CS0_N_0 ]
-  set RPC_CS1_N_0 [ create_bd_port -dir O RPC_CS1_N_0 ]
-  set RPC_DQ_0 [ create_bd_port -dir IO -from 7 -to 0 RPC_DQ_0 ]
-  set RPC_RESET_N_0 [ create_bd_port -dir O RPC_RESET_N_0 ]
-  set RPC_RWDS_0 [ create_bd_port -dir IO RPC_RWDS_0 ]
-  set RPC_WP_N_0 [ create_bd_port -dir O RPC_WP_N_0 ]
-  set espi_clk [ create_bd_port -dir I -type clk espi_clk ]
-  set espi_irq [ create_bd_port -dir O espi_irq ]
-  set espi_reset_n [ create_bd_port -dir I -type rst espi_reset_n ]
-  set ext_rst_n [ create_bd_port -dir I -type rst ext_rst_n ]
+  set pcie_sys_clk_100MHz [ create_bd_port -dir I -type clk pcie_sys_clk_100MHz ]
   set ref_clk_100MHz [ create_bd_port -dir I -type clk ref_clk_100MHz ]
+  set rpc_ck [ create_bd_port -dir O rpc_ck ]
+  set rpc_ck_n [ create_bd_port -dir O rpc_ck_n ]
+  set rpc_cs0_n [ create_bd_port -dir O rpc_cs0_n ]
+  set rpc_cs1_n [ create_bd_port -dir O rpc_cs1_n ]
+  set rpc_dq [ create_bd_port -dir IO -from 7 -to 0 rpc_dq ]
+  set rpc_reset_n [ create_bd_port -dir O rpc_reset_n ]
+  set rpc_rwds [ create_bd_port -dir IO rpc_rwds ]
+  set rpc_wp_n [ create_bd_port -dir O rpc_wp_n ]
+  set sys_rst_n [ create_bd_port -dir I -type rst sys_rst_n ]
   set user_data_in [ create_bd_port -dir I -from 3 -to 0 user_data_in ]
   set user_data_out [ create_bd_port -dir O -from 2 -to 0 user_data_out ]
 
@@ -947,47 +936,45 @@ proc create_root_design { parentCell } {
    CONFIG.USE_MIN_POWER {true} \
  ] $clk_wiz_0
 
-  # Create instance: espi_host_system
-  create_hier_cell_espi_host_system [current_bd_instance .] espi_host_system
+  # Create instance: host_if_system
+  create_hier_cell_host_if_system [current_bd_instance .] host_if_system
 
   # Create instance: profinet_system
   create_hier_cell_profinet_system [current_bd_instance .] profinet_system
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axiMaio_0_ext_sync [get_bd_intf_ports ext_sync] [get_bd_intf_pins espi_host_system/ext_sync]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_ports spi] [get_bd_intf_pins espi_host_system/qspi]
-  connect_bd_intf_net -intf_net axi_quad_spi_0_STARTUP_IO [get_bd_intf_ports startup_io] [get_bd_intf_pins espi_host_system/STARTUP_IO]
-  connect_bd_intf_net -intf_net espi_host_system_mbox_axim [get_bd_intf_pins espi_host_system/mbox_axim] [get_bd_intf_pins profinet_system/mbox_axi]
-  connect_bd_intf_net -intf_net sect_mb_UART_0 [get_bd_intf_ports uart] [get_bd_intf_pins profinet_system/uart]
-  connect_bd_intf_net -intf_net sect_mb_rmii_0 [get_bd_intf_ports rmii] [get_bd_intf_pins profinet_system/rmii_0]
+  connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports fpga_info] [get_bd_intf_pins host_if_system/fpga_Info]
+  connect_bd_intf_net -intf_net axiMaio_0_ext_sync [get_bd_intf_ports ext_sync] [get_bd_intf_pins host_if_system/ext_sync]
+  connect_bd_intf_net -intf_net espi_host_system_mbox_axim [get_bd_intf_pins host_if_system/mbox_axim] [get_bd_intf_pins profinet_system/host_mbox]
+  connect_bd_intf_net -intf_net espi_host_system_mtxSPI_0 [get_bd_intf_ports mtxSPI] [get_bd_intf_pins host_if_system/mtxSPI]
+  connect_bd_intf_net -intf_net espi_host_system_pcie_mgt_0 [get_bd_intf_ports pcie] [get_bd_intf_pins host_if_system/pcie]
+  connect_bd_intf_net -intf_net sect_mb_UART_0 [get_bd_intf_ports debug_uart] [get_bd_intf_pins profinet_system/debug_uart]
+  connect_bd_intf_net -intf_net sect_mb_rmii_0 [get_bd_intf_ports rmii] [get_bd_intf_pins profinet_system/rmii]
 
   # Create port connections
-  connect_bd_net -net Net [get_bd_ports RPC_RWDS_0] [get_bd_pins profinet_system/RPC_RWDS_0]
-  connect_bd_net -net Net1 [get_bd_ports RPC_DQ_0] [get_bd_pins profinet_system/RPC_DQ_0]
-  connect_bd_net -net PCIE_RESET_N_1 [get_bd_ports ext_rst_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins profinet_system/ext_rst_n]
-  connect_bd_net -net aclk_0_1 [get_bd_ports espi_clk] [get_bd_pins espi_host_system/espi_clk] [get_bd_pins profinet_system/mbox_clk]
-  connect_bd_net -net axiMaio_0_user_data_out [get_bd_ports user_data_out] [get_bd_pins espi_host_system/user_data_out]
+  connect_bd_net -net Net [get_bd_ports rpc_rwds] [get_bd_pins profinet_system/RPC_RWDS]
+  connect_bd_net -net Net1 [get_bd_ports rpc_dq] [get_bd_pins profinet_system/RPC_DQ]
+  connect_bd_net -net PCIE_RESET_N_1 [get_bd_ports sys_rst_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins host_if_system/sys_rst_n] [get_bd_pins profinet_system/ext_rst_n]
+  connect_bd_net -net axiMaio_0_user_data_out [get_bd_ports user_data_out] [get_bd_pins host_if_system/user_data_out]
   connect_bd_net -net clk_in1_0_1 [get_bd_ports ref_clk_100MHz] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net clk_wiz_0_axi_clk [get_bd_pins clk_wiz_0/ref_clk_100MHz] [get_bd_pins profinet_system/sysclk_100MHz]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins profinet_system/dcm_locked]
-  connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins clk_wiz_0/ref_clk_50MHz] [get_bd_pins espi_host_system/ext_spi_clk] [get_bd_pins profinet_system/ncsi_clk_50MHz_0]
+  connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins clk_wiz_0/ref_clk_50MHz] [get_bd_pins profinet_system/ncsi_clk_50MHz_0]
   connect_bd_net -net clk_wiz_0_ref_clk_125MHz [get_bd_pins clk_wiz_0/ref_clk_125MHz] [get_bd_pins profinet_system/gtx_clk_125MHz_0]
-  connect_bd_net -net espi_reset_n [get_bd_ports espi_reset_n] [get_bd_pins espi_host_system/espi_reset_n] [get_bd_pins profinet_system/mbox_reset_n]
-  connect_bd_net -net host_system_irq_event_0 [get_bd_ports espi_irq] [get_bd_pins espi_host_system/espi_irq]
-  connect_bd_net -net profinet_system_GPO_0 [get_bd_ports GPO_0] [get_bd_pins profinet_system/GPO_0]
-  connect_bd_net -net profinet_system_IENOn_0 [get_bd_ports IENOn_0] [get_bd_pins profinet_system/IENOn_0]
-  connect_bd_net -net profinet_system_RPC_CK_0 [get_bd_ports RPC_CK_0] [get_bd_pins profinet_system/RPC_CK_0]
-  connect_bd_net -net profinet_system_RPC_CK_N_0 [get_bd_ports RPC_CK_N_0] [get_bd_pins profinet_system/RPC_CK_N_0]
-  connect_bd_net -net profinet_system_RPC_CS0_N_0 [get_bd_ports RPC_CS0_N_0] [get_bd_pins profinet_system/RPC_CS0_N_0]
-  connect_bd_net -net profinet_system_RPC_CS1_N_0 [get_bd_ports RPC_CS1_N_0] [get_bd_pins profinet_system/RPC_CS1_N_0]
-  connect_bd_net -net profinet_system_RPC_RESET_N_0 [get_bd_ports RPC_RESET_N_0] [get_bd_pins profinet_system/RPC_RESET_N_0]
-  connect_bd_net -net profinet_system_RPC_WP_N_0 [get_bd_ports RPC_WP_N_0] [get_bd_pins profinet_system/RPC_WP_N_0]
-  connect_bd_net -net user_data_in_0_1 [get_bd_ports user_data_in] [get_bd_pins espi_host_system/user_data_in]
+  connect_bd_net -net host_if_system_pcie_axi_clk [get_bd_pins host_if_system/pcie_axi_clk] [get_bd_pins profinet_system/host_mbox_clk]
+  connect_bd_net -net host_if_system_pcie_axi_reset_n [get_bd_pins host_if_system/pcie_axi_reset_n] [get_bd_pins profinet_system/host_mbox_reset_n]
+  connect_bd_net -net pcie_sys_clk_0_0_1 [get_bd_ports pcie_sys_clk_100MHz] [get_bd_pins host_if_system/pcie_sys_clk_100MHz]
+  connect_bd_net -net profinet_system_RPC_CK_0 [get_bd_ports rpc_ck] [get_bd_pins profinet_system/RPC_CK]
+  connect_bd_net -net profinet_system_RPC_CK_N_0 [get_bd_ports rpc_ck_n] [get_bd_pins profinet_system/RPC_CK_N]
+  connect_bd_net -net profinet_system_RPC_CS0_N_0 [get_bd_ports rpc_cs0_n] [get_bd_pins profinet_system/RPC_CS0_N]
+  connect_bd_net -net profinet_system_RPC_CS1_N_0 [get_bd_ports rpc_cs1_n] [get_bd_pins profinet_system/RPC_CS1_N]
+  connect_bd_net -net profinet_system_RPC_RESET_N_0 [get_bd_ports rpc_reset_n] [get_bd_pins profinet_system/RPC_RESET_N]
+  connect_bd_net -net profinet_system_RPC_WP_N_0 [get_bd_ports rpc_wp_n] [get_bd_pins profinet_system/RPC_WP_N]
+  connect_bd_net -net user_data_in_0_1 [get_bd_ports user_data_in] [get_bd_pins host_if_system/user_data_in]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces espi_host_system/host_espi_emulation/Data] [get_bd_addr_segs espi_host_system/axiMaio_0/s_axi/reg0] SEG_axiMaio_0_reg0
-  create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces espi_host_system/host_espi_emulation/Data] [get_bd_addr_segs espi_host_system/axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43600000 [get_bd_addr_spaces espi_host_system/host_espi_emulation/Data] [get_bd_addr_segs profinet_system/mailbox_0/S0_AXI/Reg] SEG_mailbox_0_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces host_if_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs host_if_system/axiMaio_0/s_axi/reg0] SEG_axiMaio_0_reg0
+  create_bd_addr_seg -range 0x00010000 -offset 0x43600000 [get_bd_addr_spaces host_if_system/pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs profinet_system/mailbox_0/S0_AXI/Reg] SEG_mailbox_0_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41E00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/sect_profinet/axi_dma_0/S_AXI_LITE/Reg] SEG_axi_dma_0_Reg
   create_bd_addr_seg -range 0x00040000 -offset 0x40C00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/sect_profinet/axi_ethernet_0/s_axi/Reg0] SEG_axi_ethernet_0_Reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x41C00000 [get_bd_addr_spaces profinet_system/microblaze_0/Data] [get_bd_addr_segs profinet_system/axi_timer_0/S_AXI/Reg] SEG_axi_timer_0_Reg

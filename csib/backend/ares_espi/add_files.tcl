@@ -2,11 +2,11 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
-  [file normalize "${BACKEND_DIR}/csib_ares_xc7a50t.vhd"]
+  [file normalize "${SRC_DIR}/ares_espi_xc7a50t.vhd"]
 ]
 
-# add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
-# update_compile_order -fileset ${HDL_FILESET}
+add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
+update_compile_order -fileset ${HDL_FILESET}
 
 
 ################################################
