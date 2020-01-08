@@ -7,7 +7,6 @@
 -- V0.2     : 
 --
 -- PROJECT: Iris-4
---D:/git/gitlab/iris4/csib/vivado/2019.1/csib_xczu2cg_1574439982/csib_xczu2cg_1574439982.srcs/sources_1/bd/system_pb/hdl/system_pb_wrapper.vhd
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -31,6 +30,7 @@ entity ares_espi_xc7a50t is
   port (
     sys_rst_n      : in std_logic;
     ref_clk_100MHz : in std_logic;
+    fpga_straps    : in std_logic_vector(3 downto 0);
 
     ---------------------------------------------------------------------------
     --eSPI interface
@@ -81,7 +81,6 @@ entity ares_espi_xc7a50t is
     -- NCSI I/F
     ---------------------------------------------------------------------------
     rmii_crs_dv : in  std_logic;
-    rmii_rx_er  : in  std_logic;
     rmii_rxd    : in  std_logic_vector (1 downto 0);
     rmii_tx_en  : out std_logic;
     rmii_txd    : out std_logic_vector (1 downto 0);
@@ -205,7 +204,7 @@ begin
       mtxSPI_spi_sdin              => spi_sdin,
       mtxSPI_spi_sdout             => spi_sdout,
       rmii_crs_dv                  => rmii_crs_dv,
-      rmii_rx_er                   => rmii_rx_er,
+      rmii_rx_er                   => '0', -- NC
       rmii_rxd                     => rmii_rxd,
       rmii_tx_en                   => rmii_tx_en,
       rmii_txd                     => rmii_txd,

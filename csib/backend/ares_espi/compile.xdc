@@ -1,6 +1,36 @@
 
 ## Power analysis
-set_load 10.000 [all_outputs]
+set_property LOAD 10 [get_ports acq_trigger]
+set_property LOAD 10 [get_ports debug_uart_txd]
+set_property LOAD 10 [get_ports espi_alert_n]
+set_property LOAD 10 [get_ports {espi_io[0]}]
+set_property LOAD 10 [get_ports {espi_io[1]}]
+set_property LOAD 10 [get_ports {espi_io[2]}]
+set_property LOAD 10 [get_ports {espi_io[3]}]
+set_property LOAD 10 [get_ports pcie_txn]
+set_property LOAD 10 [get_ports pcie_txp]
+set_property LOAD 10 [get_ports pwm_out]
+set_property LOAD 10 [get_ports rpc_ck_n]
+set_property LOAD 10 [get_ports rpc_ck_p]
+set_property LOAD 10 [get_ports rpc_cs0_n]
+set_property LOAD 10 [get_ports rpc_cs1_n]
+set_property LOAD 10 [get_ports {rpc_dq[0]}]
+set_property LOAD 10 [get_ports {rpc_dq[1]}]
+set_property LOAD 10 [get_ports {rpc_dq[2]}]
+set_property LOAD 10 [get_ports {rpc_dq[3]}]
+set_property LOAD 10 [get_ports {rpc_dq[4]}]
+set_property LOAD 10 [get_ports {rpc_dq[5]}]
+set_property LOAD 10 [get_ports {rpc_dq[6]}]
+set_property LOAD 10 [get_ports {rpc_dq[7]}]
+set_property LOAD 10 [get_ports rpc_reset_n]
+set_property LOAD 10 [get_ports rpc_rwds]
+set_property LOAD 10 [get_ports rpc_wp_n]
+set_property LOAD 10 [get_ports spi_csn]
+set_property LOAD 10 [get_ports spi_sdout]
+set_property LOAD 10 [get_ports status_gled]
+set_property LOAD 10 [get_ports status_rled]
+set_property LOAD 10 [get_ports user_gled]
+set_property LOAD 10 [get_ports user_rled]
 set_property LOAD 10 [get_ports {GPO_0[0]}]
 set_property LOAD 10 [get_ports {GPO_0[1]}]
 set_property LOAD 10 [get_ports IENOn_0]
@@ -38,12 +68,10 @@ set_property LOAD 10 [get_ports uart_txd]
 set_property LOAD 10 [get_ports {user_data_out[0]}]
 set_property LOAD 10 [get_ports {user_data_out[1]}]
 set_property LOAD 10 [get_ports {user_data_out[2]}]
-set_operating_conditions -ambient_temp 85.0
-set_operating_conditions -board_layers 8to11
-set_operating_conditions -board small
-set_operating_conditions -heatsink high
 
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
 connect_debug_port dbg_hub/clk [get_nets espi_clk_IBUF_BUFG]
+
+
