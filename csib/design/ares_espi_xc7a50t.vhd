@@ -80,10 +80,11 @@ entity ares_espi_xc7a50t is
     ---------------------------------------------------------------------------
     -- NCSI I/F
     ---------------------------------------------------------------------------
-    rmii_crs_dv : in  std_logic;
-    rmii_rxd    : in  std_logic_vector (1 downto 0);
-    rmii_tx_en  : out std_logic;
-    rmii_txd    : out std_logic_vector (1 downto 0);
+    rmii_clk_out : out std_logic;
+    rmii_crs_dv  : in  std_logic;
+    rmii_rxd     : in  std_logic_vector (1 downto 0);
+    rmii_tx_en   : out std_logic;
+    rmii_txd     : out std_logic_vector (1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Flash SPI
@@ -141,6 +142,7 @@ architecture struct of ares_espi_xc7a50t is
       pcie_txn                     : out   std_logic;
       pcie_txp                     : out   std_logic;
       ref_clk_100MHz               : in    std_logic;
+      rmii_clk_out                 : out   std_logic;
       rmii_crs_dv                  : in    std_logic;
       rmii_rx_er                   : in    std_logic;
       rmii_rxd                     : in    std_logic_vector (1 downto 0);
@@ -162,7 +164,8 @@ architecture struct of ares_espi_xc7a50t is
 
 
 
-  signal pcie_sys_clk : std_logic;
+  signal pcie_sys_clk       : std_logic;
+  signal ref_clk_100MHz_int : std_logic;
 
 
 
@@ -178,11 +181,17 @@ begin
       ODIV2 => open
       );
 
+  ref_clk_100MHz_bufg : BUFG
+    port map
+    (
+      O => ref_clk_100MHz_int,
+      I => pcie_sys_clk
+      );
 
   xsystem_pb_wrapper : system_pb_wrapper
     port map(
       sys_rst_n                    => sys_rst_n,
-      ref_clk_100MHz               => ref_clk_100MHz,
+      ref_clk_100MHz               => ref_clk_100MHz_int,
       pcie_sys_clk_100MHz          => pcie_sys_clk,
       pcie_rxn                     => pcie_rxn,
       pcie_rxp                     => pcie_rxp,
@@ -203,8 +212,9 @@ begin
       mtxSPI_spi_csn               => spi_csn,
       mtxSPI_spi_sdin              => spi_sdin,
       mtxSPI_spi_sdout             => spi_sdout,
+      rmii_clk_out                 => rmii_clk_out,
       rmii_crs_dv                  => rmii_crs_dv,
-      rmii_rx_er                   => '0', -- NC
+      rmii_rx_er                   => '0',  -- NC
       rmii_rxd                     => rmii_rxd,
       rmii_tx_en                   => rmii_tx_en,
       rmii_txd                     => rmii_txd,

@@ -652,6 +652,10 @@ proc create_hier_cell_profinet_system { parentCell nameHier } {
 
   # Create instance: rpc2_ctrl_controller_0, and set properties
   set rpc2_ctrl_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:rpc2_ctrl_controller:1.0 rpc2_ctrl_controller_0 ]
+  set_property -dict [ list \
+   CONFIG.C_AXI_MEM_ADDR_WIDTH {32} \
+   CONFIG.C_AXI_REG_ADDR_WIDTH {32} \
+ ] $rpc2_ctrl_controller_0
 
   # Create instance: rst_Clk_100M, and set properties
   set rst_Clk_100M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_Clk_100M ]
@@ -886,6 +890,10 @@ proc create_root_design { parentCell } {
   # Create ports
   set pcie_sys_clk_100MHz [ create_bd_port -dir I -type clk pcie_sys_clk_100MHz ]
   set ref_clk_100MHz [ create_bd_port -dir I -type clk ref_clk_100MHz ]
+  set rmii_clk_out [ create_bd_port -dir O -type clk rmii_clk_out ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {50000000} \
+ ] $rmii_clk_out
   set rpc_ck [ create_bd_port -dir O rpc_ck ]
   set rpc_ck_n [ create_bd_port -dir O rpc_ck_n ]
   set rpc_cs0_n [ create_bd_port -dir O rpc_cs0_n ]
@@ -913,12 +921,17 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {125.000} \
    CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLKOUT4_DRIVES {BUFG} \
+   CONFIG.CLKOUT4_JITTER {151.636} \
+   CONFIG.CLKOUT4_PHASE_ERROR {98.575} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {50} \
+   CONFIG.CLKOUT4_USED {true} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
    CONFIG.CLKOUT6_DRIVES {BUFG} \
    CONFIG.CLKOUT7_DRIVES {BUFG} \
    CONFIG.CLK_OUT1_PORT {ref_clk_100MHz} \
    CONFIG.CLK_OUT2_PORT {ref_clk_50MHz} \
    CONFIG.CLK_OUT3_PORT {ref_clk_125MHz} \
+   CONFIG.CLK_OUT4_PORT {rmii_clk_out} \
    CONFIG.JITTER_SEL {No_Jitter} \
    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
    CONFIG.MMCM_CLKFBOUT_MULT_F {10} \
@@ -928,9 +941,12 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT2_DIVIDE {8} \
    CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {20} \
+   CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
-   CONFIG.NUM_OUT_CLKS {3} \
+   CONFIG.NUM_OUT_CLKS {4} \
    CONFIG.PRIMITIVE {PLL} \
+   CONFIG.PRIM_SOURCE {No_buffer} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.USE_MIN_POWER {true} \
@@ -961,6 +977,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins profinet_system/dcm_locked]
   connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins clk_wiz_0/ref_clk_50MHz] [get_bd_pins profinet_system/ncsi_clk_50MHz_0]
   connect_bd_net -net clk_wiz_0_ref_clk_125MHz [get_bd_pins clk_wiz_0/ref_clk_125MHz] [get_bd_pins profinet_system/gtx_clk_125MHz_0]
+  connect_bd_net -net clk_wiz_0_rmii_clk_out [get_bd_ports rmii_clk_out] [get_bd_pins clk_wiz_0/rmii_clk_out]
   connect_bd_net -net host_if_system_pcie_axi_clk [get_bd_pins host_if_system/pcie_axi_clk] [get_bd_pins profinet_system/host_mbox_clk]
   connect_bd_net -net host_if_system_pcie_axi_reset_n [get_bd_pins host_if_system/pcie_axi_reset_n] [get_bd_pins profinet_system/host_mbox_reset_n]
   connect_bd_net -net pcie_sys_clk_0_0_1 [get_bd_ports pcie_sys_clk_100MHz] [get_bd_pins host_if_system/pcie_sys_clk_100MHz]
