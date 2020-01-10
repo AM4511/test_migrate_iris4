@@ -3,6 +3,8 @@
 ################################################
 set FILE_LIST [list \
   [file normalize "${WORKDIR}/cores/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
+  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
+  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_spi_w_fifo/xil_spi_w_fifo.xci"]\
   [file normalize "${SRC_DIR}/osirispak.vhd"]\
   [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
   [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
@@ -27,7 +29,6 @@ set FILE_LIST [list \
   [file normalize "${SRC_DIR}/TickTable.vhd"]\
   [file normalize "${SRC_DIR}/timer.vhd"]\
   [file normalize "${SRC_DIR}/userio_bank.vhd"]\
-
   [file normalize "${SRC_DIR}/xil_ticktable.vhd"]\
   [file normalize "${SRC_DIR}/ares.vhd"]
 ]
@@ -39,12 +40,13 @@ update_compile_order -fileset ${HDL_FILESET}
 ################################################
 # Add constraints files
 ################################################
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
+
 #add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
-#set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
+set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
-#set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
+set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
 
 # Target constraints file
 set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
