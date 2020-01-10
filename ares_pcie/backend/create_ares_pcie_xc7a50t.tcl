@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/ares_espi/create_ares_espi_xc7a50t.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares_pcie_xc7a50t.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  ares_espi_xc7a50t
+set BASE_NAME  ares_pcie_xc7a50t
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -32,21 +32,21 @@ set FPGA_IS_NPI_GOLDEN     0
 #  Others : reserved
 set FPGA_DEVICE_ID 0
 
-set WORKDIR     $env(CSIB)
-set IPCORES_DIR ${WORKDIR}/ipcores
+set WORKDIR     $env(IRIS4)/ares_pcie
+set IPCORES_DIR ${WORKDIR}/cores 
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set VIVADO_DIR  "D:/vivado/2019.1"
-set BACKEND_DIR ${WORKDIR}/backend/ares_espi
+set BACKEND_DIR ${WORKDIR}/backend
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
 
 set SRC_DIR            ${WORKDIR}/design
+set REG_DIR            ${WORKDIR}/registerfile
 set SDK_DIR            ${WORKDIR}/sdk
 set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ares_pb.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -63,11 +63,8 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
-set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR  ${PROJECT_DIR}/board_level
-
+set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 file mkdir $PROJECT_DIR
-file mkdir $PCB_DIR
 
 cd $PROJECT_DIR
 file delete -force ${PROJECT_NAME}.xpr
@@ -100,17 +97,19 @@ regenerate_bd_layout
 validate_bd_design
 save_bd_design
 
-## Create the Wrapper file
-set BD_FILE [get_files "*system_pb.bd"]
-set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
-add_files -norecurse -force $BD_WRAPPER_FILE
+if {0} {
+	## Create the Wrapper file
+	set BD_FILE [get_files "*system_pb.bd"]
+	set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
+	add_files -norecurse -force $BD_WRAPPER_FILE
 
-reset_target all ${BD_FILE}
+	reset_target all ${BD_FILE}
 
-## Generate Bloc design global (Out of context does not work)
-set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
-generate_target all ${BD_FILE}
-export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
+	## Generate Bloc design global (Out of context does not work)
+	set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
+	generate_target all ${BD_FILE}
+	export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
+}
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
@@ -139,12 +138,6 @@ set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
 launch_runs ${IMPL_RUN}  -to_step write_bitstream -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
 
-################################################
-# Export board level info
-################################################
-write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
-write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
-report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 
 ################################################
 # Run Backend script
