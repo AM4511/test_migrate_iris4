@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER Lpc_to_AXI_prodcons
+	OPTION supported_peripherals = (Lpc_to_AXI_prodcons);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = Lpc_to_AXI_prodcons;
+END DRIVER

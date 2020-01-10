@@ -361,6 +361,7 @@ proc create_root_design { parentCell } {
   # Create instance: axi_ethernet_0, and set properties
   set axi_ethernet_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_ethernet:7.1 axi_ethernet_0 ]
   set_property -dict [ list \
+   CONFIG.Include_IO {false} \
    CONFIG.PHY_TYPE {MII} \
    CONFIG.Statistics_Counters {false} \
  ] $axi_ethernet_0

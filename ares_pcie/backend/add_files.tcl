@@ -48,8 +48,18 @@ set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
 set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
 
+
+#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pcie_7x-PCIE_X0Y0.xdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${IPCORES_DIR}/xil_cores_artix7/ddr2-100MHz_in/ddr2/user_design/constraints/ddr2.xdc
+
+
+#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse  ${XDC_DIR}/mb_spi_access.xdc
+#set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/mb_spi_access.xdc]
+
+
 # Target constraints file
 set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
 
+#set_property IS_ENABLED 0 [get_files */bd_a352_mac_0.xdc]
