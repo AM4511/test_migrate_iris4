@@ -14,6 +14,7 @@ update_compile_order -fileset ${HDL_FILESET}
 ################################################
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/implementation_timing_constraints.xdc
 set_property used_in_synthesis false [get_files  ${XDC_DIR}/implementation_timing_constraints.xdc]
 # Needs to be processed late because of the set_property IOB false constraints

@@ -139,6 +139,18 @@ wait_on_run ${IMPL_RUN}
 
 
 ################################################
+# Create board reports (IOs and Power)
+################################################
+set PORT_MAP "${PCB_DIR}/ios_${PROJECT_NAME}"
+set POWER_REPORT "${PCB_DIR}/power_${PROJECT_NAME}.txt"
+
+write_vhdl ${PORT_MAP}.vhd -mode pin_planning -force
+write_csv  ${PORT_MAP}.csv -force
+write_xdc  ${PORT_MAP}.xdc -mode port -force
+report_power -file ${POWER_REPORT} -name "Power"
+	
+	
+################################################
 # Run Backend script
 ################################################
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
