@@ -47,6 +47,7 @@ set XDC_DIR            ${BACKEND_DIR}
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ares_pb.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -110,6 +111,7 @@ if {0} {
 	generate_target all ${BD_FILE}
 	export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 }
+
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
