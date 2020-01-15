@@ -1,8 +1,9 @@
 ####################################################
 ## Pin assignment
 ####################################################
-set_property PACKAGE_PIN G3 [get_ports sys_rst_in_n]
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
+set_property PACKAGE_PIN H17 [get_ports sys_rst_in_n]
+set_property PACKAGE_PIN L17 [get_ports sys_rst_out_n]
 set_property PACKAGE_PIN U18 [get_ports {fpga_straps[3]}]
 set_property PACKAGE_PIN V17 [get_ports {fpga_straps[2]}]
 set_property PACKAGE_PIN W16 [get_ports {fpga_straps[1]}]
@@ -15,22 +16,23 @@ set_property PACKAGE_PIN J17 [get_ports espi_reset_n]
 set_property PACKAGE_PIN K17 [get_ports espi_clk]
 set_property PACKAGE_PIN E19 [get_ports espi_alert_n]
 set_property PACKAGE_PIN L18 [get_ports espi_cs_n]
-set_property PACKAGE_PIN E18 [get_ports {espi_io[3]}]
-#set_property PACKAGE_PIN F18 [get_ports {espi_io[2]}]
-#set_property PACKAGE_PIN G18 [get_ports {espi_io[1]}]
-set_property PACKAGE_PIN G19 [get_ports {espi_io[0]}]
+set_property PACKAGE_PIN G19 [get_ports {espi_io[3]}]
+set_property PACKAGE_PIN H19 [get_ports {espi_io[2]}]
+set_property PACKAGE_PIN J18 [get_ports {espi_io[1]}]
+set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 
 
 
 ####################################################
 ## PCIe interface
 ####################################################
-set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
-set_property PACKAGE_PIN A4 [get_ports pcie_rxn]
-set_property PACKAGE_PIN B4 [get_ports pcie_rxp]
-set_property PACKAGE_PIN D1 [get_ports pcie_txn]
-set_property PACKAGE_PIN D2 [get_ports pcie_txp]
+set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
+set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
+set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
+set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
+set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
+set_property PACKAGE_PIN D2 [get_ports {pcie_txp[0]}]
 
 
 ####################################################
@@ -80,10 +82,10 @@ set_property PACKAGE_PIN N2 [get_ports ncsi_tx_en]
 ## Configuration flash interface
 ####################################################
 set_property PACKAGE_PIN K19 [get_ports spi_cs_n]
-set_property PACKAGE_PIN D18 [get_ports spi_sd[0]]
-set_property PACKAGE_PIN D19 [get_ports spi_sd[1]]
-set_property PACKAGE_PIN G18 [get_ports spi_sd[2]]
-set_property PACKAGE_PIN F18 [get_ports spi_sd[3]]
+set_property PACKAGE_PIN D18 [get_ports {spi_sd[0]}]
+set_property PACKAGE_PIN D19 [get_ports {spi_sd[1]}]
+set_property PACKAGE_PIN G18 [get_ports {spi_sd[2]}]
+set_property PACKAGE_PIN F18 [get_ports {spi_sd[3]}]
 
 
 ####################################################
@@ -121,7 +123,6 @@ set_property PACKAGE_PIN T3 [get_ports {user_data_out[0]}]
 set_property PACKAGE_PIN U8 [get_ports {user_data_out[1]}]
 set_property PACKAGE_PIN U7 [get_ports {user_data_out[2]}]
 
-set_property PACKAGE_PIN L17 [get_ports sys_rst_out_n]
 
 
 #set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xsystem_pb_wrapper/system_pb_i/host_if_system/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
@@ -154,6 +155,10 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[3]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[0]}]
+
+
+set_property IOSTANDARD LVCMOS18 [get_ports hb_rsto_n]
+set_property IOSTANDARD LVCMOS18 [get_ports hb_int_n]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[7]}]
 set_property DRIVE 4 [get_ports {hb_dq[7]}]
 set_property SLEW SLOW [get_ports {hb_dq[7]}]
@@ -203,13 +208,13 @@ set_property SLEW SLOW [get_ports hb_rst_n]
 set_property IOSTANDARD LVCMOS18 [get_ports spi_cs_n]
 set_property DRIVE 4 [get_ports spi_cs_n]
 set_property SLEW SLOW [get_ports spi_cs_n]
-set_property DRIVE 4 [get_ports spi_sd[*]]
-set_property SLEW SLOW [get_ports spi_sd[*]]
+set_property DRIVE 4 [get_ports {spi_sd[*]}]
+set_property SLEW SLOW [get_ports {spi_sd[*]}]
 set_property IOSTANDARD LVCMOS18 [get_ports user_gled_soc]
 set_property IOSTANDARD LVCMOS18 [get_ports hb_rwds]
 set_property DRIVE 4 [get_ports hb_rwds]
 set_property SLEW SLOW [get_ports hb_rwds]
-set_property IOSTANDARD LVCMOS18 [get_ports spi_sd[*]]
+set_property IOSTANDARD LVCMOS18 [get_ports {spi_sd[*]}]
 set_property IOSTANDARD LVCMOS18 [get_ports ref_clk_100MHz]
 set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_in_n]
 set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_rxd]
@@ -252,3 +257,4 @@ set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
 set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_out_n]
+
