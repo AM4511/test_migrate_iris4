@@ -41,38 +41,38 @@ entity ares_pcie is
     SYNTH_TICK_TABLES : integer := 1;  -- Pour ne pas implementer les TickTables mettre a '0'
     SYNTH_TIMERs      : integer := 1;  -- Pour ne pas implementer les Timers mettre a '0'
     SYNTH_QUAD_DECs   : integer := 1  -- Pour ne pas implementer les Quad Dec mettre a '0'
-    --DDR2_BUS_WIDTH    : integer := 8
     );
   port (
+    sys_rst_in_n   : in std_logic;
+    ref_clk_100MHz : in std_logic;
+    fpga_straps    : in std_logic_vector(3 downto 0);
+
+    ---------------------------------------------------------------------------
+    --eSPI interface
+    ---------------------------------------------------------------------------
+    espi_reset_n : in    std_logic;
+    espi_clk     : in    std_logic;
+    espi_cs_n    : in    std_logic;
+    espi_io      : inout std_logic_vector(3 downto 0);
+    espi_alert_n : out   std_logic;
+
     ---------------------------------------------------------------------------
     --  PCIe core
     ---------------------------------------------------------------------------
-    pcie_sys_clk_n : in std_logic;
-    pcie_sys_clk_p : in std_logic;
-    pcie_sys_rst_n : in std_logic;
-    pcie_rx_n      : in std_logic_vector(PCIe_LANES-1 downto 0);
-    pcie_rx_p      : in std_logic_vector(PCIe_LANES-1 downto 0);
+    pcie_sys_clk_n : in  std_logic;
+    pcie_sys_clk_p : in  std_logic;
+    pcie_rxn       : in  std_logic_vector(PCIe_LANES-1 downto 0);
+    pcie_rxp       : in  std_logic_vector(PCIe_LANES-1 downto 0);
+    pcie_txn       : out std_logic_vector(PCIe_LANES-1 downto 0);
+    pcie_txp       : out std_logic_vector(PCIe_LANES-1 downto 0);
 
-    pcie_tx_n : out std_logic_vector(PCIe_LANES-1 downto 0);
-    pcie_tx_p : out std_logic_vector(PCIe_LANES-1 downto 0);
-
-    ---------------------------------------------------------------------------
-    --  FPGA FLASH SPI user interface
-    ---------------------------------------------------------------------------
-    spi_sdout : inout std_logic;
-    spi_sdin  : inout std_logic;
-    spi_csN   : inout std_logic;
-    -- synthesis translate_off
-    spi_sclk  : out   std_logic;        --   (cpg236: cclk) (out) spi_cclk  
-    -- synthesis translate_on
 
     ---------------------------------------------------------------------------
-    --  FPGA USER IO interface
+    -- CPU debug interface
     ---------------------------------------------------------------------------
-    -- user io
-    user_data_in  : in  std_logic_vector(NB_USER_IN-1 downto 0);
-    user_data_out : out std_logic_vector(NB_USER_OUT-1 downto 0);
-    pwm_out       : out std_logic;
+    debug_uart_rxd : in  std_logic;
+    debug_uart_txd : out std_logic;
+
 
     ------------------------------
     -- connexion au FPGA Athena --
@@ -93,10 +93,6 @@ entity ares_pcie is
     status_rled   : out std_logic;
     status_gled   : out std_logic;
 
-    --------------------------------------------------
-    -- correctif au probleme de reset baytrail
-    --------------------------------------------------
-    pwrrst : out std_logic := 'Z';
 
     --------------------------------------------------
     -- NCSI et IO divers 
@@ -104,12 +100,18 @@ entity ares_pcie is
     ncsi_clk       : out std_logic;
     ncsi_rx_crs_dv : in  std_logic;
     ncsi_rxd       : in  std_logic_vector(1 downto 0);
-    ncsi_txen      : out std_logic;
+    ncsi_tx_en     : out std_logic;
     ncsi_txd       : out std_logic_vector(1 downto 0);
 
-    uart_txd : out std_logic;
-    --debug_out                 : out   std_logic;
+    ---------------------------------------------------------------------------
+    --  FPGA FLASH QUADSPI user interface
+    ---------------------------------------------------------------------------
+    spi_cs_n : inout std_logic;
+    spi_sd   : inout std_logic_vector(3 downto 0);
 
+    ---------------------------------------------------------------------------
+    -- HyperRam I/F
+    ---------------------------------------------------------------------------
     hb_ck     : out   std_logic;
     hb_ck_n   : out   std_logic;
     hb_cs_n   : out   std_logic;
@@ -118,9 +120,23 @@ entity ares_pcie is
     hb_rst_n  : out   std_logic;
     hb_rsto_n : in    std_logic;
     hb_rwds   : inout std_logic;
-    hb_wp_n   : out   std_logic
+    hb_wp_n   : out   std_logic;
+
+    ---------------------------------------------------------------------------
+    --  FPGA USER IO interface
+    ---------------------------------------------------------------------------
+    -- user io
+    pwm_out       : out std_logic;
+    user_data_in  : in  std_logic_vector(NB_USER_IN-1 downto 0);
+    user_data_out : out std_logic_vector(NB_USER_OUT-1 downto 0);
+
+    --------------------------------------------------
+    -- correctif au probleme de reset baytrail
+    --------------------------------------------------
+    sys_rst_out_n : out std_logic := 'Z'
     );
 end ares_pcie;
+
 
 architecture functional of ares_pcie is
 
@@ -422,42 +438,6 @@ architecture functional of ares_pcie is
       );
   end component;
 
-  -- pris de Iris GTR
-  component spi_if is
-
-    port (
-      -----------------------------------------
-      -- Clocks and reset
-      -----------------------------------------
-      sys_reset_n : in std_logic;
-      sys_clk     : in std_logic;       -- register clock
-
-      -----------------------------------------------------------------
-      -- Flash interface
-      -----------------------------------------------------------------
-      spi_sdin  : in  std_logic;        -- data in
-      spi_sdout : out std_logic;        -- data out
-      spi_csN   : out std_logic;        -- chip select
-
-      -----------------------------------------------------------------
-      -- Flash interface without IOB
-      -----------------------------------------------------------------
-      spi_sdout_iob : out std_logic;    -- data out
-      spi_sdout_ts  : out std_logic;    -- data out
-      spi_csN_iob   : out std_logic;    -- chip select
-      spi_csN_ts    : out std_logic;    -- chip select
-
-      spi_sclk    : out std_logic;      -- clock
-      spi_sclk_ts : out std_logic;      -- clock
-
-      -----------------------------------------------------------------
-      -- Registers 
-      -----------------------------------------------------------------
-      regfile : inout SPI_TYPE := INIT_SPI_TYPE
-
-      );
-  end component;
-
 
   component ares_pb_wrapper is
     port (
@@ -501,6 +481,8 @@ architecture functional of ares_pcie is
       reset_n                    : in    std_logic;
       spi_io0_io                 : inout std_logic;
       spi_io1_io                 : inout std_logic;
+      spi_io2_io                 : inout std_logic;
+      spi_io3_io                 : inout std_logic;
       spi_ss_io                  : inout std_logic_vector (0 to 0);
       sysclk                     : in    std_logic;
       sysrst                     : in    std_logic;
@@ -517,9 +499,9 @@ architecture functional of ares_pcie is
   constant TICK_TABLE_WIDTH : integer := user_data_in'length;
 
   -- Signaux associe a l'interface PCIe
-  signal sys_clk        : std_logic;
-  signal sys_reset_n    : std_logic;
-  signal sys_reset      : std_logic;
+  signal pclk           : std_logic;
+  signal preset_n       : std_logic;
+  signal preset         : std_logic;
   signal pcie_sys_clk   : std_logic;  -- reference venant du pcie, apres le input buffer differentiel
   signal clk_100MHz_buf : std_logic;    -- reference, vers le microblaze
 
@@ -581,22 +563,22 @@ architecture functional of ares_pcie is
   signal profinet_irq : std_logic;
 
   -- access au SPI par le microblaze
-  signal spi_io0_i             : std_logic                 := '0';
-  signal spi_io0_o             : std_logic;
-  signal spi_io0_t             : std_logic;
-  signal spi_io1_i             : std_logic                 := '0';
-  signal spi_io1_o             : std_logic;
-  signal spi_io1_t             : std_logic;
-  signal spi_ss_i              : std_logic_vector (0 to 0) := (others => '0');
-  signal spi_ss_o              : std_logic_vector (0 to 0);
-  signal spi_ss_t              : std_logic;
+  -- signal spi_io0_i             : std_logic                 := '0';
+  -- signal spi_io0_o             : std_logic;
+  -- signal spi_io0_t             : std_logic;
+  -- signal spi_io1_i             : std_logic                 := '0';
+  -- signal spi_io1_o             : std_logic;
+  -- signal spi_io1_t             : std_logic;
+  -- signal spi_ss_i              : std_logic_vector (0 to 0) := (others => '0');
+  -- signal spi_ss_o              : std_logic_vector (0 to 0);
+  -- signal spi_ss_t              : std_logic;
   -- acces au SPI par le host
-  signal spi_sdout_iob         : std_logic;
-  signal spi_sdout_ts          : std_logic;
-  signal spi_csN_iob           : std_logic;
-  signal spi_csN_ts            : std_logic;
-  signal spi_sclk_startupe2    : std_logic;
-  signal spi_sclk_ts_startupe2 : std_logic;
+  -- signal spi_sdout_iob         : std_logic;
+  -- signal spi_sdout_ts          : std_logic;
+  -- signal spi_csN_iob           : std_logic;
+  -- signal spi_csN_ts            : std_logic;
+  -- signal spi_sclk_startupe2    : std_logic;
+  -- signal spi_sclk_ts_startupe2 : std_logic;
 
   -- connexion register file external au Microblaze
   signal ext_writeBeN               : std_logic_vector (3 downto 0);
@@ -640,10 +622,10 @@ begin
   -- Du a la relativement faible complexite de ce signal, je ne le mettrai pas dans un module reutilisable (est-ce reutilisable?)
   AcqTrigger_MUX <= profinet_internal_output_sysclk & clean_user_data_in & Timer_Output & Qdecoder_out & TickTableOut1DArray;
 
-  process(sys_clk)
+  process(pclk)
     variable AcqTrigger_AsInt : integer;
   begin
-    if rising_edge(sys_clk) then
+    if rising_edge(pclk) then
       AcqTrigger_AsInt := conv_integer(regfile.InternalOutput.OutputCond(0).Outsel);
       if AcqTrigger_AsInt < AcqTrigger_MUX'length then
         acq_trigger <= AcqTrigger_MUX(AcqTrigger_AsInt);
@@ -664,9 +646,9 @@ begin
   -- CONDITION DE SURCHAUFFE SIGNALEE PAR LED --
   ----------------------------------------------
   -- nous voulons faire un flasher a environ 1 Hz
-  flashergenprc : process(sys_clk)
+  flashergenprc : process(pclk)
   begin
-    if rising_edge(sys_clk) then
+    if rising_edge(pclk) then
       if flasher_count = 0 then
         flasher_count <= MAX_FLASHER_COUNT;
         flasher_state <= not flasher_state;
@@ -747,19 +729,19 @@ begin
       -- PCIe FPGA IOs (100 MHz input clock)
       ---------------------------------------------------------------------------
       pcie_sys_clk   => pcie_sys_clk,
-      pcie_sys_rst_n => pcie_sys_rst_n,
-      pci_exp_rxp    => pcie_rx_p,
-      pci_exp_rxn    => pcie_rx_n,
+      pcie_sys_rst_n => sys_rst_in_n,
+      pci_exp_rxp    => pcie_rxp,
+      pci_exp_rxn    => pcie_rxn,
 
-      pci_exp_txp => pcie_tx_p,
-      pci_exp_txn => pcie_tx_n,
+      pci_exp_txp => pcie_txp,
+      pci_exp_txn => pcie_txn,
 
       ---------------------------------------------------------------------
       -- System clock and reset (62.5 MHz transaction interface clock)
       -- and 100 MHz clock (use to generate 200 MHz for memctrl IDELAY)
       ---------------------------------------------------------------------
-      sys_clk     => sys_clk,
-      sys_reset_n => sys_reset_n,
+      sys_clk     => pclk,
+      sys_reset_n => preset_n,
 
       ---------------------------------------------------------------------
       -- Interrupt (active high)
@@ -779,36 +761,10 @@ begin
       reg_beN           => reg_beN,
       reg_writedata     => reg_writedata,
       reg_read          => reg_read     --,
-
---       ---------------------------------------------------------------------
---       -- DMA - PCIe interface
---       ---------------------------------------------------------------------
---       dma_tlp_req_to_send                  => dma_tlp_req_to_send,   
---       dma_tlp_grant                        => dma_tlp_grant,         
--- 
---       dma_tlp_fmt_type                     => dma_tlp_fmt_type,      
---       dma_tlp_length_in_dw                 => dma_tlp_length_in_dw,  
--- 
---       dma_tlp_src_rdy_n                    => dma_tlp_src_rdy_n,     
---       dma_tlp_dst_rdy_n                    => dma_tlp_dst_rdy_n,     
---       dma_tlp_data                         => dma_tlp_data,          
---                                                                   
---       -- for master request transmit          -- for master request 
---       dma_tlp_address                      => dma_tlp_address,       
---       dma_tlp_ldwbe_fdwbe                  => dma_tlp_ldwbe_fdwbe,   
---                                                                   
---       -- for completion transmit              -- for completion tran
---       dma_tlp_attr                         => dma_tlp_attr,          
---       dma_tlp_transaction_id               => dma_tlp_transaction_id,
---       dma_tlp_byte_count                   => dma_tlp_byte_count,    
---       dma_tlp_lower_address                => dma_tlp_lower_address, 
--- 
---       cfg_bus_mast_en                      => cfg_bus_mast_en,
---       cfg_setmaxpld                        => cfg_setmaxpld
       );
 
   -- corriger la polarite du reset
-  sys_reset <= not sys_reset_n;
+  preset <= not preset_n;
 
 
 
@@ -843,8 +799,8 @@ begin
 
   xglobalregfile : regfile_ares
     port map(
-      resetN                       => sys_reset_n,
-      sysclk                       => sys_clk,
+      resetN                       => preset_n,
+      sysclk                       => pclk,
       regfile                      => regfile,
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
@@ -888,183 +844,91 @@ begin
   -- ou plutot, on utilisera la source de clock PCIe.
   clk100mhzbuf : BUFG
     port map
-    (O => clk_100MHz_buf,
-     I => pcie_sys_clk);
+    (
+      O => clk_100MHz_buf,
+      I => pcie_sys_clk
+      );
 
-  pbgen : if GOLDEN = false generate
-    ----------------
-    -- Profiblaze --
-    ----------------
-    ares_pb_i : ares_pb_wrapper
-      port map (
-        -- interface au deuxieme external
-        ProdCons_1_addr            => ProdCons_1_addr,
-        ProdCons_1_ben             => ext_writeBeN,  -- partage entre les 2 interfaces
-        ProdCons_1_clk             => sys_clk,
-        ProdCons_1_read            => ProdCons_1_read,
-        ProdCons_1_readdata        => ProdCons_1_readdata,
-        ProdCons_1_readdatavalid   => ProdCons_1_readdatavalid,
-        ProdCons_1_reset           => sys_reset,
-        ProdCons_1_write           => ProdCons_1_write,
-        ProdCons_1_writedata       => ext_writeData,
-        cfgmclk                    => cfgmclk_pb,
-        clk_100MHz                 => clk_100MHz_buf,
-        ext_ProdCons_addr          => ext_ProdCons_addr,
-        ext_ProdCons_readData      => ext_ProdCons_readData,
-        ext_ProdCons_readDataValid => ext_ProdCons_readDataValid,
-        ext_ProdCons_readEn        => ext_ProdCons_readEn,
-        ext_ProdCons_writeEn       => ext_ProdCons_writeEn,
-        ext_writeBeN               => ext_writeBeN,
-        ext_writeData              => ext_writeData,
-        hb_ck                      => hb_ck,
-        hb_ck_n                    => hb_ck_n,
-        hb_cs0_n                   => hb_cs_n,
-        hb_dq                      => hb_dq,
-        hb_int_n                   => hb_int_n,
-        hb_rst_n                   => hb_rst_n,
-        hb_rsto_n                  => hb_rsto_n,
-        hb_rwds                    => hb_rwds,
-        hb_wp_n                    => hb_wp_n,
-        host_irq                   => profinet_irq,
-        mdio_mdc                   => open,
-        mdio_mdio_io               => open,
-        ncsi_clk                   => ncsi_clk,
-        ncsi_crs_dv                => ncsi_rx_crs_dv,
-        ncsi_rx_er                 => '0',
-        ncsi_rxd                   => ncsi_rxd,
-        ncsi_tx_en                 => ncsi_txen,
-        ncsi_txd                   => ncsi_txd,
-        profinet_output_tri_io     => open,--TODO connect
-        reset_n                    => pcie_sys_rst_n,
-        spi_io0_io                 => spi_sdin,
-        spi_io1_io                 => spi_sdout,
-        spi_ss_io(0)               => spi_csN,
-        sysclk                     => sys_clk,
-        sysrst                     => sys_reset,
-        uart_rxd                   => '1',
-        uart_txd                   => uart_txd_profinet
-        );
+  ----------------
+  -- Profiblaze --
+  ----------------
+  ares_pb_i : ares_pb_wrapper
+    port map (
+      -- interface au deuxieme external
+      ProdCons_1_addr            => ProdCons_1_addr,
+      ProdCons_1_ben             => ext_writeBeN,  -- partage entre les 2 interfaces
+      ProdCons_1_clk             => pclk,
+      ProdCons_1_read            => ProdCons_1_read,
+      ProdCons_1_readdata        => ProdCons_1_readdata,
+      ProdCons_1_readdatavalid   => ProdCons_1_readdatavalid,
+      ProdCons_1_reset           => preset,
+      ProdCons_1_write           => ProdCons_1_write,
+      ProdCons_1_writedata       => ext_writeData,
+      cfgmclk                    => cfgmclk_pb,
+      clk_100MHz                 => clk_100MHz_buf,
+      ext_ProdCons_addr          => ext_ProdCons_addr,
+      ext_ProdCons_readData      => ext_ProdCons_readData,
+      ext_ProdCons_readDataValid => ext_ProdCons_readDataValid,
+      ext_ProdCons_readEn        => ext_ProdCons_readEn,
+      ext_ProdCons_writeEn       => ext_ProdCons_writeEn,
+      ext_writeBeN               => ext_writeBeN,
+      ext_writeData              => ext_writeData,
+      hb_ck                      => hb_ck,
+      hb_ck_n                    => hb_ck_n,
+      hb_cs0_n                   => hb_cs_n,
+      hb_dq                      => hb_dq,
+      hb_int_n                   => hb_int_n,
+      hb_rst_n                   => hb_rst_n,
+      hb_rsto_n                  => hb_rsto_n,
+      hb_rwds                    => hb_rwds,
+      hb_wp_n                    => hb_wp_n,
+      host_irq                   => profinet_irq,
+      mdio_mdc                   => open,
+      mdio_mdio_io               => open,
+      ncsi_clk                   => ncsi_clk,
+      ncsi_crs_dv                => ncsi_rx_crs_dv,
+      ncsi_rx_er                 => '0',
+      ncsi_rxd                   => ncsi_rxd,
+      ncsi_tx_en                 => ncsi_tx_en,
+      ncsi_txd                   => ncsi_txd,
+      profinet_output_tri_io     => open,          --TODO connect
+      reset_n                    => preset_n,
+      spi_io0_io                 => spi_sd(0),
+      spi_io1_io                 => spi_sd(1),
+      spi_io2_io                 => spi_sd(2),
+      spi_io3_io                 => spi_sd(3),
+      spi_ss_io(0)               => spi_cs_n,
+      sysclk                     => pclk,
+      sysrst                     => preset,
+      uart_rxd                   => debug_uart_rxd,
+      uart_txd                   => uart_txd_profinet
+      );
 
-    -- Maintenant qu'on a 2 regions prod-cons, il faut les mapper a 2 places differente dans le register file. Ca ne peut donc plus etre statique dans le register file
-    regfile.Microblaze.ProdCons(0).Offset <= conv_std_logic_vector(8192, 20);
-    regfile.Microblaze.ProdCons(1).Offset <= conv_std_logic_vector(16384, 20);
+  -- Maintenant qu'on a 2 regions prod-cons, il faut les mapper a 2 places differente dans le register file. Ca ne peut donc plus etre statique dans le register file
+  regfile.Microblaze.ProdCons(0).Offset <= conv_std_logic_vector(8192, 20);
+  regfile.Microblaze.ProdCons(1).Offset <= conv_std_logic_vector(16384, 20);
 
-    -- finalement, ce n'est pas facile de sortir la clock microblaze et son reset. Etant donne que le GPIO du microblaze ne peut changer que tres lentement, nous allons resynchroniser simplement avec 2 FF
-    resynchprc : process(sys_clk)
-    begin
-      if rising_edge(sys_clk) then
-        profinet_internal_output_meta   <= profinet_internal_output;
-        profinet_internal_output_sysclk <= profinet_internal_output_meta;
-      end if;
-    end process;
+  -- finalement, ce n'est pas facile de sortir la clock microblaze et son reset. Etant donne que le GPIO du microblaze ne peut changer que tres lentement, nous allons resynchroniser simplement avec 2 FF
+  resynchprc : process(pclk)
+  begin
+    if rising_edge(pclk) then
+      profinet_internal_output_meta   <= profinet_internal_output;
+      profinet_internal_output_sysclk <= profinet_internal_output_meta;
+    end if;
+  end process;
 
-    -- il ne faut que le Miroblaze drive le CFGMCLK que si nous utilisons le startupe2 dans du microblaze. 
-    -- Dans la configuration NPI, il y a un microblaze, mais on ne doit pas utiliser son cfgmclk car le startupe2 est externe
-    mb_mclkggen : if HOST_SPI_ACCESS = false generate
-      cfgmclk <= cfgmclk_pb;
-    end generate;
-
+  -- il ne faut que le Miroblaze drive le CFGMCLK que si nous utilisons le startupe2 dans du microblaze. 
+  -- Dans la configuration NPI, il y a un microblaze, mais on ne doit pas utiliser son cfgmclk car le startupe2 est externe
+  mb_mclkggen : if HOST_SPI_ACCESS = false generate
+    cfgmclk <= cfgmclk_pb;
   end generate;
+
 
   -- pour sauver de la puissance on ne drive la pin que lorsqu'on veut le debugger
   with regfile.Device_specific.FPGA_ID.PB_DEBUG_COM select
-    uart_txd <= uart_txd_profinet when '1',
-    'Z'                           when others;
+    debug_uart_txd <= uart_txd_profinet when '1',
+    'Z'                                 when others;
 
-  -- pour sauver de la puissance, on enleve le microblaze dans la version golden  
-  -- nopbgen : if GOLDEN = true generate
-  --   --------------------------------------------------
-  --   -- NCSI et IO divers 
-  --   --------------------------------------------------
-  --   ncsi_txen <= 'Z';
-  --   ncsi_txd  <= (others => 'Z');
-
-  --   uart_txd <= 'Z';
-
-  --   -- DDR2 memory interface
-  --   ddr2_addr  <= (others => 'Z');
-  --   ddr2_ba    <= (others => 'Z');
-  --   ddr2_cas_n <= 'Z';
-
-  --   nopbddr2clk : OBUFDS
-  --     generic map (
-  --       SLEW => "SLOW")                 -- Specify the output slew rate
-  --     port map (
-  --       O  => ddr2_ck_p,  -- Diff_p output (connect directly to top-level port)
-  --       OB => ddr2_ck_n,  -- Diff_n output (connect directly to top-level port)
-  --       I  => '0'                       -- Buffer input 
-  --       );
-
-
-
-  --   ddr2_cke <= '0';
-  --   ddr2_dm  <= (others => 'Z');
-  --   ddr2_dq  <= (others => 'Z');
-
-  --   -- dqsforgen : for i in ddr2_dqs_n'range generate
-  --   --   dqs : OBUFTDS
-  --   --     port map (
-  --   --       O  => ddr2_dqs_p(i),  -- Diff_p output (connect directly to top-level port)
-  --   --       OB => ddr2_dqs_n(i),  -- Diff_n output (connect directly to top-level port)
-  --   --       I  => '0',                    -- Buffer input
-  --   --       T  => '1'                     -- 3-state enable input
-  --   --       );
-  --   -- end generate;
-
-  --   ddr2_odt   <= '0';
-  --   ddr2_ras_n <= 'Z';
-  --   ddr2_we_n  <= 'Z';
-
-  -- end generate;
-
-  -- l'acces au SPI est donne a Microblaze, pour qu'il puisse aller chercher son code.
-  newspigen : if HOST_SPI_ACCESS = false generate
-    spi_io0_iobuf : component IOBUF
-      port map (
-        I  => spi_io0_o,
-        IO => spi_sdout,
-        O  => spi_io0_i,
-        T  => spi_io0_t
-        );
-
-    spi_io1_iobuf : component IOBUF
-      port map (
-        I  => spi_io1_o,
-        IO => spi_sdin,                 -- pin MISO
-        O  => spi_io1_i,
-        T  => spi_io1_t
-        );
-
-    spi_ss_iobuf_0 : component IOBUF
-      port map (
-        I  => spi_ss_o(0),
-        IO => spi_csN,
-        O  => spi_ss_i(0),
-        T  => spi_ss_t
-        );
-
-    -- le startupe2 DOIT etre instantie DANS le Block Design, sinon le soft est defectueux     
-    --startupe2_inst :  startupe2
-    --generic map ( PROG_USR       => "FALSE",
-    --              SIM_CCLK_FREQ  => 0.0
-    --            )
-    --port map    (
-    --              CFGCLK    => open,
-    --              CFGMCLK   => cfgmclk,
-    --              EOS       => open,
-    --              PREQ      => open,
-    --              CLK       => '0',
-    --              GSR       => '0',
-    --              GTS       => '0',
-    --              KEYCLEARB => '0',
-    --              PACK      => '0',
-    --              USRCCLKO  =>  spi_sck_o,
-    --              USRCCLKTS =>  spi_sck_t,
-    --              USRDONEO  => '1',
-    --              USRDONETS => '1'
-    --            );
-
-  end generate;
   ---------------------------------------------------------------------
   --
   -- INPUT CLASSIQUEs
@@ -1078,7 +942,7 @@ begin
       int_number    => 0
       )
     port map(
-      sysclk => sys_clk,
+      sysclk => pclk,
 
       data_in  => clean_user_data_in,   -- input from Input Conditioning
       int_line => IO_IRQ,
@@ -1101,7 +965,7 @@ begin
       int_number    => 0                -- output don't generate interrupts
       )
     port map(
-      sysclk => sys_clk,
+      sysclk => pclk,
 
       data_in  => zero_vector_out,      -- not used in module
       data_out => userio_data_out,  -- output, has to go through logic or tristate driver
@@ -1121,8 +985,8 @@ begin
       ---------------------------------------------------------------------
       -- Reset and clock signals
       ---------------------------------------------------------------------
-      sys_reset_n        => sys_reset_n,
-      sys_clk            => sys_clk,
+      sys_reset_n        => preset_n,
+      sys_clk            => pclk,
       ---------------------------------------------------------------------
       -- Input signal: noisy
       ---------------------------------------------------------------------
@@ -1151,8 +1015,8 @@ begin
 
       Xquaddecoder : quaddecoder
         port map(
-          sys_reset_n => sys_reset_n,
-          sys_clk     => sys_clk,
+          sys_reset_n => preset_n,
+          sys_clk     => pclk,
 
           DecoderCntrLatch_Src_MUX => InputStampSource_MUX,
 
@@ -1199,8 +1063,8 @@ begin
           ---------------------------------------------------------------------
           -- Reset and clock signals
           ---------------------------------------------------------------------
-          sys_reset_n => sys_reset_n,
-          sys_clk     => sys_clk,
+          sys_reset_n => preset_n,
+          sys_clk     => pclk,
           ---------------------------------------------------------------------
           -- Inputs
           ---------------------------------------------------------------------
@@ -1254,8 +1118,8 @@ begin
           ---------------------------------------------------------------------
           -- Reset and clock signals
           ---------------------------------------------------------------------
-          sys_reset_n => sys_reset_n,
-          sys_clk     => sys_clk,
+          sys_reset_n => preset_n,
+          sys_clk     => pclk,
 
           ---------------------------------------------------------------------
           -- Inputs
@@ -1307,8 +1171,8 @@ begin
       ---------------------------------------------------------------------
       -- Reset and clock signals
       ---------------------------------------------------------------------
-      sys_reset_n     => sys_reset_n,
-      sys_clk         => sys_clk,
+      sys_reset_n     => preset_n,
+      sys_clk         => pclk,
       ---------------------------------------------------------------------
       -- Inputs
       ---------------------------------------------------------------------
@@ -1326,11 +1190,6 @@ begin
       regfile => regfile.OutputConditioning
       );
 
-  -- sortir les IO directement
-  --user_data_out(user_data_out'high downto 1) <= user_data_out_interne(user_data_out_interne'high downto 1);
-  -- port serie virtuel
-  --user_data_out(0) <= not uart_txd_profinet; -- not pour compenser pour la structure open-collector de nos ios.
-
 
   ---------------------------------------------------------------------
   --
@@ -1342,8 +1201,8 @@ begin
       ---------------------------------------------------------------------
       -- Reset and clock signals
       ---------------------------------------------------------------------
-      sys_reset => sys_reset,
-      sys_clk   => sys_clk,
+      sys_reset => preset,
+      sys_clk   => pclk,
 
       ---------------------------------------------------------------------
       -- Output signal: noiseless
@@ -1405,122 +1264,5 @@ begin
   -- Field type: RO
   ------------------------------------------------------------------------------------------
   regfile.Device_specific.FPGA_ID.FPGA_ID <= conv_std_logic_vector(FPGA_ID, regfile.Device_specific.FPGA_ID.FPGA_ID'length);
-
-
-
-  hostspigen : if HOST_SPI_ACCESS = true generate
-    ---------------------------------------------------------------
-    --
-    --  SPI CORE
-    --
-    ---------------------------------------------------------------
-    xspi_if : spi_if
-      port map(
-        -----------------------------------------
-        -- Clocks and reset
-        -----------------------------------------
-        sys_reset_n => sys_reset_n,
-        sys_clk     => sys_clk,  -- L'horloge SPI est le sys_clk/2 c'est fait a l'interne
-
-        -----------------------------------------------------------------
-        -- Flash interface
-        -----------------------------------------------------------------
-        spi_sclk    => spi_sclk_startupe2,     -- out cclock
-        spi_sclk_ts => spi_sclk_ts_startupe2,  -- out cclock enableNOT
-        spi_sdin    => spi_sdin,               -- in  data in
-        spi_sdout   => spi_sdout,              -- out data out
-        spi_csN     => spi_csN,                -- out chip select
-        --spi_wpN        => open,                 -- not used for now
-        --spi_holdN      => open,                 -- not used for now
-
-        -----------------------------------------------------------------
-        -- Registers 
-        -----------------------------------------------------------------
-        regfile => regfile.SPI
-        );
-
-    -----------------------------------------------------------------
-    -- Pour la simulation
-    -----------------------------------------------------------------
-    -- synthesis translate_off
-    spi_sclk <= spi_sclk_startupe2 when spi_sclk_ts_startupe2 = '0' else 'Z';
-    -- synthesis translate_on
-
-
-    -----------------------------------------------------------------
-    -- Pour la synthese
-    -----------------------------------------------------------------
-    startupe2_inst : startupe2
-      generic map (PROG_USR      => "FALSE",
-                   SIM_CCLK_FREQ => 0.0
-                   )
-      port map (
-        CFGCLK    => open,
-        CFGMCLK   => cfgmclk,
-        EOS       => open,
-        PREQ      => open,
-        CLK       => '0',
-        GSR       => '0',
-        GTS       => '0',
-        KEYCLEARB => '0',
-        PACK      => '0',
-        USRCCLKO  => spi_sclk_startupe2,
-        USRCCLKTS => spi_sclk_ts_startupe2,
-        USRDONEO  => '1',
-        USRDONETS => '1'
-        );
-  end generate;
-
-  -- on ne veux mettre la patch que sur le code golden et profinet, pas sur le code NPI.
-  patchgen : if GOLDEN = true or HOST_SPI_ACCESS = false generate
-    -- je met cette logique dans un block, car c'est lie a une patch pour la plateforme hardware baytrail, ce qui n'a que peut rapport avec le reste du design
-    intel4600919patch : block is
-      signal reset_counter          : integer range 0 to 100000000 := 100000000;  -- la clock source est 65+50% MHz = 97.5 Mhz, on veut compter une seconde.
-      signal patch_poweron_reset    : std_logic                    := '1';
-      signal patch_poweron_reset_p1 : std_logic                    := '1';
-      signal watchdog_armed         : std_logic;  -- indique que la patch est active.
-    begin
-
-
-      -- ici c'est un peu complexe. Nous NE pouvons PAS utiliser le signal de reset, car c'est le signal que nous surveillons.
-      -- ca va nous faire un gros compteur (27 bits) qui compte sur une clock sans signal de reset ou enable synchrone pour le faire partir.
-      -- ce n'est pas ideal et il pourrait y avoir des faux comptes sur le premier coup de clock. Est-ce grave?
-      porflow : process(cfgmclk)
-      begin
-        if rising_edge(cfgmclk) then
-          patch_poweron_reset    <= '0';
-          patch_poweron_reset_p1 <= patch_poweron_reset;  -- pour garder notre compteur en reset pour les 2 premiers coups de clock
-        end if;
-      end process;
-
-      clkprc : process(cfgmclk)  -- la clock PCIe devrait etre presente car elle est genere par un circuit independant du controlleur de reset.
-      begin
-        if rising_edge(cfgmclk) then
-          if patch_poweron_reset_p1 = '1' then
-            reset_counter <= 100000000;
-            pwrrst        <= 'Z';       -- on ne drive pas le reset artificiel.
-          elsif reset_counter /= 0 then
-            if watchdog_armed = '1' then  -- on ne decremente que jusqu'a la monte du reset de la plateforme.
-              reset_counter <= reset_counter - 1;
-            end if;
-
-            pwrrst <= 'Z';              -- on ne drive pas le reset artificiel.
-          else
-            reset_counter <= 0;
-            pwrrst        <= '1';  -- on demande au PMIC de faire un reset du power.  Le reset du power va faire tomber l'alimentation du FPGA ce qui va enlever le reset
-          end if;
-
-          if patch_poweron_reset_p1 = '1' then
-            watchdog_armed <= '1';
-          elsif pcie_sys_rst_n = '1' then  -- le host a desactiver son reset. A partir de ce point, nous n'avons plus besoin de faire de watchdog jamais.
-            watchdog_armed <= '0';
-          end if;
-
-        end if;
-
-      end process;
-
-    end block;
-  end generate;
 
 end functional;

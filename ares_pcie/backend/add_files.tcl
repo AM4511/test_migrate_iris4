@@ -4,14 +4,11 @@
 set FILE_LIST [list \
   [file normalize "${WORKDIR}/cores/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
   [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
-  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_spi_w_fifo/xil_spi_w_fifo.xci"]\
   [file normalize "${SRC_DIR}/osirispak.vhd"]\
   [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
   [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
   [file normalize "${SRC_DIR}/spider_pak.vhd"]\
   [file normalize "${SRC_DIR}/Input_Conditioning.vhd"]\
-  [file normalize "${SRC_DIR}/internal_logic.vhd"]\
-  [file normalize "${SRC_DIR}/memory_access.vhd"]\
   [file normalize "${SRC_DIR}/Output_Conditioning.vhd"]\
   [file normalize "${SRC_DIR}/pciepack.vhd"]\
   [file normalize "${SRC_DIR}/pcie_int_queue.vhd"]\
@@ -22,7 +19,6 @@ set FILE_LIST [list \
   [file normalize "${SRC_DIR}/pcie_top.vhd"]\
   [file normalize "${SRC_DIR}/PWMoutput.vhd"]\
   [file normalize "${SRC_DIR}/quaddecoder.vhd"]\
-  [file normalize "${SRC_DIR}/spi_if.vhd"]\
   [file normalize "${SRC_DIR}/spider_pak.vhd"]\
   [file normalize "${SRC_DIR}/TickTable.vhd"]\
   [file normalize "${SRC_DIR}/timer.vhd"]\
@@ -34,6 +30,10 @@ set FILE_LIST [list \
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
 update_compile_order -fileset ${HDL_FILESET}
 
+#  [file normalize "${SRC_DIR}/internal_logic.vhd"]\
+#  [file normalize "${SRC_DIR}/memory_access.vhd"]\
+#  [file normalize "${SRC_DIR}/spi_if.vhd"]\
+#  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_spi_w_fifo/xil_spi_w_fifo.xci"]\
 
 ################################################
 # Add constraints files
