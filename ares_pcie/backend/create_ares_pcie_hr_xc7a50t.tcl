@@ -65,6 +65,8 @@ puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR  ${PROJECT_DIR}/board_level
+
 file mkdir $PROJECT_DIR
 
 cd $PROJECT_DIR
@@ -142,6 +144,14 @@ set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs $IMPL_RUN]
 
 launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
+
+
+################################################
+# Export board level info
+################################################
+write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
+write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
+report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 
 
 ################################################

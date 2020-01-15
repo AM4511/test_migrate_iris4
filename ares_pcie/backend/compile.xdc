@@ -16,7 +16,15 @@ set_property BITSTREAM.CONFIG.UNUSEDPIN Pullnone [current_design]
 
 set_property keep_compatible {xc7a35ticpg236}  [current_design]
 
-
+#################################################################
+## Data for the power report
+#################################################################
+set_operating_conditions -ambient_temp 85.0
+set_operating_conditions -board_layers 8to11
+set_operating_conditions -board small
+set_operating_conditions -heatsink high
+set_operating_conditions -process maximum
+set_load 10 [all_outputs]
 
 # current_instance */axi_ethernet_0/U0/eth_mac/U0
 # set_property IOB FALSE [get_cells {mii_interface/mii_txd*reg[*]}]

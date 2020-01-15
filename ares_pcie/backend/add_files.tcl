@@ -40,7 +40,7 @@ update_compile_order -fileset ${HDL_FILESET}
 ################################################
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
 set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
@@ -60,4 +60,6 @@ set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
 
-#set_property IS_ENABLED 0 [get_files */bd_a352_mac_0.xdc]
+# Problem with a Xilinx constraint file
+set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
+set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
