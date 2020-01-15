@@ -31,47 +31,75 @@ entity athena_hispi is
     ---------------------------------------------------------------------------
     -- System interface
     ---------------------------------------------------------------------------
-    ref_clk   : in std_logic;
-    sys_rst_n : in std_logic;
+    ref_clk                         : in std_logic;
+    sys_rst_n                       : in std_logic;
 
     ---------------------------------------------------------------------------
     -- PCIe Interface Gen1x2
     ---------------------------------------------------------------------------
-    pcie_clk_n : in  std_logic;
-    pcie_clk_p : in  std_logic;
-    pcie_rx_n  : in  std_logic_vector (1 to 0);
-    pcie_rx_p  : in  std_logic_vector (1 to 0);
-    pcie_tx_n  : out std_logic_vector (1 to 0);
-    pcie_tx_p  : out std_logic_vector (1 to 0);
+    pcie_clk_n                      : in  std_logic;
+    pcie_clk_p                      : in  std_logic;
+    pcie_rx_n                       : in  std_logic_vector (1 to 0);
+    pcie_rx_p                       : in  std_logic_vector (1 to 0);
+    pcie_tx_n                       : out std_logic_vector (1 to 0);
+    pcie_tx_p                       : out std_logic_vector (1 to 0);
 
 
     ---------------------------------------------------------------------------
     -- XGS sensor control interface
     ---------------------------------------------------------------------------
-    xgs_reset_n  : out std_logic;
-    xgs_trig_int : out std_logic;
-    xgs_trig_rd  : out std_logic;
-    xgs_monitor  : in  std_logic_vector(2 downto 0);
-    xgs_cs_n     : out std_logic;
-    xgs_sclk     : out std_logic;
-    xgs_sdin     : in  std_logic;
-    xgs_sdout    : out std_logic;
+    xgs_reset_n                     : out std_logic;
+    xgs_trig_int                    : out std_logic;
+    xgs_trig_rd                     : out std_logic;
+    xgs_monitor                     : in  std_logic_vector(2 downto 0);
+    xgs_fwsi_en                     : in  std_logic;  
+    xgs_cs_n                        : out std_logic;
+    xgs_sclk                        : out std_logic;
+    xgs_sdin                        : in  std_logic;
+    xgs_sdout                       : out std_logic;
 
 
     ---------------------------------------------------------------------------
     --  XGS sensor HiSPi data interface
     ---------------------------------------------------------------------------
-    xgs_hispi_sclk_n  : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sclk_p  : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sdata_n : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sdata_p : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
+    xgs_hispi_sclk_n                : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
+    xgs_hispi_sclk_p                : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
+    xgs_hispi_sdata_n               : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
+    xgs_hispi_sdata_p               : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
 
+    ---------------------------------------------------------------------------
+    --  Debug
+    ---------------------------------------------------------------------------
+    debug_data                      : out std_logic_vector(3 downto 0);
+    
+    ---------------------------------------------------------------------------
+    --  LED outputs
+    ---------------------------------------------------------------------------
+    led_out                         : out   std_logic_vector(1 downto 0);
+    
+    ---------------------------------------------------------------------------
+    --  OUTPUTS TO IO FPGA
+    ---------------------------------------------------------------------------
+    strobe_out                      : out   std_logic;
+    exposure_out                    : out   std_logic;
+    trig_rdy_out                    : out   std_logic;
 
+    ---------------------------------------------------------------------------
+    --  INPUTS FROM other fpga
+    ---------------------------------------------------------------------------
+    ext_trig                        : in    std_logic;
+
+    ---------------------------------------------------------------------------
+    --  I2C
+    ---------------------------------------------------------------------------
+    smbclk                          : inout std_logic;
+    smbdata                         : inout std_logic;
+    
     ---------------------------------------------------------------------------
     --  FPGA FLASH SPI  interface
     ---------------------------------------------------------------------------
-    cfg_spi_cs_n : inout std_logic;
-    cfg_spi_sd   : inout std_logic_vector (3 downto 0)
+    cfg_spi_cs_n                    : inout std_logic;
+    cfg_spi_sd                      : inout std_logic_vector (3 downto 0)
 
     );
 end athena_hispi;
