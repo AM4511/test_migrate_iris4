@@ -46,8 +46,8 @@ set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ares_pb.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ares_pb.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -98,19 +98,18 @@ regenerate_bd_layout
 validate_bd_design
 save_bd_design
 
-if {0} {
-	## Create the Wrapper file
-	set BD_FILE [get_files "*system_pb.bd"]
-	set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
-	add_files -norecurse -force $BD_WRAPPER_FILE
 
-	reset_target all ${BD_FILE}
+## Create the Wrapper file
+set BD_FILE [get_files "*ares_pb.bd"]
+set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
+add_files -norecurse -force $BD_WRAPPER_FILE
 
-	## Generate Bloc design global (Out of context does not work)
-	set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
-	generate_target all ${BD_FILE}
-	export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
-}
+reset_target all ${BD_FILE}
+
+## Generate Bloc design global (Out of context does not work)
+set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
+generate_target all ${BD_FILE}
+export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
 
 ################################################

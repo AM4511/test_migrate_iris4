@@ -934,11 +934,11 @@ begin
         ncsi_rxd                   => ncsi_rxd,
         ncsi_tx_en                 => ncsi_txen,
         ncsi_txd                   => ncsi_txd,
-        profinet_output_tri_io     => ,
+        profinet_output_tri_io     => open,--TODO connect
         reset_n                    => pcie_sys_rst_n,
         spi_io0_io                 => spi_sdin,
         spi_io1_io                 => spi_sdout,
-        spi_ss_io                  => spi_csN,
+        spi_ss_io(0)               => spi_csN,
         sysclk                     => sys_clk,
         sysrst                     => sys_reset,
         uart_rxd                   => '1',
@@ -972,50 +972,50 @@ begin
     'Z'                           when others;
 
   -- pour sauver de la puissance, on enleve le microblaze dans la version golden  
-  nopbgen : if GOLDEN = true generate
-    --------------------------------------------------
-    -- NCSI et IO divers 
-    --------------------------------------------------
-    ncsi_txen <= 'Z';
-    ncsi_txd  <= (others => 'Z');
+  -- nopbgen : if GOLDEN = true generate
+  --   --------------------------------------------------
+  --   -- NCSI et IO divers 
+  --   --------------------------------------------------
+  --   ncsi_txen <= 'Z';
+  --   ncsi_txd  <= (others => 'Z');
 
-    uart_txd <= 'Z';
+  --   uart_txd <= 'Z';
 
-    -- DDR2 memory interface
-    ddr2_addr  <= (others => 'Z');
-    ddr2_ba    <= (others => 'Z');
-    ddr2_cas_n <= 'Z';
+  --   -- DDR2 memory interface
+  --   ddr2_addr  <= (others => 'Z');
+  --   ddr2_ba    <= (others => 'Z');
+  --   ddr2_cas_n <= 'Z';
 
-    nopbddr2clk : OBUFDS
-      generic map (
-        SLEW => "SLOW")                 -- Specify the output slew rate
-      port map (
-        O  => ddr2_ck_p,  -- Diff_p output (connect directly to top-level port)
-        OB => ddr2_ck_n,  -- Diff_n output (connect directly to top-level port)
-        I  => '0'                       -- Buffer input 
-        );
+  --   nopbddr2clk : OBUFDS
+  --     generic map (
+  --       SLEW => "SLOW")                 -- Specify the output slew rate
+  --     port map (
+  --       O  => ddr2_ck_p,  -- Diff_p output (connect directly to top-level port)
+  --       OB => ddr2_ck_n,  -- Diff_n output (connect directly to top-level port)
+  --       I  => '0'                       -- Buffer input 
+  --       );
 
 
 
-    ddr2_cke <= '0';
-    ddr2_dm  <= (others => 'Z');
-    ddr2_dq  <= (others => 'Z');
+  --   ddr2_cke <= '0';
+  --   ddr2_dm  <= (others => 'Z');
+  --   ddr2_dq  <= (others => 'Z');
 
-    dqsforgen : for i in ddr2_dqs_n'range generate
-      dqs : OBUFTDS
-        port map (
-          O  => ddr2_dqs_p(i),  -- Diff_p output (connect directly to top-level port)
-          OB => ddr2_dqs_n(i),  -- Diff_n output (connect directly to top-level port)
-          I  => '0',                    -- Buffer input
-          T  => '1'                     -- 3-state enable input
-          );
-    end generate;
+  --   -- dqsforgen : for i in ddr2_dqs_n'range generate
+  --   --   dqs : OBUFTDS
+  --   --     port map (
+  --   --       O  => ddr2_dqs_p(i),  -- Diff_p output (connect directly to top-level port)
+  --   --       OB => ddr2_dqs_n(i),  -- Diff_n output (connect directly to top-level port)
+  --   --       I  => '0',                    -- Buffer input
+  --   --       T  => '1'                     -- 3-state enable input
+  --   --       );
+  --   -- end generate;
 
-    ddr2_odt   <= '0';
-    ddr2_ras_n <= 'Z';
-    ddr2_we_n  <= 'Z';
+  --   ddr2_odt   <= '0';
+  --   ddr2_ras_n <= 'Z';
+  --   ddr2_we_n  <= 'Z';
 
-  end generate;
+  -- end generate;
 
   -- l'acces au SPI est donne a Microblaze, pour qu'il puisse aller chercher son code.
   newspigen : if HOST_SPI_ACCESS = false generate

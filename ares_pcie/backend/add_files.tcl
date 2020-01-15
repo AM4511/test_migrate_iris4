@@ -9,10 +9,8 @@ set FILE_LIST [list \
   [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
   [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
   [file normalize "${SRC_DIR}/spider_pak.vhd"]\
-  [file normalize "${SRC_DIR}/ACDC_check.vhd"]\
   [file normalize "${SRC_DIR}/Input_Conditioning.vhd"]\
   [file normalize "${SRC_DIR}/internal_logic.vhd"]\
-  [file normalize "${SRC_DIR}/m25p16.vhd"]\
   [file normalize "${SRC_DIR}/memory_access.vhd"]\
   [file normalize "${SRC_DIR}/Output_Conditioning.vhd"]\
   [file normalize "${SRC_DIR}/pciepack.vhd"]\
@@ -30,7 +28,7 @@ set FILE_LIST [list \
   [file normalize "${SRC_DIR}/timer.vhd"]\
   [file normalize "${SRC_DIR}/userio_bank.vhd"]\
   [file normalize "${SRC_DIR}/xil_ticktable.vhd"]\
-  [file normalize "${SRC_DIR}/ares.vhd"]
+  [file normalize "${SRC_DIR}/ares_pcie.vhd"]
 ]
 
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
@@ -50,7 +48,7 @@ set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
 
 
 #add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pcie_7x-PCIE_X0Y0.xdc
-add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${IPCORES_DIR}/xil_cores_artix7/ddr2-100MHz_in/ddr2/user_design/constraints/ddr2.xdc
+#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${IPCORES_DIR}/xil_cores_artix7/ddr2-100MHz_in/ddr2/user_design/constraints/ddr2.xdc
 
 
 #add_files -fileset ${CONSTRAINTS_FILESET} -norecurse  ${XDC_DIR}/mb_spi_access.xdc
