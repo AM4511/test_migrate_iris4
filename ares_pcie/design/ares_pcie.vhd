@@ -459,6 +459,9 @@ architecture functional of ares_pcie is
       ext_ProdCons_writeEn       : in    std_logic;
       ext_writeBeN               : in    std_logic_vector (3 downto 0);
       ext_writeData              : in    std_logic_vector (31 downto 0);
+      gpio_3states_en            : out   std_logic_vector (2 downto 0);
+      gpio_in                    : in    std_logic_vector (2 downto 0);
+      gpio_out                   : out   std_logic_vector (2 downto 0);
       hb_ck                      : out   std_logic;
       hb_ck_n                    : out   std_logic;
       hb_cs0_n                   : out   std_logic;
@@ -469,17 +472,12 @@ architecture functional of ares_pcie is
       hb_rwds                    : inout std_logic;
       hb_wp_n                    : out   std_logic;
       host_irq                   : out   std_logic;
-      mdio_mdc                   : out   std_logic;
-      mdio_mdio_io               : inout std_logic;
       ncsi_clk                   : out   std_logic;
       ncsi_crs_dv                : in    std_logic;
       ncsi_rx_er                 : in    std_logic;
       ncsi_rxd                   : in    std_logic_vector (1 downto 0);
       ncsi_tx_en                 : out   std_logic;
       ncsi_txd                   : out   std_logic_vector (1 downto 0);
-      gpio_3states_en            : out   std_logic_vector (2 downto 0);
-      gpio_in                    : in    std_logic_vector (2 downto 0);
-      gpio_out                   : out   std_logic_vector (2 downto 0);
       reset_n                    : in    std_logic;
       spi_io0_io                 : inout std_logic;
       spi_io1_io                 : inout std_logic;
@@ -885,8 +883,6 @@ begin
       hb_rwds                    => hb_rwds,
       hb_wp_n                    => hb_wp_n,
       host_irq                   => profinet_irq,
-      mdio_mdc                   => open,
-      mdio_mdio_io               => open,
       ncsi_clk                   => ncsi_clk,
       ncsi_crs_dv                => ncsi_rx_crs_dv,
       ncsi_rx_er                 => '0',

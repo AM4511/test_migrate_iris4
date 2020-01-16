@@ -131,7 +131,6 @@ set_property generic  ${generic_list} ${HDL_FILESET}
 reset_run   ${SYNTH_RUN}
 launch_runs ${SYNTH_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${SYNTH_RUN}
-set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs  ${SYNTH_RUN}]
 
 
 ################################################
@@ -141,7 +140,6 @@ current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
 launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
-set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs $IMPL_RUN]
 
 
 ################################################
