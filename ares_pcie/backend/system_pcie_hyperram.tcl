@@ -462,8 +462,8 @@ proc create_root_design { parentCell } {
   set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
   set_property -dict [ list \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {114.829} \
-   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200} \
+   CONFIG.CLKOUT1_JITTER {130.958} \
+   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
    CONFIG.CLKOUT2_JITTER {125.247} \
    CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
@@ -491,7 +491,7 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKFBOUT_MULT_F {10} \
    CONFIG.MMCM_CLKIN1_PERIOD {10.000} \
    CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {5} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {10} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT1_DIVIDE {8} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
@@ -503,9 +503,12 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {4} \
    CONFIG.PRIMITIVE {PLL} \
+   CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
+   CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.USE_MIN_POWER {true} \
+   CONFIG.USE_PHASE_ALIGNMENT {false} \
  ] $clk_wiz_0
 
   # Create instance: logic_0, and set properties

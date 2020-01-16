@@ -68,6 +68,7 @@ set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR  ${PROJECT_DIR}/board_level
 
 file mkdir $PROJECT_DIR
+file mkdir $PCB_DIR
 
 cd $PROJECT_DIR
 file delete -force ${PROJECT_NAME}.xpr
@@ -145,9 +146,12 @@ wait_on_run ${IMPL_RUN}
 ################################################
 # Export board level info
 ################################################
+open_run ${IMPL_RUN}
 write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
 write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
+report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
+close_design
 
 
 ################################################

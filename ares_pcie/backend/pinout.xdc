@@ -2,8 +2,8 @@
 ## Pin assignment
 ####################################################
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
-set_property PACKAGE_PIN H17 [get_ports sys_rst_in_n]
-set_property PACKAGE_PIN L17 [get_ports sys_rst_out_n]
+set_property PACKAGE_PIN J1 [get_ports sys_rst_in_n]
+set_property PACKAGE_PIN H1 [get_ports sys_rst_out_n]
 set_property PACKAGE_PIN U18 [get_ports {fpga_straps[3]}]
 set_property PACKAGE_PIN V17 [get_ports {fpga_straps[2]}]
 set_property PACKAGE_PIN W16 [get_ports {fpga_straps[1]}]
@@ -216,7 +216,8 @@ set_property DRIVE 4 [get_ports hb_rwds]
 set_property SLEW SLOW [get_ports hb_rwds]
 set_property IOSTANDARD LVCMOS18 [get_ports {spi_sd[*]}]
 set_property IOSTANDARD LVCMOS18 [get_ports ref_clk_100MHz]
-set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_in_n]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_rst_in_n]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_rst_out_n]
 set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_rxd]
 set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_txd]
 set_property DRIVE 4 [get_ports debug_uart_txd]
@@ -256,5 +257,5 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
-set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_out_n]
+
 
