@@ -477,7 +477,9 @@ architecture functional of ares_pcie is
       ncsi_rxd                   : in    std_logic_vector (1 downto 0);
       ncsi_tx_en                 : out   std_logic;
       ncsi_txd                   : out   std_logic_vector (1 downto 0);
-      profinet_output_tri_io     : inout std_logic_vector (2 downto 0);
+      gpio_3states_en            : out   std_logic_vector (2 downto 0);
+      gpio_in                    : in    std_logic_vector (2 downto 0);
+      gpio_out                   : out   std_logic_vector (2 downto 0);
       reset_n                    : in    std_logic;
       spi_io0_io                 : inout std_logic;
       spi_io1_io                 : inout std_logic;
@@ -891,7 +893,11 @@ begin
       ncsi_rxd                   => ncsi_rxd,
       ncsi_tx_en                 => ncsi_tx_en,
       ncsi_txd                   => ncsi_txd,
-      profinet_output_tri_io     => open,          --TODO connect
+      gpio_in(2)                 => profinet_internal_output,
+      gpio_in(1 downto 0)        => profinet_led,
+      gpio_out(2)                => profinet_internal_output,
+      gpio_out(1 downto 0)       => profinet_led,
+      gpio_3states_en            => open,
       reset_n                    => preset_n,
       spi_io0_io                 => spi_sd(0),
       spi_io1_io                 => spi_sd(1),

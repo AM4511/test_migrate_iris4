@@ -2,8 +2,8 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares_pcie_xc7a50t.tcl
-#
+# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares_pcie_hr_xc7a50t.tcl
+# 
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -129,10 +129,9 @@ set_property generic  ${generic_list} ${HDL_FILESET}
 # Generate synthesis run
 ################################################
 reset_run   ${SYNTH_RUN}
-set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs  ${SYNTH_RUN}]
-
 launch_runs ${SYNTH_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${SYNTH_RUN}
+set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs  ${SYNTH_RUN}]
 
 
 ################################################
@@ -140,10 +139,9 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs $IMPL_RUN]
-
 launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
+set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs $IMPL_RUN]
 
 
 ################################################
