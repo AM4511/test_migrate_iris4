@@ -39,11 +39,11 @@ entity athena_hispi is
     ---------------------------------------------------------------------------
     pcie_clk_n                      : in  std_logic;
     pcie_clk_p                      : in  std_logic;
-    pcie_rx_n                       : in  std_logic_vector (1 to 0);
-    pcie_rx_p                       : in  std_logic_vector (1 to 0);
-    pcie_tx_n                       : out std_logic_vector (1 to 0);
-    pcie_tx_p                       : out std_logic_vector (1 to 0);
 
+    pcie_rx_n                       : in  std_logic_vector(1 downto 0);
+    pcie_rx_p                       : in  std_logic_vector(1 downto 0);
+    pcie_tx_n                       : out std_logic_vector(1 downto 0);
+    pcie_tx_p                       : out std_logic_vector(1 downto 0);
 
     ---------------------------------------------------------------------------
     -- XGS sensor control interface
@@ -52,7 +52,7 @@ entity athena_hispi is
     xgs_trig_int                    : out std_logic;
     xgs_trig_rd                     : out std_logic;
     xgs_monitor                     : in  std_logic_vector(2 downto 0);
-    xgs_fwsi_en                     : in  std_logic;  
+    xgs_fwsi_en                     : out std_logic;  
     xgs_cs_n                        : out std_logic;
     xgs_sclk                        : out std_logic;
     xgs_sdin                        : in  std_logic;
@@ -94,7 +94,17 @@ entity athena_hispi is
     ---------------------------------------------------------------------------
     smbclk                          : inout std_logic;
     smbdata                         : inout std_logic;
-    
+
+    ---------------------------------------------------------------------------
+    --  Temperature ALERT
+    ---------------------------------------------------------------------------
+    temp_alertN                     : in    std_logic;    
+  
+    ---------------------------------------------------------------------------
+    --  Strappings
+    ---------------------------------------------------------------------------
+    fpga_var_type                   : in    std_logic_vector(1 downto 0);    
+  
     ---------------------------------------------------------------------------
     --  FPGA FLASH SPI  interface
     ---------------------------------------------------------------------------
@@ -173,10 +183,17 @@ begin
       cfg_startup_io_cfgmclk => open,
       cfg_startup_io_eos     => open,
       cfg_startup_io_preq    => open,
-      pcie_rxn               => pcie_rx_n,
-      pcie_rxp               => pcie_rx_p,
-      pcie_txn               => pcie_tx_n,
-      pcie_txp               => pcie_tx_p,
+
+      -- bug dans vivado il faut exploser sinon ca bug!
+      pcie_rxn(0)               => pcie_rx_n(0),
+      pcie_rxn(1)               => pcie_rx_n(1),
+      pcie_rxp(0)               => pcie_rx_p(0),
+      pcie_rxp(1)               => pcie_rx_p(1),
+      pcie_txn(0)               => pcie_tx_n(0),
+      pcie_txn(1)               => pcie_tx_n(1),
+      pcie_txp(0)               => pcie_tx_p(0),
+      pcie_txp(1)               => pcie_tx_p(1),
+
       ref_clk                => ref_clk
       );
 
