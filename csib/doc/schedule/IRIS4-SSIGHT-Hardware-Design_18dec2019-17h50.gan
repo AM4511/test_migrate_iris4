@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="IRIS-4 and Gen3 Backplane" company="Matrox" webLink="http://www.matrox.com/imaging" view-date="2019-08-01" view-index="0" gantt-divider-location="524" resource-divider-location="422" version="2.8.10" locale="en_CA">
+    <description><![CDATA[IRIS-4 new smart camera:
+- The new IRIS-4 camera assumes a redesign of the "CPU board" and the "Sensor board"
+- The current IRIS-GTR "Daughter board" and "Flex PCB connectors board" would be used as is
+
+PCIe Gen3 Backplane with support for 4-clusters, 11-slots for add-on cards:
+- The layout of the backplane would start after completion of the IRIS4 CPU board layout.
+
+Color Legend:
+Gray: Feasability study task
+Dark Blue: Boardlevel Hardware related tasks
+Light Blue: CAD & Hardware tasks (layout)
+Green: PCB fab and delivery services
+Violet: Certification tasks]]></description>
+    <view zooming-state="default:10" id="gantt-chart">
+        <field id="tpd3" name="Name" width="358" order="0"/>
+        <field id="tpd4" name="Begin date" width="73" order="1"/>
+        <field id="tpd5" name="End date" width="74" order="2"/>
+        <option id="color.recent"><![CDATA[#66ccff #cc0033 #33ff00 #3366ff #9999ff #ffcc00]]></option>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="271" order="0"/>
+        <field id="1" name="Default role" width="147" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="none">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="2019" month="12" date="24" type="HOLIDAY"/>
+        <date year="2019" month="12" date="25" type="HOLIDAY"/>
+        <date year="2019" month="12" date="26" type="HOLIDAY"/>
+        <date year="2019" month="12" date="27" type="HOLIDAY"/>
+        <date year="2019" month="12" date="30" type="HOLIDAY"/>
+        <date year="2019" month="12" date="31" type="HOLIDAY"/>
+        <date year="2020" month="1" date="1" type="HOLIDAY"/>
+        <date year="2020" month="1" date="2" type="HOLIDAY"/>
+        <date year="2020" month="12" date="24" type="HOLIDAY"/>
+        <date year="2020" month="12" date="25" type="HOLIDAY"/>
+        <date year="2020" month="12" date="31" type="HOLIDAY"/>
+        <date year="2021" month="1" date="1" type="HOLIDAY"/>
+        <date year="2020" month="12" date="28" type="HOLIDAY"/>
+        <date year="2020" month="12" date="29" type="HOLIDAY"/>
+        <date year="2020" month="12" date="30" type="HOLIDAY"/>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="551" name="IRIS4 Smart Camera - Project 708" meeting="false" start="2019-08-19" duration="373" complete="0" expand="true">
+            <task id="474" name="Feasability study - General" color="#8cb6ce" meeting="false" start="2019-08-19" duration="60" complete="0" expand="true">
+                <depend id="395" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="57" name="Feasability study - CPU board &amp; FPGA implementation" color="#9999ff" meeting="false" start="2019-08-19" duration="90" complete="0" thirdDate="2019-08-19" thirdDate-constraint="0" expand="true">
+                <depend id="0" type="2" difference="-60" hardness="Strong"/>
+                <depend id="90" type="4" difference="0" hardness="Strong"/>
+                <depend id="94" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="403" name="CPU board" meeting="false" start="2019-09-30" duration="302" complete="0" expand="true">
+                <task id="0" name="Schematics entry - CPU board" color="#3366ff" meeting="false" start="2019-09-30" duration="85" complete="0" thirdDate="2019-09-30" thirdDate-constraint="0" expand="true">
+                    <depend id="4" type="2" difference="-25" hardness="Strong"/>
+                    <depend id="104" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="4" name="Layout - CPU board" color="#66ccff" meeting="false" start="2019-12-23" duration="65" complete="0" thirdDate="2019-12-23" thirdDate-constraint="0" expand="true">
+                    <depend id="10" type="2" difference="0" hardness="Strong"/>
+                    <depend id="107" type="2" difference="0" hardness="Strong"/>
+                    <depend id="555" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="10" name="PCB Order &amp; Reception - CPU board" color="#33ff00" meeting="false" start="2020-04-02" duration="15" complete="0" thirdDate="2020-04-30" thirdDate-constraint="0" expand="true">
+                    <depend id="14" type="2" difference="0" hardness="Strong"/>
+                    <depend id="112" type="2" difference="0" hardness="Strong"/>
+                    <depend id="113" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="14" name="Prototypes assembly - CPU board" color="#3366ff" meeting="false" start="2020-04-23" duration="7" complete="0" expand="true">
+                    <depend id="17" type="2" difference="0" hardness="Strong"/>
+                    <depend id="27" type="2" difference="0" hardness="Strong"/>
+                    <depend id="45" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="17" name="Bring-Up - CPU board" color="#3366ff" meeting="false" start="2020-05-04" duration="25" complete="0" thirdDate="2020-06-01" thirdDate-constraint="0" expand="true">
+                    <depend id="20" type="2" difference="0" hardness="Strong"/>
+                    <depend id="536" type="2" difference="20" hardness="Strong"/>
+                </task>
+                <task id="536" name="ECO - CPU board rev. 01" color="#66ccff" meeting="false" start="2020-07-06" duration="50" complete="0" thirdDate="2020-08-03" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[The ECO task includes schematic entry, layout, order & assembly, and bring-up. It is considered minor or non-trivial task and meant to address minor changes or corrections.]]></notes>
+                    <depend id="121" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="20" name="Electrical Qualification - CPU board" color="#3366ff" meeting="false" start="2020-06-08" duration="130" complete="0" thirdDate="2020-07-06" thirdDate-constraint="0" expand="true">
+                    <depend id="117" type="2" difference="0" hardness="Strong"/>
+                </task>
+            </task>
+            <task id="404" name="Sensor board" meeting="false" start="2019-11-11" duration="200" complete="0" expand="true">
+                <task id="395" name="Schematics entry - Sensor board" color="#3366ff" meeting="false" start="2019-11-11" duration="50" complete="0" thirdDate="2019-11-11" thirdDate-constraint="0" expand="true">
+                    <depend id="396" type="2" difference="-15" hardness="Strong"/>
+                </task>
+                <task id="396" name="Layout - Sensor board" color="#66ccff" meeting="false" start="2020-01-09" duration="45" complete="0" thirdDate="2020-02-13" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[Layout of the sensor board to be made by the hardware team]]></notes>
+                    <depend id="462" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="462" name="PCB Order &amp; Reception - Sensor board" color="#33ff00" meeting="false" start="2020-03-12" duration="10" complete="0" thirdDate="2020-03-19" thirdDate-constraint="0" expand="true">
+                    <depend id="113" type="2" difference="0" hardness="Strong"/>
+                    <depend id="397" type="2" difference="0" hardness="Strong"/>
+                    <depend id="644" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="397" name="Prototype assembly - Sensor board" color="#3366ff" meeting="false" start="2020-03-26" duration="5" complete="0" expand="true">
+                    <depend id="45" type="2" difference="0" hardness="Strong"/>
+                    <depend id="398" type="2" difference="0" hardness="Strong"/>
+                    <depend id="651" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="398" name="Bring-up - Sensor board" color="#3366ff" meeting="false" start="2020-04-02" duration="15" complete="0" thirdDate="2020-04-09" thirdDate-constraint="0" expand="true">
+                    <depend id="468" type="2" difference="0" hardness="Strong"/>
+                    <depend id="598" type="2" difference="20" hardness="Strong"/>
+                </task>
+                <task id="598" name="ECO - Sensor board rev. 01" color="#66ccff" meeting="false" start="2020-05-21" duration="45" complete="0" thirdDate="2020-05-28" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[The ECO task includes schematic entry, layout, order & assembly, and bring-up. It is considered minor or non-trivial task and meant to address minor changes or corrections.]]></notes>
+                    <depend id="121" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="468" name="Electrical Qualification - Sensor board" color="#3366ff" meeting="false" start="2020-04-23" duration="90" complete="0" thirdDate="2020-04-30" thirdDate-constraint="0" expand="true"/>
+            </task>
+            <task id="121" name="EMC certification" color="#9999ff" meeting="false" start="2020-09-14" duration="10" complete="0" expand="true">
+                <depend id="30" type="2" difference="0" hardness="Strong"/>
+                <depend id="56" type="2" difference="0" hardness="Strong"/>
+                <depend id="124" type="2" difference="10" hardness="Strong"/>
+                <depend id="608" type="2" difference="10" hardness="Strong"/>
+            </task>
+            <task id="608" name="CRIQ testing" color="#9999ff" meeting="false" start="2020-10-12" duration="1" complete="0" expand="true">
+                <depend id="30" type="2" difference="0" hardness="Strong"/>
+                <depend id="124" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="124" name="CSA electrical safety certification (optional)" color="#9999ff" meeting="false" start="2020-10-13" duration="80" complete="0" expand="true">
+                <depend id="56" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="36" name="Milestones Engineering" color="#000000" meeting="false" start="2019-09-02" duration="322" complete="0" expand="true">
+                <task id="97" name="1- System Requirements Specification" color="#3366ff" meeting="true" start="2019-09-02" duration="0" complete="0" expand="true"/>
+                <task id="94" name="2- Hardware Requirements Specification" color="#3366ff" meeting="true" start="2019-12-23" duration="0" complete="0" expand="true"/>
+                <task id="104" name="3- Hardware Design Description" color="#3366ff" meeting="true" start="2020-02-06" duration="0" complete="0" expand="true"/>
+                <task id="644" name="PCB - Sensor board" color="#3366ff" meeting="true" start="2020-03-26" duration="0" complete="0" thirdDate="2019-07-01" thirdDate-constraint="0" expand="true"/>
+                <task id="651" name="Prototypes - Sensor board" color="#3366ff" meeting="true" start="2020-04-02" duration="0" complete="0" thirdDate="2019-07-01" thirdDate-constraint="0" expand="true"/>
+                <task id="107" name="Schematics &amp; Gerbers - CPU board" color="#3366ff" meeting="true" start="2020-04-02" duration="0" complete="0" expand="true"/>
+                <task id="112" name="PCB - CPU board" color="#3366ff" meeting="true" start="2020-04-23" duration="0" complete="0" thirdDate="2020-05-21" thirdDate-constraint="0" expand="true"/>
+                <task id="113" name="BOMs - All boards" color="#3366ff" meeting="true" start="2020-04-23" duration="0" complete="0" thirdDate="2020-05-21" thirdDate-constraint="0" expand="true"/>
+                <task id="27" name="Prototypes - CPU board" color="#3366ff" meeting="true" start="2020-05-04" duration="0" complete="0" expand="true">
+                    <notes><![CDATA[Need preliminary BIOS image at this point]]></notes>
+                </task>
+                <task id="117" name="Testing and validation" color="#3366ff" meeting="true" start="2020-12-07" duration="0" complete="0" expand="true"/>
+            </task>
+            <task id="120" name="Milestones Sales &amp; Marketing" meeting="false" start="2019-08-19" duration="373" complete="0" expand="true">
+                <task id="90" name="Marketing Requirements Document" color="#cc0033" meeting="true" start="2019-08-19" duration="0" complete="0" thirdDate="2019-08-19" thirdDate-constraint="0" expand="true">
+                    <depend id="97" type="2" difference="10" hardness="Strong"/>
+                    <depend id="596" type="2" difference="15" hardness="Strong"/>
+                </task>
+                <task id="596" name="BOM estimation" color="#3366ff" meeting="true" start="2019-09-09" duration="0" complete="0" expand="true"/>
+                <task id="45" name="Engineering Samples Units" color="#3366ff" meeting="true" start="2020-05-04" duration="0" complete="0" thirdDate="2020-06-01" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[Obtaining a fully integrated IRIS4 camera will require that all PCBs and mechanical components and other components are being ready for integration.]]></notes>
+                </task>
+                <task id="30" name="Early Access Units" color="#3366ff" meeting="true" start="2020-10-13" duration="0" complete="0" expand="true">
+                    <notes><![CDATA[Risks:
+
+- The release date for the CPU board ECO
+- Proper functioning of Sensor board and IO board]]></notes>
+                </task>
+                <task id="56" name="Active Product Units" color="#3366ff" meeting="true" start="2021-02-11" duration="0" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="552" name="Supersight Gen3 Backplane - Project 709" meeting="false" start="2019-09-02" duration="365" complete="0" expand="true">
+            <task id="554" name="Schematics entry" color="#3366ff" meeting="false" start="2019-09-02" duration="110" complete="0" thirdDate="2019-09-02" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[The schematics entry is executed in parallel with research and feasibility studies on implementation of the PCIe switch and the various controls surronding the backplane.
+
+Completion of this task is dependent of the selected thermal solution for the PCIe switch.]]></notes>
+                <depend id="555" type="2" difference="-20" hardness="Strong"/>
+            </task>
+            <task id="555" name="Layout" color="#66ccff" meeting="false" start="2020-04-02" duration="60" complete="0" thirdDate="2020-01-16" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[The start date for this task is dependent of the selected thermal solution for the PCIe switch.]]></notes>
+                <depend id="556" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="556" name="PCB Order &amp; Reception" color="#33ff00" meeting="false" start="2020-06-25" duration="20" complete="0" thirdDate="2020-07-23" thirdDate-constraint="0" expand="true">
+                <depend id="557" type="2" difference="0" hardness="Strong"/>
+                <depend id="561" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="557" name="Bring-Up" color="#3366ff" meeting="false" start="2020-07-23" duration="20" complete="0" thirdDate="2020-08-20" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[The completion of the bring-up will be dependant upon reception of the microcontroller firmware and the PCIe switch firmware & config. files.
+]]></notes>
+                <depend id="558" type="2" difference="0" hardness="Strong"/>
+                <depend id="559" type="2" difference="20" hardness="Strong"/>
+            </task>
+            <task id="558" name="Electrical Qualification" color="#3366ff" meeting="false" start="2020-08-20" duration="120" complete="0" thirdDate="2020-09-17" thirdDate-constraint="0" expand="true">
+                <depend id="563" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="559" name="ECO" color="#66ccff" meeting="false" start="2020-09-17" duration="60" complete="0" thirdDate="2020-10-15" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[The ECO task includes schematics entry, layout, order & assembly, and bring-up tasks. This ECO is meant to address minor to trivial corrections/modifications.]]></notes>
+                <depend id="564" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="564" name="EMC certification" color="#9999ff" meeting="false" start="2020-12-10" duration="10" complete="0" expand="true">
+                <depend id="562" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="595" name="Milestones Gen3 Backplane" meeting="false" start="2020-07-23" duration="140" complete="0" expand="true">
+                <task id="561" name="Engineering Samples Units" color="#3366ff" meeting="true" start="2020-07-23" duration="0" complete="0" expand="true"/>
+                <task id="562" name="Early Access Units" color="#3366ff" meeting="true" start="2021-01-04" duration="0" complete="0" expand="true"/>
+                <task id="563" name="Active Product Units" color="#3366ff" meeting="true" start="2021-02-15" duration="0" complete="0" expand="true"/>
+            </task>
+        </task>
+    </tasks>
+    <resources>
+        <resource id="0" name="Dmitri Golovanov" function="Default:0" contacts="" phone=""/>
+        <resource id="1" name="Pierre-Olivier Lessard" function="Default:0" contacts="" phone=""/>
+        <resource id="2" name="Jean-Luc Bisson" function="Default:0" contacts="" phone=""/>
+        <resource id="3" name="Sebastien Ricard" function="Default:0" contacts="" phone=""/>
+        <resource id="4" name="Christian Marcelin" function="Default:0" contacts="" phone=""/>
+        <resource id="5" name="Diego Zamora" function="Default:0" contacts="" phone=""/>
+        <resource id="6" name="Luc Cote" function="Default:0" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="0" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="17" resource-id="0" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="536" resource-id="0" function="Default:0" responsible="true" load="50.0"/>
+        <allocation task-id="20" resource-id="0" function="Default:0" responsible="true" load="50.0"/>
+        <allocation task-id="554" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="557" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="559" resource-id="2" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="395" resource-id="3" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="598" resource-id="3" function="Default:0" responsible="false" load="50.0"/>
+        <allocation task-id="468" resource-id="3" function="Default:0" responsible="false" load="50.0"/>
+        <allocation task-id="20" resource-id="4" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="396" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="398" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="598" resource-id="5" function="Default:0" responsible="true" load="50.0"/>
+        <allocation task-id="468" resource-id="5" function="Default:0" responsible="true" load="50.0"/>
+        <allocation task-id="558" resource-id="5" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="4" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="536" resource-id="6" function="Default:0" responsible="false" load="100.0"/>
+        <allocation task-id="555" resource-id="6" function="Default:0" responsible="true" load="100.0"/>
+        <allocation task-id="559" resource-id="6" function="Default:0" responsible="false" load="100.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>

@@ -2,7 +2,7 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
-  [file normalize "${SRC_DIR}/csib_athena_hispi.vhd"]
+  [file normalize "${SRC_DIR}/athena_hispi.vhd"]
 ]
 
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
@@ -14,6 +14,7 @@ update_compile_order -fileset ${HDL_FILESET}
 ################################################
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/implementation_timing_constraints.xdc
 set_property used_in_synthesis false [get_files  ${XDC_DIR}/implementation_timing_constraints.xdc]
 # Needs to be processed late because of the set_property IOB false constraints

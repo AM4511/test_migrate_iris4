@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="15" name="regfile_ares">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="Device_specific" endAddress="24" totalSize="48">
+    <registers name="INTSTAT" description="INTerrupt STATus" numberOfReservedSpacesBelow="6">
+      <fields name="IRQ_TICK_LATCH" description="This bit indicates that an interrupt has been detected on one of the latch associated with the matching tick table" lsb="7" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in the tick table&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_MICROBLAZE" description="This bit indicates that the Microblaze subsystem has updated datapointer to exchange data with the host." lsb="6" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This bit indicates that an interrupt has been detected. &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK_WA" description="This bit indicates that a wrap around of the tick table X has happen. " lsb="4" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This bit indicates that an interrupt has been detected. A wrap around of the tick table has been generated.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TIMER" description="This bit indicates that an interrupt has been detected on one Timer, see INTSTAT2 register. &#xD;&#xA;&#xD;&#xA;This is a read-only register." lsb="3" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in one Timer&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK" description="This bit indicates that an interrupt has been detected on the Tick Table X(half/full)." lsb="1" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in the Tick Table&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_IO" description="This bit indicates that an interrupt has been detected on the User Inputs." readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in the User Inputs&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="INTMASKn" description="Every bit in this register is used to mask some event.  While a bit in this register is set to 0, the corresponding bit in the INTSTAT register cannot SWITCH to 1. When a bit in the INTMASK register is set to ‘1’, the corresponding bit in INTSTAT function normally" offsetFromParent="4">
+      <fields name="IRQ_TICK_LATCH" description="This bit enable the interrupt on the latch from the tick table.  &#xD;&#xA;&#xD;&#xA;Note that it is hardcoded to 1. Individual interrupt for every latch should be enabled within the tick table feature structure." lsb="7" valueAtReset="1" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in the tick table&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_MICROBLAZE" description="This is the IRQ MASKn for the Microblaze datapointers . When set this field to '0', no interrupt will be generated from the Microblaze datapointers update." lsb="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Microblaze disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Microblaze enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK_WA" description="This is the IRQ MASKn for the Tick Table X Wrap Around . When set this field to '0', no interrupt will be generated from the Tick Table X Wrap Around." lsb="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Tick Table Wrap Around disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Tick Table Wrap Around enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TIMER" description="This is the IRQ MASKn for the Timer IRQ. When set this field to '0', no interrupt will be generated from Timer module.&#xD;&#xA;" lsb="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Timers pins disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Timers enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK" description="This is the IRQ MASKn for the Tick Table. When set this field to '0', no interrupt will be generated from the Tick Table X." lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Tick Table disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Tick Table enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_IO" description="This is the IRQ MASKn for the UserInputs pins interrupt. When set this field to '0', no interrupt will be generated from the input pins.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Input pins disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IRQ from Input pins enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="INTSTAT2" description="INTerrupt STATus" offsetFromParent="8" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="4">
+      <fields name="IRQ_TIMER_END" description="This bit indicates that an interrupt has been detected on a Timer End event." lsb="16" size="8" readWrite="false" readWriteToClear="true"/>
+      <fields name="IRQ_TIMER_START" description="This bit indicates that an interrupt has been detected on a Timer Start event." size="8" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="BUILDID" description="This field represents a timestamp when the FPGA was synthesized and can be used to identify FPGA implementation uniquely." offsetFromParent="1C" numberOfReservedSpacesBelow="6">
+      <fields name="YEAR" description="Last 2 digits of the year, represented in BCD.  0x13 is for 2013 for example." lsb="24" size="8" readWrite="false" readOnly="true"/>
+      <fields name="MONTH" description="Month of the year, in hex." lsb="20" size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=1-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>January to December&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DATE" description="Day of the month, represented in BCD." lsb="12" size="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=1-49&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="HOUR" description="The hour of the timestamp, coded in BCD." lsb="4" size="8" readWrite="false" readOnly="true"/>
+      <fields name="MINUTES" description="This field is used to represent the minutes in the hour, divided by 10.  Ten minutes is enough resolution for the FPGA build." size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="FPGA_ID" offsetFromParent="20">
+      <fields name="PROFINET_LED" description="This bit selects if the User Leds are controlled from the FPGA memory space, controlled by the host processor, or if the User Leds are controlled by the Microblaze running Profinet stack" lsb="12">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Host processor control&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Microblaze control&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PB_DEBUG_COM" description="These bits are used to redirect Profiblaze UART output on internal COM port output.  This should be used for debugging purposes only.  The standard 0x3F8 COM1 on the SOC is connected to this physical line.&#xD;&#xA;&#xD;&#xA;Profiblaze UART is hardcoded to 115200 bps, 8 data bit, no parity, 1 stop bit.&#xD;&#xA;&#xD;&#xA;This is effective on the Y7478-01 PCB only." lsb="10">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>UART line between SOC and FPGA is tristated by the FPGA&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Profiblaze output is seen on the internal com port&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPGA_ID" description="This is the FPGA_ID.&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" size="5" valueAtReset="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Spartan6 LX9 fpga used on Y7449-00 (deprecated)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Spartan6 LX16 fpga used on Y7449-01,02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 A35T fpga used on Y7471-00 (deprecated)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 A50T fpga used on Y7471-01&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 A50T fpga used on Y7471-02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 A50T fpga used on Y7449-03&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Spider PCIe on Advanced IO board&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="LED_OVERRIDE" description="This register is used to control LED override.&#xD;&#xA;&#xD;&#xA;To signal a catastrophic condition, caused by thermal overrun, the BIOS uses this register to change the behavior of the USER LED.  This register takes priority on every other register and setting controlling the LEDS" offsetFromParent="24">
+      <fields name="RED_ORANGE_FLASH" description="When this bit is set, the LED will flash at approximatly 1 Hz between the off state and the orange state" lsb="25">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Flash override active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ORANGE_OFF_FLASH" description="When this bit is set, the LED will flash at approximatly 1 Hz between the off state and the orange state" lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Flashing override active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="INTERRUPT_QUEUE" description="This section controls the behavior of the interrupt queue" baseAddress="40" endAddress="50">
+    <registers name="CONTROL">
+      <fields name="NB_DW" description="This is the number of 32-bit DW used to represent all interrupt sources. It is used by the driver to know how to split the data of the interrupt queue in interrupt events.&#xD;&#xA;&#xD;&#xA;This number should always be a power of 2 to simply the hardware implementation and avoid having a single interrupt event split by the wrap-around boundary.&#xD;&#xA;" lsb="24" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="ENABLE" description="This bit is used to enable the interrupt queue. When disabled, the interrupt will behave in a legacy way where all interrupts are merged into interrupt status register and driver has to read the status register to know the interrupt sources.&#xD;&#xA;&#xD;&#xA;To reset the interrupt queue, the driver should disable the queue and re-enable it. This will cause the producer index to be reset to 0 internally in the hardware.  The driver should write the Producer index to 0 when the interrupt queue is disabled to prevent mis-interpretation of producer index when the queue is turned back to on."/>
+    </registers>
+    <registers name="CONS_IDX" description="The consumer index indicates up to which element of interrupt queue array it can write. Element in the queue between CONS_IDX (included) and PROD_IDX (not included) belong to the driver and are not written by the hardware. " offsetFromParent="4">
+      <fields name="CONS_IDX" description="When turning on the interrupt queue, the driver should first write this index to value 1023 (0X3FF) to indicate that the queue is empty." size="10"/>
+    </registers>
+    <registers name="ADDR_LOW" description="This is the lower part of the address in host memory where the PCIe device writes the interrupt queue. It has to be aligned on 8K bytes boundary. The producer index is written at the end of the queue of 4K (ADDR_LOW + 4KB)." offsetFromParent="8">
+      <fields name="ADDR" size="32" readOnlyMsb="12" useFieldResolution="true"/>
+    </registers>
+    <registers name="ADDR_HIGH" description="This is the high part of the address in host memory where the PCIe device writes the interrupt queue.  It must be written to 0 if the queue resides in the first 4 GB of memory." offsetFromParent="C">
+      <fields name="ADDR" size="32" readOnlyMsb="12"/>
+    </registers>
+    <registers name="MAPPING" description="This register is used to represent the mapping of the interrupt source in the event queue vector.  All its bitfields have no effect when written and will read back to 0.  Software should used the generated structure to identify the bit positions." offsetFromParent="10" disableReadBack="true">
+      <fields name="IRQ_TIMER_END" description="This bit indicates that an interrupt has been detected on a Timer End event." lsb="24" size="8" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TIMER_START" description="This bit indicates that an interrupt has been detected on a Timer Start event." lsb="16" size="8" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IO_INTSTAT" description="This bit indicates that an interrupt has been detected on the corresponding I/O input." lsb="8" size="4" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK_LATCH" description="This bit indicates that an interrupt has been detected on one of the latch associated with the matching tick table" lsb="5" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured in the tick table&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_MICROBLAZE" description="This bit indicates that the Microblaze subsystem has updated datapointer to exchange data with the host." lsb="4" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TIMER" description="This bit indicates that an interrupt has been detected on one Timer, see INTSTAT2 register. &#xD;&#xA;&#xD;&#xA;This is a read-only register." lsb="3" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK_WA" description="This bit indicates that a wrap around of the tick table X has happen. " lsb="2" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_TICK" description="This bit indicates that an interrupt has been detected on the Tick Table X(half/full)." lsb="1" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IRQ_IO" description="This bit indicates that an interrupt has been detected on the User Inputs." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="SPI" description="Cette section est laisse ici pour faire un fichier .H unifie mais les registre sous-jacent ne sont pas implante dans le FPGA." baseAddress="E0" endAddress="EC">
+    <registers name="SPIREGIN" alias="SPI Register In" useReservedSpaceBelow="true" disableReadBack="true">
+      <fields name="SPI_ENABLE" alias="SPI ENABLE" description="This bit enables the Output enable of the pin of the FPGA. This is needed to put the SPI interface in hi-Z when not using it." lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The SPI interface is disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The SPI interface is enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIRW" alias="SPI  Read Write" description="Specify the SPI transfer type (read or write access)." lsb="22">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read Access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPICMDDONE" alias="SPI  CoMmaD DONE" description="Specify the last transaction for an SPI command sequence." lsb="21"/>
+      <fields name="SPISEL" alias="SPI active channel SELection" description="Selects the active SPI x channel. Current implementation uses a single channel to this field has a single bit." lsb="18"/>
+      <fields name="SPITXST" alias="SPI SPITXST Transfer STart" description="Start an SPI transaction when 1 is written" lsb="16" readWrite="false" writeOnly="true"/>
+      <fields name="SPIDATAW" alias="SPI Data  byte to write" description="This is the data byte to be written." size="8"/>
+    </registers>
+    <registers name="SPIREGOUT" alias="SPI Register Out" offsetFromParent="8" useReservedSpaceBelow="true">
+      <fields name="SPI_WB_CAP" alias="SPI Write Burst CAPable" description="This register informs if the SPI core is able to write burst of 256 bytes to the SPI device (Write page), without requireing register polling between command, adress and data bytes in the write page command." lsb="17" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This fpga can't do write burst&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This fpga is capable of doing write burst&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIWRTD" alias="SPI Write or Read Transfer Done" description="Specify if there is a transfer in progress." lsb="16" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Transfer in progress&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No transfer in progress&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIDATARD" alias="SPI DATA  Read byte OUTput " description="This is the data read byte from the SPI " size="8" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="IO" description="This sections are for IO banks used to interface to external world.&#xD;&#xA;Bank0 is UserInput&#xD;&#xA;Bank1 is UserOutput" baseAddress="200" endAddress="2FC" useMultiples="true" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_IO" description="This register identfies this block as a IO block for software automatic feature detection mechanism">
+      <fields name="IO_ID" description="This identifies an input and/or output bank. &#xD;&#xA;&#xD;&#xA;This is a Legacy module. The FREV field has been removed to made the ID larger (8 bits). If for an unknown reason this module have to be modified, change the ID to a new one, and add new functionnality." lsb="24" size="8" valueAtReset="10" readWrite="false" staticVal="true"/>
+      <fields name="N_port" description="This is the number of bits in the ‘bank’.  This counter is 0 based.  A value of 0 indicates 1 bit and the value of 1fh indicates 32 bits." lsb="19" size="5" readWrite="false" readOnly="true"/>
+      <fields name="Input" description="Indicates if input is available on this feature port." lsb="18" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No input capabilities&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input capabilities present&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="Output" description="Indicates if output is available on this feature port." lsb="17" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No output capabilities&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output capabilities present&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="Intnum" description="This is the bit number in the interrupt field when the interrupts from this I/O banks are forwarded.  When an I/O generates an interrupt, the corresponding bit will be set in the IO_INTSTAT register in the I/O bank.  Also, an interrupt will be forwarded to the global interrupt register of the FPGA." lsb="12" size="5" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="IO_PIN" description="This register is present only if the I/O bank is input capable." offsetFromParent="4">
+      <fields name="Pin_value" description="This bit is the status of the pin. The value read back in is not influenced by the io_pol bit. " size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input is de-asserted&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input is asserted&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_OUT" description="This register is present only if the I/O bank is output capable." offsetFromParent="8">
+      <fields name="Out_value" description="This bit controls the output bit, when out_sel is set to 0." size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output will be low&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output will be high&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_DIR" description="This register is present only if the I/O bank is output capable." offsetFromParent="C">
+      <fields name="Dir" description="This bit controls if the user bit is an output or an input." size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User pin is an input&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User pin is an output. Input functions still work (interrupt, readback) but the input value will be the driven value.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_POL" description="User bit polarity" offsetFromParent="10">
+      <fields name="In_pol" description="This controls the active state on the input path from the pin to the other component of the user I/O (interrupt)" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User I/O input generates an interrupt on rising edge.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User I/O input generates an interrupt on falling edge.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_INTSTAT" description="Every bit in this register represents the status of an interrupt. When an event occurs, the corresponding bit is set in this register. If the output of the interrupt is enabled, the PCI interrupt pin will be asserted. The software should read this register when there is an interrupt. When a ‘1’ is written in a bit, that event is acknowledged and the bit is returned to ‘0’, unless the event is still occurring.  When a ‘0’ is written, nothing happens." offsetFromParent="14">
+      <fields name="Intstat" description="This bit indicates that an interrupt has been detected on the corresponding I/O input." size="4" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_INTMASKn" description="Every bit in this register is used to mask some event.  While a bit in this register is set to 0, the corresponding bit in the INTSTAT register cannot SWITCH to 1. When a bit in the INTMASK register is set to ‘1’, the corresponding bit in INTSTAT function normally" offsetFromParent="18">
+      <fields name="Intmaskn" description="Interrupt IRQ MASK not. When set to 0, the associated IRQ will be not generated." size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt will be generated for the corresponding user I/O. (Note that if the corresponding bit is already asserted in the IO_INTSTAT register, the interrupt will still be generated)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt generated when the corresponding I/O toggles with the polarity defined in IO_POL register.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="IO_ANYEDGE" description="Generate an interrupt on any edge on the input signal" offsetFromParent="1C">
+      <fields name="In_AnyEdge" description="This bit is used to override the In_pol setting bit of the corresponding register.  When this bit is set, an interrupt is generated on rising and falling edge of the input signal.  When this bit is 0, the code work in legacy mode and the in_pol is used to select which edge generate an interrupt.&#xD;&#xA;&#xD;&#xA;There is one bit per input signal." size="4"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="Quadrature" description="This section controls a single quadrature decoder." baseAddress="300" endAddress="37C" useMultiples="true" numberOfMultiples="1" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_QUAD" description="This register identifies the capabilities of the Quadrature  of this feature section.">
+      <fields name="QUADRATURE_ID" description="Any feature with 8 MSB set to 0x64 is a ticktable as defined in the following registers." lsb="24" size="8" valueAtReset="64" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="PositionReset" description="Describes the event that can reset the position of the quadrature decoder" offsetFromParent="4">
+      <fields name="PositionResetSource" description="Quadrature Position counter Reset Source. &#xD;&#xA;&#xD;&#xA;The Reset Source set to Disable only affects the reset from the Input Line and  the reset at trigger position. &#xD;&#xA;&#xD;&#xA;The soft_PositionReset may be executed even if PositionResetSource is disable." lsb="2" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable Reset source&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Counter reaches position trigger&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PositionResetActivation" description="Quadrature Position counter Reset activation edge for line inputs. " lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rising edge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Falling edge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="soft_PositionReset" description="This is the quadrature counter software reset. Set this field reset the counters in the quadrature logic to 0." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Software position reset&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderInput" offsetFromParent="8">
+      <fields name="BSelector" description="This is the phase B line. By definition, this line transitions BEFORE phase A line when the encoder is rotating in the clockwise direction." lsb="29" size="3" valueAtReset="2">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ASelector" description="This is the phase A line. By definition, this line transitions AFTER phase B line when the encoder is rotating in the clockwise direction." lsb="13" size="3" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderCfg" offsetFromParent="C">
+      <fields name="DecOutSource0" description="Quadrature Output Source for output 0 of the decoder. Selects wich signal of the rotary decoder is sent to the output 0 of the core.&#xD;&#xA;&#xD;&#xA;There is only one output per decoder at this moment. This may change on customer needs." lsb="2" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>New Tick&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock Wise Tick&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Counter Clock Wise Tick&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any Tick (Clock or counter clock wise ticks)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Counter reaches Position Trigger register(Regenerated Tick)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="QuadEnable" description="This register enables the Quadrature decoder.  &#xD;&#xA;&#xD;&#xA;When set to disable, the position/maximum position/direction is also reseted. ">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Quadrature decoder disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Quadratue decoder enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderPosTrigger" offsetFromParent="10">
+      <fields name="PositionTrigger" description="Position counter where the decoder will generate an event(or a regeretated Tick). When routing this event to the  RstSource, the logic can divide the rotary ticks by a factor. " size="32" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value in this range&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderCntrLatch_Cfg" offsetFromParent="14" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="7">
+      <fields name="DecoderCntrLatch_SW" description="This field register is used to enable the copy the actual quad decoder counter into the DecoderCntrLatched_SW register.  &#xD;&#xA;&#xD;&#xA;This is used to compensate for the size of the  actual decoder counter which is larger than an atomic read." lsb="24" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Latch the quad decoder counter into DecoderCntrLatched_SW register.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DecoderCntrLatch_Src" description="This field is used to select which of the input signal is used to latch the current quad decoder counter into register DecoderCntrLatched.&#xD;&#xA;&#xD;&#xA;" lsb="16" size="5">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=4-6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal input line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=7-14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DecoderCntrLatch_En" description="This field register is used to enable the copy the actual quad decoder counter into the DecoderCntrLatched register when an input transitioned.  &#xD;&#xA;&#xD;&#xA;This is used to compensate for the size of the  actual decoder counter which is larger than an atomic read." lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable the Quad decoder counter latch from Inputs and Timers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DecoderCntrLatch_Act" description="Specify which edge of the input signal is used to copy the current quad decoder counter into a register." lsb="4" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderCntrLatched_SW" offsetFromParent="34">
+      <fields name="DecoderCntr" description="This is the Quad decoder counter latched with the SW snapshot." size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DecoderCntrLatched" offsetFromParent="38">
+      <fields name="DecoderCntr" description="This is the Quad decoder counter latched with the Input or Timer source." size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="TickTable" baseAddress="380" endAddress="3FC" useMultiples="true" numberOfMultiples="1" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_TICKTBL" description="This register identifies the capabilities of the Tick table interface of this feature section.">
+      <fields name="TICKTABLE_ID" description="Any feature with 8 MSB set to 0x61 is a ticktable as defined in the following registers." lsb="24" size="8" valueAtReset="61" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature.&#xD;&#xA;&#xD;&#xA;Revision 1 is used to notify the software that the structure of the following register has changed" lsb="20" size="4" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="NB_ELEMENTS" description="This field is used to present the number of elements in the tick table, represented in power of 2. For example, a value of 8 is for 256 element in the table, a value of 13 is for 8192 elements in the table, " lsb="12" size="5" valueAtReset="d" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=4-31&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="INTNUM" description="This is the bit number in the global interrupt status where interrupt from this feature is forwarded. Periodic interrupt is automatically generated at every half table crossing whenever the EnableHalftableInt is turned on." lsb="7" size="5" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="CAPABILITIES_EXT1" description="This is the extension of the capabilites register. Its bit mapping content is Feature_rev specific." offsetFromParent="4">
+      <fields name="TABLE_WIDTH" description="This is the width of the tick table, as seen by software. This counter is 1 based.  " size="8" valueAtReset="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_LATCH" description="This is the number of latch. This counter is1 based.  A value of 1 indicates 1 latch and the value of 0x0Ch indicates 12 latches" lsb="8" size="4" valueAtReset="2" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="TickTableClockPeriod" description="This is the period of the internal clock used by the timer." offsetFromParent="8">
+      <fields name="Period_ns" description="Period in ns of the system reference clock for generate the clock used by the Ticktable (see register IntClock_sel). &#xD;&#xA;In GPm Ref, clock is LPC clock at T=30ns (33.333Mhz). &#xD;&#xA;In GPm-Atom, Ref clock is LPC clock at T=40ns (25.000Mhz). &#xD;&#xA;In Ares and Spider PCIe, Ref clock is PCIe clock at T=16ns (62.500Mhz). " size="8" implementReset="false" valueAtReset="1e" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TickConfig" offsetFromParent="C">
+      <fields name="ClearTickTable" alias="Clear command in Tick Table" description="This field is used to clear the command contents of the ticktable without reset all the core. The commands bits in the ticktable to clear are configured in field ClearMask. The operation will take around XXXX us." lsb="28" readWrite="false" writeOnly="true"/>
+      <fields name="ClearMask" alias="Clear command Mask " description="This field is used to mask bits in the ticktable when a ClearTickTable command is sent. When the associated mask bit is set to '1' the bit command will not be clear to 0 (Do not change output)&#xD;&#xA;" lsb="16" size="8"/>
+      <fields name="TickClock" description="This field is used to select the clock source. &#xD;&#xA;&#xD;&#xA;When select Internal clock as source, select corresponding activation register to rising edge (0x0)." lsb="8" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal clock source&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IntClock_sel" description="This register selects the Clock Int frequency used in the logic.&#xD;&#xA;&#xD;&#xA;IntClock_sel = 0x0 : T=Period_ns * 8192 &#xD;&#xA;IntClock_sel = 0x1 : T=Period_ns * 2048 &#xD;&#xA;IntClock_sel = 0x2 : T=Period_ns * 1024 &#xD;&#xA;IntClock_sel = 0x3 : T=Period_ns * 256 &#xD;&#xA;&#xD;&#xA;" lsb="6" size="2" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>T=Period_ns * 8192 : Clock Int is 4.069 Khz(GPm),  3.05175 Khz(GPm-Atom), 7.629 Khz(Spider_PCIe)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>T=Period_ns * 2048 : Clock Int is 16.276 Khz(GPm),  12.207 Khz(GPm-Atom),  30.518Khz(Spider_PCIe) (Default)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>T=Period_ns * 1024 : Clock Int is 32.552 Khz(GPm),  24.414 Khz(GPm-Atom),  61.035Khz(Spider_PCIe) &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>T=Period_ns * 256 : Clock Int is 130.208 Khz(GPm),  97.656 Khz(GPm-Atom),  244.141Khz(Spider_PCIe) &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TickClockActivation" description="Specify which edge of the input signal is used to clock the current timestamp." lsb="4" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="EnableHalftableInt" description="This bit turns on the interuppt mechanism to trigger the refill of the tick table from the software backup list.  An interrupt is generated when the first half or the second half of the tick table just completed execution.  Upon receipt of this interrupt, the software can latch and read the current timestamp to determine if it can rewrite the first or second half of the ticktable." lsb="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt are generated&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>An interrupt is generated whenever an half of the table has been executed(first half and second half).&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="IntClock_en" description="Internal Clock enable" lsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal clock disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal clock enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LatchCurrentStamp" description="This bit is used to copy the actual timestamp into the CurrentStampLatched register.  This is used to compensate for the size of the  actual timestamp which is larger than an atomic read." lsb="1" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Latch current stamp to register&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ResetTimestamp" description="This field is used to reset the CurrentStamp register. It will also erase the full content of the associated ticktable. The operation will take around 250us." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset ticktable and counters&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="CurrentStampLatched" description="This is the value of the current timestamp.  Software must write '1' in the LatchCurrentStamp field in the control register to copy the actual timestamp into this register because the actual timestamp is to large too be read in an atomic access." offsetFromParent="10">
+      <fields name="CurrentStamp" description="This number is the current &quot;time&quot; stamp for the table when LatchCurrentStamp register was set. When the table is clocked from external source, the time is measured in number of external ticks.&#xD;&#xA;&#xD;&#xA;The LSB of this timestamp is the index used in the table.  The NB_ELEMENTS field of the capabilities register can be used to determine the number of LSB used as an index in the table.  The other MSB can be used as a lap counter.  &#xD;&#xA;&#xD;&#xA;This value can be reset through register ResetTimestamp." size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="WriteTime" description="" offsetFromParent="14">
+      <fields name="WriteTime" description="This is the time where the next command will be written. The LSBs are used to select where in the tick table the command is written.  &#xD;&#xA;&#xD;&#xA;The whole write time is also compare with the actual current timestamp to determine if the requested write time is in the future or in the past.  If the requested command time is in the past, the command write is discarded.  The hardware automatically handles the wraparound by substracting the current time from the write time; if the result is positive, the command is in the future. &#xD;&#xA;&#xD;&#xA;Note that if a command is written where the WriteTime is exactly equal to the current timestamp, it is considered to be in the past." size="32">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="WriteCommand" offsetFromParent="18" numberOfReservedSpacesBelow="16">
+      <fields name="WriteDone" description="This bit field informs the driver that the previous cmd has been executed and the WriteStatus field is updated. This bit is reset when the command is received." lsb="13" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Last Cmd running&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Last Cmd executed&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="WriteStatus" description="This updated upon a write to the ExecuteFutureWrite bit.  It is undefined before that." lsb="12" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Last ExecuteFutureWrite resulted in failure&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Last ExecuteFutureWrite resulted in success&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ExecuteFutureWrite" description="This triggers the write in the table. This will store the BitCmd in the associate BitNum if the WriteTime is in the future. Write status is reflected in the WriteStatus field." lsb="9" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Future write snapshot&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ExecuteImmWrite" description="This triggers the write in the table. This will store the BitCmd in the associate BitNum in the next entry in the tick table to be executed, thereby ignoring the WriteTime field. This always succeeds" lsb="8" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Imminent write snapshot&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="BitCmd" description="This is the bit command to insert in the table to affect the virtual output of the tick table.  The Rise-then-fall will generate a very short pulse and is intended to trigger another submodule internal to the Spider." lsb="5" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not change output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rise output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fall output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rise-then-fall output.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="BitNum" description="This is the bit number affected by this write command." size="2">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bit number affected by the command&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="LatchIntStat" description="This register holds the status of the interrupts of the latches. There are as many bits are there are latches." offsetFromParent="1C">
+      <fields name="LatchIntStat" description="This bit indicates that the InputStamp condition has occured and an updated value (which could be the same as the previous one) is available in corresponding InputStampLatched register." size="2" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt condition&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt condition occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="InputStamp" offsetFromParent="20" useMultiples="true" numberOfReservedSpacesBelow="2">
+      <fields name="InputStampSource" description="This field is used to select which of the input signal is used to latch the current ticktable timestamp into a register. Note that software must write LatchInputStamp field to make this register indirectly readable through InputStampLatched register." lsb="16" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=4-6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal input line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=7-14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LatchInputIntEnable" description="This field register is used to enable the interrupt generation when a latch event occurs. When the latch condition occurs, as determined by the InputStampSource, InputStampActivation and LatchInputStamp_en, an interrupt will be generated if it is enabled by this register." lsb="9">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt generation disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt generation enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LatchInputStamp_En" description="This field register is used to enable the copy the actual timestamp into the InputStampLatched register when an input transitioned.  &#xD;&#xA;&#xD;&#xA;This is also used to compensate for the size of the  actual timestamp which is larger than an atomic read." lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable the Input stamp arm logic&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="InputStampActivation" description="Specify which edge of the input signal is used to copy the current timestamp into a register." lsb="4" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="reserved_for_extra_latch" description="This register is used to take space for extra latches.  This pushes the InputStampLatched register array at offset +0x50 from the feature ID." offsetFromParent="28" useMultiples="true" numberOfMultiples="10">
+      <fields name="reserved_for_extra_latch" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="InputStampLatched" description="This is the value of the timestamp saved when an input transitioned.  Software must write '1' in the LatchInputStamp field in the control register to copy the actual timestamp into this register because the actual timestamp is too large to be read in an atomic access." offsetFromParent="50" useMultiples="true">
+      <fields name="InputStamp" description="This number is the &quot;time&quot; stamp saved when an input transitioned(selected by register InputStampSource). When the table is clocked from external source, the time is measured in number of external ticks.&#xD;&#xA;&#xD;&#xA;This value can be reset through register ResetTimestamp." size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="InputConditioning" description="This section refers to every physical input line" baseAddress="400" endAddress="47C" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_INCOND" description="This register identifies the capabilities of the input conditionning   of this feature.">
+      <fields name="INPUTCOND_ID" description="Any feature with 8 MSB set to 0x62 is a the line input conditionning configuration as defined in the following registers." lsb="24" size="8" valueAtReset="62" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_INPUTS" description="This is the number of inputs controlled by this feature, which is also the number of register following this capabilities register." lsb="12" size="5" valueAtReset="4" readWrite="false" staticVal="true"/>
+      <fields name="Period_ns" description="Period in ns of the internal clock reference by default. &#xD;&#xA;In the GPm, Ref clock is LPC clock at T=30ns (0x1e ns)&#xD;&#xA;In the GPm-Atom, Ref clock is LPC clock at T=40ns  (0x28 ns) &#xD;&#xA;In Spider PCIe and Ares, Ref clock is PCIe clock at T=16ns (62.500Mhz). " size="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 8 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="InputConditioning" alias="" description="Every bit in this register is used to invert signal polarity." offsetFromParent="4" useMultiples="true" numberOfMultiples="4" numberOfReservedSpacesBelow="10">
+      <fields name="DebounceHoldOff" description="This is the minimal time from a valid input signal edge to the next edge.  After a valid edge is detected, any other edge is considered noise and is suppressed until the time period defined by this field is elapsed. &#xD;&#xA;&#xD;&#xA;The reference clock for this feature is the system clock. &#xD;&#xA;&#xD;&#xA;For GPm IvB: the clock used is T=30ns, f=33.3333Mhz, it gives 0.5ms of maximal debounce hold off.&#xD;&#xA;For GPm ByT: the clock used is T=40ns, f=25.0000Mhz, it gives 0.6ms of maximal debounce hold off.&#xD;&#xA;For Spider PCIe (Indio): the clock used is T=16ns, f=62.500Mhz, it gives 0.26ms of maximal debounce hold off.&#xD;&#xA;For GTR PCB rev 00: the clock used is T= 16ns.&#xD;&#xA;For GTR PCB rev 01: the clock used is T= 40 ns." lsb="8" size="24">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-16777215&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 24 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="InputFiltering" description="Input pulse shorter" lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Filtering OFF&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>500 ns +/- 10% filtering enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="InputPol" description="This register set the input polarity. &#xD;&#xA;When set to '0' the polarity on the pin of the fpga is not inverted to the core.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not invert polarity&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Invert polarity &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="OutputConditioning" description="This section is associated with every output" baseAddress="480" endAddress="4FC" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_OUTCOND" description="This register identifies the capabilities of the output conditionning module of this feature.">
+      <fields name="OUTPUTCOND_ID" description="Any feature with 8 MSB set to 0x63 is a line input conditionning configuration as defined in the following registers." lsb="24" size="8" valueAtReset="63" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_OUTPUTS" description="This is the number of outputs controlled by this feature, which is also the number of register following this capabilities register." lsb="12" size="5" valueAtReset="4" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="OutputCond" offsetFromParent="4" useMultiples="true" numberOfMultiples="4">
+      <fields name="OutputVal" alias="Output Value" description="This is logical value on the FPGA USEROUT pin, after the output filter" lsb="16" readWrite="false" readOnly="true"/>
+      <fields name="OutputPol" description="This register set the output polarity. &#xD;&#xA;When set to '0' the polarity on the output pin of the fpga is the same as in the core." lsb="7">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not change polarity&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Polarity inverted&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="Outsel" description="Selects what is output" size="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Static output programmed in IO module&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Tick Table &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=6-13&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=14-16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal inputs&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="Reserved" description="Reserved space for future use" offsetFromParent="14" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="5">
+      <fields name="Reserved" description="Reserved for future use" size="8" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt event occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="Output_Debounce" offsetFromParent="2C">
+      <fields name="Output_HoldOFF_reg_EN" description="To limit the output rate of the UserOutputs, the Output Debounce logic is always enable and limited by HW fpga to 61Khz. In case we want to modify this output toggle rate in the near future, to increase the toggle rate of the outputs, the driver can set this register (Output_HoldOFF_reg_EN) to '1' and program the register Output_HoldOFF_reg_CNTR to the desired value. " lsb="16"/>
+      <fields name="Output_HoldOFF_reg_CNTR" description="This is the minimal time from a valid output signal edge to the next edge.  After a valid edge is detected, any other edge is suppressed until the time period defined by this field is elapsed. At the end of this time, the level of the output is compared with the internal signal, and if it's differs, the output is updated with the new value and the timer is restarted. If they are equal, the logic will wait for an edge of the internal signal.  &#xD;&#xA;&#xD;&#xA;For limit the output rate follow this simple formula :&#xD;&#xA;&#xD;&#xA;Output_HoldOFF_reg_CNTR= 1/(2*F_lim*T)&#xD;&#xA;&#xD;&#xA;For GPm: The clock used is  f=33.3333Mhz, T=30ns. &#xD;&#xA;For GPm Atom: The clock used is f=25.0000Mhz, T=40ns. &#xD;&#xA;&#xD;&#xA;For a limit of F_lim=61Khz on the outputs  :&#xD;&#xA;&#xD;&#xA;For the GPM the value of the register is : 273 dec&#xD;&#xA;For the GPM Atom the value of the register is : 205 dec" size="10" valueAtReset="1ff">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="InternalInput" description="This section is to configure some of the inputs of the FPGA that are kept internal in the product but external to the FPGA because of partitionning of the logic into many FPGA for hardware design.  The first use of this feature is to define the following internal input from the Athena grab FPGA:&#xD;&#xA;&#xD;&#xA;acq_exposure          connecte sur internal_input(0)&#xD;&#xA;acq_strobe               connecte sur internal_input(1)&#xD;&#xA;acq_trigger_ready   connecte sur internal_input(2)&#xD;&#xA;" baseAddress="500" endAddress="57C" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_INT_INP" description="This register identifies the capabilities of the internal output module of this feature.">
+      <fields name="INT_INPUT_ID" description="Any feature with 8 MSB set to 0x66 is an internal input as defined in the following registers." lsb="24" size="8" valueAtReset="66" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_INPUTS" description="This is the number of internal inputs. This number is solely here to allow software to generate the enumeration values of the various MUX used in the product." lsb="12" size="5" valueAtReset="3" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="InternalOutput" description="This section is to configure some of the outputs of the FPGA that are kept internal in the product but external to the FPGA because of partitionning of the logic into many FPGA for hardware design.  The first use of this feature is to connect the trigger source to the trigger signal sent to the acquisition FPGA inside the Iris GTR." baseAddress="580" endAddress="5FC" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_INTOUT" description="This register identifies the capabilities of the internal output module of this feature.">
+      <fields name="INT_OUTPUT_ID" description="Any feature with 8 MSB set to 0x65 is the line input conditionning configuration as defined in the following registers." lsb="24" size="8" valueAtReset="65" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_OUTPUTS" description="This is the number of outputs controlled by this feature, which is also the number of register following this capabilities register." lsb="12" size="5" valueAtReset="1" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="OutputCond" offsetFromParent="4" useMultiples="true" numberOfMultiples="1">
+      <fields name="OutputVal" alias="Output Value" description="This is logical value on the FPGA USEROUT pin, after the output filter&#xD;&#xA;&#xD;&#xA;This register is for test purposes only and should not be used by the driver." lsb="16" readWrite="false" readOnly="true"/>
+      <fields name="Outsel" description="Selects what is output" size="6">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Tick Table &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=5-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=13-16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Line Input&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Microblaze internal output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="Timer" baseAddress="600" endAddress="9FC" useMultiples="true" numberOfMultiples="8" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_TIMER" description="This register identifies the capabilities of the timer interfaces to this feature section">
+      <fields name="TIMER_ID" description="Any feature with 8 MSB set to 0x60 is a timer as defined in the following registers." lsb="24" size="8" valueAtReset="60" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="INTNUM" description="This is the bit number in the global interrupt status where interrupt from this feature is forwarded. Periodic interrupt is automatically generated at every half table crossing whenever the EnableHalftableInt is turned on." lsb="7" size="5" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="TimerClockPeriod" description="This is the period of the internal clock used by the timer." offsetFromParent="4">
+      <fields name="Period_ns" description="Period in ns of the internal clock reference by default.&#xD;&#xA;In the GPm, Ref clock is LPC clock at T=30ns. Timer clock is 30x8=240ns (0xf0 ns).&#xD;&#xA;In the GPm-Atom, Ref clock is LPC clock at T=40ns. Timer clock is 40x8=320ns (0x140 ns).&#xD;&#xA;In Spider PCIe and Ares, Ref clock is PCIe clock at T=16ns. Timer clock is 16x8=128ns (0x80 ns).  " size="16" valueAtReset="f0" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=1-65535&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerTriggerArm" description="Describes what start the timer." offsetFromParent="8">
+      <fields name="Soft_TimerArm" description="This bit is used to generate a software trigger when the TimerTriggerSource is set to Software. It has no effect othewise." lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Sofware Timer Arm&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerTriggerOverlap" description="This register configs the behabiour of the triggers received when the timer is active(delay or active phases).&#xD;&#xA;&#xD;&#xA;This feature applies when : &#xD;&#xA;1) TimerArmEnable = '0' (ARM bypass)&#xD;&#xA;2) TimerTriggerSource != '0' (continuous) &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;-M_OFF: No trigger overlap allowed during the Timer Active period (M_DEFAULT).&#xD;&#xA;-M_LATCH: latch any trigger received during the Timer Active period.&#xD;&#xA;-M_RESET: Reset the Timer and restart counting if a trigger is received during the Active period &#xD;&#xA;" lsb="25" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>M_OFF&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>M_LATCH&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>M_RESET&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerArmEnable" description="This rregister is the Timer Arm Enable. When set to '1' the timer will wait for an ARM event as defined in register TimerArmSource. When set to 0 the timer will not wait for an ARM event." lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The timer will not wait for a ARM event&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The timer will wait for a ARM event&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerArmSource" description="This is the Timer Arm Source selector. When set to off, the timer doesn't wait for a trigger.  &#xD;&#xA;When select Software as source, select corresponding activation register to rising edge (0x0)." lsb="19" size="5">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Software&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=5-7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=8-15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerArmActivation" description="What behavior of the timer arm signal.&#xD;&#xA;&#xD;&#xA;" lsb="16" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LevelLow&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LevelHigh&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="Soft_TimerTrigger" description="This bit is used to generate a software trigger when the TimerTriggerSource is set to Software. It has no effect othewise." lsb="15" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Software Timer trigger&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerMesurement" description="Set this field to '1' to use the timer as a pulse width meter. When use the timer as a pulse width meter (or pulse measurement), program the TimerTriggerSource register to the input of the pulse that will be measured. Set the TimerTriggerActivation register to the level we want to measure (low or hi). Set registers TimerClockSource and TimerClockActivation to select the clock used by the counter. &#xD;&#xA;&#xD;&#xA;To exit from the pulse measurement state, set this register to 0 (back to the WaitOnArm state), or disable the timer (back to TimerDisabled state). &#xD;&#xA;When exit the pulse measurement state , the internal counter will be reseted.&#xD;&#xA;&#xD;&#xA;When the timer is in pulse measurement mode, the output of the timer will be '0'.&#xD;&#xA;&#xD;&#xA;When the timer is in pulse measurement mode, no need to program registers: DelayClockActivation, DelayClockSource, TimerDelayValue and TimerDuration&#xD;&#xA;&#xD;&#xA;The maximum pulse width that can be measured with internal default clock(with single edge detection clock activation, rising or falling) is 2**32 x 240ns = 17.17986 minutes" lsb="14">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Set the timer in pulse generation mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Set the timer in pulse measurement mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerTriggerLogicESel" description="Logic FlipFlop Enable input Selection" lsb="11" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Logic 1&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal AND Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal OR Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerTriggerLogicDSel" description="Logic FlipFlop D input Selection" lsb="9" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal AND Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal OR  Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Activation signal XOR Arm Activation signal&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerTriggerSource" description="This is the Timer trigger Source selector .&#xD;&#xA;&#xD;&#xA;When the source is set to continuous, the state machine will wait for an ARM(if enabled) and then it will not wait for a trigger. After the fist cycle is accomplish, the timer will bypass the wait on arm and wait on trigger states.&#xD;&#xA;IDLE->ARM->TRIG->DELAY->ACTIVE -> DELAY ->ACTIVE -> DELAY ->ACTIVE...&#xD;&#xA;&#xD;&#xA;When the source is set to other than continuous mode, the state machine will always return to the wait for arm state(single event).&#xD;&#xA;&#xD;&#xA;When select Software or QuadratureDecoder X Output as source, select corresponding activation register to rising edge (0x0)." lsb="3" size="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Continuous mode (Delaying->Active->Delaying...)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Software&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=2-5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=6-8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal input&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=9-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Tick Table Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=13&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=14-21&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Output&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerTriggerActivation" description="What behavior of the timer trigger signal.&#xD;&#xA;&#xD;&#xA;" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LevelLow&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LevelHigh&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerClockSource" description="This is the signal used to clock the timer." offsetFromParent="C">
+      <fields name="IntClock_sel" description="This register selects the Clock Int frequency used in the logic.&#xD;&#xA;&#xD;&#xA;Default GPm: Tclk =8*30ns = 240 ns, 4.166666 mhz&#xD;&#xA;Default GPm-Atom: Tclk =8*40ns = 320 ns, 3.125 mhz&#xD;&#xA;Default Spider PCIe: Tclk=8*16ns=128 ns, 7.8125 Mhz&#xD;&#xA;&#xD;&#xA;If the TimerClockActivation is set to AnyEdge, then the frequency doubles, since the logic is clocked DDR. The default frequency is then 8.333333 mhz for GPm and 6.250mhz for the GPm-Atom." lsb="16" size="2" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock Int twice the nominal frequency&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock Int is nominal clock period as defined by TimerClockPeriod register&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock Int is half the nominal frequency&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock Int is quater of the nominal frequency&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DelayClockActivation" description="What behavior of the delay clock activation signal." lsb="12" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DelayClockSource" description="This is the clock source for the delay phase of the timer.&#xD;&#xA;&#xD;&#xA;When select Internal reference clock or QuadratureDecoder X Output as source, select corresponding activation register to rising edge (0x0)." lsb="8" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal reference clock as defined by Period_ns field&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder Outputs&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerClockActivation" description="What behavior of the timer clock activation signal." lsb="4" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RisingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FallingEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>AnyEdge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>None (edge detection disable)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerClockSource" description="This is the clock source for the main (active) phase of the timer.&#xD;&#xA;&#xD;&#xA;When select Internal reference clock or QuadratureDecoder X Output as source, select corresponding activation register to rising edge (0x0)." size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal reference clock as defined by Period_ns field&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=1-4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Input Line&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>QuadratureDecoder Outputs&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerDelayValue" description="length of time the trigger will be delayed before it activates the timer." offsetFromParent="10">
+      <fields name="TimerDelayValue" description="This is the number of delay clock that a timer is delayed before it start counting in active phase. " size="32">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerDuration" offsetFromParent="14">
+      <fields name="TimerDuration" description="This is the number of clock that a timer counts in active phase. " size="32" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerLatchedValue" description="This is the current timer value latched when the TimerLatchValue bit is asserted." offsetFromParent="18">
+      <fields name="TimerLatchedValue" description="This is the Timer Latched value" size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-4294967295&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 32 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TimerStatus" offsetFromParent="1C">
+      <fields name="TimerStatus" description="Returns the current state of the timer" lsb="29" size="3" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>TimerDisabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>WaitOnArm&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>WaitOnTrigger&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Delaying, output of the is '0'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Active, output of the timer is '1'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Measure, output of the is '0'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerStatus_Latched" description="Returns the state of the timer at the time the register TimerLatchValue was set. &#xD;&#xA;&#xD;&#xA;This field may be used with TimerLatchedValue register to allow the driverto know the state of the timer and the value of timer counter." lsb="26" size="3" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>TimerDisabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>WaitOnArm&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>WaitOnTrigger&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Delaying, output of the is '0'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Active, output of the timer is '1'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Measure, output of the is '0'&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerEndIntmaskn" description="Timer End Interrupt IRQ MASK not. When set to 0, the timer IRQ will be not generated." lsb="17">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt will be generated for the corresponding End Timer.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt will be generated for the corresponding End Timer.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerStartIntmaskn" description="Timer Start Interrupt IRQ MASK not. When set to 0, the timer IRQ will be not generated." lsb="16">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No interrupt will be generated for the corresponding Timer.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Interrupt will be generated for the correspondingTimer.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerLatchAndReset" description="When the user enable this field, the internal  timer counter will be reseted to '0' when the TimerLatchValue register is toggle or at the end of one pulse mesuement. " lsb="10">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Don't reset the internal counter after latching the current value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset the internal counter after latching the current value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerLatchValue" description="Writing 1 in this field will copy the current timer Value into the TimerLatchedValue register. It also  copy the current state of the Timer to the field TimerStatus_Latched. This mechanism must be used because the software cannot read the current timer value in a single clock." lsb="9" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer latched value register snapshot&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerCntrReset" description="This is the Timer Counter Reset .&#xD;&#xA;When set to '1', the counter in the timer logic will be reset to '0'. The state machine will remain at the current state. This reset is generally used when the timer is set to work as a counter of events." lsb="8" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer Counter Reset&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerInversion" description="Output of the timer can be inverted through this bit." lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is '1' in the Active state, '0' otherwise&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Outout is '0' in the Active state, '1' otherwise&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TimerEnable" description="This register is the Timer Enable.&#xD;&#xA;&#xD;&#xA;When set to 0, the counter is reset to 0, the state machine is set in TimerDisable State(IDLE), and the output signal of the timer is set to 0.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer is disabled, it's output is in '0' state&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timer is enabled and cycles in arm, trigger, delay and active state&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="Microblaze" description="This section is associated with Microblaze subsystem" baseAddress="A00" endAddress="A7C" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_MICRO" description="This register identifies the capabilities of Profinet Acceleration Microblaze (AKA Profiblaze).">
+      <fields name="MICRO_ID" description="Any feature with 8 MSB set to 0x70 is a the Microblaze interface as defined in the following registers." lsb="24" size="8" valueAtReset="70" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="Intnum" description="This is the bit number in the interrupt field when the interrupts from this Microblaze are forwarded.  " lsb="15" size="5" valueAtReset="6" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="ProdCons" description="Parameters for the Producer-Consumer exchange area" offsetFromParent="4" useMultiples="true">
+      <fields name="MemorySize" description="This is the power of 2 of the size of dual port memory area, defined in bytes.&#xD;&#xA;&#xD;&#xA;For example, a value of 12 in this field means that there are 2^12 bytes = 4096 bytes for the dual port area.  Each regions, assuming the configuration channel is bi-directionnal, will then be 2048 bytes long.&#xD;&#xA;&#xD;&#xA;The dual-port memory is aligned on its size and placed after the registers. This also means that the actual dual port memory is located 4096 bytes after the value of Offset register." lsb="20" size="5" valueAtReset="c" readWrite="false" staticVal="true"/>
+      <fields name="Offset" description="Offset from Spider memory space where the producer-consumer area is located.  This is the offset of the first pointer registers. The address of the dual-port memory must be deducted from this offset and the size of the memory.&#xD;&#xA;&#xD;&#xA;Note that the layout of the producer-consumer register area is defined for the current FEATURE_REV revision.  Future implementation with different Pointers size (16 bits for example) would use a different FEATURE_REV. " size="20" valueAtReset="2000" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="AnalogOutput" description="This section is associated with the analog outputs of the design. The FPGA does not have analog output per se, but the external circuitly converts the FPGA output, a PWM signal, into an analog value." baseAddress="A80" endAddress="AFC" totalSize="32" useTotalSize="true">
+    <registers name="CAPABILITIES_ANA_OUT" description="This register identifies the capabilities of the analog output module of this feature.">
+      <fields name="ANA_OUT_ID" description="Any feature with 8 MSB set to 0x67 is an analog output as defined in the following registers." lsb="24" size="8" valueAtReset="67" readWrite="false" staticVal="true"/>
+      <fields name="FEATURE_REV" description="Revision of the feature. This field must be used by software to detect if the current software support the register definition of this feature." lsb="20" size="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_OUTPUTS" description="This is the number of outputs controlled by this feature, which is also the number of register following this capabilities register." lsb="12" size="4" valueAtReset="1" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="OutputValue" description="This is the output value" offsetFromParent="4" numberOfMultiples="4">
+      <fields name="OutputVal" alias="" description="This register is used to set the almost static output voltage.&#xD;&#xA;&#xD;&#xA;This is a pre-qualification estimate implementation.  It is subject to change.  The voltage on the analog output supply should be 13.6V. The count written in this register is the output voltage in 0.1V increment. If a value of 0 is written in the register, the output will be 0 V. If a value of 136 (or more) is written in this register, the ouput should be the full 13.6V. " size="8"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="EOFM" description="End Of Feature Marker" baseAddress="B00" endAddress="B00">
+    <registers name="EOFM" description="End Of Feature Marker">
+      <fields name="EOFM" description="End Of Feature Marker" lsb="24" size="8" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="ProdCons" description="Producer-Consumer exchange area." baseAddress="2000" endAddress="5FFC" useMultiples="true" read="false" read_write="true">
+    <registers name="Pointers" description=" In this section, INPUT refers to data going from the Host to the Microblaze, Output is for data going from the Microblaze to the Host. Free_start and Free_end refer to the section of BRAM that do not contain valid data.  It is free as seen from the producer of data.&#xD;&#xA;&#xD;&#xA;Note that pointers are defined as 8 bit fields aligned on 8-bit boundaries to be atomically accessible from a LPC bus." useReservedSpaceBelow="true" numberOfReservedSpacesBelow="1023">
+      <fields name="OUTPUT_FREE_END" alias="" description="Pointer to the last data processed by the Host. Data up to this location (included) is available to the producer. This field is writable by the Host, read-only on the Microblaze side." lsb="24" size="8" valueAtReset="ff"/>
+      <fields name="OUTPUT_FREE_START" alias="" description="Pointer where the Microblaze writes data for the Host.  The Host must read the data up to this location (not included). This field is writable by the Microblaze, read-only on host side." lsb="16" size="8" readWrite="false" readOnly="true"/>
+      <fields name="INPUT_FREE_END" alias="" description="Pointer to the last data processed by the Microblaze. Data up to this location (included) is available to the producer. This field is writable by the Microblaze, read-only on the Host side." lsb="8" size="8" readWrite="false" readOnly="true"/>
+      <fields name="INPUT_FREE_START" alias="" description="Pointer where the host writes data for the Microblaze.  The Microblaze must read input data up to this location (not included). This field is writable by the Host, read-only on Microblaze side." size="8"/>
+    </registers>
+    <registers name="DPRAM" description="Dual port ram used to exchange information between the HOST through the LPC and the Processor through the AXI BUS" offsetFromParent="1000" useMultiples="true" numberOfMultiples="1024" numberOfReservedSpacesBelow="1023">
+      <fields name="data" description="Data content is defined by the software. This field is only present to suppress warnings in the generation toolchain." size="32" implementReset="false"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>
