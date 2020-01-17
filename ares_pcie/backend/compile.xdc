@@ -14,9 +14,51 @@ set_property BITSTREAM.CONFIG.CONFIGFALLBACK ENABLE [current_design]
 
 set_property BITSTREAM.CONFIG.UNUSEDPIN Pullnone [current_design]
 
-set_property keep_compatible {xc7a35ticpg236}  [current_design]
 
-
+#################################################################
+## Data for the power report
+#################################################################
+set_property LOAD 10 [get_ports acq_trigger]
+set_property LOAD 10 [get_ports debug_uart_txd]
+set_property LOAD 10 [get_ports espi_alert_n]
+set_property LOAD 10 [get_ports {espi_io[0]}]
+set_property LOAD 10 [get_ports {espi_io[1]}]
+set_property LOAD 10 [get_ports {espi_io[2]}]
+set_property LOAD 10 [get_ports {espi_io[3]}]
+set_property LOAD 10 [get_ports hb_ck]
+set_property LOAD 10 [get_ports hb_ck_n]
+set_property LOAD 10 [get_ports hb_cs_n]
+set_property LOAD 10 [get_ports {hb_dq[0]}]
+set_property LOAD 10 [get_ports {hb_dq[1]}]
+set_property LOAD 10 [get_ports {hb_dq[2]}]
+set_property LOAD 10 [get_ports {hb_dq[3]}]
+set_property LOAD 10 [get_ports {hb_dq[4]}]
+set_property LOAD 10 [get_ports {hb_dq[5]}]
+set_property LOAD 10 [get_ports {hb_dq[6]}]
+set_property LOAD 10 [get_ports {hb_dq[7]}]
+set_property LOAD 10 [get_ports hb_rst_n]
+set_property LOAD 10 [get_ports hb_rwds]
+set_property LOAD 10 [get_ports hb_wp_n]
+set_property LOAD 10 [get_ports ncsi_clk]
+set_property LOAD 10 [get_ports ncsi_tx_en]
+set_property LOAD 10 [get_ports {ncsi_txd[0]}]
+set_property LOAD 10 [get_ports {ncsi_txd[1]}]
+set_property LOAD 10 [get_ports {pcie_txn[0]}]
+set_property LOAD 10 [get_ports {pcie_txp[0]}]
+set_property LOAD 10 [get_ports pwm_out]
+set_property LOAD 10 [get_ports spi_cs_n]
+set_property LOAD 10 [get_ports {spi_sd[0]}]
+set_property LOAD 10 [get_ports {spi_sd[1]}]
+set_property LOAD 10 [get_ports {spi_sd[2]}]
+set_property LOAD 10 [get_ports {spi_sd[3]}]
+set_property LOAD 10 [get_ports status_gled]
+set_property LOAD 10 [get_ports status_rled]
+set_property LOAD 10 [get_ports sys_rst_out_n]
+set_property LOAD 10 [get_ports {user_data_out[0]}]
+set_property LOAD 10 [get_ports {user_data_out[1]}]
+set_property LOAD 10 [get_ports {user_data_out[2]}]
+set_property LOAD 10 [get_ports user_gled]
+set_property LOAD 10 [get_ports user_rled]
 
 # current_instance */axi_ethernet_0/U0/eth_mac/U0
 # set_property IOB FALSE [get_cells {mii_interface/mii_txd*reg[*]}]
@@ -24,3 +66,4 @@ set_property keep_compatible {xc7a35ticpg236}  [current_design]
 # set_property IOB FALSE [get_cells mii_interface/rx*_to_mac*reg]
 # set_property IOB FALSE [get_cells {mii_interface/rx*_to_mac*reg[*]}]
 # current_instance -quiet
+
