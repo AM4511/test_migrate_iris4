@@ -159,10 +159,10 @@ close_design
 ################################################
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
-     puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
+     puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
-	 source  $SDK_SCRIPT
+	 #source  $SDK_SCRIPT
  	 source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"

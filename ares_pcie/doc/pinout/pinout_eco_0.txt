@@ -12,6 +12,7 @@ Sumary:
 
 
 List of modifications:
+
 Pin  Refactoring                IO type
 =========================================
 D18  rename to spi_sd[0];        INOUT
