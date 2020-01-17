@@ -51,7 +51,6 @@ set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
-
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
@@ -62,7 +61,10 @@ puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR      ${PROJECT_DIR}/board_level
+
 file mkdir $PROJECT_DIR
+file mkdir $PCB_DIR
 
 cd $PROJECT_DIR
 file delete -force ${PROJECT_NAME}.xpr
@@ -83,6 +85,10 @@ set_property  ip_repo_paths  ${IPCORES_DIR} [current_project]
 update_ip_catalog
 
 
+
+
+
+
 ################################################
 # Generate IP-Integrator system
 ################################################
@@ -90,10 +96,16 @@ set HDL_FILESET [get_filesets sources_1]
 set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 
+################################################
+# Add project files (HDL, Constraints, IP, etc)
+################################################
+source ${FILESET_SCRIPT}
+
+
+################################################
+# Block design
+################################################
 source ${AXI_SYSTEM_BD_FILE}
-regenerate_bd_layout
-validate_bd_design
-save_bd_design
 
 ## Create the Wrapper file
 set BD_FILE [get_files "*system_pb.bd"]
@@ -105,20 +117,17 @@ reset_target all ${BD_FILE}
 ## Generate Bloc design global (Out of context does not work)
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
-export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
-
-################################################
-# Add project files (HDL, Constraints, IP, etc)
-################################################
-source ${FILESET_SCRIPT}
-
+#export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
 
 ################################################
 # Top level Generics
 ################################################
+set_property top athena_hispi [current_fileset]
+
 set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
+
 
 
 ################################################
@@ -139,15 +148,16 @@ wait_on_run ${IMPL_RUN}
 
 
 ################################################
-# Create board reports (IOs and Power)
+# Export board level info
 ################################################
-set PORT_MAP "${PCB_DIR}/ios_${PROJECT_NAME}"
-set POWER_REPORT "${PCB_DIR}/power_${PROJECT_NAME}.txt"
+open_run ${IMPL_RUN}
+write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
+write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
+report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
+report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
+close_design
 
-write_vhdl ${PORT_MAP}.vhd -mode pin_planning -force
-write_csv  ${PORT_MAP}.csv -force
-write_xdc  ${PORT_MAP}.xdc -mode port -force
-report_power -file ${POWER_REPORT} -name "Power"
+
 	
 	
 ################################################
