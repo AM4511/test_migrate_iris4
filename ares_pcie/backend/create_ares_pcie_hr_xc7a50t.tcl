@@ -65,7 +65,7 @@ puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR  ${PROJECT_DIR}/board_level
+set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
 
 file mkdir $PROJECT_DIR
 file mkdir $PCB_DIR
