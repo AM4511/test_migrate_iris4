@@ -17,7 +17,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 
-entity athena_hispi is
+entity athena is
   generic(
     FPGA_MAJOR_VERSION     : integer := 0;
     FPGA_MINOR_VERSION     : integer := 0;
@@ -112,10 +112,10 @@ entity athena_hispi is
     cfg_spi_sd                      : inout std_logic_vector (3 downto 0)
 
     );
-end athena_hispi;
+end athena;
 
 
-architecture struct of athena_hispi is
+architecture struct of athena is
 
 
   component system_pb_wrapper is

@@ -2,7 +2,7 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
-  [file normalize "${SRC_DIR}/athena_hispi.vhd"]
+  [file normalize "${SRC_DIR}/athena.vhd"]
 ]
 
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
