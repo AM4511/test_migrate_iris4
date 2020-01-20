@@ -1,0 +1,5 @@
+ 
+ Add a tag with a older hash number:
+ -------------------------------------
+ git tag athena_pinout_1579529751 913058becdaeae86253482a3a4cec92a94ca4fe5 -a
+ git push --tags
