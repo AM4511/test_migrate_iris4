@@ -30,10 +30,6 @@ set FILE_LIST [list \
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
 update_compile_order -fileset ${HDL_FILESET}
 
-#  [file normalize "${SRC_DIR}/internal_logic.vhd"]\
-#  [file normalize "${SRC_DIR}/memory_access.vhd"]\
-#  [file normalize "${SRC_DIR}/spi_if.vhd"]\
-#  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_spi_w_fifo/xil_spi_w_fifo.xci"]\
 
 ################################################
 # Add constraints files
