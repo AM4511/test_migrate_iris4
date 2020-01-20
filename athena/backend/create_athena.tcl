@@ -1,8 +1,8 @@
 # ##################################################################################
-# File         : create_athena_hispi.tcl
+# File         : create_athena.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(CSIB)/backend/athena_hispi/create_athena_hispi.tcl
+# Example      : source $env(IRIS4)/athena/backend/create_athena.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME athena_hispi
+set BASE_NAME athena
 #set DEVICE "xc7a35ticpg236-1L"
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
@@ -33,10 +33,10 @@ set FPGA_IS_NPI_GOLDEN     0
 #  Others : reserved
 set FPGA_DEVICE_ID 0
 
-set WORKDIR     $env(CSIB)
-set IPCORES_DIR ${WORKDIR}/ipcores
+set WORKDIR     $env(IRIS4)/athena
+set IPCORES_DIR $env(IRIS4)/ipcores
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend/athena_hispi
+set BACKEND_DIR ${WORKDIR}/backend
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
 set SRC_DIR     ${WORKDIR}/design
@@ -123,7 +123,7 @@ generate_target all ${BD_FILE}
 ################################################
 # Top level Generics
 ################################################
-set_property top athena_hispi [current_fileset]
+set_property top athena [current_fileset]
 
 set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
@@ -158,21 +158,21 @@ report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NA
 close_design
 
 
-	
-	
-################################################
-# Run Backend script
-################################################
-set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-if [string match "route_design Complete, Failed Timing!" $route_status] {
-     puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
-} elseif [string match "write_bitstream Complete!" $route_status] {
-	 puts "** Write_bitstream Complete. Generating image"
-	 source  $SDK_SCRIPT
- 	 source  $ARCHIVE_SCRIPT
-} else {
-	 puts "** Run status: $route_status. Unknown status"
- }
+# A faire plus tard	
+#  	
+#  ################################################
+#  # Run Backend script
+#  ################################################
+#  set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
+#  if [string match "route_design Complete, Failed Timing!" $route_status] {
+#       puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
+#  } elseif [string match "write_bitstream Complete!" $route_status] {
+#  	 puts "** Write_bitstream Complete. Generating image"
+#  	 source  $SDK_SCRIPT
+#   	 source  $ARCHIVE_SCRIPT
+#  } else {
+#  	 puts "** Run status: $route_status. Unknown status"
+#   }
 
 puts "** Done."
 
