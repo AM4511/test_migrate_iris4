@@ -1,0 +1,2 @@
+# This file is automatically written.  Do not modify.
+proc gen_USERPARAMETER_C_M_AXIS_TDATA_WIDTH_VALUE {C_NROF_DATACONN C_INPUT_DATAWIDTH } {expr $C_NROF_DATACONN*$C_INPUT_DATAWIDTH}
