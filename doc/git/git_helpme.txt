@@ -1,0 +1,62 @@
+ Apres avoir merge une branch et partir from scratch
+ ---------------------------------------------------
+ git chechout master
+ git pull
+ 
+ 
+ Partir une nouvelle branch (locale)
+ ---------------------------------------------------
+ git chechout -b nom_nouvelle_branche
+ 
+ 
+ Pousser la nouvelle branch au network (quand on fait push ca sor la commande!)
+ ---------------------------------------------------
+ git push --set-upstream origin nom_de_branche
+ 
+ 
+ Se remettre dans une branche locale
+ ---------------------------------------------------
+ git checkout nom_branche
+
+ 
+ Effacer une branche locale
+ ---------------------------------------------------
+ git branch -d nom_branche
+ 
+ 
+ Effacer une branche du reseau
+ ---------------------------------------------------
+ git branch -D nom_branche
+ 
+ 
+ Deleter une branch locale deja mergee
+ ---------------------------------------------------
+ git branch -d nom_de_branche
+ 
+ 
+ Log graphique de git
+ ---------------------------------------------------
+ git log --graph --all
+ 
+ 
+ git status
+ ---------------------------------------------------
+ git status
+ 
+ 
+ git add
+ ---------------------------------------------------
+ git add repertoire/\\*     (recursif)
+ git add file
+ 
+ Add a tag with a older hash number:
+ -------------------------------------
+ git tag athena_pinout_1579529751 913058becdaeae86253482a3a4cec92a94ca4fe5 -a
+ git push --tags
+ 
+ 
+
+ gestion de fichiers
+ -------------------------------------
+ git mv file1 file2
+ git rm file1
