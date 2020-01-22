@@ -12,6 +12,18 @@ set_clock_uncertainty [expr 0.15 * $RDS_CLOCK_PERIOD] [get_clocks $HB_RWDS]
 
 
 # #############################################################################
+# CLOCK NAME  : hb_ck 
+# DESCRIPTION : RPC IP-Core clock pin to the hyperram chip 
+# FREQUENCY   : 166MHz (6.0241 ns)
+# DUTY CYCLE  : 50%
+# UNCERTAINTY : 15% of clock period.
+# #############################################################################
+set HB_CK "hb_ck"
+set CLOCK_SOURCE [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_ck/ODDR_inst/C]
+create_generated_clock -name $HB_CK -source $CLOCK_SOURCE -multiply_by 1 [get_ports hb_ck]	   
+
+
+# #############################################################################
 # During read data transfers, RWDS is a read data strobe with data values edge 
 # aligned with the transitions of RWDS.
 #
@@ -63,19 +75,6 @@ set_input_delay -clock $input_clock -min $MIN_DELAY [get_ports $input_ports] -cl
           
        
 
-
-
-
-# #############################################################################
-# CLOCK NAME  : hb_ck 
-# DESCRIPTION : RPC IP-Core clock pin to the hyperram chip 
-# FREQUENCY   : 166MHz (6.0241 ns)
-# DUTY CYCLE  : 50%
-# UNCERTAINTY : 15% of clock period.
-# #############################################################################
-set HB_CK "hb_ck"
-set CLOCK_SOURCE [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_ck/ODDR_inst/C]
-create_generated_clock -name $HB_CK -source $CLOCK_SOURCE -multiply_by 1 [get_ports hb_ck]	   
 
 
 #  Double Data Rate Source Synchronous Outputs 
