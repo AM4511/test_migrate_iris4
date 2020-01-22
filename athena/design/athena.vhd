@@ -49,6 +49,7 @@ entity athena is
     -- XGS sensor control interface
     ---------------------------------------------------------------------------
     xgs_reset_n                     : out std_logic;
+    xgs_clk_pll_en                  : out std_logic; 
     xgs_trig_int                    : out std_logic;
     xgs_trig_rd                     : out std_logic;
     xgs_monitor                     : in  std_logic_vector(2 downto 0);

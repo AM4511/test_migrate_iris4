@@ -6,7 +6,7 @@
  
  Partir une nouvelle branch (locale)
  ---------------------------------------------------
- git chechout -b nom_nouvelle_branche
+ git checkout -B nom_nouvelle_branche
  
  
  Pousser la nouvelle branch au network (quand on fait push ca sor la commande!)
@@ -21,10 +21,11 @@
  
  Effacer une branche locale
  ---------------------------------------------------
+ git checkout master   (se mettre sur une autre branche autre q celle qu'on veux effacer...)
  git branch -d nom_branche
  
  
- Effacer une branche du reseau
+ Effacer une branche du reseau (si c pas fait automatiquement avec le merge au master)
  ---------------------------------------------------
  git branch -D nom_branche
  
