@@ -77,6 +77,12 @@ set_property PACKAGE_PIN L3 [get_ports {ncsi_txd[1]}]
 set_property PACKAGE_PIN M2 [get_ports ncsi_rx_crs_dv]
 set_property PACKAGE_PIN N2 [get_ports ncsi_tx_en]
 
+## Set the IOB property on IOs
+set_property IOB TRUE [get_ports ncsi_rxd[*]]
+set_property IOB TRUE [get_ports ncsi_rx_crs_dv]
+set_property IOB TRUE [get_ports ncsi_txd[*]]
+set_property IOB TRUE [get_ports ncsi_tx_en]
+
 
 ####################################################
 ## Configuration flash interface
