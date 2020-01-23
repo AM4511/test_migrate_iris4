@@ -1,6 +1,6 @@
  Apres avoir merge une branch et partir from scratch
  ---------------------------------------------------
- git chechout master
+  
  git pull
  
  
