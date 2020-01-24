@@ -65,6 +65,10 @@ set MIN_DELAY [expr $input_clock_period/2 - $skew_bre]
 set_input_delay -clock $input_clock -max $MAX_DELAY [get_ports $input_ports] -clock_fall -add_delay;
 set_input_delay -clock $input_clock -min $MIN_DELAY [get_ports $input_ports] -clock_fall -add_delay;
 
+# Latch at the Ram block on the clock falling edge is a false path
+set_false_path -rise_from [get_clocks $input_clock] -fall_to [get_clocks $input_clock]
+# Latch at the FF stage  on the rising edge is a false path
+set_false_path -fall_from [get_clocks $input_clock] -rise_to [get_clocks $input_clock]
 
 
 
@@ -116,4 +120,11 @@ set_output_delay -clock $fwclk -min [expr $trce_dly_min - $thd_f] [get_ports $ou
 # report_timing -rise_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_rise -file src_sync_ddr_out_rise.txt;
 # report_timing -fall_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_fall -file src_sync_ddr_out_fall.txt;
         
+	
+	
+	
+	
+set_false_path -to [get_cells -hierarchical -filter {NAME =~ */adr_fifo_synchronizer/rd_ptr_fx_s1_reg}]
+set_false_path -to [get_cells -hierarchical -filter {NAME =~ */adr_fifo_synchronizer/wr_ptr_fx_s1_reg}]
+	
 	
