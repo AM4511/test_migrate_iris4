@@ -30,8 +30,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library chip_lib;
-use chip_lib.xgs_model_pkg.all;
+library work;
+use work.xgs_model_pkg.all;
 
 entity xgs_spi_i2c is
   port(
@@ -41,7 +41,7 @@ entity xgs_spi_i2c is
        reg_rd_data : in  std_logic_vector(15 downto 0);
        
        SCLK         : in    std_logic;
-       SDATA        : inout std_logic;
+       SDATA        : in std_logic;
        FWSI_EN      : in    std_logic;
        CS           : in    std_logic;
        SDATAOUT     : out   std_logic
@@ -56,7 +56,7 @@ signal read_notwrite : std_logic;
 
 begin
 
-SDATA <= 'Z';
+--SDATA <= 'Z';
 
 MAIN : process(SCLK, CS)
 variable var_wr_data : std_logic_vector(15 downto 0);

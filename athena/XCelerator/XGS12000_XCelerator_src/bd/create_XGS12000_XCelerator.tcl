@@ -201,6 +201,26 @@ add_files -norecurse $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_nam
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
 add_files -fileset sim_1 -norecurse $base_path/XGS12000_XCelerator_src/TB_xgs12m_receiver.sv
 
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_model_pkg.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_hispi.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_image.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_sensor_config.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_spi_i2c.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs12m_chip.vhd
+
+set_property used_in_synthesis false [get_files  *xgs_model_pkg.vhd]
+set_property used_in_synthesis false [get_files  *xgs_hispi.vhd]
+set_property used_in_synthesis false [get_files  *xgs_image.vhd]
+set_property used_in_synthesis false [get_files  *xgs_sensor_config.vhd]
+set_property used_in_synthesis false [get_files  *xgs_spi_i2c.vhd]
+set_property used_in_synthesis false [get_files  *xgs12m_chip.vhd]
+
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_model_pkg.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_hispi.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_image.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_sensor_config.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_spi_i2c.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs12m_chip.vhd
 
 # Set 'sources_1' fileset file properties for local files
 #set file "hdl/xgs12m_receiver_wrapper.vhd"
