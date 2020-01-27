@@ -50,7 +50,17 @@ set_false_path -from [get_ports user_rled_soc]
 set_false_path -from [get_ports user_gled_soc]
 
 
+set_false_path -to [get_ports acq_trigger] 
+set_false_path -to [get_ports user_gled]
+set_false_path -to [get_ports user_rled]
+
+
 set_false_path -from [get_ports user_data_in[*]]
+set_false_path -to [get_ports user_data_out[*]] 
+set_false_path -to [get_ports pwm_out] 
+
+set_false_path -to [get_ports debug_uart_txd] 
+set_false_path -from [get_ports debug_uart_rxd]
 
 set_false_path -to [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
 set_false_path -from [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
