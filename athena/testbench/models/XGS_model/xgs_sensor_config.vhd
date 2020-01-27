@@ -30,8 +30,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library chip_lib;
-use chip_lib.xgs_model_pkg.all;
+library work;
+use work.xgs_model_pkg.all;
 
 entity xgs_sensor_config is
   generic(G_MODEL_ID       : std_logic_vector(15 downto 0) := X"0058";

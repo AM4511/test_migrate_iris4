@@ -30,8 +30,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library chip_lib;
-use chip_lib.xgs_model_pkg.all;
+library work;
+use work.xgs_model_pkg.all;
 
 entity xgs12m_chip is
   port (
@@ -75,15 +75,15 @@ entity xgs12m_chip is
    VPSUB_LO_1   : inout std_logic;
 
    SCLK         : in    std_logic;
-   SDATA        : inout std_logic;
+   SDATA        : in    std_logic;
    TRIGGER0     : inout std_logic;
    TRIGGER1     : inout std_logic;
    TRIGGER2     : inout std_logic;
    TEST         : in    std_logic;
    RESET_B      : in    std_logic;
    EXTCLK       : in    std_logic;
-   FWSI_EN      : inout std_logic;
-   CS           : inout std_logic;
+   FWSI_EN      : in    std_logic;
+   CS           : in    std_logic;
    SDATAOUT     : out   std_logic;
 
    DSPARE0      : inout std_logic;
@@ -204,7 +204,7 @@ component xgs_spi_i2c is
        reg_rd_data : in  std_logic_vector(15 downto 0);
        
        SCLK         : in    std_logic;
-       SDATA        : inout std_logic;
+       SDATA        : in    std_logic;
        FWSI_EN      : in    std_logic;
        CS           : in    std_logic;
        SDATAOUT     : out   std_logic
@@ -753,8 +753,8 @@ begin
    TRIGGER0     <= 'Z';
    TRIGGER1     <= 'Z';
    TRIGGER2     <= 'Z';
-   FWSI_EN      <= 'Z';
-   CS           <= 'Z';
+   --FWSI_EN      <= 'Z';
+   --CS           <= 'Z';
 
    DSPARE0      <= 'Z';
    DSPARE1      <= 'Z';

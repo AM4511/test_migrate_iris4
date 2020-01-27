@@ -32,7 +32,6 @@
 #*****************************************************************************************
 
 
-set VIVADO_SHORT_VERSION [version -short]
 
 namespace eval _tcl {
 proc get_script_folder {} {
@@ -59,8 +58,8 @@ if { [info exists ::user_project_name] } {
 }
 
 # Set the project dir
-#set _xil_proj_dir_ "$base_path/XGS12000_XCelerator_prj"
-set _xil_proj_dir_ $env(IRIS4)/athena/vivado/${VIVADO_SHORT_VERSION}/XGS12000_XCelerator_prj
+set _xil_proj_dir_ "$base_path/vivado"
+#set _xil_proj_dir_ $env(IRIS4)/athena/vivado/${VIVADO_SHORT_VERSION}/XGS12000_XCelerator_prj
 
 
 # Use project dir variable, if specified in the tcl shell
@@ -123,7 +122,9 @@ set orig_proj_dir "[file normalize "$origin_dir/${_xil_proj_name_}"]"
 set proj_dir "[file normalize "${_xil_proj_dir_}"]"
 
 # Create project
-create_project ${_xil_proj_name_} $proj_dir/${_xil_proj_name_} -part xcku040-ffva1156-2-e -force
+#create_project ${_xil_proj_name_} $proj_dir/${_xil_proj_name_} -part xcku040-ffva1156-2-e -force
+create_project ${_xil_proj_name_} $proj_dir -part xcku040-ffva1156-2-e -force
+
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -158,8 +159,8 @@ set_property -name "part" -value "xcku040-ffva1156-2-e" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
-set_property -name "target_language" -value "VHDL" -objects $obj
-set_property -name "target_simulator" -value "ModelSim" -objects $obj
+set_property -name "target_language" -value "Verilog" -objects $obj
+set_property -name "target_simulator" -value "XSim" -objects $obj
 set_property -name "webtalk.activehdl_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.ies_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.modelsim_export_sim" -value "2" -objects $obj
@@ -170,6 +171,7 @@ set_property -name "webtalk.vcs_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "2" -objects $obj
 set_property -name "webtalk.xsim_launch_sim" -value "7" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC XPM_FIFO XPM_MEMORY" -objects $obj
+
 
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
@@ -186,18 +188,48 @@ update_ip_catalog -rebuild
 
 # Create BD xgs12m_receiver:
 set design_name xgs12m_receiver
-source $origin_dir/BD_XGS12000_receiver.tcl
+#source $origin_dir/BD_XGS12000_receiver.tcl
+source $base_path/XGS12000_XCelerator_src/bd/BD_XGS12000_receiver_VIPlight.tcl
+generate_target -force all [get_files ${design_name}.bd]
 
 set bd_file $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_name}/${design_name}.bd
 open_bd_design $bd_file
-make_wrapper -files [get_files $bd_file] -top
-add_files -norecurse $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.vhd
+make_wrapper -files [get_files $bd_file] -top 
+add_files -norecurse $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v
 
+#fichier qui manquent pour faire une simulation
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse $base_path/XGS12000_XCelerator_src/TB_xgs12m_receiver.sv
+
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_model_pkg.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_hispi.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_image.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_sensor_config.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs_spi_i2c.vhd
+add_files -fileset sim_1 -norecurse $base_path/../testbench/models/XGS_model/xgs12m_chip.vhd
+
+set_property used_in_synthesis false [get_files  *xgs_model_pkg.vhd]
+set_property used_in_synthesis false [get_files  *xgs_hispi.vhd]
+set_property used_in_synthesis false [get_files  *xgs_image.vhd]
+set_property used_in_synthesis false [get_files  *xgs_sensor_config.vhd]
+set_property used_in_synthesis false [get_files  *xgs_spi_i2c.vhd]
+set_property used_in_synthesis false [get_files  *xgs12m_chip.vhd]
+
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_model_pkg.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_hispi.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_image.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_sensor_config.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs_spi_i2c.vhd
+exec xvhdl --work chip_lib --93_mode $base_path/../testbench/models/XGS_model/xgs12m_chip.vhd
 
 # Set 'sources_1' fileset file properties for local files
-set file "hdl/xgs12m_receiver_wrapper.vhd"
+#set file "hdl/xgs12m_receiver_wrapper.vhd"
+set file "hdl/xgs12m_receiver_wrapper.v"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "VHDL" -objects $file_obj
+set_property -name "file_type" -value "VERILOG" -objects $file_obj
+add_files -fileset sim_1 -norecurse $base_path/XGS12000_XCelerator_src/tb_AXI_VIP_Master_behav.wcfg
+set_property xsim.view $base_path/XGS12000_XCelerator_src/tb_AXI_VIP_Master_behav.wcfg [get_filesets sim_1]
+
 
 
 # Set 'sources_1' fileset properties
@@ -246,6 +278,7 @@ current_run -synthesis [get_runs synth_1]
 
 update_compile_order -fileset sources_1
 regenerate_bd_layout
+save_bd_design
 
 
 puts "INFO: Project created:${_xil_proj_name_}"
