@@ -95,7 +95,7 @@ begin
 frame_count <= frame_count_int;
 
 --Frame generation based on mode setting
-FRAME_CONTENT : process(dataline_nxt, sequencer_enable)
+FRAME_CONTENT : process(dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
 variable var_test_data_red    : unsigned(12 downto 0);
 variable var_test_data_blue   : unsigned(12 downto 0);
 variable var_test_data_greenr : unsigned(12 downto 0);
@@ -137,7 +137,8 @@ begin
           frame(1)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j-1,12));
           frame(2)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j  ,12));
           frame(2)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j+1,12));    
-        end loop;            
+        end loop;      
+        
       when "001" => --solid color
         frame(0)    <= (others => X"EB5"); --Embedded dataline
         if ext_emb_data = '1' then
@@ -166,7 +167,8 @@ begin
           frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
           frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
           frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;            
+        end loop; 
+        
       when "010" => --color bar
         var_test_data_red(12 downto 1)    := X"FFF";  --white bar
         var_test_data_greenr(12 downto 1) := X"FFF";

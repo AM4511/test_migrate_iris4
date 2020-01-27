@@ -32,6 +32,11 @@ module TB_xgs12m_receiver(  );
  bit [31:0] data_rd;
  bit [15:0] XGS_data_rd;
  
+ bit [15:0] test_number_frames;  
+ bit [15:0] test_active_lines;
+ bit [15:0] test_blank_lines;
+ bit [15:0] test_fixed_data;
+ 
  wire Vcc  = 1;
  wire Grnd = 0; 
   
@@ -64,19 +69,19 @@ module TB_xgs12m_receiver(  );
                                 .M_AXIS_tid(),
                                 .M_AXIS_tkeep(),
                                 .M_AXIS_tlast(),
-                                .M_AXIS_tready(),
+                                .M_AXIS_tready(Vcc),
                                 .M_AXIS_tstrb(),
                                 .M_AXIS_tuser(),
                                 .M_AXIS_tvalid(),
 
                                 .xgs_bus_0_d_clk_n(HiSPI_clkN[0]),
                                 .xgs_bus_0_d_clk_p(HiSPI_clkP[0]),
-                                .xgs_bus_0_data_n(HiSPI_dataP[11:0]),
-                                .xgs_bus_0_data_p(HiSPI_dataN[11:0]),
+                                .xgs_bus_0_data_n(HiSPI_dataN[11:0]),
+                                .xgs_bus_0_data_p(HiSPI_dataP[11:0]),
                                 .xgs_bus_1_d_clk_n(HiSPI_clkN[3]),
                                 .xgs_bus_1_d_clk_p(HiSPI_clkP[3]),
-                                .xgs_bus_1_data_n(HiSPI_dataP[23:12]),
-                                .xgs_bus_1_data_p(HiSPI_dataN[23:12])                            
+                                .xgs_bus_1_data_n(HiSPI_dataN[23:12]),
+                                .xgs_bus_1_data_p(HiSPI_dataP[23:12])                            
                             );
             
 
@@ -148,7 +153,7 @@ module TB_xgs12m_receiver(  );
                                 .D_CLK_2_P(HiSPI_clkP[2]),
                                 .D_CLK_3_N(HiSPI_clkN[3]),
                                 .D_CLK_3_P(HiSPI_clkP[3]),
-                                .D_CLK_4_N(HiSPI_clkN[3]),
+                                .D_CLK_4_N(HiSPI_clkN[4]),
                                 .D_CLK_4_P(HiSPI_clkP[4]),
                                 .D_CLK_5_N(HiSPI_clkN[5]),
                                 .D_CLK_5_P(HiSPI_clkP[5]),
@@ -240,7 +245,11 @@ initial begin
     #200us
    
    
-   
+    //--------------------------------------------------------
+    //
+    // READ XGS MODEL ID and REVISION
+    //
+    //-------------------------------------------------------        
     xgs_spi.ReadXGS_Model(16'h0000, XGS_data_rd);
     if(XGS_data_rd==16'h0058) begin
       $display("XGS Model ID detected is 0x58, XGS12K");
@@ -250,29 +259,36 @@ initial begin
     
 
     
+    //--------------------------------------------------------
+    //
+    // PROGRAM XGS MODEL PART 1 
+    //
+    //-------------------------------------------------------    
+
+    // Dans le modele XGS  le decodage registres est fait :
+    // register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
+    
     //The following registers must be programmed with the specified value to enable test image generation on the HiSPi interface.
     //The commands below specify the register address followed by the register value.
     //In case of I2C, it must use the I2C slave address 0x20/0x21 as defined in the datasheet.
     //- REG Write = 0x3700, 0x001C
-     xgs_spi.WriteXGS_Model(16'h3700,16'h001c);
+    xgs_spi.WriteXGS_Model(16'h3700,16'h001c);
     //- Wait at least 500us for the PLL to start and all clocks to be stable.
     #500us
     //- REG Write = 0x3E3E, 0x0001
     xgs_spi.WriteXGS_Model(16'h3e3e,16'h0001);
-    //- REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent
-    xgs_spi.WriteXGS_Model(16'h3e3e,16'h0001);
-    //- Optional : REG Write = 0x3E10, <test_data_red>
-    //- Optional : REG Write = 0x3E12, <test_data_greenr>
-    //- Optional : REG Write = 0x3E14, <test_data_blue>
-    //- Optional : REG Write = 0x3E16, <test_data_greenb>
-    //- REG Write = 0x3A06, (0x8000 && <number of clock cycles between the start of two rows>)
-    xgs_spi.WriteXGS_Model(16'h3A06,16'h00c8); //200clk
-    //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>
-    xgs_spi.WriteXGS_Model(16'h3A08,16'h00c8); //200lines
-    //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
-    //                             &&  <number of test image frames to be transmitted> 
-    xgs_spi.WriteXGS_Model(16'h3A0A,16'h8002); //8 lines between images, 2 images
+    
 
+
+    
+    
+    
+    
+    //--------------------------------------------------------
+    //
+    // Do some register tests in all Block design modules
+    //
+    //-------------------------------------------------------     
     #100ns
     //read GPIO add=0
     master_agent.AXI4LITE_READ_BURST(gpio_addr, prot, data_rd, resp);
@@ -313,6 +329,15 @@ initial begin
     master_agent.AXI4LITE_READ_BURST(gpio_addr, prot, data_rd, resp);
     $display("GPIO add=0 data read is %x", data_rd);
     
+    
+    
+    
+    
+    //----------------------------------------
+    //
+    // Do some register tests with GPIO module
+    //
+    //----------------------------------------     
     #100ns
     // GPIO regadd=0 : 4 LSB bits are directly mapped to the 4x GPIO! other fields are RO
     data_wr =  32'h00000001;   
@@ -333,12 +358,261 @@ initial begin
     #500ns
     master_agent.AXI4LITE_READ_BURST(gpio_addr, prot, data_rd, resp);
      
-    #1000ns
     if(data_wr == data_rd)
-      $display("Data match, test succeeded");
+      $display("GPIO Data match, test succeeded");
     else
-      $display("Data do not match, test failed");
+      $display("GPIO Data do not match, test failed");
      
+    
+    
+    //----------------------------------------
+    //
+    // Programming HISPI Deserializer 0
+    //
+    //----------------------------------------       
+    
+    // XGS DESERIALIZER Programming Sequence
+    // Enable FIFO reset ENABLE(0x10) bit 1 set to 1
+    master_agent.AXI4LITE_READ_BURST(hispi_des0_addr+32'h00000010, prot, data_rd, resp);
+    data_rd=data_rd|32'h00000002;
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000010, prot, data_rd, resp); 
+    
+    // Disable FIFO reset ENABLE(0x10) bit 1 set to 0
+    master_agent.AXI4LITE_READ_BURST(hispi_des0_addr+32'h00000010, prot, data_rd, resp);
+    data_rd=data_rd&32'hfffffffd;
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000010, prot, data_rd, resp);    
+    
+    // Set MANUAL_TAP(0xC) to a desired value, default 0x0000
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h0000000c, prot, 0, resp);  
+    
+    // Enable the used channels in the ENABLE_TRAINING(0x08) default 0xFFF (12 channels enabled)
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000008, prot, 32'h00000fff, resp);    
+    
+    // Configure registers to enable word alignment: set TRAINING(0x04) to the same value as the idle word of the DUT.
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000004, prot, 32'h000003a6, resp);
+    
+    // Configure the DUT to send out idle words
+    // Done! (0x3A6)
+    
+    // Start the word alignment. Set bit 0 of the COMMAND register to 1. Poll bit 0 of the COMMAND register until it’s 0.
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000000, prot, 32'h00000001, resp);  
+    
+    //Si je commence tout de suite a poller, le bit de status est encore a 0!!!
+    #100ns
+    
+   
+    //----------------------------------------
+    //
+    // Programming HISPI Deserializer 1
+    //
+    //----------------------------------------       
+    
+    // XGS DESERIALIZER Programming Sequence
+    // Enable FIFO reset ENABLE(0x10) bit 1 set to 1
+    master_agent.AXI4LITE_READ_BURST(hispi_des1_addr+32'h00000010, prot, data_rd, resp);
+    data_rd=data_rd|32'h00000002;
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000010, prot, data_rd, resp); 
+    
+    // Disable FIFO reset ENABLE(0x10) bit 1 set to 0
+    master_agent.AXI4LITE_READ_BURST(hispi_des1_addr+32'h00000010, prot, data_rd, resp);
+    data_rd=data_rd&32'hfffffffd;
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000010, prot, data_rd, resp);    
+    
+    // Set MANUAL_TAP(0xC) to a desired value, default 0x0000
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h0000000c, prot, 0, resp);  
+    
+    // Enable the used channels in the ENABLE_TRAINING(0x08) default 0xFFF (12 channels enabled)
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000008, prot, 32'h00000fff, resp);    
+    
+    // Configure registers to enable word alignment: set TRAINING(0x04) to the same value as the idle word of the DUT.
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000004, prot, 32'h000003a6, resp);
+    
+    // Configure the DUT to send out idle words
+    // Done! (0x3A6)
+    
+    // Start the word alignment. Set bit 0 of the COMMAND register to 1. Poll bit 0 of the COMMAND register until it’s 0.
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000000, prot, 32'h00000001, resp);  
+    
+    //Si je commence tout de suite a poller, le bit de status est encore a 0!!!
+    #100ns
+    
+    
+    //--------------------------------------------------------
+    //
+    // Programming HISPI Waiting for LOCK FROM 0 and 1
+    //
+    //--------------------------------------------------------             
+    do begin
+        master_agent.AXI4LITE_READ_BURST(hispi_des0_addr+32'h00000000, prot, data_rd, resp);
+    end
+    while(data_rd[0]==1);
+    $display("HiSPI Deserializer 0 - locked!!!");
+      
+    do begin
+        master_agent.AXI4LITE_READ_BURST(hispi_des1_addr+32'h00000000, prot, data_rd, resp);
+    end
+    while(data_rd[0]==1);
+    $display("HiSPI Deserializer 0 - locked!!!");
+      
+    // ENABLE FIFO_EN and EN_DECODER by putting ENABLE(0x10) to 0x05
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des0_addr+32'h00000010, prot, 32'h00000005, resp);       
+    master_agent.AXI4LITE_WRITE_BURST(hispi_des1_addr+32'h00000010, prot, 32'h00000005, resp); 
+
+        
+    
+    
+    //----------------------------------------
+    //
+    // Programming Decoder 0
+    //
+    //----------------------------------------  
+    
+    //Program SYNC_WORD4 and CHANNEL_SETTINGS to the desired values.
+    master_agent.AXI4LITE_WRITE_BURST(dec0_addr+32'h00000004, prot, data_rd, resp); 
+    $display("DECODER 0 - SYNC WORD4 SETTINGS READ 0x%x", data_rd);
+    //                                                                    EOL   SOL_I SOL_E   EOF   SOF_I SOF_E           
+    master_agent.AXI4LITE_WRITE_BURST(dec0_addr+32'h00000004, prot, 32'b0_10100_10000_10001_0_11100_11000_11001, resp); 
+    
+    
+    master_agent.AXI4LITE_WRITE_BURST(dec0_addr+32'h00000008, prot, data_rd, resp); 
+    $display("DECODER 0 - CHANNEL SETTINGS READ 0x%X", data_rd);
+    master_agent.AXI4LITE_WRITE_BURST(dec0_addr+32'h00000008, prot, 32'b00000000000000_111111111111_0_0_1100, resp); 
+    
+    
+    //Follow all steps to program the deser block
+    //DONE!!!!
+
+    //Enable decoder by putting bit 0 of ENABLE register(0x00) to ‘1’
+    //
+    // Les comiques, dans leur sequence de registres a ecrire ils ne disent pas de enabler l'image! pourtant il le faut!!!
+    // [0] Enable decoder
+    // [1] write img to AXI
+    // [2] write embbeded data to AXI
+    // [3] write CRC to AXI
+    // [4] Reset Fifo  
+    master_agent.AXI4LITE_READ_BURST(dec0_addr+32'h00000000, prot, data_rd, resp);        
+    data_rd=data_rd|32'h00000003;
+    master_agent.AXI4LITE_WRITE_BURST(dec0_addr+32'h00000000, prot, data_rd, resp); 
+    
+    
+    
+
+    
+    //----------------------------------------
+    //
+    // Programming Decoder 1
+    //
+    //----------------------------------------  
+    
+    //Program SYNC_WORD4 and CHANNEL_SETTINGS to the desired values.
+    master_agent.AXI4LITE_WRITE_BURST(dec1_addr+32'h00000004, prot, data_rd, resp); 
+    $display("DECODER 1 - SYNC WORD4 SETTINGS READ 0x%x", data_rd);
+    //                                                                    EOL   SOL_I SOL_E   EOF   SOF_I SOF_E           
+    master_agent.AXI4LITE_WRITE_BURST(dec1_addr+32'h00000004, prot, 32'b0_10100_10000_10001_0_11100_11000_11001, resp); 
+    
+    
+    master_agent.AXI4LITE_WRITE_BURST(dec1_addr+32'h00000008, prot, data_rd, resp); 
+    $display("DECODER 0 - CHANNEL SETTINGS READ 0x%X", data_rd);
+    master_agent.AXI4LITE_WRITE_BURST(dec1_addr+32'h00000008, prot, 32'b00000000000000_111111111111_0_0_1100, resp); 
+    
+    
+    //Follow all steps to program the deser block
+    //DONE!!!!
+
+    //Enable decoder by putting bit 0 of ENABLE register(0x00) to ‘1’
+    //
+    // Les comiques, dans leur sequence de registres a ecrire ils ne disent pas de enabler l'image! pourtant il le faut!!!
+    // [0] Enable decoder
+    // [1] write img to AXI
+    // [2] write embbeded data to AXI
+    // [3] write CRC to AXI
+    // [4] Reset Fifo  
+    master_agent.AXI4LITE_READ_BURST(dec1_addr+32'h00000000, prot, data_rd, resp);        
+    data_rd=data_rd|32'h00000003;
+    master_agent.AXI4LITE_WRITE_BURST(dec1_addr+32'h00000000, prot, data_rd, resp);     
+    
+    
+    
+    
+    
+    
+    
+    
+ 
+    //----------------------------------------
+    //
+    // Programming REMAPPER
+    //
+    //----------------------------------------  
+    
+    //Enable Reset the FIFO by toggling bit 1 of the CONFIG register.
+    master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd+32'h00000002, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    
+    //Initialize the control BRAM block by toggling bit 5 of the CONFIG register.
+    master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd+32'h00000020, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    
+    //Set BRAM_READOUT_MODE, BRAM_PIXEL_0_LANE and REMAP_ENABLE according to your use-case.
+    // [4]    REMAP_ENABLE       = 0
+    // [6]    BRAM_PIXEL_0_LANE  = 0 pixel0 is in lane0
+    // [11:8] BRAM_READOUT_MODE  = Incr readout
+    master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd+32'h00000010 + 32'h00000000 + 32'h00000000, resp);
+    
+    //Enable the FIFO by putting bit 0 of the CONFIG register (0x00) to ‘1’
+    master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, (data_rd|32'h00000001), resp);        
+    
+    
+
+    //--------------------------------------------------------
+    //
+    // PROGRAM XGS MODEL PART 2 - Set to output test mode image
+    //
+    //-------------------------------------------------------        
+    // Configure the DUT to capture images.
+    // Pas besoin de ceci avec les test pattern du modele du senseur!
+    //xgs_spi.WriteXGS_Model(16'h3800,16'h0001); //Enable sequencer
+
+    // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
+    // 1=solid pattern
+    // 3=fade t0 black
+    // 4=diagonal  gary 1x
+    // 5=diagonal  gary 3x
+    // ... p.26 de la spec!!!
+    xgs_spi.WriteXGS_Model(16'h3e0e,16'h0001);
+    
+    //- Optional : REG Write = 0x3E10, <test_data_red>
+    //- Optional : REG Write = 0x3E12, <test_data_greenr>
+    //- Optional : REG Write = 0x3E14, <test_data_blue>
+    //- Optional : REG Write = 0x3E16, <test_data_greenb>
+    // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
+    // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
+    test_fixed_data = 16'h00ca;
+    xgs_spi.WriteXGS_Model(16'h3E10, test_fixed_data<<1);
+    xgs_spi.WriteXGS_Model(16'h3E12, test_fixed_data<<1);
+    xgs_spi.WriteXGS_Model(16'h3E14, test_fixed_data<<1);
+    xgs_spi.WriteXGS_Model(16'h3E16, test_fixed_data<<1);
+    
+    //- REG Write = 0x3A06, (0x8000 && <number of clock cycles between the start of two rows>)
+    xgs_spi.WriteXGS_Model(16'h3A06,16'h80c8); //200clk
+    
+    //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
+    test_active_lines = 8;  // 1=2line
+    xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines-1); // Cc registre est 0 based, donc 8=>9 lignes dans le modele XGS
+    
+    //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
+    //                             &&  <number of test image frames to be transmitted> 
+    test_blank_lines = 4;  // 0=1line (correction is bellow)
+    test_number_frames   = 5;  // 1=1frame
+    xgs_spi.WriteXGS_Model(16'h3A0A,16'h0000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
+    xgs_spi.WriteXGS_Model(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
+               
+     
+    #250us
     $finish;
 end
 
@@ -424,7 +698,7 @@ interface XGS_PYTHON_IF;
     model_addr = add;   
     
     TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0 ;
+    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
     TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
     #10ns; 
     
@@ -467,9 +741,7 @@ interface XGS_PYTHON_IF;
     #10ns;     
     TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
     TB_xgs12m_receiver.XGS_MODEL_CS    = 1;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    
-
+    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0; 
     #100ns;     
     
     

@@ -49,6 +49,7 @@
  ---------------------------------------------------
  git add repertoire/\\*     (recursif)
  git add file
+ git add .                   (fichiers modifies)
  
  Add a tag with a older hash number:
  -------------------------------------

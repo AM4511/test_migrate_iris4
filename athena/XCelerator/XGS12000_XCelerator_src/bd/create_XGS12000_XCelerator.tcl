@@ -194,7 +194,7 @@ generate_target -force all [get_files ${design_name}.bd]
 
 set bd_file $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_name}/${design_name}.bd
 open_bd_design $bd_file
-make_wrapper -files [get_files $bd_file] -top
+make_wrapper -files [get_files $bd_file] -top 
 add_files -norecurse $proj_dir/${_xil_proj_name_}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.v
 
 #fichier qui manquent pour faire une simulation
