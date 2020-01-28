@@ -2,7 +2,7 @@
 # ####################################################################
 # Rename clock of the main PLL
 # ####################################################################
-set MAIN_PLL_INST [get_cells ares_pb_i/ares_pb_i/clk_wiz_0/inst/plle2_adv_inst]
+set MAIN_PLL_INST [get_cells ares_pb_i/ares_pb_i/system_pll/inst/plle2_adv_inst]
 create_generated_clock -name axi_clk100MHz     [get_pins $MAIN_PLL_INST/CLKOUT0]
 create_generated_clock -name eth_clk125MHz     [get_pins $MAIN_PLL_INST/CLKOUT1]
 create_generated_clock -name ncsi_clk50MHz     [get_pins $MAIN_PLL_INST/CLKOUT2]
