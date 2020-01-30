@@ -260,11 +260,15 @@ proc create_hier_cell_hispi_line_writer { parentCell nameHier } {
   create_bd_pin -dir I -type rst axi_reset_n
   create_bd_pin -dir I -from 5 -to 0 hispi_data_n_0
   create_bd_pin -dir I -from 5 -to 0 hispi_data_p_0
-  create_bd_pin -dir I -from 5 -to 0 hispi_serial_clk_n_0
-  create_bd_pin -dir I -from 5 -to 0 hispi_serial_clk_p_0
+  create_bd_pin -dir I -from 1 -to 0 hispi_serial_clk_n_0
+  create_bd_pin -dir I -from 1 -to 0 hispi_serial_clk_p_0
 
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
+  set_property -dict [ list \
+   CONFIG.LANE_PER_BLOCK {3} \
+   CONFIG.NUMB_BLOCK {2} \
+ ] $axiHiSPi_0
 
   # Create instance: axi_mm2s_mapper_0, and set properties
   set axi_mm2s_mapper_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_mm2s_mapper:1.1 axi_mm2s_mapper_0 ]
@@ -339,8 +343,8 @@ proc create_root_design { parentCell } {
   set sys_rst_n [ create_bd_port -dir I -type rst sys_rst_n ]
   set xgs_hispi_data_n [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_data_n ]
   set xgs_hispi_data_p [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_data_p ]
-  set xgs_hispi_sclk_n [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_sclk_n ]
-  set xgs_hispi_sclk_p [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_sclk_p ]
+  set xgs_hispi_sclk_n [ create_bd_port -dir I -from 1 -to 0 xgs_hispi_sclk_n ]
+  set xgs_hispi_sclk_p [ create_bd_port -dir I -from 1 -to 0 xgs_hispi_sclk_p ]
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]

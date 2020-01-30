@@ -43,11 +43,20 @@ module TB_xgs12m_receiver(  );
  bit XGS_MODEL_EXTCLK  = 0;
  bit XGS_MODEL_RESET_B = 0;
 
- wire [5:0]HiSPI_clkP;
- wire [5:0]HiSPI_clkN;
- wire [23:0]HiSPI_dataP;
- wire [23:0]HiSPI_dataN;
+ wire [5:0]  Sensor_HiSPI_clkP;
+ wire [5:0]  Sensor_HiSPI_clkN;
+ wire [23:0] Sensor_HiSPI_dataP;
+ wire [23:0] Sensor_HiSPI_dataN;
  
+ wire Top_HiSPI_clkP;
+ wire Top_HiSPI_clkN;
+ wire [11:0] Top_HiSPI_dataP;
+ wire [11:0] Top_HiSPI_dataN; 
+ 
+ wire Bottom_HiSPI_clkP;
+ wire Bottom_HiSPI_clkN;
+ wire [11:0] Bottom_HiSPI_dataP;
+ wire [11:0] Bottom_HiSPI_dataN;
  
  reg XGS_MODEL_SCLK;   
  reg XGS_MODEL_SDATA;  
@@ -74,14 +83,15 @@ module TB_xgs12m_receiver(  );
                                 .M_AXIS_tuser(),
                                 .M_AXIS_tvalid(),
 
-                                .xgs_bus_0_d_clk_n(HiSPI_clkN[0]),
-                                .xgs_bus_0_d_clk_p(HiSPI_clkP[0]),
-                                .xgs_bus_0_data_n(HiSPI_dataN[11:0]),
-                                .xgs_bus_0_data_p(HiSPI_dataP[11:0]),
-                                .xgs_bus_1_d_clk_n(HiSPI_clkN[3]),
-                                .xgs_bus_1_d_clk_p(HiSPI_clkP[3]),
-                                .xgs_bus_1_data_n(HiSPI_dataN[23:12]),
-                                .xgs_bus_1_data_p(HiSPI_dataP[23:12])                            
+                                .xgs_bus_0_d_clk_n(Top_HiSPI_clkN),
+                                .xgs_bus_0_d_clk_p(Top_HiSPI_clkP),                                                               
+                                .xgs_bus_0_data_n(Top_HiSPI_dataN),
+                                .xgs_bus_0_data_p(Top_HiSPI_dataP),
+                                
+                                .xgs_bus_1_d_clk_n(Bottom_HiSPI_clkN),
+                                .xgs_bus_1_d_clk_p(Bottom_HiSPI_clkP),                                                                                                                           
+                                .xgs_bus_1_data_n(Bottom_HiSPI_dataN),
+                                .xgs_bus_1_data_p(Bottom_HiSPI_dataP)                            
                             );
             
 
@@ -145,71 +155,140 @@ module TB_xgs12m_receiver(  );
                                 .CS(XGS_MODEL_CS),     
                                 .SDATAOUT(XGS_MODEL_SDATAOUT),
 
-                                .D_CLK_0_N(HiSPI_clkN[0]),
-                                .D_CLK_0_P(HiSPI_clkP[0]),
-                                .D_CLK_1_N(HiSPI_clkN[1]),
-                                .D_CLK_1_P(HiSPI_clkP[1]),
-                                .D_CLK_2_N(HiSPI_clkN[2]),
-                                .D_CLK_2_P(HiSPI_clkP[2]),
-                                .D_CLK_3_N(HiSPI_clkN[3]),
-                                .D_CLK_3_P(HiSPI_clkP[3]),
-                                .D_CLK_4_N(HiSPI_clkN[4]),
-                                .D_CLK_4_P(HiSPI_clkP[4]),
-                                .D_CLK_5_N(HiSPI_clkN[5]),
-                                .D_CLK_5_P(HiSPI_clkP[5]),
+                                .D_CLK_0_N(Sensor_HiSPI_clkN[0]),
+                                .D_CLK_0_P(Sensor_HiSPI_clkP[0]),
+                                .D_CLK_1_N(Sensor_HiSPI_clkN[1]),
+                                .D_CLK_1_P(Sensor_HiSPI_clkP[1]),
+                                .D_CLK_2_N(Sensor_HiSPI_clkN[2]),
+                                .D_CLK_2_P(Sensor_HiSPI_clkP[2]),
+                                .D_CLK_3_N(Sensor_HiSPI_clkN[3]),
+                                .D_CLK_3_P(Sensor_HiSPI_clkP[3]),
+                                .D_CLK_4_N(Sensor_HiSPI_clkN[4]),
+                                .D_CLK_4_P(Sensor_HiSPI_clkP[4]),
+                                .D_CLK_5_N(Sensor_HiSPI_clkN[5]),
+                                .D_CLK_5_P(Sensor_HiSPI_clkP[5]),
 
-                                .DATA_0_N (HiSPI_dataN[0]),
-                                .DATA_0_P (HiSPI_dataP[0]),
-                                .DATA_1_P (HiSPI_dataP[1]),
-                                .DATA_1_N (HiSPI_dataN[1]),
-                                .DATA_2_P (HiSPI_dataP[2]),                                
-                                .DATA_2_N (HiSPI_dataN[2]),                                
-                                .DATA_3_P (HiSPI_dataP[3]),
-                                .DATA_3_N (HiSPI_dataN[3]),
-                                .DATA_4_N (HiSPI_dataN[4]),
-                                .DATA_4_P (HiSPI_dataP[4]),
-                                .DATA_5_N (HiSPI_dataN[5]),
-                                .DATA_5_P (HiSPI_dataP[5]),
-                                .DATA_6_N (HiSPI_dataN[6]),
-                                .DATA_6_P (HiSPI_dataP[6]),
-                                .DATA_7_N (HiSPI_dataN[7]),
-                                .DATA_7_P (HiSPI_dataP[7]),
-                                .DATA_8_N (HiSPI_dataN[8]),
-                                .DATA_8_P (HiSPI_dataP[8]),
-                                .DATA_9_N (HiSPI_dataN[9]),
-                                .DATA_9_P (HiSPI_dataP[9]),
-                                .DATA_10_N(HiSPI_dataN[10]),
-                                .DATA_10_P(HiSPI_dataP[10]),
-                                .DATA_11_N(HiSPI_dataN[11]),
-                                .DATA_11_P(HiSPI_dataP[11]),
-                                .DATA_12_N(HiSPI_dataN[12]),
-                                .DATA_12_P(HiSPI_dataP[12]),
-                                .DATA_13_N(HiSPI_dataN[13]),
-                                .DATA_13_P(HiSPI_dataP[13]),
-                                .DATA_14_N(HiSPI_dataN[14]),
-                                .DATA_14_P(HiSPI_dataP[14]),
-                                .DATA_15_N(HiSPI_dataN[15]),
-                                .DATA_15_P(HiSPI_dataP[15]),
-                                .DATA_16_N(HiSPI_dataN[16]),
-                                .DATA_16_P(HiSPI_dataP[16]),
-                                .DATA_17_N(HiSPI_dataN[17]),
-                                .DATA_17_P(HiSPI_dataP[17]),
-                                .DATA_18_N(HiSPI_dataN[18]),
-                                .DATA_18_P(HiSPI_dataP[18]),
-                                .DATA_19_N(HiSPI_dataN[19]),
-                                .DATA_19_P(HiSPI_dataP[19]),
-                                .DATA_20_N(HiSPI_dataN[20]),
-                                .DATA_20_P(HiSPI_dataP[20]),
-                                .DATA_21_N(HiSPI_dataN[21]),
-                                .DATA_21_P(HiSPI_dataP[21]),
-                                .DATA_22_N(HiSPI_dataN[22]),
-                                .DATA_22_P(HiSPI_dataP[22]),
-                                .DATA_23_N(HiSPI_dataN[23]),
-                                .DATA_23_P(HiSPI_dataP[23])
+                                .DATA_0_N (Sensor_HiSPI_dataN[0]),
+                                .DATA_0_P (Sensor_HiSPI_dataP[0]),
+                                .DATA_1_P (Sensor_HiSPI_dataP[1]),
+                                .DATA_1_N (Sensor_HiSPI_dataN[1]),
+                                .DATA_2_P (Sensor_HiSPI_dataP[2]),                                
+                                .DATA_2_N (Sensor_HiSPI_dataN[2]),                                
+                                .DATA_3_P (Sensor_HiSPI_dataP[3]),
+                                .DATA_3_N (Sensor_HiSPI_dataN[3]),
+                                .DATA_4_N (Sensor_HiSPI_dataN[4]),
+                                .DATA_4_P (Sensor_HiSPI_dataP[4]),
+                                .DATA_5_N (Sensor_HiSPI_dataN[5]),
+                                .DATA_5_P (Sensor_HiSPI_dataP[5]),
+                                .DATA_6_N (Sensor_HiSPI_dataN[6]),
+                                .DATA_6_P (Sensor_HiSPI_dataP[6]),
+                                .DATA_7_N (Sensor_HiSPI_dataN[7]),
+                                .DATA_7_P (Sensor_HiSPI_dataP[7]),
+                                .DATA_8_N (Sensor_HiSPI_dataN[8]),
+                                .DATA_8_P (Sensor_HiSPI_dataP[8]),
+                                .DATA_9_N (Sensor_HiSPI_dataN[9]),
+                                .DATA_9_P (Sensor_HiSPI_dataP[9]),
+                                .DATA_10_N(Sensor_HiSPI_dataN[10]),
+                                .DATA_10_P(Sensor_HiSPI_dataP[10]),
+                                .DATA_11_N(Sensor_HiSPI_dataN[11]),
+                                .DATA_11_P(Sensor_HiSPI_dataP[11]),
+                                .DATA_12_N(Sensor_HiSPI_dataN[12]),
+                                .DATA_12_P(Sensor_HiSPI_dataP[12]),
+                                .DATA_13_N(Sensor_HiSPI_dataN[13]),
+                                .DATA_13_P(Sensor_HiSPI_dataP[13]),
+                                .DATA_14_N(Sensor_HiSPI_dataN[14]),
+                                .DATA_14_P(Sensor_HiSPI_dataP[14]),
+                                .DATA_15_N(Sensor_HiSPI_dataN[15]),
+                                .DATA_15_P(Sensor_HiSPI_dataP[15]),
+                                .DATA_16_N(Sensor_HiSPI_dataN[16]),
+                                .DATA_16_P(Sensor_HiSPI_dataP[16]),
+                                .DATA_17_N(Sensor_HiSPI_dataN[17]),
+                                .DATA_17_P(Sensor_HiSPI_dataP[17]),
+                                .DATA_18_N(Sensor_HiSPI_dataN[18]),
+                                .DATA_18_P(Sensor_HiSPI_dataP[18]),
+                                .DATA_19_N(Sensor_HiSPI_dataN[19]),
+                                .DATA_19_P(Sensor_HiSPI_dataP[19]),
+                                .DATA_20_N(Sensor_HiSPI_dataN[20]),
+                                .DATA_20_P(Sensor_HiSPI_dataP[20]),
+                                .DATA_21_N(Sensor_HiSPI_dataN[21]),
+                                .DATA_21_P(Sensor_HiSPI_dataP[21]),
+                                .DATA_22_N(Sensor_HiSPI_dataN[22]),
+                                .DATA_22_P(Sensor_HiSPI_dataP[22]),
+                                .DATA_23_N(Sensor_HiSPI_dataN[23]),
+                                .DATA_23_P(Sensor_HiSPI_dataP[23])
                                 
                                                              
                             );            
             
+ 
+ 
+ 
+ //-----------------------
+ // HiSPI : TOP
+ //-----------------------
+ assign Top_HiSPI_clkP      = Sensor_HiSPI_clkP[2];
+ assign Top_HiSPI_clkN      = Sensor_HiSPI_clkN[2];
+ 
+ assign Top_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[0];
+ assign Top_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[2];
+ assign Top_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[4];
+ assign Top_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[6];
+ assign Top_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[8];
+ assign Top_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[10];
+ assign Top_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[12];
+ assign Top_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[14];
+ assign Top_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[16];
+ assign Top_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[18];
+ assign Top_HiSPI_dataP[10] = Sensor_HiSPI_dataP[20];
+ assign Top_HiSPI_dataP[11] = Sensor_HiSPI_dataP[22];
+ 
+ assign Top_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[0];
+ assign Top_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[2];
+ assign Top_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[4];
+ assign Top_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[6];
+ assign Top_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[8];
+ assign Top_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[10];
+ assign Top_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[12];
+ assign Top_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[14];
+ assign Top_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[16];
+ assign Top_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[18];
+ assign Top_HiSPI_dataN[10] = Sensor_HiSPI_dataN[20];
+ assign Top_HiSPI_dataN[11] = Sensor_HiSPI_dataN[22]; 
+ 
+ //-----------------------
+ // HiSPI : BOTTOM
+ //-----------------------
+ assign Bottom_HiSPI_clkP      = Sensor_HiSPI_clkP[3];
+ assign Bottom_HiSPI_clkN      = Sensor_HiSPI_clkN[3]; 
+ 
+ assign Bottom_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[1];
+ assign Bottom_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[3];
+ assign Bottom_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[5];
+ assign Bottom_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[7];
+ assign Bottom_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[9];
+ assign Bottom_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[11];
+ assign Bottom_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[13];
+ assign Bottom_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[15];
+ assign Bottom_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[17];
+ assign Bottom_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[19];
+ assign Bottom_HiSPI_dataP[10] = Sensor_HiSPI_dataP[21];
+ assign Bottom_HiSPI_dataP[11] = Sensor_HiSPI_dataP[23];
+ 
+ assign Bottom_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[1];
+ assign Bottom_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[3];
+ assign Bottom_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[5];
+ assign Bottom_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[7];
+ assign Bottom_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[9];
+ assign Bottom_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[11];
+ assign Bottom_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[13];
+ assign Bottom_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[15];
+ assign Bottom_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[17];
+ assign Bottom_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[19];
+ assign Bottom_HiSPI_dataN[10] = Sensor_HiSPI_dataN[21];
+ assign Bottom_HiSPI_dataN[11] = Sensor_HiSPI_dataN[23]; 
+
+
+ 
  
 xgs12m_receiver_axi_vip_0_0_mst_t    master_agent;
 
@@ -557,10 +636,10 @@ initial begin
     
     //Set BRAM_READOUT_MODE, BRAM_PIXEL_0_LANE and REMAP_ENABLE according to your use-case.
     // [4]    REMAP_ENABLE       = 0
-    // [6]    BRAM_PIXEL_0_LANE  = 0 pixel0 is in lane0
+    // [6]    BRAM_PIXEL_0_LANE  = 1 : pixel0 is in lane1 ----> En full resolution, ligne paire, le pixel 0 sort sur la lane1!!! voir figure37 spec xgs12m
     // [11:8] BRAM_READOUT_MODE  = Incr readout
     master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
-    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd+32'h00000010 + 32'h00000000 + 32'h00000000, resp);
+    master_agent.AXI4LITE_WRITE_BURST(remap_addr+32'h00000000, prot, data_rd+32'h00000010 + 32'h00000040 + 32'h00000000, resp);
     
     //Enable the FIFO by putting bit 0 of the CONFIG register (0x00) to ‘1’
     master_agent.AXI4LITE_READ_BURST(remap_addr+32'h00000000, prot, data_rd, resp);
@@ -578,12 +657,13 @@ initial begin
     //xgs_spi.WriteXGS_Model(16'h3800,16'h0001); //Enable sequencer
 
     // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
+    // 0=jmansill B&W increasing line pixel 0->4095...
     // 1=solid pattern
     // 3=fade t0 black
     // 4=diagonal  gary 1x
     // 5=diagonal  gary 3x
     // ... p.26 de la spec!!!
-    xgs_spi.WriteXGS_Model(16'h3e0e,16'h0001);
+    xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);
     
     //- Optional : REG Write = 0x3E10, <test_data_red>
     //- Optional : REG Write = 0x3E12, <test_data_greenr>
@@ -601,16 +681,26 @@ initial begin
     xgs_spi.WriteXGS_Model(16'h3A06,16'h80c8); //200clk
     
     //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
-    test_active_lines = 8;  // 1=2line
-    xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines-1); // Cc registre est 0 based, donc 8=>9 lignes dans le modele XGS
+    test_active_lines = 8;  // 1=1line
+    xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines); // Cc registre est 1 based
     
     //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
     //                             &&  <number of test image frames to be transmitted> 
-    test_blank_lines = 4;  // 0=1line (correction is bellow)
+    test_blank_lines = 4;      // 0=1line (correction is bellow)
     test_number_frames   = 5;  // 1=1frame
     xgs_spi.WriteXGS_Model(16'h3A0A,16'h0000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
     xgs_spi.WriteXGS_Model(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
-               
+     
+    // XGS MODEL FRAME IS 4176 pixels when test mode !!! 
+    // voir p.Figure 37. Pixel Readout Order
+    // voir p8 Figure 4. XGS 8000 Pixel Array
+    // 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
+    //
+    //
+    //
+    //
+
+     
      
     #250us
     $finish;
