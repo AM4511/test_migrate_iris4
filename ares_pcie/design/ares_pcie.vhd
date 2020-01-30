@@ -631,8 +631,8 @@ begin
       Q  => ncsi_clk_phase_180,         -- 1-bit DDR output
       C  => ncsi_clk_phase_0,           -- 1-bit clock input
       CE => '1',                        -- 1-bit clock enable input
-      D1 => '0',                        -- 1-bit data input (positive edge)
-      D2 => '1',                        -- 1-bit data input (negative edge)
+      D1 => '1',                        -- 1-bit data input (positive edge)
+      D2 => '0',                        -- 1-bit data input (negative edge)
       R  => '0',                        -- 1-bit reset input
       S  => '0'                         -- 1-bit set input
       );

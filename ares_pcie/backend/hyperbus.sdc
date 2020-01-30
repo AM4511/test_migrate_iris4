@@ -148,3 +148,6 @@ set_false_path -to [get_cells -hierarchical -filter {NAME =~ */adr_fifo_synchron
 
 set_false_path -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/dq_io_tri_reg/C] -to [get_ports {hb_dq[*]}]
 set_false_path -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/rwds_io_tri_reg/C] -to [get_ports hb_rwds]
+
+
+set_false_path -rise_from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_cs0n/ODDR_inst/C]  -fall_to [get_clocks hb_ck]
