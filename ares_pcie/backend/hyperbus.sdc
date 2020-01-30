@@ -24,6 +24,24 @@ create_generated_clock -name $HB_CK -source $CLOCK_SOURCE -multiply_by 1 [get_po
 
 
 # #############################################################################
+# PORT NAME   : hb_cs_n
+# DESCRIPTION : RPC IP-Core clock pin to the hyperram chip 
+# FREQUENCY   : 166MHz (6.0241 ns)
+# DUTY CYCLE  : 50%
+# UNCERTAINTY : 15% of clock period.
+# #############################################################################
+set fwclk        $HB_CK;             # forwarded clock name    
+set tsu_r        3.000;              # destination device setup time. Sampled on rising edge
+set thd_r        0.000;              # destination device hold time. Sampled on rising edge
+set trce_dly_max 0.000;              # maximum board trace delay
+set trce_dly_min 0.000;              # minimum board trace delay
+set output_ports {hb_cs_n};          # Name of output ports
+
+set_output_delay -clock $fwclk -max [expr $trce_dly_max + $tsu_r] [get_ports $output_ports];
+set_output_delay -clock $fwclk -min [expr $trce_dly_min - $thd_r] [get_ports $output_ports];
+
+
+# #############################################################################
 # During read data transfers, RWDS is a read data strobe with data values edge 
 # aligned with the transitions of RWDS.
 #
@@ -101,7 +119,7 @@ set_false_path -fall_from [get_clocks $input_clock] -rise_to [get_clocks $input_
 # create_generated_clock -name <gen_clock_name> -multiply_by 1 -source [get_pins <source_pin>] [get_ports <output_clock_port>]
 # gen_clock_name is the name of forwarded clock here. It should be used below for defining "fwclk".	
 
-set fwclk        $HB_CK;            # forwarded clock name (generated using create_generated_clock at output clock port)        
+set fwclk        $HB_CK;             # forwarded clock name (generated using create_generated_clock at output clock port)        
 set tsu_r        0.600;              # destination device setup time requirement for rising edge
 set thd_r        0.600;              # destination device hold time requirement for rising edge
 set tsu_f        0.600;              # destination device setup time requirement for falling edge
