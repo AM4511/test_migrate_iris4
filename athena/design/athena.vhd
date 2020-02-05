@@ -60,7 +60,8 @@ entity athena is
     xgs_sdin                        : in  std_logic;
     xgs_sdout                       : out std_logic;
 
-
+    xgs_power_good                  : in  std_logic;
+    
     ---------------------------------------------------------------------------
     --  XGS sensor HiSPi data interface
     ---------------------------------------------------------------------------

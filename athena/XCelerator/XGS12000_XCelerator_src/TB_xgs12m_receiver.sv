@@ -32,6 +32,7 @@ module TB_xgs12m_receiver(  );
  bit [31:0] data_rd;
  bit [15:0] XGS_data_rd;
  
+ bit [11:0] test_numberclk_between_2lines;
  bit [15:0] test_number_frames;  
  bit [15:0] test_active_lines;
  bit [15:0] test_blank_lines;
@@ -62,6 +63,11 @@ module TB_xgs12m_receiver(  );
  reg XGS_MODEL_SDATA;  
  reg XGS_MODEL_CS;     
  reg XGS_MODEL_SDATAOUT;
+ 
+ bit trigger_int = 0;
+ bit [15:0] line_time   = 16'h00e6;  //default model
+ 
+ bit XGS_MODEL_SLAVE_TRIGGERED_MODE =1;
  
  XGS_PYTHON_IF xgs_spi();
  
@@ -95,130 +101,149 @@ module TB_xgs12m_receiver(  );
                             );
             
 
- xgs12m_chip       XGS_MODEL(   .VAAHV_NPIX(), 
-                                .VREF1_BOT_0(),
-                                .VREF1_BOT_1(),
-                                .VREF1_TOP_0(),
-                                .VREF1_TOP_1(),
-                                .ATEST_BTM(), 
-                                .ATEST_TOP(),  
-                                .ASPARE_TOP(), 
-                                .ASPARE_BTM(), 
-                                
-                                .VRESPD_HI_0(),
-                                .VRESPD_HI_1(),
-                                .VRESFD_HI_0(),
-                                .VRESFD_HI_1(),
-                                .VSG_HI_0(),
-                                .VSG_HI_1(),
-                                .VRS_HI_0(),
-                                .VRS_HI_1(),
-                                .VTX1_HI_0(),
-                                .VTX1_HI_1(),
-                                .VTX0_HI_0(),
-                                .VTX0_HI_1(),
-                                .VRESFD_LO1_0(),
-                                .VRESFD_LO1_1(),
-                                .VRESFD_LO2_0(),
-                                .VRESFD_LO2_1(),
-                                .VRESPD_LO1_0(),
-                                .VRESPD_LO1_1(),
-                                .VSG_LO1_0(),
-                                .VSG_LO1_1(),
-                                .VTX1_LO1_0(),
-                                .VTX1_LO1_1(),
-                                .VTX1_LO2_0(),
-                                .VTX1_LO2_1(),
-                                .VTX0_LO1_0(),
-                                .VTX0_LO1_1(),
-                                .VPSUB_LO_0(),
-                                .VPSUB_LO_1(),                                
-                                .TEST(),
-                                .DSPARE0 (),
-                                .DSPARE1 (),
-                                .DSPARE2 (),
+ 
+    xgs12m_chip #(
+        //----------------------------------------------
+        // Configuration for XGS12M with 24 HiSPI LANES
+        //----------------------------------------------
+        .G_MODEL_ID         (16'h0058),     // XGS12M
+        .G_REV_ID           (16'h0002),     // XGS12M
+        .G_NUM_PHY          (6),            // XGS12M
+        .G_PXL_PER_COLRAM   (174),          // XGS12M
+        .G_PXL_ARRAY_ROWS   (3100)          // XGS12M
 
-                                .TRIGGER0(), //il va falloir les brancher a l'interne!!!
-                                .TRIGGER1(), //il va falloir les brancher a l'interne!!!
-                                .TRIGGER2(), //il va falloir les brancher a l'interne!!!
+        //----------------------------------------------
+        // Configuration for XGS5M with 16 HiSPI LANES
+        //----------------------------------------------        
+        //.G_MODEL_ID         (16'h0358),     // XGS5M
+        //.G_REV_ID           (16'h0000),     // XGS5M
+        //.G_NUM_PHY          (4),            // XGS5M
+        //.G_PXL_PER_COLRAM   (174),          // XGS5M
+        //.G_PXL_ARRAY_ROWS   (2056)          // XGS5M  only active (2048+8=2056)      
+        
+        
+    )
+    XGS_MODEL(   
+        .VAAHV_NPIX(), 
+        .VREF1_BOT_0(),
+        .VREF1_BOT_1(),
+        .VREF1_TOP_0(),
+        .VREF1_TOP_1(),
+        .ATEST_BTM(), 
+        .ATEST_TOP(),  
+        .ASPARE_TOP(), 
+        .ASPARE_BTM(), 
+        
+        .VRESPD_HI_0(),
+        .VRESPD_HI_1(),
+        .VRESFD_HI_0(),
+        .VRESFD_HI_1(),
+        .VSG_HI_0(),
+        .VSG_HI_1(),
+        .VRS_HI_0(),
+        .VRS_HI_1(),
+        .VTX1_HI_0(),
+        .VTX1_HI_1(),
+        .VTX0_HI_0(),
+        .VTX0_HI_1(),
+        .VRESFD_LO1_0(),
+        .VRESFD_LO1_1(),
+        .VRESFD_LO2_0(),
+        .VRESFD_LO2_1(),
+        .VRESPD_LO1_0(),
+        .VRESPD_LO1_1(),
+        .VSG_LO1_0(),
+        .VSG_LO1_1(),
+        .VTX1_LO1_0(),
+        .VTX1_LO1_1(),
+        .VTX1_LO2_0(),
+        .VTX1_LO2_1(),
+        .VTX0_LO1_0(),
+        .VTX0_LO1_1(),
+        .VPSUB_LO_0(),
+        .VPSUB_LO_1(),                                
+        .TEST(),
+        .DSPARE0 (),
+        .DSPARE1 (),
+        .DSPARE2 (),
 
-                                .MONITOR0(), //il va falloir les brancher a l'interne!!!
-                                .MONITOR1(), //il va falloir les brancher a l'interne!!!
-                                .MONITOR2(), //il va falloir les brancher a l'interne!!!                            
-                                
-                                .RESET_B(XGS_MODEL_RESET_B), 
-                                .EXTCLK(XGS_MODEL_EXTCLK),  
-                                .FWSI_EN(Vcc), 
+        .TRIGGER_INT(trigger_int), //il va falloir les brancher a l'interne!!!
 
-                                .SCLK(XGS_MODEL_SCLK),   
-                                .SDATA(XGS_MODEL_SDATA),  
-                                .CS(XGS_MODEL_CS),     
-                                .SDATAOUT(XGS_MODEL_SDATAOUT),
+        .MONITOR0(), //il va falloir les brancher a l'interne!!!
+        .MONITOR1(), //il va falloir les brancher a l'interne!!!
+        .MONITOR2(), //il va falloir les brancher a l'interne!!!                            
+        
+        .RESET_B(XGS_MODEL_RESET_B), 
+        .EXTCLK(XGS_MODEL_EXTCLK),  
+        .FWSI_EN(Vcc), 
 
-                                .D_CLK_0_N(Sensor_HiSPI_clkN[0]),
-                                .D_CLK_0_P(Sensor_HiSPI_clkP[0]),
-                                .D_CLK_1_N(Sensor_HiSPI_clkN[1]),
-                                .D_CLK_1_P(Sensor_HiSPI_clkP[1]),
-                                .D_CLK_2_N(Sensor_HiSPI_clkN[2]),
-                                .D_CLK_2_P(Sensor_HiSPI_clkP[2]),
-                                .D_CLK_3_N(Sensor_HiSPI_clkN[3]),
-                                .D_CLK_3_P(Sensor_HiSPI_clkP[3]),
-                                .D_CLK_4_N(Sensor_HiSPI_clkN[4]),
-                                .D_CLK_4_P(Sensor_HiSPI_clkP[4]),
-                                .D_CLK_5_N(Sensor_HiSPI_clkN[5]),
-                                .D_CLK_5_P(Sensor_HiSPI_clkP[5]),
+        .SCLK(XGS_MODEL_SCLK),   
+        .SDATA(XGS_MODEL_SDATA),  
+        .CS(XGS_MODEL_CS),     
+        .SDATAOUT(XGS_MODEL_SDATAOUT),
 
-                                .DATA_0_N (Sensor_HiSPI_dataN[0]),
-                                .DATA_0_P (Sensor_HiSPI_dataP[0]),
-                                .DATA_1_P (Sensor_HiSPI_dataP[1]),
-                                .DATA_1_N (Sensor_HiSPI_dataN[1]),
-                                .DATA_2_P (Sensor_HiSPI_dataP[2]),                                
-                                .DATA_2_N (Sensor_HiSPI_dataN[2]),                                
-                                .DATA_3_P (Sensor_HiSPI_dataP[3]),
-                                .DATA_3_N (Sensor_HiSPI_dataN[3]),
-                                .DATA_4_N (Sensor_HiSPI_dataN[4]),
-                                .DATA_4_P (Sensor_HiSPI_dataP[4]),
-                                .DATA_5_N (Sensor_HiSPI_dataN[5]),
-                                .DATA_5_P (Sensor_HiSPI_dataP[5]),
-                                .DATA_6_N (Sensor_HiSPI_dataN[6]),
-                                .DATA_6_P (Sensor_HiSPI_dataP[6]),
-                                .DATA_7_N (Sensor_HiSPI_dataN[7]),
-                                .DATA_7_P (Sensor_HiSPI_dataP[7]),
-                                .DATA_8_N (Sensor_HiSPI_dataN[8]),
-                                .DATA_8_P (Sensor_HiSPI_dataP[8]),
-                                .DATA_9_N (Sensor_HiSPI_dataN[9]),
-                                .DATA_9_P (Sensor_HiSPI_dataP[9]),
-                                .DATA_10_N(Sensor_HiSPI_dataN[10]),
-                                .DATA_10_P(Sensor_HiSPI_dataP[10]),
-                                .DATA_11_N(Sensor_HiSPI_dataN[11]),
-                                .DATA_11_P(Sensor_HiSPI_dataP[11]),
-                                .DATA_12_N(Sensor_HiSPI_dataN[12]),
-                                .DATA_12_P(Sensor_HiSPI_dataP[12]),
-                                .DATA_13_N(Sensor_HiSPI_dataN[13]),
-                                .DATA_13_P(Sensor_HiSPI_dataP[13]),
-                                .DATA_14_N(Sensor_HiSPI_dataN[14]),
-                                .DATA_14_P(Sensor_HiSPI_dataP[14]),
-                                .DATA_15_N(Sensor_HiSPI_dataN[15]),
-                                .DATA_15_P(Sensor_HiSPI_dataP[15]),
-                                .DATA_16_N(Sensor_HiSPI_dataN[16]),
-                                .DATA_16_P(Sensor_HiSPI_dataP[16]),
-                                .DATA_17_N(Sensor_HiSPI_dataN[17]),
-                                .DATA_17_P(Sensor_HiSPI_dataP[17]),
-                                .DATA_18_N(Sensor_HiSPI_dataN[18]),
-                                .DATA_18_P(Sensor_HiSPI_dataP[18]),
-                                .DATA_19_N(Sensor_HiSPI_dataN[19]),
-                                .DATA_19_P(Sensor_HiSPI_dataP[19]),
-                                .DATA_20_N(Sensor_HiSPI_dataN[20]),
-                                .DATA_20_P(Sensor_HiSPI_dataP[20]),
-                                .DATA_21_N(Sensor_HiSPI_dataN[21]),
-                                .DATA_21_P(Sensor_HiSPI_dataP[21]),
-                                .DATA_22_N(Sensor_HiSPI_dataN[22]),
-                                .DATA_22_P(Sensor_HiSPI_dataP[22]),
-                                .DATA_23_N(Sensor_HiSPI_dataN[23]),
-                                .DATA_23_P(Sensor_HiSPI_dataP[23])
-                                
-                                                             
-                            );            
+        .D_CLK_0_N(Sensor_HiSPI_clkN[0]),
+        .D_CLK_0_P(Sensor_HiSPI_clkP[0]),
+        .D_CLK_1_N(Sensor_HiSPI_clkN[1]),
+        .D_CLK_1_P(Sensor_HiSPI_clkP[1]),
+        .D_CLK_2_N(Sensor_HiSPI_clkN[2]),
+        .D_CLK_2_P(Sensor_HiSPI_clkP[2]),
+        .D_CLK_3_N(Sensor_HiSPI_clkN[3]),
+        .D_CLK_3_P(Sensor_HiSPI_clkP[3]),
+        .D_CLK_4_N(Sensor_HiSPI_clkN[4]),
+        .D_CLK_4_P(Sensor_HiSPI_clkP[4]),
+        .D_CLK_5_N(Sensor_HiSPI_clkN[5]),
+        .D_CLK_5_P(Sensor_HiSPI_clkP[5]),
+
+        .DATA_0_N (Sensor_HiSPI_dataN[0]),
+        .DATA_0_P (Sensor_HiSPI_dataP[0]),
+        .DATA_1_P (Sensor_HiSPI_dataP[1]),
+        .DATA_1_N (Sensor_HiSPI_dataN[1]),
+        .DATA_2_P (Sensor_HiSPI_dataP[2]),                                
+        .DATA_2_N (Sensor_HiSPI_dataN[2]),                                
+        .DATA_3_P (Sensor_HiSPI_dataP[3]),
+        .DATA_3_N (Sensor_HiSPI_dataN[3]),
+        .DATA_4_N (Sensor_HiSPI_dataN[4]),
+        .DATA_4_P (Sensor_HiSPI_dataP[4]),
+        .DATA_5_N (Sensor_HiSPI_dataN[5]),
+        .DATA_5_P (Sensor_HiSPI_dataP[5]),
+        .DATA_6_N (Sensor_HiSPI_dataN[6]),
+        .DATA_6_P (Sensor_HiSPI_dataP[6]),
+        .DATA_7_N (Sensor_HiSPI_dataN[7]),
+        .DATA_7_P (Sensor_HiSPI_dataP[7]),
+        .DATA_8_N (Sensor_HiSPI_dataN[8]),
+        .DATA_8_P (Sensor_HiSPI_dataP[8]),
+        .DATA_9_N (Sensor_HiSPI_dataN[9]),
+        .DATA_9_P (Sensor_HiSPI_dataP[9]),
+        .DATA_10_N(Sensor_HiSPI_dataN[10]),
+        .DATA_10_P(Sensor_HiSPI_dataP[10]),
+        .DATA_11_N(Sensor_HiSPI_dataN[11]),
+        .DATA_11_P(Sensor_HiSPI_dataP[11]),
+        .DATA_12_N(Sensor_HiSPI_dataN[12]),
+        .DATA_12_P(Sensor_HiSPI_dataP[12]),
+        .DATA_13_N(Sensor_HiSPI_dataN[13]),
+        .DATA_13_P(Sensor_HiSPI_dataP[13]),
+        .DATA_14_N(Sensor_HiSPI_dataN[14]),
+        .DATA_14_P(Sensor_HiSPI_dataP[14]),
+        .DATA_15_N(Sensor_HiSPI_dataN[15]),
+        .DATA_15_P(Sensor_HiSPI_dataP[15]),
+        .DATA_16_N(Sensor_HiSPI_dataN[16]),
+        .DATA_16_P(Sensor_HiSPI_dataP[16]),
+        .DATA_17_N(Sensor_HiSPI_dataN[17]),
+        .DATA_17_P(Sensor_HiSPI_dataP[17]),
+        .DATA_18_N(Sensor_HiSPI_dataN[18]),
+        .DATA_18_P(Sensor_HiSPI_dataP[18]),
+        .DATA_19_N(Sensor_HiSPI_dataN[19]),
+        .DATA_19_P(Sensor_HiSPI_dataP[19]),
+        .DATA_20_N(Sensor_HiSPI_dataN[20]),
+        .DATA_20_P(Sensor_HiSPI_dataP[20]),
+        .DATA_21_N(Sensor_HiSPI_dataN[21]),
+        .DATA_21_P(Sensor_HiSPI_dataP[21]),
+        .DATA_22_N(Sensor_HiSPI_dataN[22]),
+        .DATA_22_P(Sensor_HiSPI_dataP[22]),
+        .DATA_23_N(Sensor_HiSPI_dataN[23]),
+        .DATA_23_P(Sensor_HiSPI_dataP[23])
+    );            
             
  
  
@@ -331,10 +356,14 @@ initial begin
     //-------------------------------------------------------        
     xgs_spi.ReadXGS_Model(16'h0000, XGS_data_rd);
     if(XGS_data_rd==16'h0058) begin
-      $display("XGS Model ID detected is 0x58, XGS12K");
+      $display("XGS Model ID detected is 0x58, XGS12M");
     end
+    if(XGS_data_rd==16'h0358) begin
+      $display("XGS Model ID detected is 0x358, XGS5M");
+    end
+    
     xgs_spi.ReadXGS_Model(16'h31FE, XGS_data_rd);
-    $display("XGS Revision ID detected is %x", XGS_data_rd);
+    $display("Addres 0x31FE : XGS Revision ID detected is %x", XGS_data_rd);
     
 
     
@@ -344,6 +373,17 @@ initial begin
     //
     //-------------------------------------------------------    
 
+    // default dans le model XGS:
+    // ---------------------------------
+    // register_map(0)    <= G_MODEL_ID; --Address 0x3000 - model_id
+    // register_map(255)  <= G_REV_ID;   --Address 0x31FE - revision_id
+    // register_map(1024) <= X"0002";    --Address 0x3800 - general_config0
+    // register_map(1026) <= X"1111";    --Address 0x3804 - contexts_reg
+    // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+    // register_map(1812) <= X"2507";    --Address 0x3E28 - hispi_control_common
+    // register_map(1817) <= X"03A6";    --Address 0x3E32 - hispi_blanking_data
+    
+    
     // Dans le modele XGS  le decodage registres est fait :
     // register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
     
@@ -357,6 +397,11 @@ initial begin
     //- REG Write = 0x3E3E, 0x0001
     xgs_spi.WriteXGS_Model(16'h3e3e,16'h0001);
     
+    //jmansill HISPI control common register
+    xgs_spi.WriteXGS_Model(16'h3e28,16'h2507); //mux 4:4
+    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2517); //mux 4:3
+    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2527); //mux 4:2
+    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
 
 
     
@@ -652,45 +697,85 @@ initial begin
     // PROGRAM XGS MODEL PART 2 - Set to output test mode image
     //
     //-------------------------------------------------------        
-    // Configure the DUT to capture images.
-    // Pas besoin de ceci avec les test pattern du modele du senseur!
-    //xgs_spi.WriteXGS_Model(16'h3800,16'h0001); //Enable sequencer
-
-    // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
-    // 0=jmansill B&W increasing line pixel 0->4095...
-    // 1=solid pattern
-    // 3=fade t0 black
-    // 4=diagonal  gary 1x
-    // 5=diagonal  gary 3x
-    // ... p.26 de la spec!!!
-    xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);
+    // Dans le modele XGS  le decodage registres est fait :
+    // register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
     
-    //- Optional : REG Write = 0x3E10, <test_data_red>
-    //- Optional : REG Write = 0x3E12, <test_data_greenr>
-    //- Optional : REG Write = 0x3E14, <test_data_blue>
-    //- Optional : REG Write = 0x3E16, <test_data_greenb>
-    // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
-    // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
-    test_fixed_data = 16'h00ca;
-    xgs_spi.WriteXGS_Model(16'h3E10, test_fixed_data<<1);
-    xgs_spi.WriteXGS_Model(16'h3E12, test_fixed_data<<1);
-    xgs_spi.WriteXGS_Model(16'h3E14, test_fixed_data<<1);
-    xgs_spi.WriteXGS_Model(16'h3E16, test_fixed_data<<1);
+    XGS_MODEL_SLAVE_TRIGGERED_MODE=1;
     
-    //- REG Write = 0x3A06, (0x8000 && <number of clock cycles between the start of two rows>)
-    xgs_spi.WriteXGS_Model(16'h3A06,16'h80c8); //200clk
     
-    //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
-    test_active_lines = 8;  // 1=1line
-    xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines); // Cc registre est 1 based
+    if(XGS_MODEL_SLAVE_TRIGGERED_MODE==0) begin
+      // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
+      // 0=jmansill B&W diagonal ramp 0->4095...
+      // 1=solid pattern
+      // 3=fade t0 black
+      // 4=diagonal  gary 1x
+      // 5=diagonal  gary 3x
+      // ... p.26 de la spec!!!
+      xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);  //add=1799
+      
+      //- Optional : REG Write = 0x3E10, <test_data_red>
+      //- Optional : REG Write = 0x3E12, <test_data_greenr>
+      //- Optional : REG Write = 0x3E14, <test_data_blue>
+      //- Optional : REG Write = 0x3E16, <test_data_greenb>
+      // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
+      // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
+      test_fixed_data = 16'h00ca;
+      xgs_spi.WriteXGS_Model(16'h3E10, test_fixed_data<<1);
+      xgs_spi.WriteXGS_Model(16'h3E12, test_fixed_data<<1);
+      xgs_spi.WriteXGS_Model(16'h3E14, test_fixed_data<<1);
+      xgs_spi.WriteXGS_Model(16'h3E16, test_fixed_data<<1);      
+      
+      //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
+      test_active_lines = 8;  // 1=1line
+      xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines); // Cc registre est 1 based
+      
+      //- REG Write = 0x3A06, (number of clock cycles between the start of two rows)
+      test_numberclk_between_2lines = 12'h0c8; // 200clk
+      xgs_spi.WriteXGS_Model(16'h3A06, test_numberclk_between_2lines); //Enable test mode(0x8000) + 200clk 
+           
+      //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
+      //                             &&  <number of test image frames to be transmitted> 
+      test_blank_lines              = 4;       // 0=1line (correction is bellow)
+      test_number_frames            = 5;       // 1=1frame
+      xgs_spi.WriteXGS_Model(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) );  //0x8000 is to latch registers
+               
+      //- REG Write = 0x3A06, (0x8000 is enable test mode)
+      xgs_spi.WriteXGS_Model(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode      
+      
+    end  
     
-    //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
-    //                             &&  <number of test image frames to be transmitted> 
-    test_blank_lines = 4;      // 0=1line (correction is bellow)
-    test_number_frames   = 5;  // 1=1frame
-    xgs_spi.WriteXGS_Model(16'h3A0A,16'h0000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
-    xgs_spi.WriteXGS_Model(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) ); 
-     
+    if(XGS_MODEL_SLAVE_TRIGGERED_MODE==1) begin
+    
+      // jmansill : Slave triggered mode    
+      
+      test_active_lines             = 8;                         // One-based
+      line_time                     = 16'h0e6;                   // default in model is 0xe6, XGS12M register is 0x16e
+      
+      xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
+      
+      xgs_spi.WriteXGS_Model(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+      
+      xgs_spi.WriteXGS_Model(16'h381c, test_active_lines/4);     // roi0_size  (kernel size is 4 lines)         
+      xgs_spi.WriteXGS_Model(16'h383a, test_active_lines+1);     // frame_length cntx0 <= register_map(1053) :  Active + 1x Embeded 
+      
+      xgs_spi.WriteXGS_Model(16'h3800,16'h0030);                 // Slave + trigger mode   
+      xgs_spi.WriteXGS_Model(16'h3800,16'h0031);                 // Enable sequencer
+      
+      //Simulate a 2 HW triggers here
+      #50us;
+      trigger_int =1;
+      #30us;
+      trigger_int =0;
+      
+      #100us;
+      trigger_int =1;
+      #30us;
+      trigger_int =0;
+    
+    end
+    
+    
+    
     // XGS MODEL FRAME IS 4176 pixels when test mode !!! 
     // voir p.Figure 37. Pixel Readout Order
     // voir p8 Figure 4. XGS 8000 Pixel Array

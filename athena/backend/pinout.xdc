@@ -393,7 +393,24 @@ set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[5]}]
 set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[5]}]
 
 
+# Test of Differential Termination Attribute
+# UG471
+# The differential termination (DIFF_TERM) attribute supports the differential I/O
+# standards when used as inputs. It is used to turn the built-in, 100?, differential termination
+# on or off. The on-chip input differential termination in 7 series devices provides major
+# advantages over using a discrete resistor by removing the stub at the receiver completely
+# and therefore greatly improving signal integrity. Additionally it:
+# • Consumes less power than DCI termination
+# • Does not use VRP/VRN pins (DCI)
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sclk_p[0]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sclk_p[1]}]
 
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[0]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[1]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[2]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[3]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[4]}]
+set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[5]}]
 
 
 #----------------------------------------------
@@ -443,3 +460,5 @@ set_property SLEW SLOW [get_ports smbdata]
 set_property PACKAGE_PIN A14 [get_ports temp_alertN]
 set_property IOSTANDARD LVCMOS33 [get_ports temp_alertN]
 
+set_property PACKAGE_PIN A18 [get_ports xgs_power_good]
+set_property IOSTANDARD LVCMOS33 [get_ports xgs_power_good]

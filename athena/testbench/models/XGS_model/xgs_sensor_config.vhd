@@ -64,6 +64,7 @@ entity xgs_sensor_config is
        line_time           : out std_logic_vector(15 downto 0);
 
        --Output to Image module
+       slave_triggered_mode: out std_logic;
        frame_length        : out std_logic_vector(15 downto 0);
        roi_size            : out integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : out std_logic;
@@ -199,6 +200,8 @@ line_time           <= register_map(1032) when cmc_patgen_enable = '0' else "000
   
 sequencer_enable    <= '1' when (register_map(1024)(0) = '1' or (cmc_patgen_enable = '1' and transmit_colmem_tp = '1')) and (to_integer(unsigned(sensor_state)) >= 3) else '0';
 frames              <= register_map(1024)(15 downto 8) when cmc_patgen_enable = '0' else "00" & nb_frame_gen;
+slave_triggered_mode<= '1' when (register_map(1024)(4) = '1' and register_map(1024)(5) = '1') else '0';
+
 frame_length        <= register_map(1053)              when cmc_patgen_enable = '0' else std_logic_vector(to_unsigned(to_integer(unsigned(nb_act_line_gen)) + to_integer(unsigned(inter_frame_gen)) + 1 ,16));
 roi_size            <= to_integer(unsigned(register_map(1038)(13 downto 0)))*4 when cmc_patgen_enable = '0' else to_integer(unsigned(nb_act_line_gen)); --in number of lines
 ext_emb_data        <= '0';
