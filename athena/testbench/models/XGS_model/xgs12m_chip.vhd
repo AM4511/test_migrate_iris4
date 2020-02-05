@@ -34,6 +34,14 @@ library work;
 use work.xgs_model_pkg.all;
 
 entity xgs12m_chip is
+  generic(
+           constant G_MODEL_ID          : std_logic_vector(15 downto 0) := X"0058";
+           constant G_REV_ID            : std_logic_vector(15 downto 0) := X"0002";
+           constant G_NUM_PHY           : integer := 6;
+           constant G_PXL_PER_COLRAM    : integer := 174;
+           constant G_PXL_ARRAY_ROWS    : integer := 3100
+          );
+
   port (
    VAAHV_NPIX   : inout std_logic;
    VREF1_BOT_0  : inout std_logic;
@@ -76,9 +84,7 @@ entity xgs12m_chip is
 
    SCLK         : in    std_logic;
    SDATA        : in    std_logic;
-   TRIGGER0     : inout std_logic;
-   TRIGGER1     : inout std_logic;
-   TRIGGER2     : inout std_logic;
+   TRIGGER_INT  : in    std_logic:='0';
    TEST         : in    std_logic;
    RESET_B      : in    std_logic;
    EXTCLK       : in    std_logic;
@@ -242,6 +248,7 @@ component xgs_sensor_config is
        line_time           : out std_logic_vector(15 downto 0);
 
        --Output to Image module
+       slave_triggered_mode: out std_logic;
        frame_length        : out std_logic_vector(15 downto 0);
        roi_size            : out integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : out std_logic;
@@ -270,6 +277,8 @@ component xgs_image is
           G_PXL_PER_COLRAM   : integer := 174
           );
   port(
+       trigger_int            : in std_logic;
+
        dataline            : out t_dataline(0 to G_NUM_PHY*4*G_PXL_PER_COLRAM-1);
        emb_data            : out std_logic;
        first_line          : out std_logic; --indicates first line of a frame
@@ -288,6 +297,7 @@ component xgs_image is
        y_reversed          : in  std_logic;
        swap_top_bottom     : in  std_logic;       
        sequencer_enable    : in  std_logic;
+       slave_triggered_mode: in  std_logic;
        frame_count         : out std_logic_vector(7 downto 0);
        
        test_pattern_mode   : in  std_logic_vector(2 downto 0);
@@ -299,11 +309,6 @@ component xgs_image is
       );
 end component;
 
-constant G_MODEL_ID          : std_logic_vector(15 downto 0) := X"0058";
-constant G_REV_ID            : std_logic_vector(15 downto 0) := X"0002";
-constant G_NUM_PHY           : integer := 6;
-constant G_PXL_PER_COLRAM    : integer := 174;
-constant G_PXL_ARRAY_ROWS    : integer := 3100;
 
 signal reg_addr            : std_logic_vector(14 downto 0);
 signal reg_wr              : std_logic;
@@ -339,6 +344,7 @@ signal dataline_nxt        : std_logic;
 signal line_time           : std_logic_vector(15 downto 0);
 
 signal line_number         : integer;
+signal slave_triggered_mode: std_logic;
 signal frame_length        : std_logic_vector(15 downto 0);
 signal roi_size            : integer range G_PXL_ARRAY_ROWS downto 0;
 signal ext_emb_data        : std_logic;
@@ -356,6 +362,13 @@ signal test_data_red       : std_logic_vector(12 downto 0);
 signal test_data_greenr    : std_logic_vector(12 downto 0);
 signal test_data_blue      : std_logic_vector(12 downto 0);
 signal test_data_greenb    : std_logic_vector(12 downto 0);
+
+  
+signal SFOT                : std_logic := '0';
+signal INTEGRATION         : std_logic := '0';
+signal EFOT                : std_logic := '0';
+signal TRIGGER_READOUT     : std_logic := '0';         
+
 
 
 begin
@@ -419,6 +432,7 @@ begin
        line_time           => line_time,       
        
        --Output to Image module
+       slave_triggered_mode=> slave_triggered_mode,
        frame_length        => frame_length,
        roi_size            => roi_size,
        ext_emb_data        => ext_emb_data,
@@ -444,6 +458,8 @@ begin
               G_PXL_ARRAY_ROWS    => G_PXL_ARRAY_ROWS,
               G_PXL_PER_COLRAM    => G_PXL_PER_COLRAM)
   port map(
+       trigger_int         => TRIGGER_READOUT,
+
        dataline            => dataline,
        emb_data            => emb_data,
        first_line          => first_line,
@@ -462,6 +478,7 @@ begin
        swap_top_bottom     => swap_top_bottom,
        
        sequencer_enable    => sequencer_enable,
+       slave_triggered_mode=> slave_triggered_mode,
        frame_count         => frame_count,
        
        test_pattern_mode   => test_pattern_mode,
@@ -471,35 +488,67 @@ begin
        test_data_greenb    => test_data_greenb
        );
 
-  dataline0(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(                  0 to    G_PXL_PER_COLRAM-1);
-  dataline0(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 2*G_PXL_PER_COLRAM to  3*G_PXL_PER_COLRAM-1);
-  dataline0(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 4*G_PXL_PER_COLRAM to  5*G_PXL_PER_COLRAM-1);
-  dataline0(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 6*G_PXL_PER_COLRAM to  7*G_PXL_PER_COLRAM-1);
+  GEN_12M_dataline : if G_NUM_PHY = 6 generate
+    dataline0(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(                  0 to    G_PXL_PER_COLRAM-1);
+    dataline0(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 2*G_PXL_PER_COLRAM to  3*G_PXL_PER_COLRAM-1);
+    dataline0(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 4*G_PXL_PER_COLRAM to  5*G_PXL_PER_COLRAM-1);
+    dataline0(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 6*G_PXL_PER_COLRAM to  7*G_PXL_PER_COLRAM-1);
+    
+    dataline1(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(   G_PXL_PER_COLRAM to  2*G_PXL_PER_COLRAM-1);
+    dataline1(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 3*G_PXL_PER_COLRAM to  4*G_PXL_PER_COLRAM-1);
+    dataline1(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 5*G_PXL_PER_COLRAM to  6*G_PXL_PER_COLRAM-1);
+    dataline1(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 7*G_PXL_PER_COLRAM to  8*G_PXL_PER_COLRAM-1);
+    
+    dataline2(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 8*G_PXL_PER_COLRAM to  9*G_PXL_PER_COLRAM-1);
+    dataline2(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(10*G_PXL_PER_COLRAM to 11*G_PXL_PER_COLRAM-1);
+    dataline2(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(12*G_PXL_PER_COLRAM to 13*G_PXL_PER_COLRAM-1);
+    dataline2(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(14*G_PXL_PER_COLRAM to 15*G_PXL_PER_COLRAM-1);
+    
+    dataline3(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 9*G_PXL_PER_COLRAM to 10*G_PXL_PER_COLRAM-1);
+    dataline3(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(11*G_PXL_PER_COLRAM to 12*G_PXL_PER_COLRAM-1);
+    dataline3(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(13*G_PXL_PER_COLRAM to 14*G_PXL_PER_COLRAM-1);
+    dataline3(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(15*G_PXL_PER_COLRAM to 16*G_PXL_PER_COLRAM-1);
+    
+    dataline4(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(16*G_PXL_PER_COLRAM to 17*G_PXL_PER_COLRAM-1);
+    dataline4(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(18*G_PXL_PER_COLRAM to 19*G_PXL_PER_COLRAM-1);
+    dataline4(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(20*G_PXL_PER_COLRAM to 21*G_PXL_PER_COLRAM-1);
+    dataline4(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(22*G_PXL_PER_COLRAM to 23*G_PXL_PER_COLRAM-1);
+    
+    dataline5(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(17*G_PXL_PER_COLRAM to 18*G_PXL_PER_COLRAM-1);
+    dataline5(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(19*G_PXL_PER_COLRAM to 20*G_PXL_PER_COLRAM-1);
+    dataline5(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(21*G_PXL_PER_COLRAM to 22*G_PXL_PER_COLRAM-1);
+    dataline5(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(23*G_PXL_PER_COLRAM to 24*G_PXL_PER_COLRAM-1);       
+  end generate GEN_12M_dataline;     
+
   
-  dataline1(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(   G_PXL_PER_COLRAM to  2*G_PXL_PER_COLRAM-1);
-  dataline1(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 3*G_PXL_PER_COLRAM to  4*G_PXL_PER_COLRAM-1);
-  dataline1(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 5*G_PXL_PER_COLRAM to  6*G_PXL_PER_COLRAM-1);
-  dataline1(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 7*G_PXL_PER_COLRAM to  8*G_PXL_PER_COLRAM-1);
   
-  dataline2(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 8*G_PXL_PER_COLRAM to  9*G_PXL_PER_COLRAM-1);
-  dataline2(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(10*G_PXL_PER_COLRAM to 11*G_PXL_PER_COLRAM-1);
-  dataline2(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(12*G_PXL_PER_COLRAM to 13*G_PXL_PER_COLRAM-1);
-  dataline2(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(14*G_PXL_PER_COLRAM to 15*G_PXL_PER_COLRAM-1);
+  GEN_5M_dataline : if G_NUM_PHY = 4 generate
+    dataline0(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 0                  to    G_PXL_PER_COLRAM-1);
+    dataline0(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 2*G_PXL_PER_COLRAM to  3*G_PXL_PER_COLRAM-1);
+    dataline0(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 4*G_PXL_PER_COLRAM to  5*G_PXL_PER_COLRAM-1);
+    dataline0(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 6*G_PXL_PER_COLRAM to  7*G_PXL_PER_COLRAM-1);
+    
+    dataline1(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(   G_PXL_PER_COLRAM to  2*G_PXL_PER_COLRAM-1);
+    dataline1(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline( 3*G_PXL_PER_COLRAM to  4*G_PXL_PER_COLRAM-1);
+    dataline1(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline( 5*G_PXL_PER_COLRAM to  6*G_PXL_PER_COLRAM-1);
+    dataline1(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline( 7*G_PXL_PER_COLRAM to  8*G_PXL_PER_COLRAM-1);
+    
+    dataline2(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 8*G_PXL_PER_COLRAM to  9*G_PXL_PER_COLRAM-1);
+    dataline2(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(10*G_PXL_PER_COLRAM to 11*G_PXL_PER_COLRAM-1);
+    dataline2(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(12*G_PXL_PER_COLRAM to 13*G_PXL_PER_COLRAM-1);
+    dataline2(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(14*G_PXL_PER_COLRAM to 15*G_PXL_PER_COLRAM-1);
+    
+    dataline3(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 9*G_PXL_PER_COLRAM to 10*G_PXL_PER_COLRAM-1);
+    dataline3(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(11*G_PXL_PER_COLRAM to 12*G_PXL_PER_COLRAM-1);
+    dataline3(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(13*G_PXL_PER_COLRAM to 14*G_PXL_PER_COLRAM-1);
+    dataline3(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(15*G_PXL_PER_COLRAM to 16*G_PXL_PER_COLRAM-1);         
   
-  dataline3(                 0 to   G_PXL_PER_COLRAM-1) <= dataline( 9*G_PXL_PER_COLRAM to 10*G_PXL_PER_COLRAM-1);
-  dataline3(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(11*G_PXL_PER_COLRAM to 12*G_PXL_PER_COLRAM-1);
-  dataline3(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(13*G_PXL_PER_COLRAM to 14*G_PXL_PER_COLRAM-1);
-  dataline3(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(15*G_PXL_PER_COLRAM to 16*G_PXL_PER_COLRAM-1);
+  end generate GEN_5M_dataline;       
   
-  dataline4(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(16*G_PXL_PER_COLRAM to 17*G_PXL_PER_COLRAM-1);
-  dataline4(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(18*G_PXL_PER_COLRAM to 19*G_PXL_PER_COLRAM-1);
-  dataline4(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(20*G_PXL_PER_COLRAM to 21*G_PXL_PER_COLRAM-1);
-  dataline4(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(22*G_PXL_PER_COLRAM to 23*G_PXL_PER_COLRAM-1);
   
-  dataline5(                 0 to   G_PXL_PER_COLRAM-1) <= dataline(17*G_PXL_PER_COLRAM to 18*G_PXL_PER_COLRAM-1);
-  dataline5(  G_PXL_PER_COLRAM to 2*G_PXL_PER_COLRAM-1) <= dataline(19*G_PXL_PER_COLRAM to 20*G_PXL_PER_COLRAM-1);
-  dataline5(2*G_PXL_PER_COLRAM to 3*G_PXL_PER_COLRAM-1) <= dataline(21*G_PXL_PER_COLRAM to 22*G_PXL_PER_COLRAM-1);
-  dataline5(3*G_PXL_PER_COLRAM to 4*G_PXL_PER_COLRAM-1) <= dataline(23*G_PXL_PER_COLRAM to 24*G_PXL_PER_COLRAM-1);
+  
+  
+  
   
   xgs_hispi_0_inst : xgs_hispi
   generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
@@ -641,76 +690,106 @@ begin
        DATA_3_P            => DATA_15_P
       );
 
-  xgs_hispi_4_inst : xgs_hispi
-  generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
-  port map(
-       bit_clock_period    => bit_clock_period,
-       
-       hispi_if_enable     => hispi_if_enable,
-       output_msb_first    => output_msb_first,
-       hispi_enable_crc    => hispi_enable_crc,
-       hispi_standby_state => hispi_standby_state,
-       hispi_mux_sel       => hispi_mux_sel,
-       vert_left_bar_en    => vert_left_bar_en,
-       hispi_pixel_depth   => hispi_pixel_depth,
-       blanking_data       => blanking_data,
-       
-       dataline            => dataline4,
-       emb_data            => emb_data,
-       first_line          => first_line,
-       last_line           => last_line,
-       dataline_valid      => dataline_valid,
-       dataline_nxt        => dataline_nxt,
-       
-       line_time           => line_time,
-       
-       D_CLK_N             => D_CLK_4_N,
-       D_CLK_P             => D_CLK_4_P,
-       DATA_0_N            => DATA_16_N,
-       DATA_0_P            => DATA_16_P,
-       DATA_1_N            => DATA_18_N,
-       DATA_1_P            => DATA_18_P,
-       DATA_2_N            => DATA_20_N,
-       DATA_2_P            => DATA_20_P,
-       DATA_3_N            => DATA_22_N,
-       DATA_3_P            => DATA_22_P
-      );
 
-  xgs_hispi_5_inst : xgs_hispi
-  generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
-  port map(
-       bit_clock_period    => bit_clock_period,
-       
-       hispi_if_enable     => hispi_if_enable,
-       output_msb_first    => output_msb_first,
-       hispi_enable_crc    => hispi_enable_crc,
-       hispi_standby_state => hispi_standby_state,
-       hispi_mux_sel       => hispi_mux_sel,
-       vert_left_bar_en    => vert_left_bar_en,
-       hispi_pixel_depth   => hispi_pixel_depth,
-       blanking_data       => blanking_data,
-       
-       dataline            => dataline5,
-       emb_data            => emb_data,
-       first_line          => first_line,
-       last_line           => last_line,
-       dataline_valid      => dataline_valid,
-       dataline_nxt        => dataline_nxt,
-       
-       line_time           => line_time,
-       
-       D_CLK_N             => D_CLK_5_N,
-       D_CLK_P             => D_CLK_5_P,
-       DATA_0_N            => DATA_17_N,
-       DATA_0_P            => DATA_17_P,
-       DATA_1_N            => DATA_19_N,
-       DATA_1_P            => DATA_19_P,
-       DATA_2_N            => DATA_21_N,
-       DATA_2_P            => DATA_21_P,
-       DATA_3_N            => DATA_23_N,
-       DATA_3_P            => DATA_23_P
-      );
+  GEN_12M_xgs_hiSpi : if G_NUM_PHY = 6 generate  
+     xgs_hispi_4_inst : xgs_hispi
+     generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
+     port map(
+         bit_clock_period    => bit_clock_period,
+         
+         hispi_if_enable     => hispi_if_enable,
+         output_msb_first    => output_msb_first,
+         hispi_enable_crc    => hispi_enable_crc,
+         hispi_standby_state => hispi_standby_state,
+         hispi_mux_sel       => hispi_mux_sel,
+         vert_left_bar_en    => vert_left_bar_en,
+         hispi_pixel_depth   => hispi_pixel_depth,
+         blanking_data       => blanking_data,
+         
+         dataline            => dataline4,
+         emb_data            => emb_data,
+         first_line          => first_line,
+         last_line           => last_line,
+         dataline_valid      => dataline_valid,
+         dataline_nxt        => dataline_nxt,
+         
+         line_time           => line_time,
+         
+         D_CLK_N             => D_CLK_4_N,
+         D_CLK_P             => D_CLK_4_P,
+         DATA_0_N            => DATA_16_N,
+         DATA_0_P            => DATA_16_P,
+         DATA_1_N            => DATA_18_N,
+         DATA_1_P            => DATA_18_P,
+         DATA_2_N            => DATA_20_N,
+         DATA_2_P            => DATA_20_P,
+         DATA_3_N            => DATA_22_N,
+         DATA_3_P            => DATA_22_P
+        );
+     
+         
+      xgs_hispi_5_inst : xgs_hispi
+      generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
+      port map(
+           bit_clock_period    => bit_clock_period,
+           
+           hispi_if_enable     => hispi_if_enable,
+           output_msb_first    => output_msb_first,
+           hispi_enable_crc    => hispi_enable_crc,
+           hispi_standby_state => hispi_standby_state,
+           hispi_mux_sel       => hispi_mux_sel,
+           vert_left_bar_en    => vert_left_bar_en,
+           hispi_pixel_depth   => hispi_pixel_depth,
+           blanking_data       => blanking_data,
+           
+           dataline            => dataline5,
+           emb_data            => emb_data,
+           first_line          => first_line,
+           last_line           => last_line,
+           dataline_valid      => dataline_valid,
+           dataline_nxt        => dataline_nxt,
+           
+           line_time           => line_time,
+           
+           D_CLK_N             => D_CLK_5_N,
+           D_CLK_P             => D_CLK_5_P,
+           DATA_0_N            => DATA_17_N,
+           DATA_0_P            => DATA_17_P,
+           DATA_1_N            => DATA_19_N,
+           DATA_1_P            => DATA_19_P,
+           DATA_2_N            => DATA_21_N,
+           DATA_2_P            => DATA_21_P,
+           DATA_3_N            => DATA_23_N,
+           DATA_3_P            => DATA_23_P
+          );
+   end generate;
 
+
+  GEN_5M_xgs_hiSpi : if G_NUM_PHY = 4 generate    
+    D_CLK_4_N  <= 'X';
+    D_CLK_4_P  <= 'X';
+    DATA_16_N  <= 'X';
+    DATA_16_P  <= 'X';
+    DATA_18_N  <= 'X';
+    DATA_18_P  <= 'X';
+    DATA_20_N  <= 'X';
+    DATA_20_P  <= 'X';
+    DATA_22_N  <= 'X';
+    DATA_22_P  <= 'X';   
+
+    D_CLK_5_N  <= 'X';
+    D_CLK_5_P  <= 'X';
+    DATA_17_N  <= 'X';
+    DATA_17_P  <= 'X';
+    DATA_19_N  <= 'X';
+    DATA_19_P  <= 'X';
+    DATA_21_N  <= 'X';
+    DATA_21_P  <= 'X';
+    DATA_23_N  <= 'X';
+    DATA_23_P  <= 'X';
+  end generate GEN_5M_xgs_hiSpi; 
+   
+   
    VAAHV_NPIX   <= 'Z';
    VREF1_BOT_0  <= 'Z';
    VREF1_BOT_1  <= 'Z';
@@ -750,9 +829,6 @@ begin
    VPSUB_LO_0   <= 'Z';
    VPSUB_LO_1   <= 'Z';
 
-   TRIGGER0     <= 'Z';
-   TRIGGER1     <= 'Z';
-   TRIGGER2     <= 'Z';
    --FWSI_EN      <= 'Z';
    --CS           <= 'Z';
 
@@ -764,5 +840,56 @@ begin
    MONITOR1     <= 'Z';
    MONITOR2     <= 'Z';
 
+   
+   
+  ------------------------------------------------
+  --   
+  -- Simple SFOT, EFOT, INTEGRATION
+  --
+  ------------------------------------------------
+  
+  process is
+  begin
+    wait on TRIGGER_INT'event;     
+    if(TRIGGER_INT='1') then
+      SFOT            <= '1';     
+      wait for 20us; --SFOT_DURATION;            
+      SFOT            <= '0';
+    end if;   
+  end process;   
+   
+  process is
+  begin
+    wait on SFOT'event;     
+    if(SFOT='0') then      
+    
+      INTEGRATION     <= '1';      
+      EFOT            <= '0';
+      
+      wait until TRIGGER_INT = '0'; -- Exposure DURATION 
+      
+      if(dataline_valid ='1') then   -- wait end current readout (Exposure end before readout! illegal!)
+        wait until dataline_valid = '0';
+      end if;        
+      
+      INTEGRATION     <= '0';      
+      EFOT            <= '1';
+      TRIGGER_READOUT <= '1';       
+      
+      wait for 10ns;
+      
+      INTEGRATION     <= '0';      
+      EFOT            <= '1';
+      TRIGGER_READOUT <= '0'; 
+      
+      wait for 20us; --EFOT_DURATION;        
+
+      INTEGRATION     <= '0';      
+      EFOT            <= '0';
+      TRIGGER_READOUT <= '0';
+      
+    end if;
+  end process;   
+   
 
 end behaviour;

@@ -212,7 +212,7 @@ begin
          var_transmit_buffer0(3) := C_HISPI_SYNC_SOL;
       end if;
       if emb_data = '1' then
-        var_transmit_buffer0(3)(4) := '1';
+        var_transmit_buffer0(3)(7) := '1';  -- jmansill 0xC1 is not the SOF embeded sync!!!! its 0xC8 : bit 7 instead 4
       end if;
       if vert_left_bar_en = '1' then
           if hispi_pixel_depth = "100" then
@@ -232,7 +232,7 @@ begin
           var_transmit_buffer1(3) := C_HISPI_SYNC_SOL;
         end if;
         if emb_data = '1' then
-          var_transmit_buffer1(3)(4) := '1';
+          var_transmit_buffer0(3)(7) := '1';  -- jmansill 0xC1 is not the SOF embeded sync!!!! its 0xC8 : bit 7 instead 4
         end if;
         if vert_left_bar_en = '1' then
           if hispi_pixel_depth = "100" then
@@ -253,7 +253,7 @@ begin
           var_transmit_buffer2(3) := C_HISPI_SYNC_SOL;
         end if;
         if emb_data = '1' then
-          var_transmit_buffer2(3)(4) := '1';
+          var_transmit_buffer0(3)(7) := '1';  --jmansill  0xC1 is not the SOF embeded sync!!!! its 0xC8 : bit 7 instead 4
         end if;
         if vert_left_bar_en = '1' then
           if hispi_pixel_depth = "100" then
@@ -274,7 +274,7 @@ begin
           var_transmit_buffer3(3) := C_HISPI_SYNC_SOL;
         end if;
         if emb_data = '1' then
-          var_transmit_buffer3(3)(4) := '1';
+          var_transmit_buffer0(3)(7) := '1';  --jmansill  0xC1 is not the SOF embeded sync!!!! its 0xC8 : bit 7 instead 4
         end if;
         if vert_left_bar_en = '1' then
           if hispi_pixel_depth = "100" then

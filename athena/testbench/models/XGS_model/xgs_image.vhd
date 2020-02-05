@@ -40,6 +40,8 @@ entity xgs_image is
           G_PXL_PER_COLRAM   : integer := 174
           );
   port(
+       trigger_int         : in std_logic;
+       
        dataline            : out t_dataline(0 to G_NUM_PHY*4*G_PXL_PER_COLRAM-1);
        emb_data            : out std_logic;
        first_line          : out std_logic; --indicates first line of a frame
@@ -59,6 +61,7 @@ entity xgs_image is
        swap_top_bottom     : in  std_logic;
        
        sequencer_enable    : in  std_logic;
+       slave_triggered_mode: in  std_logic;
        frame_count         : out std_logic_vector(7 downto 0);
        
        test_pattern_mode   : in  std_logic_vector(2 downto 0);
@@ -95,7 +98,7 @@ begin
 frame_count <= frame_count_int;
 
 --Frame generation based on mode setting
-FRAME_CONTENT : process(dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
+FRAME_CONTENT : process(trigger_int, dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
 variable var_test_data_red    : unsigned(12 downto 0);
 variable var_test_data_blue   : unsigned(12 downto 0);
 variable var_test_data_greenr : unsigned(12 downto 0);
@@ -111,7 +114,20 @@ begin
     if frame_nxt'event and frame_nxt = '1' then
       frame_count_int <= std_logic_vector(unsigned(frame_count_int) + to_unsigned(1,frame_count_int'length)); 
     end if;
-    frame_valid <= '1';
+    
+    if(slave_triggered_mode='0') then
+      frame_valid <= '1';
+    else
+      if(frame_valid='0' and trigger_int='1') then
+        frame_valid <= '1';
+      elsif(line_count = to_integer(unsigned(frame_length)) )then
+        frame_valid <= '0';
+      else
+        frame_valid <= frame_valid;  
+      end if;  
+    end if;
+    
+    
     case test_pattern_mode is 
       when "000" => --normal operation
         frame(0)    <= (others => X"EB5"); --Embedded dataline
@@ -132,12 +148,23 @@ begin
             frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
           end loop;
         end if;
-        for j in 0 to (G_PXL_ARRAY_COLUMNS/2)-1 loop
-          frame(1)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j-2,12));
-          frame(1)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j-1,12));
-          frame(2)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j  ,12));
-          frame(2)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j+1,12));    
-        end loop;      
+        --for j in 0 to (G_PXL_ARRAY_COLUMNS/2)-1 loop
+        --  frame(1)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j-2,12));
+        --  frame(1)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j-1,12));
+        --  frame(2)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j  ,12));
+        --  frame(2)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j+1,12));    
+        --end loop;      
+        -- jmansill simple B&W ramp
+        for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
+          if(line_count>0) then
+            frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));
+            frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));  
+          else
+            frame(1)(j) <= X"EB5";
+            frame(2)(j) <= X"EB5"; 
+          end if;  
+        end loop; 
+        
         
       when "001" => --solid color
         frame(0)    <= (others => X"EB5"); --Embedded dataline
@@ -646,7 +673,17 @@ begin
   frame_nxt <= '0';
   if frame_valid = '0' then
     line_count     <= 0;
-  elsif dataline_nxt = '1' then
+  
+  --jmansill
+  elsif(slave_triggered_mode='1' and dataline_nxt='1') then 
+    if line_count = to_integer(unsigned(frame_length)) then
+      frame_nxt  <= '0';
+      line_count <= 0;  --ici on va rester a length+1
+    else      
+      line_count <= line_count + 1;
+    end if;
+    
+  elsif(slave_triggered_mode='0' and  dataline_nxt = '1') then
     if line_count = to_integer(unsigned(frame_length)) then
       frame_nxt  <= '1';
       line_count <= 0;
@@ -669,29 +706,29 @@ begin
     for i in 0 to G_PXL_PER_COLRAM-1 loop
       if line_count = 0 then
         case frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";   -- il y a t'il une raison pq le pixel0 est converti a 1 ici?????
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
         end case;
         case frame(0)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
       elsif (line_count mod 2 = 0) then
         case frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1);
         end case;
         case frame(2)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
       else
         case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
         end case;
         case frame(1)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"001";
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
       end if;

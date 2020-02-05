@@ -25,7 +25,8 @@ entity athena is
     FPGA_BUILD_DATE        : integer := 0;
     FPGA_IS_NPI_GOLDEN     : integer := 0;
     FPGA_DEVICE_ID         : integer := 0;
-    HISPI_NUMBER_OF_LANES  : integer := 6
+    HISPI_NUMBER_OF_DATA_LANES    : integer := 6;
+    HISPI_NUMBER_OF_CLOCK_LANES   : integer := 2
     );
   port (
     ---------------------------------------------------------------------------
@@ -59,14 +60,15 @@ entity athena is
     xgs_sdin                        : in  std_logic;
     xgs_sdout                       : out std_logic;
 
-
+    xgs_power_good                  : in  std_logic;
+    
     ---------------------------------------------------------------------------
     --  XGS sensor HiSPi data interface
     ---------------------------------------------------------------------------
-    xgs_hispi_sclk_n                : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sclk_p                : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sdata_n               : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
-    xgs_hispi_sdata_p               : in std_logic_vector (HISPI_NUMBER_OF_LANES-1 downto 0);
+    xgs_hispi_sclk_n                : in std_logic_vector (HISPI_NUMBER_OF_CLOCK_LANES-1 downto 0);
+    xgs_hispi_sclk_p                : in std_logic_vector (HISPI_NUMBER_OF_CLOCK_LANES-1 downto 0);
+    xgs_hispi_sdata_n               : in std_logic_vector (HISPI_NUMBER_OF_DATA_LANES-1 downto 0);
+    xgs_hispi_sdata_p               : in std_logic_vector (HISPI_NUMBER_OF_DATA_LANES-1 downto 0);
 
     ---------------------------------------------------------------------------
     --  Debug
@@ -139,8 +141,8 @@ architecture struct of athena is
       sys_rst_n              : in    std_logic;
       xgs_hispi_data_n       : in    std_logic_vector (5 downto 0);
       xgs_hispi_data_p       : in    std_logic_vector (5 downto 0);
-      xgs_hispi_sclk_n       : in    std_logic_vector (5 downto 0);
-      xgs_hispi_sclk_p       : in    std_logic_vector (5 downto 0)
+      xgs_hispi_sclk_n       : in    std_logic_vector (1 downto 0);
+      xgs_hispi_sclk_p       : in    std_logic_vector (1 downto 0)
       );
   end component;
 
@@ -178,8 +180,19 @@ begin
       cfg_qspi_ss_io(0)      => cfg_spi_cs_n,
       xgs_hispi_data_n       => xgs_hispi_sdata_n,
       xgs_hispi_data_p       => xgs_hispi_sdata_p,
-      xgs_hispi_sclk_n       => xgs_hispi_sclk_n,
-      xgs_hispi_sclk_p       => xgs_hispi_sclk_p,
+      xgs_hispi_sclk_n(0)    => xgs_hispi_sclk_n(0),
+      xgs_hispi_sclk_n(1)    => xgs_hispi_sclk_n(1),
+      --xgs_hispi_sclk_n(2)    => xgs_hispi_sclk_n(2), 
+      --xgs_hispi_sclk_n(3)    => xgs_hispi_sclk_n(3),
+      --xgs_hispi_sclk_n(4)    => xgs_hispi_sclk_n(4),
+      --xgs_hispi_sclk_n(5)    => xgs_hispi_sclk_n(5),     
+      xgs_hispi_sclk_p(0)    => xgs_hispi_sclk_p(0),
+      xgs_hispi_sclk_p(1)    => xgs_hispi_sclk_p(1),
+      --xgs_hispi_sclk_p(2)    => xgs_hispi_sclk_p(2),      
+      --xgs_hispi_sclk_p(3)    => xgs_hispi_sclk_p(3),
+      --xgs_hispi_sclk_p(4)    => xgs_hispi_sclk_p(4),
+      --xgs_hispi_sclk_p(5)    => xgs_hispi_sclk_p(5),
+
       cfg_startup_io_cfgclk  => open,
       cfg_startup_io_cfgmclk => open,
       cfg_startup_io_eos     => open,
