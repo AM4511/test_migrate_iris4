@@ -20,6 +20,7 @@ module TB_xgs12m_receiver(  );
  xil_axi_prot_t  prot = 0;
  
  xil_axi_ulong gpio_addr       =32'h00010000;
+ xil_axi_ulong xgs_ctrl_addr   =32'h00020000;
  xil_axi_ulong dec0_addr       =32'h000a0000;
  xil_axi_ulong dec1_addr       =32'h000b0000;
  xil_axi_ulong hispi_des0_addr =32'h000c0000;
@@ -347,6 +348,13 @@ initial begin
     repeat(50)@(posedge XGS_MODEL_EXTCLK);
     XGS_MODEL_RESET_B = 1'b1;
     #200us
+   
+    //--------------------------------------------------------
+    //
+    // ACCESS XGS CRTL
+    //
+    //-------------------------------------------------------              
+    master_agent.AXI4LITE_READ_BURST(xgs_ctrl_addr, prot, data_rd, resp);
    
    
     //--------------------------------------------------------
@@ -749,7 +757,7 @@ initial begin
       // jmansill : Slave triggered mode    
       
       test_active_lines             = 8;                         // One-based
-      line_time                     = 16'h0e6;                   // default in model is 0xe6, XGS12M register is 0x16e
+      line_time                     = 16'h0e6;                   // default in model and in devware is 0xe6, XGS12M register is 0x16e
       
       xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
       
