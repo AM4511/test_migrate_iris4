@@ -266,8 +266,8 @@ proc create_hier_cell_hispi_line_writer { parentCell nameHier } {
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
   set_property -dict [ list \
-   CONFIG.LANE_PER_BLOCK {3} \
-   CONFIG.NUMB_BLOCK {2} \
+   CONFIG.FPGA_MANUFACTURER {XILINX} \
+   CONFIG.NUMBER_OF_LANE {6} \
  ] $axiHiSPi_0
 
   # Create instance: axi_mm2s_mapper_0, and set properties
