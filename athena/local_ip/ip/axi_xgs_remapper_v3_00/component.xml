@@ -450,7 +450,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>b1982968</spirit:value>
+            <spirit:value>100d8e95</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -466,7 +466,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>8a7c6725</spirit:value>
+            <spirit:value>100d8e95</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -480,7 +480,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>8fc71e54</spirit:value>
+            <spirit:value>1fd4484d</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -510,7 +510,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>6fadad14</spirit:value>
+            <spirit:value>b0f6ac8a</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -905,7 +905,7 @@
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) - 1)">511</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) - 1)">287</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -925,7 +925,7 @@
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) / 8) - 1)">63</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) / 8) - 1)">35</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -994,7 +994,7 @@
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) / 8) - 1)">63</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH&apos;)) / 8) - 1)">35</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -1258,7 +1258,7 @@
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>C_M_AXIS_TDATA_WIDTH</spirit:name>
         <spirit:displayName>C M Axis Tdata Width</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH">512</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_M_AXIS_TDATA_WIDTH">288</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>C_S_AXI_DATA_WIDTH</spirit:name>
@@ -1284,15 +1284,17 @@
   </spirit:model>
   <spirit:choices>
     <spirit:choice>
-      <spirit:name>choice_list_21f049d0</spirit:name>
-      <spirit:enumeration>10</spirit:enumeration>
-      <spirit:enumeration>12</spirit:enumeration>
-    </spirit:choice>
-    <spirit:choice>
-      <spirit:name>choice_list_68a50f08</spirit:name>
+      <spirit:name>choice_list_16586c53</spirit:name>
+      <spirit:enumeration>4</spirit:enumeration>
+      <spirit:enumeration>6</spirit:enumeration>
       <spirit:enumeration>16</spirit:enumeration>
       <spirit:enumeration>24</spirit:enumeration>
       <spirit:enumeration>48</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
+      <spirit:name>choice_list_21f049d0</spirit:name>
+      <spirit:enumeration>10</spirit:enumeration>
+      <spirit:enumeration>12</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
       <spirit:name>choice_list_9d8b0d81</spirit:name>
@@ -1306,12 +1308,6 @@
       <spirit:file>
         <spirit:name>rtl/remapper_fifo.sv</spirit:name>
         <spirit:fileType>systemVerilogSource</spirit:fileType>
-        <spirit:logicalName>axi_xgs_remapper_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>rtl/sdp_bram.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_32973269</spirit:userFileType>
         <spirit:logicalName>axi_xgs_remapper_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
@@ -1340,9 +1336,14 @@
         <spirit:logicalName>axi_xgs_remapper_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>rtl/sdp_bram.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>axi_xgs_remapper_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>rtl/remapper.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_b6c3e823</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_939d2d40</spirit:userFileType>
         <spirit:logicalName>axi_xgs_remapper_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
@@ -1394,7 +1395,7 @@
       <spirit:file>
         <spirit:name>xgui/xgs12m_remapper_v3_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_8fc71e54</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_1fd4484d</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1423,7 +1424,7 @@
     <spirit:parameter>
       <spirit:name>C_NROF_DATACONN</spirit:name>
       <spirit:displayName>Number of data lanes</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_NROF_DATACONN" spirit:choiceRef="choice_list_68a50f08">24</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_NROF_DATACONN" spirit:choiceRef="choice_list_16586c53">24</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>C_INPUT_DATAWIDTH</spirit:name>
@@ -1488,7 +1489,7 @@
     <spirit:parameter>
       <spirit:name>C_M_AXIS_TDATA_WIDTH</spirit:name>
       <spirit:displayName>Master Axis Data Width</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_M_AXIS_TDATA_WIDTH">512</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_M_AXIS_TDATA_WIDTH">288</spirit:value>
       <spirit:vendorExtensions>
         <xilinx:parameterInfo>
           <xilinx:enablement>
@@ -1568,11 +1569,7 @@
         <xilinx:family xilinx:lifeCycle="Production">azynq</xilinx:family>
         <xilinx:family xilinx:lifeCycle="Production">spartan7</xilinx:family>
         <xilinx:family xilinx:lifeCycle="Production">aspartan7</xilinx:family>
-        <xilinx:family xilinx:lifeCycle="Production">virtexu</xilinx:family>
         <xilinx:family xilinx:lifeCycle="Production">zynquplus</xilinx:family>
-        <xilinx:family xilinx:lifeCycle="Production">virtexuplus</xilinx:family>
-        <xilinx:family xilinx:lifeCycle="Production">kintexuplus</xilinx:family>
-        <xilinx:family xilinx:lifeCycle="Production">kintexu</xilinx:family>
       </xilinx:supportedFamilies>
       <xilinx:taxonomies>
         <xilinx:taxonomy>/UserIP</xilinx:taxonomy>
@@ -1583,12 +1580,12 @@
         <xilinx:xpmLibrary>XPM_FIFO</xilinx:xpmLibrary>
         <xilinx:xpmLibrary>XPM_MEMORY</xilinx:xpmLibrary>
       </xilinx:xpmLibraries>
-      <xilinx:coreRevision>3</xilinx:coreRevision>
+      <xilinx:coreRevision>4</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>onsemi.com:user:remapper:1.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>onsemi.com:user:xgs12m_remapper:2.00</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2019-11-14T09:09:28Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-02-10T23:02:16Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="onsemi.com:user:remapper:1.0_ARCHIVE_LOCATION">d:/ProjectsSVN/nextgenplatform/rtl/libs/lib_vivado/axi_xgs_remapper_v2_00</xilinx:tag>
@@ -1598,16 +1595,36 @@
         <xilinx:tag xilinx:name="onsemi.com:user:axi_xgs_remapper_v2_00:2.00_ARCHIVE_LOCATION">d:/ProjectsSVN/nextgenplatform/rtl/libs/lib_vivado/axi_xgs_remapper_v2_00</xilinx:tag>
         <xilinx:tag xilinx:name="onsemi.com:user:xgs12m_remapper:2.00_ARCHIVE_LOCATION">d:/ProjectsSVN/nextgenplatform/rtl/libs/lib_vivado/axi_xgs_remapper_dev</xilinx:tag>
         <xilinx:tag xilinx:name="onsemi.com:user:xgs12m_remapper:3.0_ARCHIVE_LOCATION">d:/ProjectsSVN/nextgenplatform/rtl/libs/lib_vivado_dev/axi_xgs_remapper_dev</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@638d903a_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@624dfb32_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2bfaefc9_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@13c2d879_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53dab7a0_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6861700a_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@711f7887_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2bc9e769_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4fd0330b_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17e72d5a_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2a6395ff_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5cf57c4_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@274a0710_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@79cf29d8_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@41722064_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@112c79d6_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7d40e56e_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@64bc4b52_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@b9f8ce5_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f6343_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/ip/axi_xgs_remapper_v3_00</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
-      <xilinx:xilinxVersion>2018.2</xilinx:xilinxVersion>
+      <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="548b498e"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="871a59ce"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="1844bdb0"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="6432fbdd"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="d0eb1cea"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="224c331d"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6874eb51"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="28bedd12"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="b405644d"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="4e1a9928"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

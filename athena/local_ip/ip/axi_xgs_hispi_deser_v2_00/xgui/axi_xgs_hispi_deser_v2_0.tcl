@@ -6,9 +6,15 @@ source [file join [file dirname [file dirname [info script]]] gui/axi_xgs_hispi_
 proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "Component_Name"
   #Adding Page
-  set Page_0 [ipgui::add_page $IPINST -name "Page 0"]
+  set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {General parameters}]
+  set_property tooltip {General parameters} ${Page_0}
   ipgui::add_param $IPINST -name "C_NROF_DATACONN" -parent ${Page_0} -widget comboBox
   ipgui::add_param $IPINST -name "C_M_AXIS_TDATA_WIDTH" -parent ${Page_0}
+
+  #Adding Page
+  set Advanced [ipgui::add_page $IPINST -name "Advanced"]
+  set C_SERDES_FAMILY [ipgui::add_param $IPINST -name "C_SERDES_FAMILY" -parent ${Advanced} -widget comboBox]
+  set_property tooltip {FPGA Serdes Family} ${C_SERDES_FAMILY}
 
 
 }

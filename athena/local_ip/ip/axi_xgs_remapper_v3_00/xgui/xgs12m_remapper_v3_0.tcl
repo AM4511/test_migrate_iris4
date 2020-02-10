@@ -14,6 +14,22 @@ proc init_gui { IPINST } {
 
 }
 
+proc update_PARAM_VALUE.C_M_AXIS_TDATA_WIDTH { PARAM_VALUE.C_M_AXIS_TDATA_WIDTH PARAM_VALUE.C_NROF_DATACONN PARAM_VALUE.C_INPUT_DATAWIDTH } {
+	# Procedure called to update C_M_AXIS_TDATA_WIDTH when any of the dependent parameters in the arguments change
+	
+	set C_M_AXIS_TDATA_WIDTH ${PARAM_VALUE.C_M_AXIS_TDATA_WIDTH}
+	set C_NROF_DATACONN ${PARAM_VALUE.C_NROF_DATACONN}
+	set C_INPUT_DATAWIDTH ${PARAM_VALUE.C_INPUT_DATAWIDTH}
+	set values(C_NROF_DATACONN) [get_property value $C_NROF_DATACONN]
+	set values(C_INPUT_DATAWIDTH) [get_property value $C_INPUT_DATAWIDTH]
+	set_property value [gen_USERPARAMETER_C_M_AXIS_TDATA_WIDTH_VALUE $values(C_NROF_DATACONN) $values(C_INPUT_DATAWIDTH)] $C_M_AXIS_TDATA_WIDTH
+}
+
+proc validate_PARAM_VALUE.C_M_AXIS_TDATA_WIDTH { PARAM_VALUE.C_M_AXIS_TDATA_WIDTH } {
+	# Procedure called to validate C_M_AXIS_TDATA_WIDTH
+	return true
+}
+
 proc update_PARAM_VALUE.C_S_AXIS_TDATA_WIDTH { PARAM_VALUE.C_S_AXIS_TDATA_WIDTH PARAM_VALUE.C_NROF_DATACONN PARAM_VALUE.C_INPUT_DATAWIDTH } {
 	# Procedure called to update C_S_AXIS_TDATA_WIDTH when any of the dependent parameters in the arguments change
 	
@@ -54,15 +70,6 @@ proc update_PARAM_VALUE.C_INPUT_DATAWIDTH { PARAM_VALUE.C_INPUT_DATAWIDTH } {
 
 proc validate_PARAM_VALUE.C_INPUT_DATAWIDTH { PARAM_VALUE.C_INPUT_DATAWIDTH } {
 	# Procedure called to validate C_INPUT_DATAWIDTH
-	return true
-}
-
-proc update_PARAM_VALUE.C_M_AXIS_TDATA_WIDTH { PARAM_VALUE.C_M_AXIS_TDATA_WIDTH } {
-	# Procedure called to update C_M_AXIS_TDATA_WIDTH when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.C_M_AXIS_TDATA_WIDTH { PARAM_VALUE.C_M_AXIS_TDATA_WIDTH } {
-	# Procedure called to validate C_M_AXIS_TDATA_WIDTH
 	return true
 }
 
