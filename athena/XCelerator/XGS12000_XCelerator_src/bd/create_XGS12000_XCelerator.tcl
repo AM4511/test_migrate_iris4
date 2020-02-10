@@ -184,7 +184,7 @@ set obj [get_filesets sources_1]
 #set_property "ip_repo_paths" "[file normalize "$base_path/XGS12000_XCelerator_src/ip"]" $obj
 
 set XAccelerator_IP "$base_path/XGS12000_XCelerator_src/ip"
-set Local_IP        "$base_path/../../ipcores"
+set Local_IP        "$base_path/../ipcores"
 set_property "ip_repo_paths"  [list ${XAccelerator_IP} ${Local_IP}] $obj
 
 # Rebuild user ip_repo's index before adding any source files
