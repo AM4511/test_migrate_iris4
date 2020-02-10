@@ -47,7 +47,7 @@ set SRC_DIR         ${VALIDATION_DIR}/src
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/BD_XGS12000_receiver_VIPlight.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/xgs12000_system_2019.1.tcl
 
 
 # set SYNTH_RUN "synth_1"
