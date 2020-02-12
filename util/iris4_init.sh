@@ -10,7 +10,8 @@ echo "Running :  $me"
 
 
 #################################################################
-# Assumes that the environment variable IRIS4 is set
+# Assumes that the environment variable IRIS4 is set. If not
+# propose to set it.
 #################################################################
 if [ -z ${IRIS4+x} ]
 then
@@ -43,6 +44,7 @@ export ATHENA=${IRIS4}/athena
 export UTIL=${IRIS4}/util
 
 export PATH="$PATH:${UTIL}"
+
 
 #################################################################
 # Set the IRIS4 project aliases
