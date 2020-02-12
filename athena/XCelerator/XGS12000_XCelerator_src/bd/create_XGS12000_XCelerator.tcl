@@ -134,7 +134,7 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [current_project]
-#set_property -name "compxlib.xsim_compiled_library_dir" -value  "D:/mtipe_lib/vivado2018.2.2" [current_project]
+set_property -name "compxlib.xsim_compiled_library_dir" -value  "D:/mtipe_lib/vivado2018.2.2" [current_project]
 #set_property -name "compxlib.modelsim_compiled_library_dir" -value "D:/Xilinx/vivado_2018.2/questa_10_6a" -objects $obj
 set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
 set_property -name "dsa.accelerator_binary_content" -value "bitstream" -objects $obj
