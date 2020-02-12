@@ -11,6 +11,7 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "C_S_AXIS_TDATA_WIDTH" -parent ${Page_0}
   ipgui::add_param $IPINST -name "C_M_AXIS_TDATA_WIDTH" -parent ${Page_0}
 
+  ipgui::add_param $IPINST -name "C_FAMILY" -widget comboBox
 
 }
 
@@ -61,6 +62,15 @@ proc update_PARAM_VALUE.C_AXIS_TID_WIDTH { PARAM_VALUE.C_AXIS_TID_WIDTH } {
 
 proc validate_PARAM_VALUE.C_AXIS_TID_WIDTH { PARAM_VALUE.C_AXIS_TID_WIDTH } {
 	# Procedure called to validate C_AXIS_TID_WIDTH
+	return true
+}
+
+proc update_PARAM_VALUE.C_FAMILY { PARAM_VALUE.C_FAMILY } {
+	# Procedure called to update C_FAMILY when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.C_FAMILY { PARAM_VALUE.C_FAMILY } {
+	# Procedure called to validate C_FAMILY
 	return true
 }
 

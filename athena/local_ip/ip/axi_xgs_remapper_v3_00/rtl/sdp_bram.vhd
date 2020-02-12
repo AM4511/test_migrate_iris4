@@ -52,7 +52,9 @@ begin
 write_enable(0) <= '1';
  
 -- xilinx
-gen_xilinx_sdpram: if ( C_FAMILY = "kintexu" ) generate
+-- gen_xilinx_sdpram: if ( C_FAMILY = "kintexu" ) generate
+-- MTX_AM : added the C_FAMILY == "7SERIES"
+gen_xilinx_sdpram: if (( C_FAMILY = "kintexu" ) or   (C_FAMILY = "7SERIES"))generate
 
    xpm_memory_sdpram_inst : xpm_memory_sdpram
    generic map (

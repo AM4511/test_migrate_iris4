@@ -226,10 +226,16 @@ proc create_root_design { parentCell } {
 
   # Create instance: axi_video_xgs_decoder_0, and set properties
   set axi_video_xgs_decoder_0 [ create_bd_cell -type ip -vlnv onsemi.com:user:axi_video_xgs_decoder:2.0 axi_video_xgs_decoder_0 ]
+  set_property -dict [ list \
+   CONFIG.C_AXIS_TDATA_WIDTH {24} \
+   CONFIG.C_NROF_DATACONN {2} \
+ ] $axi_video_xgs_decoder_0
 
   # Create instance: axi_video_xgs_decoder_1, and set properties
   set axi_video_xgs_decoder_1 [ create_bd_cell -type ip -vlnv onsemi.com:user:axi_video_xgs_decoder:2.0 axi_video_xgs_decoder_1 ]
   set_property -dict [ list \
+   CONFIG.C_AXIS_TDATA_WIDTH {24} \
+   CONFIG.C_NROF_DATACONN {2} \
    CONFIG.NumberOffEnables {0} \
  ] $axi_video_xgs_decoder_1
 
@@ -263,9 +269,19 @@ proc create_root_design { parentCell } {
 
   # Create instance: axi_xgs_hispi_deser_0, and set properties
   set axi_xgs_hispi_deser_0 [ create_bd_cell -type ip -vlnv onsemi.com:user:axi_xgs_hispi_deser:2.0 axi_xgs_hispi_deser_0 ]
+  set_property -dict [ list \
+   CONFIG.C_M_AXIS_TDATA_WIDTH {24} \
+   CONFIG.C_NROF_DATACONN {2} \
+   CONFIG.C_SERDES_FAMILY {7SERIES} \
+ ] $axi_xgs_hispi_deser_0
 
   # Create instance: axi_xgs_hispi_deser_1, and set properties
   set axi_xgs_hispi_deser_1 [ create_bd_cell -type ip -vlnv onsemi.com:user:axi_xgs_hispi_deser:2.0 axi_xgs_hispi_deser_1 ]
+  set_property -dict [ list \
+   CONFIG.C_M_AXIS_TDATA_WIDTH {24} \
+   CONFIG.C_NROF_DATACONN {2} \
+   CONFIG.C_SERDES_FAMILY {7SERIES} \
+ ] $axi_xgs_hispi_deser_1
 
   # Create instance: axis_combiner_0, and set properties
   set axis_combiner_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_combiner:1.1 axis_combiner_0 ]
@@ -276,15 +292,18 @@ proc create_root_design { parentCell } {
   # Create instance: test_pattern_generat_0, and set properties
   set test_pattern_generat_0 [ create_bd_cell -type ip -vlnv onsemi.com:user:test_pattern_generator:2.0 test_pattern_generat_0 ]
   set_property -dict [ list \
-   CONFIG.C_M00_AXIS_TDATA_WIDTH {512} \
-   CONFIG.C_M00_AXIS_TUSER_WIDTH {64} \
+   CONFIG.C_M00_AXIS_TDATA_WIDTH {48} \
+   CONFIG.C_M00_AXIS_TUSER_WIDTH {6} \
    CONFIG.C_S00_AXI_ADDR_WIDTH {12} \
  ] $test_pattern_generat_0
 
   # Create instance: xgs12m_remapper_0, and set properties
   set xgs12m_remapper_0 [ create_bd_cell -type ip -vlnv onsemi.com:user:xgs12m_remapper:3.0 xgs12m_remapper_0 ]
   set_property -dict [ list \
+   CONFIG.C_M_AXIS_TDATA_WIDTH {48} \
    CONFIG.C_M_AXIS_TUSER_WIDTH {3} \
+   CONFIG.C_NROF_DATACONN {4} \
+   CONFIG.C_S_AXIS_TDATA_WIDTH {48} \
    CONFIG.C_S_AXIS_TUSER_WIDTH {3} \
  ] $xgs12m_remapper_0
 

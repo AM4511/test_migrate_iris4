@@ -44,7 +44,10 @@ module remapper_fifo #(
 
   //xilinx fifo
   generate
-  if ((C_FAMILY == "ULTRASCALE") || (C_FAMILY == "VIRTEX7") || (C_FAMILY == "virtexu") || (C_FAMILY == "virtexuplus") || (C_FAMILY == "kintexu") || (C_FAMILY == "kintexuplus")) begin
+  // if ((C_FAMILY == "ULTRASCALE") || (C_FAMILY == "VIRTEX7") || (C_FAMILY == "virtexu") || (C_FAMILY == "virtexuplus") || (C_FAMILY == "kintexu") || (C_FAMILY == "kintexuplus")) begin
+
+  // MTX_AM : added the C_FAMILY == "7SERIES"
+  if ((C_FAMILY == "ULTRASCALE") || (C_FAMILY == "VIRTEX7") || (C_FAMILY == "virtexu") || (C_FAMILY == "virtexuplus") || (C_FAMILY == "kintexu") || (C_FAMILY == "kintexuplus")|| (C_FAMILY == "7SERIES")) begin
     // Permitted value for DATA_COUNT_WIDTH is
     // 1 and log2(FIFO_DEPTH)+1
     localparam DEPTH_XIL = DEPTH *2;

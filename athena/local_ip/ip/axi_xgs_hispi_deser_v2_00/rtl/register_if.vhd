@@ -673,16 +673,51 @@ begin
     slv_reg6_rd_rec(gNrOf_DataConn-1 downto 0) <= SERDES_WORD_ALIGN;
     slv_reg6_rd_rec(31 downto gNrOf_DataConn) <= (others => '0');
 
+    --> MTX_AM : FIX slv_reg8_rd_rec, slv_reg9_rd_rec, slv_reg10rd_rec <--
     --these registers assume the nrof connections set to 12, 3  PHY's 
+    -- slv_reg8_rd_rec <= SERDES_SLIP_COUNT(  31 downto    0);
+    -- slv_reg9_rd_rec <= SERDES_SLIP_COUNT(  63 downto   32);
+    -- slv_reg10_rd_rec <= SERDES_SLIP_COUNT(  95 downto   64);
 
-    slv_reg8_rd_rec <= SERDES_SLIP_COUNT(  31 downto    0);
-    slv_reg9_rd_rec <= SERDES_SLIP_COUNT(  63 downto   32);
-    slv_reg10_rd_rec <= SERDES_SLIP_COUNT(  95 downto   64);
+    G_SERDES_SLIP_COUNT: for i in  SERDES_SLIP_COUNT'range generate
+      G_slv_reg8_rd_rec: if (i > 0 and i < 32) generate
+        slv_reg8_rd_rec(i) <= SERDES_SLIP_COUNT(i);
+      end generate G_slv_reg8_rd_rec;
+      
+      G_slv_reg9_rd_rec: if (i > 31 and i < 64) generate
+        slv_reg9_rd_rec(i) <= SERDES_SLIP_COUNT(i);
+      end generate G_slv_reg9_rd_rec;
+      
+      G_slv_reg10_rd_rec: if (i > 63 and i < 96) generate
+        slv_reg9_rd_rec(i) <= SERDES_SLIP_COUNT(i);
+      end generate G_slv_reg10_rd_rec;
+      
+    end generate G_SERDES_SLIP_COUNT;
+    --> MTX_AM : End of the fix <--
 
-    slv_reg11_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 23 downto   0);
-    slv_reg12_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 47 downto  24);
-    slv_reg13_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 71 downto  48);
+    
+    --> MTX_AM : FIX slv_reg11_rd_rec, slv_reg12_rd_rec, slv_reg13rd_rec <--
+    -- slv_reg11_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 23 downto   0);
+    -- slv_reg12_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 47 downto  24);
+    -- slv_reg13_rd_rec <= "00000000" & SERDES_SHIFT_STATUS( 71 downto  48);
 
+    G_SERDES_SHIFT_STATUS: for i in SERDES_SHIFT_STATUS'range  generate
+      G_slv_reg11_rd_rec: if (i > 0 and i < 24) generate
+        slv_reg11_rd_rec(i) <= SERDES_SHIFT_STATUS(i);
+      end generate G_slv_reg11_rd_rec;
+
+      G_slv_reg12_rd_rec: if (i > 24 and i < 48) generate
+        slv_reg12_rd_rec(i) <= SERDES_SHIFT_STATUS(i);
+      end generate G_slv_reg12_rd_rec;
+
+      G_slv_reg13_rd_rec: if (i > 48 and i < 72) generate
+        slv_reg13_rd_rec(i) <= SERDES_SHIFT_STATUS(i);
+      end generate G_slv_reg13_rd_rec;
+      
+    end generate G_SERDES_SHIFT_STATUS;
+    --> MTX_AM : End of the fix <--
+
+ 
     slv_reg14_rd_rec(gNrOf_DataConn-1 downto 0) <= SERDES_ERROR;
     slv_reg14_rd_rec(31 downto gNrOf_DataConn) <= (others => '0');
 

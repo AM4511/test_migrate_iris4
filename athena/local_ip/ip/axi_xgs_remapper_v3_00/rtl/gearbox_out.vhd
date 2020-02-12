@@ -213,7 +213,7 @@ begin
         --data mux
         case muxcntr_r is
             when 0 =>
-                --data/last is dont care
+                --data/last is dont care  63-0
                 fifo_data <= input_data_concat(FIFO_DATA_WIDTH-1 downto 0);
                 fifo_last   <= input_last_concat(0);
             when 1 =>
