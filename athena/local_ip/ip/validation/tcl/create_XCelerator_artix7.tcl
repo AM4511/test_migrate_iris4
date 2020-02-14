@@ -50,10 +50,6 @@ set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/xgs12000_system_2019.1.tcl
 
 
-# set SYNTH_RUN "synth_1"
-# set IMPL_RUN  "impl_1"
-# set JOB_COUNT  4
-
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
@@ -67,9 +63,6 @@ set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 file mkdir $PROJECT_DIR
 
 cd $PROJECT_DIR
-#file delete -force ${PROJECT_NAME}.xpr
-#file delete -force ${PROJECT_NAME}.runs
-
 
 ###################################################################################
 # Create the Xilinx project
@@ -77,9 +70,6 @@ cd $PROJECT_DIR
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
 
 set_property target_language VHDL [current_project]
-#set_property simulator_language Mixed [current_project]
-#set_property target_simulator ModelSim [current_project]
-#set_property default_lib work [current_project]
 
 set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
 update_ip_catalog
@@ -107,13 +97,6 @@ add_files -norecurse -force $BD_WRAPPER_FILE
 # Add project files (HDL, Constraints, IP, etc)
 ################################################
 source ${FILESET_SCRIPT}
-
-
-################################################
-# Top level Generics
-################################################
-#set_property top TB_xgs12m_receiver [current_fileset]
-
 
 
 

@@ -20,13 +20,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="777359218928fs"></ZoomStartTime>
-      <ZoomEndTime time="1067987166477fs"></ZoomEndTime>
-      <Cursor1Time time="877295000000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="1219755386001fs"></ZoomEndTime>
+      <Cursor1Time time="0fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="246"></NameColumnWidth>
-      <ValueColumnWidth column_width="111"></ValueColumnWidth>
+      <ValueColumnWidth column_width="107"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="9" />
    <wave_markers>
@@ -282,7 +282,6 @@
    <wvobject fp_name="group6771" type="group">
       <obj_property name="label">XGS_MODEL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/G_MODEL_ID" type="array">
          <obj_property name="ElementShortName">G_MODEL_ID[15:0]</obj_property>
          <obj_property name="ObjectShortName">G_MODEL_ID[15:0]</obj_property>
@@ -4324,7 +4323,6 @@
       <wvobject fp_name="group6770" type="group">
          <obj_property name="label">M_AXIS_VIDEO_OUT</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="isExpanded"></obj_property>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/M_AXIS_VIDEO_TREADY" type="logic">
             <obj_property name="ElementShortName">M_AXIS_VIDEO_TREADY</obj_property>
             <obj_property name="ObjectShortName">M_AXIS_VIDEO_TREADY</obj_property>
@@ -4856,6 +4854,291 @@
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/cbram/addr_rd_incr" type="other">
             <obj_property name="ElementShortName">addr_rd_incr</obj_property>
             <obj_property name="ObjectShortName">addr_rd_incr</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group1271" type="group">
+         <obj_property name="label">gearout</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_RESET" type="logic">
+            <obj_property name="ElementShortName">FIFO_RESET</obj_property>
+            <obj_property name="ObjectShortName">FIFO_RESET</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_ENABLE" type="logic">
+            <obj_property name="ElementShortName">FIFO_ENABLE</obj_property>
+            <obj_property name="ObjectShortName">FIFO_ENABLE</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_STATUS" type="array">
+            <obj_property name="ElementShortName">FIFO_STATUS[4:0]</obj_property>
+            <obj_property name="ObjectShortName">FIFO_STATUS[4:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/AXIS_VIDEO_ACLK" type="logic">
+            <obj_property name="ElementShortName">AXIS_VIDEO_ACLK</obj_property>
+            <obj_property name="ObjectShortName">AXIS_VIDEO_ACLK</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/AXIS_VIDEO_ARESETN" type="logic">
+            <obj_property name="ElementShortName">AXIS_VIDEO_ARESETN</obj_property>
+            <obj_property name="ObjectShortName">AXIS_VIDEO_ARESETN</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TVALID" type="logic">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TVALID</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TVALID</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TDATA" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TDATA[511:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TDATA[511:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TSTRB" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TSTRB[63:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TSTRB[63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TLAST" type="logic">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TLAST</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TLAST</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TREADY" type="logic">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TREADY</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TREADY</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TUSER" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TUSER[2:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TUSER[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TKEEP" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TKEEP[63:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TKEEP[63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TID" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TID[0:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TID[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/M_AXIS_VIDEO_TDEST" type="array">
+            <obj_property name="ElementShortName">M_AXIS_VIDEO_TDEST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">M_AXIS_VIDEO_TDEST[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TVALID" type="logic">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TVALID</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TVALID</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TDATA" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TDATA[287:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TDATA[287:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TSTRB" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TSTRB[35:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TSTRB[35:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TLAST" type="logic">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TLAST</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TLAST</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TREADY" type="logic">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TREADY</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TREADY</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TUSER" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TUSER[2:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TUSER[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TKEEP" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TKEEP[35:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TKEEP[35:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TID" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TID[0:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TID[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/S_AXIS_VIDEO_TDEST" type="array">
+            <obj_property name="ElementShortName">S_AXIS_VIDEO_TDEST[0:0]</obj_property>
+            <obj_property name="ObjectShortName">S_AXIS_VIDEO_TDEST[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_data_r" type="array">
+            <obj_property name="ElementShortName">input_data_r[287:0]</obj_property>
+            <obj_property name="ObjectShortName">input_data_r[287:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_data_r2" type="array">
+            <obj_property name="ElementShortName">input_data_r2[287:0]</obj_property>
+            <obj_property name="ObjectShortName">input_data_r2[287:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_data_concat" type="array">
+            <obj_property name="ElementShortName">input_data_concat[575:0]</obj_property>
+            <obj_property name="ObjectShortName">input_data_concat[575:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_id_r" type="array">
+            <obj_property name="ElementShortName">input_id_r[0:0]</obj_property>
+            <obj_property name="ObjectShortName">input_id_r[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_id_r2" type="array">
+            <obj_property name="ElementShortName">input_id_r2[0:0]</obj_property>
+            <obj_property name="ObjectShortName">input_id_r2[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_dest_r" type="array">
+            <obj_property name="ElementShortName">input_dest_r[0:0]</obj_property>
+            <obj_property name="ObjectShortName">input_dest_r[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_dest_r2" type="array">
+            <obj_property name="ElementShortName">input_dest_r2[0:0]</obj_property>
+            <obj_property name="ObjectShortName">input_dest_r2[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_user_r" type="array">
+            <obj_property name="ElementShortName">input_user_r[2:0]</obj_property>
+            <obj_property name="ObjectShortName">input_user_r[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_user_r2" type="array">
+            <obj_property name="ElementShortName">input_user_r2[2:0]</obj_property>
+            <obj_property name="ObjectShortName">input_user_r2[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_last_r" type="logic">
+            <obj_property name="ElementShortName">input_last_r</obj_property>
+            <obj_property name="ObjectShortName">input_last_r</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_last_r2" type="logic">
+            <obj_property name="ElementShortName">input_last_r2</obj_property>
+            <obj_property name="ObjectShortName">input_last_r2</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/input_last_concat" type="array">
+            <obj_property name="ElementShortName">input_last_concat[1:0]</obj_property>
+            <obj_property name="ObjectShortName">input_last_concat[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_data" type="array">
+            <obj_property name="ElementShortName">fifo_data[383:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_data[383:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_last" type="logic">
+            <obj_property name="ElementShortName">fifo_last</obj_property>
+            <obj_property name="ObjectShortName">fifo_last</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_id" type="array">
+            <obj_property name="ElementShortName">fifo_id[0:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_id[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_dest" type="array">
+            <obj_property name="ElementShortName">fifo_dest[0:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_dest[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_user" type="array">
+            <obj_property name="ElementShortName">fifo_user[2:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_user[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_in_word" type="array">
+            <obj_property name="ElementShortName">fifo_in_word[389:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_in_word[389:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_out_word" type="array">
+            <obj_property name="ElementShortName">fifo_out_word[389:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_out_word[389:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_wren" type="logic">
+            <obj_property name="ElementShortName">fifo_wren</obj_property>
+            <obj_property name="ObjectShortName">fifo_wren</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_rden" type="logic">
+            <obj_property name="ElementShortName">fifo_rden</obj_property>
+            <obj_property name="ObjectShortName">fifo_rden</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_empty" type="logic">
+            <obj_property name="ElementShortName">fifo_empty</obj_property>
+            <obj_property name="ObjectShortName">fifo_empty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_full" type="logic">
+            <obj_property name="ElementShortName">fifo_full</obj_property>
+            <obj_property name="ObjectShortName">fifo_full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_prog_full" type="logic">
+            <obj_property name="ElementShortName">fifo_prog_full</obj_property>
+            <obj_property name="ObjectShortName">fifo_prog_full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_progempty" type="logic">
+            <obj_property name="ElementShortName">fifo_progempty</obj_property>
+            <obj_property name="ObjectShortName">fifo_progempty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_error" type="logic">
+            <obj_property name="ElementShortName">fifo_error</obj_property>
+            <obj_property name="ObjectShortName">fifo_error</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/fifo_out_user" type="array">
+            <obj_property name="ElementShortName">fifo_out_user[2:0]</obj_property>
+            <obj_property name="ObjectShortName">fifo_out_user[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/ready" type="logic">
+            <obj_property name="ElementShortName">ready</obj_property>
+            <obj_property name="ObjectShortName">ready</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/muxcntr" type="other">
+            <obj_property name="ElementShortName">muxcntr</obj_property>
+            <obj_property name="ObjectShortName">muxcntr</obj_property>
+            <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/muxcntr_r" type="other">
+            <obj_property name="ElementShortName">muxcntr_r</obj_property>
+            <obj_property name="ObjectShortName">muxcntr_r</obj_property>
+            <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/concat_valid" type="logic">
+            <obj_property name="ElementShortName">concat_valid</obj_property>
+            <obj_property name="ObjectShortName">concat_valid</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_FAMILY" type="array">
+            <obj_property name="ElementShortName">C_FAMILY[1:7]</obj_property>
+            <obj_property name="ObjectShortName">C_FAMILY[1:7]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_NROF_DATACONN" type="other">
+            <obj_property name="ElementShortName">C_NROF_DATACONN</obj_property>
+            <obj_property name="ObjectShortName">C_NROF_DATACONN</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_INPUT_DATAWIDTH" type="other">
+            <obj_property name="ElementShortName">C_INPUT_DATAWIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_INPUT_DATAWIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_OUTPUT_DATAWIDTH" type="other">
+            <obj_property name="ElementShortName">C_OUTPUT_DATAWIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_OUTPUT_DATAWIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_S_AXIS_TDATA_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_S_AXIS_TDATA_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_S_AXIS_TDATA_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_AXIS_TID_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_AXIS_TID_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_AXIS_TID_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_AXIS_TDEST_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_AXIS_TDEST_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_AXIS_TDEST_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_M_AXIS_TDATA_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_M_AXIS_TDATA_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_M_AXIS_TDATA_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_S_AXIS_TUSER_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_S_AXIS_TUSER_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_S_AXIS_TUSER_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/C_M_AXIS_TUSER_WIDTH" type="other">
+            <obj_property name="ElementShortName">C_M_AXIS_TUSER_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">C_M_AXIS_TUSER_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_DATA_WIDTH" type="other">
+            <obj_property name="ElementShortName">FIFO_DATA_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">FIFO_DATA_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_PIXELS_PER_WORD" type="other">
+            <obj_property name="ElementShortName">FIFO_PIXELS_PER_WORD</obj_property>
+            <obj_property name="ObjectShortName">FIFO_PIXELS_PER_WORD</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/FIFO_WORD_WIDTH" type="other">
+            <obj_property name="ElementShortName">FIFO_WORD_WIDTH</obj_property>
+            <obj_property name="ObjectShortName">FIFO_WORD_WIDTH</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/MUXOFFSET" type="other">
+            <obj_property name="ElementShortName">MUXOFFSET</obj_property>
+            <obj_property name="ObjectShortName">MUXOFFSET</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/xgs12m_remapper_0/U0/gearout/zero_padding" type="array">
+            <obj_property name="ElementShortName">zero_padding[3:0]</obj_property>
+            <obj_property name="ObjectShortName">zero_padding[3:0]</obj_property>
          </wvobject>
       </wvobject>
    </wvobject>
