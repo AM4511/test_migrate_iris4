@@ -42,8 +42,6 @@ module TB_xgs12m_receiver(  );
  wire Vcc  = 1;
  wire Grnd = 0; 
   
- bit XGS_MODEL_EXTCLK  = 0;
- bit XGS_MODEL_RESET_B = 0;
 
  wire [5:0]  Sensor_HiSPI_clkP;
  wire [5:0]  Sensor_HiSPI_clkN;
@@ -60,24 +58,115 @@ module TB_xgs12m_receiver(  );
  wire [11:0] Bottom_HiSPI_dataP;
  wire [11:0] Bottom_HiSPI_dataN;
  
- reg XGS_MODEL_SCLK;   
- reg XGS_MODEL_SDATA;  
- reg XGS_MODEL_CS;     
- reg XGS_MODEL_SDATAOUT;
+ bit  xgs_power_good =0;
+ wire xgs_reset_n;
+ wire xgs_clk_pll_en;
+ bit  xgs_extclk  = 0;
  
- bit trigger_int = 0;
+ wire xgs_sclk;   
+ wire xgs_mosi;  
+ wire xgs_cs_n;     
+ wire xgs_miso;
+
+ wire xgs_monitor0;
+ wire xgs_monitor1;
+ wire xgs_monitor2;
+ 
+ wire xgs_trig_int;
+ wire xgs_trig_rd;
+ 
+ //bit trigger_int = 0;
+
  bit [15:0] line_time   = 16'h00e6;  //default model
+ 
+ int EmbededLine; 
+ int DummyLines;
+ int MLines; 
+ int Jitter; 
+
+ 
+ int ROI_YSTART;
+ int ROI_YSIZE; 
+ int EXPOSURE;  
+ 
+ bit [23:0] readout_length;
+ bit [23:0] LINE_TIME_sysclk;
+ bit [23:0] KEEP_OUT_TRIG_sysclk;
+  
+ bit [4:0] monitor_0_reg;
+ bit [4:0] monitor_1_reg;  
+ bit [4:0] monitor_2_reg;
+
+   
+ real xgs_ctrl_period     = 10.0;
+ real xgs_bitrate_period  = (1000.0/32.4)/(2.0*12.0);  //32.4Mhz ref clk*2 /12 bits per clk
+ 
  
  bit XGS_MODEL_SLAVE_TRIGGERED_MODE =1;
  
- XGS_PYTHON_IF xgs_spi();
+ //XGS_PYTHON_IF xgs_spi();
  
  xil_axi_resp_t resp;
+
+
+ 
+ 
+  task automatic XGS_WriteSPI(input int add, input int data);
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0160, prot, (data<<16) + add, resp);  
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0158, prot, (0<<16) + 1, resp);               // write cmd "WRITE SERIAL" into fifo
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0158, prot, 1<<4, resp);                      // read from fifo
+  endtask : XGS_WriteSPI 
+  
+    
+  task automatic XGS_ReadSPI(input int add, output int data);
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0160, prot, add, resp);  
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0158, prot, (1<<16) + 1, resp);               // write cmd "READ SERIAL" into fifo
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0158, prot, 1<<4, resp);                      // read from fifo      
+
+    //wait for read access to be done, and return data to SV
+    do 
+    begin
+      master_agent.AXI4LITE_READ_BURST(xgs_ctrl_addr+32'h00000168, prot, data_rd, resp);
+    end
+    while(data_rd[16]==1); 
+
+    data= data_rd & 32'h0000ffff;      
+  endtask : XGS_ReadSPI   
+
+ 
+ 
+
+
  
  xgs12m_receiver_wrapper DUT(   .REFCLK(REFCLK),
                                 .aclk(aclk),
                                 .aresetn(aresetn),
+                                                                
+                                .XGS_CTRL_IF_xgs_power_good(xgs_power_good),
+                                .XGS_CTRL_IF_xgs_reset_n(xgs_reset_n),
+                                .XGS_CTRL_IF_xgs_clk_pll_en(xgs_clk_pll_en),
+
+                                .XGS_CTRL_IF_xgs_monitor0(xgs_monitor0),
+                                .XGS_CTRL_IF_xgs_monitor1(xgs_monitor1),
+                                .XGS_CTRL_IF_xgs_monitor2(xgs_monitor2),
                                 
+                                .XGS_CTRL_IF_xgs_trig_int(xgs_trig_int),
+                                .XGS_CTRL_IF_xgs_trig_rd(xgs_trig_rd),
+
+                                
+                                .XGS_CTRL_IF_xgs_fwsi_en(),
+                                .XGS_CTRL_IF_xgs_sclk(xgs_sclk),
+                                .XGS_CTRL_IF_xgs_cs_n(xgs_cs_n),
+                                .XGS_CTRL_IF_xgs_sdin(xgs_miso),
+                                .XGS_CTRL_IF_xgs_sdout(xgs_mosi),
+                                
+                                .ARES_IF_exposure(),
+                                .ARES_IF_ext_trig(),
+                                .ARES_IF_strobe(),
+                                .ARES_IF_trig_rdy(),
+
+                                .LED_OUT(),                          
+
                                 .GPIO_tri_o(GPIO),
                                 
                                 .M_AXIS_tdata(),
@@ -168,21 +257,21 @@ module TB_xgs12m_receiver(  );
         .DSPARE1 (),
         .DSPARE2 (),
 
-        .TRIGGER_INT(trigger_int), //il va falloir les brancher a l'interne!!!
+        .TRIGGER_INT(xgs_trig_int), 
 
-        .MONITOR0(), //il va falloir les brancher a l'interne!!!
-        .MONITOR1(), //il va falloir les brancher a l'interne!!!
-        .MONITOR2(), //il va falloir les brancher a l'interne!!!                            
+        .MONITOR0(xgs_monitor0),
+        .MONITOR1(xgs_monitor1),
+        .MONITOR2(xgs_monitor2),                            
         
-        .RESET_B(XGS_MODEL_RESET_B), 
-        .EXTCLK(XGS_MODEL_EXTCLK),  
+        .RESET_B(xgs_reset_n), 
+        .EXTCLK(xgs_extclk),  
         .FWSI_EN(Vcc), 
 
-        .SCLK(XGS_MODEL_SCLK),   
-        .SDATA(XGS_MODEL_SDATA),  
-        .CS(XGS_MODEL_CS),     
-        .SDATAOUT(XGS_MODEL_SDATAOUT),
-
+        .SCLK(xgs_sclk),   
+        .SDATA(xgs_mosi),  
+        .CS(xgs_cs_n),     
+        .SDATAOUT(xgs_miso),        
+               
         .D_CLK_0_N(Sensor_HiSPI_clkN[0]),
         .D_CLK_0_P(Sensor_HiSPI_clkP[0]),
         .D_CLK_1_N(Sensor_HiSPI_clkN[1]),
@@ -249,79 +338,79 @@ module TB_xgs12m_receiver(  );
  
  
  
- //-----------------------
- // HiSPI : TOP
- //-----------------------
- assign Top_HiSPI_clkP      = Sensor_HiSPI_clkP[2];
- assign Top_HiSPI_clkN      = Sensor_HiSPI_clkN[2];
+  //-----------------------
+  // HiSPI : TOP
+  //-----------------------
+  assign Top_HiSPI_clkP      = Sensor_HiSPI_clkP[2];
+  assign Top_HiSPI_clkN      = Sensor_HiSPI_clkN[2];
+  
+  assign Top_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[0];
+  assign Top_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[2];
+  assign Top_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[4];
+  assign Top_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[6];
+  assign Top_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[8];
+  assign Top_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[10];
+  assign Top_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[12];
+  assign Top_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[14];
+  assign Top_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[16];
+  assign Top_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[18];
+  assign Top_HiSPI_dataP[10] = Sensor_HiSPI_dataP[20];
+  assign Top_HiSPI_dataP[11] = Sensor_HiSPI_dataP[22];
+  
+  assign Top_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[0];
+  assign Top_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[2];
+  assign Top_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[4];
+  assign Top_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[6];
+  assign Top_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[8];
+  assign Top_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[10];
+  assign Top_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[12];
+  assign Top_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[14];
+  assign Top_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[16];
+  assign Top_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[18];
+  assign Top_HiSPI_dataN[10] = Sensor_HiSPI_dataN[20];
+  assign Top_HiSPI_dataN[11] = Sensor_HiSPI_dataN[22]; 
+  
+  //-----------------------
+  // HiSPI : BOTTOM
+  //-----------------------
+  assign Bottom_HiSPI_clkP      = Sensor_HiSPI_clkP[3];
+  assign Bottom_HiSPI_clkN      = Sensor_HiSPI_clkN[3]; 
+  
+  assign Bottom_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[1];
+  assign Bottom_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[3];
+  assign Bottom_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[5];
+  assign Bottom_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[7];
+  assign Bottom_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[9];
+  assign Bottom_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[11];
+  assign Bottom_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[13];
+  assign Bottom_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[15];
+  assign Bottom_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[17];
+  assign Bottom_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[19];
+  assign Bottom_HiSPI_dataP[10] = Sensor_HiSPI_dataP[21];
+  assign Bottom_HiSPI_dataP[11] = Sensor_HiSPI_dataP[23];
+  
+  assign Bottom_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[1];
+  assign Bottom_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[3];
+  assign Bottom_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[5];
+  assign Bottom_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[7];
+  assign Bottom_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[9];
+  assign Bottom_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[11];
+  assign Bottom_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[13];
+  assign Bottom_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[15];
+  assign Bottom_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[17];
+  assign Bottom_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[19];
+  assign Bottom_HiSPI_dataN[10] = Sensor_HiSPI_dataN[21];
+  assign Bottom_HiSPI_dataN[11] = Sensor_HiSPI_dataN[23]; 
+  
+  
+  
+  
+  xgs12m_receiver_axi_vip_0_0_mst_t    master_agent;
+  
+  always #5ns     aclk             = ~aclk;                  //100Mhz regfile
+  always #2500ps  REFCLK           = ~REFCLK;                //200Mhz ref clk IO
+  always #15432ps xgs_extclk       = ~xgs_extclk;            //refclk XGS @ 32.4Mhz
  
- assign Top_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[0];
- assign Top_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[2];
- assign Top_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[4];
- assign Top_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[6];
- assign Top_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[8];
- assign Top_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[10];
- assign Top_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[12];
- assign Top_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[14];
- assign Top_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[16];
- assign Top_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[18];
- assign Top_HiSPI_dataP[10] = Sensor_HiSPI_dataP[20];
- assign Top_HiSPI_dataP[11] = Sensor_HiSPI_dataP[22];
- 
- assign Top_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[0];
- assign Top_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[2];
- assign Top_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[4];
- assign Top_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[6];
- assign Top_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[8];
- assign Top_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[10];
- assign Top_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[12];
- assign Top_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[14];
- assign Top_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[16];
- assign Top_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[18];
- assign Top_HiSPI_dataN[10] = Sensor_HiSPI_dataN[20];
- assign Top_HiSPI_dataN[11] = Sensor_HiSPI_dataN[22]; 
- 
- //-----------------------
- // HiSPI : BOTTOM
- //-----------------------
- assign Bottom_HiSPI_clkP      = Sensor_HiSPI_clkP[3];
- assign Bottom_HiSPI_clkN      = Sensor_HiSPI_clkN[3]; 
- 
- assign Bottom_HiSPI_dataP[0]  = Sensor_HiSPI_dataP[1];
- assign Bottom_HiSPI_dataP[1]  = Sensor_HiSPI_dataP[3];
- assign Bottom_HiSPI_dataP[2]  = Sensor_HiSPI_dataP[5];
- assign Bottom_HiSPI_dataP[3]  = Sensor_HiSPI_dataP[7];
- assign Bottom_HiSPI_dataP[4]  = Sensor_HiSPI_dataP[9];
- assign Bottom_HiSPI_dataP[5]  = Sensor_HiSPI_dataP[11];
- assign Bottom_HiSPI_dataP[6]  = Sensor_HiSPI_dataP[13];
- assign Bottom_HiSPI_dataP[7]  = Sensor_HiSPI_dataP[15];
- assign Bottom_HiSPI_dataP[8]  = Sensor_HiSPI_dataP[17];
- assign Bottom_HiSPI_dataP[9]  = Sensor_HiSPI_dataP[19];
- assign Bottom_HiSPI_dataP[10] = Sensor_HiSPI_dataP[21];
- assign Bottom_HiSPI_dataP[11] = Sensor_HiSPI_dataP[23];
- 
- assign Bottom_HiSPI_dataN[0]  = Sensor_HiSPI_dataN[1];
- assign Bottom_HiSPI_dataN[1]  = Sensor_HiSPI_dataN[3];
- assign Bottom_HiSPI_dataN[2]  = Sensor_HiSPI_dataN[5];
- assign Bottom_HiSPI_dataN[3]  = Sensor_HiSPI_dataN[7];
- assign Bottom_HiSPI_dataN[4]  = Sensor_HiSPI_dataN[9];
- assign Bottom_HiSPI_dataN[5]  = Sensor_HiSPI_dataN[11];
- assign Bottom_HiSPI_dataN[6]  = Sensor_HiSPI_dataN[13];
- assign Bottom_HiSPI_dataN[7]  = Sensor_HiSPI_dataN[15];
- assign Bottom_HiSPI_dataN[8]  = Sensor_HiSPI_dataN[17];
- assign Bottom_HiSPI_dataN[9]  = Sensor_HiSPI_dataN[19];
- assign Bottom_HiSPI_dataN[10] = Sensor_HiSPI_dataN[21];
- assign Bottom_HiSPI_dataN[11] = Sensor_HiSPI_dataN[23]; 
-
-
- 
- 
-xgs12m_receiver_axi_vip_0_0_mst_t    master_agent;
-
-always #5ns     aclk             = ~aclk;                  //100Mhz regfile
-always #2500ps  REFCLK           = ~REFCLK;                //200Mhz ref clk IO
-always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;      //refclk XGS @ 32.4Mhz
-
 
 initial begin    
    
@@ -343,36 +432,40 @@ initial begin
     #50ns
     aresetn = 1;
  
+    #100ns
+    xgs_power_good = 1;    
 
-    // MIn XGS model reset is 30 clk, set it to 50
-    repeat(50)@(posedge XGS_MODEL_EXTCLK);
-    XGS_MODEL_RESET_B = 1'b1;
-    #200us
+
    
     //--------------------------------------------------------
     //
-    // ACCESS XGS CRTL
+    // WakeUP XGS SENSOR : unreset and enable clk to the sensor : SENSOR_POWERUP
     //
     //-------------------------------------------------------              
-    master_agent.AXI4LITE_READ_BURST(xgs_ctrl_addr, prot, data_rd, resp);
-   
-   
+
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0190, prot, 16'h0003, resp);
+    //Clock enable and reset disable
+    do 
+    begin
+      master_agent.AXI4LITE_READ_BURST(xgs_ctrl_addr+32'h00000198, prot, data_rd, resp);
+    end
+    while(data_rd[0]==0); 
+
+    
     //--------------------------------------------------------
     //
     // READ XGS MODEL ID and REVISION
     //
-    //-------------------------------------------------------        
-    xgs_spi.ReadXGS_Model(16'h0000, XGS_data_rd);
-    if(XGS_data_rd==16'h0058) begin
+    //-------------------------------------------------------           
+    XGS_ReadSPI(16'h0000, data_rd);
+    if(data_rd==16'h0058) begin
       $display("XGS Model ID detected is 0x58, XGS12M");
     end
-    if(XGS_data_rd==16'h0358) begin
+    if(data_rd==16'h0358) begin
       $display("XGS Model ID detected is 0x358, XGS5M");
     end
-    
-    xgs_spi.ReadXGS_Model(16'h31FE, XGS_data_rd);
-    $display("Addres 0x31FE : XGS Revision ID detected is %x", XGS_data_rd);
-    
+ 
+
 
     
     //--------------------------------------------------------
@@ -399,17 +492,17 @@ initial begin
     //The commands below specify the register address followed by the register value.
     //In case of I2C, it must use the I2C slave address 0x20/0x21 as defined in the datasheet.
     //- REG Write = 0x3700, 0x001C
-    xgs_spi.WriteXGS_Model(16'h3700,16'h001c);
+    XGS_WriteSPI(16'h3700,16'h001c);
     //- Wait at least 500us for the PLL to start and all clocks to be stable.
     #500us
     //- REG Write = 0x3E3E, 0x0001
-    xgs_spi.WriteXGS_Model(16'h3e3e,16'h0001);
+    XGS_WriteSPI(16'h3e3e,16'h0001);
     
     //jmansill HISPI control common register
-    xgs_spi.WriteXGS_Model(16'h3e28,16'h2507); //mux 4:4
-    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2517); //mux 4:3
-    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2527); //mux 4:2
-    //xgs_spi.WriteXGS_Model(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
+    XGS_WriteSPI(16'h3e28,16'h2507); //mux 4:4
+    //XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
+    //XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
+    //XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
 
 
     
@@ -719,7 +812,7 @@ initial begin
       // 4=diagonal  gary 1x
       // 5=diagonal  gary 3x
       // ... p.26 de la spec!!!
-      xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);  //add=1799
+      XGS_WriteSPI(16'h3e0e,16'h0000);  //add=1799
       
       //- Optional : REG Write = 0x3E10, <test_data_red>
       //- Optional : REG Write = 0x3E12, <test_data_greenr>
@@ -728,27 +821,27 @@ initial begin
       // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
       // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
       test_fixed_data = 16'h00ca;
-      xgs_spi.WriteXGS_Model(16'h3E10, test_fixed_data<<1);
-      xgs_spi.WriteXGS_Model(16'h3E12, test_fixed_data<<1);
-      xgs_spi.WriteXGS_Model(16'h3E14, test_fixed_data<<1);
-      xgs_spi.WriteXGS_Model(16'h3E16, test_fixed_data<<1);      
+      XGS_WriteSPI(16'h3E10, test_fixed_data<<1);
+      XGS_WriteSPI(16'h3E12, test_fixed_data<<1);
+      XGS_WriteSPI(16'h3E14, test_fixed_data<<1);
+      XGS_WriteSPI(16'h3E16, test_fixed_data<<1);      
       
       //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
       test_active_lines = 8;  // 1=1line
-      xgs_spi.WriteXGS_Model(16'h3A08, test_active_lines); // Cc registre est 1 based
+      XGS_WriteSPI(16'h3A08, test_active_lines); // Cc registre est 1 based
       
       //- REG Write = 0x3A06, (number of clock cycles between the start of two rows)
       test_numberclk_between_2lines = 12'h0c8; // 200clk
-      xgs_spi.WriteXGS_Model(16'h3A06, test_numberclk_between_2lines); //Enable test mode(0x8000) + 200clk 
+      XGS_WriteSPI(16'h3A06, test_numberclk_between_2lines); //Enable test mode(0x8000) + 200clk 
            
       //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
       //                             &&  <number of test image frames to be transmitted> 
       test_blank_lines              = 4;       // 0=1line (correction is bellow)
       test_number_frames            = 5;       // 1=1frame
-      xgs_spi.WriteXGS_Model(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) );  //0x8000 is to latch registers
+      XGS_WriteSPI(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) );  //0x8000 is to latch registers
                
       //- REG Write = 0x3A06, (0x8000 is enable test mode)
-      xgs_spi.WriteXGS_Model(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode      
+      XGS_WriteSPI(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode      
       
     end  
     
@@ -756,33 +849,28 @@ initial begin
     
       // jmansill : Slave triggered mode    
       
-      test_active_lines             = 8;                         // One-based
-      line_time                     = 16'h0e6;                   // default in model and in devware is 0xe6, XGS12M register is 0x16e
+      //test_active_lines             = 8;              // One-based
+      line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+                                                       // default              in devware is 0xf4  (18 lanes)
+                                                       // default              in devware is 0x16e (12 lanes)
+                                                       // default              in devware is 0x2dc (6 lanes)  
+                                                       
+      XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
       
-      xgs_spi.WriteXGS_Model(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
+      XGS_WriteSPI(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
       
-      xgs_spi.WriteXGS_Model(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+
+      XGS_WriteSPI(16'h3800,16'h0030);                 // Slave + trigger mode   
+      XGS_WriteSPI(16'h3800,16'h0031);                 // Enable sequencer      
+
+      monitor_0_reg = 16'h6;    // 0x6 : Real Integration  , 0x2 : Integrate
+      monitor_1_reg = 16'h10;   // EFOT indication
+      monitor_2_reg = 16'h1;    // New_line
+      XGS_WriteSPI(16'h3806, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
       
-      xgs_spi.WriteXGS_Model(16'h381c, test_active_lines/4);     // roi0_size  (kernel size is 4 lines)         
-      xgs_spi.WriteXGS_Model(16'h383a, test_active_lines+1);     // frame_length cntx0 <= register_map(1053) :  Active + 1x Embeded 
-      
-      xgs_spi.WriteXGS_Model(16'h3800,16'h0030);                 // Slave + trigger mode   
-      xgs_spi.WriteXGS_Model(16'h3800,16'h0031);                 // Enable sequencer
-      
-      //Simulate a 2 HW triggers here
-      #50us;
-      trigger_int =1;
-      #30us;
-      trigger_int =0;
-      
-      #100us;
-      trigger_int =1;
-      #30us;
-      trigger_int =0;
-    
     end
     
-    
+    #50us    
     
     // XGS MODEL FRAME IS 4176 pixels when test mode !!! 
     // voir p.Figure 37. Pixel Readout Order
@@ -793,10 +881,67 @@ initial begin
     //
     //
 
-     
-     
-    #250us
+    
+    //--------------------------------------------------------
+    //
+    // PROGRAM XGS CONTROLLER
+    //
+    //-------------------------------------------------------            
+    xgs_ctrl_period     = 10.0;
+    xgs_bitrate_period  = (1000.0/32.4)/(2.0);  // 30.864197ns /2
+    
+    LINE_TIME_sysclk     = (line_time*xgs_bitrate_period)/xgs_ctrl_period;
+    KEEP_OUT_TRIG_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //Keepout trigger zone 100ns
+    
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000120, prot, (KEEP_OUT_TRIG_sysclk<<16) + LINE_TIME_sysclk, resp);
+    
+    
+    EmbededLine = 1;         //  1
+    DummyLines  = 0;         //  7 + 4 + 3; // 14 is default in HW
+    MLines      = 0;
+    Jitter      = 1;
+        
+    // Give SPI control to XGS controller   : SENSOR REG_UPDATE =1 
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0190, prot, 16'h0012, resp);
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000238, prot, (0<<16) + 16'h0 , resp);     // For the moment do not use EXP during EFOT feature
+
+    
+    //Set XGS registers
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a0, prot,    0, resp);                 // Subsampling
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a4, prot, 2<<8, resp);                 // Analog Gain
+    
+    ROI_YSTART   =  0; 
+    ROI_YSIZE    =  8;
+    EXPOSURE     = 50;  //in us
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a8, prot, ROI_YSTART/4, resp);                                        // Y START  (kernel is 4)    
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001ac, prot, ROI_YSIZE/4, resp);                                         // Y SIZE   (kernel is 4)  
+    readout_length = (ROI_YSIZE + EmbededLine + DummyLines + MLines + Jitter) * line_time * (xgs_bitrate_period / xgs_ctrl_period); // Calculate readout Length
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000118, prot, (1<<28) + readout_length, resp);                            // readout length +readout_en     
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000128, prot, EXPOSURE * (1000.0 /xgs_ctrl_period) , resp);               // Exposure 50us @100mhz
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(1<<8)+1, resp);                                    // Grab_ctrl: source is immediate + trig_overlap + grab cmd   
+
+    //master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(3<<8)+1, resp);                 // Grab_ctrl: source is sw ss + trig_overlap + grab cmd   
+    //#5us       
+    //master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(3<<8)+(1<<4), resp);            // Grab_ctrl: sw ss !
+  
+    
+    ROI_YSTART   =   8;
+    ROI_YSIZE    =  16;
+    EXPOSURE     = 100;  //in us
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a8, prot, ROI_YSTART/4, resp);                                        // Y START  (kernel is 4)    
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001ac, prot, ROI_YSIZE/4, resp);                                         // Y SIZE   (kernel is 4)  
+    readout_length = (ROI_YSIZE + EmbededLine + DummyLines + MLines + Jitter) * line_time * (xgs_bitrate_period / xgs_ctrl_period); // Calculate readout Length
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000118, prot, (1<<28) + readout_length, resp);                            // readout length +readout_en     
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000128, prot, EXPOSURE * (1000.0 /xgs_ctrl_period) , resp);               // Exposure 50us @100mhz    
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(1<<8)+1, resp);                                    // Grab_ctrl: source is immediate + trig_overlap + grab cmd   
+
+    
+    
+    
+    #1ms
     $finish;
+    
+    
 end
 
 endmodule   
@@ -804,132 +949,5 @@ endmodule
 
 
 
-
-
-
-interface XGS_PYTHON_IF;
-  
-  initial begin
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 1 ;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-  end;
-  
-  //----------------------------------------------
-  // 
-  //----------------------------------------------
-  task automatic WriteXGS_Model(input int add, input int data);
-
-    bit [14:0] model_addr;
-    bit [15:0] model_data;
-    
-    model_addr = add;
-    model_data = data;
-    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0 ;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    #10ns; 
-    
-    //SEND ADDRESS
-    for(int y = 15; y > 0; y -= 1)
-    begin       
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-      TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-      TB_xgs12m_receiver.XGS_MODEL_SDATA = model_addr[(y-1)];
-      #10ns;    
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-      #10ns;  
-    end
-    
-    //SEND WRITE TAG
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;  //Write=0
-    #10ns;    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-    #10ns;   
-
-    //DATA
-    for(int y = 16; y > 0; y -= 1)
-    begin       
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-      TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-      TB_xgs12m_receiver.XGS_MODEL_SDATA = model_data[(y-1)];
-      #10ns;    
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-      #10ns;  
-    end
-    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    #10ns;     
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 1;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    #100ns;     
-    
-  endtask : WriteXGS_Model
-
-  
-  task automatic ReadXGS_Model(input int add, output int data);
-
-    bit [14:0] model_addr;
-    bit [15:0] model_data;
-    
-    model_addr = add;   
-    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    #10ns; 
-    
-    //SEND ADDRESS
-    for(int y = 15; y > 0; y -= 1)
-    begin       
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-      TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-      TB_xgs12m_receiver.XGS_MODEL_SDATA = model_addr[(y-1)];
-      #10ns;    
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-      #10ns;  
-    end
-    
-    //SEND READ TAG
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 1;  //Read=1
-    #10ns;    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-    #10ns;   
-
-    //GET DATA
-    for(int y = 16; y > 0; y -= 1)
-    begin       
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;   
-      TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-      TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;  
-      #10ns;    
-      TB_xgs12m_receiver.XGS_MODEL_SCLK  = 1;
-      model_data[(y-1)]                  = TB_xgs12m_receiver.XGS_MODEL_SDATAOUT ;
-      #10ns;  
-    end
-    
-    data = model_data ;
-    
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 0;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0;
-    #10ns;     
-    TB_xgs12m_receiver.XGS_MODEL_SCLK  = 0;
-    TB_xgs12m_receiver.XGS_MODEL_CS    = 1;
-    TB_xgs12m_receiver.XGS_MODEL_SDATA = 0; 
-    #100ns;     
-    
-    
-  endtask : ReadXGS_Model  
-  
-endinterface : XGS_PYTHON_IF
 
  
