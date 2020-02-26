@@ -34,7 +34,7 @@ set FPGA_IS_NPI_GOLDEN     0
 set FPGA_DEVICE_ID 0
 
 set WORKDIR     $env(IRIS4)/athena
-set IPCORES_DIR $env(IRIS4)/ipcores
+set IPCORES_DIR ${WORKDIR}/ipcores
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 set BACKEND_DIR ${WORKDIR}/backend
 set TCL_DIR     ${BACKEND_DIR}
