@@ -2,7 +2,7 @@
 # File         : create_athena.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/athena/backend/create_athena.tcl
+# Example      : source $env(IRIS4)/athena/backend/artix7/create_athena.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -11,9 +11,10 @@ puts "Running ${myself}"
 
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
+# 0.0.2 : New axiHiSPi
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 2
 
 
 set BASE_NAME athena
@@ -40,7 +41,7 @@ set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
 
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend
+set BACKEND_DIR ${WORKDIR}/backend/artix7
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
 set SRC_DIR     ${WORKDIR}/design
