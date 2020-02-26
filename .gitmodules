@@ -1,7 +1,3 @@
-[submodule "ipcores"]
-	path = ipcores
-	url = git@thunder.matrox.com:amarchan/ipcores.git
-	branch = master
 [submodule "athena/ipcores"]
 	path = athena/ipcores
 	url = git@thunder.matrox.com:amarchan/ipcores.git
