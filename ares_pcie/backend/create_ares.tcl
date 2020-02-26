@@ -33,7 +33,7 @@ set FPGA_IS_NPI_GOLDEN     0
 set FPGA_DEVICE_ID 0
 
 set WORKDIR     $env(IRIS4)/ares_pcie
-set IPCORES_DIR "${WORKDIR}/cores $env(IRIS4)/ipcores"
+set IPCORES_DIR [list ${WORKDIR}/cores ${WORKDIR}/ipcores]
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 set BACKEND_DIR ${WORKDIR}/backend
 set TCL_DIR     ${BACKEND_DIR}
