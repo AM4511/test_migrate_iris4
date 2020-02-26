@@ -33,11 +33,13 @@ set FPGA_IS_NPI_GOLDEN     0
 set FPGA_DEVICE_ID 0
 
 set WORKDIR     $env(IRIS4)/ares_pcie
-set IPCORES_DIR [list ${WORKDIR}/cores ${WORKDIR}/ipcores]
-set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend
-set TCL_DIR     ${BACKEND_DIR}
-set SYSTEM_DIR  ${BACKEND_DIR}
+
+set IPCORES_DIR  ${WORKDIR}/ipcores
+set LOCAL_IP_DIR ${WORKDIR}/local_ip
+set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
+set BACKEND_DIR  ${WORKDIR}/backend
+set TCL_DIR      ${BACKEND_DIR}
+set SYSTEM_DIR   ${BACKEND_DIR}
 
 set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
@@ -83,7 +85,7 @@ set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
 
-set_property  ip_repo_paths  ${IPCORES_DIR} [current_project]
+set_property  ip_repo_paths  [list ${LOCAL_IP_DIR} ${IPCORES_DIR}] [current_project]
 update_ip_catalog
 
 
