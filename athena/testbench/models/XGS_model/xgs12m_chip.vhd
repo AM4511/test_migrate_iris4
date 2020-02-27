@@ -250,6 +250,7 @@ component xgs_sensor_config is
        --Output to Image module
        slave_triggered_mode: out std_logic;
        frame_length        : out std_logic_vector(15 downto 0);
+       roi_start           : out integer range G_PXL_ARRAY_ROWS downto 0;
        roi_size            : out integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : out std_logic;
        cmc_patgen_en       : out std_logic;
@@ -287,6 +288,7 @@ component xgs_image is
        dataline_nxt        : in  std_logic;
        
        frame_length        : in  std_logic_vector(15 downto 0);
+       roi_start           : in  integer range G_PXL_ARRAY_ROWS downto 0;
        roi_size            : in  integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : in  std_logic;
        cmc_patgen_en       : in  std_logic;
@@ -345,8 +347,15 @@ signal line_time           : std_logic_vector(15 downto 0);
 
 signal line_number         : integer;
 signal slave_triggered_mode: std_logic;
+
 signal frame_length        : std_logic_vector(15 downto 0);
+signal frame_length_DB     : std_logic_vector(15 downto 0);
 signal roi_size            : integer range G_PXL_ARRAY_ROWS downto 0;
+signal roi_size_DB         : integer range G_PXL_ARRAY_ROWS downto 0;
+signal roi_start           : integer range G_PXL_ARRAY_ROWS downto 0;
+signal roi_start_DB        : integer range G_PXL_ARRAY_ROWS downto 0;
+
+
 signal ext_emb_data        : std_logic;
 signal cmc_patgen_en       : std_logic;
 signal active_ctxt         : std_logic_vector(2 downto 0);
@@ -434,6 +443,7 @@ begin
        --Output to Image module
        slave_triggered_mode=> slave_triggered_mode,
        frame_length        => frame_length,
+       roi_start           => roi_start,
        roi_size            => roi_size,
        ext_emb_data        => ext_emb_data,
        cmc_patgen_en       => cmc_patgen_en,
@@ -466,8 +476,9 @@ begin
        last_line           => last_line,
        dataline_valid      => dataline_valid,
        dataline_nxt        => dataline_nxt,      
-       frame_length        => frame_length,
-       roi_size            => roi_size,
+       frame_length        => frame_length_DB,
+       roi_start           => roi_start_DB,
+       roi_size            => roi_size_DB,
        ext_emb_data        => ext_emb_data,
        cmc_patgen_en       => cmc_patgen_en,
        active_ctxt         => active_ctxt,
@@ -836,8 +847,8 @@ begin
    DSPARE1      <= 'Z';
    DSPARE2      <= 'Z';
    
-   MONITOR0     <= 'Z';
-   MONITOR1     <= 'Z';
+   MONITOR0     <= INTEGRATION;
+   MONITOR1     <= EFOT;
    MONITOR2     <= 'Z';
 
    
@@ -853,7 +864,7 @@ begin
     wait on TRIGGER_INT'event;     
     if(TRIGGER_INT='1') then
       SFOT            <= '1';     
-      wait for 20us; --SFOT_DURATION;            
+      wait for 5us; --SFOT_DURATION;            
       SFOT            <= '0';
     end if;   
   end process;   
@@ -861,7 +872,16 @@ begin
   process is
   begin
     wait on SFOT'event;     
-    if(SFOT='0') then      
+    if(SFOT='1') then   
+     INTEGRATION     <= '0';      
+     EFOT            <= '0';
+     
+     wait for 1us;
+     
+     INTEGRATION     <= '1';      
+     EFOT            <= '0';
+     
+    else      
     
       INTEGRATION     <= '1';      
       EFOT            <= '0';
@@ -872,24 +892,45 @@ begin
         wait until dataline_valid = '0';
       end if;        
       
+      -- Simulate EXPOSURE DURING EFOT
+      INTEGRATION     <= '1';      
+      EFOT            <= '1';
+      TRIGGER_READOUT <= '0';
+      wait for 5us;
+      
+      --NO more EXPOSURE during EFOT
       INTEGRATION     <= '0';      
       EFOT            <= '1';
-      TRIGGER_READOUT <= '1';       
+      TRIGGER_READOUT <= '0';
+      wait for 20us;      
       
-      wait for 10ns;
       
       INTEGRATION     <= '0';      
       EFOT            <= '1';
-      TRIGGER_READOUT <= '0'; 
+      TRIGGER_READOUT <= '1';            
+      wait for 20ns;
       
-      wait for 20us; --EFOT_DURATION;        
-
       INTEGRATION     <= '0';      
       EFOT            <= '0';
-      TRIGGER_READOUT <= '0';
+      TRIGGER_READOUT <= '0'; 
+      
+
       
     end if;
   end process;   
    
 
+   
+  process is
+  begin
+    wait on EFOT'event;     
+    if(EFOT='1') then    
+      frame_length_DB   <=  frame_length;
+      roi_size_DB       <=  roi_size;
+      roi_start_DB      <=  roi_start;
+      end if;
+  end process;      
+
+ 
+   
 end behaviour;

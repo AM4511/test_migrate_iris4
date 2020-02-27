@@ -123,6 +123,7 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
+matrox.com:user:axiXGS_controller:1.0\
 xilinx.com:ip:axi_gpio:2.0\
 onsemi.com:user:axi_video_xgs_decoder:2.0\
 xilinx.com:ip:axi_vip:1.1\
@@ -194,18 +195,28 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
+  set ARES_IF [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 ARES_IF ]
   set GPIO [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 GPIO ]
   set M_AXIS [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 M_AXIS ]
+  set XGS_CTRL_IF [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 XGS_CTRL_IF ]
   set xgs_bus_0 [ create_bd_intf_port -mode Slave -vlnv onsemi.com:user:xgs_bus_rtl:1.0 xgs_bus_0 ]
   set xgs_bus_1 [ create_bd_intf_port -mode Slave -vlnv onsemi.com:user:xgs_bus_rtl:1.0 xgs_bus_1 ]
 
   # Create ports
+  set LED_OUT [ create_bd_port -dir O -from 1 -to 0 -type data LED_OUT ]
   set REFCLK [ create_bd_port -dir I REFCLK ]
   set aclk [ create_bd_port -dir I -type clk aclk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {aresetn} \
  ] $aclk
   set aresetn [ create_bd_port -dir I -type rst aresetn ]
+
+  # Create instance: axiXGS_controller_0, and set properties
+  set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+  set_property -dict [ list \
+   CONFIG.G_SIMULATION {1} \
+   CONFIG.G_SYS_CLK_PERIOD {10} \
+ ] $axiXGS_controller_0
 
   # Create instance: axi_gpio_0, and set properties
   set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
@@ -217,7 +228,7 @@ proc create_root_design { parentCell } {
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {7} \
+   CONFIG.NUM_MI {8} \
  ] $axi_interconnect_0
 
   # Create instance: axi_video_xgs_decoder_0, and set properties
@@ -286,6 +297,8 @@ proc create_root_design { parentCell } {
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins axi_vip_0/M_AXI]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports ARES_IF] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports XGS_CTRL_IF] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
   connect_bd_intf_net -intf_net axi_gpio_0_GPIO [get_bd_intf_ports GPIO] [get_bd_intf_pins axi_gpio_0/GPIO]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_gpio_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins axi_xgs_hispi_deser_0/S00_AXI]
@@ -294,6 +307,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_interconnect_0_M04_AXI [get_bd_intf_pins axi_interconnect_0/M04_AXI] [get_bd_intf_pins axi_video_xgs_decoder_1/S00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M05_AXI [get_bd_intf_pins axi_interconnect_0/M05_AXI] [get_bd_intf_pins xgs12m_remapper_0/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M06_AXI [get_bd_intf_pins axi_interconnect_0/M06_AXI] [get_bd_intf_pins test_pattern_generat_0/s00_axi]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M07_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M07_AXI]
   connect_bd_intf_net -intf_net axi_video_xgs_decoder_0_M_AXIS_VIDEO [get_bd_intf_pins axi_video_xgs_decoder_0/M_AXIS_VIDEO] [get_bd_intf_pins axis_combiner_0/S00_AXIS]
   connect_bd_intf_net -intf_net axi_video_xgs_decoder_1_M_AXIS_VIDEO [get_bd_intf_pins axi_video_xgs_decoder_1/M_AXIS_VIDEO] [get_bd_intf_pins axis_combiner_0/S01_AXIS]
   connect_bd_intf_net -intf_net axi_xgs_hispi_deser_0_M_AXIS [get_bd_intf_pins axi_video_xgs_decoder_0/S00_AXIS] [get_bd_intf_pins axi_xgs_hispi_deser_0/M_AXIS]
@@ -307,14 +321,16 @@ proc create_root_design { parentCell } {
 
   # Create port connections
   connect_bd_net -net REFCLK_1 [get_bd_ports REFCLK] [get_bd_pins axi_xgs_hispi_deser_0/REFCLK] [get_bd_pins axi_xgs_hispi_deser_1/REFCLK]
-  connect_bd_net -net aclk_0_1 [get_bd_ports aclk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/M04_ACLK] [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_video_xgs_decoder_0/M_AXIS_VIDEO_ACLK] [get_bd_pins axi_video_xgs_decoder_0/S00_AXI_ACLK] [get_bd_pins axi_video_xgs_decoder_1/M_AXIS_VIDEO_ACLK] [get_bd_pins axi_video_xgs_decoder_1/S00_AXI_ACLK] [get_bd_pins axi_vip_0/aclk] [get_bd_pins axi_xgs_hispi_deser_0/M_AXIS_ACLK] [get_bd_pins axi_xgs_hispi_deser_0/S00_AXI_ACLK] [get_bd_pins axi_xgs_hispi_deser_1/M_AXIS_ACLK] [get_bd_pins axi_xgs_hispi_deser_1/S00_AXI_ACLK] [get_bd_pins axis_combiner_0/aclk] [get_bd_pins axis_switch_0/aclk] [get_bd_pins test_pattern_generat_0/m00_axis_aclk] [get_bd_pins test_pattern_generat_0/s00_axi_aclk] [get_bd_pins xgs12m_remapper_0/AXIS_VIDEO_ACLK] [get_bd_pins xgs12m_remapper_0/S_AXI_ACLK]
-  connect_bd_net -net aresetn_0_1 [get_bd_ports aresetn] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_video_xgs_decoder_0/M_AXIS_VIDEO_ARESETN] [get_bd_pins axi_video_xgs_decoder_0/S00_AXI_ARESETN] [get_bd_pins axi_video_xgs_decoder_1/M_AXIS_VIDEO_ARESETN] [get_bd_pins axi_video_xgs_decoder_1/S00_AXI_ARESETN] [get_bd_pins axi_vip_0/aresetn] [get_bd_pins axi_xgs_hispi_deser_0/M_AXIS_ARESETN] [get_bd_pins axi_xgs_hispi_deser_0/S00_AXI_ARESETN] [get_bd_pins axi_xgs_hispi_deser_1/M_AXIS_ARESETN] [get_bd_pins axi_xgs_hispi_deser_1/S00_AXI_ARESETN] [get_bd_pins axis_combiner_0/aresetn] [get_bd_pins axis_switch_0/aresetn] [get_bd_pins test_pattern_generat_0/m00_axis_aresetn] [get_bd_pins test_pattern_generat_0/s00_axi_aresetn] [get_bd_pins xgs12m_remapper_0/AXIS_VIDEO_ARESETN] [get_bd_pins xgs12m_remapper_0/S_AXI_ARESETN]
+  connect_bd_net -net aclk_0_1 [get_bd_ports aclk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/M04_ACLK] [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins axi_interconnect_0/M07_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_video_xgs_decoder_0/M_AXIS_VIDEO_ACLK] [get_bd_pins axi_video_xgs_decoder_0/S00_AXI_ACLK] [get_bd_pins axi_video_xgs_decoder_1/M_AXIS_VIDEO_ACLK] [get_bd_pins axi_video_xgs_decoder_1/S00_AXI_ACLK] [get_bd_pins axi_vip_0/aclk] [get_bd_pins axi_xgs_hispi_deser_0/M_AXIS_ACLK] [get_bd_pins axi_xgs_hispi_deser_0/S00_AXI_ACLK] [get_bd_pins axi_xgs_hispi_deser_1/M_AXIS_ACLK] [get_bd_pins axi_xgs_hispi_deser_1/S00_AXI_ACLK] [get_bd_pins axis_combiner_0/aclk] [get_bd_pins axis_switch_0/aclk] [get_bd_pins test_pattern_generat_0/m00_axis_aclk] [get_bd_pins test_pattern_generat_0/s00_axi_aclk] [get_bd_pins xgs12m_remapper_0/AXIS_VIDEO_ACLK] [get_bd_pins xgs12m_remapper_0/S_AXI_ACLK]
+  connect_bd_net -net aresetn_0_1 [get_bd_ports aresetn] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins axi_interconnect_0/M07_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_video_xgs_decoder_0/M_AXIS_VIDEO_ARESETN] [get_bd_pins axi_video_xgs_decoder_0/S00_AXI_ARESETN] [get_bd_pins axi_video_xgs_decoder_1/M_AXIS_VIDEO_ARESETN] [get_bd_pins axi_video_xgs_decoder_1/S00_AXI_ARESETN] [get_bd_pins axi_vip_0/aresetn] [get_bd_pins axi_xgs_hispi_deser_0/M_AXIS_ARESETN] [get_bd_pins axi_xgs_hispi_deser_0/S00_AXI_ARESETN] [get_bd_pins axi_xgs_hispi_deser_1/M_AXIS_ARESETN] [get_bd_pins axi_xgs_hispi_deser_1/S00_AXI_ARESETN] [get_bd_pins axis_combiner_0/aresetn] [get_bd_pins axis_switch_0/aresetn] [get_bd_pins test_pattern_generat_0/m00_axis_aresetn] [get_bd_pins test_pattern_generat_0/s00_axi_aresetn] [get_bd_pins xgs12m_remapper_0/AXIS_VIDEO_ARESETN] [get_bd_pins xgs12m_remapper_0/S_AXI_ARESETN]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports LED_OUT] [get_bd_pins axiXGS_controller_0/led_out]
   connect_bd_net -net axi_video_xgs_decoder_0_EN_DECODER_OUT_1 [get_bd_pins axi_video_xgs_decoder_0/EN_DECODER_IN] [get_bd_pins axi_video_xgs_decoder_0/EN_DECODER_OUT_1]
   connect_bd_net -net axi_video_xgs_decoder_0_EN_DECODER_OUT_2 [get_bd_pins axi_video_xgs_decoder_0/EN_DECODER_OUT_2] [get_bd_pins axi_video_xgs_decoder_1/EN_DECODER_IN]
   connect_bd_net -net axi_xgs_hispi_deser_0_FIFO_EN_OUT [get_bd_pins axi_xgs_hispi_deser_0/FIFO_EN] [get_bd_pins axi_xgs_hispi_deser_0/FIFO_EN_OUT]
   connect_bd_net -net axi_xgs_hispi_deser_1_FIFO_EN_OUT [get_bd_pins axi_xgs_hispi_deser_1/FIFO_EN] [get_bd_pins axi_xgs_hispi_deser_1/FIFO_EN_OUT]
 
   # Create address segments
+  create_bd_addr_seg -range 0x00010000 -offset 0x00020000 [get_bd_addr_spaces axi_vip_0/Master_AXI] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
   create_bd_addr_seg -range 0x00010000 -offset 0x00010000 [get_bd_addr_spaces axi_vip_0/Master_AXI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] SEG_axi_gpio_0_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x000A0000 [get_bd_addr_spaces axi_vip_0/Master_AXI] [get_bd_addr_segs axi_video_xgs_decoder_0/S00_AXI/reg0] SEG_axi_video_xgs_decoder_0_reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x000B0000 [get_bd_addr_spaces axi_vip_0/Master_AXI] [get_bd_addr_segs axi_video_xgs_decoder_1/S00_AXI/reg0] SEG_axi_video_xgs_decoder_1_reg0
