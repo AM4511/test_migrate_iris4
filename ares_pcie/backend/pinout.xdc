@@ -1,4 +1,9 @@
 ####################################################
+## Pinout compatibility
+####################################################
+set_property keep_compatible {xc7a35ticpg236}  [current_design]
+
+####################################################
 ## Pin assignment
 ####################################################
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
