@@ -26,7 +26,7 @@
 #*****************************************************************************************
 # Tcl commands to execute the script in Vivado GUI, update base_path to your environment:
 # 
-# set base_path $env(IRIS4)/athena/XCelerator
+# set base_path $env(IRIS4)/athena/XCelerator ; source $base_path/XGS12000_XCelerator_src/bd/create_XGS12000_XCelerator.tcl
 # source $base_path/XGS12000_XCelerator_src/bd/create_XGS12000_XCelerator.tcl
 #
 #*****************************************************************************************
@@ -181,10 +181,15 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set IP repository paths
 set obj [get_filesets sources_1]
 #set_property "ip_repo_paths" "[file normalize "$origin_dir/../ip"]" $obj
-set_property "ip_repo_paths" "[file normalize "$base_path/XGS12000_XCelerator_src/ip"]" $obj
+#set_property "ip_repo_paths" "[file normalize "$base_path/XGS12000_XCelerator_src/ip"]" $obj
+
+set XAccelerator_IP "$base_path/XGS12000_XCelerator_src/ip"
+set Local_IP        "$base_path/../local_ip"
+set_property "ip_repo_paths"  [list ${XAccelerator_IP} ${Local_IP}] $obj
 
 # Rebuild user ip_repo's index before adding any source files
-update_ip_catalog -rebuild
+update_ip_catalog 
+# -rebuild
 
 # Create BD xgs12m_receiver:
 set design_name xgs12m_receiver

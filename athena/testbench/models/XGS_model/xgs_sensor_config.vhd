@@ -48,7 +48,7 @@ entity xgs_sensor_config is
        reg_rd_data : out std_logic_vector(15 downto 0);
        
        --Output to HiSPi module
-       bit_clock_period    : out time;
+       bit_clock_period    : out time; 
        
        sensor_fsm_state    : out std_logic_vector(4 downto 0);
        
@@ -66,6 +66,7 @@ entity xgs_sensor_config is
        --Output to Image module
        slave_triggered_mode: out std_logic;
        frame_length        : out std_logic_vector(15 downto 0);
+       roi_start           : out integer range G_PXL_ARRAY_ROWS downto 0;
        roi_size            : out integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : out std_logic;
        cmc_patgen_en       : out std_logic;
@@ -202,8 +203,21 @@ sequencer_enable    <= '1' when (register_map(1024)(0) = '1' or (cmc_patgen_enab
 frames              <= register_map(1024)(15 downto 8) when cmc_patgen_enable = '0' else "00" & nb_frame_gen;
 slave_triggered_mode<= '1' when (register_map(1024)(4) = '1' and register_map(1024)(5) = '1') else '0';
 
-frame_length        <= register_map(1053)              when cmc_patgen_enable = '0' else std_logic_vector(to_unsigned(to_integer(unsigned(nb_act_line_gen)) + to_integer(unsigned(inter_frame_gen)) + 1 ,16));
-roi_size            <= to_integer(unsigned(register_map(1038)(13 downto 0)))*4 when cmc_patgen_enable = '0' else to_integer(unsigned(nb_act_line_gen)); --in number of lines
+--jmansill framelength not used in slave mode...
+frame_length        <= std_logic_vector(to_unsigned( 1+4*to_integer(unsigned(register_map(1038)(13 downto 0))),16) )  when (cmc_patgen_enable = '0' and  to_integer(unsigned(register_map(1055)(13 downto 0))) = 1 ) else
+                       std_logic_vector(to_unsigned( 1+4*to_integer(unsigned(register_map(1040)(13 downto 0))),16) )  when (cmc_patgen_enable = '0' and  to_integer(unsigned(register_map(1055)(13 downto 0))) = 2 ) else
+                       std_logic_vector(to_unsigned(to_integer(unsigned(nb_act_line_gen)) + to_integer(unsigned(inter_frame_gen)) + 1 ,16)) when (cmc_patgen_enable = '1') ;
+
+roi_size            <= to_integer(unsigned(register_map(1038)(13 downto 0)))*4      when (cmc_patgen_enable = '0' and  to_integer(unsigned(register_map(1055)(13 downto 0))) = 1 ) else  --ROI0
+                       to_integer(unsigned(register_map(1040)(13 downto 0)))*4      when (cmc_patgen_enable = '0' and  to_integer(unsigned(register_map(1055)(13 downto 0))) = 2 ) else  --ROI1
+                       to_integer(unsigned(nb_act_line_gen))                        when (cmc_patgen_enable = '1');
+
+roi_start           <= to_integer(unsigned(register_map(1037)(13 downto 0)))*4      when (  to_integer(unsigned(register_map(1055)(13 downto 0))) = 1 ) else  --ROI0
+                       to_integer(unsigned(register_map(1039)(13 downto 0)))*4      when (  to_integer(unsigned(register_map(1055)(13 downto 0))) = 2 ) ;     --ROI1
+
+
+
+                       
 ext_emb_data        <= '0';
 
 test_pattern_mode   <= register_map(1799)(2 downto 0);  --Address 0x3E0E

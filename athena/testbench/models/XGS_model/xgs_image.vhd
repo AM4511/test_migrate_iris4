@@ -50,6 +50,7 @@ entity xgs_image is
        dataline_nxt        : in  std_logic;
        
        frame_length        : in  std_logic_vector(15 downto 0);
+       roi_start           : in  integer range G_PXL_ARRAY_ROWS downto 0;
        roi_size            : in  integer range G_PXL_ARRAY_ROWS downto 0;
        ext_emb_data        : in  std_logic;
        cmc_patgen_en       : in  std_logic;
@@ -120,7 +121,8 @@ begin
     else
       if(frame_valid='0' and trigger_int='1') then
         frame_valid <= '1';
-      elsif(line_count = to_integer(unsigned(frame_length)) )then
+      --elsif(line_count = to_integer(unsigned(frame_length)) )then
+      elsif(line_count = to_integer(unsigned(frame_length)) + roi_start )then
         frame_valid <= '0';
       else
         frame_valid <= frame_valid;  
@@ -156,7 +158,8 @@ begin
         --end loop;      
         -- jmansill simple B&W ramp
         for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-          if(line_count>0) then
+          --if(line_count>0) then
+          if(line_count>roi_start) then
             frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));
             frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));  
           else
@@ -672,11 +675,13 @@ LINE_COUNT_PROC : process(dataline_nxt, frame_valid)
 begin
   frame_nxt <= '0';
   if frame_valid = '0' then
-    line_count     <= 0;
-  
+    --line_count     <= 0;
+    line_count     <= roi_start;
+    
   --jmansill
   elsif(slave_triggered_mode='1' and dataline_nxt='1') then 
-    if line_count = to_integer(unsigned(frame_length)) then
+    --if line_count = to_integer(unsigned(frame_length)) then
+    if line_count = to_integer(unsigned(frame_length) + roi_start) then
       frame_nxt  <= '0';
       line_count <= 0;  --ici on va rester a length+1
     else      
@@ -684,7 +689,8 @@ begin
     end if;
     
   elsif(slave_triggered_mode='0' and  dataline_nxt = '1') then
-    if line_count = to_integer(unsigned(frame_length)) then
+    --if line_count = to_integer(unsigned(frame_length)) then
+    if line_count = to_integer(unsigned(frame_length) + roi_start) then
       frame_nxt  <= '1';
       line_count <= 0;
     else      
@@ -694,18 +700,27 @@ begin
    
 end process LINE_COUNT_PROC;
 
-emb_data       <= '1' when (line_count = 0) else '0';
-first_line     <= '1' when line_count = 0 else '0'; 
-last_line      <= '1' when line_count = roi_size else '0'; 
-dataline_valid <= '1' when frame_valid = '1' and line_count <= roi_size else '0';
+--emb_data       <= '1' when (line_count = 0) else '0';
+--first_line     <= '1' when line_count = 0 else '0'; 
+--last_line      <= '1' when line_count = roi_size else '0'; 
+--dataline_valid <= '1' when frame_valid = '1' and line_count <= roi_size else '0';
+
+
+emb_data       <= '1' when (line_count = roi_start) else '0';
+first_line     <= '1' when line_count = roi_start else '0'; 
+last_line      <= '1' when line_count = roi_start+roi_size else '0'; 
+dataline_valid <= '1' when frame_valid = '1' and line_count <= (roi_start+roi_size) else '0';
+
+
 
 DATA_REORDER : process(line_count, frame)
 begin
   --order data lines according to data sent on HiSPi data lanes as specified by the silicon.
   for j in 0 to 2*G_NUM_PHY-1 loop
     for i in 0 to G_PXL_PER_COLRAM-1 loop
-      if line_count = 0 then
-        case frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
+      --if line_count = 0 then
+      if line_count = roi_start then       
+       case frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";   -- il y a t'il une raison pq le pixel0 est converti a 1 ici?????
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
         end case;
