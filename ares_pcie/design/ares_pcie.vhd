@@ -116,11 +116,11 @@ entity ares_pcie is
     hb_ck_n   : out   std_logic;
     hb_cs_n   : out   std_logic;
     hb_dq     : inout std_logic_vector (7 downto 0);
-    hb_int_n  : in    std_logic;
+    --hb_int_n  : in    std_logic;
     hb_rst_n  : out   std_logic;
-    hb_rsto_n : in    std_logic;
+    --hb_rsto_n : in    std_logic;
     hb_rwds   : inout std_logic;
-    hb_wp_n   : out   std_logic;
+    --hb_wp_n   : out   std_logic;
 
     ---------------------------------------------------------------------------
     --  FPGA USER IO interface
@@ -466,11 +466,8 @@ architecture functional of ares_pcie is
       hb_ck_n                    : out   std_logic;
       hb_cs0_n                   : out   std_logic;
       hb_dq                      : inout std_logic_vector (7 downto 0);
-      hb_int_n                   : in    std_logic;
       hb_rst_n                   : out   std_logic;
-      hb_rsto_n                  : in    std_logic;
       hb_rwds                    : inout std_logic;
-      hb_wp_n                    : out   std_logic;
       host_irq                   : out   std_logic;
       ncsi_clk                   : out   std_logic;
       ncsi_crs_dv                : in    std_logic;
@@ -901,11 +898,8 @@ begin
       hb_ck_n                    => hb_ck_n,
       hb_cs0_n                   => hb_cs_n,
       hb_dq                      => hb_dq,
-      hb_int_n                   => hb_int_n,
       hb_rst_n                   => hb_rst_n,
-      hb_rsto_n                  => hb_rsto_n,
       hb_rwds                    => hb_rwds,
-      hb_wp_n                    => hb_wp_n,
       host_irq                   => profinet_irq,
       ncsi_clk                   => ncsi_clk_phase_0,
       ncsi_crs_dv                => ncsi_rx_crs_dv,
