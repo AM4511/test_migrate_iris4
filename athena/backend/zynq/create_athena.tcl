@@ -19,7 +19,7 @@ set FPGA_SUB_MINOR_VERSION 2
 
 set BASE_NAME athena_zynq
 #set DEVICE "xc7a35ticpg236-1L"
-set DEVICE "xc7a50ticpg236-1L"
+set DEVICE "xc7z045ffg900-2"
 set VIVADO_SHORT_VERSION [version -short]
 
 
@@ -75,15 +75,15 @@ cd $PROJECT_DIR
 file delete -force ${PROJECT_NAME}.xpr
 file delete -force ${PROJECT_NAME}.runs
 
-
 ###################################################################################
 # Create the Xilinx project
 ###################################################################################
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
+set_property board_part xilinx.com:zc706:part0:1.4 [current_project]
 
 set_property target_language VHDL [current_project]
 set_property simulator_language Mixed [current_project]
-set_property target_simulator ModelSim [current_project]
+set_property target_simulator XSim [current_project]
 set_property default_lib work [current_project]
 
 set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
