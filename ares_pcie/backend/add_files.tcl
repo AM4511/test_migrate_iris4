@@ -2,8 +2,8 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
-  [file normalize "${WORKDIR}/cores/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
-  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
+  [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
+  [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
   [file normalize "${SRC_DIR}/osirispak.vhd"]\
   [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
   [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
@@ -30,10 +30,6 @@ set FILE_LIST [list \
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
 update_compile_order -fileset ${HDL_FILESET}
 
-#  [file normalize "${SRC_DIR}/internal_logic.vhd"]\
-#  [file normalize "${SRC_DIR}/memory_access.vhd"]\
-#  [file normalize "${SRC_DIR}/spi_if.vhd"]\
-#  [file normalize "${WORKDIR}/cores/xil_cores_artix7/xil_spi_w_fifo/xil_spi_w_fifo.xci"]\
 
 ################################################
 # Add constraints files
@@ -41,7 +37,14 @@ update_compile_order -fileset ${HDL_FILESET}
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/hyperbus.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/ncsi_timings.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/qspi_timing.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
+
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing_late.sdc
+set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/timing_late.sdc]
+
 set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
 set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]

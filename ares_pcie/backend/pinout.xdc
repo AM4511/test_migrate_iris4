@@ -1,4 +1,9 @@
 ####################################################
+## Pinout compatibility
+####################################################
+set_property keep_compatible {xc7a35ticpg236}  [current_design]
+
+####################################################
 ## Pin assignment
 ####################################################
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
@@ -77,6 +82,12 @@ set_property PACKAGE_PIN L3 [get_ports {ncsi_txd[1]}]
 set_property PACKAGE_PIN M2 [get_ports ncsi_rx_crs_dv]
 set_property PACKAGE_PIN N2 [get_ports ncsi_tx_en]
 
+## Set the IOB property on IOs
+set_property IOB TRUE [get_ports ncsi_rxd[*]]
+set_property IOB TRUE [get_ports ncsi_rx_crs_dv]
+set_property IOB TRUE [get_ports ncsi_txd[*]]
+set_property IOB TRUE [get_ports ncsi_tx_en]
+
 
 ####################################################
 ## Configuration flash interface
@@ -95,21 +106,40 @@ set_property PACKAGE_PIN P18 [get_ports hb_ck]
 set_property PACKAGE_PIN R18 [get_ports hb_ck_n]
 set_property PACKAGE_PIN T17 [get_ports hb_cs_n]
 
-set_property PACKAGE_PIN W13 [get_ports {hb_dq[0]}]
-set_property PACKAGE_PIN V13 [get_ports {hb_dq[1]}]
-set_property PACKAGE_PIN W14 [get_ports {hb_dq[2]}]
-set_property PACKAGE_PIN V14 [get_ports {hb_dq[3]}]
-set_property PACKAGE_PIN U14 [get_ports {hb_dq[4]}]
+# ###################################################
+# This was the pinout before board design review
+# set_property PACKAGE_PIN W13 [get_ports {hb_dq[0]}]
+# set_property PACKAGE_PIN V13 [get_ports {hb_dq[1]}]
+# set_property PACKAGE_PIN W14 [get_ports {hb_dq[2]}]
+# set_property PACKAGE_PIN V14 [get_ports {hb_dq[3]}]
+# set_property PACKAGE_PIN U14 [get_ports {hb_dq[4]}]
+# set_property PACKAGE_PIN W15 [get_ports {hb_dq[5]}]
+# set_property PACKAGE_PIN V15 [get_ports {hb_dq[6]}]
+# set_property PACKAGE_PIN U15 [get_ports {hb_dq[7]}]
+# ###################################################
+
+
+# ###################################################
+# This is the new Hyper bus pinout after the design 
+# review. The modifications were induced by the pin  
+# swapping in the cad (Board layout). AM - 28/02/2020
+# ###################################################
+set_property PACKAGE_PIN V14 [get_ports {hb_dq[0]}]
+set_property PACKAGE_PIN V15 [get_ports {hb_dq[1]}]
+set_property PACKAGE_PIN W13 [get_ports {hb_dq[2]}]
+set_property PACKAGE_PIN W14 [get_ports {hb_dq[3]}]
+set_property PACKAGE_PIN V13 [get_ports {hb_dq[4]}]
 set_property PACKAGE_PIN W15 [get_ports {hb_dq[5]}]
-set_property PACKAGE_PIN V15 [get_ports {hb_dq[6]}]
-set_property PACKAGE_PIN U15 [get_ports {hb_dq[7]}]
+set_property PACKAGE_PIN U15 [get_ports {hb_dq[6]}]
+set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
+
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
 set_property PACKAGE_PIN V16 [get_ports hb_rwds]
-set_property PACKAGE_PIN U16 [get_ports hb_wp_n]
 
-set_property PACKAGE_PIN U19 [get_ports hb_int_n]
-set_property PACKAGE_PIN V19 [get_ports hb_rsto_n]
+# set_property PACKAGE_PIN U16 [get_ports hb_wp_n]
+# set_property PACKAGE_PIN U19 [get_ports hb_int_n]
+# set_property PACKAGE_PIN V19 [get_ports hb_rsto_n]
 
 
 set_property PACKAGE_PIN V2 [get_ports pwm_out]
@@ -157,8 +187,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[0]}]
 
 
-set_property IOSTANDARD LVCMOS18 [get_ports hb_rsto_n]
-set_property IOSTANDARD LVCMOS18 [get_ports hb_int_n]
+# set_property IOSTANDARD LVCMOS18 [get_ports hb_rsto_n]
+# set_property IOSTANDARD LVCMOS18 [get_ports hb_int_n]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[7]}]
 set_property DRIVE 4 [get_ports {hb_dq[7]}]
 set_property SLEW SLOW [get_ports {hb_dq[7]}]
@@ -195,9 +225,9 @@ set_property SLEW SLOW [get_ports hb_ck_n]
 set_property IOSTANDARD LVCMOS18 [get_ports hb_ck]
 set_property DRIVE 4 [get_ports hb_ck]
 set_property SLEW SLOW [get_ports hb_ck]
-set_property IOSTANDARD LVCMOS18 [get_ports hb_wp_n]
-set_property DRIVE 4 [get_ports hb_wp_n]
-set_property SLEW SLOW [get_ports hb_wp_n]
+# set_property IOSTANDARD LVCMOS18 [get_ports hb_wp_n]
+# set_property DRIVE 4 [get_ports hb_wp_n]
+# set_property SLEW SLOW [get_ports hb_wp_n]
 set_property IOSTANDARD LVCMOS18 [get_ports espi_clk]
 set_property IOSTANDARD LVCMOS18 [get_ports espi_cs_n]
 set_property IOSTANDARD LVCMOS18 [get_ports espi_reset_n]
@@ -257,6 +287,7 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
 
 
 

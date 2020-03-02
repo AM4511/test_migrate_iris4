@@ -2,7 +2,7 @@
 # File         : create_csib.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares_pcie_hr_xc7a50t.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares.tcl
 # 
 # ##################################################################################
 set myself [info script]
@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  ares_pcie_xc7a50t
+set BASE_NAME  ares_xc7a50t
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -26,27 +26,27 @@ set FPGA_IS_NPI_GOLDEN     0
 
 
 # FPGA_DEVICE_ID (DEVICE ID MAP) :
-#  0      : xc7z015iclg485-1
-#  1      : TBD
+#  0      : xc7a50ticpg236-1L
+#  1      : xc7a35ticpg236-1L
 #  2      : TBD
 #  Others : reserved
 set FPGA_DEVICE_ID 0
 
 set WORKDIR     $env(IRIS4)/ares_pcie
-set IPCORES_DIR "${WORKDIR}/cores $env(IRIS4)/csib/ipcores"
-set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend
-set TCL_DIR     ${BACKEND_DIR}
-set SYSTEM_DIR  ${BACKEND_DIR}
+
+set IPCORES_DIR  ${WORKDIR}/ipcores
+set LOCAL_IP_DIR ${WORKDIR}/local_ip
+set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
+set BACKEND_DIR  ${WORKDIR}/backend
+set TCL_DIR      ${BACKEND_DIR}
+set SYSTEM_DIR   ${BACKEND_DIR}
 
 set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
-set SDK_DIR            ${WORKDIR}/sdk
 set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ares_pb.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 
 
@@ -85,7 +85,7 @@ set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
 
-set_property  ip_repo_paths  ${IPCORES_DIR} [current_project]
+set_property  ip_repo_paths  [list ${LOCAL_IP_DIR} ${IPCORES_DIR}] [current_project]
 update_ip_catalog
 
 
@@ -98,8 +98,8 @@ set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 source ${AXI_SYSTEM_BD_FILE}
 regenerate_bd_layout
-validate_bd_design
-save_bd_design
+#validate_bd_design
+#save_bd_design
 
 
 ## Create the Wrapper file

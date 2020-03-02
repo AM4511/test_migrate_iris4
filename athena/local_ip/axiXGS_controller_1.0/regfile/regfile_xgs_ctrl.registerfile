@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="12" name="regfile_xgs_ctrl">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="SYSTEM" endAddress="30">
+    <registers name="ID" alias="" description="Static ID" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="11">
+      <fields name="StaticID" alias="MINUTEs of the build" description="" size="32" valueAtReset="CAFE0CCD" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ACQ_CAP" offsetFromParent="30">
+      <fields name="DPC" description="This field indicate if the Dead Pixel Corection is implemented in the fpga. " lsb="15" valueAtReset="1" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>DPC is not implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>DPC is implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="EXP_FOT" description="This field indicate if the Exposure during FOT is implemented in the fpga." lsb="14" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="FPN_73" alias="FPN 7.3 correction CAP" description="This field indicate if the FPN correction 7.3 is implemented instead the default 5.3 in the FPGA acquisition." lsb="13" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Default 5.3 FPN correction  implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>New 7.3 FPN correction  implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="COLOR" description="This field indicate if the COLOR path is implemented in the FPGA acquisition." lsb="12" readWrite="false" readOnly="true"/>
+      <fields name="CH_LVDS" description="This is the number of  LVDS DATA channels connected between the CMOS sensor and the FPGA. This number does not include the LVDS CTROL channel." lsb="8" size="4" readWrite="false" readOnly="true"/>
+      <fields name="LUT_WIDTH" description="This is the LUT width implemented in the acquisition core." lsb="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LUT 10 to 10 Bits&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LUT 10 to 8 Bits&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_PALETTE" description="This is the number of LUT palette implemented in the acquisition module" size="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No LUT implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1 LUT implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>2 LUT implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="24C">
+    <registers name="GRAB_CTRL" alias="GRAB ConTRoL Register" description="Grag Control Register" useReservedSpaceBelow="true" address="118">
+      <fields name="RESET_GRAB" description="This register resets the entire python_ctrl." lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset not active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_ROI2_EN" description="Enable the second ROI  on the frame (KNS). This register is not DB.&#xD;&#xA;1) No Y overlap is allowed&#xD;&#xA;2) Xsize must be the same for the two ROI for the moment(DMA constraint).&#xD;&#xA;3) EOF and SOF in between the two in-frame ROIs will be masked to the DMA. The DMA will see one frame, with the two ROI inside.&#xD;&#xA;" lsb="29">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Dual ROI disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Dual ROI enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ABORT_GRAB" alias="ABORT GRAB" description="This is the grab reset, it will reset all the grab queued." lsb="28" readWrite="false" writeOnly="true" readOnlyMsb="5">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset Grab&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_OVERLAP_BUFFn" description="NOT FULLY VALIDATED. &#xD;&#xA;DON'T USE.&#xD;&#xA;SET IT TO '0'." lsb="16">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Buffer the trigger received during the dead window in PET mode and execute&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The trigger will be ignored during dead window in PET mode.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_OVERLAP" description="This field enables the trigger overlap. In this mode the exposure and the readout of the sensor can be done in parallel for higher framerates." lsb="15" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Overlap disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Overlap enable (default)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_ACT" alias="TRIGGER ACTivation" description="This is the trigger activation . This register selects the activation of the trigger when the trigger source is set to Hardware Snapshop mode . &#xD;&#xA;This register is Double Buffered, so the trigger activation may change from one grab command to another.&#xD;&#xA;&#xD;&#xA;In activation Level HI/LO with EXPOSURE_MODE register set to Timed, the camera will be triggered in continuous way if the level of the external trigger remains at the LEVEL programmed in this register.&#xD;&#xA;&#xD;&#xA;In activation Level HI/LO with EXPOSURE_MODE register set to Trigger Width, the Exposure time will be set by the level of the trigger input. The FPGA exposure regsiters will be ignored. The Dual and Triple slope are not supported in the mode." lsb="12" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rising edge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Falling edge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rising or Falling edge&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Level HI &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Level LO&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_SRC" alias="TRIGGER SouRCe" description="This is the trigger source. This register selects the source of the grab trigger. This register is Double Buffered, so the trigger source may change from one grab command to another. &#xD;&#xA;TRIGGER_SRC(1) may be seen as a TRIGGER_STATE by the software driver.&#xD;&#xA;" lsb="8" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Immediate mode (Continuous)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Hardware Snapshop mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Software Snapshot mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>SFNC mode (auto trig)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_SS" alias="GRAB Software Snapshot" description="This is the software snapshot register when the trigger source selected is Software Snapshot mode." lsb="4" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start a grab&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="BUFFER_ID" description="This is the ID of the DMA parameters to associate with this grab command." lsb="1"/>
+      <fields name="GRAB_CMD" alias="GRAB CoMmanD" description="This is MIL GRAB command.  &#xD;&#xA;&#xD;&#xA;When the trigger source is set to Immediate mode(Continuous), an exposure sequence will be automatically executed. When the trigger source is set to Software Snapshop mode or Hardware Snapshop mode, GRAB_CMD will act as an ARM.&#xD;&#xA;&#xD;&#xA;The GRAB_CMD will take around 13 clks to reccord the grab parametters to the SPI fifo. The GRAB_CMD_DONE register may be readed to avoid fifo corruption before sending another Grab command instruction." readWrite="false" writeOnly="true" readOnlyMsb="16">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start grab command&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="GRAB_STAT" offsetFromParent="8" useReservedSpaceBelow="true">
+      <fields name="GRAB_CMD_DONE" alias="GRAB CoMmanD DONE" description="The GRAB_CMD will take around 13 clks to reccord the grab parametters to the SPI fifo. This register may be readed to avoid fifo corruption before sending another Grab command instruction.&#xD;&#xA;" lsb="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab Command in process&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab command idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ABORT_PET" alias="ABORT during PET" description="This is the ABORT PET flag. It is set to '1' when an abort is detected in the PETengin phase of the trigger. It is set back to '0' when ABORT_DONE is set to '1'." lsb="30" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort in PET Phase idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort in PET Phase active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ABORT_DELAI" description="This is the ABORT DELAI flag. It is set to '1' when an abort is detected in the delai phase of the trigger. It is set back to '0' when ABORT_DONE is set to '1'." lsb="29" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort in Delai Phase idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort in Delai Phase active&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ABORT_DONE" alias="ABORT is DONE" description="This read-only field indicates the RESET_GRAB command status. If 0, an abort sequence is executing." lsb="28" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort sequence not finished yet&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Abort DONE, or not started (reset value)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_RDY" lsb="24" readWrite="false" readOnly="true"/>
+      <fields name="ABORT_MNGR_STAT" description="DEBUG ABORT MANAGER STATE MACHINE" lsb="20" size="3" readWrite="false" readOnly="true"/>
+      <fields name="TRIG_MNGR_STAT" description="DEBUG TRIGGER MANAGER STATE MACHINE" lsb="16" size="4" readWrite="false" readOnly="true"/>
+      <fields name="TIMER_MNGR_STAT" description="DEBUG TIMER MANAGER STATE MACHINE" lsb="12" size="3" readWrite="false" readOnly="true"/>
+      <fields name="GRAB_MNGR_STAT" description="DEBUG GRAB MANAGER STATE MACHINE" lsb="8" size="4" readWrite="false" readOnly="true"/>
+      <fields name="GRAB_FOT" alias="GRAB Field Overhead Time" description="This is the sensor FOT (Field Overhead Time). " lsb="6" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not in FOT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>In FOT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_READOUT" description="This is the sensor readout status. It goes to '1' on the SO_FOT and goes to '0' when the datapath decoder decodes the end of frame." lsb="5" readWrite="false" readOnly="true"/>
+      <fields name="GRAB_EXPOSURE" description="This is the sensor integration status" lsb="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Integrating&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_PENDING" description="Grab pending status. When this register is set to one, a second grab command is queued in the fpga." lsb="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No grab pending&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab pending&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_ACTIVE" description="Grab active status. When this register is set to one, at least one grab command has been received." lsb="1" readWrite="false" readOnly="true"/>
+      <fields name="GRAB_IDLE" description="GRAB IDLE status. When this register is set to '1', The grab engin is in idle state.&#xD;&#xA;&#xD;&#xA;" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab is in proccess&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab is Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="READOUT_CFG1" offsetFromParent="10" useReservedSpaceBelow="true">
+      <fields name="GRAB_REVX_OVER_RST" description="This field reset the reverseX overrun flag GRAB_REVX_OVER. " lsb="30" readWrite="false" writeOnly="true"/>
+      <fields name="GRAB_REVX_OVER" description="This field informs the software that a reverseX overrun has been detected. When this status bit is set to '1' by the fpga, it will remain at '1' until it is reset by the field GRAB_REVX_OVER_RST." lsb="29" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No ReverseX Overrun detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>At least one ReverseX Overrun was detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="GRAB_REVX" lsb="28"/>
+      <fields name="ROT_LENGTH" alias="Row Overhead Time LENGTH" description="This is the length of the Row Overhead Time.&#xD;&#xA;&#xD;&#xA;[NOT USED FOR THE MOMENT- FOR FUTURE USE]" lsb="16" size="10" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 8 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FOT_LENGTH" alias="Frame Overhead Time LENGTH" description="This is the length of the Frame Overhead Time.&#xD;&#xA;&#xD;&#xA;[NOT USED FOR THE MOMENT- FOR FUTURE USE]" size="16" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bit value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="READOUT_CFG2" offsetFromParent="18" useReservedSpaceBelow="true">
+      <fields name="READOUT_EN" alias="READOUT ENable" description="This is the readout enable register. This register can be used to mask a readout in the sensor datapath by masking the &quot;Arm datapath&quot; signal generated by the controller. It can be used to mask a readout if a dummy grab is needed.&#xD;&#xA;This register is double buffered." lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable readout&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable readout &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="READOUT_LENGTH" description="This is the readout length register. This register is a register software calculated that gives the readout lenght to the grab engin. This register will depend on the ROI, Subsampling, Binning and LVDS channels used. It is used in the PET engin calculations. In Sys_Clock domain." size="24">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 24 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="READOUT_CFG3" offsetFromParent="20" useReservedSpaceBelow="true">
+      <fields name="KEEP_OUT_TRIG" lsb="16" size="16"/>
+      <fields name="LINE_TIME" alias="LINE TIME" description="Line Time Unit is Sequencer Clock Cycles" size="16">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> between 1 and 255&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="EXP_CTRL1" offsetFromParent="28" useReservedSpaceBelow="true">
+      <fields name="EXPOSURE_LEV_MODE" alias="EXPOSURE LEVel MODE" description="This is the exposure level mode selector. When selecting the TRIGGER ACTIVATION = Level Mode, this register selects the exposure method used. When this register is set to '0' the timed mode is selected; Register EXPOSURE_SS is used for the exposure time. When this register is set to '1' the external trigger width  is used for the exposure time. " lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Timed Mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Trigger Width&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="EXPOSURE_SS" alias="EXPOSURE Single Slope" description="This is the total exposure time in single/dual/triple slope mode.&#xD;&#xA;&#xD;&#xA;This register is double buffered." size="28">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="EXP_CTRL2" offsetFromParent="30" useReservedSpaceBelow="true">
+      <fields name="EXPOSURE_DS" alias="EXPOSURE Dual Slope" description="During the total exposure time defined in register EXPOSURE_SS, the register EXPOSURE_DS define time of the 'kneepoint 1'. The value of EXPOSURE_DS is always lower than EXPOSURE_SS and EXPOSURE_TS.&#xD;&#xA;&#xD;&#xA;This register is double buffered." size="28">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="EXP_CTRL3" offsetFromParent="38" useReservedSpaceBelow="true">
+      <fields name="EXPOSURE_TS" alias="EXPOSURE Tripple Slope" description="During the total exposure time defined in register EXPOSURE_SS, the register EXPOSURE_TS define time of the 'kneepoint2'. The value of EXPOSURE_TS is always lower than EXPOSURE_SS and higher than EXPOSURE_DS.&#xD;&#xA;&#xD;&#xA;This register is double buffered." size="28">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TRIGGER_DELAY" offsetFromParent="40" useReservedSpaceBelow="true">
+      <fields name="TRIGGER_DELAY" alias="TRIGGER DELAY" description="This is the trigger delay. This trigger delay can be applied to HW(Only edge mode), SW and Continuous mode.&#xD;&#xA;&#xD;&#xA;In HW level mode, the trigger cannot be delayed, since the level time represents the exposure time. &#xD;&#xA;&#xD;&#xA;This register is double buffered" size="28">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="STROBE_CTRL1" offsetFromParent="48" useReservedSpaceBelow="true">
+      <fields name="STROBE_E" alias="STROBE Enable" description="This register enables the strobe logic.&#xD;&#xA;&#xD;&#xA;For Nexis 3 systems, to enable STROBE_A signal, STROBE_E and STROBE_A_EN must be enabled.&#xD;&#xA;For Nexis 3 systems, to enable STROBE_B signal, STROBE_E and STROBE_B_EN must be enabled.&#xD;&#xA;&#xD;&#xA;For Nexis 3 systems, STROBE_A and STROBE B can be activated at the same time, in this case the two strobes will be the same as they share the same programmation.&#xD;&#xA;&#xD;&#xA;This register is double buffered" lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Strobe disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Strobe enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="STROBE_POL" alias="STROBE POLarity" description="This is the strobe polarity at the pin of the FPGA only for GTR systems. &#xD;&#xA;&#xD;&#xA;For NEXIS3 systems use register ANPUT\IO\IO_OUT_POL\OUTx_POL&#xD;&#xA;&#xD;&#xA;This register is not double buffered." lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Active high strobe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Active low strobe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="STROBE_START" alias="STROBE START" description="This is the strobe start location. This location depends on the Strobe Mode used.&#xD;&#xA;&#xD;&#xA;In Strobe Mode='0', the start of the strobe is situated during the exposure time.&#xD;&#xA;In Strobe Mode='1', the start of the strobe is situated during the trigger delay.&#xD;&#xA;&#xD;&#xA;This register is double buffered" size="28">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="STROBE_CTRL2" offsetFromParent="50" useReservedSpaceBelow="true">
+      <fields name="STROBE_MODE" alias="STROBE MODE" description="This register selects the location of the Strobe Start.&#xD;&#xA;&#xD;&#xA;When this register is set to 0, the  STROBE_START register is located during the exposure timer.&#xD;&#xA;&#xD;&#xA;When this register is set to 1, the  STROBE_START register is located during the trigger delay timer.&#xD;&#xA;&#xD;&#xA;In HW level mode the strobe mode must be set to STROBE MODE=0 since the trigger cannot be delayed.&#xD;&#xA;&#xD;&#xA;This register is double buffered&#xD;&#xA;" lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Strobe start during exposure&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Strobe start during trigger delay&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="STROBE_B_EN" alias="STROBE phase B ENable" description="This field enables the generation of STROBE_B signal, for a NEXIS 3 system.&#xD;&#xA;&#xD;&#xA;This register is double buffered to support back2back mode in nexis systems." lsb="29">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable Strobe B&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable Strobe B&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="STROBE_A_EN" alias="STROBE phase A ENable" description="This field enables the generation of STROBE_A signal(Default strobe), for a NEXIS 3 system.&#xD;&#xA;&#xD;&#xA;This register is double buffered to support back2back mode in nexis systems." lsb="28" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable Strobe A (default strobe)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable Strobe A&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="STROBE_END" alias="STROBE END" description="This is the strobe end location. This location does not depend on the Strobe Mode used.&#xD;&#xA;&#xD;&#xA;This register is double buffered" size="28" valueAtReset="fffffff">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ACQ_SER_CTRL" alias="Acquisition Serial Control" description="" offsetFromParent="58" useReservedSpaceBelow="true" address="190">
+      <fields name="SER_RWn" alias="SERial Read/Writen" description="This register configures the type of the serial access to the CMOS sensor" lsb="16" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SER_CMD" alias="SERial CoMmand " description="This is the type of command sent to the serial fifo.&#xD;&#xA;&#xD;&#xA;To access the Sensor, write SER_WF_SS=1 with SER_CMD=0x0, with the parametters:  SER_WRn, SER_ADD(8:0) and SER_DAT(15:0).&#xD;&#xA;&#xD;&#xA;To insert a timer between fifo commands, write SER_WF_SS=1 with SER_CMD=0x1, with the parametter:  SER_DAT(15:0). The value of the timer inserted is calculated with the following formula: Timer= SER_DAT(15:0)*1024*SYS_PERIOD, SYS_PERIOD is 1/62.5mhz. The granularity of the timer is 16.384us&#xD;&#xA; &#xD;&#xA;To insert a Stop separator command, write SER_WF_SS=1 with SER_CMD=0x3. When the read logic encounter this command, it will stop read from the fifo until a new SER_RF_SS is received.&#xD;&#xA;" lsb="8" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>CMOS sensor access COMMAND&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Insert timer COMMAND&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>STOP separator COMMAND&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SER_RF_SS" alias="SERial Read Fifo SnapShot" description="This is the read fifo snapshot. When the read fifo logic receives this snapshot, it will read all the fifo comands until a STOP separator command is read or Empty fifo is detected." lsb="4" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start Read FIFO&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SER_WF_SS" alias="SERial Write Fifo SnapShot" description="When the system toggle this bit, the address, data and command are wrote to the command fifo. This fifo can contain the entire dcf, so the driver will not need to pool the status bit. This is a auto reset bit register, so after the driver write one, the bit will be auto reset to 0. To start the FIFO read logic write '1' to regsiter SER_RF_SS." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write a command to the FIFO&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ACQ_SER_ADDATA" alias="Serial Interface Data" description="" offsetFromParent="60" useReservedSpaceBelow="true" address="1A0">
+      <fields name="SER_DAT" alias="SERial interface DATa" description="This is the write data to be send to the CMOS sensor by the serial interface, or the  config data to a TIMER command or to a POWER sequence command. See register SER_CMD. " lsb="16" size="16">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SER_ADD" alias="SERial interface ADDress" description="This is the read/write address of the register in the CMOS sensor.&#xD;&#xA;&#xD;&#xA;" size="15">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 9 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ACQ_SER_STAT" alias="Serial Interface Data" description="" offsetFromParent="68" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="9" address="1A0">
+      <fields name="SER_FIFO_EMPTY" alias="SERial FIFO EMPTY" description="This is the EMPTY flag of the xilinx fifo, when '1' there are no pending operations in the fifo." lsb="24" readWrite="false" readOnly="true"/>
+      <fields name="SER_BUSY" alias="SERial BUSY" description="This is the BUSY status of the FIFO read logic. The flag will be set to '1' when the SER_RF_SS is set to '1'. It will be reseted to '0' when the read logic will decode a STOP separator command or when the FIFO will be empty." lsb="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FIFO read logic is idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FIFO read logic is runnning&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SER_DAT_R" alias="SERial interface DATa Read" description="This is the data read from CMOS sensor." size="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_CTRL" alias="SENSOR ConTRoL" offsetFromParent="90" useReservedSpaceBelow="true">
+      <fields name="SENSOR_REFRESH_TEMP" alias="SENSOR REFRESH TEMPerature" description="This register starts a sensor temperature read on the serial interface of the Python sensor. The temperature value readed will be available on field SENSOR_TEMP when field SENSOR_TEMP_VALID is set to '1'." lsb="24" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Starts a Temperature read on Python SPI interface&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_POWERDOWN" description="After a PowerUp sequence(SESOR_POWERUP_DONE=1), successfull or not, this register can reset the clock oscillator and enable the reset to the sensor.&#xD;&#xA;&#xD;&#xA;This power down don't do power sequencing. " lsb="16" readWrite="false" writeOnly="true"/>
+      <fields name="SENSOR_COLOR" alias="SENSOR COLOR" description="This register informs the datapath logic that a color sensor is used. This information is needed for the remapper logic." lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Monochrone sensor&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Color sensor&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_REG_UPTATE" alias="SENSOR REGister UPDATE" description="By setting this bit to 1, the SENSOR CONTROLLER WILL UPDATE the programed CMOS sensor registers at the beginning of each grab." lsb="4" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not update registers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Update registers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_RESETN" alias="SENSOR RESET Not" description="After a successfull PowerUP sequence, writing this field to '0' reset the Python CMOS sensor." lsb="1" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset the sensor after a successfull  powerUP&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_POWERUP" description="This register Enables the clk oscillator and removes the reset from the sensor." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start the power sequence&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_STAT" alias="SENSOR control STATus" offsetFromParent="98" useReservedSpaceBelow="true">
+      <fields name="SENSOR_TEMP" description="This register gives the Temperature of the Python sensor after a SENSOR_REFRESH_TEMP snapshot. The field SENSOR_TEMP_VALID indicates when the SENSOR_TEMP value is valid." lsb="24" size="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_TEMP_VALID" alias="SENSOR TEMPerature VALID" description="This field indicates that the field SENSOR_TEMP have valid temperature after a SENSOR_REFRESH_TEMP snapshot. " lsb="23" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>SENSOR_TEMPERATURE register is not valid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>SENSOR_TEMPERATURE register is valid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_POWERDOWN" description="This field indicates that the sensor is in powerdown state." lsb="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not in powerdown state&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Powerdown&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_RESETN" alias="SENSOR RESET N" description="This is the sensor RESETN status." lsb="13" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>In reset state&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not in reset &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_OSC_EN" alias="SENSOR OSCILLATOR ENable" description="This is the sensor oscillator enable status." lsb="12" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_VCC_PG" alias="SENSOR supply VCC  Power Good" description="This is the VCC  Power Good status (generated by external HW)." lsb="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_POWERUP_STAT" description="When a powerup sequence is finish, this register indicates the result of the POWERUP sequence. " lsb="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>PowerUp sequence fail&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>PowerUp sequence success&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SENSOR_POWERUP_DONE" description="This register indicates that the POWERUP sequence is finish. Read register SENSOR_POWERUP_STAT to see the result." readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>PowerUp sequence not started&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>PowerUp sequence finish&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_SUBSAMPLING" description="SENSOR ADDRESS " offsetFromParent="A0">
+      <fields name="reserved1" description="&#xD;&#xA;" lsb="4" size="12" readWrite="false" staticVal="true"/>
+      <fields name="ACTIVE_SUBSAMPLING_Y" description="Subsampling (Row) for ROI Configurations" lsb="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="reserved0" alias="" description="" lsb="2" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Idle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="M_SUBSAMPLING_Y" alias="" description="Subsampling (Row) for M Region" lsb="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SUBSAMPLING_X" alias="" description="Readout in Column Subsampling Mode">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_GAIN_ANA" description="SENSOR ADDRESS 204 DEC" offsetFromParent="A4">
+      <fields name="reserved1" lsb="11" size="5" readWrite="false" staticVal="true"/>
+      <fields name="ANALOG_GAIN" alias="" description="" lsb="8" size="3" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1x&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>2x&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4x&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="reserved0" size="8" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="SENSOR_ROI_Y_START" description="SENSOR ADDRESS" offsetFromParent="A8">
+      <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
+      <fields name="Y_START" alias="Y START" description="Y Start  in Kernel size (Kernel is 4 lines)" size="10"/>
+    </registers>
+    <registers name="SENSOR_ROI_Y_SIZE" description="SENSOR ADDRESS" offsetFromParent="AC">
+      <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
+      <fields name="Y_SIZE" alias="Y SIZE" description="Y SIZE in Kernel size (Kernel is 4 lines)" size="10" valueAtReset="302"/>
+    </registers>
+    <registers name="SENSOR_ROI2_Y_START" description="SENSOR ADDRESS" offsetFromParent="B0">
+      <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
+      <fields name="Y_START" alias="Y START" description="Y Start  in Kernel size (Kernel is 4 lines)" size="10"/>
+    </registers>
+    <registers name="SENSOR_ROI2_Y_SIZE" description="SENSOR ADDRESS " offsetFromParent="B4" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="9">
+      <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
+      <fields name="Y_SIZE" alias="Y SIZE" description="Y SIZE in Kernel size (Kernel is 4 lines)" size="10" valueAtReset="302"/>
+    </registers>
+    <registers name="SENSOR_M_LINES" offsetFromParent="DC">
+      <fields name="M_SUPPRESSED" description="Suppress the Readout of Initial Lines in the M Region" lsb="10" size="5"/>
+      <fields name="M_LINES" description="Number of Lines to Readout from M Region in Context 0 Unit is #lines&#xD;&#xA;&#xD;&#xA;Total number of Black lines = M_LINES-M_SUPRESSED" size="10" valueAtReset="8"/>
+    </registers>
+    <registers name="DEBUG_PINS" offsetFromParent="E0" useReservedSpaceBelow="true">
+      <fields name="Debug3_sel" description="  debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " lsb="24" size="5" valueAtReset="1f"/>
+      <fields name="Debug2_sel" description=" debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " lsb="16" size="5" valueAtReset="1f"/>
+      <fields name="Debug1_sel" description="  debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " lsb="8" size="5" valueAtReset="1f"/>
+      <fields name="Debug0_sel" description=" debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " size="5" valueAtReset="1f"/>
+    </registers>
+    <registers name="TRIGGER_MISSED" offsetFromParent="E8" useReservedSpaceBelow="true">
+      <fields name="TRIGGER_MISSED_RST" alias="TRIGGER MISSED ReSeT" description="This is the trigger missed reset." lsb="28" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset the Trigger counter reset&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TRIGGER_MISSED_CNTR" alias="TRIGGER MISSED CouNTeR" description="This is the number of trigger missed detected." size="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_FPS" description="" offsetFromParent="F0" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="11">
+      <fields name="SENSOR_FPS" alias="SENSOR Frame Per Second" description="This is the number of frames received in 1 second interval. This register can count up to 64k frame/s. This counter counts on SO_FOT event." size="16" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="DEBUG" offsetFromParent="120" useReservedSpaceBelow="true">
+      <fields name="DEBUG_RST_CNTR" description="This register clears the debug cntrs" lsb="28" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset counters&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TEST_MODE_PIX_START" description="This register defines the value of the first pixel in the frame when the TEST_MODE is activated. &#xD;&#xA;In 8 bits mode only 8-MSB bits of the register is used." lsb="16" size="10"/>
+      <fields name="TEST_MOVE" description="This field when in TEST_MODE=1, makes the ramp move. The first pixel of the frame is incremented by one each frame." lsb="9">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Static test ramp&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The test ramp moves&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="TEST_MODE" description="This field set the FPGA in test mode. The fpga will send a programmable ramp to the host using the syncs receveived from the sensor. The generated ramp can move when set with the field TEST_MOVE.&#xD;&#xA;&#xD;&#xA;In color mode (LVDSx1), the ramp pixel is repeated 3 times to generate a B&amp;W ramp in RGB24 mode." lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal acquisition data from sensor&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Test mode, a ramp is generated.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LED_STAT_CLHS" lsb="6" size="2" readWrite="false" readOnly="true"/>
+      <fields name="LED_STAT_CTRL" lsb="4" size="2" readWrite="false" readOnly="true"/>
+      <fields name="LED_TEST_COLOR" lsb="1" size="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is OFF&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is GREEN&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is RED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is ORANGE&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LED_TEST" description="This register will put the LED status in test mode. The test mode is controlled by LED_TEST_COLOR">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is in user mode.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The LED is in test mode.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DEBUG_CNTR1" offsetFromParent="128" useReservedSpaceBelow="true">
+      <fields name="EOF_CNTR" description="This is the EOF CNTR. This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DEBUG_CNTR2" offsetFromParent="130">
+      <fields name="EOL_CNTR" description="This is the EOL CNTR. This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="12" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DEBUG_CNTR3" offsetFromParent="134">
+      <fields name="SENSOR_FRAME_DURATION" alias="" description="This is the time between the last 2 EOF received(in sys clock domain). This register can count up to 4.29 seconds. It can be used to predict sensor framerate or to verify sync between 3D profiler heads.&#xD;&#xA;This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="28" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="EXP_FOT" offsetFromParent="138" useReservedSpaceBelow="true">
+      <fields name="EXP_FOT" alias="EXPosure during FOT" description="When set to '1' this register, the output exposure and strobe signals will take into account the exposure in the FOT of the frame. This timing must be programmed in register EXP_FOT_TIME.&#xD;&#xA;This timing must be calculated from the OnSemi setting files ." lsb="16" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Disable exposure during FOT in output exposure signal and Strobe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable exposure during FOT in output exposure signal and Strobe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="EXP_FOT_TIME" alias="EXPosure during FOT TIME" description="This is the time of the exposure during the FOT.&#xD;&#xA;This timing must be calculated from the OnSemi setting files .&#xD;&#xA;&#xD;&#xA;From DCF v1.2, for all LVDS modes : &#xD;&#xA;&#xD;&#xA;P5000 &amp; P2000&#xD;&#xA;EXP_FOT=40.666us, program value  0x9ee&#xD;&#xA;&#xD;&#xA;P1300 &amp; P500 &amp; P300&#xD;&#xA;EXP_FOT=27.333us, program value  0x6ac" size="12" valueAtReset="9ee">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ACQ_SFNC" offsetFromParent="140" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
+      <fields name="RELOAD_GRAB_PARAMS" alias="" description="This register is not used for the moment. It may be used in the future to reload the exposure time " valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>

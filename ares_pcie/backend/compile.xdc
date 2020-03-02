@@ -38,7 +38,7 @@ set_property LOAD 10 [get_ports {hb_dq[6]}]
 set_property LOAD 10 [get_ports {hb_dq[7]}]
 set_property LOAD 10 [get_ports hb_rst_n]
 set_property LOAD 10 [get_ports hb_rwds]
-set_property LOAD 10 [get_ports hb_wp_n]
+#set_property LOAD 10 [get_ports hb_wp_n]
 set_property LOAD 10 [get_ports ncsi_clk]
 set_property LOAD 10 [get_ports ncsi_tx_en]
 set_property LOAD 10 [get_ports {ncsi_txd[0]}]
@@ -66,4 +66,5 @@ set_property LOAD 10 [get_ports user_rled]
 # set_property IOB FALSE [get_cells mii_interface/rx*_to_mac*reg]
 # set_property IOB FALSE [get_cells {mii_interface/rx*_to_mac*reg[*]}]
 # current_instance -quiet
+
 
