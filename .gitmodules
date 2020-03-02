@@ -1,3 +1,6 @@
 [submodule "athena/ipcores"]
 	path = athena/ipcores
 	url = git@thunder.matrox.com:amarchan/ipcores.git
+[submodule "ares_pcie/ipcores"]
+	path = ares_pcie/ipcores
+	url = git@thunder.matrox.com:amarchan/ipcores.git
