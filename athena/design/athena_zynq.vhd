@@ -33,24 +33,41 @@ entity athena_zynq is
     ---------------------------------------------------------------------------
     -- System interface
     ---------------------------------------------------------------------------
-    refclk   : in std_logic;
---    sysrst_n : in std_logic;
+    SYSCLK_P : in std_logic;
+    SYSCLK_N : in std_logic;
 
 
     ---------------------------------------------------------------------------
     -- PCIe Interface Gen1x2
     ---------------------------------------------------------------------------
-    pcie_clk_n : in std_logic;
-    pcie_clk_p : in std_logic;
+    -- pcie_clk_n : in std_logic;
+    -- pcie_clk_p : in std_logic;
 
-    pcie_rx_n : in  std_logic_vector(1 downto 0);
-    pcie_rx_p : in  std_logic_vector(1 downto 0);
-    pcie_tx_n : out std_logic_vector(1 downto 0);
-    pcie_tx_p : out std_logic_vector(1 downto 0);
+    -- pcie_rx_n : in  std_logic_vector(1 downto 0);
+    -- pcie_rx_p : in  std_logic_vector(1 downto 0);
+    -- pcie_tx_n : out std_logic_vector(1 downto 0);
+    -- pcie_tx_p : out std_logic_vector(1 downto 0);
+PCIE_CLK_QO_P : in  std_logic;
+PCIE_CLK_QO_N : in  std_logic;
+
+    
+    -- Lane 0
+    PCIE_RX0_P : in  std_logic;
+    PCIE_RX0_N : in  std_logic;
+
+    PCIE_TX0_P : out std_logic;
+    PCIE_TX0_N : out std_logic;
+
+    -- Lane 1
+    PCIE_RX1_P : in  std_logic;
+    PCIE_RX1_N : in  std_logic;
+    
+    PCIE_TX1_P : out std_logic;
+    PCIE_TX1_N : out std_logic;
 
 
     ---------------------------------------------------------------------------
-    -- 
+    -- PS system fixed IO
     ---------------------------------------------------------------------------
     FIXED_IO_ddr_vrn  : inout std_logic;
     FIXED_IO_ddr_vrp  : inout std_logic;
@@ -61,7 +78,7 @@ entity athena_zynq is
 
 
     ---------------------------------------------------------------------------
-    -- 
+    -- DDR interface
     ---------------------------------------------------------------------------
     ddr_addr    : inout std_logic_vector (14 downto 0);
     ddr_ba      : inout std_logic_vector (2 downto 0);
@@ -92,8 +109,7 @@ entity athena_zynq is
     xgs_sclk       : out std_logic;
     xgs_sdin       : in  std_logic;
     xgs_sdout      : out std_logic;
-
-    xgs_power_good : in std_logic;
+    xgs_power_good : in  std_logic;
 
     ---------------------------------------------------------------------------
     --  XGS sensor HiSPi data interface
@@ -209,13 +225,8 @@ architecture struct of athena_zynq is
 
 
   signal pcie_clk_100MHz : std_logic;
-  signal spi_in          : std_logic_vector (3 downto 0);
-  signal spi_out         : std_logic_vector (3 downto 0);
-  signal spi_out_en      : std_logic_vector (3 downto 0);
-  signal spi_cs_in       : std_logic_vector (0 to 0);
-  signal spi_cs_out      : std_logic_vector (0 to 0);
-  signal spi_cs_en       : std_logic;
 
+  signal refclk : std_logic;
 
 begin
 
@@ -223,8 +234,18 @@ begin
   ibuf_pcie_clk_100MHz : IBUFDS_GTE2
     port map (
       O     => pcie_clk_100MHz,
-      I     => pcie_clk_p,
-      IB    => pcie_clk_n,
+      I     => PCIE_CLK_QO_P,
+      IB    => PCIE_CLK_QO_N,
+      CEB   => '0',
+      ODIV2 => open
+      );
+
+  -- System clock @200MHz
+  ibuf_refclk : IBUFDS_GTE2
+    port map (
+      O     => refclk,
+      I     => SYSCLK_P,
+      IB    => SYSCLK_N,
       CEB   => '0',
       ODIV2 => open
       );
@@ -239,7 +260,7 @@ begin
       FIXED_IO_ps_porb        => FIXED_IO_ps_porb,
       FIXED_IO_ps_srstb       => FIXED_IO_ps_srstb,
       anput_exposure          => exposure_out,
-      anput_ext_trig          => ext_trig ,
+      anput_ext_trig          => ext_trig,
       anput_strobe            => strobe_out,
       anput_trig_rdy          => trig_rdy_out,
       ddr_addr                => ddr_addr,
@@ -262,10 +283,14 @@ begin
       hispi_hispi_data_n      => xgs_hispi_sdata_n,
       hispi_hispi_data_p      => xgs_hispi_sdata_p,
       led_out_0               => led_out,
-      pcie_rxn                => pcie_rx_n,
-      pcie_rxp                => pcie_rx_p,
-      pcie_txn                => pcie_tx_n,
-      pcie_txp                => pcie_tx_p,
+      pcie_rxn(0)                => ,
+      pcie_rxp(0)                => ,
+      pcie_txn(0)                => ,
+      pcie_txp(0)                => ,
+      pcie_rxn(1)                => ,
+      pcie_rxp(1)                => ,
+      pcie_txn(1)                => ,
+      pcie_txp(1)                => ,
       refclk_100MHz           => refclk,
       xgs_ctrl_xgs_clk_pll_en => open,  --TBD
       xgs_ctrl_xgs_cs_n       => xgs_cs_n,
@@ -281,7 +306,6 @@ begin
       xgs_ctrl_xgs_trig_int   => xgs_trig_int,
       xgs_ctrl_xgs_trig_rd    => xgs_trig_rd
       );
-
 
 
 end struct;

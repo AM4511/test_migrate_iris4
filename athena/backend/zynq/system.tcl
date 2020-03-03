@@ -248,6 +248,7 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_DDRPLL_CTRL_FBDIV {32} \
    CONFIG.PCW_DDR_DDR_PLL_FREQMHZ {1066.667} \
    CONFIG.PCW_DDR_PERIPHERAL_DIVISOR0 {2} \
+   CONFIG.PCW_DDR_RAM_HIGHADDR {0x3FFFFFFF} \
    CONFIG.PCW_ENET0_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_ENET0_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_ENET1_PERIPHERAL_DIVISOR0 {1} \
@@ -279,6 +280,20 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_TPIU_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_UART_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_UIPARAM_ACT_DDR_FREQ_MHZ {533.333374} \
+   CONFIG.PCW_UIPARAM_DDR_BANK_ADDR_COUNT {3} \
+   CONFIG.PCW_UIPARAM_DDR_CL {7} \
+   CONFIG.PCW_UIPARAM_DDR_COL_ADDR_COUNT {10} \
+   CONFIG.PCW_UIPARAM_DDR_CWL {6} \
+   CONFIG.PCW_UIPARAM_DDR_DEVICE_CAPACITY {2048 MBits} \
+   CONFIG.PCW_UIPARAM_DDR_DRAM_WIDTH {8 Bits} \
+   CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41J256M8 HX-15E} \
+   CONFIG.PCW_UIPARAM_DDR_ROW_ADDR_COUNT {15} \
+   CONFIG.PCW_UIPARAM_DDR_SPEED_BIN {DDR3_1066F} \
+   CONFIG.PCW_UIPARAM_DDR_T_FAW {30.0} \
+   CONFIG.PCW_UIPARAM_DDR_T_RAS_MIN {36.0} \
+   CONFIG.PCW_UIPARAM_DDR_T_RC {49.5} \
+   CONFIG.PCW_UIPARAM_DDR_T_RCD {7} \
+   CONFIG.PCW_UIPARAM_DDR_T_RP {7} \
  ] $processing_system7_0
 
   # Create instance: rst_100MHz, and set properties
@@ -534,7 +549,6 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
-  set interconnect_aresetn_0 [ create_bd_port -dir O -from 0 -to 0 -type rst interconnect_aresetn_0 ]
   set led_out_0 [ create_bd_port -dir O -from 1 -to 0 led_out_0 ]
   set refclk_100MHz [ create_bd_port -dir I -type clk refclk_100MHz ]
   set_property -dict [ list \
@@ -582,7 +596,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins grab_path/idelay_clk] [get_bd_pins zynq_system/zclk_200MHz]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins grab_path/sysrstN] [get_bd_pins pcie_system/peripheral_aresetn]
   connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins grab_path/s_axi_aresetn] [get_bd_pins zynq_system/zresetn_periph]
-  connect_bd_net -net zynq_hier_0_interconnect_aresetn_0 [get_bd_ports interconnect_aresetn_0] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins zynq_system/zresetn_interc]
+  connect_bd_net -net zynq_hier_0_interconnect_aresetn_0 [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins zynq_system/zresetn_interc]
   connect_bd_net -net zynq_system_zresetn [get_bd_pins pcie_system/ext_reset_in] [get_bd_pins zynq_system/zresetn]
 
   # Create address segments
