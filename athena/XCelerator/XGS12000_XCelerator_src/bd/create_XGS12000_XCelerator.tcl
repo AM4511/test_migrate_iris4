@@ -29,6 +29,8 @@
 # set base_path $env(IRIS4)/athena/XCelerator ; source $base_path/XGS12000_XCelerator_src/bd/create_XGS12000_XCelerator.tcl
 # source $base_path/XGS12000_XCelerator_src/bd/create_XGS12000_XCelerator.tcl
 #
+# Pour saver le BD modifie :
+# write_bd_tcl $base_path/XGS12000_XCelerator_src/bd/BD_XGS12000_receiver_VIPlight.tcl -force
 #*****************************************************************************************
 
 

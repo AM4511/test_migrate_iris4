@@ -10,6 +10,7 @@ entity axiXGS_controller_v1_0 is
 		-- Users to add parameters here
         G_SYS_CLK_PERIOD    : integer  := 16;
 		G_SIMULATION        : integer  := 0;
+        G_KU706             : integer  := 0;
         -- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -166,7 +167,8 @@ architecture arch_imp of axiXGS_controller_v1_0 is
   -- COMPONENT XGS CONTROLLER
   -------------------------------  
    component xgs_ctrl
-   generic(  G_SIMULATION          : integer := 0;
+   generic(  G_KU706               : integer := 0;
+             G_SIMULATION          : integer := 0;
              G_SYS_CLK_PERIOD      : integer            
           );
    port (  
@@ -203,8 +205,8 @@ architecture arch_imp of axiXGS_controller_v1_0 is
            exposure_out                    : out   std_logic;
            trig_rdy_out                    : out   std_logic;
            
-           python_monitor0_sysclk          : out   std_logic;
-           python_monitor1_sysclk          : out   std_logic;
+           xgs_monitor0_sysclk             : out   std_logic;
+           xgs_monitor1_sysclk             : out   std_logic;
            
            ---------------------------------------------------------------------------
            --  INPUTS FROM other fpga
@@ -233,7 +235,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
            DEC_EOF_sys                     : in  std_logic;
            
            abort_readout_datapath          : out std_logic;
-           start_calibration               : out std_logic;
+           --start_calibration               : out std_logic;
            dma_idle                        : in  std_logic;
 
            curr_db_GRAB_ROI2_EN            : out std_logic;
@@ -446,7 +448,8 @@ begin
   -- COMPONENT XGS CONTROLLER
   -------------------------------  
    Inst_xgs_ctrl : xgs_ctrl
-   generic map(  G_SIMULATION              => G_SIMULATION,
+   generic map(  G_KU706                   => G_KU706,
+                 G_SIMULATION              => G_SIMULATION,
                  G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD
           )
    port map(  
@@ -483,8 +486,8 @@ begin
            exposure_out                    => anput_exposure_out,
            trig_rdy_out                    => anput_trig_rdy_out,
            
-           python_monitor0_sysclk          => open,
-           python_monitor1_sysclk          => open,
+           xgs_monitor0_sysclk             => open,
+           xgs_monitor1_sysclk             => open,
            
            ---------------------------------------------------------------------------
            --  INPUTS FROM other fpga
@@ -514,7 +517,7 @@ begin
            DEC_EOF_sys                     => '0', --ca va planter ici
            
            abort_readout_datapath          => open,
-           start_calibration               => open,
+           --start_calibration               => open,
            dma_idle                        => '1',
 
            curr_db_GRAB_ROI2_EN            => open,

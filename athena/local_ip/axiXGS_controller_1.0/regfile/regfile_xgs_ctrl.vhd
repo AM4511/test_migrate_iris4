@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl_pack
--- Created on          : 2020/02/26 09:13:53
+-- Created on          : 2020/03/03 08:21:44
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x9AE2562F
+-- Register file CRC32 : 0xD7056496
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -25,6 +25,7 @@ package regfile_xgs_ctrl_pack is
    constant K_ACQ_READOUT_CFG1_ADDR       : natural := 16#110#;
    constant K_ACQ_READOUT_CFG2_ADDR       : natural := 16#118#;
    constant K_ACQ_READOUT_CFG3_ADDR       : natural := 16#120#;
+   constant K_ACQ_READOUT_CFG4_ADDR       : natural := 16#124#;
    constant K_ACQ_EXP_CTRL1_ADDR          : natural := 16#128#;
    constant K_ACQ_EXP_CTRL2_ADDR          : natural := 16#130#;
    constant K_ACQ_EXP_CTRL3_ADDR          : natural := 16#138#;
@@ -42,16 +43,17 @@ package regfile_xgs_ctrl_pack is
    constant K_ACQ_SENSOR_ROI_Y_SIZE_ADDR  : natural := 16#1ac#;
    constant K_ACQ_SENSOR_ROI2_Y_START_ADDR : natural := 16#1b0#;
    constant K_ACQ_SENSOR_ROI2_Y_SIZE_ADDR : natural := 16#1b4#;
-   constant K_ACQ_SENSOR_M_LINES_ADDR     : natural := 16#1dc#;
+   constant K_ACQ_SENSOR_M_LINES_ADDR     : natural := 16#1d8#;
+   constant K_ACQ_SENSOR_F_LINES_ADDR     : natural := 16#1dc#;
    constant K_ACQ_DEBUG_PINS_ADDR         : natural := 16#1e0#;
    constant K_ACQ_TRIGGER_MISSED_ADDR     : natural := 16#1e8#;
    constant K_ACQ_SENSOR_FPS_ADDR         : natural := 16#1f0#;
-   constant K_ACQ_DEBUG_ADDR              : natural := 16#220#;
-   constant K_ACQ_DEBUG_CNTR1_ADDR        : natural := 16#228#;
-   constant K_ACQ_DEBUG_CNTR2_ADDR        : natural := 16#230#;
-   constant K_ACQ_DEBUG_CNTR3_ADDR        : natural := 16#234#;
-   constant K_ACQ_EXP_FOT_ADDR            : natural := 16#238#;
-   constant K_ACQ_ACQ_SFNC_ADDR           : natural := 16#240#;
+   constant K_ACQ_DEBUG_ADDR              : natural := 16#2a0#;
+   constant K_ACQ_DEBUG_CNTR1_ADDR        : natural := 16#2a8#;
+   constant K_ACQ_DEBUG_CNTR2_ADDR        : natural := 16#2b0#;
+   constant K_ACQ_DEBUG_CNTR3_ADDR        : natural := 16#2b4#;
+   constant K_ACQ_EXP_FOT_ADDR            : natural := 16#2b8#;
+   constant K_ACQ_ACQ_SFNC_ADDR           : natural := 16#2c0#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: ID
@@ -198,12 +200,10 @@ package regfile_xgs_ctrl_pack is
    -- Register Name: READOUT_CFG2
    ------------------------------------------------------------------------------------------
    type ACQ_READOUT_CFG2_TYPE is record
-      READOUT_EN     : std_logic;
-      READOUT_LENGTH : std_logic_vector(23 downto 0);
+      READOUT_LENGTH : std_logic_vector(28 downto 0);
    end record ACQ_READOUT_CFG2_TYPE;
 
    constant INIT_ACQ_READOUT_CFG2_TYPE : ACQ_READOUT_CFG2_TYPE := (
-      READOUT_EN      => 'Z',
       READOUT_LENGTH  => (others=> 'Z')
    );
 
@@ -215,18 +215,35 @@ package regfile_xgs_ctrl_pack is
    -- Register Name: READOUT_CFG3
    ------------------------------------------------------------------------------------------
    type ACQ_READOUT_CFG3_TYPE is record
-      KEEP_OUT_TRIG  : std_logic_vector(15 downto 0);
+      KEEP_OUT_TRIG_ENA: std_logic;
       LINE_TIME      : std_logic_vector(15 downto 0);
    end record ACQ_READOUT_CFG3_TYPE;
 
    constant INIT_ACQ_READOUT_CFG3_TYPE : ACQ_READOUT_CFG3_TYPE := (
-      KEEP_OUT_TRIG   => (others=> 'Z'),
+      KEEP_OUT_TRIG_ENA => 'Z',
       LINE_TIME       => (others=> 'Z')
    );
 
    -- Casting functions:
    function to_std_logic_vector(reg : ACQ_READOUT_CFG3_TYPE) return std_logic_vector;
    function to_ACQ_READOUT_CFG3_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG3_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: READOUT_CFG4
+   ------------------------------------------------------------------------------------------
+   type ACQ_READOUT_CFG4_TYPE is record
+      KEEP_OUT_TRIG_END: std_logic_vector(15 downto 0);
+      KEEP_OUT_TRIG_START: std_logic_vector(15 downto 0);
+   end record ACQ_READOUT_CFG4_TYPE;
+
+   constant INIT_ACQ_READOUT_CFG4_TYPE : ACQ_READOUT_CFG4_TYPE := (
+      KEEP_OUT_TRIG_END => (others=> 'Z'),
+      KEEP_OUT_TRIG_START => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_READOUT_CFG4_TYPE) return std_logic_vector;
+   function to_ACQ_READOUT_CFG4_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG4_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: EXP_CTRL1
@@ -569,6 +586,23 @@ package regfile_xgs_ctrl_pack is
    function to_ACQ_SENSOR_M_LINES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_M_LINES_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_F_LINES
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_F_LINES_TYPE is record
+      F_SUPPRESSED   : std_logic_vector(4 downto 0);
+      F_LINES        : std_logic_vector(9 downto 0);
+   end record ACQ_SENSOR_F_LINES_TYPE;
+
+   constant INIT_ACQ_SENSOR_F_LINES_TYPE : ACQ_SENSOR_F_LINES_TYPE := (
+      F_SUPPRESSED    => (others=> 'Z'),
+      F_LINES         => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_F_LINES_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_F_LINES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_F_LINES_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: DEBUG_PINS
    ------------------------------------------------------------------------------------------
    type ACQ_DEBUG_PINS_TYPE is record
@@ -749,6 +783,7 @@ package regfile_xgs_ctrl_pack is
       READOUT_CFG1   : ACQ_READOUT_CFG1_TYPE;
       READOUT_CFG2   : ACQ_READOUT_CFG2_TYPE;
       READOUT_CFG3   : ACQ_READOUT_CFG3_TYPE;
+      READOUT_CFG4   : ACQ_READOUT_CFG4_TYPE;
       EXP_CTRL1      : ACQ_EXP_CTRL1_TYPE;
       EXP_CTRL2      : ACQ_EXP_CTRL2_TYPE;
       EXP_CTRL3      : ACQ_EXP_CTRL3_TYPE;
@@ -767,6 +802,7 @@ package regfile_xgs_ctrl_pack is
       SENSOR_ROI2_Y_START: ACQ_SENSOR_ROI2_Y_START_TYPE;
       SENSOR_ROI2_Y_SIZE: ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
       SENSOR_M_LINES : ACQ_SENSOR_M_LINES_TYPE;
+      SENSOR_F_LINES : ACQ_SENSOR_F_LINES_TYPE;
       DEBUG_PINS     : ACQ_DEBUG_PINS_TYPE;
       TRIGGER_MISSED : ACQ_TRIGGER_MISSED_TYPE;
       SENSOR_FPS     : ACQ_SENSOR_FPS_TYPE;
@@ -784,6 +820,7 @@ package regfile_xgs_ctrl_pack is
       READOUT_CFG1    => INIT_ACQ_READOUT_CFG1_TYPE,
       READOUT_CFG2    => INIT_ACQ_READOUT_CFG2_TYPE,
       READOUT_CFG3    => INIT_ACQ_READOUT_CFG3_TYPE,
+      READOUT_CFG4    => INIT_ACQ_READOUT_CFG4_TYPE,
       EXP_CTRL1       => INIT_ACQ_EXP_CTRL1_TYPE,
       EXP_CTRL2       => INIT_ACQ_EXP_CTRL2_TYPE,
       EXP_CTRL3       => INIT_ACQ_EXP_CTRL3_TYPE,
@@ -802,6 +839,7 @@ package regfile_xgs_ctrl_pack is
       SENSOR_ROI2_Y_START => INIT_ACQ_SENSOR_ROI2_Y_START_TYPE,
       SENSOR_ROI2_Y_SIZE => INIT_ACQ_SENSOR_ROI2_Y_SIZE_TYPE,
       SENSOR_M_LINES  => INIT_ACQ_SENSOR_M_LINES_TYPE,
+      SENSOR_F_LINES  => INIT_ACQ_SENSOR_F_LINES_TYPE,
       DEBUG_PINS      => INIT_ACQ_DEBUG_PINS_TYPE,
       TRIGGER_MISSED  => INIT_ACQ_TRIGGER_MISSED_TYPE,
       SENSOR_FPS      => INIT_ACQ_SENSOR_FPS_TYPE,
@@ -1019,8 +1057,7 @@ package body regfile_xgs_ctrl_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(28) := reg.READOUT_EN;
-      output(23 downto 0) := reg.READOUT_LENGTH;
+      output(28 downto 0) := reg.READOUT_LENGTH;
       return output;
    end to_std_logic_vector;
 
@@ -1031,8 +1068,7 @@ package body regfile_xgs_ctrl_pack is
    function to_ACQ_READOUT_CFG2_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG2_TYPE is
    variable output : ACQ_READOUT_CFG2_TYPE;
    begin
-      output.READOUT_EN := stdlv(28);
-      output.READOUT_LENGTH := stdlv(23 downto 0);
+      output.READOUT_LENGTH := stdlv(28 downto 0);
       return output;
    end to_ACQ_READOUT_CFG2_TYPE;
 
@@ -1044,7 +1080,7 @@ package body regfile_xgs_ctrl_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 16) := reg.KEEP_OUT_TRIG;
+      output(16) := reg.KEEP_OUT_TRIG_ENA;
       output(15 downto 0) := reg.LINE_TIME;
       return output;
    end to_std_logic_vector;
@@ -1056,10 +1092,35 @@ package body regfile_xgs_ctrl_pack is
    function to_ACQ_READOUT_CFG3_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG3_TYPE is
    variable output : ACQ_READOUT_CFG3_TYPE;
    begin
-      output.KEEP_OUT_TRIG := stdlv(31 downto 16);
+      output.KEEP_OUT_TRIG_ENA := stdlv(16);
       output.LINE_TIME := stdlv(15 downto 0);
       return output;
    end to_ACQ_READOUT_CFG3_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_READOUT_CFG4_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_READOUT_CFG4_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 16) := reg.KEEP_OUT_TRIG_END;
+      output(15 downto 0) := reg.KEEP_OUT_TRIG_START;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_READOUT_CFG4_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_READOUT_CFG4_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_READOUT_CFG4_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG4_TYPE is
+   variable output : ACQ_READOUT_CFG4_TYPE;
+   begin
+      output.KEEP_OUT_TRIG_END := stdlv(31 downto 16);
+      output.KEEP_OUT_TRIG_START := stdlv(15 downto 0);
+      return output;
+   end to_ACQ_READOUT_CFG4_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -1547,6 +1608,31 @@ package body regfile_xgs_ctrl_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_F_LINES_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_F_LINES_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(14 downto 10) := reg.F_SUPPRESSED;
+      output(9 downto 0) := reg.F_LINES;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_F_LINES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_F_LINES_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_F_LINES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_F_LINES_TYPE is
+   variable output : ACQ_SENSOR_F_LINES_TYPE;
+   begin
+      output.F_SUPPRESSED := stdlv(14 downto 10);
+      output.F_LINES := stdlv(9 downto 0);
+      return output;
+   end to_ACQ_SENSOR_F_LINES_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from ACQ_DEBUG_PINS_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : ACQ_DEBUG_PINS_TYPE) return std_logic_vector is
@@ -1784,11 +1870,11 @@ end package body;
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl
--- Created on          : 2020/02/26 09:13:53
+-- Created on          : 2020/03/03 08:21:44
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x9AE2562F
+-- Register file CRC32 : 0xD7056496
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -1826,8 +1912,8 @@ architecture rtl of regfile_xgs_ctrl is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                          : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                  : std_logic_vector(33 downto 0);                   -- Address decode hit
-signal wEn                                                  : std_logic_vector(33 downto 0);                   -- Write Enable
+signal hit                                                  : std_logic_vector(35 downto 0);                   -- Address decode hit
+signal wEn                                                  : std_logic_vector(35 downto 0);                   -- Write Enable
 signal fullAddr                                             : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                        : integer;                                        
 signal bitEnN                                               : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -1839,6 +1925,7 @@ signal rb_ACQ_GRAB_STAT                                     : std_logic_vector(3
 signal rb_ACQ_READOUT_CFG1                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_READOUT_CFG2                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_READOUT_CFG3                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG4                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_EXP_CTRL1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_EXP_CTRL2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_EXP_CTRL3                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -1857,6 +1944,7 @@ signal rb_ACQ_SENSOR_ROI_Y_SIZE                             : std_logic_vector(3
 signal rb_ACQ_SENSOR_ROI2_Y_START                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_ROI2_Y_SIZE                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_M_LINES                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_F_LINES                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_DEBUG_PINS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_TRIGGER_MISSED                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_FPS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -1878,10 +1966,10 @@ signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                     : std_logic;        
 signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                : std_logic;                                       -- Field: GRAB_CMD
 signal field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST   : std_logic;                                       -- Field: GRAB_REVX_OVER_RST
 signal field_rw_ACQ_READOUT_CFG1_GRAB_REVX                  : std_logic;                                       -- Field: GRAB_REVX
-signal field_rw_ACQ_READOUT_CFG2_READOUT_EN                 : std_logic;                                       -- Field: READOUT_EN
-signal field_rw_ACQ_READOUT_CFG2_READOUT_LENGTH             : std_logic_vector(23 downto 0);                   -- Field: READOUT_LENGTH
-signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG              : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG
+signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA          : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
 signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                  : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END          : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START        : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
 signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE             : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
 signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                   : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
 signal field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS                   : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_DS
@@ -1916,6 +2004,8 @@ signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START             : std_logic_vector(9
 signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE               : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
 signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
 signal field_rw_ACQ_SENSOR_M_LINES_M_LINES                  : std_logic_vector(9 downto 0);                    -- Field: M_LINES
+signal field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: F_SUPPRESSED
+signal field_rw_ACQ_SENSOR_F_LINES_F_LINES                  : std_logic_vector(9 downto 0);                    -- Field: F_LINES
 signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
@@ -1957,33 +2047,35 @@ hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else 
 hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
 hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#118#,12)))	else '0'; -- Addr:  0x0118	READOUT_CFG2
 hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#120#,12)))	else '0'; -- Addr:  0x0120	READOUT_CFG3
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	EXP_CTRL1
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	EXP_CTRL2
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	EXP_CTRL3
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#140#,12)))	else '0'; -- Addr:  0x0140	TRIGGER_DELAY
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#148#,12)))	else '0'; -- Addr:  0x0148	STROBE_CTRL1
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#150#,12)))	else '0'; -- Addr:  0x0150	STROBE_CTRL2
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#158#,12)))	else '0'; -- Addr:  0x0158	ACQ_SER_CTRL
-hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#160#,12)))	else '0'; -- Addr:  0x0160	ACQ_SER_ADDATA
-hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#168#,12)))	else '0'; -- Addr:  0x0168	ACQ_SER_STAT
-hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#190#,12)))	else '0'; -- Addr:  0x0190	SENSOR_CTRL
-hit(17) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#198#,12)))	else '0'; -- Addr:  0x0198	SENSOR_STAT
-hit(18) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a0#,12)))	else '0'; -- Addr:  0x01A0	SENSOR_SUBSAMPLING
-hit(19) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
-hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
-hit(21) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
-hit(22) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b0#,12)))	else '0'; -- Addr:  0x01B0	SENSOR_ROI2_Y_START
-hit(23) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b4#,12)))	else '0'; -- Addr:  0x01B4	SENSOR_ROI2_Y_SIZE
-hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	SENSOR_M_LINES
-hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
-hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
-hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
-hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#220#,12)))	else '0'; -- Addr:  0x0220	DEBUG
-hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#228#,12)))	else '0'; -- Addr:  0x0228	DEBUG_CNTR1
-hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#230#,12)))	else '0'; -- Addr:  0x0230	DEBUG_CNTR2
-hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#234#,12)))	else '0'; -- Addr:  0x0234	DEBUG_CNTR3
-hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#238#,12)))	else '0'; -- Addr:  0x0238	EXP_FOT
-hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#240#,12)))	else '0'; -- Addr:  0x0240	ACQ_SFNC
+hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#124#,12)))	else '0'; -- Addr:  0x0124	READOUT_CFG4
+hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	EXP_CTRL1
+hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	EXP_CTRL2
+hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	EXP_CTRL3
+hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#140#,12)))	else '0'; -- Addr:  0x0140	TRIGGER_DELAY
+hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#148#,12)))	else '0'; -- Addr:  0x0148	STROBE_CTRL1
+hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#150#,12)))	else '0'; -- Addr:  0x0150	STROBE_CTRL2
+hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#158#,12)))	else '0'; -- Addr:  0x0158	ACQ_SER_CTRL
+hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#160#,12)))	else '0'; -- Addr:  0x0160	ACQ_SER_ADDATA
+hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#168#,12)))	else '0'; -- Addr:  0x0168	ACQ_SER_STAT
+hit(17) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#190#,12)))	else '0'; -- Addr:  0x0190	SENSOR_CTRL
+hit(18) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#198#,12)))	else '0'; -- Addr:  0x0198	SENSOR_STAT
+hit(19) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a0#,12)))	else '0'; -- Addr:  0x01A0	SENSOR_SUBSAMPLING
+hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
+hit(21) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
+hit(22) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
+hit(23) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b0#,12)))	else '0'; -- Addr:  0x01B0	SENSOR_ROI2_Y_START
+hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b4#,12)))	else '0'; -- Addr:  0x01B4	SENSOR_ROI2_Y_SIZE
+hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d8#,12)))	else '0'; -- Addr:  0x01D8	SENSOR_M_LINES
+hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	SENSOR_F_LINES
+hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
+hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
+hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
+hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
+hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
+hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b0#,12)))	else '0'; -- Addr:  0x02B0	DEBUG_CNTR2
+hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b4#,12)))	else '0'; -- Addr:  0x02B4	DEBUG_CNTR3
+hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
+hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
 
 
 
@@ -2001,6 +2093,7 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_ACQ_READOUT_CFG1,
                             rb_ACQ_READOUT_CFG2,
                             rb_ACQ_READOUT_CFG3,
+                            rb_ACQ_READOUT_CFG4,
                             rb_ACQ_EXP_CTRL1,
                             rb_ACQ_EXP_CTRL2,
                             rb_ACQ_EXP_CTRL3,
@@ -2019,6 +2112,7 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_ACQ_SENSOR_ROI2_Y_START,
                             rb_ACQ_SENSOR_ROI2_Y_SIZE,
                             rb_ACQ_SENSOR_M_LINES,
+                            rb_ACQ_SENSOR_F_LINES,
                             rb_ACQ_DEBUG_PINS,
                             rb_ACQ_TRIGGER_MISSED,
                             rb_ACQ_SENSOR_FPS,
@@ -2058,6 +2152,10 @@ begin
       -- [0x120]: /ACQ/READOUT_CFG3
       when 16#120# =>
          readBackMux <= rb_ACQ_READOUT_CFG3;
+
+      -- [0x124]: /ACQ/READOUT_CFG4
+      when 16#124# =>
+         readBackMux <= rb_ACQ_READOUT_CFG4;
 
       -- [0x128]: /ACQ/EXP_CTRL1
       when 16#128# =>
@@ -2127,9 +2225,13 @@ begin
       when 16#1B4# =>
          readBackMux <= rb_ACQ_SENSOR_ROI2_Y_SIZE;
 
-      -- [0x1dc]: /ACQ/SENSOR_M_LINES
-      when 16#1DC# =>
+      -- [0x1d8]: /ACQ/SENSOR_M_LINES
+      when 16#1D8# =>
          readBackMux <= rb_ACQ_SENSOR_M_LINES;
+
+      -- [0x1dc]: /ACQ/SENSOR_F_LINES
+      when 16#1DC# =>
+         readBackMux <= rb_ACQ_SENSOR_F_LINES;
 
       -- [0x1e0]: /ACQ/DEBUG_PINS
       when 16#1E0# =>
@@ -2143,28 +2245,28 @@ begin
       when 16#1F0# =>
          readBackMux <= rb_ACQ_SENSOR_FPS;
 
-      -- [0x220]: /ACQ/DEBUG
-      when 16#220# =>
+      -- [0x2a0]: /ACQ/DEBUG
+      when 16#2A0# =>
          readBackMux <= rb_ACQ_DEBUG;
 
-      -- [0x228]: /ACQ/DEBUG_CNTR1
-      when 16#228# =>
+      -- [0x2a8]: /ACQ/DEBUG_CNTR1
+      when 16#2A8# =>
          readBackMux <= rb_ACQ_DEBUG_CNTR1;
 
-      -- [0x230]: /ACQ/DEBUG_CNTR2
-      when 16#230# =>
+      -- [0x2b0]: /ACQ/DEBUG_CNTR2
+      when 16#2B0# =>
          readBackMux <= rb_ACQ_DEBUG_CNTR2;
 
-      -- [0x234]: /ACQ/DEBUG_CNTR3
-      when 16#234# =>
+      -- [0x2b4]: /ACQ/DEBUG_CNTR3
+      when 16#2B4# =>
          readBackMux <= rb_ACQ_DEBUG_CNTR3;
 
-      -- [0x238]: /ACQ/EXP_FOT
-      when 16#238# =>
+      -- [0x2b8]: /ACQ/EXP_FOT
+      when 16#2B8# =>
          readBackMux <= rb_ACQ_EXP_FOT;
 
-      -- [0x240]: /ACQ/ACQ_SFNC
-      when 16#240# =>
+      -- [0x2c0]: /ACQ/ACQ_SFNC
+      when 16#2C0# =>
          readBackMux <= rb_ACQ_ACQ_SFNC;
 
       -- Default value
@@ -2733,54 +2835,11 @@ regfile.ACQ.READOUT_CFG1.FOT_LENGTH <= rb_ACQ_READOUT_CFG1(15 downto 0);
 wEn(5) <= (hit(5)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: READOUT_EN
--- Field type: RW
+-- Field name: READOUT_LENGTH(28 downto 0)
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG2(28) <= field_rw_ACQ_READOUT_CFG2_READOUT_EN;
-regfile.ACQ.READOUT_CFG2.READOUT_EN <= field_rw_ACQ_READOUT_CFG2_READOUT_EN;
+rb_ACQ_READOUT_CFG2(28 downto 0) <= regfile.ACQ.READOUT_CFG2.READOUT_LENGTH;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG2_READOUT_EN
-------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG2_READOUT_EN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG2_READOUT_EN <= '0';
-      else
-         if(wEn(5) = '1' and bitEnN(28) = '0') then
-            field_rw_ACQ_READOUT_CFG2_READOUT_EN <= reg_writedata(28);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_READOUT_CFG2_READOUT_EN;
-
-------------------------------------------------------------------------------------------
--- Field name: READOUT_LENGTH(23 downto 0)
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG2(23 downto 0) <= field_rw_ACQ_READOUT_CFG2_READOUT_LENGTH(23 downto 0);
-regfile.ACQ.READOUT_CFG2.READOUT_LENGTH <= field_rw_ACQ_READOUT_CFG2_READOUT_LENGTH(23 downto 0);
-
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG2_READOUT_LENGTH
-------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG2_READOUT_LENGTH : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG2_READOUT_LENGTH <= std_logic_vector(to_unsigned(integer(0),24));
-      else
-         for j in  23 downto 0  loop
-            if(wEn(5) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_READOUT_CFG2_READOUT_LENGTH(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_ACQ_READOUT_CFG2_READOUT_LENGTH;
 
 
 
@@ -2792,30 +2851,28 @@ end process P_ACQ_READOUT_CFG2_READOUT_LENGTH;
 wEn(6) <= (hit(6)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: KEEP_OUT_TRIG(31 downto 16)
+-- Field name: KEEP_OUT_TRIG_ENA
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG3(31 downto 16) <= field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG(15 downto 0);
-regfile.ACQ.READOUT_CFG3.KEEP_OUT_TRIG <= field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG(15 downto 0);
+rb_ACQ_READOUT_CFG3(16) <= field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA;
+regfile.ACQ.READOUT_CFG3.KEEP_OUT_TRIG_ENA <= field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG
+-- Process: P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA
 ------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG : process(sysclk)
+P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG <= std_logic_vector(to_unsigned(integer(0),16));
+         field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA <= '0';
       else
-         for j in  31 downto 16  loop
-            if(wEn(6) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG(j-16) <= reg_writedata(j);
-            end if;
-         end loop;
+         if(wEn(6) = '1' and bitEnN(16) = '0') then
+            field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA <= reg_writedata(16);
+         end if;
       end if;
    end if;
-end process P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG;
+end process P_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA;
 
 ------------------------------------------------------------------------------------------
 -- Field name: LINE_TIME(15 downto 0)
@@ -2832,7 +2889,7 @@ P_ACQ_READOUT_CFG3_LINE_TIME : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG3_LINE_TIME <= std_logic_vector(to_unsigned(integer(0),16));
+         field_rw_ACQ_READOUT_CFG3_LINE_TIME <= std_logic_vector(to_unsigned(integer(366),16));
       else
          for j in  15 downto 0  loop
             if(wEn(6) = '1' and bitEnN(j) = '0') then
@@ -2847,10 +2904,71 @@ end process P_ACQ_READOUT_CFG3_LINE_TIME;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: ACQ_EXP_CTRL1
+-- Register name: ACQ_READOUT_CFG4
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(7) <= (hit(7)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: KEEP_OUT_TRIG_END(31 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_READOUT_CFG4(31 downto 16) <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(15 downto 0);
+regfile.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_END <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(15 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END
+------------------------------------------------------------------------------------------
+P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END <= std_logic_vector(to_unsigned(integer(365),16));
+      else
+         for j in  31 downto 16  loop
+            if(wEn(7) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END;
+
+------------------------------------------------------------------------------------------
+-- Field name: KEEP_OUT_TRIG_START(15 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_READOUT_CFG4(15 downto 0) <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START(15 downto 0);
+regfile.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START(15 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START
+------------------------------------------------------------------------------------------
+P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START <= std_logic_vector(to_unsigned(integer(366),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(7) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_EXP_CTRL1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(8) <= (hit(8)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXPOSURE_LEV_MODE
@@ -2869,7 +2987,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE <= '0';
       else
-         if(wEn(7) = '1' and bitEnN(28) = '0') then
+         if(wEn(8) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE <= reg_writedata(28);
          end if;
       end if;
@@ -2894,7 +3012,7 @@ begin
          field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS <= std_logic_vector(to_unsigned(integer(0),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(7) = '1' and bitEnN(j) = '0') then
+            if(wEn(8) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -2909,7 +3027,7 @@ end process P_ACQ_EXP_CTRL1_EXPOSURE_SS;
 -- Register name: ACQ_EXP_CTRL2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(8) <= (hit(8)) and (reg_write);
+wEn(9) <= (hit(9)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXPOSURE_DS(27 downto 0)
@@ -2929,7 +3047,7 @@ begin
          field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS <= std_logic_vector(to_unsigned(integer(0),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(8) = '1' and bitEnN(j) = '0') then
+            if(wEn(9) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -2944,7 +3062,7 @@ end process P_ACQ_EXP_CTRL2_EXPOSURE_DS;
 -- Register name: ACQ_EXP_CTRL3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(9) <= (hit(9)) and (reg_write);
+wEn(10) <= (hit(10)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXPOSURE_TS(27 downto 0)
@@ -2964,7 +3082,7 @@ begin
          field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS <= std_logic_vector(to_unsigned(integer(0),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(9) = '1' and bitEnN(j) = '0') then
+            if(wEn(10) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -2979,7 +3097,7 @@ end process P_ACQ_EXP_CTRL3_EXPOSURE_TS;
 -- Register name: ACQ_TRIGGER_DELAY
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(10) <= (hit(10)) and (reg_write);
+wEn(11) <= (hit(11)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TRIGGER_DELAY(27 downto 0)
@@ -2999,7 +3117,7 @@ begin
          field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY <= std_logic_vector(to_unsigned(integer(0),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(10) = '1' and bitEnN(j) = '0') then
+            if(wEn(11) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3014,7 +3132,7 @@ end process P_ACQ_TRIGGER_DELAY_TRIGGER_DELAY;
 -- Register name: ACQ_STROBE_CTRL1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(11) <= (hit(11)) and (reg_write);
+wEn(12) <= (hit(12)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: STROBE_E
@@ -3033,7 +3151,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_STROBE_CTRL1_STROBE_E <= '0';
       else
-         if(wEn(11) = '1' and bitEnN(31) = '0') then
+         if(wEn(12) = '1' and bitEnN(31) = '0') then
             field_rw_ACQ_STROBE_CTRL1_STROBE_E <= reg_writedata(31);
          end if;
       end if;
@@ -3057,7 +3175,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_STROBE_CTRL1_STROBE_POL <= '0';
       else
-         if(wEn(11) = '1' and bitEnN(28) = '0') then
+         if(wEn(12) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_STROBE_CTRL1_STROBE_POL <= reg_writedata(28);
          end if;
       end if;
@@ -3082,7 +3200,7 @@ begin
          field_rw_ACQ_STROBE_CTRL1_STROBE_START <= std_logic_vector(to_unsigned(integer(0),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(11) = '1' and bitEnN(j) = '0') then
+            if(wEn(12) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_STROBE_CTRL1_STROBE_START(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3097,7 +3215,7 @@ end process P_ACQ_STROBE_CTRL1_STROBE_START;
 -- Register name: ACQ_STROBE_CTRL2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(12) <= (hit(12)) and (reg_write);
+wEn(13) <= (hit(13)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: STROBE_MODE
@@ -3116,7 +3234,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_STROBE_CTRL2_STROBE_MODE <= '0';
       else
-         if(wEn(12) = '1' and bitEnN(31) = '0') then
+         if(wEn(13) = '1' and bitEnN(31) = '0') then
             field_rw_ACQ_STROBE_CTRL2_STROBE_MODE <= reg_writedata(31);
          end if;
       end if;
@@ -3140,7 +3258,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN <= '0';
       else
-         if(wEn(12) = '1' and bitEnN(29) = '0') then
+         if(wEn(13) = '1' and bitEnN(29) = '0') then
             field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN <= reg_writedata(29);
          end if;
       end if;
@@ -3164,7 +3282,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN <= '1';
       else
-         if(wEn(12) = '1' and bitEnN(28) = '0') then
+         if(wEn(13) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN <= reg_writedata(28);
          end if;
       end if;
@@ -3189,7 +3307,7 @@ begin
          field_rw_ACQ_STROBE_CTRL2_STROBE_END <= std_logic_vector(to_unsigned(integer(268435455),28));
       else
          for j in  27 downto 0  loop
-            if(wEn(12) = '1' and bitEnN(j) = '0') then
+            if(wEn(13) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_STROBE_CTRL2_STROBE_END(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3204,7 +3322,7 @@ end process P_ACQ_STROBE_CTRL2_STROBE_END;
 -- Register name: ACQ_ACQ_SER_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(13) <= (hit(13)) and (reg_write);
+wEn(14) <= (hit(14)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SER_RWn
@@ -3223,7 +3341,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_ACQ_SER_CTRL_SER_RWn <= '1';
       else
-         if(wEn(13) = '1' and bitEnN(16) = '0') then
+         if(wEn(14) = '1' and bitEnN(16) = '0') then
             field_rw_ACQ_ACQ_SER_CTRL_SER_RWn <= reg_writedata(16);
          end if;
       end if;
@@ -3248,7 +3366,7 @@ begin
          field_rw_ACQ_ACQ_SER_CTRL_SER_CMD <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  9 downto 8  loop
-            if(wEn(13) = '1' and bitEnN(j) = '0') then
+            if(wEn(14) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_ACQ_SER_CTRL_SER_CMD(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -3273,7 +3391,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS <= '0';
       else
-         if(wEn(13) = '1' and bitEnN(4) = '0') then
+         if(wEn(14) = '1' and bitEnN(4) = '0') then
             field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS <= reg_writedata(4);
          else
             field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS <= '0';
@@ -3299,7 +3417,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS <= '0';
       else
-         if(wEn(13) = '1' and bitEnN(0) = '0') then
+         if(wEn(14) = '1' and bitEnN(0) = '0') then
             field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS <= reg_writedata(0);
          else
             field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS <= '0';
@@ -3315,7 +3433,7 @@ end process P_ACQ_ACQ_SER_CTRL_SER_WF_SS;
 -- Register name: ACQ_ACQ_SER_ADDATA
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(14) <= (hit(14)) and (reg_write);
+wEn(15) <= (hit(15)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SER_DAT(31 downto 16)
@@ -3335,7 +3453,7 @@ begin
          field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT <= std_logic_vector(to_unsigned(integer(0),16));
       else
          for j in  31 downto 16  loop
-            if(wEn(14) = '1' and bitEnN(j) = '0') then
+            if(wEn(15) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -3361,7 +3479,7 @@ begin
          field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD <= std_logic_vector(to_unsigned(integer(0),15));
       else
          for j in  14 downto 0  loop
-            if(wEn(14) = '1' and bitEnN(j) = '0') then
+            if(wEn(15) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3376,7 +3494,7 @@ end process P_ACQ_ACQ_SER_ADDATA_SER_ADD;
 -- Register name: ACQ_ACQ_SER_STAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(15) <= (hit(15)) and (reg_write);
+wEn(16) <= (hit(16)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SER_FIFO_EMPTY
@@ -3406,7 +3524,7 @@ rb_ACQ_ACQ_SER_STAT(15 downto 0) <= regfile.ACQ.ACQ_SER_STAT.SER_DAT_R;
 -- Register name: ACQ_SENSOR_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(16) <= (hit(16)) and (reg_write);
+wEn(17) <= (hit(17)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_REFRESH_TEMP
@@ -3425,7 +3543,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP <= '0';
       else
-         if(wEn(16) = '1' and bitEnN(24) = '0') then
+         if(wEn(17) = '1' and bitEnN(24) = '0') then
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP <= reg_writedata(24);
          else
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP <= '0';
@@ -3451,7 +3569,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN <= '0';
       else
-         if(wEn(16) = '1' and bitEnN(16) = '0') then
+         if(wEn(17) = '1' and bitEnN(16) = '0') then
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN <= reg_writedata(16);
          else
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN <= '0';
@@ -3477,7 +3595,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR <= '0';
       else
-         if(wEn(16) = '1' and bitEnN(8) = '0') then
+         if(wEn(17) = '1' and bitEnN(8) = '0') then
             field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR <= reg_writedata(8);
          end if;
       end if;
@@ -3501,7 +3619,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE <= '1';
       else
-         if(wEn(16) = '1' and bitEnN(4) = '0') then
+         if(wEn(17) = '1' and bitEnN(4) = '0') then
             field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE <= reg_writedata(4);
          end if;
       end if;
@@ -3525,7 +3643,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN <= '1';
       else
-         if(wEn(16) = '1' and bitEnN(1) = '0') then
+         if(wEn(17) = '1' and bitEnN(1) = '0') then
             field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN <= reg_writedata(1);
          end if;
       end if;
@@ -3549,7 +3667,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP <= '0';
       else
-         if(wEn(16) = '1' and bitEnN(0) = '0') then
+         if(wEn(17) = '1' and bitEnN(0) = '0') then
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP <= reg_writedata(0);
          else
             field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP <= '0';
@@ -3565,7 +3683,7 @@ end process P_ACQ_SENSOR_CTRL_SENSOR_POWERUP;
 -- Register name: ACQ_SENSOR_STAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(17) <= (hit(17)) and (reg_write);
+wEn(18) <= (hit(18)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_TEMP(7 downto 0)
@@ -3630,7 +3748,7 @@ rb_ACQ_SENSOR_STAT(0) <= regfile.ACQ.SENSOR_STAT.SENSOR_POWERUP_DONE;
 -- Register name: ACQ_SENSOR_SUBSAMPLING
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(18) <= (hit(18)) and (reg_write);
+wEn(19) <= (hit(19)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
@@ -3657,7 +3775,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y <= '0';
       else
-         if(wEn(18) = '1' and bitEnN(3) = '0') then
+         if(wEn(19) = '1' and bitEnN(3) = '0') then
             field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y <= reg_writedata(3);
          end if;
       end if;
@@ -3689,7 +3807,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y <= '0';
       else
-         if(wEn(18) = '1' and bitEnN(1) = '0') then
+         if(wEn(19) = '1' and bitEnN(1) = '0') then
             field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y <= reg_writedata(1);
          end if;
       end if;
@@ -3713,7 +3831,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X <= '0';
       else
-         if(wEn(18) = '1' and bitEnN(0) = '0') then
+         if(wEn(19) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X <= reg_writedata(0);
          end if;
       end if;
@@ -3727,7 +3845,7 @@ end process P_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X;
 -- Register name: ACQ_SENSOR_GAIN_ANA
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(19) <= (hit(19)) and (reg_write);
+wEn(20) <= (hit(20)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
@@ -3755,7 +3873,7 @@ begin
          field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN <= std_logic_vector(to_unsigned(integer(1),3));
       else
          for j in  10 downto 8  loop
-            if(wEn(19) = '1' and bitEnN(j) = '0') then
+            if(wEn(20) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -3778,7 +3896,7 @@ regfile.ACQ.SENSOR_GAIN_ANA.reserved0 <= rb_ACQ_SENSOR_GAIN_ANA(7 downto 0);
 -- Register name: ACQ_SENSOR_ROI_Y_START
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(20) <= (hit(20)) and (reg_write);
+wEn(21) <= (hit(21)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -3806,7 +3924,7 @@ begin
          field_rw_ACQ_SENSOR_ROI_Y_START_Y_START <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(20) = '1' and bitEnN(j) = '0') then
+            if(wEn(21) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_ROI_Y_START_Y_START(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3821,7 +3939,7 @@ end process P_ACQ_SENSOR_ROI_Y_START_Y_START;
 -- Register name: ACQ_SENSOR_ROI_Y_SIZE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(21) <= (hit(21)) and (reg_write);
+wEn(22) <= (hit(22)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -3849,7 +3967,7 @@ begin
          field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE <= std_logic_vector(to_unsigned(integer(770),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(21) = '1' and bitEnN(j) = '0') then
+            if(wEn(22) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3864,7 +3982,7 @@ end process P_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE;
 -- Register name: ACQ_SENSOR_ROI2_Y_START
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(22) <= (hit(22)) and (reg_write);
+wEn(23) <= (hit(23)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -3892,7 +4010,7 @@ begin
          field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(22) = '1' and bitEnN(j) = '0') then
+            if(wEn(23) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3907,7 +4025,7 @@ end process P_ACQ_SENSOR_ROI2_Y_START_Y_START;
 -- Register name: ACQ_SENSOR_ROI2_Y_SIZE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(23) <= (hit(23)) and (reg_write);
+wEn(24) <= (hit(24)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -3935,7 +4053,7 @@ begin
          field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE <= std_logic_vector(to_unsigned(integer(770),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(23) = '1' and bitEnN(j) = '0') then
+            if(wEn(24) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -3950,7 +4068,7 @@ end process P_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE;
 -- Register name: ACQ_SENSOR_M_LINES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(24) <= (hit(24)) and (reg_write);
+wEn(25) <= (hit(25)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: M_SUPPRESSED(14 downto 10)
@@ -3970,7 +4088,7 @@ begin
          field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  14 downto 10  loop
-            if(wEn(24) = '1' and bitEnN(j) = '0') then
+            if(wEn(25) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED(j-10) <= reg_writedata(j);
             end if;
          end loop;
@@ -3996,7 +4114,7 @@ begin
          field_rw_ACQ_SENSOR_M_LINES_M_LINES <= std_logic_vector(to_unsigned(integer(8),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(24) = '1' and bitEnN(j) = '0') then
+            if(wEn(25) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_M_LINES_M_LINES(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -4008,10 +4126,71 @@ end process P_ACQ_SENSOR_M_LINES_M_LINES;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_F_LINES
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(26) <= (hit(26)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: F_SUPPRESSED(14 downto 10)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_F_LINES(14 downto 10) <= field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED(4 downto 0);
+regfile.ACQ.SENSOR_F_LINES.F_SUPPRESSED <= field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_F_LINES_F_SUPPRESSED
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_F_LINES_F_SUPPRESSED : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  14 downto 10  loop
+            if(wEn(26) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED(j-10) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_F_LINES_F_SUPPRESSED;
+
+------------------------------------------------------------------------------------------
+-- Field name: F_LINES(9 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_F_LINES(9 downto 0) <= field_rw_ACQ_SENSOR_F_LINES_F_LINES(9 downto 0);
+regfile.ACQ.SENSOR_F_LINES.F_LINES <= field_rw_ACQ_SENSOR_F_LINES_F_LINES(9 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_F_LINES_F_LINES
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_F_LINES_F_LINES : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_F_LINES_F_LINES <= std_logic_vector(to_unsigned(integer(8),10));
+      else
+         for j in  9 downto 0  loop
+            if(wEn(26) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_F_LINES_F_LINES(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_F_LINES_F_LINES;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 -- Register name: ACQ_DEBUG_PINS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(25) <= (hit(25)) and (reg_write);
+wEn(27) <= (hit(27)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Debug3_sel(28 downto 24)
@@ -4031,7 +4210,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug3_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  28 downto 24  loop
-            if(wEn(25) = '1' and bitEnN(j) = '0') then
+            if(wEn(27) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug3_sel(j-24) <= reg_writedata(j);
             end if;
          end loop;
@@ -4057,7 +4236,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug2_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  20 downto 16  loop
-            if(wEn(25) = '1' and bitEnN(j) = '0') then
+            if(wEn(27) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug2_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -4083,7 +4262,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug1_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  12 downto 8  loop
-            if(wEn(25) = '1' and bitEnN(j) = '0') then
+            if(wEn(27) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug1_sel(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -4109,7 +4288,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug0_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(25) = '1' and bitEnN(j) = '0') then
+            if(wEn(27) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug0_sel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -4124,7 +4303,7 @@ end process P_ACQ_DEBUG_PINS_Debug0_sel;
 -- Register name: ACQ_TRIGGER_MISSED
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(26) <= (hit(26)) and (reg_write);
+wEn(28) <= (hit(28)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TRIGGER_MISSED_RST
@@ -4143,7 +4322,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
       else
-         if(wEn(26) = '1' and bitEnN(28) = '0') then
+         if(wEn(28) = '1' and bitEnN(28) = '0') then
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= reg_writedata(28);
          else
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
@@ -4166,7 +4345,7 @@ rb_ACQ_TRIGGER_MISSED(15 downto 0) <= regfile.ACQ.TRIGGER_MISSED.TRIGGER_MISSED_
 -- Register name: ACQ_SENSOR_FPS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(27) <= (hit(27)) and (reg_write);
+wEn(29) <= (hit(29)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FPS(15 downto 0)
@@ -4182,7 +4361,7 @@ rb_ACQ_SENSOR_FPS(15 downto 0) <= regfile.ACQ.SENSOR_FPS.SENSOR_FPS;
 -- Register name: ACQ_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(28) <= (hit(28)) and (reg_write);
+wEn(30) <= (hit(30)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DEBUG_RST_CNTR
@@ -4201,7 +4380,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= '1';
       else
-         if(wEn(28) = '1' and bitEnN(28) = '0') then
+         if(wEn(30) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= reg_writedata(28);
          end if;
       end if;
@@ -4226,7 +4405,7 @@ begin
          field_rw_ACQ_DEBUG_TEST_MODE_PIX_START <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  25 downto 16  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(30) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_TEST_MODE_PIX_START(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -4251,7 +4430,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_TEST_MOVE <= '0';
       else
-         if(wEn(28) = '1' and bitEnN(9) = '0') then
+         if(wEn(30) = '1' and bitEnN(9) = '0') then
             field_rw_ACQ_DEBUG_TEST_MOVE <= reg_writedata(9);
          end if;
       end if;
@@ -4275,7 +4454,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_TEST_MODE <= '0';
       else
-         if(wEn(28) = '1' and bitEnN(8) = '0') then
+         if(wEn(30) = '1' and bitEnN(8) = '0') then
             field_rw_ACQ_DEBUG_TEST_MODE <= reg_writedata(8);
          end if;
       end if;
@@ -4314,7 +4493,7 @@ begin
          field_rw_ACQ_DEBUG_LED_TEST_COLOR <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  2 downto 1  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(30) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_LED_TEST_COLOR(j-1) <= reg_writedata(j);
             end if;
          end loop;
@@ -4339,7 +4518,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_LED_TEST <= '0';
       else
-         if(wEn(28) = '1' and bitEnN(0) = '0') then
+         if(wEn(30) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_DEBUG_LED_TEST <= reg_writedata(0);
          end if;
       end if;
@@ -4353,7 +4532,7 @@ end process P_ACQ_DEBUG_LED_TEST;
 -- Register name: ACQ_DEBUG_CNTR1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(29) <= (hit(29)) and (reg_write);
+wEn(31) <= (hit(31)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EOF_CNTR(31 downto 0)
@@ -4369,7 +4548,7 @@ rb_ACQ_DEBUG_CNTR1(31 downto 0) <= regfile.ACQ.DEBUG_CNTR1.EOF_CNTR;
 -- Register name: ACQ_DEBUG_CNTR2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(30) <= (hit(30)) and (reg_write);
+wEn(32) <= (hit(32)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EOL_CNTR(11 downto 0)
@@ -4385,7 +4564,7 @@ rb_ACQ_DEBUG_CNTR2(11 downto 0) <= regfile.ACQ.DEBUG_CNTR2.EOL_CNTR;
 -- Register name: ACQ_DEBUG_CNTR3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(31) <= (hit(31)) and (reg_write);
+wEn(33) <= (hit(33)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FRAME_DURATION(27 downto 0)
@@ -4401,7 +4580,7 @@ rb_ACQ_DEBUG_CNTR3(27 downto 0) <= regfile.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION
 -- Register name: ACQ_EXP_FOT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(32) <= (hit(32)) and (reg_write);
+wEn(34) <= (hit(34)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXP_FOT
@@ -4420,7 +4599,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_EXP_FOT_EXP_FOT <= '1';
       else
-         if(wEn(32) = '1' and bitEnN(16) = '0') then
+         if(wEn(34) = '1' and bitEnN(16) = '0') then
             field_rw_ACQ_EXP_FOT_EXP_FOT <= reg_writedata(16);
          end if;
       end if;
@@ -4445,7 +4624,7 @@ begin
          field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(32) = '1' and bitEnN(j) = '0') then
+            if(wEn(34) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -4460,7 +4639,7 @@ end process P_ACQ_EXP_FOT_EXP_FOT_TIME;
 -- Register name: ACQ_ACQ_SFNC
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(33) <= (hit(33)) and (reg_write);
+wEn(35) <= (hit(35)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: RELOAD_GRAB_PARAMS
@@ -4479,7 +4658,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= '1';
       else
-         if(wEn(33) = '1' and bitEnN(0) = '0') then
+         if(wEn(35) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= reg_writedata(0);
          end if;
       end if;
