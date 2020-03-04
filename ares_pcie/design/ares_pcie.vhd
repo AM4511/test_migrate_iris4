@@ -2,15 +2,15 @@
 -- $HeadURL:  $
 -- $Revision:  $
 -- $Date:  $
--- $Author: jlarin $
+-- Author: amarchan
 --
--- DESCRIPTION: Fichier top du FPGA de Ares 
+-- DESCRIPTION: Fichier top du FPGA de Ares_pcie 
 --
--- Ce FPGA contient les users in/out pour iris3 et le profitblaze.
+-- Ce FPGA contient les users in/out pour iris4 et le profitblaze.
+-- Il est connect/ au host Elkhartlake par un interface pcie Gen1x1
 --
--- PROJECT: Iris3
+-- PROJECT: Iris4
 --
--- Jean-Francois Larin ing. #121322
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -116,11 +116,11 @@ entity ares_pcie is
     hb_ck_n   : out   std_logic;
     hb_cs_n   : out   std_logic;
     hb_dq     : inout std_logic_vector (7 downto 0);
-    hb_int_n  : in    std_logic;
+    --hb_int_n  : in    std_logic;
     hb_rst_n  : out   std_logic;
-    hb_rsto_n : in    std_logic;
+    --hb_rsto_n : in    std_logic;
     hb_rwds   : inout std_logic;
-    hb_wp_n   : out   std_logic;
+    --hb_wp_n   : out   std_logic;
 
     ---------------------------------------------------------------------------
     --  FPGA USER IO interface
@@ -466,11 +466,8 @@ architecture functional of ares_pcie is
       hb_ck_n                    : out   std_logic;
       hb_cs0_n                   : out   std_logic;
       hb_dq                      : inout std_logic_vector (7 downto 0);
-      hb_int_n                   : in    std_logic;
       hb_rst_n                   : out   std_logic;
-      hb_rsto_n                  : in    std_logic;
       hb_rwds                    : inout std_logic;
-      hb_wp_n                    : out   std_logic;
       host_irq                   : out   std_logic;
       ncsi_clk                   : out   std_logic;
       ncsi_crs_dv                : in    std_logic;
@@ -610,10 +607,34 @@ architecture functional of ares_pcie is
   signal flasher_count       : integer range 0 to MAX_FLASHER_COUNT := 0;  -- periode PCIe = 16 ns, 1/2 seconde
   signal flasher_state       : std_logic                            := '0';  -- juste pour que la simulation soit jolie, car on ne va pas resetter ce signal
 
-  signal cfgmclk    : std_logic;  -- horloge sortant du block de configuration a 65 MHz +/- 50%
-  signal cfgmclk_pb : std_logic;        -- version qui sort du Microblaze
+  signal cfgmclk            : std_logic;  -- horloge sortant du block de configuration a 65 MHz +/- 50%
+  signal cfgmclk_pb         : std_logic;  -- version qui sort du Microblaze
+  signal ncsi_clk_phase_0   : std_logic;
+  signal ncsi_clk_phase_180 : std_logic;
 
+  
 begin
+
+
+  -- NCSI clock output to I210 is aligned with Data but inverted  
+  ncsi_clk <= ncsi_clk_phase_180;
+
+  ncsi_clk_oddr : ODDR
+    generic map(
+      DDR_CLK_EDGE => "OPPOSITE_EDGE",  -- "OPPOSITE_EDGE" or "SAME_EDGE" 
+      INIT         => '0',              -- Initial value for Q port ('1' or '0')
+      SRTYPE       => "SYNC")           -- Reset Type ("ASYNC" or "SYNC")
+    port map (
+      Q  => ncsi_clk_phase_180,         -- 1-bit DDR output
+      C  => ncsi_clk_phase_0,           -- 1-bit clock input
+      CE => '1',                        -- 1-bit clock enable input
+      D1 => '1',                        -- 1-bit data input (positive edge)
+      D2 => '0',                        -- 1-bit data input (negative edge)
+      R  => '0',                        -- 1-bit reset input
+      S  => '0'                         -- 1-bit set input
+      );
+
+
 
   ------------------------------
   -- Trigger output selection --
@@ -877,13 +898,10 @@ begin
       hb_ck_n                    => hb_ck_n,
       hb_cs0_n                   => hb_cs_n,
       hb_dq                      => hb_dq,
-      hb_int_n                   => hb_int_n,
       hb_rst_n                   => hb_rst_n,
-      hb_rsto_n                  => hb_rsto_n,
       hb_rwds                    => hb_rwds,
-      hb_wp_n                    => hb_wp_n,
       host_irq                   => profinet_irq,
-      ncsi_clk                   => ncsi_clk,
+      ncsi_clk                   => ncsi_clk_phase_0,
       ncsi_crs_dv                => ncsi_rx_crs_dv,
       ncsi_rx_er                 => '0',
       ncsi_rxd                   => ncsi_rxd,
