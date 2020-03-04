@@ -4,6 +4,9 @@
  git pull -all
  git merge master
  [Et ici ... on envoi le commit et le merge req]
+ git add .
+ git commit
+ git push
  
  
  
