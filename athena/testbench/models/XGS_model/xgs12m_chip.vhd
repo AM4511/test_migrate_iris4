@@ -382,7 +382,6 @@ signal TRIGGER_READOUT     : std_logic := '0';
 
 signal NEW_LINE            : std_logic := '0';           
 
-
 begin
 
 --split in major behavioural blocks
@@ -916,8 +915,8 @@ begin
       --NO more EXPOSURE during EFOT
       INTEGRATION     <= '0';      
       EFOT            <= '1';
-      TRIGGER_READOUT <= '0';   
-      wait for integer(integer( to_integer(unsigned(line_time))*8*15.4329)- 5360) * 1 ns ; --FOT Duration is around 8 lines of the sensor.
+      TRIGGER_READOUT <= '0'; 
+      wait for  integer(integer( real(to_integer(unsigned(line_time))) * 8.0 * 15.4329)- 5360) * 1ns ; --FOT Duration is around 8 lines of the sensor.
 
     
       INTEGRATION     <= '0';      
