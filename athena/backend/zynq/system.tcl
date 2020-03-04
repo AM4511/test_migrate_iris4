@@ -363,8 +363,8 @@ proc create_hier_cell_pcie_system { parentCell nameHier } {
   create_bd_pin -dir O -type clk axi_ctl_aclk_out
   create_bd_pin -dir I -type rst ext_reset_in
   create_bd_pin -dir O -from 0 -to 0 -type rst interconnect_aresetn
+  create_bd_pin -dir I -type clk pcie_clk100MHz
   create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
-  create_bd_pin -dir I -type clk refclk_100MHz
   create_bd_pin -dir O -type clk slowest_sync_clk
 
   # Create instance: axi_pcie_0, and set properties
@@ -400,7 +400,7 @@ proc create_hier_cell_pcie_system { parentCell nameHier } {
   connect_bd_net -net ACLK_1 [get_bd_pins slowest_sync_clk] [get_bd_pins axi_pcie_0/axi_aclk_out] [get_bd_pins rst_axi_pcie_0_125M/slowest_sync_clk]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins interconnect_aresetn] [get_bd_pins rst_axi_pcie_0_125M/interconnect_aresetn]
   connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_ctl_aclk_out] [get_bd_pins axi_pcie_0/axi_ctl_aclk_out]
-  connect_bd_net -net clk_100MHz_1 [get_bd_pins refclk_100MHz] [get_bd_pins axi_pcie_0/REFCLK]
+  connect_bd_net -net clk_100MHz_1 [get_bd_pins pcie_clk100MHz] [get_bd_pins axi_pcie_0/REFCLK]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins peripheral_aresetn] [get_bd_pins axi_pcie_0/axi_aresetn] [get_bd_pins rst_axi_pcie_0_125M/peripheral_aresetn]
   connect_bd_net -net zynq_system_zresetn [get_bd_pins ext_reset_in] [get_bd_pins rst_axi_pcie_0_125M/ext_reset_in]
 
@@ -443,24 +443,25 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
   current_bd_instance $hier_obj
 
   # Create interface pins
-  create_bd_intf_pin -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 Anput_if_0
-
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
-
-  create_bd_intf_pin -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 XGS_controller_if_0
-
-  create_bd_intf_pin -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi
+  create_bd_intf_pin -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 m_axi
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi0
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi1
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi2
 
+  create_bd_intf_pin -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl
+
+  create_bd_intf_pin -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs_hispi
+
 
   # Create pins
   create_bd_pin -dir I -type clk idelay_clk
-  create_bd_pin -dir O -from 1 -to 0 led_out_0
+  create_bd_pin -dir O -type intr irq_dma
+  create_bd_pin -dir O -from 1 -to 0 led_out
   create_bd_pin -dir I -type clk s_axi_aclk
   create_bd_pin -dir I -type rst s_axi_aresetn
   create_bd_pin -dir I -type clk sysclk
@@ -481,17 +482,18 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
 
   # Create interface connections
   connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr_sub4_0/s_axis]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_pins Anput_if_0] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins XGS_controller_if_0] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_pins anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins s_axi1] [get_bd_intf_pins axiHiSPi_0/s_axi]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins S_AXI] [get_bd_intf_pins axiXGS_controller_0/S_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins s_axi0] [get_bd_intf_pins axiXGS_controller_0/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins s_axi2] [get_bd_intf_pins dmawr_sub4_0/s_axi]
   connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_pins m_axi] [get_bd_intf_pins dmawr_sub4_0/m_axi]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_pins hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_pins xgs_hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins sysclk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins dmawr_sub4_0/sysclk]
-  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_pins led_out_0] [get_bd_pins axiXGS_controller_0/led_out]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_pins led_out] [get_bd_pins axiXGS_controller_0/led_out]
+  connect_bd_net -net dmawr_sub4_0_intevent [get_bd_pins irq_dma] [get_bd_pins dmawr_sub4_0/intevent]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins s_axi_aclk] [get_bd_pins axiXGS_controller_0/s_axi_aclk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins idelay_clk] [get_bd_pins axiHiSPi_0/idelay_clk]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins sysrstN] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins dmawr_sub4_0/sysrstN]
@@ -535,25 +537,25 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
-  set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
+  set PS_DDR [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 PS_DDR ]
 
-  set anput [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput ]
+  set PS_FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 PS_FIXED_IO ]
 
-  set ddr [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 ddr ]
-
-  set hispi [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi ]
+  set anput_if [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if ]
 
   set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
+
+  set xgs [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs ]
 
   set xgs_ctrl [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl ]
 
 
   # Create ports
-  set led_out_0 [ create_bd_port -dir O -from 1 -to 0 led_out_0 ]
-  set refclk_100MHz [ create_bd_port -dir I -type clk refclk_100MHz ]
+  set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
+  set pcie_clk100MHz [ create_bd_port -dir I -type clk pcie_clk100MHz ]
   set_property -dict [ list \
    CONFIG.FREQ_HZ {100000000} \
- ] $refclk_100MHz
+ ] $pcie_clk100MHz
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
@@ -572,26 +574,26 @@ proc create_root_design { parentCell } {
   create_hier_cell_zynq_system [current_bd_instance .] zynq_system
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput] [get_bd_intf_pins grab_path/Anput_if_0]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins grab_path/XGS_controller_if_0]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins grab_path/anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins grab_path/xgs_ctrl]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins grab_path/s_axi1]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins grab_path/S_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins grab_path/s_axi0]
   connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axi_interconnect_0/M02_AXI] [get_bd_intf_pins grab_path/s_axi2]
   connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins pcie_system/S_AXI_CTL]
   connect_bd_intf_net -intf_net axi_pcie_0_M_AXI [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie_system/M_AXI]
   connect_bd_intf_net -intf_net axi_pcie_0_pcie_7x_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie_system/pcie_mgt]
   connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_pins grab_path/m_axi] [get_bd_intf_pins pcie_system/S_AXI]
-  connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports ddr] [get_bd_intf_pins zynq_system/DDR]
-  connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins zynq_system/ZYNQ_FIXED_IO]
+  connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports PS_FIXED_IO] [get_bd_intf_pins zynq_system/ZYNQ_FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S01_AXI] [get_bd_intf_pins zynq_system/M_AXI_GP]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports hispi] [get_bd_intf_pins grab_path/hispi]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins grab_path/xgs_hispi]
+  connect_bd_intf_net -intf_net zynq_system_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins zynq_system/DDR]
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins grab_path/sysclk] [get_bd_pins pcie_system/slowest_sync_clk]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie_system/interconnect_aresetn]
-  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out_0] [get_bd_pins grab_path/led_out_0]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins grab_path/led_out]
   connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins pcie_system/axi_ctl_aclk_out]
-  connect_bd_net -net clk_100MHz_1 [get_bd_ports refclk_100MHz] [get_bd_pins pcie_system/refclk_100MHz]
+  connect_bd_net -net clk_100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie_system/pcie_clk100MHz]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins grab_path/s_axi_aclk] [get_bd_pins zynq_system/zclk_100MHz]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins grab_path/idelay_clk] [get_bd_pins zynq_system/zclk_200MHz]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins grab_path/sysrstN] [get_bd_pins pcie_system/peripheral_aresetn]

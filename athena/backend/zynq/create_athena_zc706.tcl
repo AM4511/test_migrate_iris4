@@ -2,7 +2,7 @@
 # File         : create_athena.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/athena/backend/zynq/create_athena.tcl
+# Example      : source $env(IRIS4)/athena/backend/zynq/create_athena_zc706.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -17,7 +17,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 2
 
 
-set BASE_NAME athena_zynq
+set BASE_NAME athena_zc706
 #set DEVICE "xc7a35ticpg236-1L"
 set DEVICE "xc7z045ffg900-2"
 set VIVADO_SHORT_VERSION [version -short]
@@ -109,7 +109,7 @@ source ${FILESET_SCRIPT}
 source ${AXI_SYSTEM_BD_FILE}
 
 ## Create the Wrapper file
-set BD_FILE [get_files "*system_pb.bd"]
+set BD_FILE [get_files "*system.bd"]
 set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
 add_files -norecurse -force $BD_WRAPPER_FILE
 
@@ -124,7 +124,7 @@ generate_target all ${BD_FILE}
 ################################################
 # Top level Generics
 ################################################
-set_property top athena [current_fileset]
+set_property top ${BASE_NAME} [current_fileset]
 
 set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
@@ -142,21 +142,21 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 # Generate implementation run
 ################################################
-current_run [get_runs $IMPL_RUN]
-set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
-wait_on_run ${IMPL_RUN}
-
+#current_run [get_runs $IMPL_RUN]
+#set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+#launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
+#wait_on_run ${IMPL_RUN}
+#
 
 ################################################
 # Export board level info
 ################################################
-open_run ${IMPL_RUN}
-write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
-write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
-report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
-report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
-close_design
+#open_run ${IMPL_RUN}
+#write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
+#write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
+#report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
+#report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
+#close_design
 
 
 # A faire plus tard	
