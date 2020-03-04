@@ -109,6 +109,8 @@ entity athena_zc706 is
     -- See UG954 (v1.8) August 6, 2019; PCI Express Endpoint Connectivity page
     -- 46.
     ---------------------------------------------------------------------------
+    PCIE_PERST_LS : in std_logic;
+
     PCIE_CLK_QO_P : in std_logic;
     PCIE_CLK_QO_N : in std_logic;
 
@@ -123,7 +125,6 @@ entity athena_zc706 is
     PCIE_RX1_N : in  std_logic;
 
     -- PCIE_WAKE_B_LS : in std_logic;
-    -- PCIE_PERST_LS  : in std_logic;
     -- PCIE_TX2_P    : in std_logic;
     -- PCIE_RX2_P    : in std_logic;
     -- PCIE_TX2_N    : in std_logic;
@@ -660,6 +661,7 @@ architecture struct of athena_zc706 is
       anput_if_trig_rdy       : out   std_logic;
       led_out                 : out   std_logic_vector (1 downto 0);
       pcie_clk100MHz          : in    std_logic;
+      pcie_reset_n            : in    std_logic;
       pcie_rxn                : in    std_logic_vector (1 downto 0);
       pcie_rxp                : in    std_logic_vector (1 downto 0);
       pcie_txn                : out   std_logic_vector (1 downto 0);
@@ -686,16 +688,16 @@ architecture struct of athena_zc706 is
 
 
   signal pcie_clk100MHz          : std_logic;
-  signal anput_if_exposure       : std_logic;
-  signal anput_if_ext_trig       : std_logic;
-  signal anput_if_strobe         : std_logic;
-  signal anput_if_trig_rdy       : std_logic;
-  signal led_out                 : std_logic_vector (1 downto 0);
+  signal pcie_reset_n            : std_logic;
   signal pcie_rxn                : std_logic_vector (1 downto 0);
   signal pcie_rxp                : std_logic_vector (1 downto 0);
   signal pcie_txn                : std_logic_vector (1 downto 0);
   signal pcie_txp                : std_logic_vector (1 downto 0);
-  signal xgs_ctrl_xgs_clk_pll_en : std_logic;
+  signal led_out                 : std_logic_vector (1 downto 0);
+  signal anput_if_exposure       : std_logic;
+  signal anput_if_ext_trig       : std_logic;
+  signal anput_if_strobe         : std_logic;
+  signal anput_if_trig_rdy       : std_logic;  signal xgs_ctrl_xgs_clk_pll_en : std_logic;
   signal xgs_ctrl_xgs_cs_n       : std_logic;
   signal xgs_ctrl_xgs_fwsi_en    : std_logic;
   signal xgs_ctrl_xgs_monitor0   : std_logic;
@@ -756,6 +758,7 @@ begin
       anput_if_trig_rdy       => anput_if_trig_rdy,
       led_out                 => led_out,
       pcie_clk100MHz          => pcie_clk100MHz,
+      pcie_reset_n            => pcie_reset_n,
       pcie_rxn                => pcie_rxn,
       pcie_rxp                => pcie_rxp,
       pcie_txn                => pcie_txn,
@@ -813,6 +816,7 @@ begin
   PCIE_TX1_N  <= pcie_txn(1);  --       : out   std_logic_vector (1 downto 0);
   PCIE_TX1_P  <= pcie_txp(1);  --       : out   std_logic_vector (1 downto 0);
 
+  pcie_reset_n <= PCIE_PERST_LS;
 
   -----------------------------------------------------------------------------
   -- XGS controller TBD!!!
