@@ -787,32 +787,32 @@ begin
   -----------------------------------------------------------------------------
   -- Triggers TBD!!!!
   -----------------------------------------------------------------------------
-  -- <= anput_if_exposure;                 --       : out   std_logic;
-  anput_if_ext_trig <= '0';             --       : in    std_logic;
-  -- <= anput_if_strobe;                   --       : out   std_logic;
-  -- <= anput_if_trig_rdy;                 --       : out   std_logic;
+  -- OPEN <= anput_if_exposure;
+  anput_if_ext_trig <= '0';
+  -- OPEN <= anput_if_strobe;
+  -- OPEN <= anput_if_trig_rdy;
 
   -----------------------------------------------------------------------------
   -- Led
   -----------------------------------------------------------------------------
-  GPIO_LED_LEFT  <= led_out(0);  --       : out   std_logic_vector (1 downto 0);
-  GPIO_LED_RIGHT <= led_out(1);  --       : out   std_logic_vector (1 downto 0);
+  GPIO_LED_LEFT  <= led_out(0);
+  GPIO_LED_RIGHT <= led_out(1);
 
   -----------------------------------------------------------------------------
   -- PCIe Lane 0
   -----------------------------------------------------------------------------
-  pcie_rxn(0) <= PCIE_RX0_N;   --       : in    std_logic_vector (1 downto 0);
-  pcie_rxp(0) <= PCIE_RX0_P;   --       : in    std_logic_vector (1 downto 0);
-  PCIE_TX0_N  <= pcie_txn(0);  --       : out   std_logic_vector (1 downto 0);
-  PCIE_TX0_P  <= pcie_txp(0);  --       : out   std_logic_vector (1 downto 0);
+  pcie_rxn(0) <= PCIE_RX0_N;
+  pcie_rxp(0) <= PCIE_RX0_P;
+  PCIE_TX0_N  <= pcie_txn(0);
+  PCIE_TX0_P  <= pcie_txp(0);
 
   -----------------------------------------------------------------------------
   -- PCIe Lane 1
   -----------------------------------------------------------------------------
-  pcie_rxn(1) <= PCIE_RX1_N;   --       : in    std_logic_vector (1 downto 0);
-  pcie_rxp(1) <= PCIE_RX1_P;   --       : in    std_logic_vector (1 downto 0);
-  PCIE_TX1_N  <= pcie_txn(1);  --       : out   std_logic_vector (1 downto 0);
-  PCIE_TX1_P  <= pcie_txp(1);  --       : out   std_logic_vector (1 downto 0);
+  pcie_rxn(1) <= PCIE_RX1_N;
+  pcie_rxp(1) <= PCIE_RX1_P;
+  PCIE_TX1_N  <= pcie_txn(1);
+  PCIE_TX1_P  <= pcie_txp(1);
 
   pcie_reset_n <= PCIE_PERST_LS;
 
@@ -820,60 +820,59 @@ begin
   -- XGS controller TBD!!!
   -----------------------------------------------------------------------------
   -- On IRIS4 connected on PLL on board
-  -- <= xgs_ctrl_xgs_clk_pll_en;           --       : out   std_logic;
+  -- open <= xgs_ctrl_xgs_clk_pll_en;
 
 
   -- SPI
-  FMC_HPC_LA13_P          <= xgs_ctrl_xgs_sclk;     --       : out   std_logic;
-  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;  --       : out   std_logic;
-  xgs_ctrl_xgs_sdin       <= FMC_HPC_LA14_N;        --       : in    std_logic;
-  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;    --       : out   std_logic;  --
-                                                    --
-  --<= xgs_ctrl_xgs_fwsi_en;              --       : out   std_logic;
+  FMC_HPC_LA13_P          <= xgs_ctrl_xgs_sclk;
+  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;
+  xgs_ctrl_xgs_sdin       <= FMC_HPC_LA14_N;
+  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;
+  -- open <= xgs_ctrl_xgs_fwsi_en;
 
   -- Monitor TBD
-  xgs_ctrl_xgs_monitor0 <= '0';  --       : in    std_logic;
-  xgs_ctrl_xgs_monitor1 <= '0';             --       : in    std_logic;
-  xgs_ctrl_xgs_monitor2 <= FMC_HPC_LA16_P;             --       : in    std_logic;
+  xgs_ctrl_xgs_monitor0 <= '0';
+  xgs_ctrl_xgs_monitor1 <= '0';
+  xgs_ctrl_xgs_monitor2 <= FMC_HPC_LA16_P;
 
   -- Power good du sensor board (PMIC)
-  xgs_ctrl_xgs_power_good <= '1';       --       : in    std_logic;
+  xgs_ctrl_xgs_power_good <= '1';
 
-  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;  --       : out   std_logic;
+  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;
 
   -- Exposure
-  FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;  --       : out   std_logic;
+  FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;
 
-  -- 
-  FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;  --       : out   std_logic;
+  -- TRigger read line. Not used on the zynq 
+  FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;
 
 
   -----------------------------------------------------------------------------
   -- Top HiSPi
   -----------------------------------------------------------------------------
-  xgs_hispi_clk_n(0) <= FMC_HPC_CLK0_M2C_N;  --       : in    std_logic_vector (1 downto 0);
-  xgs_hispi_clk_p(0) <= FMC_HPC_CLK0_M2C_P;  --       : in    std_logic_vector (1 downto 0);
+  xgs_hispi_clk_n(0) <= FMC_HPC_CLK0_M2C_N;
+  xgs_hispi_clk_p(0) <= FMC_HPC_CLK0_M2C_P;
 
-  xgs_hispi_data_n(0) <= FMC_HPC_LA11_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(0) <= FMC_HPC_LA11_P;  --       : in    std_logic_vector (5 downto 0)
-  xgs_hispi_data_n(2) <= FMC_HPC_LA07_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(2) <= FMC_HPC_LA07_P;  --       : in    std_logic_vector (5 downto 0)
-  xgs_hispi_data_n(4) <= FMC_HPC_LA03_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(4) <= FMC_HPC_LA03_P;  --       : in    std_logic_vector (5 downto 0)
+  xgs_hispi_data_n(0) <= FMC_HPC_LA11_N;
+  xgs_hispi_data_p(0) <= FMC_HPC_LA11_P;
+  xgs_hispi_data_n(2) <= FMC_HPC_LA07_N;
+  xgs_hispi_data_p(2) <= FMC_HPC_LA07_P;
+  xgs_hispi_data_n(4) <= FMC_HPC_LA03_N;
+  xgs_hispi_data_p(4) <= FMC_HPC_LA03_P;
 
 
   -----------------------------------------------------------------------------
   -- Bottom HiSPi
   -----------------------------------------------------------------------------
-  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;  --       : in    std_logic_vector (1 downto 0);
-  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;  --       : in    std_logic_vector (1 downto 0);
+  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
+  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
 
-  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;  --       : in    std_logic_vector (5 downto 0)
-  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;  --       : in    std_logic_vector (5 downto 0)
-  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;  --       : in    std_logic_vector (5 downto 0);
-  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;  --       : in    std_logic_vector (5 downto 0)
+  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
+  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
+  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
+  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
+  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
+  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
 
 
 end struct;

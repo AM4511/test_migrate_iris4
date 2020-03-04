@@ -1,3 +1,137 @@
+################################################################
+# HiSPi TOP Interface
+################################################################
+
+# HiSPi top clock
+set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
+set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_N]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_CLK0_M2C_P]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_CLK0_M2C_N]
+
+# HiSPi Lane 0
+set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
+set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_N]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA11_P]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA11_N]
+
+# HiSPi Lane 8
+set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
+set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_N]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA07_P]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA07_N]
+
+# HiSPi Lane 16
+set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
+set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_N]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA03_P]
+set_property DIFF_TERM  FALSE   [get_ports FMC_HPC_LA03_N]
+
+
+
+################################################################
+# HiSPi BOTTOM Interface
+################################################################
+
+# HiSPi bottom clock
+set_property PACKAGE_PIN U26  [get_ports FMC_HPC_CLK1_M2C_P]
+set_property PACKAGE_PIN U27  [get_ports FMC_HPC_CLK1_M2C_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_N]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_CLK1_M2C_P]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_CLK1_M2C_N]
+
+
+# HiSPi Lane 1
+set_property PACKAGE_PIN P30  [get_ports FMC_HPC_LA28_P]
+set_property PACKAGE_PIN R30  [get_ports FMC_HPC_LA28_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_N]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA28_P]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA28_N]
+
+# HiSPi Lane 9
+set_property PACKAGE_PIN V28  [get_ports FMC_HPC_LA27_P]
+set_property PACKAGE_PIN V29  [get_ports FMC_HPC_LA27_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_N]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA27_P]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA27_N]
+
+# HiSPi Lane 17
+set_property PACKAGE_PIN P25  [get_ports FMC_HPC_LA23_P]
+set_property PACKAGE_PIN P26  [get_ports FMC_HPC_LA23_N]
+
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_N]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA23_P]
+set_property DIFF_TERM FALSE    [get_ports FMC_HPC_LA23_N]
+
+
+################################################################
+# HiSPi Ctrl Interface
+################################################################
+set_property PACKAGE_PIN AA22 [get_ports FMC_HPC_LA13_P]
+set_property PACKAGE_PIN AA23 [get_ports FMC_HPC_LA13_N]
+set_property PACKAGE_PIN AC24 [get_ports FMC_HPC_LA14_P]
+set_property PACKAGE_PIN AD24 [get_ports FMC_HPC_LA14_N]
+set_property PACKAGE_PIN Y22  [get_ports FMC_HPC_LA15_P]
+set_property PACKAGE_PIN Y23  [get_ports FMC_HPC_LA15_N]
+set_property PACKAGE_PIN AA24 [get_ports FMC_HPC_LA16_P]
+set_property PACKAGE_PIN AB24 [get_ports FMC_HPC_LA16_N]
+
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA14_P]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA14_N]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA15_P]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA15_N]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA16_P]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA16_N]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA13_P]
+set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA13_N]
+
+################################################################
+# Leds Interface
+################################################################
+set_property PACKAGE_PIN Y21  [get_ports GPIO_LED_LEFT]
+set_property PACKAGE_PIN W21  [get_ports GPIO_LED_RIGHT]
+
+set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_RIGHT]
+set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_LEFT]
+
+################################################################
+# PCIe Interface
+################################################################
+set_property PACKAGE_PIN AK23 [get_ports PCIE_PERST_LS]
+
+set_property PACKAGE_PIN N8   [get_ports PCIE_CLK_QO_P]
+set_property PACKAGE_PIN N7   [get_ports PCIE_CLK_QO_N]
+set_property PACKAGE_PIN N4   [get_ports PCIE_TX0_P]
+set_property PACKAGE_PIN N3   [get_ports PCIE_TX0_N]
+set_property PACKAGE_PIN P6   [get_ports PCIE_RX0_P]
+set_property PACKAGE_PIN P5   [get_ports PCIE_RX0_N]
+
+set_property PACKAGE_PIN P2   [get_ports PCIE_TX1_P]
+set_property PACKAGE_PIN P1   [get_ports PCIE_TX1_N]
+set_property PACKAGE_PIN T6   [get_ports PCIE_RX1_P]
+set_property PACKAGE_PIN T5   [get_ports PCIE_RX1_N]
+
+set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
+
+
 # set_property PACKAGE_PIN H9   [get_ports SYSCLK_P]
 # set_property PACKAGE_PIN G9   [get_ports SYSCLK_N]
 
@@ -117,10 +251,6 @@
 # set_property PACKAGE_PIN AA30 [get_ports FMC_LPC_LA33_N]
 
 
-set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
-set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
-set_property PACKAGE_PIN U26  [get_ports FMC_HPC_CLK1_M2C_P]
-set_property PACKAGE_PIN U27  [get_ports FMC_HPC_CLK1_M2C_N]
 
 # set_property PACKAGE_PIN AF20 [get_ports FMC_HPC_LA00_CC_P]
 # set_property PACKAGE_PIN AG20 [get_ports FMC_HPC_LA00_CC_N]
@@ -128,34 +258,20 @@ set_property PACKAGE_PIN U27  [get_ports FMC_HPC_CLK1_M2C_N]
 # set_property PACKAGE_PIN AH21 [get_ports FMC_HPC_LA01_CC_N]
 # set_property PACKAGE_PIN AK17 [get_ports FMC_HPC_LA02_P]
 # set_property PACKAGE_PIN AK18 [get_ports FMC_HPC_LA02_N]
-set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
-set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
 # set_property PACKAGE_PIN AJ20 [get_ports FMC_HPC_LA04_P]
 # set_property PACKAGE_PIN AK20 [get_ports FMC_HPC_LA04_N]
 # set_property PACKAGE_PIN AH23 [get_ports FMC_HPC_LA05_P]
 # set_property PACKAGE_PIN AH24 [get_ports FMC_HPC_LA05_N]
 # set_property PACKAGE_PIN AG22 [get_ports FMC_HPC_LA06_P]
 # set_property PACKAGE_PIN AH22 [get_ports FMC_HPC_LA06_N]
-set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
-set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
 # set_property PACKAGE_PIN AF19 [get_ports FMC_HPC_LA08_P]
 # set_property PACKAGE_PIN AG19 [get_ports FMC_HPC_LA08_N]
 # set_property PACKAGE_PIN AD21 [get_ports FMC_HPC_LA09_P]
 # set_property PACKAGE_PIN AE21 [get_ports FMC_HPC_LA09_N]
 # set_property PACKAGE_PIN AG24 [get_ports FMC_HPC_LA10_P]
 # set_property PACKAGE_PIN AG25 [get_ports FMC_HPC_LA10_N]
-set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
-set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
 # set_property PACKAGE_PIN AF23 [get_ports FMC_HPC_LA12_P]
 # set_property PACKAGE_PIN AF24 [get_ports FMC_HPC_LA12_N]
-set_property PACKAGE_PIN AA22 [get_ports FMC_HPC_LA13_P]
-set_property PACKAGE_PIN AA23 [get_ports FMC_HPC_LA13_N]
-set_property PACKAGE_PIN AC24 [get_ports FMC_HPC_LA14_P]
-set_property PACKAGE_PIN AD24 [get_ports FMC_HPC_LA14_N]
-set_property PACKAGE_PIN Y22  [get_ports FMC_HPC_LA15_P]
-set_property PACKAGE_PIN Y23  [get_ports FMC_HPC_LA15_N]
-set_property PACKAGE_PIN AA24 [get_ports FMC_HPC_LA16_P]
-set_property PACKAGE_PIN AB24 [get_ports FMC_HPC_LA16_N]
 
 # set_property PACKAGE_PIN V23  [get_ports FMC_HPC_LA17_CC_P]
 # set_property PACKAGE_PIN W24  [get_ports FMC_HPC_LA17_CC_N]
@@ -169,8 +285,6 @@ set_property PACKAGE_PIN AB24 [get_ports FMC_HPC_LA16_N]
 # set_property PACKAGE_PIN W30  [get_ports FMC_HPC_LA21_N]
 # set_property PACKAGE_PIN V27  [get_ports FMC_HPC_LA22_P]
 # set_property PACKAGE_PIN W28  [get_ports FMC_HPC_LA22_N]
-set_property PACKAGE_PIN P25  [get_ports FMC_HPC_LA23_P]
-set_property PACKAGE_PIN P26  [get_ports FMC_HPC_LA23_N]
 # set_property PACKAGE_PIN T30  [get_ports FMC_HPC_LA24_P]
 # set_property PACKAGE_PIN U30  [get_ports FMC_HPC_LA24_N]
 # set_property PACKAGE_PIN T29  [get_ports FMC_HPC_LA25_P]
@@ -178,10 +292,6 @@ set_property PACKAGE_PIN P26  [get_ports FMC_HPC_LA23_N]
 
 # set_property PACKAGE_PIN R28  [get_ports FMC_HPC_LA26_P]
 # set_property PACKAGE_PIN T28  [get_ports FMC_HPC_LA26_N]
-set_property PACKAGE_PIN V28  [get_ports FMC_HPC_LA27_P]
-set_property PACKAGE_PIN V29  [get_ports FMC_HPC_LA27_N]
-set_property PACKAGE_PIN P30  [get_ports FMC_HPC_LA28_P]
-set_property PACKAGE_PIN R30  [get_ports FMC_HPC_LA28_N]
 # set_property PACKAGE_PIN R25  [get_ports FMC_HPC_LA29_P]
 # set_property PACKAGE_PIN R26  [get_ports FMC_HPC_LA29_N]
 # set_property PACKAGE_PIN P23  [get_ports FMC_HPC_LA30_P]
@@ -203,9 +313,7 @@ set_property PACKAGE_PIN R30  [get_ports FMC_HPC_LA28_N]
 # set_property PACKAGE_PIN AC17 [get_ports GPIO_DIP_SW2]
 # set_property PACKAGE_PIN AJ13 [get_ports GPIO_DIP_SW3]
 
-set_property PACKAGE_PIN Y21  [get_ports GPIO_LED_LEFT]
 # set_property PACKAGE_PIN G2   [get_ports GPIO_LED_CENTER]
-set_property PACKAGE_PIN W21  [get_ports GPIO_LED_RIGHT]
 
 # set_property PACKAGE_PIN AK25 [get_ports GPIO_SW_LEFT]
 # set_property PACKAGE_PIN K15  [get_ports GPIO_SW_CENTER]
@@ -216,7 +324,6 @@ set_property PACKAGE_PIN W21  [get_ports GPIO_LED_RIGHT]
 # set_property PACKAGE_PIN W23  [get_ports SI5324_RST_LS]
 # set_property PACKAGE_PIN AJ25 [get_ports SI5324_INT_ALM_LS]
 # set_property PACKAGE_PIN AK22 [get_ports PCIE_WAKE_B_LS]
-set_property PACKAGE_PIN AK23 [get_ports PCIE_PERST_LS]
 
 
 # set_property PACKAGE_PIN P28  [get_ports HDMI_R_CLK]
@@ -461,18 +568,6 @@ set_property PACKAGE_PIN AK23 [get_ports PCIE_PERST_LS]
 # set_property PACKAGE_PIN AB1  [get_ports FMC_LPC_DP0_C2M_N]
 # set_property PACKAGE_PIN AC3  [get_ports FMC_LPC_DP0_M2C_N]
 
-set_property PACKAGE_PIN N8   [get_ports PCIE_CLK_QO_P]
-set_property PACKAGE_PIN N7   [get_ports PCIE_CLK_QO_N]
-set_property PACKAGE_PIN N4   [get_ports PCIE_TX0_P]
-set_property PACKAGE_PIN N3   [get_ports PCIE_TX0_N]
-set_property PACKAGE_PIN P6   [get_ports PCIE_RX0_P]
-set_property PACKAGE_PIN P5   [get_ports PCIE_RX0_N]
-
-set_property PACKAGE_PIN P2   [get_ports PCIE_TX1_P]
-set_property PACKAGE_PIN P1   [get_ports PCIE_TX1_N]
-set_property PACKAGE_PIN T6   [get_ports PCIE_RX1_P]
-set_property PACKAGE_PIN T5   [get_ports PCIE_RX1_N]
-
 # set_property PACKAGE_PIN AB9  [get_ports 8N91]
 # set_property PACKAGE_PIN R7   [get_ports 8N236]
 # set_property PACKAGE_PIN R8   [get_ports 8N235]
@@ -561,27 +656,20 @@ set_property PACKAGE_PIN T5   [get_ports PCIE_RX1_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports SI5324_INT_ALM_LS]
 # set_property IOSTANDARD LVCMOS25 [get_ports GPIO_SW_LEFT]
 # set_property IOSTANDARD LVCMOS25 [get_ports PCIE_WAKE_B_LS]
-set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 # set_property IOSTANDARD LVCMOS25 [get_ports PMOD1_0_LS]
 # set_property IOSTANDARD LVCMOS25 [get_ports PMOD1_1_LS]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA07_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA07_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA05_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA05_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA06_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA06_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA14_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA14_N]
+
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA10_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA10_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA12_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA12_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA09_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA09_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA11_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA11_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_CLK0_M2C_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_CLK0_M2C_N]
+
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA01_CC_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA01_CC_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA00_CC_P]
@@ -590,20 +678,12 @@ set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_CLK0_M2C_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA04_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA02_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA02_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA03_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA03_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA08_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA08_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports PMOD1_2_LS]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_SPDIF_OUT_LS]
-set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_RIGHT]
-set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_LEFT]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA15_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA15_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA16_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA16_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA13_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA13_N]
+
+
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_D35]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_INT]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_SPDIF]
@@ -658,8 +738,6 @@ set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA13_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_LPC_LA23_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_D7]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_VSYNC]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA28_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA28_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA24_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA24_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_D33]
@@ -670,8 +748,6 @@ set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA28_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA25_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA26_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA26_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA27_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA27_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA21_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA21_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA22_P]
@@ -680,16 +756,12 @@ set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA27_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA18_CC_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA20_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA20_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_CLK1_M2C_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_CLK1_M2C_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA29_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA29_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports GPIO_SW_RIGHT]
 # set_property IOSTANDARD LVCMOS25 [get_ports HDMI_R_D11]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA33_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA33_N]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA23_P]
-set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA23_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA19_P]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA19_N]
 # set_property IOSTANDARD LVCMOS25 [get_ports FMC_HPC_LA30_P]

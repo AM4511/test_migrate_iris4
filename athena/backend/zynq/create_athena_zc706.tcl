@@ -142,11 +142,11 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 # Generate implementation run
 ################################################
-#current_run [get_runs $IMPL_RUN]
-#set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-#launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
-#wait_on_run ${IMPL_RUN}
-#
+current_run [get_runs $IMPL_RUN]
+set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
+wait_on_run ${IMPL_RUN}
+
 
 ################################################
 # Export board level info
