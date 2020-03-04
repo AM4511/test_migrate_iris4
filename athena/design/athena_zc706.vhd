@@ -784,8 +784,6 @@ begin
 
 
 
-
-
   -----------------------------------------------------------------------------
   -- Triggers TBD!!!!
   -----------------------------------------------------------------------------
@@ -821,20 +819,32 @@ begin
   -----------------------------------------------------------------------------
   -- XGS controller TBD!!!
   -----------------------------------------------------------------------------
+  -- On IRIS4 connected on PLL on board
   -- <= xgs_ctrl_xgs_clk_pll_en;           --       : out   std_logic;
-  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;  --       : out   std_logic;
-  -- <= xgs_ctrl_xgs_fwsi_en;              --       : out   std_logic;
 
-  xgs_ctrl_xgs_monitor0 <= FMC_HPC_LA16_P;  --       : in    std_logic;
-  xgs_ctrl_xgs_monitor1 <= '0';             --       : in    std_logic;
-  xgs_ctrl_xgs_monitor2 <= '0';             --       : in    std_logic;
 
-  xgs_ctrl_xgs_power_good <= '1';       --       : in    std_logic;
-  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;  --       : out   std_logic;
+  -- SPI
   FMC_HPC_LA13_P          <= xgs_ctrl_xgs_sclk;     --       : out   std_logic;
+  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;  --       : out   std_logic;
   xgs_ctrl_xgs_sdin       <= FMC_HPC_LA14_N;        --       : in    std_logic;
-  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;    --       : out   std_logic;
+  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;    --       : out   std_logic;  --
+                                                    --
+  --<= xgs_ctrl_xgs_fwsi_en;              --       : out   std_logic;
+
+  -- Monitor TBD
+  xgs_ctrl_xgs_monitor0 <= '0';  --       : in    std_logic;
+  xgs_ctrl_xgs_monitor1 <= '0';             --       : in    std_logic;
+  xgs_ctrl_xgs_monitor2 <= FMC_HPC_LA16_P;             --       : in    std_logic;
+
+  -- Power good du sensor board (PMIC)
+  xgs_ctrl_xgs_power_good <= '1';       --       : in    std_logic;
+
+  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;  --       : out   std_logic;
+
+  -- Exposure
   FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;  --       : out   std_logic;
+
+  -- 
   FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;  --       : out   std_logic;
 
 

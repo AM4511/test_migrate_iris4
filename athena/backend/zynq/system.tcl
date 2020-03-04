@@ -202,9 +202,12 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
 
 
   # Create pins
+  create_bd_pin -dir I -type rst pcie_reset_n
   create_bd_pin -dir O -type clk zclk_100MHz
   create_bd_pin -dir O -type clk zclk_200MHz
-  create_bd_pin -dir O zresetn
+  create_bd_pin -dir O -type clk zclk_62_5MHz
+  create_bd_pin -dir O -from 0 -to 0 -type rst zreset625_interc
+  create_bd_pin -dir O -from 0 -to 0 -type rst zreset625_periph
   create_bd_pin -dir O -from 0 -to 0 -type rst zresetn_interc
   create_bd_pin -dir O -from 0 -to 0 -type rst zresetn_periph
 
@@ -218,7 +221,7 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {100.000000} \
    CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {200.000000} \
-   CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
+   CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {62.500000} \
    CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_PCAP_PERIPHERAL_FREQMHZ {200.000000} \
    CONFIG.PCW_ACT_QSPI_PERIPHERAL_FREQMHZ {10.000000} \
@@ -239,7 +242,7 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_CLK0_FREQ {100000000} \
    CONFIG.PCW_CLK1_FREQ {200000000} \
-   CONFIG.PCW_CLK2_FREQ {10000000} \
+   CONFIG.PCW_CLK2_FREQ {62500000} \
    CONFIG.PCW_CLK3_FREQ {10000000} \
    CONFIG.PCW_CPU_CPU_PLL_FREQMHZ {1333.333} \
    CONFIG.PCW_CPU_PERIPHERAL_DIVISOR0 {2} \
@@ -254,25 +257,28 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_ENET1_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_ENET1_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_EN_CLK1_PORT {1} \
-   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {6} \
-   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {3} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {3} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {3} \
-   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {1} \
-   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
+   CONFIG.PCW_EN_CLK2_PORT {1} \
+   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
+   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {2} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {5} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {1} \
+   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {4} \
+   CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {4} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK_CLK1_BUF {TRUE} \
+   CONFIG.PCW_FCLK_CLK2_BUF {FALSE} \
    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
    CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200} \
+   CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {62.5} \
    CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
    CONFIG.PCW_FPGA_FCLK1_ENABLE {1} \
-   CONFIG.PCW_FPGA_FCLK2_ENABLE {0} \
+   CONFIG.PCW_FPGA_FCLK2_ENABLE {1} \
    CONFIG.PCW_FPGA_FCLK3_ENABLE {0} \
    CONFIG.PCW_I2C_PERIPHERAL_FREQMHZ {25} \
-   CONFIG.PCW_IOPLL_CTRL_FBDIV {54} \
-   CONFIG.PCW_IO_IO_PLL_FREQMHZ {1800.000} \
-   CONFIG.PCW_PCAP_PERIPHERAL_DIVISOR0 {9} \
+   CONFIG.PCW_IOPLL_CTRL_FBDIV {30} \
+   CONFIG.PCW_IO_IO_PLL_FREQMHZ {1000.000} \
+   CONFIG.PCW_PCAP_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_QSPI_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_SDIO_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_SMC_PERIPHERAL_DIVISOR0 {1} \
@@ -296,6 +302,9 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
    CONFIG.PCW_UIPARAM_DDR_T_RP {7} \
  ] $processing_system7_0
 
+  # Create instance: reset_62_5MHz, and set properties
+  set reset_62_5MHz [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 reset_62_5MHz ]
+
   # Create instance: rst_100MHz, and set properties
   set rst_100MHz [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_100MHz ]
 
@@ -305,9 +314,13 @@ proc create_hier_cell_zynq_system { parentCell nameHier } {
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins M_AXI_GP] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
 
   # Create port connections
+  connect_bd_net -net pcie_reset_n_1 [get_bd_pins pcie_reset_n] [get_bd_pins reset_62_5MHz/ext_reset_in]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins zclk_100MHz] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins rst_100MHz/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins zclk_200MHz] [get_bd_pins processing_system7_0/FCLK_CLK1]
-  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins zresetn] [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_100MHz/ext_reset_in]
+  connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_pins zclk_62_5MHz] [get_bd_pins processing_system7_0/FCLK_CLK2] [get_bd_pins reset_62_5MHz/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins reset_62_5MHz/aux_reset_in] [get_bd_pins rst_100MHz/ext_reset_in]
+  connect_bd_net -net reset_62_5MHz_interconnect_aresetn [get_bd_pins zreset625_interc] [get_bd_pins reset_62_5MHz/interconnect_aresetn]
+  connect_bd_net -net reset_62_5MHz_peripheral_aresetn [get_bd_pins zreset625_periph] [get_bd_pins reset_62_5MHz/peripheral_aresetn]
   connect_bd_net -net rst_100MHz_interconnect_aresetn [get_bd_pins zresetn_interc] [get_bd_pins rst_100MHz/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins zresetn_periph] [get_bd_pins rst_100MHz/peripheral_aresetn]
 
@@ -361,9 +374,9 @@ proc create_hier_cell_pcie_system { parentCell nameHier } {
 
   # Create pins
   create_bd_pin -dir O -type clk axi_ctl_aclk_out
-  create_bd_pin -dir I -type rst ext_reset_in
   create_bd_pin -dir O -from 0 -to 0 -type rst interconnect_aresetn
   create_bd_pin -dir I -type clk pcie_clk100MHz
+  create_bd_pin -dir I -type rst pcie_reset_in
   create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
   create_bd_pin -dir O -type clk slowest_sync_clk
 
@@ -400,9 +413,10 @@ proc create_hier_cell_pcie_system { parentCell nameHier } {
   connect_bd_net -net ACLK_1 [get_bd_pins slowest_sync_clk] [get_bd_pins axi_pcie_0/axi_aclk_out] [get_bd_pins rst_axi_pcie_0_125M/slowest_sync_clk]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins interconnect_aresetn] [get_bd_pins rst_axi_pcie_0_125M/interconnect_aresetn]
   connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_ctl_aclk_out] [get_bd_pins axi_pcie_0/axi_ctl_aclk_out]
+  connect_bd_net -net axi_pcie_0_mmcm_lock [get_bd_pins axi_pcie_0/mmcm_lock] [get_bd_pins rst_axi_pcie_0_125M/dcm_locked]
   connect_bd_net -net clk_100MHz_1 [get_bd_pins pcie_clk100MHz] [get_bd_pins axi_pcie_0/REFCLK]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins peripheral_aresetn] [get_bd_pins axi_pcie_0/axi_aresetn] [get_bd_pins rst_axi_pcie_0_125M/peripheral_aresetn]
-  connect_bd_net -net zynq_system_zresetn [get_bd_pins ext_reset_in] [get_bd_pins rst_axi_pcie_0_125M/ext_reset_in]
+  connect_bd_net -net zynq_system_zresetn [get_bd_pins pcie_reset_in] [get_bd_pins rst_axi_pcie_0_125M/ext_reset_in]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -443,11 +457,11 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
   current_bd_instance $hier_obj
 
   # Create interface pins
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
+
   create_bd_intf_pin -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 m_axi
-
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi0
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi1
 
@@ -472,6 +486,9 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
 
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+  set_property -dict [ list \
+   CONFIG.G_KU706 {1} \
+ ] $axiXGS_controller_0
 
   # Create instance: dmawr_sub4_0, and set properties
   set dmawr_sub4_0 [ create_bd_cell -type ip -vlnv matrox.com:fdklib:dmawr_sub4:3.0 dmawr_sub4_0 ]
@@ -481,11 +498,11 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
  ] $dmawr_sub4_0
 
   # Create interface connections
+  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins S_AXI] [get_bd_intf_pins axiXGS_controller_0/S_AXI]
+  connect_bd_intf_net -intf_net Conn2 [get_bd_intf_pins anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
+  connect_bd_intf_net -intf_net Conn3 [get_bd_intf_pins xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
   connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr_sub4_0/s_axis]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_pins anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins s_axi1] [get_bd_intf_pins axiHiSPi_0/s_axi]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins s_axi0] [get_bd_intf_pins axiXGS_controller_0/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins s_axi2] [get_bd_intf_pins dmawr_sub4_0/s_axi]
   connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_pins m_axi] [get_bd_intf_pins dmawr_sub4_0/m_axi]
   connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_pins xgs_hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
@@ -494,10 +511,10 @@ proc create_hier_cell_grab_path { parentCell nameHier } {
   connect_bd_net -net ACLK_1 [get_bd_pins sysclk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins dmawr_sub4_0/sysclk]
   connect_bd_net -net axiXGS_controller_0_led_out [get_bd_pins led_out] [get_bd_pins axiXGS_controller_0/led_out]
   connect_bd_net -net dmawr_sub4_0_intevent [get_bd_pins irq_dma] [get_bd_pins dmawr_sub4_0/intevent]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins s_axi_aclk] [get_bd_pins axiXGS_controller_0/s_axi_aclk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins idelay_clk] [get_bd_pins axiHiSPi_0/idelay_clk]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins sysrstN] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins dmawr_sub4_0/sysrstN]
-  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins s_axi_aresetn] [get_bd_pins axiXGS_controller_0/s_axi_aresetn]
+  connect_bd_net -net s_axi_aclk_1 [get_bd_pins s_axi_aclk] [get_bd_pins axiXGS_controller_0/s_axi_aclk]
+  connect_bd_net -net s_axi_aresetn_1 [get_bd_pins s_axi_aresetn] [get_bd_pins axiXGS_controller_0/s_axi_aresetn]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -556,6 +573,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.FREQ_HZ {100000000} \
  ] $pcie_clk100MHz
+  set pcie_reset_n [ create_bd_port -dir I -type rst pcie_reset_n ]
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
@@ -574,15 +592,15 @@ proc create_root_design { parentCell } {
   create_hier_cell_zynq_system [current_bd_instance .] zynq_system
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins grab_path/anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins grab_path/xgs_ctrl]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins grab_path/s_axi1]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins grab_path/s_axi0]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins grab_path/S_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axi_interconnect_0/M02_AXI] [get_bd_intf_pins grab_path/s_axi2]
   connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins pcie_system/S_AXI_CTL]
   connect_bd_intf_net -intf_net axi_pcie_0_M_AXI [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie_system/M_AXI]
   connect_bd_intf_net -intf_net axi_pcie_0_pcie_7x_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie_system/pcie_mgt]
   connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_pins grab_path/m_axi] [get_bd_intf_pins pcie_system/S_AXI]
+  connect_bd_intf_net -intf_net grab_path_anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins grab_path/anput_if]
+  connect_bd_intf_net -intf_net grab_path_xgs_ctrl [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins grab_path/xgs_ctrl]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports PS_FIXED_IO] [get_bd_intf_pins zynq_system/ZYNQ_FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S01_AXI] [get_bd_intf_pins zynq_system/M_AXI_GP]
   connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins grab_path/xgs_hispi]
@@ -590,16 +608,18 @@ proc create_root_design { parentCell } {
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins grab_path/sysclk] [get_bd_pins pcie_system/slowest_sync_clk]
+  connect_bd_net -net M01_ARESETN_1 [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins zynq_system/zreset625_interc]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie_system/interconnect_aresetn]
-  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins grab_path/led_out]
   connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins pcie_system/axi_ctl_aclk_out]
   connect_bd_net -net clk_100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie_system/pcie_clk100MHz]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins grab_path/s_axi_aclk] [get_bd_pins zynq_system/zclk_100MHz]
+  connect_bd_net -net grab_path_led_out [get_bd_ports led_out] [get_bd_pins grab_path/led_out]
+  connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie_system/pcie_reset_in] [get_bd_pins zynq_system/pcie_reset_n]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins zynq_system/zclk_100MHz]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins grab_path/idelay_clk] [get_bd_pins zynq_system/zclk_200MHz]
   connect_bd_net -net rst_axi_pcie_0_125M_peripheral_aresetn [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins grab_path/sysrstN] [get_bd_pins pcie_system/peripheral_aresetn]
-  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins grab_path/s_axi_aresetn] [get_bd_pins zynq_system/zresetn_periph]
-  connect_bd_net -net zynq_hier_0_interconnect_aresetn_0 [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins zynq_system/zresetn_interc]
-  connect_bd_net -net zynq_system_zresetn [get_bd_pins pcie_system/ext_reset_in] [get_bd_pins zynq_system/zresetn]
+  connect_bd_net -net zynq_hier_0_interconnect_aresetn_0 [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins zynq_system/zresetn_interc]
+  connect_bd_net -net zynq_system_CLK62_5MHz [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins grab_path/s_axi_aclk] [get_bd_pins zynq_system/zclk_62_5MHz]
+  connect_bd_net -net zynq_system_zreset625_periph [get_bd_pins grab_path/s_axi_aresetn] [get_bd_pins zynq_system/zreset625_periph]
 
   # Create address segments
   create_bd_addr_seg -range 0x000100000000 -offset 0x00000000 [get_bd_addr_spaces grab_path/dmawr_sub4_0/m_axi] [get_bd_addr_segs pcie_system/axi_pcie_0/S_AXI/BAR0] SEG_axi_pcie_0_BAR0
