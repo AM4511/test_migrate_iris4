@@ -54,7 +54,7 @@ set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
-set JOB_COUNT  4
+set JOB_COUNT  2
 
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
