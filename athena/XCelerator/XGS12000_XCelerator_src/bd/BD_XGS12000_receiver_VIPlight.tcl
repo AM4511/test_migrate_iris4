@@ -198,6 +198,9 @@ proc create_root_design { parentCell } {
   set ARES_IF [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 ARES_IF ]
   set GPIO [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 GPIO ]
   set M_AXIS [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 M_AXIS ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {62500000} \
+   ] $M_AXIS
   set XGS_CTRL_IF [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 XGS_CTRL_IF ]
   set xgs_bus_0 [ create_bd_intf_port -mode Slave -vlnv onsemi.com:user:xgs_bus_rtl:1.0 xgs_bus_0 ]
   set xgs_bus_1 [ create_bd_intf_port -mode Slave -vlnv onsemi.com:user:xgs_bus_rtl:1.0 xgs_bus_1 ]
@@ -208,14 +211,16 @@ proc create_root_design { parentCell } {
   set aclk [ create_bd_port -dir I -type clk aclk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {aresetn} \
+   CONFIG.FREQ_HZ {62500000} \
  ] $aclk
   set aresetn [ create_bd_port -dir I -type rst aresetn ]
 
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
   set_property -dict [ list \
+   CONFIG.G_KU706 {1} \
    CONFIG.G_SIMULATION {1} \
-   CONFIG.G_SYS_CLK_PERIOD {10} \
+   CONFIG.G_SYS_CLK_PERIOD {16} \
  ] $axiXGS_controller_0
 
   # Create instance: axi_gpio_0, and set properties

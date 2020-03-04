@@ -33,15 +33,14 @@ module TB_xgs12m_receiver(  );
  bit [31:0] data_rd;
  bit [15:0] XGS_data_rd;
  
- bit [11:0] test_numberclk_between_2lines;
- bit [15:0] test_number_frames;  
- bit [15:0] test_active_lines;
- bit [15:0] test_blank_lines;
- bit [15:0] test_fixed_data;
+ //bit [11:0] test_numberclk_between_2lines;
+ //bit [15:0] test_number_frames;  
+ //bit [15:0] test_active_lines;
+ //bit [15:0] test_blank_lines;
+ //bit [15:0] test_fixed_data;
  
  wire Vcc  = 1;
- wire Grnd = 0; 
-  
+ wire Grnd = 0;   
 
  wire [5:0]  Sensor_HiSPI_clkP;
  wire [5:0]  Sensor_HiSPI_clkN;
@@ -75,24 +74,23 @@ module TB_xgs12m_receiver(  );
  wire xgs_trig_int;
  wire xgs_trig_rd;
  
- //bit trigger_int = 0;
-
  bit [15:0] line_time   = 16'h00e6;  //default model
  
- int EmbededLine; 
- int DummyLines;
- int MLines; 
- int Jitter; 
 
+ int MLines; 
+ int MLines_supressed;
+ int FLines; 
+ int FLines_supressed;
  
  int ROI_YSTART;
  int ROI_YSIZE; 
  int EXPOSURE;  
+ int EXP_FOT_TIME;
  
- bit [23:0] readout_length;
- bit [23:0] LINE_TIME_sysclk;
- bit [23:0] KEEP_OUT_TRIG_sysclk;
-  
+ //bit [23:0] readout_length;
+ bit [15:0] KEEP_OUT_TRIG_START_sysclk;
+ bit [15:0] KEEP_OUT_TRIG_END_sysclk; 
+ 
  bit [4:0] monitor_0_reg;
  bit [4:0] monitor_1_reg;  
  bit [4:0] monitor_2_reg;
@@ -101,10 +99,6 @@ module TB_xgs12m_receiver(  );
  real xgs_ctrl_period     = 10.0;
  real xgs_bitrate_period  = (1000.0/32.4)/(2.0*12.0);  //32.4Mhz ref clk*2 /12 bits per clk
  
- 
- bit XGS_MODEL_SLAVE_TRIGGERED_MODE =1;
- 
- //XGS_PYTHON_IF xgs_spi();
  
  xil_axi_resp_t resp;
 
@@ -407,7 +401,7 @@ module TB_xgs12m_receiver(  );
   
   xgs12m_receiver_axi_vip_0_0_mst_t    master_agent;
   
-  always #5ns     aclk             = ~aclk;                  //100Mhz regfile
+  always #8ns     aclk             = ~aclk;                  //62.5Mhz regfile
   always #2500ps  REFCLK           = ~REFCLK;                //200Mhz ref clk IO
   always #15432ps xgs_extclk       = ~xgs_extclk;            //refclk XGS @ 32.4Mhz
  
@@ -499,7 +493,7 @@ initial begin
     XGS_WriteSPI(16'h3e3e,16'h0001);
     
     //jmansill HISPI control common register
-    XGS_WriteSPI(16'h3e28,16'h2507); //mux 4:4
+    XGS_WriteSPI(16'h3e28,16'h2507);   //mux 4:4
     //XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
     //XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
     //XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
@@ -801,74 +795,70 @@ initial begin
     // Dans le modele XGS  le decodage registres est fait :
     // register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
     
-    XGS_MODEL_SLAVE_TRIGGERED_MODE=1;
-    
-    
-    if(XGS_MODEL_SLAVE_TRIGGERED_MODE==0) begin
-      // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
-      // 0=jmansill B&W diagonal ramp 0->4095...
-      // 1=solid pattern
-      // 3=fade t0 black
-      // 4=diagonal  gary 1x
-      // 5=diagonal  gary 3x
-      // ... p.26 de la spec!!!
-      XGS_WriteSPI(16'h3e0e,16'h0000);  //add=1799
-      
-      //- Optional : REG Write = 0x3E10, <test_data_red>
-      //- Optional : REG Write = 0x3E12, <test_data_greenr>
-      //- Optional : REG Write = 0x3E14, <test_data_blue>
-      //- Optional : REG Write = 0x3E16, <test_data_greenb>
-      // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
-      // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
-      test_fixed_data = 16'h00ca;
-      XGS_WriteSPI(16'h3E10, test_fixed_data<<1);
-      XGS_WriteSPI(16'h3E12, test_fixed_data<<1);
-      XGS_WriteSPI(16'h3E14, test_fixed_data<<1);
-      XGS_WriteSPI(16'h3E16, test_fixed_data<<1);      
-      
-      //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
-      test_active_lines = 8;  // 1=1line
-      XGS_WriteSPI(16'h3A08, test_active_lines); // Cc registre est 1 based
-      
-      //- REG Write = 0x3A06, (number of clock cycles between the start of two rows)
-      test_numberclk_between_2lines = 12'h0c8; // 200clk
-      XGS_WriteSPI(16'h3A06, test_numberclk_between_2lines); //Enable test mode(0x8000) + 200clk 
-           
-      //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
-      //                             &&  <number of test image frames to be transmitted> 
-      test_blank_lines              = 4;       // 0=1line (correction is bellow)
-      test_number_frames            = 5;       // 1=1frame
-      XGS_WriteSPI(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) );  //0x8000 is to latch registers
-               
-      //- REG Write = 0x3A06, (0x8000 is enable test mode)
-      XGS_WriteSPI(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode      
-      
-    end  
-    
-    if(XGS_MODEL_SLAVE_TRIGGERED_MODE==1) begin
-    
-      // jmansill : Slave triggered mode    
-      
-      //test_active_lines             = 8;              // One-based
-      line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
-                                                       // default              in devware is 0xf4  (18 lanes)
-                                                       // default              in devware is 0x16e (12 lanes)
-                                                       // default              in devware is 0x2dc (6 lanes)  
-                                                       
-      XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
-      
-      XGS_WriteSPI(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
-      
 
-      XGS_WriteSPI(16'h3800,16'h0030);                 // Slave + trigger mode   
-      XGS_WriteSPI(16'h3800,16'h0031);                 // Enable sequencer      
+    
+    //XGS_MODEL_SLAVE_TRIGGERED_MODE=0
+    //  // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent 
+    //  // 0=jmansill B&W diagonal ramp 0->4095...
+    //  // 1=solid pattern
+    //  // 3=fade t0 black
+    //  // 4=diagonal  gary 1x
+    //  // 5=diagonal  gary 3x
+    //  // ... p.26 de la spec!!!
+    //  XGS_WriteSPI(16'h3e0e,16'h0000);  //add=1799
+    //  
+    //  //- Optional : REG Write = 0x3E10, <test_data_red>
+    //  //- Optional : REG Write = 0x3E12, <test_data_greenr>
+    //  //- Optional : REG Write = 0x3E14, <test_data_blue>
+    //  //- Optional : REG Write = 0x3E16, <test_data_greenb>
+    //  // Finalement en "solid pattern", il faut ecrire la valeur du pixel ici, sinon le modele genere des 0x001 partout.
+    //  // de plus le modele declare un signal [12:0] et utilise seulement [12:1]...
+    //  test_fixed_data = 16'h00ca;
+    //  XGS_WriteSPI(16'h3E10, test_fixed_data<<1);
+    //  XGS_WriteSPI(16'h3E12, test_fixed_data<<1);
+    //  XGS_WriteSPI(16'h3E14, test_fixed_data<<1);
+    //  XGS_WriteSPI(16'h3E16, test_fixed_data<<1);      
+    //  
+    //  //- REG Write = 0x3A08, <number of active lines transmitted for a test image frame>    
+    //  test_active_lines = 8;  // 1=1line
+    //  XGS_WriteSPI(16'h3A08, test_active_lines); // Cc registre est 1 based
+    //  
+    //  //- REG Write = 0x3A06, (number of clock cycles between the start of two rows)
+    //  test_numberclk_between_2lines = 12'h0c8; // 200clk
+    //  XGS_WriteSPI(16'h3A06, test_numberclk_between_2lines); //Enable test mode(0x8000) + 200clk 
+    //       
+    //  //- REG Write = 0x3A0A, 0x8000 && (<number of lines between the last row of the test image and the first row of the next test image> << 6) 
+    //  //                             &&  <number of test image frames to be transmitted> 
+    //  test_blank_lines              = 4;       // 0=1line (correction is bellow)
+    //  test_number_frames            = 5;       // 1=1frame
+    //  XGS_WriteSPI(16'h3A0A,16'h8000 + ((test_blank_lines-1)<<6)  + (test_number_frames) );  //0x8000 is to latch registers
+    //           
+    //  //- REG Write = 0x3A06, (0x8000 is enable test mode)
+    //  XGS_WriteSPI(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode      
+    //  
 
-      monitor_0_reg = 16'h6;    // 0x6 : Real Integration  , 0x2 : Integrate
-      monitor_1_reg = 16'h10;   // EFOT indication
-      monitor_2_reg = 16'h1;    // New_line
-      XGS_WriteSPI(16'h3806, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
+    
+    
+    // jmansill : SET Slave triggered mode    
+    
+    line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+                                                     // default              in devware is 0xf4  (18 lanes)
+                                                     // default              in devware is 0x16e (12 lanes)
+                                                     // default              in devware is 0x2dc (6 lanes)  
+                                                     
+    XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
+    
+    XGS_WriteSPI(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+    
+
+    XGS_WriteSPI(16'h3800,16'h0030);                 // Slave + trigger mode   
+    XGS_WriteSPI(16'h3800,16'h0031);                 // Enable sequencer      
+
+    monitor_0_reg = 16'h6;    // 0x6 : Real Integration  , 0x2 : Integrate
+    monitor_1_reg = 16'h10;   // EFOT indication
+    monitor_2_reg = 16'h1;    // New_line
+    XGS_WriteSPI(16'h3806, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
       
-    end
     
     #50us    
     
@@ -876,10 +866,6 @@ initial begin
     // voir p.Figure 37. Pixel Readout Order
     // voir p8 Figure 4. XGS 8000 Pixel Array
     // 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
-    //
-    //
-    //
-    //
 
     
     //--------------------------------------------------------
@@ -887,36 +873,59 @@ initial begin
     // PROGRAM XGS CONTROLLER
     //
     //-------------------------------------------------------            
-    xgs_ctrl_period     = 10.0;
+    
+    // Give SPI control to XGS controller   : SENSOR REG_UPDATE =1 
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0190, prot, 16'h0012, resp);    
+
+    xgs_ctrl_period     = 16.0;
     xgs_bitrate_period  = (1000.0/32.4)/(2.0);  // 30.864197ns /2
     
-    LINE_TIME_sysclk     = (line_time*xgs_bitrate_period)/xgs_ctrl_period;
-    KEEP_OUT_TRIG_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //Keepout trigger zone 100ns
+    EXP_FOT_TIME        = 5360;  //5.36us calculated from start of FOT to end of real exposure
     
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000120, prot, (KEEP_OUT_TRIG_sysclk<<16) + LINE_TIME_sysclk, resp);
+    // LINE_TIME
+    // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    // default              in devware is 0xf4  (18 lanes)
+    // default              in devware is 0x16e (12 lanes)
+    // default              in devware is 0x2dc (6 lanes)  
+     
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000120, prot,  line_time, resp);                                      //LineTime in pixel CLK
     
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000002b8, prot, (1<<16) + (EXP_FOT_TIME/xgs_ctrl_period ) , resp);      //Enable EXP during FOT
+       
+  
+    KEEP_OUT_TRIG_START_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //START Keepout trigger zone (100ns)
+    KEEP_OUT_TRIG_END_sysclk   = (line_time*xgs_bitrate_period)/xgs_ctrl_period;             //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000124, prot, (KEEP_OUT_TRIG_END_sysclk<<16) + KEEP_OUT_TRIG_START_sysclk, resp);
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000120, prot, (0<<16) + line_time, resp);      //Enable KEEP_OUT ZONE[bit 16]
+ 
+    // XGS CONTROLLER readout_length calculated in FPGA now!!!!
+    //
+    // TOTAL_NB_LINES <= "11" +                                                -- 3 is first dummy lines after FOT
+    //                    REGFILE.ACQ.SENSOR_M_LINES.M_LINES +                 -- Black lines for calibartion  
+    //                    REGFILE.ACQ.SENSOR_F_LINES.F_LINES +                 -- F_lines, where are located F_LINES ???
+    //                    '1' +                                                -- Embededd line
+    //                    ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler
+    //                    '1';                                                 -- For jitter
+    //  
+    //  INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
+    MLines                = 0;
+    MLines_supressed      = 0;
+    FLines                = 0;
+    FLines_supressed      = 0;
     
-    EmbededLine = 1;         //  1
-    DummyLines  = 0;         //  7 + 4 + 3; // 14 is default in HW
-    MLines      = 0;
-    Jitter      = 1;
-        
-    // Give SPI control to XGS controller   : SENSOR REG_UPDATE =1 
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h0190, prot, 16'h0012, resp);
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000238, prot, (0<<16) + 16'h0 , resp);     // For the moment do not use EXP during EFOT feature
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01d8, prot, (MLines_supressed<<10)+ MLines, resp);    //M_LINE REGISTER
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01dc, prot, (FLines_supressed<<10)+ FLines, resp);    //F_LINE REGISTER
 
-    
-    //Set XGS registers
+        
+    //Set XGS registers (mirroir)
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a0, prot,    0, resp);                 // Subsampling
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a4, prot, 2<<8, resp);                 // Analog Gain
     
     ROI_YSTART   =  0; 
-    ROI_YSIZE    =  8;
+    ROI_YSIZE    = 16;
     EXPOSURE     = 50;  //in us
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a8, prot, ROI_YSTART/4, resp);                                        // Y START  (kernel is 4)    
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001ac, prot, ROI_YSIZE/4, resp);                                         // Y SIZE   (kernel is 4)  
-    readout_length = (ROI_YSIZE + EmbededLine + DummyLines + MLines + Jitter) * line_time * (xgs_bitrate_period / xgs_ctrl_period); // Calculate readout Length
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000118, prot, (1<<28) + readout_length, resp);                            // readout length +readout_en     
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000128, prot, EXPOSURE * (1000.0 /xgs_ctrl_period) , resp);               // Exposure 50us @100mhz
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(1<<8)+1, resp);                                    // Grab_ctrl: source is immediate + trig_overlap + grab cmd   
 
@@ -926,12 +935,10 @@ initial begin
   
     
     ROI_YSTART   =   8;
-    ROI_YSIZE    =  16;
-    EXPOSURE     = 100;  //in us
+    ROI_YSIZE    =   8;
+    EXPOSURE     =  50;  //in us
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a8, prot, ROI_YSTART/4, resp);                                        // Y START  (kernel is 4)    
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001ac, prot, ROI_YSIZE/4, resp);                                         // Y SIZE   (kernel is 4)  
-    readout_length = (ROI_YSIZE + EmbededLine + DummyLines + MLines + Jitter) * line_time * (xgs_bitrate_period / xgs_ctrl_period); // Calculate readout Length
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000118, prot, (1<<28) + readout_length, resp);                            // readout length +readout_en     
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000128, prot, EXPOSURE * (1000.0 /xgs_ctrl_period) , resp);               // Exposure 50us @100mhz    
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000100, prot, (1<<15)+(1<<8)+1, resp);                                    // Grab_ctrl: source is immediate + trig_overlap + grab cmd   
 

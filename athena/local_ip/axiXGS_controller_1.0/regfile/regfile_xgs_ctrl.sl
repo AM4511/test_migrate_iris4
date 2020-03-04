@@ -134,14 +134,15 @@ Register("readout_cfg1", 0x110, 4, "null");
 		Field("fot_length", 15, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Frame Overhead Time LENGTH");
 
 Register("readout_cfg2", 0x118, 4, "null");
-		Field("readout_en", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "READOUT ENable");
-			FieldValue("Disable readout", 0);
-			FieldValue("Enable readout ", 1);
-		Field("readout_length", 23, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("readout_length", 28, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg3", 0x120, 4, "null");
-		Field("keep_out_trig", 31, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("line_time", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
+		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("line_time", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
+
+Register("readout_cfg4", 0x124, 4, "null");
+		Field("keep_out_trig_end", 31, 16, "rd|wr", 0x0, 0x16d, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_lev_mode", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE LEVel MODE");
@@ -150,10 +151,10 @@ Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_ss", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Single Slope");
 
 Register("exp_ctrl2", 0x130, 4, "null");
-		Field("exposure_ds", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Dual Slope");
+		Field("exposure_ds", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Dual ");
 
 Register("exp_ctrl3", 0x138, 4, "null");
-		Field("exposure_ts", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Tripple Slope");
+		Field("exposure_ts", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Tripple ");
 
 Register("trigger_delay", 0x140, 4, "null");
 		Field("trigger_delay", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER DELAY");
@@ -287,9 +288,13 @@ Register("sensor_roi2_y_size", 0x1b4, 4, "null");
 		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("y_size", 9, 0, "rd|wr", 0x0, 0x302, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y SIZE");
 
-Register("sensor_m_lines", 0x1dc, 4, "null");
+Register("sensor_m_lines", 0x1d8, 4, "null");
 		Field("m_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("m_lines", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_f_lines", 0x1dc, 4, "null");
+		Field("f_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("f_lines", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -305,7 +310,7 @@ Register("trigger_missed", 0x1e8, 4, "null");
 Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
-Register("debug", 0x220, 4, "null");
+Register("debug", 0x2a0, 4, "null");
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
@@ -327,22 +332,22 @@ Register("debug", 0x220, 4, "null");
 			FieldValue("The LED is in user mode.", 0);
 			FieldValue("The LED is in test mode.", 1);
 
-Register("debug_cntr1", 0x228, 4, "null");
+Register("debug_cntr1", 0x2a8, 4, "null");
 		Field("eof_cntr", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
-Register("debug_cntr2", 0x230, 4, "null");
+Register("debug_cntr2", 0x2b0, 4, "null");
 		Field("eol_cntr", 11, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
-Register("debug_cntr3", 0x234, 4, "null");
+Register("debug_cntr3", 0x2b4, 4, "null");
 		Field("sensor_frame_duration", 27, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "");
 
-Register("exp_fot", 0x238, 4, "null");
+Register("exp_fot", 0x2b8, 4, "null");
 		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
 			FieldValue("Disable exposure during FOT in output exposure signal and Strobe", 0);
 			FieldValue("Enable exposure during FOT in output exposure signal and Strobe", 1);
 		Field("exp_fot_time", 11, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
 
-Register("acq_sfnc", 0x240, 4, "null");
+Register("acq_sfnc", 0x2c0, 4, "null");
 		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
 			FieldValue("", 0);
 			FieldValue("", 1);

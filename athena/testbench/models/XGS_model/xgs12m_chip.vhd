@@ -169,6 +169,8 @@ component xgs_hispi is
   generic(G_PXL_PER_COLRAM : integer := 174);
   port(
        bit_clock_period    : in time;
+
+       TRIGGER_READOUT     : in std_logic;
        
        hispi_if_enable     : in std_logic;
        output_msb_first    : in std_logic;
@@ -378,6 +380,7 @@ signal INTEGRATION         : std_logic := '0';
 signal EFOT                : std_logic := '0';
 signal TRIGGER_READOUT     : std_logic := '0';         
 
+signal NEW_LINE            : std_logic := '0';           
 
 
 begin
@@ -566,6 +569,8 @@ begin
   port map(
        bit_clock_period    => bit_clock_period,
        
+       TRIGGER_READOUT     => TRIGGER_READOUT,
+       
        hispi_if_enable     => hispi_if_enable,
        output_msb_first    => output_msb_first,
        hispi_enable_crc    => hispi_enable_crc,
@@ -600,6 +605,8 @@ begin
   generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
   port map(
        bit_clock_period    => bit_clock_period,
+
+       TRIGGER_READOUT     => TRIGGER_READOUT,
        
        hispi_if_enable     => hispi_if_enable,
        output_msb_first    => output_msb_first,
@@ -635,6 +642,8 @@ begin
   generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
   port map(
        bit_clock_period    => bit_clock_period,
+
+       TRIGGER_READOUT     => TRIGGER_READOUT,
        
        hispi_if_enable     => hispi_if_enable,
        output_msb_first    => output_msb_first,
@@ -670,6 +679,8 @@ begin
   generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
   port map(
        bit_clock_period    => bit_clock_period,
+
+       TRIGGER_READOUT     => TRIGGER_READOUT,
        
        hispi_if_enable     => hispi_if_enable,
        output_msb_first    => output_msb_first,
@@ -707,6 +718,8 @@ begin
      generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
      port map(
          bit_clock_period    => bit_clock_period,
+
+         TRIGGER_READOUT     => TRIGGER_READOUT,      
          
          hispi_if_enable     => hispi_if_enable,
          output_msb_first    => output_msb_first,
@@ -743,6 +756,8 @@ begin
       generic map(G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
       port map(
            bit_clock_period    => bit_clock_period,
+
+           TRIGGER_READOUT     => TRIGGER_READOUT,
            
            hispi_if_enable     => hispi_if_enable,
            output_msb_first    => output_msb_first,
@@ -849,7 +864,7 @@ begin
    
    MONITOR0     <= INTEGRATION;
    MONITOR1     <= EFOT;
-   MONITOR2     <= 'Z';
+   MONITOR2     <= NEW_LINE;
 
    
    
@@ -896,15 +911,15 @@ begin
       INTEGRATION     <= '1';      
       EFOT            <= '1';
       TRIGGER_READOUT <= '0';
-      wait for 5us;
+      wait for 5360 ns;
       
       --NO more EXPOSURE during EFOT
       INTEGRATION     <= '0';      
       EFOT            <= '1';
-      TRIGGER_READOUT <= '0';
-      wait for 20us;      
-      
-      
+      TRIGGER_READOUT <= '0';   
+      wait for integer(integer( to_integer(unsigned(line_time))*8*15.4329)- 5360) * 1 ns ; --FOT Duration is around 8 lines of the sensor.
+
+    
       INTEGRATION     <= '0';      
       EFOT            <= '1';
       TRIGGER_READOUT <= '1';            
@@ -931,6 +946,19 @@ begin
       end if;
   end process;      
 
+  -- For keep-out trigger zone simulation
+  process is
+  begin
+    wait on dataline_nxt'event;     
+    if(dataline_nxt='1') then    
+      NEW_LINE   <=  '1';
+      wait for 15432ps;
+      NEW_LINE   <=  '0';
+    end if;
+  end process;  
+ 
+  
+ 
  
    
 end behaviour;
