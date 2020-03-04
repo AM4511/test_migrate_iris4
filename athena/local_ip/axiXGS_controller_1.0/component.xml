@@ -428,7 +428,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>9cc0ad8b</spirit:value>
+            <spirit:value>6dfd20c9</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -444,7 +444,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>382bdeb1</spirit:value>
+            <spirit:value>d8329096</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -472,7 +472,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>466aea71</spirit:value>
+            <spirit:value>c8ef410b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1042,18 +1042,6 @@
     </spirit:ports>
     <spirit:modelParameters>
       <spirit:modelParameter xsi:type="spirit:nameValueTypeType" spirit:dataType="integer">
-        <spirit:name>C_S_AXI_DATA_WIDTH</spirit:name>
-        <spirit:displayName>C S AXI DATA WIDTH</spirit:displayName>
-        <spirit:description>Width of S_AXI data bus</spirit:description>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S_AXI_DATA_WIDTH" spirit:order="3" spirit:rangeType="long">32</spirit:value>
-      </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>C_S_AXI_ADDR_WIDTH</spirit:name>
-        <spirit:displayName>C S AXI ADDR WIDTH</spirit:displayName>
-        <spirit:description>Width of S_AXI address bus</spirit:description>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S_AXI_ADDR_WIDTH" spirit:order="4" spirit:rangeType="long">12</spirit:value>
-      </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>G_SYS_CLK_PERIOD</spirit:name>
         <spirit:displayName>G Sys Clk Period</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_SYS_CLK_PERIOD">16</spirit:value>
@@ -1063,6 +1051,21 @@
         <spirit:displayName>G Simulation</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_SIMULATION">0</spirit:value>
       </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_KU706</spirit:name>
+        <spirit:displayName>G Ku706</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_KU706">0</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>C_S_AXI_DATA_WIDTH</spirit:name>
+        <spirit:displayName>C S Axi Data Width</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S_AXI_DATA_WIDTH">32</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>C_S_AXI_ADDR_WIDTH</spirit:name>
+        <spirit:displayName>C S Axi Addr Width</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S_AXI_ADDR_WIDTH">12</spirit:value>
+      </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
   <spirit:choices>
@@ -1071,20 +1074,9 @@
       <spirit:enumeration>32</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
-      <spirit:name>choice_list_98b8ce5c</spirit:name>
-      <spirit:enumeration>0</spirit:enumeration>
-      <spirit:enumeration>1</spirit:enumeration>
-    </spirit:choice>
-    <spirit:choice>
       <spirit:name>choice_list_9d8b0d81</spirit:name>
       <spirit:enumeration>ACTIVE_HIGH</spirit:enumeration>
       <spirit:enumeration>ACTIVE_LOW</spirit:enumeration>
-    </spirit:choice>
-    <spirit:choice>
-      <spirit:name>choice_list_c52b3688</spirit:name>
-      <spirit:enumeration>16</spirit:enumeration>
-      <spirit:enumeration>10</spirit:enumeration>
-      <spirit:enumeration>8</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
       <spirit:name>choice_pairs_ce1226b1</spirit:name>
@@ -1107,22 +1099,22 @@
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/xgs_spi.vhd</spirit:name>
+        <spirit:name>hdl/axiXGS_controller_v1_0.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_9576baab</spirit:userFileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/xgs_power.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_01ba8e81</spirit:userFileType>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/xgs_ctrl.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/axiXGS_controller_v1_0.vhd</spirit:name>
+        <spirit:name>hdl/xgs_power.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_01ba8e81</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/xgs_spi.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_ad3ae703</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1138,11 +1130,7 @@
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/xgs_spi.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/xgs_power.vhd</spirit:name>
+        <spirit:name>hdl/axiXGS_controller_v1_0.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -1150,7 +1138,11 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/axiXGS_controller_v1_0.vhd</spirit:name>
+        <spirit:name>hdl/xgs_power.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/xgs_spi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1191,7 +1183,7 @@
       <spirit:file>
         <spirit:name>xgui/axiXGS_controller_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_466aea71</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_c8ef410b</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1205,32 +1197,6 @@
   </spirit:fileSets>
   <spirit:description>AXI XGS controller</spirit:description>
   <spirit:parameters>
-    <spirit:parameter>
-      <spirit:name>C_S_AXI_DATA_WIDTH</spirit:name>
-      <spirit:displayName>C S AXI DATA WIDTH</spirit:displayName>
-      <spirit:description>Width of S_AXI data bus</spirit:description>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S_AXI_DATA_WIDTH" spirit:choiceRef="choice_list_6fc15197" spirit:order="3">32</spirit:value>
-      <spirit:vendorExtensions>
-        <xilinx:parameterInfo>
-          <xilinx:enablement>
-            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S_AXI_DATA_WIDTH">false</xilinx:isEnabled>
-          </xilinx:enablement>
-        </xilinx:parameterInfo>
-      </spirit:vendorExtensions>
-    </spirit:parameter>
-    <spirit:parameter>
-      <spirit:name>C_S_AXI_ADDR_WIDTH</spirit:name>
-      <spirit:displayName>C S AXI ADDR WIDTH</spirit:displayName>
-      <spirit:description>Width of S_AXI address bus</spirit:description>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S_AXI_ADDR_WIDTH" spirit:order="4" spirit:rangeType="long">12</spirit:value>
-      <spirit:vendorExtensions>
-        <xilinx:parameterInfo>
-          <xilinx:enablement>
-            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S_AXI_ADDR_WIDTH">false</xilinx:isEnabled>
-          </xilinx:enablement>
-        </xilinx:parameterInfo>
-      </spirit:vendorExtensions>
-    </spirit:parameter>
     <spirit:parameter>
       <spirit:name>C_S_AXI_BASEADDR</spirit:name>
       <spirit:displayName>C S AXI BASEADDR</spirit:displayName>
@@ -1261,13 +1227,28 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>G_SYS_CLK_PERIOD</spirit:name>
-      <spirit:displayName>SYSTEM CLOCK PERIOD in ns</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SYS_CLK_PERIOD" spirit:choiceRef="choice_list_c52b3688">16</spirit:value>
+      <spirit:displayName>G Sys Clk Period</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SYS_CLK_PERIOD">16</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>G_SIMULATION</spirit:name>
-      <spirit:displayName>SIMULATION TIMINGS</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SIMULATION" spirit:choiceRef="choice_list_98b8ce5c">0</spirit:value>
+      <spirit:displayName>G Simulation</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SIMULATION">0</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_KU706</spirit:name>
+      <spirit:displayName>G Ku706</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_KU706">0</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>C_S_AXI_DATA_WIDTH</spirit:name>
+      <spirit:displayName>C S Axi Data Width</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S_AXI_DATA_WIDTH">32</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>C_S_AXI_ADDR_WIDTH</spirit:name>
+      <spirit:displayName>C S Axi Addr Width</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S_AXI_ADDR_WIDTH">12</spirit:value>
     </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
@@ -1297,8 +1278,8 @@
       </xilinx:taxonomies>
       <xilinx:displayName>axiXGS_controller_v1.0</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_1</xilinx:autoFamilySupportLevel>
-      <xilinx:coreRevision>70</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2020-02-26T19:21:37Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>104</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2020-03-03T21:55:42Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3de0f5de_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@48601e8d_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
@@ -1330,17 +1311,17 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@31eaf4db_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5e59fba5_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6eba166a_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
-        <xilinx:tag xilinx:name="matrox.com:user:axiXGS_controller:1.0_ARCHIVE_LOCATION">c:/work/iris4/athena/ipcores/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="matrox.com:user:axiXGS_controller:1.0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2018.2</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="771d9333"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="c30980da"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="083976bb"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="86ebf063"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="eb67f9b7"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="af6d5ff2"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="604ac4cc"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="fc4a5b39"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="9c027fe3"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

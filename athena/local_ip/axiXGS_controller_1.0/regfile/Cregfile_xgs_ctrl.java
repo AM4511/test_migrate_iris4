@@ -134,8 +134,7 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "READOUT_EN", "READOUT ENable", CField.FieldType.RW, 28, 1, 0x0));
-      register.addField(new CField(register, "READOUT_LENGTH", "null", CField.FieldType.RW, 0, 24, 0x0));
+      register.addField(new CField(register, "READOUT_LENGTH", "null", CField.FieldType.RO, 0, 29, 0x0));
 
       /***************************************************************
       * Register: READOUT_CFG3
@@ -145,8 +144,19 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "KEEP_OUT_TRIG", "null", CField.FieldType.RW, 16, 16, 0x0));
-      register.addField(new CField(register, "LINE_TIME", "LINE TIME", CField.FieldType.RW, 0, 16, 0x0));
+      register.addField(new CField(register, "KEEP_OUT_TRIG_ENA", "null", CField.FieldType.RW, 16, 1, 0x0));
+      register.addField(new CField(register, "LINE_TIME", "LINE TIME", CField.FieldType.RW, 0, 16, 0x16e));
+
+      /***************************************************************
+      * Register: READOUT_CFG4
+      * Offset: 0x24
+      ****************************************************************/
+      register = new CRegister(section, "READOUT_CFG4", "null", 0x24);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "KEEP_OUT_TRIG_END", "null", CField.FieldType.RW, 16, 16, 0x16d));
+      register.addField(new CField(register, "KEEP_OUT_TRIG_START", "null", CField.FieldType.RW, 0, 16, 0x16e));
 
       /***************************************************************
       * Register: EXP_CTRL1
@@ -167,7 +177,7 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "EXPOSURE_DS", "EXPOSURE Dual Slope", CField.FieldType.RW, 0, 28, 0x0));
+      register.addField(new CField(register, "EXPOSURE_DS", "EXPOSURE Dual ", CField.FieldType.RW, 0, 28, 0x0));
 
       /***************************************************************
       * Register: EXP_CTRL3
@@ -177,7 +187,7 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "EXPOSURE_TS", "EXPOSURE Tripple Slope", CField.FieldType.RW, 0, 28, 0x0));
+      register.addField(new CField(register, "EXPOSURE_TS", "EXPOSURE Tripple ", CField.FieldType.RW, 0, 28, 0x0));
 
       /***************************************************************
       * Register: TRIGGER_DELAY
@@ -354,14 +364,25 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: SENSOR_M_LINES
-      * Offset: 0xdc
+      * Offset: 0xd8
       ****************************************************************/
-      register = new CRegister(section, "SENSOR_M_LINES", "null", 0xdc);
+      register = new CRegister(section, "SENSOR_M_LINES", "null", 0xd8);
       section.addRegister(register);
 
       //Fields:
       register.addField(new CField(register, "M_SUPPRESSED", "null", CField.FieldType.RW, 10, 5, 0x0));
       register.addField(new CField(register, "M_LINES", "null", CField.FieldType.RW, 0, 10, 0x8));
+
+      /***************************************************************
+      * Register: SENSOR_F_LINES
+      * Offset: 0xdc
+      ****************************************************************/
+      register = new CRegister(section, "SENSOR_F_LINES", "null", 0xdc);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "F_SUPPRESSED", "null", CField.FieldType.RW, 10, 5, 0x0));
+      register.addField(new CField(register, "F_LINES", "null", CField.FieldType.RW, 0, 10, 0x8));
 
       /***************************************************************
       * Register: DEBUG_PINS
@@ -399,9 +420,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: DEBUG
-      * Offset: 0x120
+      * Offset: 0x1a0
       ****************************************************************/
-      register = new CRegister(section, "DEBUG", "null", 0x120);
+      register = new CRegister(section, "DEBUG", "null", 0x1a0);
       section.addRegister(register);
 
       //Fields:
@@ -416,9 +437,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: DEBUG_CNTR1
-      * Offset: 0x128
+      * Offset: 0x1a8
       ****************************************************************/
-      register = new CRegister(section, "DEBUG_CNTR1", "null", 0x128);
+      register = new CRegister(section, "DEBUG_CNTR1", "null", 0x1a8);
       section.addRegister(register);
 
       //Fields:
@@ -426,9 +447,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: DEBUG_CNTR2
-      * Offset: 0x130
+      * Offset: 0x1b0
       ****************************************************************/
-      register = new CRegister(section, "DEBUG_CNTR2", "null", 0x130);
+      register = new CRegister(section, "DEBUG_CNTR2", "null", 0x1b0);
       section.addRegister(register);
 
       //Fields:
@@ -436,9 +457,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: DEBUG_CNTR3
-      * Offset: 0x134
+      * Offset: 0x1b4
       ****************************************************************/
-      register = new CRegister(section, "DEBUG_CNTR3", "null", 0x134);
+      register = new CRegister(section, "DEBUG_CNTR3", "null", 0x1b4);
       section.addRegister(register);
 
       //Fields:
@@ -446,9 +467,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: EXP_FOT
-      * Offset: 0x138
+      * Offset: 0x1b8
       ****************************************************************/
-      register = new CRegister(section, "EXP_FOT", "null", 0x138);
+      register = new CRegister(section, "EXP_FOT", "null", 0x1b8);
       section.addRegister(register);
 
       //Fields:
@@ -457,9 +478,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: ACQ_SFNC
-      * Offset: 0x140
+      * Offset: 0x1c0
       ****************************************************************/
-      register = new CRegister(section, "ACQ_SFNC", "null", 0x140);
+      register = new CRegister(section, "ACQ_SFNC", "null", 0x1c0);
       section.addRegister(register);
 
       //Fields:

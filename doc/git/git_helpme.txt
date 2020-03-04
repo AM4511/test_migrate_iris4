@@ -35,6 +35,13 @@
  git branch -d nom_de_branche
  
  
+ Pour mettre a jour les EXTERNAL (IPCORES), se mettre sur iris4 ou athena
+ -------------------------------------------
+ git submodule update
+ 
+ 
+ 
+ 
  Log graphique de git
  ---------------------------------------------------
  git log --graph --all
@@ -62,3 +69,13 @@
  -------------------------------------
  git mv file1 file2
  git rm file1
+ 
+ 
+ 
+ 
+ 
+ 
+ Travail sur modele+testbench  ET  IP controlleur
+ ---------------------------------------------------
+ 
+ 

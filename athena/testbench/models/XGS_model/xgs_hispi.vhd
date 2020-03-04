@@ -37,6 +37,8 @@ entity xgs_hispi is
   port(
        bit_clock_period    : in time;
        
+       TRIGGER_READOUT     : in std_logic;
+       
        hispi_if_enable     : in std_logic;
        output_msb_first    : in std_logic;
        hispi_enable_crc    : in std_logic;
@@ -168,6 +170,7 @@ signal clk_hispi   : std_logic := '0';
 signal update_transmit_buffer : std_logic;
 
 signal bit_clock_period_int : time := 1.2857 ns;
+signal TRIGGER_READOUT_P1 : std_logic;
 
 --type t_debug_array_data is array(0 to G_PXL_PER_COLRAM +4) of unsigned(11 downto 0);
 --type t_debug_array_crc is array(0 to G_PXL_PER_COLRAM +4) of unsigned(15 downto 0);

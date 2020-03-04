@@ -1,20 +1,14 @@
 -----------------------------------------------------------------------
--- $HeadURL: svn://brainstorm/fpga/trunk/Matrox/Imaging/FPGA/Iris3/cores/python_if/design/python_ctrl.vhd $
--- $Author: jmansill $
--- $Revision: 20741 $
--- $Date: 2020-01-10 15:04:52 -0500 (Fri, 10 Jan 2020) $
---
------------------------------------------------------------------------
--- File:        python_ctrl.vhd
+-- File:        xgs_ctrl.vhd
 -- Decription:  
 --              
 -- This module contains:
 -- 
--- Crontrol interface of CMOS sensor
+-- Control interface of CMOS sensor
 --                                                                                                                       
--- Created by:  Javier Mansilla
+-- Created by:  Javier Mansilla 
 -- Date:        
--- Project:     IRIS 3
+-- Project:     IRIS 4
 ------------------------------------------------------------------------------
   
 library IEEE;
@@ -29,7 +23,8 @@ library UNISIM;
   use UNISIM.VCOMPONENTS.all;
 
 entity xgs_ctrl is
-   generic(  G_SIMULATION          : integer := 0;
+   generic(  G_KU706               : integer := 0; -- Nous n'avons pas de monitor sur le board Xcelerator+KU706 , generation interne!
+             G_SIMULATION          : integer := 0;
              G_SYS_CLK_PERIOD      : integer := 16
              
           );
@@ -40,7 +35,7 @@ entity xgs_ctrl is
            sys_clk                         : in  std_logic;
 
            ---------------------------------------------------------------------------
-           --  PYTHON CMOS IF signals
+           --  XGS CMOS IF signals
            ---------------------------------------------------------------------------
            xgs_power_good                  : in  std_logic;      -- power good
            xgs_osc_en                      : out std_logic;
@@ -56,7 +51,7 @@ entity xgs_ctrl is
 
            xgs_monitor0                    : in std_logic;  --EXP
            xgs_monitor1                    : in std_logic;  --EFOT 
-           xgs_monitor2                    : in std_logic;  -- A definir
+           xgs_monitor2                    : in std_logic;  --NEW_LINE
            
            ---------------------------------------------------------------------------
            --  OUTPUTS TO other fpga
@@ -67,8 +62,8 @@ entity xgs_ctrl is
            exposure_out                    : out   std_logic;
            trig_rdy_out                    : out   std_logic;
            
-           python_monitor0_sysclk          : out   std_logic;
-           python_monitor1_sysclk          : out   std_logic;
+           xgs_monitor0_sysclk             : out   std_logic;
+           xgs_monitor1_sysclk             : out   std_logic;
            
            ---------------------------------------------------------------------------
            --  INPUTS FROM other fpga
@@ -97,7 +92,7 @@ entity xgs_ctrl is
            DEC_EOF_sys                     : in  std_logic;
            
            abort_readout_datapath          : out std_logic;
-           start_calibration               : out std_logic;
+           --start_calibration               : out std_logic;
            dma_idle                        : in  std_logic;
 
            curr_db_GRAB_ROI2_EN            : out std_logic;
@@ -130,7 +125,7 @@ architecture functional of xgs_ctrl is
 
 
   ------------------------------------------
-  --  MODULE PYTHON SPI
+  --  MODULE XGS SPI
   ------------------------------------------
   component xgs_spi
    generic( G_SYS_CLK_PERIOD : integer :=16
@@ -188,6 +183,13 @@ architecture functional of xgs_ctrl is
   attribute keep            : string;
   attribute dont_touch      : string;
   
+  
+  -- constants
+  --constant keep_out_zone_100ns : std_logic_vector(REGFILE.ACQ.READOUT_CFG3.LINE_TIME'range) := std_logic_vector(conv_unsigned(integer( (100/G_SYS_CLK_PERIOD)+1 ), REGFILE.ACQ.READOUT_CFG3.LINE_TIME'length));
+  
+  signal keep_out_zone_cntr : std_logic_vector(REGFILE.ACQ.READOUT_CFG3.LINE_TIME'range) := (others =>'0');
+  signal keep_out_zone      : std_logic := '0';
+  
   -- synthesis translate_off
   -- SIM Debug
   type type_curr_acq_mode is (  NOT_DEFINED_YET,
@@ -225,7 +227,7 @@ architecture functional of xgs_ctrl is
   signal  curr_trigger_src       : std_logic_vector(REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC'range);
   signal  curr_trigger_act       : std_logic_vector(REGFILE.ACQ.GRAB_CTRL.TRIGGER_ACT'range);
   signal  curr_readout_length    : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
-  signal  curr_readout_en        : std_logic;
+  --signal  curr_readout_en        : std_logic;
   signal  curr_exposure_lev_mode : std_logic;
   signal  curr_exposure_ss       : std_logic_vector(REGFILE.ACQ.EXP_CTRL1.EXPOSURE_SS'range);
   signal  curr_exposure_ds       : std_logic_vector(REGFILE.ACQ.EXP_CTRL2.EXPOSURE_DS'range);
@@ -312,7 +314,7 @@ architecture functional of xgs_ctrl is
                                   trig,
                                   exposure_monitor,
                                   exposure,
-                                  exposure_fot,
+                                  --exposure_fot,
                                   exposure_end,
                                   level
                                );
@@ -321,20 +323,23 @@ architecture functional of xgs_ctrl is
 
   signal  next_timer_exposure_end: std_logic;
   signal  timer_exposure_end     : std_logic;
-  signal  exp_fot_cntr           : std_logic_vector(REGFILE.ACQ.EXP_FOT.EXP_FOT_TIME'range);
+  --signal  exp_fot_cntr           : std_logic_vector(REGFILE.ACQ.EXP_FOT.EXP_FOT_TIME'range);
 
   signal  exposure_cntr          : std_logic_vector(REGFILE.ACQ.EXP_CTRL1.EXPOSURE_SS'range);
   signal  readout_cnt            : std_logic;
-  signal  readout_cntr           : std_logic_vector(23 downto 0); 
+  signal  readout_cntr           : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range); 
 
+  signal  readout_cntr2          : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
+  signal  readout_cntr2_armed    : std_logic;
+  signal  readout_cntr2_end      : std_logic;
+  
+  
   signal  next_readout_stateD    : std_logic;
   signal  readout_stateD         : std_logic;
   
   signal  readout                : std_logic;       -- range may be corercted
 
   signal  next_trig0             : std_logic;
-  signal  next_trig1             : std_logic;
-  signal  next_trig2             : std_logic;
   signal  next_readout_cnt       : std_logic;
 
   signal  next_SO_FOT            : std_logic;
@@ -345,12 +350,12 @@ architecture functional of xgs_ctrl is
   signal  EO_FOT                 : std_logic;
   
   signal  curr_trig0             : std_logic;
+  signal  curr_trig0_P1          : std_logic; 
+  signal  xgs_trig_int_delayed   : std_logic; 
 
-
-
-  signal  python_monitor0_p1     : std_logic;
-  signal  python_exposure        : std_logic;
-  signal  python_exposure_p1     : std_logic;
+  signal  xgs_monitor0_p1        : std_logic;
+  signal  xgs_exposure           : std_logic;
+  signal  xgs_exposure_p1        : std_logic;
   signal  exposure_outpin        : std_logic:='0';
   signal  exposure_reg           : std_logic;
   signal  trig_rdy_outpin        : std_logic:='0';
@@ -359,26 +364,26 @@ architecture functional of xgs_ctrl is
   attribute dont_touch of trig_rdy_outpin     : signal is "TRUE";
   attribute KEEP       of exposure_outpin     : signal is "TRUE";
   attribute dont_touch of exposure_outpin     : signal is "TRUE";
-  attribute KEEP       of python_exposure_p1  : signal is "TRUE";
-  attribute dont_touch of python_exposure_p1  : signal is "TRUE";
+  attribute KEEP       of xgs_exposure_p1     : signal is "TRUE";
+  attribute dont_touch of xgs_exposure_p1     : signal is "TRUE";
   
-  attribute ASYNC_REG of python_monitor0_p1  : signal is "TRUE";
-  attribute ASYNC_REG of python_exposure     : signal is "TRUE";
+  attribute ASYNC_REG of xgs_monitor0_p1  : signal is "TRUE";
+  attribute ASYNC_REG of xgs_exposure     : signal is "TRUE";
 
 
-  signal  python_monitor1_p1  : std_logic;
-  signal  python_ROT          : std_logic;
-  signal  python_ROT_p1       : std_logic;
-  signal  EO_ROT              : std_logic;
-  attribute ASYNC_REG of python_monitor1_p1  : signal is "TRUE";
-  attribute ASYNC_REG of python_ROT          : signal is "TRUE";
+  signal  xgs_monitor1_p1  : std_logic;
+  signal  xgs_FOT          : std_logic;
+  signal  xgs_FOT_p1       : std_logic;
+  signal  xgs_EO_FOT       : std_logic;
+  attribute ASYNC_REG of xgs_monitor1_p1  : signal is "TRUE";
+  attribute ASYNC_REG of xgs_FOT          : signal is "TRUE";
 
-  signal  python_monitor2_p1  : std_logic;
-  signal  python_NEW_LINE     : std_logic;
-  signal  python_NEW_LINE_p1  : std_logic;
-  signal  NEW_LINE            : std_logic;  
-  attribute ASYNC_REG of python_monitor2_p1  : signal is "TRUE";
-  attribute ASYNC_REG of python_NEW_LINE     : signal is "TRUE";
+  signal  xgs_monitor2_p1  : std_logic;
+  signal  XGS_NEW_LINE     : std_logic;
+  signal  XGS_NEW_LINE_p1  : std_logic;
+ 
+  attribute ASYNC_REG of xgs_monitor2_p1  : signal is "TRUE";
+  attribute ASYNC_REG of XGS_NEW_LINE     : signal is "TRUE";
   
   
 
@@ -504,6 +509,20 @@ signal next_abort_done               :  std_logic;
 --signal  regfile_dma_parameters          : ALIAS_DMA_TYPE; -- indirection sur le register file de DMA au complet
 
 signal  acquisition_start_SFNC          :  std_logic := '0';
+
+signal TOTAL_NB_LINES                : std_logic_vector(12 downto 0);
+signal INTERNAL_READOUT_LENGTH_FLOAT : std_logic_vector(47 downto 0);
+signal INTERNAL_READOUT_LENGTH       : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
+  
+constant SENSOR_PERIOD               : std_logic_vector(18 downto 0):= "1111011011101001111"; --X"7B74F";  --[4].[15] : 15.4320985 ns = 1/(2x32.4Mhz)
+
+
+-- Pour le board de developpement, on n'a aps les signaux monitor
+signal Synthetic_EXPOSURE : std_logic :='0';
+signal Synthetic_FOT      : std_logic :='0'; 
+signal Synthetic_DELAI_EXP: std_logic :='0'; 
+signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
+
 
 BEGIN
 
@@ -770,13 +789,12 @@ BEGIN
 
       if(acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" and (grab_pending= '1' or REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1') ) then   --bug bench EO_FOT+GRABCMD        
 
-        curr_readout_length     <= REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH;
-        
-        --curr_readout_length     <= 
+        --curr_readout_length     <= REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH;
+        curr_readout_length     <= INTERNAL_READOUT_LENGTH;
         
         curr_trigger_src        <= REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC;
         curr_trigger_act        <= REGFILE.ACQ.GRAB_CTRL.TRIGGER_ACT;
-        curr_readout_en         <= REGFILE.ACQ.READOUT_CFG2.READOUT_EN;
+        --curr_readout_en         <= REGFILE.ACQ.READOUT_CFG2.READOUT_EN;
         curr_exposure_lev_mode  <= REGFILE.ACQ.EXP_CTRL1.EXPOSURE_LEV_MODE;
         
         ------------------------------------------------------------------
@@ -969,7 +987,7 @@ BEGIN
                                     if (abort_now='1') then
                                       next_grab_mngr_state  <= idle;
                                     elsif(readout_cnt='1') then
-                                      if((curr_exposure_ss) > ("0000" & readout_cntr) ) then      --Single slope
+                                      if( ('0'& curr_exposure_ss) > readout_cntr ) then      --Single slope
                                         next_grab_mngr_state  <= arm;
                                       else
                                         next_grab_mngr_state  <= wait_end_deadwindow;
@@ -1247,7 +1265,7 @@ BEGIN
   ------------------------------------------
 
 
-  process(curr_timer_mngr_state, REGFILE, grab_mngr_trig, grab_mngr_trig_p1, sensor_reconf_busy, curr_level_mode_exp, timer_cntr, curr_trigger_delay, python_exposure_p1, python_exposure, exp_fot_cntr, abort_seq, abort_now, EO_FOT)
+  process(curr_timer_mngr_state, REGFILE, grab_mngr_trig, grab_mngr_trig_p1, sensor_reconf_busy, curr_level_mode_exp, timer_cntr, curr_trigger_delay, xgs_exposure_p1, xgs_exposure,  abort_seq, abort_now, EO_FOT)
   begin
     case curr_timer_mngr_state is
       when  idle              =>  if(grab_mngr_trig='1' and grab_mngr_trig_p1='0') then       -- trig start, verify sensor programmation end before delai.
@@ -1282,7 +1300,7 @@ BEGIN
 
       when  exposure_monitor  =>  if(abort_seq='1') then -- abort detected by trig_mngr
                                     next_timer_mngr_state  <= exposure_end;
-                                  elsif(python_exposure='1' and python_exposure_p1='0') then --when we see rising on exposure then
+                                  elsif(xgs_exposure='1' and xgs_exposure_p1='0') then --when we see rising on exposure then
                                     if(curr_level_mode_exp='1') then
                                       next_timer_mngr_state  <= level;
                                     else
@@ -1294,25 +1312,27 @@ BEGIN
 
       when  exposure          =>  if(abort_seq='1') then -- abort detected by trig_mngr
                                     next_timer_mngr_state  <= exposure_end;
-                                  elsif (python_exposure='0' and python_exposure_p1='1' ) then
-                                    if(REGFILE.ACQ.EXP_FOT.EXP_FOT='0') then                     -- Exp end signaled by sensor (Falling edge of monitor 0)
-                                      next_timer_mngr_state   <= exposure_end;
-                                    else                                                         -- Exp end signaled by sensor + EXP_FOT
-                                      next_timer_mngr_state   <= exposure_fot;
-                                    end if;
+                                  --elsif(python_exposure='0' and python_exposure_p1='1' ) then
+                                  --  if(REGFILE.ACQ.EXP_FOT.EXP_FOT='0') then                     -- Exp end signaled by sensor (Falling edge of monitor 0)
+                                  --    next_timer_mngr_state   <= exposure_end;
+                                  --  else                                                         -- Exp end signaled by sensor + EXP_FOT
+                                  --    next_timer_mngr_state   <= exposure_fot;
+                                  --  end if;
+                                  elsif(xgs_exposure='0' and xgs_exposure_p1='1' ) then    -- XGS using real integration! un bon bug de corrige ds le DIe du XGS, a valider! 
+                                    next_timer_mngr_state   <= exposure_end;
                                   else
                                     next_timer_mngr_state  <= exposure;
                                   end if;
 
-      when  exposure_fot      =>  if(abort_seq='1') then                                         -- abort detected by trig_mngr
-                                    next_timer_mngr_state  <= exposure_end;
-                                  elsif(EO_FOT='1') then                                         -- protection
-                                    next_timer_mngr_state   <= exposure_end;
-                                  elsif(exp_fot_cntr = (REGFILE.ACQ.EXP_FOT.EXP_FOT_TIME)) then
-                                    next_timer_mngr_state   <= exposure_end;
-                                  else
-                                    next_timer_mngr_state   <= exposure_fot;
-                                  end if;
+      --when  exposure_fot      =>  if(abort_seq='1') then                                         -- abort detected by trig_mngr
+      --                              next_timer_mngr_state  <= exposure_end;
+      --                            elsif(EO_FOT='1') then                                         -- protection
+      --                              next_timer_mngr_state   <= exposure_end;
+      --                            elsif(exp_fot_cntr = (REGFILE.ACQ.EXP_FOT.EXP_FOT_TIME)) then
+      --                              next_timer_mngr_state   <= exposure_end;
+      --                            else
+      --                              next_timer_mngr_state   <= exposure_fot;
+      --                            end if;
 
       when  exposure_end      =>  next_timer_mngr_state   <= idle;
 
@@ -1371,11 +1391,11 @@ BEGIN
                                   next_timer_exposure_end<='0';
                                   next_timer_mngr_stat   <= "011";
 
-      when  exposure_fot      =>  next_trig_delayed      <='0';
-                                  next_timer_cnt         <='0';
-                                  next_timer_exposure    <='1';
-                                  next_timer_exposure_end<='0';
-                                  next_timer_mngr_stat   <= "110";
+      --when  exposure_fot      =>  next_trig_delayed      <='0';
+      --                            next_timer_cnt         <='0';
+      --                            next_timer_exposure    <='1';
+      --                            next_timer_exposure_end<='0';
+      --                            next_timer_mngr_stat   <= "110";
 
       when  exposure_end      =>  next_trig_delayed      <='0';
                                   next_timer_cnt         <='0';
@@ -1404,7 +1424,7 @@ BEGIN
         timer_exposure_end    <= '0';
         trig_delayed          <= '0';
         trig_delayed_p1       <= '0';
-        exp_fot_cntr          <= (others =>'0');
+        --exp_fot_cntr          <= (others =>'0');
       else
         curr_timer_mngr_state <=  next_timer_mngr_state;
         timer_mngr_stat       <=  next_timer_mngr_stat;
@@ -1413,11 +1433,11 @@ BEGIN
         timer_exposure_end    <=  next_timer_exposure_end;
         trig_delayed          <=  next_trig_delayed;
         trig_delayed_p1       <=  trig_delayed;
-        if(curr_timer_mngr_state=exposure_fot) then
-          exp_fot_cntr        <= exp_fot_cntr+'1';          
-        else
-          exp_fot_cntr        <= (others =>'0');
-        end if;
+        --if(curr_timer_mngr_state=exposure_fot) then
+        --  exp_fot_cntr        <= exp_fot_cntr+'1';          
+        --else
+        --  exp_fot_cntr        <= (others =>'0');
+        --end if;
       end if;
     end if;
   end process;
@@ -1468,8 +1488,8 @@ BEGIN
   -----------------------------------------------------------------------------
   -- FOURTH STEP : TRIG MANAGER
   -----------------------------------------------------------------------------
-  process(curr_trig_mngr_state, REGFILE, trig_delayed, trig_delayed_p1, python_exposure, timer_exposure, curr_level_mode_exp, 
-          exposure_cntr, curr_exposure_ts, curr_exposure_ds, curr_exposure_ss, EO_FOT, readout_cntr, EO_ROT, abort_now)
+  process(curr_trig_mngr_state, REGFILE, trig_delayed, trig_delayed_p1, xgs_exposure, timer_exposure, curr_level_mode_exp, 
+          exposure_cntr, curr_exposure_ts, curr_exposure_ds, curr_exposure_ss, EO_FOT, readout_cntr, xgs_FOT, xgs_EO_FOT, abort_now) 
   begin
     case curr_trig_mngr_state is
       when  idle              =>  if(trig_delayed='1' and abort_now='0' and REGFILE.ACQ.GRAB_CTRL.ABORT_GRAB='0') then
@@ -1481,7 +1501,7 @@ BEGIN
       when  trigger           =>  next_trig_mngr_state  <= wait_exp_start;
 
       when  wait_exp_start    =>  if(curr_level_mode_exp='1') then                              -- Level mode with TriggerWidth exposure mode
-                                    if(python_exposure='1') then
+                                    if(xgs_exposure='1') then
                                       next_trig_mngr_state  <= exp_level;
                                     else
                                       next_trig_mngr_state  <= wait_exp_start;
@@ -1494,7 +1514,7 @@ BEGIN
                                     end if;  
                                   end if;
 
-      when  single_slope      =>  if(exposure_cntr=(curr_exposure_ss)) then
+      when  single_slope      =>  if(exposure_cntr=curr_exposure_ss) then
                                     next_trig_mngr_state  <= monitoring;
                                   else
                                     next_trig_mngr_state  <= single_slope;
@@ -1506,7 +1526,7 @@ BEGIN
                                     next_trig_mngr_state  <= exp_level;
                                   end if;
 
-      when  monitoring        =>  if(python_exposure='0') then                      --look at exposure from sensor for FOT track!
+      when  monitoring        =>  if(xgs_FOT='1') then                      --In XGS we dont look at exposure, look at FOT instead!!!
                                     next_trig_mngr_state  <= SO_FOT_STATE;
                                   else
                                     next_trig_mngr_state  <= monitoring;
@@ -1514,7 +1534,7 @@ BEGIN
 
       when  SO_FOT_STATE      =>  next_trig_mngr_state  <= FOT_STATE;
 
-      when  FOT_STATE         =>  if(EO_ROT='1') then
+      when  FOT_STATE         =>  if(xgs_EO_FOT='1') then
                                     next_trig_mngr_state  <= EO_FOT_STATE;
                                   else
                                     next_trig_mngr_state  <= FOT_STATE;
@@ -1528,7 +1548,7 @@ BEGIN
                                     else                                                       -- all other modes
                                       next_trig_mngr_state  <= wait_pet;
                                     end if;  
-                                  elsif(readout_cntr=X"0000000") then
+                                  elsif(readout_cntr= ('0' & X"0000000") ) then --29 bits @ 0
                                     next_trig_mngr_state  <= idle;
                                   else
                                     next_trig_mngr_state  <= readout_state;
@@ -1536,7 +1556,7 @@ BEGIN
 
       when  wait_pet          =>  if(abort_now='1' or REGFILE.ACQ.GRAB_CTRL.ABORT_GRAB='1') then                                             -- on cancelle le exposure qui n'a pas encore commence
                                     next_trig_mngr_state  <= readout_state;
-                                  elsif((curr_exposure_ss) > ("0000" & readout_cntr) ) then   --Single slope
+                                  elsif( ('0' & curr_exposure_ss) > readout_cntr ) then   --Single slope
                                     next_trig_mngr_state  <= trigger;
                                   else
                                     next_trig_mngr_state  <= wait_pet;
@@ -1598,7 +1618,7 @@ BEGIN
 
 
 
-  process(next_trig_mngr_state, REGFILE, next_trig1, next_trig2, curr_trig0)
+  process(next_trig_mngr_state, REGFILE, curr_trig0)
   begin
     case next_trig_mngr_state is
       when  idle              =>  next_trig0          <= '0';
@@ -1699,6 +1719,7 @@ BEGIN
         curr_trig_mngr_state  <=  idle;
         trig_mngr_stat        <= "0000";
         curr_trig0            <= '0';
+        curr_trig0_P1         <= '0';
         readout_cnt           <= '0';
         SO_FOT                <= '0';
         FOT                   <= '0';
@@ -1708,6 +1729,7 @@ BEGIN
         curr_trig_mngr_state  <=  next_trig_mngr_state;
         trig_mngr_stat        <=  next_trig_mngr_stat;
         curr_trig0            <=  next_trig0;
+        curr_trig0_P1         <=  curr_trig0;
         readout_cnt           <=  next_readout_cnt;
         SO_FOT                <=  next_SO_FOT;
         FOT                   <=  next_FOT;
@@ -1730,42 +1752,51 @@ BEGIN
   begin
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
-        python_monitor0_p1  <= '0';
-        python_exposure     <= '0';
-        python_exposure_p1  <= '0';
+        xgs_monitor0_p1  <= '0';
+        xgs_exposure     <= '0';
+        xgs_exposure_p1  <= '0';
       else
-        python_monitor0_p1  <= xgs_monitor0;
-        python_exposure     <= python_monitor0_p1;
-        python_exposure_p1  <= python_exposure;
+        xgs_monitor0_p1  <= xgs_monitor0; 
+        
+        if(G_KU706=0) then
+          xgs_exposure   <= xgs_monitor0_p1;
+        else
+          xgs_exposure   <= Synthetic_EXPOSURE;
+        end if;
+        
+        xgs_exposure_p1  <= xgs_exposure;
       end if;
       
       if(sys_reset_n='0') then
-        python_monitor1_p1  <= '0';
-        python_ROT          <= '0';
-        python_ROT_p1       <= '0';
-        EO_ROT              <= '0';
+        xgs_monitor1_p1  <= '0';
+        xgs_FOT          <= '0';
+        xgs_FOT_p1       <= '0';
+        xgs_EO_FOT       <= '0';
       else
-        python_monitor1_p1  <= xgs_monitor1;
-        python_ROT          <= python_monitor1_p1;
-        python_ROT_p1       <= python_ROT;
-        EO_ROT              <= python_ROT_p1 and not(python_ROT);
+        xgs_monitor1_p1  <= xgs_monitor1;
+        
+        if(G_KU706=0) then
+          xgs_FOT        <= xgs_monitor1_p1;
+        else
+          xgs_FOT        <= Synthetic_FOT;
+        end if;
+        
+        xgs_FOT_p1       <= xgs_FOT;
+        xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
       end if;
    
       if(sys_reset_n='0') then
-        python_monitor2_p1  <= '0';
-        python_NEW_LINE     <= '0';
-        python_NEW_LINE_p1  <= '0';
-        NEW_LINE            <= '0';
+        xgs_monitor2_p1  <= '0';
+        XGS_NEW_LINE     <= '0';
+        XGS_NEW_LINE_p1  <= '0';
       else
-        python_monitor2_p1  <= xgs_monitor2;
-        python_NEW_LINE     <= python_monitor2_p1;
-        python_NEW_LINE_p1  <= python_NEW_LINE;
-        NEW_LINE            <= python_NEW_LINE_p1 and not(python_NEW_LINE);
+        xgs_monitor2_p1  <= xgs_monitor2;
+        XGS_NEW_LINE     <= xgs_monitor2_p1;
+        XGS_NEW_LINE_p1  <= XGS_NEW_LINE;
       end if;
    
       if(sys_reset_n='0') then
-        exposure_cntr <= (others=> '0');
-      
+        exposure_cntr <= (others=> '0');      
       elsif(timer_exposure = '1') then
         exposure_cntr <= exposure_cntr + '1';
       else
@@ -1777,13 +1808,13 @@ BEGIN
         exposure_reg <= '0';
       else
         exposure_reg <= timer_exposure;
-      end if;
+      end if; 
       
     end if;
   end process;
 
-  python_monitor0_sysclk <=  python_exposure;
-  python_monitor1_sysclk <=  python_ROT;
+  xgs_monitor0_sysclk <=  xgs_exposure;
+  xgs_monitor1_sysclk <=  xgs_FOT;
 
   -- Readout
   process(sys_clk)
@@ -1797,10 +1828,33 @@ BEGIN
         readout_cntr <= readout_cntr - '1';
       end if;
       
+      --Pour pallier au manque du signal EOF du datapath
+      if(sys_reset_n='0') then
+        readout_cntr2        <= (others=> '0');
+        readout_cntr2_armed  <= '0';
+        readout_cntr2_end    <= '0'; 
+      elsif(readout_cntr2_armed = '1' and readout_cntr2 = ('0' & X"0000000") ) then
+        readout_cntr2        <= (others=> '0');
+        readout_cntr2_armed  <= '0';  
+        readout_cntr2_end    <= '1';
+      elsif(EO_FOT = '1') then
+        readout_cntr2        <= curr_readout_length;
+        readout_cntr2_armed  <= '1';
+        readout_cntr2_end    <= '0';        
+      elsif(readout_cntr2_armed = '1') then
+        readout_cntr2        <= readout_cntr2 - '1';
+        readout_cntr2_armed  <= '1';
+        readout_cntr2_end    <= '0';   
+      else
+        readout_cntr2        <= (others=> '0');
+        readout_cntr2_armed  <= '0';
+        readout_cntr2_end    <= '0';       
+      end if;
+      
       if(sys_reset_n='0') then
         readout  <= '0';
       --elsif(DEC_EOF_sys='1') then   --<<<< a changer ici!!!
-      elsif(readout_cntr=X"0000000" and ( curr_trig_mngr_state=readout_state or curr_trig_mngr_state=wait_pet) ) then       
+      elsif(readout_cntr2_end='1' ) then       
         readout  <= '0';
       elsif(SO_FOT='1') then
         readout <= '1';
@@ -1811,9 +1865,7 @@ BEGIN
 
 
   ------------------------------------------
-  --  MODULE PYTHON SPI
-  --
-  --  for the moment, the core use tx_clk/8 inside to drive the interface 
+  --  MODULE XGS SPI
   --
   ------------------------------------------
   Xxgs_spi : xgs_spi
@@ -1843,21 +1895,21 @@ BEGIN
   );
 
 
-  ------------------------------------------
-  --
-  --  SIGNALS TO OTHER MODULES
-  --
-  ------------------------------------------
-  process(sys_clk)
-  begin
-    if(rising_edge(sys_clk)) then
-      if(sys_reset_n='0') then
-        start_calibration <= '0';
-      else
-        start_calibration <= curr_readout_en and SO_FOT;
-      end if;
-    end if;
-  end process;
+  --------------------------------------------
+  ----
+  ----  SIGNALS TO OTHER MODULES
+  ----
+  --------------------------------------------
+  --process(sys_clk)
+  --begin
+  --  if(rising_edge(sys_clk)) then
+  --    if(sys_reset_n='0') then
+  --      start_calibration <= '0';
+  --    else
+  --      start_calibration <= curr_readout_en and SO_FOT;
+  --    end if;
+  --  end if;
+  --end process;
 
   abort_readout_datapath <= abort_now;
 
@@ -1870,7 +1922,7 @@ BEGIN
   begin
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
-        xgs_trig_int     <= '0';
+        --xgs_trig_int     <= '0';
 
         strobe_outpin    <= '0';
         exposure_outpin  <= '0';
@@ -1880,7 +1932,7 @@ BEGIN
         strobe_B_out     <= '0';
         
       else
-        xgs_trig_int     <= curr_trig0;
+        --xgs_trig_int     <= curr_trig0;
         exposure_outpin  <= timer_exposure;
         trig_rdy_outpin  <= grab_mngr_trig_rdy;
         
@@ -1909,7 +1961,7 @@ BEGIN
   -- POWER UP OF SENSOR
   --
   -------------------------------------------------------------------------------
-  xpython_power : xgs_power
+  xxgs_power : xgs_power
   generic map (  G_SIMULATION     => G_SIMULATION,
                  G_SYS_CLK_PERIOD => G_SYS_CLK_PERIOD
               )
@@ -1918,7 +1970,7 @@ BEGIN
           sys_clk           =>  sys_clk,
 
           ---------------------------------------------------------------------------
-          --  PYTHON CMOS IF signals
+          --  XGS CMOS IF signals
           ---------------------------------------------------------------------------
           xgs_power_good    =>  xgs_power_good,
 
@@ -1934,8 +1986,8 @@ BEGIN
   -- DEBUG PINS
   --
   -------------------------------------------------------------------------------
-  debug_ctrl16(0)  <=  python_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16(1)  <=  python_rot;      --python_monitor1;  --resync to sysclk
+  debug_ctrl16(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl16(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
   debug_ctrl16(2)  <=  grab_mngr_trig_rdy;
   debug_ctrl16(3)  <=  curr_BUFFER_ID;              --(ext_trig_p1 and ext_trig_p2 and ext_trig_p3) or (REGFILE.ACQ.GRAB_CTRL.GRAB_SS) ;
   debug_ctrl16(4)  <=  curr_db_BUFFER_ID_int;
@@ -1983,7 +2035,7 @@ BEGIN
 
       if(sys_reset_n='0') then
         irq_soe  <= '0';
-      elsif(python_exposure='1' and python_exposure_p1='0') then   -- exposure start
+      elsif(xgs_exposure='1' and xgs_exposure_p1='0') then   -- exposure start
         irq_soe  <= '1';
       else
         irq_soe  <= '0';
@@ -2139,9 +2191,176 @@ BEGIN
   --     );
   --
 
+  
+  
+  ----------------------------------------------
+  -- Exposure Time Jitter in Triggered Mode
+  -- See dev. guide
+  -- Need to synchronize triger_int with new_line
+  -- in a 100ns window
+  ----------------------------------------------
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        keep_out_zone_cntr <= (others=>'0');
+        keep_out_zone      <=  '0';     
+      elsif(XGS_NEW_LINE='0' and XGS_NEW_LINE_p1='1') then --On falling edge start the counter for trigger keep-out zone
+        keep_out_zone_cntr <= (others=>'0');
+        keep_out_zone      <=  '0';
+      elsif(keep_out_zone='0' and keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START) then 
+        keep_out_zone_cntr <= (others=>'0');        
+        keep_out_zone      <=  '1';
+      elsif(keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_END) then   --j'enleve ici le keep_out_zone=1, ce registre va donc reseter la zone lorsque le compteur va atteindre le compteur
+        keep_out_zone_cntr <= (others=>'0');
+        keep_out_zone      <=  '0';     
+      else  
+        keep_out_zone_cntr <= keep_out_zone_cntr+'1';
+        keep_out_zone      <= keep_out_zone;        
+      end if;
+    end if;
+  end process;
 
+  
+       
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        xgs_trig_int         <= '0';
+        xgs_trig_int_delayed <= '0';   
+      elsif(REGFILE.ACQ.READOUT_CFG3.KEEP_OUT_TRIG_ENA='1') then 
+        if(curr_trig0='1' and curr_trig0_P1='0') then  --RISING / START OF TRIG
+          if(keep_out_zone='0') then  
+            xgs_trig_int         <= '1';
+            xgs_trig_int_delayed <= '0';
+          else 
+            xgs_trig_int         <= '0'; 
+            xgs_trig_int_delayed <= '1';
+          end if;       
+        elsif(curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG
+          if(keep_out_zone='0') then  
+            xgs_trig_int         <= '0';
+            xgs_trig_int_delayed <= '0';          
+          else
+            xgs_trig_int         <= '1';
+            xgs_trig_int_delayed <= '1';        
+          end if;
+        elsif(xgs_trig_int_delayed='1') then           -- Stay in same level as long keep-out zone is active
+          if(keep_out_zone='1') then
+            xgs_trig_int         <= not(curr_trig0);
+            xgs_trig_int_delayed <= '1';        
+          else
+            xgs_trig_int         <= curr_trig0;
+            xgs_trig_int_delayed <= '0';             
+          end if;           
+        end if;
+      else -- do not synchronize
+        xgs_trig_int         <= curr_trig0;
+        xgs_trig_int_delayed <= '0';                    
+      end if;      
+    end if;
+  end process; 
+   
+  
+  ------------------------------------------------------------
+  -- For XGS we will calculate the readout length internally
+  ------------------------------------------------------------    
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      
+      --4 dummy lines after M_lines need to be confirmed by Onsemi      
+      TOTAL_NB_LINES <= "11" +                                               -- 3 is first dummy lines after FOT
+                        REGFILE.ACQ.SENSOR_M_LINES.M_LINES +                 -- Black lines for calibartion  
+                        REGFILE.ACQ.SENSOR_F_LINES.F_LINES +                 -- F_lines, where are located F_LINES ???
+                        '1' +                                                -- Embbeded line in Valid data
+                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler
+                        "111" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2,3 
+                        '1';                                                 -- For jitter
+     
+      INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
+    end if;
+  end process;  
+  
+  
+  -- First  LSR of 15 bits because of decimal [4].[15] of the sensor period
+  -- Second LSR of 4 bits with 62.5 Mhz sys clk (/16)   -> total is LSR 19
+  -- Second LSR of 3 bits with  125 Mhz sys clk (/8)    -> total is LSR 18
+  INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                             '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
+                             
+    
+  REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length; -- INTERNAL_READOUT_LENGTH;
+      
+      
+      
+  ----------------------------------------------------------------------
+  --
+  -- For XGS DEV BOARD WE ONLY HAVE ONE MONITOR
+  --
+  -- So Let's generate the monitor FOT and REAL INTEGRATION internally
+  --
+  -- A enlever lorsqu'on aura le sensor board et qu'on pourra utiliser les MONITOR
+  -----------------------------------------------------------------------    
 
- 
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        Synthetic_EXPOSURE <='0';
+        Synthetic_FOT      <='0'; 
+        Synthetic_DELAI_EXP<='0';
+        Synthetic_cntr     <=(others=>'0');
+      elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GFENERATE EXPOSURE
+        Synthetic_EXPOSURE <='0';
+        Synthetic_FOT      <='0';
+        Synthetic_DELAI_EXP<='1';    
+        Synthetic_cntr     <=(others=>'0');    
+      elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
+        Synthetic_EXPOSURE <='1';
+        Synthetic_FOT      <='1'; 
+        Synthetic_DELAI_EXP<='0'; 
+        Synthetic_cntr     <=(others=>'0');
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Delay one line Start Of Exposure  12M @ 6 LANES  
+           (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
+        Synthetic_EXPOSURE <='1';
+        Synthetic_FOT      <='0';
+        Synthetic_DELAI_EXP<='0'; 
+        Synthetic_cntr     <= (others=>'0');       
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  END of EXP during FOT 12M @ 6 LANES  
+           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"029e" ) then
+        Synthetic_EXPOSURE <='0';
+        Synthetic_FOT      <='1';
+        Synthetic_DELAI_EXP<='0'; 
+        Synthetic_cntr     <= Synthetic_cntr+'1';              
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  END of EXP during FOT 12M @ 6 LANES  
+           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"029e" ) then
+        Synthetic_EXPOSURE <='0';
+        Synthetic_FOT      <='1';
+        Synthetic_DELAI_EXP<='0';         
+        Synthetic_cntr     <= Synthetic_cntr+'1';              
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"1725" ) or  -- 94.8 us :  END of FOT 12M @ 6 LANES
+           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"2e4a" ) then
+        Synthetic_EXPOSURE <='0';
+        Synthetic_FOT      <='0';
+        Synthetic_DELAI_EXP<='0';         
+        Synthetic_cntr     <= (others=>'0');
+      elsif(Synthetic_FOT='1' or Synthetic_DELAI_EXP='1') then 
+        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
+        Synthetic_FOT      <= Synthetic_FOT; 
+        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
+        Synthetic_cntr     <= Synthetic_cntr+'1';
+      else
+        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
+        Synthetic_FOT      <= Synthetic_FOT; 
+        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
+        Synthetic_cntr     <= Synthetic_cntr;      
+      end if;                 
+    end if;
+  end process;     
+      
+      
 end functional;
 
 
