@@ -26,7 +26,7 @@ use xpm.vcomponents.all;
 entity fdkDualPortRam is
   generic
     (
-      FPGA_ARCH : string  := "ALTERA";  -- ALTERA, XILINX_KU, GENERIC
+      FPGA_ARCH : string  := "GENERIC";  -- ALTERA, XILINX_KU, GENERIC
       BYTESIZE  : integer := 8;         -- 8 or 9
       DATAWIDTH : integer := 32;        -- 32,36,40,64,128, etc.
       ADDRWIDTH : integer := 12

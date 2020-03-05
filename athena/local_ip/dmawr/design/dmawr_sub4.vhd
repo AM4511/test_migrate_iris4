@@ -340,8 +340,8 @@ end process;
       NUMBER_OF_PLANES   => 1,
       SI0_DATA_WIDTH     => AXIS_DATA_WIDTH,
   --    SI0_ADDR_WIDTH     => 11,
-      FPGA_ARCH          => "XILINX_KU",
-      FPGA_FAMILY        => "STRATIXV"
+      FPGA_ARCH          => "GENERIC",
+      FPGA_FAMILY        => "UNKNOWN"
 
 
       )
