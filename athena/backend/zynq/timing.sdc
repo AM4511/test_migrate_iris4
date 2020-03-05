@@ -5,9 +5,54 @@ create_clock -period 10.000 -name io_pcie_ref_clk     -waveform {0.000 5.000} [g
 create_clock -period 2.570  -name io_hispi_clk_top    -waveform {0.000 1.285} [get_ports FMC_HPC_CLK0_M2C_P]
 create_clock -period 2.570  -name io_hispi_clk_bottom -waveform {0.000 1.285} [get_ports FMC_HPC_CLK1_M2C_P]
 
+# #####################################################################################
+# IO LANES HiSPi Top interface
+# #####################################################################################
+# HiSPi Lane 0
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 1.440 [get_ports FMC_HPC_LA11_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 1.490 [get_ports FMC_HPC_LA11_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA11_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA11_P]
+
+# HiSPi Lane 8
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 1.440 [get_ports FMC_HPC_LA07_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 1.490 [get_ports FMC_HPC_LA07_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA07_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA07_P]
+
+# HiSPi Lane 16
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 1.440 [get_ports FMC_HPC_LA03_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 1.490 [get_ports FMC_HPC_LA03_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA03_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA03_P]
 
 # #####################################################################################
-# HISPI SERDES clock
+# IO LANES HiSPi Bottom interface
+# #####################################################################################
+# HiSPi Lane 1
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 1.440 [get_ports FMC_HPC_LA28_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 1.490 [get_ports FMC_HPC_LA28_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA28_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA28_P]
+
+# HiSPi Lane 9
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 1.440 [get_ports FMC_HPC_LA27_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 1.490 [get_ports FMC_HPC_LA27_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA27_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA27_P]
+
+
+# HiSPi Lane 17
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 1.440 [get_ports FMC_HPC_LA23_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 1.490 [get_ports FMC_HPC_LA23_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 1.440 [get_ports FMC_HPC_LA23_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 1.490 [get_ports FMC_HPC_LA23_P]
+
+
+
+
+# #####################################################################################
+# HISPI Internal logic : SERDES clocks
 # #####################################################################################
 
 # TOP SERDES generated clock "hispi_clk_top"
@@ -53,3 +98,5 @@ create_generated_clock -name bottom_pix_clk_2 -divide_by 2 -source $SRC_PIN  $DE
 
 # Asynchronous clock groups
 set_clock_groups -name ASYNC_CLK_GROUP_A  -asynchronous  -group [get_clocks clk_125mhz] -group [get_clocks hispi_clk_top] -group [get_clocks hispi_clk_bottom]
+set_clock_groups -name ASYNC_CLK_GROUP_B  -asynchronous  -group [get_clocks clk_125mhz] -group [get_clocks -filter {NAME =~ *pix_clk*}]
+
