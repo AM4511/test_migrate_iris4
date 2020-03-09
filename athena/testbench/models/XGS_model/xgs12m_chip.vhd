@@ -382,7 +382,6 @@ architecture behaviour of xgs12m_chip is
 
   signal NEW_LINE            : std_logic := '0';
 
-
 begin
 
 
