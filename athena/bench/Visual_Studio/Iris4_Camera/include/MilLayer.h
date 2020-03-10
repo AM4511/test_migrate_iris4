@@ -13,15 +13,16 @@
 #define _MILLAYER_
 
 /* Headers */
+#include "mbasictypes.h"
 #include "mil.h"
 
-unsigned char * getMilLayerRegisterPtr(unsigned long fpga_bar0_add);
-unsigned char * getMilLayerRegisterPtr2(unsigned long fpga_bar0_add);
+unsigned char * getMilLayerRegisterPtr(M_UINT64 fpga_bar0_add);
+unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add);
 
-unsigned long long  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, unsigned long Xsize, unsigned long Ysize, int PixelType_bpp=8);
+M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysize, int PixelType_bpp=8);
 void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum = 1);
 void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20]);
-unsigned long long  LayerGetHostAddressBuffer(MIL_ID GrabBuffer);
+M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer);
 
 void IrisMilFree(void);
 
