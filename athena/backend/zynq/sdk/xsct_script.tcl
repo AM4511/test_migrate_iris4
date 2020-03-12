@@ -1,10 +1,10 @@
 # ##################################################################################
 # File         : xsct_script.tcl
-# Description  : Xilinx XSCT TCL script used to create the MIOX sdk project. 
+# Description  : Xilinx XSCT TCL script used to create the athena_zc706 sdk project. 
 #
 # Reference    : http://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_3/ug1208-xsct-reference-guide.pdf
 #                http://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_3/ug1283-bootgen-user-guide.pdf
-# Example      : source $env(MIOX)/backend/tcl/sdk/xsct_script.tcl $project_path $project_name $hdf_file
+# Example      : source $env(IRIS4)/athena/backend/zynq/sdk/xsct_script.tcl $project_path $project_name $hdf_file
 #
 # ##################################################################################
 set myself [info script]
@@ -22,12 +22,14 @@ if {$debug == 0} {
    puts [lindex $argv 0]
 
 } else {
-  set PROJECT_DIR   D:/git/gitlab/4sightev6/miox/vivado/2018.2.2/miox_upgrade_1557768759
-  set PROJECT_NAME  miox_upgrade
-  set SDK_DIR       D:/git/gitlab/4sightev6/miox/sdk
-  set HDF_FILE      ${PROJECT_DIR}/miox_upgrade.sdk/miox_top.hdf
+  set BASE_NAME     athena_zc706
+  set PROJECT_NAME  ${BASE_NAME}_1583776950
+  set BUILD_DATE    
+  set PROJECT_DIR   $env(IRIS4)/athena/vivado/2019.1/${PROJECT_NAME}
+  set SDK_DIR       $env(IRIS4)/athena/sdk
   set OUTPUT_DIR    ${PROJECT_DIR}/output
-  set WORKSPACE_DIR ${PROJECT_DIR}/miox_upgrade.sdk
+  set WORKSPACE_DIR ${PROJECT_DIR}/${PROJECT_NAME}.sdk
+  set HDF_FILE      ${WORKSPACE_DIR}/${BASE_NAME}.hdf
 }
 puts "PROJECT_DIR   ${PROJECT_DIR}"  
 puts "PROJECT_NAME  ${PROJECT_NAME}"  
@@ -49,7 +51,9 @@ set CONFIGURATION      "Debug"
 set BOOTLOADER_ELF_FILE ${FSBL_PROJECT_PATH}/${CONFIGURATION}/${FSBL_PROJECT_NAME}.elf
 
 # set the Eclipse SDK workspace
-setws ${WORKSPACE_DIR}
+if {$debug == 0} {
+	setws ${WORKSPACE_DIR}
+}
 
 # Create the hardware project
 createhw  -name ${HW_PROJECT_NAME}   -hwspec ${HDF_FILE}

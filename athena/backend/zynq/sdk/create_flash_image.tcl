@@ -8,7 +8,6 @@
 set myself [info script]
 puts "Running ${myself}"
 
-#set MIOX                 $env(MIOX)
 set WORKDIR      $env(IRIS4)/athena
 
 set VIVADO_PROJECT_NAME  [current_project]
@@ -16,7 +15,6 @@ set VIVADO_PROJECT_DIR   [get_property DIRECTORY ${VIVADO_PROJECT_NAME}]
 
 source ${VIVADO_PROJECT_DIR}/env.tcl
 
-set 
 set YEAR                    [clock format [clock seconds] -format {%Y}]
 set FPGA_DESCRIPTION        "Athena Zynq MIL upgrade FPGA"
 set FPGA_VERSION            "${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
@@ -24,7 +22,7 @@ set UPGRADE_OFFSET          0x00000
 
 set OUTPUT_DIR              ${VIVADO_PROJECT_DIR}/output
 set WORKSPACE_DIR           ${VIVADO_PROJECT_DIR}/${VIVADO_PROJECT_NAME}.sdk
-set XSCT_SCRIPT             ${WORKDIR}/backend/tcl/sdk/xsct_script.tcl
+set XSCT_SCRIPT             ${WORKDIR}/backend/zynq/sdk/xsct_script.tcl
 set BIF_FILE                ${WORKDIR}/sdk/bif/fsbl.bif
 set BITSTREAM_FILE_NAME     ${BASE_NAME}.bit
 set BITSTREAM_FILE          ${VIVADO_PROJECT_DIR}/${VIVADO_PROJECT_NAME}.runs/${IMPL_RUN}/${BITSTREAM_FILE_NAME}
@@ -36,9 +34,12 @@ set MIL_UPGRADE_IMAGE_NAME  ${BASE_NAME}.firmware
 file mkdir $OUTPUT_DIR
 file copy -force ${BITSTREAM_FILE} ${OUTPUT_DIR}
 
-set SYSDEF_FILE ${VIVADO_PROJECT_DIR}/${VIVADO_PROJECT_NAME}.runs/${IMPL_RUN}/athena_top.sysdef
+set SYSDEF_FILE ${VIVADO_PROJECT_DIR}/${VIVADO_PROJECT_NAME}.runs/${IMPL_RUN}/${BASE_NAME}.sysdef
 set HDF_FILE    ${WORKSPACE_DIR}/athena_top.hdf
 
+# ####################################################################################
+# Run the Vivado SDK using the xsct shell TCL script ${XSCT_SCRIPT}
+# ####################################################################################
  if [file exist ${SYSDEF_FILE}] {
      file mkdir $WORKSPACE_DIR
      file copy  -force ${SYSDEF_FILE} ${HDF_FILE}
@@ -46,14 +47,16 @@ set HDF_FILE    ${WORKSPACE_DIR}/athena_top.hdf
      exec xsct  ${XSCT_SCRIPT} $VIVADO_PROJECT_DIR $VIVADO_PROJECT_NAME $SDK_DIR $HDF_FILE $OUTPUT_DIR $WORKSPACE_DIR
 }
 
-# Create image
+# ####################################################################################
+# Create flash images (.mcs and .bin)
+# ####################################################################################
 cd ${OUTPUT_DIR}
 exec bootgen -image ${BIF_FILE} -arch zynq -o $MCS_IMAGE_NAME
 exec bootgen -image ${BIF_FILE} -arch zynq -o $BIN_IMAGE_NAME
 
 
 # ####################################################################################
-# Generate .firmware
+# Generate the MIL .firmware file for the Firmware update tool
 # ####################################################################################
 set INFILE  [open ${MCS_IMAGE_NAME} r]
 set OUTFILE [open ${MIL_UPGRADE_IMAGE_NAME} w]
