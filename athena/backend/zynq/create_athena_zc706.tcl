@@ -56,6 +56,8 @@ set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  2
 
+
+
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
@@ -80,6 +82,8 @@ file delete -force ${PROJECT_NAME}.runs
 ###################################################################################
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
 set_property board_part xilinx.com:zc706:part0:1.4 [current_project]
+
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 set_property target_language VHDL [current_project]
 set_property simulator_language Mixed [current_project]
