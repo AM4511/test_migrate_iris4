@@ -14,7 +14,7 @@ MIL_ID   LayerMilSystem;
 MIL_ID   LayerMilRegBuf;
 MIL_ID   LayerMilRegBuf2;
 
-unsigned char * getMilLayerRegisterPtr(unsigned long fpga_bar0_add)
+unsigned char * getMilLayerRegisterPtr(M_UINT64 fpga_bar0_add)
    {
 
    //---------------------
@@ -43,7 +43,7 @@ unsigned char * getMilLayerRegisterPtr(unsigned long fpga_bar0_add)
    }
 
 
-unsigned char * getMilLayerRegisterPtr2(unsigned long fpga_bar0_add)
+unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add)
 	{
 
 	MbufCreate2d(M_DEFAULT_HOST,
@@ -66,7 +66,7 @@ unsigned char * getMilLayerRegisterPtr2(unsigned long fpga_bar0_add)
 //----------------------------------------------------
 // Create ONE grab buffer and return address
 //----------------------------------------------------
-unsigned long long  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, unsigned long Xsize, unsigned long Ysize, int PixelType_bpp)
+M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysize, int PixelType_bpp)
    {
    if(PixelType_bpp == 8) //8bpp
 	   {
@@ -122,7 +122,7 @@ unsigned long long  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, unsigned long Xsiz
 //----------------------------------------------------
 // Get HOST addres of buffer
 //----------------------------------------------------
-unsigned long long  LayerGetHostAddressBuffer(MIL_ID GrabBuffer)
+M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer)
    {
    return(MbufInquire(GrabBuffer, M_HOST_ADDRESS, M_NULL));
    }

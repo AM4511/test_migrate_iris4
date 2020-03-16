@@ -18,9 +18,6 @@
     <ClCompile Include="Iris4_Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Iris4.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\SystemTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,11 +27,11 @@
     <ClCompile Include="source\mtxservmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\XGS_Ctrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Iris4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\mbasictypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -54,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\XGS_Ctrl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
