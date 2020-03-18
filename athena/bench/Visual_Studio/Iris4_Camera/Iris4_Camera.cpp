@@ -28,7 +28,7 @@
 /* Main function. */
 int main(void)
 {
-
+	M_UINT32 DevID= 0x1514;
 	int sortie = 0;
 	char ch;
 	//int answer;
@@ -52,7 +52,7 @@ int main(void)
 	int PD_Head = 1;
 
 	// IRISx
-	int nbFPGA = FindMultiFpga(0x102b, 0x5053, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
+	int nbFPGA = FindMultiFpga(0x102b, DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
 	
 	if (nbFPGA == 0)
 	{
@@ -71,26 +71,56 @@ int main(void)
 	M_UINT64 fpga_bar1_add = FPGAs[FPGA_used - 1].PhyRefReg_BAR1;
 	M_UINT64 fpga_bar2_add = FPGAs[FPGA_used - 1].PhyRefReg_BAR2;
 
-	unsigned char* IRIS4_regptr0 = getMilLayerRegisterPtr(fpga_bar0_add);         // Lets put a pointer to the FPGA Bar0 ATHENA
-
+	unsigned char* IRIS4_regptr0 = getMilLayerRegisterPtr(fpga_bar0_add);         // Lets put a pointer to the FPGA Bar0 ATHENA and allocate
 
 	int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
+
+	printf("\n\nATHENA   %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
+
+	//------------------------------
+	// Program Maio PCIe window 0
+	//------------------------------
+	MIL_ID MilRegBuf1;
+	volatile M_UINT32* RegPtr_bar1;
+
+	MbufCreate2d(
+		M_DEFAULT_HOST,
+		1000,
+		1,
+		8 + M_UNSIGNED,
+		M_IMAGE + M_MMX_ENABLED,
+		M_PHYSICAL_ADDRESS,
+		1000,
+		(void**)fpga_bar1_add,
+		&MilRegBuf1
+	);
+
+	RegPtr_bar1 = (M_UINT32*)MbufInquire(MilRegBuf1, M_HOST_ADDRESS, M_NULL);
+
+	printf("\n\nMaio ID is 0x%X, programming PCIe Window0 \n", *RegPtr_bar1 + (0x000 / 4));
+
+	*(RegPtr_bar1 + (0x104 / 4)) = 0x0;         //pci_bar0_start
+	*(RegPtr_bar1 + (0x108 / 4)) = 0x1000;      //pci_bar0_End (4k)
+	*(RegPtr_bar1 + (0x10c / 4)) = 0x40000000;  //pci_bar0_size 
+	*(RegPtr_bar1 + (0x100 / 4)) = 0x1;         //pci_bar0_enable
+
+	
+
+
 
 	//Init class XGS CONTROLLER
 	CXGS_Ctrl* XGS_Ctrl = new CXGS_Ctrl(16.000000, 15.432099, IRIS4_regptr0);
 
-	if (FPGAs[FPGA_used - 1].DevID == 0x5053) //IRIS4
-	{	
-		volatile FPGA_REGFILE_XGS_CTRL_TYPE* rXGSptr = XGS_Ctrl->getRegisterXGS_Ctrl();
-		printf("\n\nATHENA Controller Static_ID: 0x%X,  %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", rXGSptr->SYSTEM.ID.f.STATICID,  FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
-	}
-	else {
-		printf("Impossible to find Athena!!!\n");
-		int i = _getch();
-		return(1);
-	}
+	
+	volatile FPGA_REGFILE_XGS_CTRL_TYPE* rXGSptr = XGS_Ctrl->getRegisterXGS_Ctrl();
 
-
+	
+	printf("\nXGS Controller Static_ID : 0x%X\n", rXGSptr->SYSTEM.ID.f.STATICID);
+	
+	//test write read to xgs
+	rXGSptr->ACQ.ACQ_SER_ADDATA.u32 = 0xcafefade;
+	Sleep(1);
+	printf("\nXGS SERADD : 0x%X\n", rXGSptr->ACQ.ACQ_SER_ADDATA.u32);
 
 	//------------------------------
 	// INITIALIZE XGS SENSOR

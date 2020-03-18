@@ -107,7 +107,7 @@ M_UINT8 FindMultiFpga(M_UINT32 vendorID, M_UINT32 devID, Struck_FPGAs FPGAs[])
 			if(FPGAs[i].DevID == devID)
 			     { //fpga founded
 			       fpga_founded++;
-				   if(FPGAs[i].DevID == 0x5350)
+				   if(FPGAs[i].DevID == devID)
 				     printf("Found GTR ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
 				   //if(FPGAs[i].DevID == 0x5300)
 				   // printf("(%d) Found N3 ANPUT FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x,  BAR1=0x%08x \n",i+1, vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0, FPGAs[i].PhyRefReg_BAR1);

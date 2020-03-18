@@ -159,15 +159,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Iris4_Camera.cpp" />
+    <ClCompile Include="source\I2C.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS_Ctrl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\I2C.h" />
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
+    <ClInclude Include="include\regfile_i2c.h" />
     <ClInclude Include="include\regfile_xgs_ctrl.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />

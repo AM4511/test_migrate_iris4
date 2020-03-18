@@ -97,19 +97,13 @@ void CXGS_Ctrl::WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write, M_UINT32 data
 M_UINT32 CXGS_Ctrl::ReadSPI(M_UINT32 address)
 {
 
-	sXGSptr->ACQ.ACQ_SER_ADDATA.u32 = address & 0x1ff;       // Set addres to read in sensor
-	rXGSptr->ACQ.ACQ_SER_ADDATA.u32 = sXGSptr->ACQ.ACQ_SER_ADDATA.u32;
+	rXGSptr->ACQ.ACQ_SER_ADDATA.u32 = address & 0x1ff;
 
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_CMD = 0x0;               // Sensor access type
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RWN = 0x1;               // Read access  
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;             // Write the command to the queue fifo
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_CMD = 0x0;               // Sensor access type
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RWN = 0x1;               // Read access  
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;             // Write the command to the queue fifo
 
-	rXGSptr->ACQ.ACQ_SER_CTRL.u32 = sXGSptr->ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x0;             // WO register 
-
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;             // Start the queue command
-	rXGSptr->ACQ.ACQ_SER_CTRL.u32 = sXGSptr->ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;             // WO register
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;
 
 	while (rXGSptr->ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);     // Loop wait for the access end
 
@@ -224,18 +218,29 @@ void CXGS_Ctrl::DumpRegSPI(M_UINT32 SPI_START, M_UINT32 SPI_END)
 //----------------------------------------------------------
 void CXGS_Ctrl::InitXGS()
 {
+	M_UINT32 iter = 0;
 	M_UINT32 DataRead;
 
 	// WakeUP XGS SENSOR : unreset and enable clk to the sensor : SENSOR_POWERUP
 	rXGSptr->ACQ.SENSOR_CTRL.f.SENSOR_RESETN = 1;
 	rXGSptr->ACQ.SENSOR_CTRL.f.SENSOR_POWERUP = 1;
+	
 	// Wait for done
-	DataRead = ReadSPI(0x0) & 0x1;
+	DataRead = rXGSptr->ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE;
 	while (DataRead == 0) {
 		Sleep(1);
-		DataRead = ReadSPI(0x0) & 0x1;
+		DataRead = rXGSptr->ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE;
+		iter++;
+		if (iter == 1000) {
+			printf("Powerup done fail\n\n");
+			exit(1);
+		}
 	}
-
+	if (rXGSptr->ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT==0) { //powerup fail
+		printf("Powerup stat fail\n");
+		exit(1);
+	}
+	printf("XGS Powerup done OK\n\n");
 
 	// READ XGS MODEL ID and REVISION
 	DataRead = ReadSPI(0x0);
