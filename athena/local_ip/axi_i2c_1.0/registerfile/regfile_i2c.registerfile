@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:XMI="http://www.omg.org/XMI" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="12" description="" name="regfile_i2c" XMI:version="2.0">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="I2C" endAddress="14">
+    <registers name="I2C_ID" useReservedSpaceBelow="true">
+      <fields name="ID" size="12" valueAtReset="012C" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="I2C_CTRL0" alias="I2C Control Register 0" description="" offsetFromParent="8" useReservedSpaceBelow="true" address="30">
+      <fields name="I2C_INDEX" alias="I2C Index" description="This is the register address in the target device " lsb="24" size="8"/>
+      <fields name="NI_ACC" alias="Non Indexed I2C access" description="This fiels specifies if the access on the I2C bus is a Non indexed Access. This kind of access sends the Device ID and data phases without an address to the target I2C device.  To DO a NI access set this bit to ‘1’ and set the I2C_R/W bit to Read or Write, to select the operation." lsb="23">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Indexed Read/write operation on I2C bus&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Non indexed Read/Write&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="BUS_SEL" alias="I2C BUS selection" description="This field selects which I2C bus  is targetted by the current access when Trigger is written. &#xD;&#xA;&#xD;&#xA;Note: There is a single I2C bus on this product, so this field is hardwired to 0." lsb="17" size="2" readWrite="false" staticVal="true"/>
+      <fields name="TRIGGER" alias="Trigger" description="Triggers the whole access.  Must be written last (or in the same access) as all the other parameters." lsb="16" readWrite="false" writeOnly="true"/>
+      <fields name="I2C_DATA_READ" alias="I2C Data Read" description="Data read by the automatic I2C interface from the I2C_DEVICE_ID with the I2C_DEVICE_INDEX." lsb="8" size="8" readWrite="false" readOnly="true"/>
+      <fields name="I2C_DATA_WRITE" alias="I2C Data Write" description="Data to be written by the automatic I2C interface to the I2C_DEVICE_ID with the I2C_DEVICE_INDEX." size="8"/>
+    </registers>
+    <registers name="I2C_CTRL1" alias="I2C Control Register 1" offsetFromParent="10" useReservedSpaceBelow="true" address="30">
+      <fields name="I2C_ERROR" alias="Error" description="Specifies an error occurred during an I2C access. This bit is automatically reset by a new I2C cycle." lsb="28" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>An error Ocured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="BUSY" alias="Busy" description="I2C Interface is currently busy, either polling, reading or writing." lsb="27" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not Currently Busy&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Currently Busy&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="WRITING" alias="Writing" description="I2C Interface is currently writing the I2C_DEVICE_ID with the I2C_INDEX." lsb="26" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not currently writing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Currently writing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="READING" alias="Reading" description="I2C Interface is currently reading the I2C_DEVICE_ID with the I2C_INDEX." lsb="25" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not currently reading&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Currently reading&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="I2C_DEVICE_ID" alias="I2C Device ID" description="This is a static register that holds the 7-bit I2C_DEVICE_ID of the I2C device to be accessed." lsb="1" size="7" valueAtReset="44"/>
+      <fields name="I2C_RW" alias="I2C Read/Write" description="When set, current cycle will be a read and will be a write when reset." valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write cycle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read cycle&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>

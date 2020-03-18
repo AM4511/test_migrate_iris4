@@ -125,6 +125,7 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 matrox.com:user:axiXGS_controller:1.0\
+matrox.com:user:AXI_i2c_Matrox:1.0\
 matrox.com:Imaging:pcie2AxiMaster:2.0\
 xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:xlconstant:1.1\
@@ -193,6 +194,8 @@ proc create_root_design { parentCell } {
   # Create interface ports
   set FPGA_Info [ create_bd_intf_port -mode Slave -vlnv matrox.com:Imaging:FPGA_Info_rtl:1.0 FPGA_Info ]
 
+  set I2C_if [ create_bd_intf_port -mode Master -vlnv matrox.com:user:I2C_Matrox_rtl:1.0 I2C_if ]
+
   set PS_DDR [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 PS_DDR ]
 
   set PS_FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 PS_FIXED_IO ]
@@ -215,10 +218,18 @@ proc create_root_design { parentCell } {
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
 
+  # Create instance: axi_i2c_0, and set properties
+  set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
+  set_property -dict [ list \
+   CONFIG.CLOCK_STRETCHING {false} \
+   CONFIG.NI_ACCESS {false} \
+   CONFIG.SIMULATION {false} \
+ ] $axi_i2c_0
+
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {1} \
+   CONFIG.NUM_MI {2} \
    CONFIG.NUM_SI {2} \
  ] $axi_interconnect_0
 
@@ -227,6 +238,8 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.AXI_ID_WIDTH {6} \
    CONFIG.NUMB_IRQ {0} \
+   CONFIG.PCIE_DEVICE_ID {5396} \
+   CONFIG.PCIE_SUBSYS_ID {0} \
  ] $pcie2AxiMaster_0
 
   # Create instance: processing_system7_0, and set properties
@@ -408,7 +421,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_28_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_28_PULLUP {disabled} \
    CONFIG.PCW_MIO_28_SLEW {slow} \
-   CONFIG.PCW_MIO_29_DIRECTION {in} \
+   CONFIG.PCW_MIO_29_DIRECTION {inout} \
    CONFIG.PCW_MIO_29_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_29_PULLUP {disabled} \
    CONFIG.PCW_MIO_29_SLEW {slow} \
@@ -416,11 +429,11 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_2_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_2_PULLUP {disabled} \
    CONFIG.PCW_MIO_2_SLEW {slow} \
-   CONFIG.PCW_MIO_30_DIRECTION {out} \
+   CONFIG.PCW_MIO_30_DIRECTION {inout} \
    CONFIG.PCW_MIO_30_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_30_PULLUP {disabled} \
    CONFIG.PCW_MIO_30_SLEW {slow} \
-   CONFIG.PCW_MIO_31_DIRECTION {in} \
+   CONFIG.PCW_MIO_31_DIRECTION {inout} \
    CONFIG.PCW_MIO_31_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_31_PULLUP {disabled} \
    CONFIG.PCW_MIO_31_SLEW {slow} \
@@ -440,7 +453,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_35_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_35_PULLUP {disabled} \
    CONFIG.PCW_MIO_35_SLEW {slow} \
-   CONFIG.PCW_MIO_36_DIRECTION {in} \
+   CONFIG.PCW_MIO_36_DIRECTION {inout} \
    CONFIG.PCW_MIO_36_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_36_PULLUP {disabled} \
    CONFIG.PCW_MIO_36_SLEW {slow} \
@@ -540,8 +553,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_9_PULLUP {enabled} \
    CONFIG.PCW_MIO_9_SLEW {slow} \
-   CONFIG.PCW_MIO_TREE_PERIPHERALS {Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#USB Reset#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#SD 0#SD 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#I2C Reset#ENET Reset#UART 1#UART 1#I2C 0#I2C 0#Enet 0#Enet 0} \
-   CONFIG.PCW_MIO_TREE_SIGNALS {qspi1_ss_b#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#reset#qspi_fbclk#qspi1_sclk#qspi1_io[0]#qspi1_io[1]#qspi1_io[2]#qspi1_io[3]#cd#wp#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#reset#tx#rx#scl#sda#mdc#mdio} \
+   CONFIG.PCW_MIO_TREE_PERIPHERALS {Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#SD 0#SD 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#I2C Reset#ENET Reset#UART 1#UART 1#I2C 0#I2C 0#Enet 0#Enet 0} \
+   CONFIG.PCW_MIO_TREE_SIGNALS {qspi1_ss_b#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#qspi_fbclk#qspi1_sclk#qspi1_io[0]#qspi1_io[1]#qspi1_io[2]#qspi1_io[3]#cd#wp#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#reset#tx#rx#scl#sda#mdc#mdio} \
    CONFIG.PCW_NAND_GRP_D8_ENABLE {0} \
    CONFIG.PCW_NAND_PERIPHERAL_ENABLE {0} \
    CONFIG.PCW_NOR_GRP_A25_ENABLE {0} \
@@ -625,8 +638,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {1} \
    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} \
    CONFIG.PCW_USB0_PERIPHERAL_FREQMHZ {60} \
-   CONFIG.PCW_USB0_RESET_ENABLE {1} \
-   CONFIG.PCW_USB0_RESET_IO {MIO 7} \
+   CONFIG.PCW_USB0_RESET_ENABLE {0} \
+   CONFIG.PCW_USB0_RESET_IO {<Select>} \
    CONFIG.PCW_USB0_USB0_IO {<Select>} \
    CONFIG.PCW_USB1_RESET_ENABLE {0} \
    CONFIG.PCW_USB_RESET_ENABLE {1} \
@@ -654,7 +667,9 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
   connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
   connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports I2C_if] [get_bd_intf_pins axi_i2c_0/I2C_interface]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
   connect_bd_intf_net -intf_net pcie2AxiMaster_0_M_AXI [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
   connect_bd_intf_net -intf_net pcie2AxiMaster_0_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins processing_system7_0/DDR]
@@ -662,9 +677,9 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S01_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net ACLK_1 [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
   connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
@@ -672,7 +687,9 @@ proc create_root_design { parentCell } {
 
   # Create address segments
   create_bd_addr_seg -range 0x00001000 -offset 0x40000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
   create_bd_addr_seg -range 0x00001000 -offset 0x40000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
 
 
   # Restore current instance

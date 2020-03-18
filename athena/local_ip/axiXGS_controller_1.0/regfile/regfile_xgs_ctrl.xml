@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="df7e9800-1198-4a57-9429-ea32222d21ef" VersionGuid="30650427-cb65-4560-86bd-c376cea489d8">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="72bd4cc1-88ee-4b0a-8fe2-b0699c16aa8f" VersionGuid="b57787aa-2e31-4a89-97c4-8c843ad31819">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>

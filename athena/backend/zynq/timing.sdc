@@ -101,3 +101,31 @@ create_clock -period 10.000 -name io_pcie_ref_clk     -waveform {0.000 5.000} [g
 #set_clock_groups -name ASYNC_CLK_GROUP_A  -asynchronous  -group [get_clocks clk_125mhz] -group [get_clocks hispi_clk_top] -group [get_clocks hispi_clk_bottom]
 #set_clock_groups -name ASYNC_CLK_GROUP_B  -asynchronous  -group [get_clocks clk_125mhz] -group [get_clocks -filter {NAME =~ *pix_clk*}]
 
+
+
+#------------------------------------------------------------
+#  SMBus TIMING CONTRAINTS
+#------------------------------------------------------------
+
+
+create_generated_clock -name i2c_clk_div_384 -source [get_pins */*/*/*/Xi2c_if/Gen_i2c_clk_from_625.i2c_clk_div_384_reg/C] -divide_by 384 [get_pins */*/*/*/Xi2c_if/Gen_i2c_clk_from_625.i2c_clk_div_384_reg/Q]
+#par design, les path des registres vers la clock I2C ne sont pas critiques (ni en setup, ni en hold) car la valeur est ecrite dans le registre plusieurs centaines de clocks avant d'etre utilise.
+set_false_path -from [get_pins */*/*/*/Xregfile_i2c/*I2C*/C] -to [get_clocks i2c_clk_div_384]
+
+# ff in the IOB
+# clk cannot be placed in REG IOB becase it is used internally!
+#set_property IOB TRUE [get_cells {xi2c_if/GEN_X1_ser_data_out.clk_outx_reg[0]}]
+set_property IOB TRUE [get_cells {*/*/*/*/Xi2c_if/GEN_X1_ser_data_out.data_outx_reg[0]}]
+
+#je rajoute le datapath_only pour enlever le check de hold.  Le check de setup etait mauvais de toute facon!
+set_max_delay -datapath_only -from [get_ports smbdata] -to [get_clocks i2c_clk_div_384] 16.500
+set_min_delay -from [get_ports smbdata] -to [get_clocks i2c_clk_div_384] 0.000
+
+set_max_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbclk] 16.500
+set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbclk] 0.000
+
+set_max_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 16.000
+set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 0.000
+
+set_false_path -to [get_pins {*/*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D}]
+set_false_path -to [get_pins {*/*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D}]

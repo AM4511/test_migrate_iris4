@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_i2c" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="eb44fe35-8b1b-4463-a8cd-72c60779f033" VersionGuid="ec739dc3-875d-46a8-9807-ab1aef4eca6c">
+	<Group Comment="RootCategoryGroup">
+		<Category Name="Root">
+			<Visibility>Beginner</Visibility>
+			<pFeature>SECTION_regfile_i2c_i2c</pFeature>
+		</Category>
+		<Integer Name="ROOT_ADDRESS">
+			<Visibility>Beginner</Visibility>
+			<Value>0</Value>
+			<Representation>HexNumber</Representation>
+		</Integer>
+		<!--Section : I2C-->
+		<Group Comment="GROUP_regfile_i2c_i2c">
+			<Category Name="SECTION_regfile_i2c_i2c">
+				<DisplayName>I2C</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_i2c_i2c</pFeature>
+				<pFeature>REGISTER_regfile_i2c_i2c_i2c_id</pFeature>
+				<pFeature>REGISTER_regfile_i2c_i2c_i2c_ctrl0</pFeature>
+				<pFeature>REGISTER_regfile_i2c_i2c_i2c_ctrl1</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_i2c_i2c">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>0</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : I2C_ID-->
+			<Group Comment="GROUP_regfile_i2c_i2c_i2c_id">
+				<Category Name="REGISTER_regfile_i2c_i2c_i2c_id">
+					<DisplayName>I2C_ID</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_i2c_i2c_i2c_id</pFeature>
+					<pFeature>ADDRESS_regfile_i2c_i2c_i2c_id</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_id_id</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_i2c_i2c_i2c_id">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_id_id">
+					<DisplayName>ID</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_id_id</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_id_id">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_id</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_i2c_i2c_i2c_id">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_i2c_i2c</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_i2c_i2c_i2c_id</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : I2C_CTRL0-->
+			<Group Comment="GROUP_regfile_i2c_i2c_i2c_ctrl0">
+				<Category Name="REGISTER_regfile_i2c_i2c_i2c_ctrl0">
+					<Description>I2C Control Register 0</Description>
+					<DisplayName>I2C_CTRL0</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_i2c_i2c_i2c_ctrl0</pFeature>
+					<pFeature>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_index</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_ni_acc</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_bus_sel</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_trigger</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_data_read</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_data_write</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_i2c_i2c_i2c_ctrl0">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_index">
+					<DisplayName>I2C_INDEX</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_index</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_index">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>24</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_ni_acc">
+					<DisplayName>NI_ACC</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_ni_acc</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_ni_acc">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>23</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_bus_sel">
+					<DisplayName>BUS_SEL</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_bus_sel</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_bus_sel">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>17</LSB>
+					<MSB>18</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_trigger">
+					<DisplayName>TRIGGER</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_trigger</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_trigger">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>16</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_data_read">
+					<DisplayName>I2C_DATA_READ</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_data_read</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_data_read">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>8</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl0_i2c_data_write">
+					<DisplayName>I2C_DATA_WRITE</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_data_write</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl0_i2c_data_write">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl0</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_i2c_i2c_i2c_ctrl0">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_i2c_i2c</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_i2c_i2c_i2c_ctrl0</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : I2C_CTRL1-->
+			<Group Comment="GROUP_regfile_i2c_i2c_i2c_ctrl1">
+				<Category Name="REGISTER_regfile_i2c_i2c_i2c_ctrl1">
+					<Description>I2C Control Register 1</Description>
+					<DisplayName>I2C_CTRL1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_i2c_i2c_i2c_ctrl1</pFeature>
+					<pFeature>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_error</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_busy</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_writing</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_reading</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_device_id</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_rw</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_i2c_i2c_i2c_ctrl1">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_error">
+					<DisplayName>I2C_ERROR</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_error</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_error">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>28</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_busy">
+					<DisplayName>BUSY</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_busy</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_busy">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>27</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_writing">
+					<DisplayName>WRITING</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_writing</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_writing">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>26</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_reading">
+					<DisplayName>READING</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_reading</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_reading">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>25</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_device_id">
+					<DisplayName>I2C_DEVICE_ID</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_device_id</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_device_id">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>1</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_ctrl1_i2c_rw">
+					<DisplayName>I2C_RW</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_rw</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_ctrl1_i2c_rw">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_ctrl1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_i2c_i2c_i2c_ctrl1">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_i2c_i2c</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_i2c_i2c_i2c_ctrl1</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+	</Group>
+	<Port Name="Device" NameSpace="Standard">
+		<Visibility>Invisible</Visibility>
+	</Port>
+</RegisterDescription>

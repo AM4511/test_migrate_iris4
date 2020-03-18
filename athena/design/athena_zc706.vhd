@@ -56,6 +56,11 @@ entity athena_zc706 is
     PS_FIXED_IO_ps_srstb : inout std_logic;
 
     ---------------------------------------------------------------------------
+    -- I2C
+    ---------------------------------------------------------------------------
+    smbdata               : inout std_logic;
+    smbclk                : inout std_logic;
+    ---------------------------------------------------------------------------
     -- SiT9102 2.5V LVDS 200 MHz fixed-frequency oscillator (SiTime).
     -- See UG954 (v1.8) August 6, 2019; System Clock, page 36.
     ---------------------------------------------------------------------------
@@ -643,6 +648,9 @@ architecture struct of athena_zc706 is
       FPGA_Info_fpga_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
       FPGA_Info_fpga_sub_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
       
+      I2C_if_i2c_sdata : inout STD_LOGIC;
+      I2C_if_i2c_slk :  inout STD_LOGIC;
+      
       PS_DDR_addr             : inout std_logic_vector (14 downto 0);
       PS_DDR_ba               : inout std_logic_vector (2 downto 0);
       PS_DDR_cas_n            : inout std_logic;
@@ -759,6 +767,9 @@ ibuf_200MHz : IBUFDS
       FPGA_Info_fpga_major_ver     => "00000000",
       FPGA_Info_fpga_minor_ver     => "00000000",
       FPGA_Info_fpga_sub_minor_ver => "00000000",
+    
+      I2C_if_i2c_sdata        => smbdata,
+      I2C_if_i2c_slk          => smbclk,   
     
       PS_DDR_addr             => PS_DDR_addr,
       PS_DDR_ba               => PS_DDR_ba,

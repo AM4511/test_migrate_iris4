@@ -1278,8 +1278,8 @@
       </xilinx:taxonomies>
       <xilinx:displayName>axiXGS_controller_v1.0</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_1</xilinx:autoFamilySupportLevel>
-      <xilinx:coreRevision>106</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2020-03-13T22:47:07Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>107</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2020-03-18T17:10:59Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3de0f5de_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@48601e8d_ARCHIVE_LOCATION">c:/work/iris4/ipcores/axiXGS_controller_1.0</xilinx:tag>
@@ -1322,6 +1322,11 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7cc5f182_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@640a44f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@22e7394e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4ddbd75c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@57047229_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6752612b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@23212c04_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7cddf9ea_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axiXGS_controller_1.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
