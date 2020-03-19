@@ -126,10 +126,10 @@ set_property PACKAGE_PIN N3 [get_ports PCIE_TX0_N]
 set_property PACKAGE_PIN N4 [get_ports PCIE_TX0_P]
 
 set_property LOC GTXE2_CHANNEL_X0Y14 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
-set_property PACKAGE_PIN T5 [get_ports PCIE_RX1_N]
-set_property PACKAGE_PIN T6 [get_ports PCIE_RX1_P]
-set_property PACKAGE_PIN P1 [get_ports PCIE_TX1_N]
-set_property PACKAGE_PIN P2 [get_ports PCIE_TX1_P]
+#set_property PACKAGE_PIN T5 [get_ports PCIE_RX1_N]
+#set_property PACKAGE_PIN T6 [get_ports PCIE_RX1_P]
+#set_property PACKAGE_PIN P1 [get_ports PCIE_TX1_N]
+#set_property PACKAGE_PIN P2 [get_ports PCIE_TX1_P]
 
 set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 

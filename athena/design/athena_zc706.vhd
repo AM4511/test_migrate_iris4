@@ -119,10 +119,10 @@ entity athena_zc706 is
     PCIE_RX0_P : in  std_logic;
     PCIE_RX0_N : in  std_logic;
 
-    PCIE_TX1_P : out std_logic;
-    PCIE_TX1_N : out std_logic;
-    PCIE_RX1_P : in  std_logic;
-    PCIE_RX1_N : in  std_logic;
+    -- PCIE_TX1_P : out std_logic;
+    -- PCIE_TX1_N : out std_logic;
+    -- PCIE_RX1_P : in  std_logic;
+    -- PCIE_RX1_N : in  std_logic;
 
     -- PCIE_WAKE_B_LS : in std_logic;
     -- PCIE_TX2_P    : in std_logic;
@@ -662,10 +662,10 @@ architecture struct of athena_zc706 is
       led_out                 : out   std_logic_vector (1 downto 0);
       pcie_clk100MHz          : in    std_logic;
       pcie_reset_n            : in    std_logic;
-      pcie_rxn                : in    std_logic_vector (1 downto 0);
-      pcie_rxp                : in    std_logic_vector (1 downto 0);
-      pcie_txn                : out   std_logic_vector (1 downto 0);
-      pcie_txp                : out   std_logic_vector (1 downto 0);
+      pcie_rxn                : in    std_logic_vector (0 to 0);
+      pcie_rxp                : in    std_logic_vector (0 to 0);
+      pcie_txn                : out   std_logic_vector (0 to 0);
+      pcie_txp                : out   std_logic_vector (0 to 0);
       xgs_ctrl_xgs_clk_pll_en : out   std_logic;
       xgs_ctrl_xgs_cs_n       : out   std_logic;
       xgs_ctrl_xgs_fwsi_en    : out   std_logic;
@@ -689,15 +689,15 @@ architecture struct of athena_zc706 is
 
   signal pcie_clk100MHz          : std_logic;
   signal pcie_reset_n            : std_logic;
-  signal pcie_rxn                : std_logic_vector (1 downto 0);
-  signal pcie_rxp                : std_logic_vector (1 downto 0);
-  signal pcie_txn                : std_logic_vector (1 downto 0);
-  signal pcie_txp                : std_logic_vector (1 downto 0);
+  signal pcie_rxn                : std_logic_vector (0 downto 0);
+  signal pcie_rxp                : std_logic_vector (0 downto 0);
+  signal pcie_txn                : std_logic_vector (0 downto 0);
+  signal pcie_txp                : std_logic_vector (0 downto 0);
   signal led_out                 : std_logic_vector (1 downto 0);
   signal anput_if_exposure       : std_logic;
   signal anput_if_ext_trig       : std_logic;
   signal anput_if_strobe         : std_logic;
-  signal anput_if_trig_rdy       : std_logic;  signal xgs_ctrl_xgs_clk_pll_en : std_logic;
+  signal anput_if_trig_rdy       : std_logic; signal xgs_ctrl_xgs_clk_pll_en : std_logic;
   signal xgs_ctrl_xgs_cs_n       : std_logic;
   signal xgs_ctrl_xgs_fwsi_en    : std_logic;
   signal xgs_ctrl_xgs_monitor0   : std_logic;
@@ -809,10 +809,10 @@ begin
   -----------------------------------------------------------------------------
   -- PCIe Lane 1
   -----------------------------------------------------------------------------
-  pcie_rxn(1) <= PCIE_RX1_N;
-  pcie_rxp(1) <= PCIE_RX1_P;
-  PCIE_TX1_N  <= pcie_txn(1);
-  PCIE_TX1_P  <= pcie_txp(1);
+  -- pcie_rxn(1) <= PCIE_RX1_N;
+  -- pcie_rxp(1) <= PCIE_RX1_P;
+  -- PCIE_TX1_N  <= pcie_txn(1);
+  -- PCIE_TX1_P  <= pcie_txp(1);
 
   pcie_reset_n <= PCIE_PERST_LS;
 
@@ -824,10 +824,10 @@ begin
 
 
   -- SPI
-  FMC_HPC_LA13_P          <= xgs_ctrl_xgs_sclk;
-  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;
-  xgs_ctrl_xgs_sdin       <= FMC_HPC_LA14_N;
-  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;
+  FMC_HPC_LA13_P    <= xgs_ctrl_xgs_sclk;
+  FMC_HPC_LA14_P    <= xgs_ctrl_xgs_cs_n;
+  xgs_ctrl_xgs_sdin <= FMC_HPC_LA14_N;
+  FMC_HPC_LA13_N    <= xgs_ctrl_xgs_sdout;
   -- open <= xgs_ctrl_xgs_fwsi_en;
 
   -- Monitor TBD
@@ -838,13 +838,13 @@ begin
   -- Power good du sensor board (PMIC)
   xgs_ctrl_xgs_power_good <= '1';
 
-  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;
+  FMC_HPC_LA15_P <= xgs_ctrl_xgs_reset_n;
 
   -- Exposure
-  FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;
+  FMC_HPC_LA15_N <= xgs_ctrl_xgs_trig_int;
 
   -- TRigger read line. Not used on the zynq 
-  FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;
+  FMC_HPC_LA16_N <= xgs_ctrl_xgs_trig_rd;
 
 
   -----------------------------------------------------------------------------
