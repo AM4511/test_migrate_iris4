@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_i2c" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="eb44fe35-8b1b-4463-a8cd-72c60779f033" VersionGuid="ec739dc3-875d-46a8-9807-ab1aef4eca6c">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_i2c" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="d7c2d8b7-3a85-4f73-bc49-b60d53c3eeef" VersionGuid="b90b0407-a52f-4ab5-86dd-dc3450fa1d1b">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>
@@ -34,6 +34,8 @@
 					<Visibility>Beginner</Visibility>
 					<pFeature>OFFSET_regfile_i2c_i2c_i2c_id</pFeature>
 					<pFeature>ADDRESS_regfile_i2c_i2c_i2c_id</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_id_clock_stretching</pFeature>
+					<pFeature>FIELD_regfile_i2c_i2c_i2c_id_ni_access</pFeature>
 					<pFeature>FIELD_regfile_i2c_i2c_i2c_id_id</pFeature>
 				</Category>
 				<Integer Name="OFFSET_regfile_i2c_i2c_i2c_id">
@@ -43,6 +45,40 @@
 					<Value>0</Value>
 					<Representation>HexNumber</Representation>
 				</Integer>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_id_clock_stretching">
+					<DisplayName>CLOCK_STRETCHING</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_id_clock_stretching</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_id_clock_stretching">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_id</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>17</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_i2c_i2c_i2c_id_ni_access">
+					<DisplayName>NI_ACCESS</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_id_ni_access</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_id_ni_access">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_id</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>16</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
 				<Integer Name="FIELD_regfile_i2c_i2c_i2c_id_id">
 					<DisplayName>ID</DisplayName>
 					<Visibility>Beginner</Visibility>

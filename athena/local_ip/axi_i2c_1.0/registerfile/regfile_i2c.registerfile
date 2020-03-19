@@ -2,6 +2,16 @@
 <com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:XMI="http://www.omg.org/XMI" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="12" description="" name="regfile_i2c" XMI:version="2.0">
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="I2C" endAddress="14">
     <registers name="I2C_ID" useReservedSpaceBelow="true">
+      <fields name="CLOCK_STRETCHING" description="When this field is set to 1, the clock streching is supported by the I2C core." lsb="17" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock stretching not supported&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock stretching supported&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="NI_ACCESS" description="When this field is set to 1, write to I2C device without address cycle is supported" lsb="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> Write to I2C device without address cycle is NOT supported&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> Write to I2C device without address cycle is supported&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="ID" size="12" valueAtReset="012C" readWrite="false" staticVal="true"/>
     </registers>
     <registers name="I2C_CTRL0" alias="I2C Control Register 0" description="" offsetFromParent="8" useReservedSpaceBelow="true" address="30">
@@ -76,4 +86,23 @@
   <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
   <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
   <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
 </com.matrox.fdk.editor.registerfile:RegisterFile>

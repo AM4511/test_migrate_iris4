@@ -2,11 +2,11 @@
 ** File                : Cregfile_i2c.cpp
 ** Project             : FDK
 ** Module              : regfile_i2c
-** Created on          : 2020/03/18 14:45:23
+** Created on          : 2020/03/19 13:08:52
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0x57E56354
+** Register file CRC32 : 0x5A5B9037
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -35,6 +35,8 @@ Cregfile_i2c::Cregfile_i2c() : CfdkRegisterFile("regfile_i2c", 9, 32, true)
    pSection->addRegister(pRegister);
 
    //Fields:
+   pRegister->addField(createField(pRegister, "CLOCK_STRETCHING", 17, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // I2C_ID(17)
+   pRegister->addField(createField(pRegister, "NI_ACCESS", 16, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // I2C_ID(16)
    pRegister->addField(createField(pRegister, "ID", 0, 12, CfdkField::STATIC, 0x12c, 0x0, 0xfff)); // I2C_ID(11:0)
 
    /******************************************************************

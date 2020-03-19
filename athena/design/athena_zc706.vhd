@@ -56,10 +56,23 @@ entity athena_zc706 is
     PS_FIXED_IO_ps_srstb : inout std_logic;
 
     ---------------------------------------------------------------------------
+    -- PL I2C Bus
+    -- See UG954 (v1.8) August 6, 2019; I2C Bus page 55.
+    ---------------------------------------------------------------------------
+    -- IIC_SCL_MAIN_LS : in std_logic;
+    -- IIC_SDA_MAIN_LS : in std_logic;
+    ---------------------------------------------------------------------------
     -- I2C
     ---------------------------------------------------------------------------
     smbdata               : inout std_logic;
     smbclk                : inout std_logic;
+    
+    --IMPORTANT: The PCA9548 U65 RESET_B pin 24 is connected to FPGA U1 bank 501 pin F20 via
+    --level-shifter U25. FPGA pin F20 net IIC_MUX_RESET_B_LS must be driven High to enable I2C bus
+    --transactions with the devices connected to U65.
+    --MIO46 : il ya un pullup par defaut!!!! sti de chance ds design avec le zynq!
+    --I2C_MUX_resetN        : out std_logic;
+    
     ---------------------------------------------------------------------------
     -- SiT9102 2.5V LVDS 200 MHz fixed-frequency oscillator (SiTime).
     -- See UG954 (v1.8) August 6, 2019; System Clock, page 36.
@@ -187,12 +200,7 @@ entity athena_zc706 is
     -- HDMI_R_D34 : in std_logic;
     -- HDMI_R_D35 : in std_logic;
 
-    ---------------------------------------------------------------------------
-    -- PL I2C Bus
-    -- See UG954 (v1.8) August 6, 2019; I2C Bus page 55.
-    ---------------------------------------------------------------------------
-    -- IIC_SCL_MAIN_LS : in std_logic;
-    -- IIC_SDA_MAIN_LS : in std_logic;
+    
 
     ---------------------------------------------------------------------------
     -- Real Time Clock (RTC)
@@ -930,7 +938,8 @@ ibuf_200MHz : IBUFDS
   GPIO_LED_LEFT  <= heart_beat_cntr(27) and not(PCIE_PERST_LS);
   GPIO_LED_RIGHT <= '0';
 
-
+  --Pour reveille le MUX IC2 : reset is active lo
+  --I2C_MUX_resetN <='1';
 
 
 

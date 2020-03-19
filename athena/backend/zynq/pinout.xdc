@@ -121,12 +121,11 @@ set_property IOSTANDARD LVCMOS18 [get_ports heart_beat]
 ################################################################
 set_property PACKAGE_PIN AK23 [get_ports PCIE_PERST_LS]
 set_property PULLUP true [get_ports PCIE_PERST_LS]
-set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
+set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS] 
 
 set_property PACKAGE_PIN N8 [get_ports PCIE_CLK_QO_P]
 set_property PACKAGE_PIN N7 [get_ports PCIE_CLK_QO_N]
 #set_property LOC GTXE2_CHANNEL_X0Y15 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
-set_property LOC GTXE2_CHANNEL_X0Y15 [get_cells {xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
 set_property PACKAGE_PIN P5 [get_ports PCIE_RX0_N]
 set_property PACKAGE_PIN P6 [get_ports PCIE_RX0_P]
 set_property PACKAGE_PIN N3 [get_ports PCIE_TX0_N]
@@ -141,8 +140,8 @@ set_property PACKAGE_PIN N4 [get_ports PCIE_TX0_P]
 
 
 
-set_property PACKAGE_PIN H9 [get_ports SYSCLK_P]
-set_property PACKAGE_PIN G9 [get_ports SYSCLK_N]
+set_property PACKAGE_PIN H9   [get_ports SYSCLK_P]
+set_property PACKAGE_PIN G9   [get_ports SYSCLK_N]
 
 # set_property PACKAGE_PIN AF14 [get_ports USRCLK_P]
 # set_property PACKAGE_PIN AG14 [get_ports USRCLK_N]
@@ -940,11 +939,18 @@ set_property IOSTANDARD LVDS [get_ports SYSCLK_N]
 #NET  VRP_35                    LOC = M16  | IOSTANDARD=SSTL15;    # Bank  35 VCCO - VCC1V5_PL - IO_25_VRP_35
 
 
+
+#set_property PACKAGE_PIN F20 [get_ports I2C_MUX_resetN]
+#set_property IOSTANDARD LVCMOS25 [get_ports I2C_MUX_resetN]
+#set_property DRIVE 8 [get_ports I2C_MUX_resetN]
+#set_property SLEW SLOW [get_ports I2C_MUX_resetN]
+
+set_property PACKAGE_PIN aj14 [get_ports smbclk]
 set_property IOSTANDARD LVCMOS25 [get_ports smbclk]
 set_property DRIVE 8 [get_ports smbclk]
 set_property SLEW SLOW [get_ports smbclk]
 
+set_property PACKAGE_PIN aj18 [get_ports smbdata]
 set_property IOSTANDARD LVCMOS25 [get_ports smbdata]
 set_property DRIVE 8 [get_ports smbdata]
 set_property SLEW SLOW [get_ports smbdata]
-

@@ -2,11 +2,11 @@
  ** File                : regfile_i2c.sv
  ** Project             : FDK
  ** Module              : regfile_i2c
- ** Created on          : 2020/03/18 14:45:23
+ ** Created on          : 2020/03/19 13:08:52
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0x57E56354
+ ** Register file CRC32 : 0x5A5B9037
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -30,7 +30,10 @@ typedef union packed
    struct packed
    {
       logic [11:0] ID;                      /* Bits(11:0), null */
-      logic [19:0] rsvd0;                   /* Bits(31:12), Reserved */
+      logic [3:0]  rsvd0;                   /* Bits(15:12), Reserved */
+      logic        NI_ACCESS;               /* Bits(16:16), null */
+      logic        CLOCK_STRETCHING;        /* Bits(17:17), null */
+      logic [13:0] rsvd1;                   /* Bits(31:18), Reserved */
       logic        rsvd_register_space[1];  /* Reserved space below */
    } f;
 

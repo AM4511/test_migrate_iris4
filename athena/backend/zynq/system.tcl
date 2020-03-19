@@ -222,7 +222,7 @@ proc create_root_design { parentCell } {
   set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
   set_property -dict [ list \
    CONFIG.CLOCK_STRETCHING {false} \
-   CONFIG.NI_ACCESS {false} \
+   CONFIG.NI_ACCESS {true} \
    CONFIG.SIMULATION {false} \
  ] $axi_i2c_0
 

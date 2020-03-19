@@ -27,6 +27,12 @@ variable i;		%index used for filling tables used in Group registers.
 Section("I2C", 0, 0x0);
 
 Register("i2c_id", 0x0, 4, "null");
+		Field("clock_stretching", 17, 17, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Clock stretching not supported", 0);
+			FieldValue("Clock stretching supported", 1);
+		Field("ni_access", 16, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue(" Write to I2C device without address cycle is NOT supported", 0);
+			FieldValue(" Write to I2C device without address cycle is supported", 1);
 		Field("id", 11, 0, "rd", 0x0, 0x012C, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 Register("i2c_ctrl0", 0x8, 4, "I2C Control Register 0");

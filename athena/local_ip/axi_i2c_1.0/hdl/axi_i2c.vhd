@@ -241,11 +241,17 @@ architecture functionnal of axi_i2c is
   signal reg_readdatavalid   :  std_logic;                                                     -- Read data valid
   signal reg_readdata        :  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);               -- Read data
   signal regfile             :  REGFILE_I2C_TYPE; 
-  
+     
+  signal clk_stretch         : std_logic;
+  signal non_index_access    : std_logic;
   
 begin
 
+    clk_stretch      <= '1' when (CLOCK_STRETCHING = true) else '0';
+    non_index_access <= '1' when (NI_ACCESS = true) else '0';
 
+    regfile.I2C.I2C_ID.CLOCK_STRETCHING  <= clk_stretch;
+    regfile.I2C.I2C_ID.NI_ACCESS         <= non_index_access; 
 
 
     X_AxiSlave2Reg : AxiSlave2Reg 

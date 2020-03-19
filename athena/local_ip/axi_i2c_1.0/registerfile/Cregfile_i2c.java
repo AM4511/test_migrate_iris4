@@ -43,6 +43,8 @@ public class Cregfile_i2c  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
+      register.addField(new CField(register, "CLOCK_STRETCHING", "null", CField.FieldType.RO, 17, 1, 0x0));
+      register.addField(new CField(register, "NI_ACCESS", "null", CField.FieldType.RO, 16, 1, 0x0));
       register.addField(new CField(register, "ID", "null", CField.FieldType.STATIC, 0, 12, 0x12c));
 
       /***************************************************************

@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0x57E56354
+* Register file CRC32 : 0x5A5B9037
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -44,7 +44,10 @@ typedef union
    struct
    {
       M_UINT32 ID                     : 12;  /* Bits(11:0), null */
-      M_UINT32 RSVD0                  : 20;  /* Bits(31:12), Reserved */
+      M_UINT32 RSVD0                  : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 NI_ACCESS              : 1;   /* Bits(16:16), null */
+      M_UINT32 CLOCK_STRETCHING       : 1;   /* Bits(17:17), null */
+      M_UINT32 RSVD1                  : 14;  /* Bits(31:18), Reserved */
       M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 

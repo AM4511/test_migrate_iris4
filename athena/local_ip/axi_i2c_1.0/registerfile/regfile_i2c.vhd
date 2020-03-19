@@ -2,11 +2,11 @@
 -- File                : regfile_i2c.vhd
 -- Project             : FDK
 -- Module              : regfile_i2c_pack
--- Created on          : 2020/03/18 14:45:23
+-- Created on          : 2020/03/19 13:08:52
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x57E56354
+-- Register file CRC32 : 0x5A5B9037
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -26,10 +26,14 @@ package regfile_i2c_pack is
    -- Register Name: I2C_ID
    ------------------------------------------------------------------------------------------
    type I2C_I2C_ID_TYPE is record
+      CLOCK_STRETCHING: std_logic;
+      NI_ACCESS      : std_logic;
       ID             : std_logic_vector(11 downto 0);
    end record I2C_I2C_ID_TYPE;
 
    constant INIT_I2C_I2C_ID_TYPE : I2C_I2C_ID_TYPE := (
+      CLOCK_STRETCHING => 'Z',
+      NI_ACCESS       => 'Z',
       ID              => (others=> 'Z')
    );
 
@@ -125,6 +129,8 @@ package body regfile_i2c_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(17) := reg.CLOCK_STRETCHING;
+      output(16) := reg.NI_ACCESS;
       output(11 downto 0) := reg.ID;
       return output;
    end to_std_logic_vector;
@@ -136,6 +142,8 @@ package body regfile_i2c_pack is
    function to_I2C_I2C_ID_TYPE(stdlv : std_logic_vector(31 downto 0)) return I2C_I2C_ID_TYPE is
    variable output : I2C_I2C_ID_TYPE;
    begin
+      output.CLOCK_STRETCHING := stdlv(17);
+      output.NI_ACCESS := stdlv(16);
       output.ID := stdlv(11 downto 0);
       return output;
    end to_I2C_I2C_ID_TYPE;
@@ -214,11 +222,11 @@ end package body;
 -- File                : regfile_i2c.vhd
 -- Project             : FDK
 -- Module              : regfile_i2c
--- Created on          : 2020/03/18 14:45:23
+-- Created on          : 2020/03/19 13:08:52
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x57E56354
+-- Register file CRC32 : 0x5A5B9037
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -353,6 +361,20 @@ end process P_reg_readdata;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(0) <= (hit(0)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: CLOCK_STRETCHING
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_I2C_I2C_ID(17) <= regfile.I2C.I2C_ID.CLOCK_STRETCHING;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: NI_ACCESS
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_I2C_I2C_ID(16) <= regfile.I2C.I2C_ID.NI_ACCESS;
+
 
 ------------------------------------------------------------------------------------------
 -- Field name: ID
