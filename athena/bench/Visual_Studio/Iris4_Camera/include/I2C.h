@@ -15,10 +15,10 @@ class CI2C
 {
 
 public:
-	CI2C(unsigned char* IRIS4_regptr0, M_UINT32 MemOffset)
+	CI2C(unsigned char* I2C_regptr)
 	{
 
-		rI2C = (FPGA_REGFILE_I2C_TYPE*)(IRIS4_regptr0 + MemOffset); // Offset du premier registre du I2C par rapport au BAR0
+		rI2C = (FPGA_REGFILE_I2C_TYPE*)(I2C_regptr); // Offset du premier registre du I2C 
 
 	}
 
@@ -32,10 +32,11 @@ public:
 	volatile FPGA_REGFILE_I2C_TYPE* rI2C;       // HW pointer to reg
 	volatile FPGA_REGFILE_I2C_TYPE* getRegisterI2C(void);
 
-	// Fonctions
-	//void Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite, char id_[20]);
-	void Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite, char id_[20]);
-	void Write_i2c(volatile FPGA_REGFILE_I2C_TYPE& rI2C, int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite, char id_[20]);
+	// Fonctions I2C
+	void Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite);// , char id_[20]);
+	M_UINT32 Read_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, int print_err);
+	void Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32 DATAWrite);
+
 
 
 private:

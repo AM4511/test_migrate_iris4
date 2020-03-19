@@ -38,18 +38,13 @@ volatile FPGA_REGFILE_XGS_CTRL_TYPE* CXGS_Ctrl::getRegisterXGS_Ctrl(void)
 //------------------------------------------------------------------------------------
 void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 {
-	sXGSptr->ACQ.ACQ_SER_ADDATA.u32 = (address & 0x1ff) + ((data & 0xffff) << 16); // Set address and data to write in sensor
-	rXGSptr->ACQ.ACQ_SER_ADDATA.u32 = sXGSptr->ACQ.ACQ_SER_ADDATA.u32;             // Set address and data to write in sensor
+	rXGSptr->ACQ.ACQ_SER_ADDATA.u32 = (address & 0x1ff) + ((data & 0xffff) << 16); // Set address and data to write in sensor
 
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                   // Sensor access type
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x0;                                   // Write access  
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                   // Write the command to the queue fifo
-	rXGSptr->ACQ.ACQ_SER_CTRL.u32         = sXGSptr->ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x0;                                   // WO register 
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                   // Sensor access type
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x0;                                   // Write access  
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                   // Write the command to the queue fifo
 
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Start the queue command
-	rXGSptr->ACQ.ACQ_SER_CTRL.u32         = sXGSptr->ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;                                   // WO register
+	rXGSptr->ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Start the queue command
 
 	while (rXGSptr->ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);                          // Loop wait for the access end
 
@@ -251,7 +246,7 @@ void CXGS_Ctrl::InitXGS()
 	if (DataRead == 0x0058) {
 		printf("XGS Model ID detected is 0x58, XGS12M\n");
 		DataRead = ReadSPI(0x2);
-		printf("XGS RevNum Major: 0x%X,XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
+		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
 		DataRead = ReadSPI(0x3012);
 
@@ -297,7 +292,7 @@ void CXGS_Ctrl::InitXGS()
 	rXGSptr->ACQ.READOUT_CFG3.f.LINE_TIME   = ReadSPI(0x3810);   //LINETIME
 
 
-	M_UINT32 EXP_FOT_TIME     = 5360;  //5.36us calculated from start of FOT to end of real exposure
+	M_UINT32 EXP_FOT_TIME     = 5360;  //5.36us calculated from start of FOT to end of real exposure in dev board
 	
 	//Enable EXP during FOT
 	rXGSptr->ACQ.EXP_FOT.f.EXP_FOT_TIME = (M_UINT32) ((double)EXP_FOT_TIME / SystemPeriodNanoSecond);

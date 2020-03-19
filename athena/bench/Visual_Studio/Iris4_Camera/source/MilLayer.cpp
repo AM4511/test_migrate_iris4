@@ -14,20 +14,23 @@ MIL_ID   LayerMilSystem;
 MIL_ID   LayerMilRegBuf;
 MIL_ID   LayerMilRegBuf2;
 
+void MilLayerAlloc(void)
+{
+
+	//---------------------
+	//
+	// MIL ALLOCs
+	//
+	//---------------------
+	MappAlloc(M_DEFAULT, &LayerMilApplication);
+	MsysAlloc(M_SYSTEM_HOST, M_DEFAULT, M_DEFAULT, &LayerMilSystem);
+}
+
+
 unsigned char * getMilLayerRegisterPtr(M_UINT64 fpga_bar0_add)
    {
 
-   //---------------------
-   //
-   // MIL ALLOCs
-   //
-   //---------------------
-   MappAlloc(M_DEFAULT, &LayerMilApplication);
-   MsysAlloc(M_SYSTEM_HOST, M_DEFAULT, M_DEFAULT, &LayerMilSystem);
-
-
-
-   MbufCreate2d(M_DEFAULT_HOST,
+    MbufCreate2d(M_DEFAULT_HOST,
                 8192,
                 1,
                 8 + M_UNSIGNED,

@@ -16,6 +16,8 @@
 #include "mbasictypes.h"
 #include "mil.h"
 
+void MilLayerAlloc(void);
+
 unsigned char * getMilLayerRegisterPtr(M_UINT64 fpga_bar0_add);
 unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add);
 

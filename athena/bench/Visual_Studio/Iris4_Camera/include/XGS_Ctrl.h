@@ -15,16 +15,13 @@ class CXGS_Ctrl
 {
 
 public:
-	CXGS_Ctrl(double setSysPer, double setSensorPer, unsigned char* IRIS4_regptr0)
+	CXGS_Ctrl(unsigned char* XGS_regptr, double setSysPer, double setSensorPer)
 	{
 
 		double SystemPeriodNanoSecond = setSysPer;
 		double SensorPeriodNanoSecond = setSensorPer;
 
-		rXGSptr = (FPGA_REGFILE_XGS_CTRL_TYPE*)(IRIS4_regptr0 + 0x0);     // Offset du premier registre du regfileXGS ctrl par rapport au BAR0
-
-		memset(&sXGSptr, 0, sizeof(sXGSptr));                             // Init shadow
-		memcpy(&sXGSptr, (const void*)& rXGSptr, sizeof(sXGSptr));
+		rXGSptr = (FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr);     // Offset du premier registre du regfileXGS ctrl par rapport au BAR0
 
 	}
 
@@ -36,7 +33,6 @@ public:
 	}
 	
 	volatile FPGA_REGFILE_XGS_CTRL_TYPE* rXGSptr;       // HW pointer to reg
-	FPGA_REGFILE_XGS_CTRL_TYPE*          sXGSptr;       // Shadow registers
 
 	volatile FPGA_REGFILE_XGS_CTRL_TYPE* getRegisterXGS_Ctrl(void);
 
@@ -59,10 +55,87 @@ public:
 private:
 	
 
-	double SystemPeriodNanoSecond;
-	double SensorPeriodNanoSecond;
+	double SystemPeriodNanoSecond= 16.000000;
+	double SensorPeriodNanoSecond= 15.432099;
 
+	enum TRIGGER_SRC { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4 };
+	enum TRIGGER_ACT { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4 };
+	enum LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
 
+	struct GrabParamStruct
+	{
+		M_UINT32 TRIGGER_OVERLAP_BUFFN;
+		M_UINT32 TRIGGER_OVERLAP;
+		TRIGGER_SRC TRIGGER_SRC;
+		TRIGGER_ACT TRIGGER_ACT;
+		LEVEL_EXP_MODE EXPOSURE_LEV_MODE;
+
+		M_UINT32 Exposure;
+		M_UINT32 ExposureDS;
+		M_UINT32 ExposureTS;
+
+		M_UINT32 TRIGGER_DELAY;
+
+		M_UINT32 STROBE_E;
+		M_UINT32 STROBE_MODE;
+		M_UINT32 STROBE_START;
+		M_UINT32 STROBE_END;
+
+		M_UINT32 GRAB_BUFFER_ID;
+		M_UINT64 FrameStart;
+		M_UINT64 FrameStartG;
+		M_UINT64 FrameStartR;
+		M_UINT32 LinePitch;
+		M_UINT32 COLOR_SPACE;
+		M_UINT32 X_START;
+		M_UINT32 X_END;
+		M_UINT32 Y_START;
+		M_UINT32 Y_END;
+
+		M_UINT32 X_START_ROI2;
+		M_UINT32 X_END_ROI2;
+		M_UINT32 Y_START_ROI2;
+		M_UINT32 Y_END_ROI2;
+
+		M_UINT32 BLACK_OFFSET;
+
+		M_UINT32 MUX_GAINSW0;
+		M_UINT32 AFE_GAIN0;
+		M_UINT32 REVERSE_Y;
+		M_UINT32 REVERSE_X;
+		M_UINT32 MONO10;
+		M_UINT32 BINNING_MODE;
+		M_UINT32 SUB_MODE;
+
+		M_UINT32 BINNING;
+		M_UINT32 SUBSAMPLING;
+
+		M_UINT32 FOT;
+		M_UINT32 ROT;
+		M_UINT32 ROT_BIN;
+
+		M_UINT32 XSM_DELAY;
+
+	};
+
+	struct SensorParamStruct
+	{
+		M_UINT32 SENSOR_TYPE;
+
+		M_UINT32 Python_LVDS_Ch;
+
+		M_UINT32 Xsize_Full;
+		M_UINT32 Ysize_Full;
+		M_UINT32 Xsize_BL;
+
+		M_UINT32 DelaiDummyBLExp; //This delai is the delai in NZROT between the BL line before and after exposure starts in PET engin
+		M_UINT32 FOT;
+		M_UINT32 ROT;
+		M_UINT32 ROT_BIN;
+		M_UINT32 BL_LINES;
+		M_UINT32 EXP_DUMMY_LINES;
+
+	};
 
 
 
