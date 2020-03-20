@@ -162,24 +162,49 @@ int main(void)
 
 */
 
-	//--------------------------------------------
-	// Access I2C vers Xcelerator PCA9654E (0x20, 7 bits), ENABLE PMIC
-	//--------------------------------------------
-	I2C->Write_i2c(0, 0x74, 1, 0, 0x20);  // Enable channel 5 FMC HPC (non-index access)
+    //--------------------------------------------
+    // PMIC programmation : defaut voltages are NO GOOD
+    //--------------------------------------------
+	I2C->Write_i2c(0, 0x74, 1, 0, 0x20);  // PCA9548ARGER on 7C706 : Enable I2C channel 5 FMC HPC (non-index access)
 	Sleep(200);
 
-	//Is PMIC enable already?
+
+	//Is PMIC NCP6914 on Xcelerator already enable ?
 	if (((I2C->Read_i2c(0, 0x20, 0, 3, 0) & 0x1) == 0) && ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x1) == 0x1) && ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0x2)) {  // Si ioxpander bit0=output ET output0=1(HWEN) ET Input1=1 (PowerGood)
 		printf("Xcerelator PMIC already enable, PowerDown PMIC, ");
 		I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 1 to output0 : HWEN=0)
-		
-		while ( (I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0x2) {  // Wait for Power Good from PMIC to be inactive
+
+		while ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0x2) {  // Wait for Power Good from PMIC to be inactive
 			I2C_readdata = I2C->Read_i2c(0, 0x20, 0, 0, 0);
 			Sleep(100);
 		}
 		printf("Done. \n\n");
+		Sleep(1000);
 	}
-	
+
+	// NEW NCP6914 on Xcelerator  Voltage VALUES
+	I2C->Write_i2c(0, 0x10, 0, 0x42, 0x24);  
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x42);                        // Dummy write(not indexed) without data to set add ptr=42 (non-index access)
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VAA
+	if (I2C_readdata == 0x10) printf("NEW PMIC VAA     is set to 1.8V\n");
+	if (I2C_readdata == 0x24) printf("NEW PMIC VAA     is set to 2.8V\n");
+
+	I2C->Write_i2c(0, 0x10, 0, 0x43, 0x28);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x43);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VAA-PIX
+	if (I2C_readdata == 0x10) printf("NEW PMIC VAA-PIX is set to 1.8V\n");
+	if (I2C_readdata == 0x28) printf("NEW PMIC VAA-PIX is set to 3.0V\n");
+
+	I2C->Write_i2c(0, 0x10, 0, 0x44, 0x24);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x44);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VDD
+	if (I2C_readdata == 0x10) printf("NEW PMIC VDD     is set to 1.8V\n");
+	if (I2C_readdata == 0x24) printf("NEW PMIC VDD     is set to 2.8V\n");
+	if (I2C_readdata == 0x28) printf("NEW PMIC VDD     is set to 3.0V\n");
+
+	//-------------------------------------------------------------------------------
+	// Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), ENABLE PMIC
+	//-------------------------------------------------------------------------------
 	printf("Xcerelator PMIC Starting, ");
 	I2C->Write_i2c(0, 0x20, 0, 3, 0xfe);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC)
 	Sleep(1);
@@ -192,6 +217,7 @@ int main(void)
 		Sleep(10);
 	}
 	printf("Done. \n\n");
+
 
 	//------------------------------
 	// INITIALIZE XGS SENSOR
