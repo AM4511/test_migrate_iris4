@@ -2,7 +2,7 @@
 # File         : create_athena.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/athena/backend/zynq/create_athena_zc706.tcl
+# Example      : source $env(IRIS4)/athena/backend/zynq_tmp/create_athena_zc706_tmp.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -17,7 +17,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 2
 
 
-set BASE_NAME athena_zc706
+set BASE_NAME athena_zc706_tmp
 #set DEVICE "xc7a35ticpg236-1L"
 set DEVICE "xc7z045ffg900-2"
 set VIVADO_SHORT_VERSION [version -short]
@@ -42,7 +42,7 @@ set LOCAL_IP_DIR ${WORKDIR}/local_ip
 
 set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 
-set BACKEND_DIR ${WORKDIR}/backend/zynq
+set BACKEND_DIR ${WORKDIR}/backend/zynq_tmp
 set TCL_DIR     ${BACKEND_DIR}
 set SYSTEM_DIR  ${BACKEND_DIR}
 set SRC_DIR     ${WORKDIR}/design
@@ -51,7 +51,7 @@ set SDK_DIR     ${BACKEND_DIR}/sdk
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie2aximaster.tcl
 set SDK_SCRIPT         ${SDK_DIR}/create_flash_image.tcl
 
 

@@ -18,7 +18,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 
-entity athena_zc706 is
+entity athena_zc706_tmp is
   generic(
     FPGA_MAJOR_VERSION          : integer := 0;
     FPGA_MINOR_VERSION          : integer := 0;
@@ -626,63 +626,68 @@ entity athena_zc706 is
    -- 8N278         : in std_logic;
    -- 8N282         : in std_logic
     );
-end athena_zc706;
+end athena_zc706_tmp;
 
 
-architecture struct of athena_zc706 is
-
+architecture struct of athena_zc706_tmp is
 
   component system_wrapper is
     port (
-      PS_DDR_addr             : inout std_logic_vector (14 downto 0);
-      PS_DDR_ba               : inout std_logic_vector (2 downto 0);
-      PS_DDR_cas_n            : inout std_logic;
-      PS_DDR_ck_n             : inout std_logic;
-      PS_DDR_ck_p             : inout std_logic;
-      PS_DDR_cke              : inout std_logic;
-      PS_DDR_cs_n             : inout std_logic;
-      PS_DDR_dm               : inout std_logic_vector (3 downto 0);
-      PS_DDR_dq               : inout std_logic_vector (31 downto 0);
-      PS_DDR_dqs_n            : inout std_logic_vector (3 downto 0);
-      PS_DDR_dqs_p            : inout std_logic_vector (3 downto 0);
-      PS_DDR_odt              : inout std_logic;
-      PS_DDR_ras_n            : inout std_logic;
-      PS_DDR_reset_n          : inout std_logic;
-      PS_DDR_we_n             : inout std_logic;
-      PS_FIXED_IO_ddr_vrn     : inout std_logic;
-      PS_FIXED_IO_ddr_vrp     : inout std_logic;
-      PS_FIXED_IO_mio         : inout std_logic_vector (53 downto 0);
-      PS_FIXED_IO_ps_clk      : inout std_logic;
-      PS_FIXED_IO_ps_porb     : inout std_logic;
-      PS_FIXED_IO_ps_srstb    : inout std_logic;
-      anput_if_exposure       : out   std_logic;
-      anput_if_ext_trig       : in    std_logic;
-      anput_if_strobe         : out   std_logic;
-      anput_if_trig_rdy       : out   std_logic;
-      led_out                 : out   std_logic_vector (1 downto 0);
-      pcie_clk100MHz          : in    std_logic;
-      pcie_reset_n            : in    std_logic;
-      pcie_rxn                : in    std_logic_vector (0 to 0);
-      pcie_rxp                : in    std_logic_vector (0 to 0);
-      pcie_txn                : out   std_logic_vector (0 to 0);
-      pcie_txp                : out   std_logic_vector (0 to 0);
-      xgs_ctrl_xgs_clk_pll_en : out   std_logic;
-      xgs_ctrl_xgs_cs_n       : out   std_logic;
-      xgs_ctrl_xgs_fwsi_en    : out   std_logic;
-      xgs_ctrl_xgs_monitor0   : in    std_logic;
-      xgs_ctrl_xgs_monitor1   : in    std_logic;
-      xgs_ctrl_xgs_monitor2   : in    std_logic;
-      xgs_ctrl_xgs_power_good : in    std_logic;
-      xgs_ctrl_xgs_reset_n    : out   std_logic;
-      xgs_ctrl_xgs_sclk       : out   std_logic;
-      xgs_ctrl_xgs_sdin       : in    std_logic;
-      xgs_ctrl_xgs_sdout      : out   std_logic;
-      xgs_ctrl_xgs_trig_int   : out   std_logic;
-      xgs_ctrl_xgs_trig_rd    : out   std_logic;
-      xgs_hispi_clk_n         : in    std_logic_vector (1 downto 0);
-      xgs_hispi_clk_p         : in    std_logic_vector (1 downto 0);
-      xgs_hispi_data_n        : in    std_logic_vector (5 downto 0);
-      xgs_hispi_data_p        : in    std_logic_vector (5 downto 0)
+      FPGA_Info_board_info         : in    std_logic_vector (3 downto 0);
+      FPGA_Info_fpga_build_id      : in    std_logic_vector (31 downto 0);
+      FPGA_Info_fpga_device_id     : in    std_logic_vector (7 downto 0);
+      FPGA_Info_fpga_firmware_type : in    std_logic_vector (7 downto 0);
+      FPGA_Info_fpga_major_ver     : in    std_logic_vector (7 downto 0);
+      FPGA_Info_fpga_minor_ver     : in    std_logic_vector (7 downto 0);
+      FPGA_Info_fpga_sub_minor_ver : in    std_logic_vector (7 downto 0);
+      PS_DDR_addr                  : inout std_logic_vector (14 downto 0);
+      PS_DDR_ba                    : inout std_logic_vector (2 downto 0);
+      PS_DDR_cas_n                 : inout std_logic;
+      PS_DDR_ck_n                  : inout std_logic;
+      PS_DDR_ck_p                  : inout std_logic;
+      PS_DDR_cke                   : inout std_logic;
+      PS_DDR_cs_n                  : inout std_logic;
+      PS_DDR_dm                    : inout std_logic_vector (3 downto 0);
+      PS_DDR_dq                    : inout std_logic_vector (31 downto 0);
+      PS_DDR_dqs_n                 : inout std_logic_vector (3 downto 0);
+      PS_DDR_dqs_p                 : inout std_logic_vector (3 downto 0);
+      PS_DDR_odt                   : inout std_logic;
+      PS_DDR_ras_n                 : inout std_logic;
+      PS_DDR_reset_n               : inout std_logic;
+      PS_DDR_we_n                  : inout std_logic;
+      PS_FIXED_IO_ddr_vrn          : inout std_logic;
+      PS_FIXED_IO_ddr_vrp          : inout std_logic;
+      PS_FIXED_IO_mio              : inout std_logic_vector (53 downto 0);
+      PS_FIXED_IO_ps_clk           : inout std_logic;
+      PS_FIXED_IO_ps_porb          : inout std_logic;
+      PS_FIXED_IO_ps_srstb         : inout std_logic;
+      anput_if_exposure            : out   std_logic;
+      anput_if_ext_trig            : in    std_logic;
+      anput_if_strobe              : out   std_logic;
+      anput_if_trig_rdy            : out   std_logic;
+      led_out                      : out   std_logic_vector (1 downto 0);
+      mtxSPI_spi_csn               : out   std_logic;
+      mtxSPI_spi_sdin              : in    std_logic;
+      mtxSPI_spi_sdout             : out   std_logic;
+      pcie_clk100MHz               : in    std_logic;
+      pcie_reset_n                 : in    std_logic;
+      pcie_rxn                     : in    std_logic;
+      pcie_rxp                     : in    std_logic;
+      pcie_txn                     : out   std_logic;
+      pcie_txp                     : out   std_logic;
+      xgs_ctrl_xgs_clk_pll_en      : out   std_logic;
+      xgs_ctrl_xgs_cs_n            : out   std_logic;
+      xgs_ctrl_xgs_fwsi_en         : out   std_logic;
+      xgs_ctrl_xgs_monitor0        : in    std_logic;
+      xgs_ctrl_xgs_monitor1        : in    std_logic;
+      xgs_ctrl_xgs_monitor2        : in    std_logic;
+      xgs_ctrl_xgs_power_good      : in    std_logic;
+      xgs_ctrl_xgs_reset_n         : out   std_logic;
+      xgs_ctrl_xgs_sclk            : out   std_logic;
+      xgs_ctrl_xgs_sdin            : in    std_logic;
+      xgs_ctrl_xgs_sdout           : out   std_logic;
+      xgs_ctrl_xgs_trig_int        : out   std_logic;
+      xgs_ctrl_xgs_trig_rd         : out   std_logic
       );
   end component;
 
@@ -746,55 +751,61 @@ begin
 
   xsystem_wrapper : system_wrapper
     port map(
-      PS_DDR_addr             => PS_DDR_addr,
-      PS_DDR_ba               => PS_DDR_ba,
-      PS_DDR_cas_n            => PS_DDR_cas_n,
-      PS_DDR_ck_n             => PS_DDR_ck_n,
-      PS_DDR_ck_p             => PS_DDR_ck_p,
-      PS_DDR_cke              => PS_DDR_cke,
-      PS_DDR_cs_n             => PS_DDR_cs_n,
-      PS_DDR_dm               => PS_DDR_dm,
-      PS_DDR_dq               => PS_DDR_dq,
-      PS_DDR_dqs_n            => PS_DDR_dqs_n,
-      PS_DDR_dqs_p            => PS_DDR_dqs_p,
-      PS_DDR_odt              => PS_DDR_odt,
-      PS_DDR_ras_n            => PS_DDR_ras_n,
-      PS_DDR_reset_n          => PS_DDR_reset_n,
-      PS_DDR_we_n             => PS_DDR_we_n,
-      PS_FIXED_IO_ddr_vrn     => PS_FIXED_IO_ddr_vrn,
-      PS_FIXED_IO_ddr_vrp     => PS_FIXED_IO_ddr_vrp,
-      PS_FIXED_IO_mio         => PS_FIXED_IO_mio,
-      PS_FIXED_IO_ps_clk      => PS_FIXED_IO_ps_clk,
-      PS_FIXED_IO_ps_porb     => PS_FIXED_IO_ps_porb,
-      PS_FIXED_IO_ps_srstb    => PS_FIXED_IO_ps_srstb,
-      anput_if_exposure       => anput_if_exposure,
-      anput_if_ext_trig       => anput_if_ext_trig,
-      anput_if_strobe         => anput_if_strobe,
-      anput_if_trig_rdy       => anput_if_trig_rdy,
-      led_out                 => led_out,
-      pcie_clk100MHz          => pcie_clk100MHz,
-      pcie_reset_n            => pcie_reset_n,
-      pcie_rxn                => pcie_rxn,
-      pcie_rxp                => pcie_rxp,
-      pcie_txn                => pcie_txn,
-      pcie_txp                => pcie_txp,
-      xgs_ctrl_xgs_clk_pll_en => xgs_ctrl_xgs_clk_pll_en,
-      xgs_ctrl_xgs_cs_n       => xgs_ctrl_xgs_cs_n,
-      xgs_ctrl_xgs_fwsi_en    => xgs_ctrl_xgs_fwsi_en,
-      xgs_ctrl_xgs_monitor0   => xgs_ctrl_xgs_monitor0,
-      xgs_ctrl_xgs_monitor1   => xgs_ctrl_xgs_monitor1,
-      xgs_ctrl_xgs_monitor2   => xgs_ctrl_xgs_monitor2,
-      xgs_ctrl_xgs_power_good => xgs_ctrl_xgs_power_good,
-      xgs_ctrl_xgs_reset_n    => xgs_ctrl_xgs_reset_n,
-      xgs_ctrl_xgs_sclk       => xgs_ctrl_xgs_sclk,
-      xgs_ctrl_xgs_sdin       => xgs_ctrl_xgs_sdin,
-      xgs_ctrl_xgs_sdout      => xgs_ctrl_xgs_sdout,
-      xgs_ctrl_xgs_trig_int   => xgs_ctrl_xgs_trig_int,
-      xgs_ctrl_xgs_trig_rd    => xgs_ctrl_xgs_trig_rd,
-      xgs_hispi_clk_n         => xgs_hispi_clk_n,
-      xgs_hispi_clk_p         => xgs_hispi_clk_p,
-      xgs_hispi_data_n        => xgs_hispi_data_n,
-      xgs_hispi_data_p        => xgs_hispi_data_p
+      FPGA_Info_board_info         => "0000",
+      FPGA_Info_fpga_build_id      => std_logic_vector(to_unsigned(FPGA_BUILD_DATE, 32)),
+      FPGA_Info_fpga_device_id     => std_logic_vector(to_unsigned(FPGA_DEVICE_ID, 8)),
+      FPGA_Info_fpga_firmware_type => std_logic_vector(to_unsigned(FPGA_IS_NPI_GOLDEN, 8)),
+      FPGA_Info_fpga_major_ver     => std_logic_vector(to_unsigned(FPGA_MAJOR_VERSION, 8)),
+      FPGA_Info_fpga_minor_ver     => std_logic_vector(to_unsigned(FPGA_MINOR_VERSION, 8)),
+      FPGA_Info_fpga_sub_minor_ver => std_logic_vector(to_unsigned(FPGA_SUB_MINOR_VERSION, 8)),
+      PS_DDR_addr                  => PS_DDR_addr,
+      PS_DDR_ba                    => PS_DDR_ba,
+      PS_DDR_cas_n                 => PS_DDR_cas_n,
+      PS_DDR_ck_n                  => PS_DDR_ck_n,
+      PS_DDR_ck_p                  => PS_DDR_ck_p,
+      PS_DDR_cke                   => PS_DDR_cke,
+      PS_DDR_cs_n                  => PS_DDR_cs_n,
+      PS_DDR_dm                    => PS_DDR_dm,
+      PS_DDR_dq                    => PS_DDR_dq,
+      PS_DDR_dqs_n                 => PS_DDR_dqs_n,
+      PS_DDR_dqs_p                 => PS_DDR_dqs_p,
+      PS_DDR_odt                   => PS_DDR_odt,
+      PS_DDR_ras_n                 => PS_DDR_ras_n,
+      PS_DDR_reset_n               => PS_DDR_reset_n,
+      PS_DDR_we_n                  => PS_DDR_we_n,
+      PS_FIXED_IO_ddr_vrn          => PS_FIXED_IO_ddr_vrn,
+      PS_FIXED_IO_ddr_vrp          => PS_FIXED_IO_ddr_vrp,
+      PS_FIXED_IO_mio              => PS_FIXED_IO_mio,
+      PS_FIXED_IO_ps_clk           => PS_FIXED_IO_ps_clk,
+      PS_FIXED_IO_ps_porb          => PS_FIXED_IO_ps_porb,
+      PS_FIXED_IO_ps_srstb         => PS_FIXED_IO_ps_srstb,
+      anput_if_exposure            => anput_if_exposure,
+      anput_if_ext_trig            => anput_if_ext_trig,
+      anput_if_strobe              => anput_if_strobe,
+      anput_if_trig_rdy            => anput_if_trig_rdy,
+      led_out                      => led_out,
+      mtxSPI_spi_csn               => open,
+      mtxSPI_spi_sdin              => '0',
+      mtxSPI_spi_sdout             => open,
+      pcie_clk100MHz               => pcie_clk100MHz,
+      pcie_reset_n                 => pcie_reset_n,
+      pcie_rxn                     => pcie_rxn(0),
+      pcie_rxp                     => pcie_rxp(0),
+      pcie_txn                     => pcie_txn(0),
+      pcie_txp                     => pcie_txp(0),
+      xgs_ctrl_xgs_clk_pll_en      => xgs_ctrl_xgs_clk_pll_en,
+      xgs_ctrl_xgs_cs_n            => xgs_ctrl_xgs_cs_n,
+      xgs_ctrl_xgs_fwsi_en         => xgs_ctrl_xgs_fwsi_en,
+      xgs_ctrl_xgs_monitor0        => xgs_ctrl_xgs_monitor0,
+      xgs_ctrl_xgs_monitor1        => xgs_ctrl_xgs_monitor1,
+      xgs_ctrl_xgs_monitor2        => xgs_ctrl_xgs_monitor2,
+      xgs_ctrl_xgs_power_good      => xgs_ctrl_xgs_power_good,
+      xgs_ctrl_xgs_reset_n         => xgs_ctrl_xgs_reset_n,
+      xgs_ctrl_xgs_sclk            => xgs_ctrl_xgs_sclk,
+      xgs_ctrl_xgs_sdin            => xgs_ctrl_xgs_sdin,
+      xgs_ctrl_xgs_sdout           => xgs_ctrl_xgs_sdout,
+      xgs_ctrl_xgs_trig_int        => xgs_ctrl_xgs_trig_int,
+      xgs_ctrl_xgs_trig_rd         => xgs_ctrl_xgs_trig_rd
       );
 
 
