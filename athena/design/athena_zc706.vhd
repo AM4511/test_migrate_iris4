@@ -688,10 +688,10 @@ architecture struct of athena_zc706 is
       --SYSCLK_200MHz           : in    std_logic;
       pcie_clk100MHz          : in    std_logic;
       pcie_reset_n            : in    std_logic;
-      pcie_rxn                : in    std_logic_vector (0 to 0);
-      pcie_rxp                : in    std_logic_vector (0 to 0);
-      pcie_txn                : out   std_logic_vector (0 to 0);
-      pcie_txp                : out   std_logic_vector (0 to 0);
+      pcie_rxn                : in    std_logic;
+      pcie_rxp                : in    std_logic;
+      pcie_txn                : out   std_logic;
+      pcie_txp                : out   std_logic;
       xgs_ctrl_xgs_clk_pll_en : out   std_logic;
       xgs_ctrl_xgs_cs_n       : out   std_logic;
       xgs_ctrl_xgs_fwsi_en    : out   std_logic;
@@ -717,10 +717,10 @@ architecture struct of athena_zc706 is
 
   signal pcie_clk100MHz          : std_logic;
   signal pcie_reset_n            : std_logic;
-  signal pcie_rxn                : std_logic_vector (0 downto 0);
-  signal pcie_rxp                : std_logic_vector (0 downto 0);
-  signal pcie_txn                : std_logic_vector (0 downto 0);
-  signal pcie_txp                : std_logic_vector (0 downto 0);
+  signal pcie_rxn                : std_logic;
+  signal pcie_rxp                : std_logic;
+  signal pcie_txn                : std_logic;
+  signal pcie_txp                : std_logic;
   signal led_out                 : std_logic_vector (1 downto 0);
   signal anput_if_exposure       : std_logic;
   signal anput_if_ext_trig       : std_logic;
@@ -742,7 +742,8 @@ architecture struct of athena_zc706 is
   signal xgs_hispi_clk_p         : std_logic_vector (1 downto 0);
   signal xgs_hispi_data_n        : std_logic_vector (5 downto 0);
   signal xgs_hispi_data_p        : std_logic_vector (5 downto 0);
-
+  signal SYSCLK_200MHz           : std_logic;
+  
   signal local_reset_n_Meta : std_logic;
   signal local_reset_n      : std_logic;
   signal heartbeat_led      : std_logic;
@@ -926,15 +927,15 @@ ibuf_200MHz : IBUFDS
   -----------------------------------------------------------------------------
   -- Bottom HiSPi
   -----------------------------------------------------------------------------
-  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
-  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
+--  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
+--  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
 
-  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
-  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
-  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
-  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
-  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
-  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
+--  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
+--  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
+--  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
+--  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
+--  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
+--  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
 
 
   P_local_reset_n : process (pcie_reset_n, pcie_clk100MHz) is

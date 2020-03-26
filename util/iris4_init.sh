@@ -22,13 +22,13 @@ then
     echo "Environment variable IRIS4 is unset."
     printf "Do you want to set it to: ${project_dir} ? [y/n] : "
     read answer
-    if [[ $answer == "y" ]]
+    if [ $answer == "y" ]
     then
 	export IRIS4=${project_dir}
     else
 	echo "Error : IRIS4 not set! Please set the environment variable IRIS4"
 	return 1
-    fi    
+    fi
 fi
 
 echo ""
@@ -39,9 +39,9 @@ echo "\$IRIS4 set to ${IRIS4}";
 # Set the IRIS4 project environment variables
 #################################################################
 export PROJECT_NAME="iris4"
-export ARES=${IRIS4}/ares_pcie
-export ATHENA=${IRIS4}/athena
-export UTIL=${IRIS4}/util
+export ARES="${IRIS4}/ares_pcie"
+export ATHENA="${IRIS4}/athena"
+export UTIL="${IRIS4}/util"
 
 export PATH="$PATH:${UTIL}"
 
@@ -52,3 +52,5 @@ export PATH="$PATH:${UTIL}"
 alias ares='cd ${ARES}'
 alias athena='cd ${ATHENA}'
 alias util='cd ${UTIL}'
+
+
