@@ -6,7 +6,7 @@
 #  File: setup_iris4.sh
 #################################################################
 me=$(readlink --canonicalize --no-newline $BASH_SOURCE)
-echo "Running :  $me"
+echo "Running:  $me"
 
 
 #################################################################
@@ -31,8 +31,8 @@ then
     fi
 fi
 
-echo ""
-echo "\$IRIS4 set to ${IRIS4}";
+#echo ""
+#echo "\$IRIS4 set to ${IRIS4}";
 
 
 #################################################################
@@ -41,6 +41,8 @@ echo "\$IRIS4 set to ${IRIS4}";
 export PROJECT_NAME="iris4"
 export ARES="${IRIS4}/ares_pcie"
 export ATHENA="${IRIS4}/athena"
+export IPCORES="${ATHENA}/ipcores"
+export PCIE2AXIMASTER="${IPCORES}/athena"
 export UTIL="${IRIS4}/util"
 
 export PATH="$PATH:${UTIL}"
@@ -52,5 +54,6 @@ export PATH="$PATH:${UTIL}"
 alias ares='cd ${ARES}'
 alias athena='cd ${ATHENA}'
 alias util='cd ${UTIL}'
+alias pcie2AxiMaster='cd ${PCIE2AXIMASTER}'
 
 
