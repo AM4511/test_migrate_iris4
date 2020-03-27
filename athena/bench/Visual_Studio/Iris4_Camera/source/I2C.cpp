@@ -25,9 +25,16 @@ using namespace std;
 
 
 
-volatile FPGA_REGFILE_I2C_TYPE* CI2C::getRegisterI2C(void)
+CI2C::CI2C(volatile FPGA_REGFILE_I2C_TYPE& i_rI2Cptr) :
+	rI2Cptr(i_rI2Cptr)
 {
-	return rI2C;
+
+}
+
+
+CI2C::~CI2C()
+{
+
 }
 
 
@@ -45,17 +52,17 @@ volatile FPGA_REGFILE_I2C_TYPE* CI2C::getRegisterI2C(void)
 //--------------------------------------------------------
 void CI2C::Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite)
 {
-	rI2C->I2C.I2C_CTRL1.u32 = (DEVid << 1) + 0;  // DevID + Write access
+	rI2Cptr.I2C.I2C_CTRL1.u32 = (DEVid << 1) + 0;  // DevID + Write access
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + DATAWrite;
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + DATAWrite;
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + DATAWrite + 0x10000;
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + DATAWrite + 0x10000;
 
 	//pooling busy register
-	while (rI2C->I2C.I2C_CTRL1.f.BUSY == 1) {}
+	while (rI2Cptr.I2C.I2C_CTRL1.f.BUSY == 1) {}
 
 	//validate protocol error
-	if (rI2C->I2C.I2C_CTRL1.f.I2C_ERROR == 1)
+	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
 		printf("\n\n  I2C WRITE ERROR: Protocol BusSel=%d, addr=0x%X data=0x%X\n", BUSsel,  I2Cindex, DATAWrite);
 
@@ -80,17 +87,17 @@ void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UIN
 	int errorflag;
 	int loop_nb = 0;
 
-	rI2C->I2C.I2C_CTRL1.u32 = (DEVid << 1) + 1;  // DevID + Read access
+	rI2Cptr.I2C.I2C_CTRL1.u32 = (DEVid << 1) + 1;  // DevID + Read access
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17);
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17);
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + 0x10000;
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + 0x10000;
 
 	//pooling busy register
-	while (rI2C->I2C.I2C_CTRL1.f.BUSY == 1) {}
+	while (rI2Cptr.I2C.I2C_CTRL1.f.BUSY == 1) {}
 
 	//validate protocol error
-	if (rI2C->I2C.I2C_CTRL1.f.I2C_ERROR == 1)
+	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
 		printf("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
 		errorflag = 1;
@@ -100,8 +107,8 @@ void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UIN
 	//validate readback data if no protocol error
 	if (errorflag == 0)
 	{
-		if ((DATAWrite & 0xff) != rI2C->I2C.I2C_CTRL0.f.I2C_DATA_READ)
-			printf("\nI2C READ ERROR: Data VAlidation, DataW=0x%x DataR=0x%x \n", DATAWrite, rI2C->I2C.I2C_CTRL0.f.I2C_DATA_READ);
+		if ((DATAWrite & 0xff) != rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ)
+			printf("\nI2C READ ERROR: Data VAlidation, DataW=0x%x DataR=0x%x \n", DATAWrite, rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ);
 	}
 
 }
@@ -118,22 +125,22 @@ M_UINT32 CI2C::Read_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex,  int pri
 {
 	int loop_nb = 0;
 
-	rI2C->I2C.I2C_CTRL1.u32 = (DEVid << 1) + 1;  // DevID + Read access
+	rI2Cptr.I2C.I2C_CTRL1.u32 = (DEVid << 1) + 1;  // DevID + Read access
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17);
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17);
 
-	rI2C->I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + 0x10000;
+	rI2Cptr.I2C.I2C_CTRL0.u32 = (I2Cindex << 24) + (NIacc << 23) + (BUSsel << 17) + 0x10000;
 
 	//pooling busy register
-	while (rI2C->I2C.I2C_CTRL1.f.BUSY == 1) {}
+	while (rI2Cptr.I2C.I2C_CTRL1.f.BUSY == 1) {}
 
 	//validate protocol error
-	if (rI2C->I2C.I2C_CTRL1.f.I2C_ERROR == 1)
+	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
 		if (print_err == 1) printf("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
 	}
 
-	return(rI2C->I2C.I2C_CTRL0.f.I2C_DATA_READ);
+	return(rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ);
 
 }
 

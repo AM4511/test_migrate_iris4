@@ -15,26 +15,14 @@ class CXGS_Ctrl
 {
 
 public:
-	CXGS_Ctrl(unsigned char* XGS_regptr, double setSysPer, double setSensorPer)
-	{
-
-		double SystemPeriodNanoSecond = setSysPer;
-		double SensorPeriodNanoSecond = setSensorPer;
-
-		rXGSptr = (FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr);     // Offset du premier registre du regfileXGS ctrl par rapport au BAR0
-
-	}
-
-
-	~CXGS_Ctrl()
-	{
-
-
-	}
 	
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE* rXGSptr;       // HW pointer to reg
+	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setSysPer, double setSensorPer);
+	~CXGS_Ctrl();
 
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE* getRegisterXGS_Ctrl(void);
+	//Pointeur aux registres dans fpga 
+	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGSptr;
+	//Shadow registres  
+	FPGA_REGFILE_XGS_CTRL_TYPE sXGSptr;
 
 	// SPI interface 
 	void WriteSPI(M_UINT32 address, M_UINT32 data);
@@ -50,6 +38,7 @@ public:
 	void Initialize_sensor(void);
 	void Check_otpm_depended_uploads(void);
 	void Enable6lanes(void);
+	void Enable24lanes(void);
 	void Activate_sensor(void);
 
 

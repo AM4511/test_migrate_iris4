@@ -15,22 +15,13 @@ class CI2C
 {
 
 public:
-	CI2C(unsigned char* I2C_regptr)
-	{
-
-		rI2C = (FPGA_REGFILE_I2C_TYPE*)(I2C_regptr); // Offset du premier registre du I2C 
-
-	}
-
-
-	~CI2C()
-	{
-
-
-	}
+	CI2C(volatile FPGA_REGFILE_I2C_TYPE& i_rI2Cptr);
+	~CI2C();
 	
-	volatile FPGA_REGFILE_I2C_TYPE* rI2C;       // HW pointer to reg
-	volatile FPGA_REGFILE_I2C_TYPE* getRegisterI2C(void);
+	
+	
+	//Pointeur aux registres dans fpga 
+	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr;
 
 	// Fonctions I2C
 	void Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite);// , char id_[20]);

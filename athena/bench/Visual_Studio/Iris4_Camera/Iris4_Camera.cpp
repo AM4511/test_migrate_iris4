@@ -72,8 +72,10 @@ int main(void)
 	M_UINT64 fpga_bar2_add = FPGAs[FPGA_used - 1].PhyRefReg_BAR2;
 
 	MilLayerAlloc();
-	unsigned char* XGS_regptr   = getMilLayerRegisterPtr(fpga_bar0_add+0x00000);   // Lets put a pointer to the FPGA XGS ctrl
-	unsigned char* I2C_regptr   = getMilLayerRegisterPtr(fpga_bar0_add+0x10000);   // Lets put a pointer to the FPGA I2C
+
+ 
+
+
 
 	int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
 
@@ -109,17 +111,23 @@ int main(void)
 	
 
 
+	//------------------------------
+	// Init class XGS CONTROLLER
+	//------------------------------
+	unsigned char * XGS_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS ctrl
+	volatile FPGA_REGFILE_XGS_CTRL_TYPE & rXGSptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr));
+	CXGS_Ctrl *XGS_Ctrl;
+	XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099);
+	printf("\nXGS Controller Static_ID : 0x%X\n", XGS_Ctrl->rXGSptr.SYSTEM.ID.f.STATICID);
 
-	//Init class XGS CONTROLLER
-	CXGS_Ctrl* XGS_Ctrl = new CXGS_Ctrl(XGS_regptr, 16.000000, 15.432099);
-    volatile FPGA_REGFILE_XGS_CTRL_TYPE* rXGSptr = XGS_Ctrl->getRegisterXGS_Ctrl();
-	printf("\nXGS Controller Static_ID : 0x%X\n", rXGSptr->SYSTEM.ID.f.STATICID);
-
-
-	//Init class I2C CONTROLLER
-	CI2C* I2C = new CI2C(I2C_regptr);
-	volatile FPGA_REGFILE_I2C_TYPE*      rI2Cptr = I2C->getRegisterI2C();
-	printf("\nI2C Controller Static_ID : 0x%X\n\n", rI2Cptr->I2C.I2C_ID.u32);
+	//------------------------------
+	// Init class I2C CONTROLLER
+	//------------------------------
+	unsigned char * I2C_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + 0x10000);   // Lets put a pointer to the FPGA I2C
+	volatile FPGA_REGFILE_I2C_TYPE & rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
+	CI2C *I2C;
+	I2C = new CI2C(rI2Cptr);
+	printf("\nI2C Controller Static_ID : 0x%X\n\n", I2C->rI2Cptr.I2C.I2C_ID.f.ID);
 
 
 /*
@@ -165,24 +173,43 @@ int main(void)
     //--------------------------------------------
     // PMIC programmation : defaut voltages are NO GOOD
     //--------------------------------------------
+
+	//OPEN I2C path to the xcelerator
 	I2C->Write_i2c(0, 0x74, 1, 0, 0x20);  // PCA9548ARGER on 7C706 : Enable I2C channel 5 FMC HPC (non-index access)
-	Sleep(200);
+	Sleep(10);
 
+	// Force XGS to reset
+	XGS_Ctrl->rXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_RESETN = 0;
+	Sleep(30);
 
-	//Is PMIC NCP6914 on Xcelerator already enable ?
-	if (((I2C->Read_i2c(0, 0x20, 0, 3, 0) & 0x1) == 0) && ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x1) == 0x1) && ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0x2)) {  // Si ioxpander bit0=output ET output0=1(HWEN) ET Input1=1 (PowerGood)
-		printf("Xcerelator PMIC already enable, PowerDown PMIC, ");
-		I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 1 to output0 : HWEN=0)
+	//-------------------------------------------------------------------------------
+    // Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), DISABLE PMIC
+    //-------------------------------------------------------------------------------
+	//Disable the PMIC in case it is enabled
+	I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 0 to output0 : HWEN=0)
+	Sleep(30);
+	I2C->Write_i2c(0, 0x20, 0, 3, 0xfe);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC)
+	Sleep(30);
+	I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 1 to output0 : HWEN=0)
+	Sleep(30);
 
-		while ((I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0x2) {  // Wait for Power Good from PMIC to be inactive
-			I2C_readdata = I2C->Read_i2c(0, 0x20, 0, 0, 0);
-			Sleep(100);
-		}
-		printf("Done. \n\n");
-		Sleep(1000);
-	}
+	// Reset the PMIC to default register values
+	I2C->Write_i2c(0, 0x10, 0, 0x30, 0x81);
+	Sleep(10);
+	I2C->Write_i2c(0, 0x10, 0, 0x30, 0x1);
+	Sleep(10);
 
 	// NEW NCP6914 on Xcelerator  Voltage VALUES
+	//I2C->Write_i2c(0, 0x10, 0, 0x40, 0x30);
+	//I2C->Write_i2c(0, 0x10, 1, 0, 0x40);                        // Dummy write(not indexed) without data to set add ptr=40 (non-index access)
+	//I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage DCDC
+	//if (I2C_readdata == 0x30) printf("NEW PMIC DCDC    is set to 1.2V\n");
+
+	//I2C->Write_i2c(0, 0x10, 0, 0x41, 0x30);
+	//I2C->Write_i2c(0, 0x10, 1, 0, 0x41);                        // Dummy write(not indexed) without data to set add ptr=41 (non-index access)
+	//I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage DCDC
+	//if (I2C_readdata == 0x30) printf("NEW PMIC DCDC    is set to 1.2V\n");
+
 	I2C->Write_i2c(0, 0x10, 0, 0x42, 0x24);  
 	I2C->Write_i2c(0, 0x10, 1, 0, 0x42);                        // Dummy write(not indexed) without data to set add ptr=42 (non-index access)
 	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VAA
@@ -202,22 +229,72 @@ int main(void)
 	if (I2C_readdata == 0x24) printf("NEW PMIC VDD     is set to 2.8V\n");
 	if (I2C_readdata == 0x28) printf("NEW PMIC VDD     is set to 3.0V\n");
 
+	//Powergood
+	//I2C->Write_i2c(0, 0x10, 0, 0x37, 0x3f);
+	//I2C->Write_i2c(0, 0x10, 1, 0, 0x37);
+	//I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+
+	//enable discharge on all outputs
+	I2C->Write_i2c(0, 0x10, 0, 0x35, 0x1f);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x35);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+
+
+	// config start delays, min = 2 ms
+	// 1. VDD_IO(ldo3) -> 2ms
+	// 2. VDD(dcdc) -> 4ms
+	// 3. VAA(ldo1) -> 6ms
+	// 4. VPIX(ldo2) -> 8ms
+	// 5. not used(ldo4) -> 2 ms
+	//
+	// ncp6914_setup_startdelay(dcdc = 4, ldo1 = 6, ldo2 = 8, ldo3 = 2, ldo4 = 2)
+	// 
+	// code_dcdc = ((dcdc - 2)//2) & 0x7  => 4-2 /2 = 1
+	// code_ldo1 = ((ldo1 - 2)//2) & 0x7  => 6-2 /2 = 2
+	// code_ldo2 = ((ldo2 - 2)//2) & 0x7  => 8-2 /2 = 3
+	// code_ldo3 = ((ldo3 - 2)//2) & 0x7  => 2-2 /2 = 0
+	// code_ldo4 = ((ldo4 - 2)//2) & 0x7  => 2-2 /2 = 0
+
+	M_UINT32 seq1code = 1;
+	M_UINT32 seq2code = 2 + (3 << 3);
+	M_UINT32 seq3code = 0 + (0 << 3);
+
+	//Sequencer1
+	I2C->Write_i2c(0, 0x10, 0, 0x39, seq1code);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x39);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+	
+	//Sequencer2
+	I2C->Write_i2c(0, 0x10, 0, 0x3a, seq2code);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x3a);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+
+	//Sequencer3
+	I2C->Write_i2c(0, 0x10, 0, 0x3b, seq3code);
+	I2C->Write_i2c(0, 0x10, 1, 0, 0x3b);
+	I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+
+	//#enable outputs, leave out4 disabled
+	//ncp6914_setup_enable(0x1E)
+	//I2C->Write_i2c(0, 0x10, 0, 0x34, 0x1e);
+	//I2C->Write_i2c(0, 0x10, 1, 0, 0x34);
+	//I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
+
+	Sleep(50);
+
 	//-------------------------------------------------------------------------------
 	// Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), ENABLE PMIC
 	//-------------------------------------------------------------------------------
-	printf("Xcerelator PMIC Starting, ");
-	I2C->Write_i2c(0, 0x20, 0, 3, 0xfe);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC)
-	Sleep(1);
-
 	I2C->Write_i2c(0, 0x20, 0, 1, 0x1);              // Write add=1 (Write 1 to output0 : HWEN=1)
-	Sleep(1);
+	Sleep(250);
 
+    
 	while ( (I2C->Read_i2c(0, 0x20, 0, 0, 0) & 0x2) == 0) {  // Wait for Power Good to be active from PMIC
 		I2C_readdata = I2C->Read_i2c(0, 0x20, 0, 0, 0);  
-		Sleep(10);
+		Sleep(100);
 	}
 	printf("Done. \n\n");
-
+	Sleep(500);
 
 	//------------------------------
 	// INITIALIZE XGS SENSOR
