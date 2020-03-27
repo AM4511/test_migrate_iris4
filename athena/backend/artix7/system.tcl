@@ -239,7 +239,8 @@ proc create_hier_cell_pcie_0 { parentCell nameHier } {
    CONFIG.SLOT_CLOCK_CONFIG {true} \
    CONFIG.SUB_CLASS_INTERFACE_MENU {Other_input_controller} \
    CONFIG.S_AXI_DATA_WIDTH {64} \
-   CONFIG.S_AXI_SUPPORTS_NARROW_BURST {false} \
+   CONFIG.S_AXI_SUPPORTS_NARROW_BURST {true} \
+   CONFIG.enable_jtag_dbg {true} \
    CONFIG.shared_logic_in_core {false} \
  ] $axi_pcie_0
 
@@ -460,7 +461,7 @@ proc create_root_design { parentCell } {
   set pcie_clk_100MHz [ create_bd_port -dir I -type clk pcie_clk_100MHz ]
   set ref_clk [ create_bd_port -dir I -type clk ref_clk ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {50000000} \
+   CONFIG.FREQ_HZ {100000000} \
  ] $ref_clk
 
   # Create instance: axi_quad_spi_0, and set properties
@@ -480,21 +481,21 @@ proc create_root_design { parentCell } {
   # Create instance: clk_wiz_0, and set properties
   set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
   set_property -dict [ list \
-   CONFIG.CLKIN1_JITTER_PS {200.0} \
+   CONFIG.CLKIN1_JITTER_PS {100.0} \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {142.107} \
-   CONFIG.CLKOUT1_PHASE_ERROR {164.985} \
+   CONFIG.CLKOUT1_JITTER {114.829} \
+   CONFIG.CLKOUT1_PHASE_ERROR {98.575} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
    CONFIG.CLKOUT1_USED {true} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {192.113} \
-   CONFIG.CLKOUT2_PHASE_ERROR {164.985} \
+   CONFIG.CLKOUT2_JITTER {151.636} \
+   CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {50.000} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {BUFG} \
    CONFIG.CLKOUT3_JITTER {114.829} \
    CONFIG.CLKOUT3_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200.000} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {100.000} \
    CONFIG.CLKOUT3_USED {false} \
    CONFIG.CLKOUT4_DRIVES {BUFG} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
@@ -502,28 +503,31 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT7_DRIVES {BUFG} \
    CONFIG.CLK_OUT1_PORT {idly_clk} \
    CONFIG.CLK_OUT2_PORT {qspi_clk} \
-   CONFIG.CLK_OUT3_PORT {idly_clk} \
+   CONFIG.CLK_OUT3_PORT {clk_out3} \
+   CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
    CONFIG.JITTER_SEL {No_Jitter} \
    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {20} \
-   CONFIG.MMCM_CLKIN1_PERIOD {20.000} \
-   CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {10} \
+   CONFIG.MMCM_CLKIN1_PERIOD {10.000} \
+   CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {5} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT1_DIVIDE {20} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
-   CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
+   CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.500} \
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
+   CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {2} \
    CONFIG.PRIMITIVE {PLL} \
-   CONFIG.PRIM_IN_FREQ {50.000} \
+   CONFIG.PRIM_IN_FREQ {100.000} \
    CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
+   CONFIG.USE_LOCKED {false} \
    CONFIG.USE_MIN_POWER {true} \
-   CONFIG.USE_PHASE_ALIGNMENT {false} \
+   CONFIG.USE_PHASE_ALIGNMENT {true} \
  ] $clk_wiz_0
 
   # Create instance: hispi_line_writer
