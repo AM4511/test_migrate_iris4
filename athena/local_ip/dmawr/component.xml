@@ -457,7 +457,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>d4105e95</spirit:value>
+            <spirit:value>c947fe33</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -472,7 +472,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>c7d7b771</spirit:value>
+            <spirit:value>58dd73bc</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -809,6 +809,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -826,6 +829,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -843,6 +849,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -860,6 +869,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -877,6 +889,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -946,6 +961,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -963,6 +981,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -993,6 +1014,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -1010,6 +1034,9 @@
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
+          <spirit:driver>
+            <spirit:defaultValue spirit:format="long">0</spirit:defaultValue>
+          </spirit:driver>
         </spirit:wire>
       </spirit:port>
       <spirit:port>
@@ -1307,7 +1334,7 @@
       <spirit:file>
         <spirit:name>design/dmawr_sub4.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_d7adaf71</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_1811f068</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1474,14 +1501,14 @@
       </xilinx:taxonomies>
       <xilinx:displayName>dmawr_sub4</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>45</xilinx:coreRevision>
+      <xilinx:coreRevision>46</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:dmawr_axi_sub4:1.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:user:dmawr_axi_sub4:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:fdklib:dmawr_axi_sub4:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:fdklib:dmawr_sub4:2.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-03-05T20:29:40Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-03-27T11:45:11Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@c632e12_ARCHIVE_LOCATION">d:/work/FDKLIB/SVN18450_19050914/tu/dmawr</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@48b2d368_ARCHIVE_LOCATION">d:/work/FDKLIB/SVN18450_19050914/tu/dmawr</xilinx:tag>
@@ -1884,6 +1911,30 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3e4b630_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/dmawr</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7e3ea147_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/dmawr</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7a28c1b1_ARCHIVE_LOCATION">d:/git/gitlab/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22866f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5ff042ed_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@600c7792_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@25d662d1_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2fc150ac_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68b2f26b_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@728105b0_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f538961_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bde41d_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ce4e42f_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@47cbe46b_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1d4eb7cc_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f947267_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c5dcc59_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@60c0d1c9_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@56fb70cd_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a4fc20d_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2a6e02be_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3fcb808a_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@10719b96_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40a651b8_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ee9bbe2_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b2b699c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22d3f1f8_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
@@ -1891,8 +1942,8 @@
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="88ed4efe"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="0f901d69"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="6adc9200"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="ae2152ab"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="eb8169d5"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="3c62b2a0"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="db45e55f"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="6e673235"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="2f74be04"/>
     </xilinx:packagingInfo>
