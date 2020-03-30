@@ -20,9 +20,8 @@ set_input_delay -clock [get_clocks {xgs_hispi_sclk_p[1]}] -max -add_delay 1.490 
 
 
 # Rename generated clock
-set SYSTEM_PLL "xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst"
-create_generated_clock -name idly_clk -source [get_pins ${SYSTEM_PLL}/CLKIN1] -master_clock [get_clocks ref_clk] [get_pins ${SYSTEM_PLL}/CLKOUT0]
-create_generated_clock -name qspi_clk -source [get_pins ${SYSTEM_PLL}/CLKIN1] -master_clock [get_clocks ref_clk] [get_pins ${SYSTEM_PLL}/CLKOUT1]
+create_generated_clock -name idly_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT0]
+create_generated_clock -name qspi_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT1]
 
 # create_generated_clock -name hispi_clk_bottom -source [get_pins xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/bottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/I] -master_clock [get_clocks xgs_hispi_sclk_p[1]] [get_pins xsystem_pb_wrapper/system_pb_i/hispi_line_writer/axiHiSPi_0/U0/xhispi_top/bottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O]
 
@@ -32,7 +31,8 @@ create_generated_clock -name qspi_clk -source [get_pins ${SYSTEM_PLL}/CLKIN1] -m
 
 # Timing exceptions
 set_false_path -from [get_ports sys_rst_n]
-set_clock_groups -asynchronous -group [get_clocks xgs_hispi_sclk_p[1]] -group [get_clocks xgs_hispi_sclk_p[0]]
+set_clock_groups -asynchronous -group [get_clocks {xgs_hispi_sclk_p[1]}] -group [get_clocks {xgs_hispi_sclk_p[0]}]
 #set_clock_groups -asynchronous -group [get_clocks hispi_clk_bottom] -group [get_clocks hispi_clk_top]
+
 
 
