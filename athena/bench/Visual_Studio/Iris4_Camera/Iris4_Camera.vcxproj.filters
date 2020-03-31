@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{7f9a0b1c-06fa-489e-80cf-55e003553bba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Iris4_Camera.cpp">
@@ -32,6 +35,9 @@
     </ClCompile>
     <ClCompile Include="source\I2C.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0000_Continu.cpp">
+      <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

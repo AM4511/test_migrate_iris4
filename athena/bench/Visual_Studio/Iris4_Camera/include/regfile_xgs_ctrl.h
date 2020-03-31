@@ -632,7 +632,7 @@ typedef union
 
    struct
    {
-      M_UINT32 M_LINES      : 10;  /* Bits(9:0), null */
+      M_UINT32 M_LINES_SENSOR      : 10;  /* Bits(9:0), null */
       M_UINT32 M_SUPPRESSED : 5;   /* Bits(14:10), null */
       M_UINT32 RSVD0        : 17;  /* Bits(31:15), Reserved */
    } f;

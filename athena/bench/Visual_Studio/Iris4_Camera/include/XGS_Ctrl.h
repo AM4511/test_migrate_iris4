@@ -44,7 +44,6 @@ public:
 
 private:
 	
-
 	double SystemPeriodNanoSecond= 16.000000;
 	double SensorPeriodNanoSecond= 15.432099;
 

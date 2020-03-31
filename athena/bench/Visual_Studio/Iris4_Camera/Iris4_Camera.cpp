@@ -23,8 +23,13 @@
 
 #include "XGS_Ctrl.h"
 #include "I2C.h"
+
 #include "SystemTree.h" 
 #include "MilLayer.h"
+
+
+void test_0000_Continu(CXGS_Ctrl* Camera);
+
 
 /* Main function. */
 int main(void)
@@ -303,7 +308,7 @@ int main(void)
 
 
 
-
+	printf("\nPress 0 to run continuous grab, q to quit\n");
 
 	//------------------------------
 	//
@@ -346,6 +351,12 @@ int main(void)
 				XGS_Ctrl->WriteSPI(address, data);		
 				printf("\n\n");
 				break;
+
+			case '0':
+				test_0000_Continu(XGS_Ctrl);
+				printf("\n\n");
+			//	//Help(Iris3);
+				break;
 //
 //			case 'p':
 //				Iris3->PowerEnable();
@@ -372,6 +383,8 @@ int main(void)
 //				break;
 //
 //
+
+
 			}
 		}//KBhit
 	}//while

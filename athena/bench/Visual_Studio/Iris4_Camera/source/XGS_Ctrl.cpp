@@ -38,6 +38,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setS
 }
 
 
+
 CXGS_Ctrl::~CXGS_Ctrl()
 {
 
@@ -73,14 +74,14 @@ void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Write the command to the queue fifo
 	
 
-	//CODE OK
+//	//CODE OK
 	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) + ((data & 0xffff) << 16);
 	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00000;
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00001;
-	Sleep(100);
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00010;
-
+	Sleep(100);                                                                  // Si je mets pas le sleep ici le compilateur optimize le volatile et le REad ne se fait pas!!!
+	//while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY == 0x1);                      //
+    rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00010;
 
   	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);                          // Loop wait for the access end
 
@@ -148,27 +149,34 @@ void CXGS_Ctrl::WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write, M_UINT32 data
 M_UINT32 CXGS_Ctrl::ReadSPI(M_UINT32 address)
 {
 
-	//CODE NO OK
-	//sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) ;
-	//rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
-	//
-	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                    // Sensor access type
-	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x1;                                    // Write access  
-	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                    // Write the command to the queue fifo
-	//
-	////rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Write the command to the queue fifo
-	//Sleep(100);
-	//rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
+//	//CODE NO OK
+//	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) ;
+//	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
+//	
+//	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0;
+//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                    // Sensor access type
+//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x1;                                    // Write access  
+//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                    // Write the command to the queue fifo
+//	M_UINT32 dataread = rXGSptr.ACQ.ACQ_SER_CTRL.u32;
+//	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = dataread + 0x10;
+//	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Write the command to the queue fifo
+//	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;
+//																				  //Sleep(100);
+//	//rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
 	
+//no snoop??? relax reordering ???
 
-	//CODE OK
+
+//	//CODE OK
 	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff);
 	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10000;
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10001;
 	Sleep(100);
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
-	
+	//while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY == 0x1);
+
+    rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
+
 	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);     // Loop wait for the access end
 
 	return ((rXGSptr.ACQ.ACQ_SER_STAT.u32) & 0xffff);       // Return the read value 
@@ -331,10 +339,9 @@ void CXGS_Ctrl::InitXGS()
 	Sleep(100);
 
 	// READ XGS MODEL ID and REVISION
+	rXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 0;
 	
-	
-
-
+	DataRead = ReadSPI(0x0);
 	if (DataRead == 0x0358) 
 		printf("XGS Model ID detected is 0x358, XGS5M");
 
@@ -398,7 +405,7 @@ void CXGS_Ctrl::InitXGS()
 	rXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA   = 1;
 
     // Give SPI control to XGS controller   : SENSOR REG_UPDATE =1 
-	rXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 1;
+	//rXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 1;
 
 
 }
@@ -579,6 +586,7 @@ void CXGS_Ctrl::Activate_sensor() {
 	// Slave mode + Trigger mode
 	M_UINT32 GeneralConfig0 = ReadSPI(0x3800);   
 	WriteSPI(0x3800, GeneralConfig0 | 0x30); 
+	if((ReadSPI(0x3800) & 0x30 )== 0x30) printf("XGS is now in Slave trigger mode.\n");
 
 	//Enable sequencer : BITFIELD = 0x3800, 0x0001, 1
 	WriteSPI_Bit(0x3800, 0, 1);
@@ -587,6 +595,4 @@ void CXGS_Ctrl::Activate_sensor() {
 	if (read == 0x31)
 		printf("XGS sequencer enable!!!\n\n\n");
 	
-	//on arrete ici pour le moment
-	exit(1);
 }
