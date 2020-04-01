@@ -1,0 +1,70 @@
+#-------------------------------------------------------------------------------
+# Snap file: validation
+#
+# This file lists information on a collection of files and directories 
+# for use by various scripts. Type cosnap -snaphelp for more info.
+#
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# alias definition
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#
+alias @DESIGN               $PCIE2AXIMASTER/design
+alias @CORES                $PCIE2AXIMASTER/cores
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# Xilinx IP models
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#
+
+@CORES/pcie_7x_0/sim/pcie_7x_0.vhd                                                                sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_reset.v                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_user.v                                                     sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_clock.v                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_tx.vhd                                                sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_eq.v                                                       sim
+@CORES/pcie_7x_0/source/pcie_7x_0_qpll_reset.v                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gtp_pipe_drp.v                                                  sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_top.vhd                                               sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_tx_pipeline.vhd                                       sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gtp_cpllpd_ovrd.v                                               sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_tx_thrtl_ctl.vhd                                      sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gtp_pipe_rate.v                                                 sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_pipe_pipeline.vhd                                          sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_wrapper.v                                                  sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_7x.vhd                                                     sim
+@CORES/pcie_7x_0/source/pcie_7x_0_rxeq_scan.v                                                     sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_bram_7x.vhd                                                sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gt_wrapper.v                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_rx_pipeline.vhd                                       sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_rx_null_gen.vhd                                       sim
+@CORES/pcie_7x_0/source/pcie_7x_0_qpll_drp.v                                                      sim
+@CORES/pcie_7x_0/source/pcie_7x_0_axi_basic_rx.vhd                                                sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_brams_7x.vhd                                               sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_top.vhd                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_drp.v                                                      sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gtp_pipe_reset.v                                                sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_pipe_lane.vhd                                              sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_pipe_misc.vhd                                              sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gt_rx_valid_filter_7x.vhd                                       sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie2_top.vhd                                                   sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pcie_bram_top_7x.vhd                                            sim
+@CORES/pcie_7x_0/source/pcie_7x_0_core_top.vhd                                                    sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gtx_cpllpd_ovrd.v                                               sim
+@CORES/pcie_7x_0/source/pcie_7x_0_qpll_wrapper.v                                                  sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gt_common.v                                                     sim
+@CORES/pcie_7x_0/source/pcie_7x_0_gt_top.vhd                                                      sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_sync.v                                                     sim
+@CORES/pcie_7x_0/source/pcie_7x_0_pipe_rate.v                                                     sim
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# Xilinx IP models
+#------------------------------------------------------------------------------------------------------------------------------------------------------------#    
+@DESIGN/mtxSCFIFO.vhd                                                                             sim
+@DESIGN/pciepack.vhd                                                                              sim
+@DESIGN/pcie_irq_axi.vhd                                                                          sim
+@DESIGN/pcie_rx_axi.vhd                                                                           sim
+@DESIGN/pcie_tx_axi.vhd                                                                           sim
+@DESIGN/tlp_completion.vhd                                                                        sim
+@DESIGN/tlp_to_axi_master.vhd                                                                     sim
+@DESIGN/pcie2AxiMaster.vhd                                                                        sim                   
