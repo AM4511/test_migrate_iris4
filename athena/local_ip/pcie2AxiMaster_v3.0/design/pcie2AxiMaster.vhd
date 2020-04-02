@@ -1282,9 +1282,10 @@ begin
   xpcie_rx : pcie_rx_axi
     generic map(
       NB_PCIE_AGENTS  => NB_PCIE_AGENTS,
-      AGENT_TO_BAR(0) => PCI_BAR0,
-      AGENT_TO_BAR(1) => PCI_BAR2,
-      AGENT_TO_BAR(2) => NO_PCI_BAR,
+      AGENT_TO_BAR(0) => PCI_BAR0,   -- AXI master interface
+      AGENT_TO_BAR(1) => PCI_BAR2,   -- pcie2aximaster register file
+      AGENT_TO_BAR(2) => NO_PCI_BAR, -- IRQ queue
+      AGENT_TO_BAR(3) => NO_PCI_BAR, -- DMA to host
       C_DATA_WIDTH    => C_DATA_WIDTH
       )
     port map (
@@ -1328,6 +1329,7 @@ begin
   -- AGENT_IS_64_BIT[0] : NO  (tlp_to_axi_master : Data width = 32 bits)
   -- AGENT_IS_64_BIT[1] : NO  (pcie_reg : Data width = 32 bits)
   -- AGENT_IS_64_BIT[2] : YES (pcie_int_queue : Data width = 64 bits)
+  -- AGENT_IS_64_BIT[3] : YES (DMA master     : Data width = 64 bits)
   -- C_DATA_WIDTH       : 64 bits
   -----------------------------------------------------------------------------
   xpcie_tx : pcie_tx_axi
@@ -1336,7 +1338,8 @@ begin
       -- AGENT_IS_64_BIT(0) => NO,
       -- AGENT_IS_64_BIT(1) => NO,
       -- AGENT_IS_64_BIT(2) => YES,
-      AGENT_IS_64_BIT => "100",
+      -- AGENT_IS_64_BIT(3) => YES,
+      AGENT_IS_64_BIT => "1100",
       C_DATA_WIDTH    => C_DATA_WIDTH
       )
     port map (

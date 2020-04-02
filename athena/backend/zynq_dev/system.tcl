@@ -124,8 +124,10 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
+matrox.com:Imaging:axiHiSPi:1.1.1\
 matrox.com:user:axiXGS_controller:1.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
+matrox.com:user:dmawr2tlp:1.0.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:xlconstant:1.1\
@@ -202,6 +204,8 @@ proc create_root_design { parentCell } {
 
   set anput_if [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if ]
 
+  set hispi [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi ]
+
   set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
 
   set xgs_ctrl [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl ]
@@ -214,6 +218,9 @@ proc create_root_design { parentCell } {
    CONFIG.FREQ_HZ {100000000} \
  ] $pcie_clk100MHz
   set pcie_reset_n [ create_bd_port -dir I -type rst pcie_reset_n ]
+
+  # Create instance: axiHiSPi_0, and set properties
+  set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
 
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
@@ -229,13 +236,18 @@ proc create_root_design { parentCell } {
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {2} \
+   CONFIG.NUM_MI {4} \
    CONFIG.NUM_SI {1} \
  ] $axi_interconnect_0
+
+  # Create instance: dmawr2tlp_0, and set properties
+  set dmawr2tlp_0 [ create_bd_cell -type ip -vlnv matrox.com:user:dmawr2tlp:1.0.0 dmawr2tlp_0 ]
 
   # Create instance: pcie2AxiMaster_0, and set properties
   set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:3.0 pcie2AxiMaster_0 ]
   set_property -dict [ list \
+   CONFIG.BOOL_ENABLE_DMA {true} \
+   CONFIG.ENABLE_DMA {1} \
    CONFIG.PCIE_DEVICE_ID {5396} \
  ] $pcie2AxiMaster_0
 
@@ -247,7 +259,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ACT_DCI_PERIPHERAL_FREQMHZ {10.158730} \
    CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {25.000000} \
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
-   CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {10.000000} \
+   CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {200.000000} \
    CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
@@ -272,7 +284,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_CAN_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
-   CONFIG.PCW_CLK0_FREQ {10000000} \
+   CONFIG.PCW_CLK0_FREQ {200000000} \
    CONFIG.PCW_CLK1_FREQ {10000000} \
    CONFIG.PCW_CLK2_FREQ {10000000} \
    CONFIG.PCW_CLK3_FREQ {10000000} \
@@ -299,7 +311,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ENET1_RESET_ENABLE {0} \
    CONFIG.PCW_ENET_RESET_ENABLE {1} \
    CONFIG.PCW_ENET_RESET_SELECT {Share reset pin} \
-   CONFIG.PCW_EN_CLK0_PORT {0} \
+   CONFIG.PCW_EN_CLK0_PORT {1} \
    CONFIG.PCW_EN_EMIO_TTC0 {0} \
    CONFIG.PCW_EN_ENET0 {1} \
    CONFIG.PCW_EN_GPIO {1} \
@@ -310,7 +322,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_EN_TTC0 {0} \
    CONFIG.PCW_EN_UART1 {1} \
    CONFIG.PCW_EN_USB0 {0} \
-   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {1} \
+   CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {1} \
@@ -319,8 +331,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
    CONFIG.PCW_FCLK_CLK0_BUF {FALSE} \
-   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} \
-   CONFIG.PCW_FPGA_FCLK0_ENABLE {0} \
+   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {200} \
+   CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
    CONFIG.PCW_FPGA_FCLK1_ENABLE {0} \
    CONFIG.PCW_FPGA_FCLK2_ENABLE {0} \
    CONFIG.PCW_FPGA_FCLK3_ENABLE {0} \
@@ -660,26 +672,34 @@ proc create_root_design { parentCell } {
   # Create interface connections
   connect_bd_intf_net -intf_net FPGA_Info_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
+  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr2tlp_0/s_axis]
   connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
   connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
   connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports I2C_if] [get_bd_intf_pins axi_i2c_0/I2C_interface]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axiHiSPi_0/s_axi] [get_bd_intf_pins axi_interconnect_0/M02_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins dmawr2tlp_0/s_axi]
+  connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_pins dmawr2tlp_0/dma_tlp] [get_bd_intf_pins pcie2AxiMaster_0/dma_tlp]
   connect_bd_intf_net -intf_net pcie2AxiMaster_1_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports PS_FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk]
+  connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/sys_clk] [get_bd_pins pcie2AxiMaster_0/axim_clk]
   connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/sys_reset_n] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axiHiSPi_0/idelay_clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
 
   # Create address segments
+  create_bd_addr_seg -range 0x00001000 -offset 0x00002000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
   create_bd_addr_seg -range 0x00001000 -offset 0x00000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
   create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00003000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs dmawr2tlp_0/s_axi/reg0] SEG_dmawr2tlp_0_reg0
 
 
   # Restore current instance

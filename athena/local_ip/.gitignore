@@ -1,1 +1,4 @@
 ip/validation/vivado/**
+dmawr2tlp/validation/mti/dmawr2tlp.lib/**
+dmawr2tlp/validation/mti/dmawr2tlp.cr.mti
+dmawr2tlp/validation/mti/dmawr2tlp.mpf

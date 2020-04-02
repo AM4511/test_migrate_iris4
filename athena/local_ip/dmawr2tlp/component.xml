@@ -232,51 +232,41 @@
           </spirit:physicalPort>
         </spirit:portMap>
       </spirit:portMaps>
+      <spirit:parameters>
+        <spirit:parameter>
+          <spirit:name>ASSOCIATED_BUSIF</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.SYS_CLK.ASSOCIATED_BUSIF">s_axis:s_axi</spirit:value>
+        </spirit:parameter>
+      </spirit:parameters>
     </spirit:busInterface>
     <spirit:busInterface>
       <spirit:name>dma_tlp</spirit:name>
-      <spirit:busType spirit:vendor="matrox.com" spirit:library="user" spirit:name="mtx_dma_tlp" spirit:version="1.0"/>
-      <spirit:abstractionType spirit:vendor="matrox.com" spirit:library="user" spirit:name="mtx_dma_tlp_rtl" spirit:version="1.0"/>
+      <spirit:busType spirit:vendor="matrox.com" spirit:library="user" spirit:name="mtx_tlp" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="matrox.com" spirit:library="user" spirit:name="mtx_tlp_rtl" spirit:version="1.0"/>
       <spirit:master/>
       <spirit:portMaps>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>tlp_dst_rdy_n</spirit:name>
+            <spirit:name>tlp_data</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_dst_rdy_n</spirit:name>
+            <spirit:name>tlp_data</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>tlp_ldwbe_fdwbe</spirit:name>
+            <spirit:name>cfg_setmaxpld</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_ldwbe_fdwbe</spirit:name>
+            <spirit:name>cfg_setmaxpld</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>tlp_fmt_type</spirit:name>
+            <spirit:name>cfg_bus_mast_en</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_fmt_type</spirit:name>
-          </spirit:physicalPort>
-        </spirit:portMap>
-        <spirit:portMap>
-          <spirit:logicalPort>
-            <spirit:name>tlp_src_rdy_n</spirit:name>
-          </spirit:logicalPort>
-          <spirit:physicalPort>
-            <spirit:name>tlp_out_src_rdy_n</spirit:name>
-          </spirit:physicalPort>
-        </spirit:portMap>
-        <spirit:portMap>
-          <spirit:logicalPort>
-            <spirit:name>tlp_address</spirit:name>
-          </spirit:logicalPort>
-          <spirit:physicalPort>
-            <spirit:name>tlp_out_address</spirit:name>
+            <spirit:name>cfg_bus_mast_en</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
@@ -284,15 +274,7 @@
             <spirit:name>tlp_length_in_dw</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_length_in_dw</spirit:name>
-          </spirit:physicalPort>
-        </spirit:portMap>
-        <spirit:portMap>
-          <spirit:logicalPort>
-            <spirit:name>tlp_transaction_id</spirit:name>
-          </spirit:logicalPort>
-          <spirit:physicalPort>
-            <spirit:name>tlp_out_transaction_id</spirit:name>
+            <spirit:name>tlp_length_in_dw</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
@@ -300,31 +282,15 @@
             <spirit:name>tlp_attr</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_attr</spirit:name>
+            <spirit:name>tlp_attr</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>tlp_byte_count</spirit:name>
+            <spirit:name>tlp_src_rdy_n</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_byte_count</spirit:name>
-          </spirit:physicalPort>
-        </spirit:portMap>
-        <spirit:portMap>
-          <spirit:logicalPort>
-            <spirit:name>tlp_req_to_send</spirit:name>
-          </spirit:logicalPort>
-          <spirit:physicalPort>
-            <spirit:name>tlp_out_req_to_send</spirit:name>
-          </spirit:physicalPort>
-        </spirit:portMap>
-        <spirit:portMap>
-          <spirit:logicalPort>
-            <spirit:name>tlp_data</spirit:name>
-          </spirit:logicalPort>
-          <spirit:physicalPort>
-            <spirit:name>tlp_out_data</spirit:name>
+            <spirit:name>tlp_src_rdy_n</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
@@ -332,7 +298,15 @@
             <spirit:name>tlp_lower_address</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_lower_address</spirit:name>
+            <spirit:name>tlp_lower_address</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>tlp_byte_count</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>tlp_byte_count</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
@@ -340,23 +314,71 @@
             <spirit:name>tlp_grant</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>tlp_out_grant</spirit:name>
+            <spirit:name>tlp_grant</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>cfg_setmaxpld</spirit:name>
+            <spirit:name>tlp_fmt_type</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>cfg_setmaxpld</spirit:name>
+            <spirit:name>tlp_fmt_type</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
         <spirit:portMap>
           <spirit:logicalPort>
-            <spirit:name>cfg_bus_mast_en</spirit:name>
+            <spirit:name>tlp_ldwbe_fdwbe</spirit:name>
           </spirit:logicalPort>
           <spirit:physicalPort>
-            <spirit:name>cfg_bus_mast_en</spirit:name>
+            <spirit:name>tlp_ldwbe_fdwbe</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>tlp_dst_rdy_n</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>tlp_dst_rdy_n</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>tlp_address</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>tlp_address</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>tlp_req_to_send</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>tlp_req_to_send</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>tlp_transaction_id</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>tlp_transaction_id</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+    </spirit:busInterface>
+    <spirit:busInterface>
+      <spirit:name>sys_reset_n</spirit:name>
+      <spirit:busType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="reset" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="reset_rtl" spirit:version="1.0"/>
+      <spirit:slave/>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RST</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>sys_reset_n</spirit:name>
           </spirit:physicalPort>
         </spirit:portMap>
       </spirit:portMaps>
@@ -388,7 +410,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>08ef17c8</spirit:value>
+            <spirit:value>86d5422c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -403,7 +425,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>08ef17c8</spirit:value>
+            <spirit:value>86d5422c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -897,7 +919,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_req_to_send</spirit:name>
+        <spirit:name>tlp_req_to_send</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:wireTypeDefs>
@@ -910,7 +932,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_grant</spirit:name>
+        <spirit:name>tlp_grant</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:wireTypeDefs>
@@ -923,7 +945,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_fmt_type</spirit:name>
+        <spirit:name>tlp_fmt_type</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -940,7 +962,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_length_in_dw</spirit:name>
+        <spirit:name>tlp_length_in_dw</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -957,7 +979,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_src_rdy_n</spirit:name>
+        <spirit:name>tlp_src_rdy_n</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:wireTypeDefs>
@@ -970,7 +992,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_dst_rdy_n</spirit:name>
+        <spirit:name>tlp_dst_rdy_n</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:wireTypeDefs>
@@ -983,7 +1005,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_data</spirit:name>
+        <spirit:name>tlp_data</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1000,7 +1022,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_address</spirit:name>
+        <spirit:name>tlp_address</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1017,7 +1039,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_ldwbe_fdwbe</spirit:name>
+        <spirit:name>tlp_ldwbe_fdwbe</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1034,7 +1056,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_attr</spirit:name>
+        <spirit:name>tlp_attr</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1051,7 +1073,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_transaction_id</spirit:name>
+        <spirit:name>tlp_transaction_id</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1068,7 +1090,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_byte_count</spirit:name>
+        <spirit:name>tlp_byte_count</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1085,7 +1107,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>tlp_out_lower_address</spirit:name>
+        <spirit:name>tlp_lower_address</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -1139,7 +1161,7 @@
       <spirit:file>
         <spirit:name>design/dmawr2tlp.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_f668de5c</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_5033bd11</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1155,7 +1177,6 @@
       <spirit:file>
         <spirit:name>design/dmawr2tlp.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_f668de5c</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1228,8 +1249,8 @@
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>http://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>7</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2020-04-02T18:42:35Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>9</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2020-04-02T19:20:31Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@655ca487_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp/design</xilinx:tag>
@@ -1274,14 +1295,37 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@18ee4fdf_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@19762022_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@2dbfc68f_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36651321_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e355220_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1fab19cc_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e679138_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c5c161c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@911f99a_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6bd7d320_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2979907b_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d1a6d2e_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@27852556_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@14048a96_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1d31d10c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5060e70e_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@199686ca_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12788d2_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7be6f5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e9e5848_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4e1e9113_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@119c3e99_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c074750_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f899b6f_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e9cd2cf_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@26a20531_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/dmawr2tlp</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
-      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="78cf833f"/>
+      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="a2e04a3c"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="1f4fa24b"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="e6e9ffc6"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="721ebe15"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="fadf1f65"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="236076da"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="f97f9a2b"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="05fde3dc"/>
     </xilinx:packagingInfo>

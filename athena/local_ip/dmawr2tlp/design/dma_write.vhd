@@ -41,25 +41,25 @@ entity dma_write is
     ---------------------------------------------------------------------
     -- transmit interface
     ---------------------------------------------------------------------
-    tlp_out_req_to_send                 : out std_logic;
-    tlp_out_grant                       : in  std_logic;
+    tlp_req_to_send                 : out std_logic;
+    tlp_grant                       : in  std_logic;
 
-    tlp_out_fmt_type                    : out std_logic_vector(6 downto 0); -- fmt and type field 
-    tlp_out_length_in_dw                : out std_logic_vector(9 downto 0);
+    tlp_fmt_type                    : out std_logic_vector(6 downto 0); -- fmt and type field 
+    tlp_length_in_dw                : out std_logic_vector(9 downto 0);
 
-    tlp_out_src_rdy_n                   : out std_logic;
-    tlp_out_dst_rdy_n                   : in  std_logic;
-    tlp_out_data                        : out std_logic_vector(63 downto 0); 
+    tlp_src_rdy_n                   : out std_logic;
+    tlp_dst_rdy_n                   : in  std_logic;
+    tlp_data                        : out std_logic_vector(63 downto 0); 
 
     -- for master request transmit
-    tlp_out_address                     : out std_logic_vector(63 downto 2); 
-    tlp_out_ldwbe_fdwbe                 : out std_logic_vector(7 downto 0);
+    tlp_address                     : out std_logic_vector(63 downto 2); 
+    tlp_ldwbe_fdwbe                 : out std_logic_vector(7 downto 0);
 
     -- for completion transmit
-    tlp_out_attr                        : out std_logic_vector(1 downto 0); -- relaxed ordering, no snoop
-    tlp_out_transaction_id              : out std_logic_vector(23 downto 0); -- bus, device, function, tag
-    tlp_out_byte_count                  : out std_logic_vector(12 downto 0); -- byte count tenant compte des byte enables
-    tlp_out_lower_address               : out std_logic_vector(6 downto 0);
+    tlp_attr                        : out std_logic_vector(1 downto 0); -- relaxed ordering, no snoop
+    tlp_transaction_id              : out std_logic_vector(23 downto 0); -- bus, device, function, tag
+    tlp_byte_count                  : out std_logic_vector(12 downto 0); -- byte count tenant compte des byte enables
+    tlp_lower_address               : out std_logic_vector(6 downto 0);
 
     -- DMA transfer parameters
     host_number_of_plane                : in integer;
@@ -125,7 +125,7 @@ architecture functional of dma_write is
 
   signal line_offset                    : std_logic_vector(28 downto 0); -- multi plan: offset dans le frame buffer, choisis pour supporter jusqu'a 4k x 4k x BGR64 en signe
   
-  signal dma_tlp_addr_buf               : std_logic_vector((tlp_out_address'left) downto 0);
+  signal dma_tlp_addr_buf               : std_logic_vector((tlp_address'left) downto 0);
 
   signal nb_pcie_dout                   : std_logic_vector(MAXPAY_DW_MSB+1 downto 0); -- base 1 (7:0)
 
@@ -167,7 +167,7 @@ begin
 
         remain_bcnt <= host_line_size;
 
-      elsif (tlp_out_grant = '1') then
+      elsif (tlp_grant = '1') then
         remain_bcnt <= remain_bcnt - bytecnt;
       end if;
     end if;
@@ -182,7 +182,7 @@ begin
   begin
     
     if rising_edge(sys_clk) then
-      if (tlp_out_grant = '1') then
+      if (tlp_grant = '1') then
         dma_tlp_addr_buf <= dma_tlp_addr_buf + bytecnt;
       elsif dma_pcie_ctrl_state = FRAME_STARTED or dma_pcie_ctrl_state = NEXT_PLANE then -- si on passe au prochain plan, il faut charger son adresse.
         dma_tlp_addr_buf <= std_logic_vector(signed(host_write_address(conv_integer(plane_counter))) + signed(line_offset));
@@ -204,7 +204,7 @@ begin
   end process;
 
   -- Assigning output port, transferring DW portion
-  tlp_out_address <= dma_tlp_addr_buf(63 downto 2);
+  tlp_address <= dma_tlp_addr_buf(63 downto 2);
 
   -----------------------------------------------------------------------------
   -- We need to find how much data we are sending in the TLP in bytes
@@ -294,8 +294,8 @@ begin
   end process;
 
   -- driver la longueur de DW pour envoyer le TLP.
-  tlp_out_length_in_dw(dwcnt'length-1 downto 0) <= dwcnt;
-  tlp_out_length_in_dw(tlp_out_length_in_dw'high downto dwcnt'length) <= (others => '0'); -- padder les MSB avec 0.
+  tlp_length_in_dw(dwcnt'length-1 downto 0) <= dwcnt;
+  tlp_length_in_dw(tlp_length_in_dw'high downto dwcnt'length) <= (others => '0'); -- padder les MSB avec 0.
 
   dw_misalig <= ('0' & remain_bcnt(1 downto 0)) + ('0' & dma_tlp_addr_buf(1 downto 0));
 
@@ -425,7 +425,7 @@ begin
 
   dma_tlp_ldwbe <= "0000" when dwcnt = "00000001" else ldwbe_tobe;
 
-  tlp_out_ldwbe_fdwbe <= dma_tlp_ldwbe & dma_tlp_fdwbe;
+  tlp_ldwbe_fdwbe <= dma_tlp_ldwbe & dma_tlp_fdwbe;
 
   -----------------------------------------------------------------------------
   -- Calculating the end of line.  
@@ -448,7 +448,7 @@ begin
   -- DMA PCIE control state machine: sequence to have all info in order to 
   -- start PCIE transfer
   -----------------------------------------------------------------------------
-  process(dma_pcie_ctrl_state, cfg_bus_mast_en, tlp_out_grant, start_of_frame, line_ready_sysclk, line_ready, tlp_out_dst_rdy_n, nb_pcie_dout, end_of_line, end_of_dma_sysclk, plane_counter, host_number_of_plane)--, old_dma_tlp_addr_buf)
+  process(dma_pcie_ctrl_state, cfg_bus_mast_en, tlp_grant, start_of_frame, line_ready_sysclk, line_ready, tlp_dst_rdy_n, nb_pcie_dout, end_of_line, end_of_dma_sysclk, plane_counter, host_number_of_plane)--, old_dma_tlp_addr_buf)
   begin
 	
     case dma_pcie_ctrl_state is
@@ -497,7 +497,7 @@ begin
         -- synthesis translate_on
 --        assert old_dma_tlp_addr_buf = dma_tlp_addr_buf report "ERREUR pendant CALC_BYTECNT" severity FAILURE;
         
-        if (tlp_out_dst_rdy_n = '0' and (conv_integer(nb_pcie_dout) = 1 or conv_integer(nb_pcie_dout) = 2) ) then
+        if (tlp_dst_rdy_n = '0' and (conv_integer(nb_pcie_dout) = 1 or conv_integer(nb_pcie_dout) = 2) ) then
           if end_of_line = '1' then
             nxt_dma_pcie_ctrl_state <= LINE_END;
           else
@@ -636,11 +636,11 @@ begin
     if (sys_clk'event and sys_clk = '1') then
       if (sys_reset_n = '0') then
 
-        tlp_out_req_to_send <= '0';
-      elsif ((conv_integer(nb_pcie_dout) = 1 or conv_integer(nb_pcie_dout) = 2) and tlp_out_dst_rdy_n = '0') then
-        tlp_out_req_to_send <= '0';
+        tlp_req_to_send <= '0';
+      elsif ((conv_integer(nb_pcie_dout) = 1 or conv_integer(nb_pcie_dout) = 2) and tlp_dst_rdy_n = '0') then
+        tlp_req_to_send <= '0';
       elsif (nxt_dma_pcie_ctrl_state = TRANSF_DATA) then
-        tlp_out_req_to_send <= '1';
+        tlp_req_to_send <= '1';
       end if;
     end if;
   end process;
@@ -649,14 +649,14 @@ begin
   tlptypeprc: process(sys_clk, dma_tlp_addr_buf)
   begin
     if conv_integer(dma_tlp_addr_buf(63 downto 32)) = 0 then -- si l'adresse est en bas de 4Gig
-      tlp_out_fmt_type <= "1000000"; -- 3DW + data, adressage 32 bits
+      tlp_fmt_type <= "1000000"; -- 3DW + data, adressage 32 bits
     else
       -- si l'adresse est en haut de 4Gig
-      tlp_out_fmt_type <= "1100000"; -- 4DW + data, adresse 64 bits
+      tlp_fmt_type <= "1100000"; -- 4DW + data, adresse 64 bits
     end if;
   end process;
 
-  tlp_out_src_rdy_n <= '0' when dma_pcie_ctrl_state = TRANSF_DATA else '1'; -- on est toujours pret 
+  tlp_src_rdy_n <= '0' when dma_pcie_ctrl_state = TRANSF_DATA else '1'; -- on est toujours pret 
 
   -- je met le FF ici, mais idealement pour le timing, il faudrait qu'il se ramasse a la sortie de la RAM infere. Je me demande si Vivado va faire le transfert automatiquement?
   -- fonctionellement, c'est equivalent, mais c'est plus simple de le laisser ici que de router un signal de CE jusqu'a l'autre module
@@ -670,7 +670,7 @@ begin
       if dma_pcie_ctrl_state = LINE_START then
         --byte_shift <= dma_tlp_addr_buf(2 downto 0);
         byte_shift <= '0' & dma_tlp_addr_buf(1 downto 0); -- l'interface TLP demande juste d'etre aligne sur 32 bits
-      elsif dma_pcie_ctrl_state = TRANSF_DATA and conv_integer(nb_pcie_dout) = 3 and tlp_out_dst_rdy_n = '0' then
+      elsif dma_pcie_ctrl_state = TRANSF_DATA and conv_integer(nb_pcie_dout) = 3 and tlp_dst_rdy_n = '0' then
         byte_shift(2) <= '1'; -- si un TLP coupe en plein milieu de notre 64 bit, on doit augmenter le shift de 4
                               -- cela ne peut survenir qu'une seule fois dans une ligne car lorsqu'on est aligne, on n'a pas besoin de se re-aligne.
       end if;
@@ -685,24 +685,24 @@ begin
         byte_shift_int := conv_integer(byte_shift);
         for i in 0 to 7 loop
           if conv_integer(byte_shift) = 0 then -- cas special pour byte_shift 0
-            tlp_out_data(8*i+7 downto 8*i) <= read_data(8*i+7 downto 8*i);
+            tlp_data(8*i+7 downto 8*i) <= read_data(8*i+7 downto 8*i);
           elsif i >= byte_shift_int then
-            tlp_out_data(8*i+7 downto 8*i) <= read_data(8*(i-byte_shift_int)+7 downto 8*(i-byte_shift_int));
+            tlp_data(8*i+7 downto 8*i) <= read_data(8*(i-byte_shift_int)+7 downto 8*(i-byte_shift_int));
           else
-            tlp_out_data(8*i+7 downto 8*i) <= read_data_delayed(8*(i+8-byte_shift_int)+7 downto 8*(i+8-byte_shift_int));
+            tlp_data(8*i+7 downto 8*i) <= read_data_delayed(8*(i+8-byte_shift_int)+7 downto 8*(i+8-byte_shift_int));
           end if;
         end loop;
-        --tlp_out_data <= read_data; original, direct map
+        --tlp_data <= read_data; original, direct map
       end if;
 
     end if;
   end process;
 
   -- ce n'est pas des completions qu'on envoie, alors ces valeurs sont don't care.
-  tlp_out_attr            <= (others => '-');
-  tlp_out_transaction_id  <= (others => '-');
-  tlp_out_byte_count      <= (others => '-');
-  tlp_out_lower_address   <= (others => '-');
+  tlp_attr            <= (others => '-');
+  tlp_transaction_id  <= (others => '-');
+  tlp_byte_count      <= (others => '-');
+  tlp_lower_address   <= (others => '-');
   
   ---------------------------------------------------------------------------
   -- Counting data getting out of ram to know when the PCIe transfer
@@ -711,9 +711,9 @@ begin
   process(sys_clk)
   begin
     if (sys_clk'event and sys_clk = '1') then
-      if tlp_out_grant = '1' then  --  on recoit le grant, donc notre header est accepte
+      if tlp_grant = '1' then  --  on recoit le grant, donc notre header est accepte
         nb_pcie_dout <= curr_dwcnt;  -- ce qu'on avait sauvegarder en calculant la longeur de notre requete precedemment
-      elsif (tlp_out_dst_rdy_n = '0') then
+      elsif (tlp_dst_rdy_n = '0') then
         --if conv_integer(nb_pcie_dout) /= 0 then -- arreter le compteur a 0, pour sauver du power, entre autres.
         if conv_integer(nb_pcie_dout) >= 2 then
           nb_pcie_dout <= nb_pcie_dout - "10"; -- on decremente de 2 DW car on sort 64 bits a la fois.
@@ -748,7 +748,7 @@ begin
           -- debut de ligne, on passe au debut
           read_address(read_address'high -2 downto read_address'low) <= (others => '0'); -- on recule au debut de la ligne, mais on preserve le MSB
           read_address(read_address'high downto read_address'high - 1) <= plane_counter;
-        elsif (first_write_of_line = '1' and (dma_pcie_ctrl_state = CALC_EOL or dma_pcie_ctrl_state = CALC_BYTECNT)) or tlp_out_dst_rdy_n = '0' then 
+        elsif (first_write_of_line = '1' and (dma_pcie_ctrl_state = CALC_EOL or dma_pcie_ctrl_state = CALC_BYTECNT)) or tlp_dst_rdy_n = '0' then 
             -- On load le pipeline ou quand le core accepte notre data, passons a l'adresse suivante.
           read_address(read_address'high downto read_address'low) <= read_address(read_address'high downto read_address'low) + '1';
         end if;
@@ -760,11 +760,11 @@ begin
   end process;
 
   -- permet a l'adresse d'etre utilisee pour sortir des donnees de la ram
-  read_enable_out <= '1' when (first_write_of_line = '1' and (dma_pcie_ctrl_state = CALC_EOL or dma_pcie_ctrl_state = CALC_BYTECNT)) or tlp_out_dst_rdy_n = '0' else '0';
+  read_enable_out <= '1' when (first_write_of_line = '1' and (dma_pcie_ctrl_state = CALC_EOL or dma_pcie_ctrl_state = CALC_BYTECNT)) or tlp_dst_rdy_n = '0' else '0';
 
   -- sequencement de transfert
   -- l'etat phase 2 par lequel on passe a chaque debut de transfert de TLP CALC_EOL
-  ram_output_enable <= '1' when (first_write_of_line = '1' and dma_pcie_ctrl_state = CALC_EOL) or tlp_out_dst_rdy_n = '0' else '0';
+  ram_output_enable <= '1' when (first_write_of_line = '1' and dma_pcie_ctrl_state = CALC_EOL) or tlp_dst_rdy_n = '0' else '0';
 
 end functional;
     

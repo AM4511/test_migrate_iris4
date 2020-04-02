@@ -29,8 +29,11 @@ proc n {} {
 #####################################################
 proc r {} {
 	puts "Running runsim"
-	set IPCORES_PATH $::env(IPCORES)
-	set IP ${IPCORES_PATH}/pcie2AxiMaster
+	set IRIS4        $::env(IRIS4)
+	set LOCAL_IP_DIR ${IRIS4}/local_ip
+	set IPCORES_DIR  ${IRIS4}/ipcores
+	set IP           ${LOCAL_IP_DIR}/pcie2AxiMaster_v3.0
+	
 	vsim -t fs -gui work.testbench work.glbl -L unisims_ver  -L xpm -L unimacro_ver -L secureip -L fifo_generator_v13_2_4 -do "${IP}/validation/tcl/valid.do"
 	run -all
 }
@@ -41,8 +44,12 @@ proc r {} {
 #####################################################
 proc runsim {} {
 	puts "Running runsim"
-	set IPCORES_PATH $::env(IPCORES)
-	set ROOT_PATH    ${IPCORES_PATH}/pcie2AxiMaster
-	vsim -gui work.testbench -do "${ROOT_PATH}/validation/tcl/valid.do"
+	set IRIS4        $::env(IRIS4)
+	set LOCAL_IP_DIR ${IRIS4}/local_ip
+	set IPCORES_DIR  ${IRIS4}/ipcores
+	set IP           ${LOCAL_IP_DIR}/pcie2AxiMaster_v3.0
+	
+
+	vsim -gui work.testbench -do "${IP}/validation/tcl/valid.do"
 }
 

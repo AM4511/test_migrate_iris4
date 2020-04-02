@@ -11,9 +11,9 @@ use work.dma_pack.all;
 entity dmawr2tlp is
   generic (
     NUMBER_OF_PLANE       : integer range 1 to 3 := 1;
-    READ_ADDRESS_MSB      : integer := 10;
-    MAX_PCIE_PAYLOAD_SIZE : integer := 128;
-    AXIS_DATA_WIDTH       : integer := 64
+    READ_ADDRESS_MSB      : integer              := 10;
+    MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
+    AXIS_DATA_WIDTH       : integer              := 64
     );
   port (
     ---------------------------------------------------------------------
@@ -79,25 +79,25 @@ entity dmawr2tlp is
     ---------------------------------------------------------------------
     -- TLP Interface
     ---------------------------------------------------------------------
-    tlp_out_req_to_send : out std_logic;
-    tlp_out_grant       : in  std_logic;
+    tlp_req_to_send : out std_logic;
+    tlp_grant       : in  std_logic;
 
-    tlp_out_fmt_type     : out std_logic_vector(6 downto 0);
-    tlp_out_length_in_dw : out std_logic_vector(9 downto 0);
+    tlp_fmt_type     : out std_logic_vector(6 downto 0);
+    tlp_length_in_dw : out std_logic_vector(9 downto 0);
 
-    tlp_out_src_rdy_n : out std_logic;
-    tlp_out_dst_rdy_n : in  std_logic;
-    tlp_out_data      : out std_logic_vector(63 downto 0);
+    tlp_src_rdy_n : out std_logic;
+    tlp_dst_rdy_n : in  std_logic;
+    tlp_data      : out std_logic_vector(63 downto 0);
 
     -- for master request transmit
-    tlp_out_address     : out std_logic_vector(63 downto 2);
-    tlp_out_ldwbe_fdwbe : out std_logic_vector(7 downto 0);
+    tlp_address     : out std_logic_vector(63 downto 2);
+    tlp_ldwbe_fdwbe : out std_logic_vector(7 downto 0);
 
     -- for completion transmit
-    tlp_out_attr           : out std_logic_vector(1 downto 0);
-    tlp_out_transaction_id : out std_logic_vector(23 downto 0);
-    tlp_out_byte_count     : out std_logic_vector(12 downto 0);
-    tlp_out_lower_address  : out std_logic_vector(6 downto 0)
+    tlp_attr           : out std_logic_vector(1 downto 0);
+    tlp_transaction_id : out std_logic_vector(23 downto 0);
+    tlp_byte_count     : out std_logic_vector(12 downto 0);
+    tlp_lower_address  : out std_logic_vector(6 downto 0)
 
     );
 end dmawr2tlp;
@@ -109,8 +109,8 @@ architecture rtl of dmawr2tlp is
   component dma_write is
     generic (
       NUMBER_OF_PLANE       : integer range 1 to 3 := 1;
-      READ_ADDRESS_MSB      : integer := 10;  -- doit etre ajuste en fonction de la ligne maximale. 4095 pixel x BGR32 = 16kB = 2k * 8 bytes 
-      MAX_PCIE_PAYLOAD_SIZE : integer := 128  -- ceci sert a limiter la dimension maximale que les agents master sur le pcie (le DMA) peuvent utiliser, en plus de la limitation
+      READ_ADDRESS_MSB      : integer              := 10;  -- doit etre ajuste en fonction de la ligne maximale. 4095 pixel x BGR32 = 16kB = 2k * 8 bytes 
+      MAX_PCIE_PAYLOAD_SIZE : integer              := 128  -- ceci sert a limiter la dimension maximale que les agents master sur le pcie (le DMA) peuvent utiliser, en plus de la limitation
 
       );
     port (
@@ -132,25 +132,25 @@ architecture rtl of dmawr2tlp is
       ---------------------------------------------------------------------
       -- transmit interface
       ---------------------------------------------------------------------
-      tlp_out_req_to_send : out std_logic;
-      tlp_out_grant       : in  std_logic;
+      tlp_req_to_send : out std_logic;
+      tlp_grant       : in  std_logic;
 
-      tlp_out_fmt_type     : out std_logic_vector(6 downto 0);  -- fmt and type field 
-      tlp_out_length_in_dw : out std_logic_vector(9 downto 0);
+      tlp_fmt_type     : out std_logic_vector(6 downto 0);  -- fmt and type field 
+      tlp_length_in_dw : out std_logic_vector(9 downto 0);
 
-      tlp_out_src_rdy_n : out std_logic;
-      tlp_out_dst_rdy_n : in  std_logic;
-      tlp_out_data      : out std_logic_vector(63 downto 0);
+      tlp_src_rdy_n : out std_logic;
+      tlp_dst_rdy_n : in  std_logic;
+      tlp_data      : out std_logic_vector(63 downto 0);
 
       -- for master request transmit
-      tlp_out_address     : out std_logic_vector(63 downto 2);
-      tlp_out_ldwbe_fdwbe : out std_logic_vector(7 downto 0);
+      tlp_address     : out std_logic_vector(63 downto 2);
+      tlp_ldwbe_fdwbe : out std_logic_vector(7 downto 0);
 
       -- for completion transmit
-      tlp_out_attr           : out std_logic_vector(1 downto 0);  -- relaxed ordering, no snoop
-      tlp_out_transaction_id : out std_logic_vector(23 downto 0);  -- bus, device, function, tag
-      tlp_out_byte_count     : out std_logic_vector(12 downto 0);  -- byte count tenant compte des byte enables
-      tlp_out_lower_address  : out std_logic_vector(6 downto 0);
+      tlp_attr           : out std_logic_vector(1 downto 0);  -- relaxed ordering, no snoop
+      tlp_transaction_id : out std_logic_vector(23 downto 0);  -- bus, device, function, tag
+      tlp_byte_count     : out std_logic_vector(12 downto 0);  -- byte count tenant compte des byte enables
+      tlp_lower_address  : out std_logic_vector(6 downto 0);
 
       -- DMA transfer parameters
       host_number_of_plane : in integer;
@@ -176,20 +176,20 @@ architecture rtl of dmawr2tlp is
   end component;
 
 
-  signal host_number_of_plane :  integer;
-  signal host_write_address   :  HOST_ADDRESS_ARRAY(NUMBER_OF_PLANE-1 downto 0);
-  signal host_line_pitch      :  std_logic_vector(15 downto 0);
-  signal host_line_size       :  std_logic_vector(13 downto 0);
-  signal host_reverse_y       :  std_logic;
-  signal dma_idle             :  std_logic;
-  signal dma_pcie_state       :  std_logic_vector(2 downto 0);
-  signal start_of_frame       :  std_logic;
-  signal line_ready           :  std_logic;
-  signal line_transfered      :  std_logic;
-  signal end_of_dma           :  std_logic;
-  signal read_enable_out      :  std_logic;
-  signal read_address         :  std_logic_vector(READ_ADDRESS_MSB downto 0);
-  signal read_data            :  std_logic_vector(63 downto 0);
+  signal host_number_of_plane : integer;
+  signal host_write_address   : HOST_ADDRESS_ARRAY(NUMBER_OF_PLANE-1 downto 0);
+  signal host_line_pitch      : std_logic_vector(15 downto 0);
+  signal host_line_size       : std_logic_vector(13 downto 0);
+  signal host_reverse_y       : std_logic;
+  signal dma_idle             : std_logic;
+  signal dma_pcie_state       : std_logic_vector(2 downto 0);
+  signal start_of_frame       : std_logic;
+  signal line_ready           : std_logic;
+  signal line_transfered      : std_logic;
+  signal end_of_dma           : std_logic;
+  signal read_enable_out      : std_logic;
+  signal read_address         : std_logic_vector(READ_ADDRESS_MSB downto 0);
+  signal read_data            : std_logic_vector(63 downto 0);
 
 
 
@@ -202,37 +202,37 @@ begin
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
-      sys_clk                => sys_clk,
-      sys_reset_n            => sys_reset_n,
-      cfg_bus_mast_en        => cfg_bus_mast_en,
-      cfg_setmaxpld          => cfg_setmaxpld,
-      tlp_out_req_to_send    => tlp_out_req_to_send,
-      tlp_out_grant          => tlp_out_grant,
-      tlp_out_fmt_type       => tlp_out_fmt_type,
-      tlp_out_length_in_dw   => tlp_out_length_in_dw,
-      tlp_out_src_rdy_n      => tlp_out_src_rdy_n,
-      tlp_out_dst_rdy_n      => tlp_out_dst_rdy_n,
-      tlp_out_data           => tlp_out_data,
-      tlp_out_address        => tlp_out_address,
-      tlp_out_ldwbe_fdwbe    => tlp_out_ldwbe_fdwbe,
-      tlp_out_attr           => tlp_out_attr,
-      tlp_out_transaction_id => tlp_out_transaction_id,
-      tlp_out_byte_count     => tlp_out_byte_count,
-      tlp_out_lower_address  => tlp_out_lower_address,
-      host_number_of_plane   => host_number_of_plane,
-      host_write_address     => host_write_address,
-      host_line_pitch        => host_line_pitch,
-      host_line_size         => host_line_size,
-      host_reverse_y         => host_reverse_y,
-      dma_idle               => dma_idle,
-      dma_pcie_state         => dma_pcie_state,
-      start_of_frame         => start_of_frame,
-      line_ready             => line_ready,
-      line_transfered        => line_transfered,
-      end_of_dma             => end_of_dma,
-      read_enable_out        => read_enable_out,
-      read_address           => read_address,
-      read_data              => read_data
+      sys_clk              => sys_clk,
+      sys_reset_n          => sys_reset_n,
+      cfg_bus_mast_en      => cfg_bus_mast_en,
+      cfg_setmaxpld        => cfg_setmaxpld,
+      tlp_req_to_send      => tlp_req_to_send,
+      tlp_grant            => tlp_grant,
+      tlp_fmt_type         => tlp_fmt_type,
+      tlp_length_in_dw     => tlp_length_in_dw,
+      tlp_src_rdy_n        => tlp_src_rdy_n,
+      tlp_dst_rdy_n        => tlp_dst_rdy_n,
+      tlp_data             => tlp_data,
+      tlp_address          => tlp_address,
+      tlp_ldwbe_fdwbe      => tlp_ldwbe_fdwbe,
+      tlp_attr             => tlp_attr,
+      tlp_transaction_id   => tlp_transaction_id,
+      tlp_byte_count       => tlp_byte_count,
+      tlp_lower_address    => tlp_lower_address,
+      host_number_of_plane => host_number_of_plane,
+      host_write_address   => host_write_address,
+      host_line_pitch      => host_line_pitch,
+      host_line_size       => host_line_size,
+      host_reverse_y       => host_reverse_y,
+      dma_idle             => dma_idle,
+      dma_pcie_state       => dma_pcie_state,
+      start_of_frame       => start_of_frame,
+      line_ready           => line_ready,
+      line_transfered      => line_transfered,
+      end_of_dma           => end_of_dma,
+      read_enable_out      => read_enable_out,
+      read_address         => read_address,
+      read_data            => read_data
       );
 
 end rtl;
