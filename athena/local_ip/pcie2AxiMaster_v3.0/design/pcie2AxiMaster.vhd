@@ -71,25 +71,25 @@ entity pcie2AxiMaster is
     ---------------------------------------------------------------------------
     -- TLP DMA interface
     ---------------------------------------------------------------------------
-    dma_tlp_req_to_send : in  std_logic := '0';
-    dma_tlp_grant       : out std_logic;
+    tlp_req_to_send : in  std_logic := '0';
+    tlp_grant       : out std_logic;
 
-    dma_tlp_fmt_type     : in std_logic_vector(6 downto 0) := (others => '0');  -- fmt and type field 
-    dma_tlp_length_in_dw : in std_logic_vector(9 downto 0) := (others => '0');
+    tlp_fmt_type     : in std_logic_vector(6 downto 0) := (others => '0');  -- fmt and type field 
+    tlp_length_in_dw : in std_logic_vector(9 downto 0) := (others => '0');
 
-    dma_tlp_src_rdy_n : in  std_logic                     := '0';
-    dma_tlp_dst_rdy_n : out std_logic;
-    dma_tlp_data      : in  std_logic_vector(63 downto 0) := (others => '0');
+    tlp_src_rdy_n : in  std_logic                     := '0';
+    tlp_dst_rdy_n : out std_logic;
+    tlp_data      : in  std_logic_vector(63 downto 0) := (others => '0');
 
     -- for master request transmit
-    dma_tlp_address     : in std_logic_vector(63 downto 2) := (others => '0');
-    dma_tlp_ldwbe_fdwbe : in std_logic_vector(7 downto 0)  := (others => '0');
+    tlp_address     : in std_logic_vector(63 downto 2) := (others => '0');
+    tlp_ldwbe_fdwbe : in std_logic_vector(7 downto 0)  := (others => '0');
 
     -- for completion transmit
-    dma_tlp_attr           : in std_logic_vector(1 downto 0)  := (others => '0');  -- relaxed ordering, no snoop
-    dma_tlp_transaction_id : in std_logic_vector(23 downto 0) := (others => '0');  -- bus, device, function, tag
-    dma_tlp_byte_count     : in std_logic_vector(12 downto 0) := (others => '0');  -- byte count tenant compte des byte enables
-    dma_tlp_lower_address  : in std_logic_vector(6 downto 0)  := (others => '0');
+    tlp_attr           : in std_logic_vector(1 downto 0)  := (others => '0');  -- relaxed ordering, no snoop
+    tlp_transaction_id : in std_logic_vector(23 downto 0) := (others => '0');  -- bus, device, function, tag
+    tlp_byte_count     : in std_logic_vector(12 downto 0) := (others => '0');  -- byte count tenant compte des byte enables
+    tlp_lower_address  : in std_logic_vector(6 downto 0)  := (others => '0');
 
     cfg_bus_mast_en : out std_logic;
     cfg_setmaxpld   : out std_logic_vector(2 downto 0);
@@ -1247,26 +1247,26 @@ begin
   --
   -----------------------------------------------------------------------------
   G_DMA_EN : if (ENABLE_DMA > 0) generate
-    tlp_out_req_to_send(DMA_AGENT_ID) <= dma_tlp_req_to_send;
+    tlp_out_req_to_send(DMA_AGENT_ID) <= tlp_req_to_send;
 
-    tlp_out_fmt_type(DMA_AGENT_ID)     <= dma_tlp_fmt_type;
-    tlp_out_length_in_dw(DMA_AGENT_ID) <= dma_tlp_length_in_dw;
+    tlp_out_fmt_type(DMA_AGENT_ID)     <= tlp_fmt_type;
+    tlp_out_length_in_dw(DMA_AGENT_ID) <= tlp_length_in_dw;
 
-    tlp_out_src_rdy_n(DMA_AGENT_ID) <= dma_tlp_src_rdy_n;
-    tlp_out_data(DMA_AGENT_ID)      <= dma_tlp_data;
+    tlp_out_src_rdy_n(DMA_AGENT_ID) <= tlp_src_rdy_n;
+    tlp_out_data(DMA_AGENT_ID)      <= tlp_data;
 
     -- for master request transmit 
-    tlp_out_address(DMA_AGENT_ID)     <= dma_tlp_address;
-    tlp_out_ldwbe_fdwbe(DMA_AGENT_ID) <= dma_tlp_ldwbe_fdwbe;
+    tlp_out_address(DMA_AGENT_ID)     <= tlp_address;
+    tlp_out_ldwbe_fdwbe(DMA_AGENT_ID) <= tlp_ldwbe_fdwbe;
 
     -- for completion transmit
-    tlp_out_attr(DMA_AGENT_ID)           <= dma_tlp_attr;
-    tlp_out_transaction_id(DMA_AGENT_ID) <= dma_tlp_transaction_id;
-    tlp_out_byte_count(DMA_AGENT_ID)     <= dma_tlp_byte_count;
-    tlp_out_lower_address(DMA_AGENT_ID)  <= dma_tlp_lower_address;
+    tlp_out_attr(DMA_AGENT_ID)           <= tlp_attr;
+    tlp_out_transaction_id(DMA_AGENT_ID) <= tlp_transaction_id;
+    tlp_out_byte_count(DMA_AGENT_ID)     <= tlp_byte_count;
+    tlp_out_lower_address(DMA_AGENT_ID)  <= tlp_lower_address;
 
-    dma_tlp_grant     <= tlp_out_grant(DMA_AGENT_ID);
-    dma_tlp_dst_rdy_n <= tlp_out_dst_rdy_n(DMA_AGENT_ID);
+    tlp_grant     <= tlp_out_grant(DMA_AGENT_ID);
+    tlp_dst_rdy_n <= tlp_out_dst_rdy_n(DMA_AGENT_ID);
     
   end generate;
 
