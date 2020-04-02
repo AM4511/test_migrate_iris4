@@ -159,8 +159,8 @@ module pcie_7x_0_pipe_wrapper #
     parameter PCIE_SIM_MODE                 = "FALSE",      // PCIe sim mode 
     parameter PCIE_SIM_SPEEDUP              = "FALSE",      // PCIe sim speedup
     parameter PCIE_SIM_TX_EIDLE_DRIVE_LEVEL = "1",          // PCIe sim TX electrical idle drive level 
-    parameter PCIE_GT_DEVICE                = "GTP",        // PCIe GT device
-    parameter PCIE_USE_MODE                 = "1.0",        // PCIe use mode
+    parameter PCIE_GT_DEVICE                = "GTX",        // PCIe GT device
+    parameter PCIE_USE_MODE                 = "3.0",        // PCIe use mode
     parameter PCIE_PLL_SEL                  = "CPLL",       // PCIe PLL select for Gen1/Gen2 (GTX/GTH) only
     parameter PCIE_AUX_CDR_GEN3_EN          = "TRUE",       // PCIe AUX CDR for Gen3 (GTH 2.0) only
     parameter PCIE_LPM_DFE                  = "LPM",        // PCIe LPM or DFE mode for Gen1/Gen2 only
@@ -186,7 +186,7 @@ module pcie_7x_0_pipe_wrapper #
     parameter PCIE_RXBUF_EN                 = "TRUE",       // PCIe RX buffer enable for Gen3      only
     parameter PCIE_TXSYNC_MODE              = 0,            // PCIe TX sync mode
     parameter PCIE_RXSYNC_MODE              = 0,            // PCIe RX sync mode
-    parameter PCIE_CHAN_BOND                = 1,            // PCIe channel bonding mode
+    parameter PCIE_CHAN_BOND                = 0,            // PCIe channel bonding mode
     parameter PCIE_CHAN_BOND_EN             = "TRUE",       // PCIe channel bonding enable for Gen1/Gen2 only
     parameter PCIE_LANE                     = 1,            // PCIe number of lanes
     parameter PCIE_LINK_SPEED               = 1,            // PCIe link speed 
