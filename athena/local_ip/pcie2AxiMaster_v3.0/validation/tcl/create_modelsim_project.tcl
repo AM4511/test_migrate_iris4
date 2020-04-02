@@ -3,7 +3,8 @@
 #
 # source $env(IPCORES)/pcie2AxiMaster_v3.0/validation/tcl/create_modelsim_project.tcl
 #
-set IPCORES              $env(IPCORES)
+set IRIS4                $env(IRIS4)
+set IPCORES              ${IRIS4}/athena/local_ip
 set MTI_LIB_XILINX_PATH  $env(MTI_LIB_XILINX_PATH)
 set MTI_LIB_MATROX_PATH  $env(MTI_LIB_MATROX_PATH)
 

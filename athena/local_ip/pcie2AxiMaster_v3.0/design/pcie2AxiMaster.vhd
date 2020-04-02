@@ -28,6 +28,8 @@ entity pcie2AxiMaster is
     PCIE_SUBSYS_VENDOR_ID : integer               := 16#102B#;
     PCIE_SUBSYS_ID        : integer               := 16#0000#;
     AXI_ID_WIDTH          : integer range 1 to 8  := 6;
+    ENABLE_DMA            : integer range 0 to 1  := 0;
+    ENABLE_MTX_SPI        : integer range 0 to 1  := 0;
     DEBUG_IN_WIDTH        : integer range 0 to 32 := 0;
     DEBUG_OUT_WIDTH       : integer range 0 to 32 := 0
     );
@@ -66,9 +68,35 @@ entity pcie2AxiMaster is
     spi_sdout : out std_logic;
     spi_sdin  : in  std_logic;
 
+    ---------------------------------------------------------------------------
+    -- TLP DMA interface
+    ---------------------------------------------------------------------------
+    dma_tlp_req_to_send : in  std_logic := '0';
+    dma_tlp_grant       : out std_logic;
+
+    dma_tlp_fmt_type     : in std_logic_vector(6 downto 0) := (others => '0');  -- fmt and type field 
+    dma_tlp_length_in_dw : in std_logic_vector(9 downto 0) := (others => '0');
+
+    dma_tlp_src_rdy_n : in  std_logic                     := '0';
+    dma_tlp_dst_rdy_n : out std_logic;
+    dma_tlp_data      : in  std_logic_vector(63 downto 0) := (others => '0');
+
+    -- for master request transmit
+    dma_tlp_address     : in std_logic_vector(63 downto 2) := (others => '0');
+    dma_tlp_ldwbe_fdwbe : in std_logic_vector(7 downto 0)  := (others => '0');
+
+    -- for completion transmit
+    dma_tlp_attr           : in std_logic_vector(1 downto 0)  := (others => '0');  -- relaxed ordering, no snoop
+    dma_tlp_transaction_id : in std_logic_vector(23 downto 0) := (others => '0');  -- bus, device, function, tag
+    dma_tlp_byte_count     : in std_logic_vector(12 downto 0) := (others => '0');  -- byte count tenant compte des byte enables
+    dma_tlp_lower_address  : in std_logic_vector(6 downto 0)  := (others => '0');
+
+    cfg_bus_mast_en : out std_logic;
+    cfg_setmaxpld   : out std_logic_vector(2 downto 0);
+
 
     ---------------------------------------------------------------------------
-    -- Clock
+    -- Interrupt interface
     ---------------------------------------------------------------------------
     irq_event : in std_logic_vector(NUMB_IRQ-1 downto 0);
 
@@ -148,7 +176,8 @@ end pcie2AxiMaster;
 architecture struct of pcie2AxiMaster is
 
   constant C_DATA_WIDTH   : integer := 64;
-  constant NB_PCIE_AGENTS : integer := 3;  -- number of BAR agents + number of master agents
+  constant NB_PCIE_AGENTS : integer := 3 + ENABLE_DMA;  -- number of BAR agents + number of master agents
+  constant DMA_AGENT_ID : integer := NB_PCIE_AGENTS-1;
 
   component spi_if is
 
@@ -1211,6 +1240,35 @@ begin
       sys_clk                                    => pcie_sys_clk,
       sys_rst_n                                  => pcie_sys_rst_n
       );
+
+
+  -----------------------------------------------------------------------------
+  -- G_DMA_EN : Receive messages from host
+  --
+  -----------------------------------------------------------------------------
+  G_DMA_EN : if (ENABLE_DMA > 0) generate
+    tlp_out_req_to_send(DMA_AGENT_ID) <= dma_tlp_req_to_send;
+
+    tlp_out_fmt_type(DMA_AGENT_ID)     <= dma_tlp_fmt_type;
+    tlp_out_length_in_dw(DMA_AGENT_ID) <= dma_tlp_length_in_dw;
+
+    tlp_out_src_rdy_n(DMA_AGENT_ID) <= dma_tlp_src_rdy_n;
+    tlp_out_data(DMA_AGENT_ID)      <= dma_tlp_data;
+
+    -- for master request transmit 
+    tlp_out_address(DMA_AGENT_ID)     <= dma_tlp_address;
+    tlp_out_ldwbe_fdwbe(DMA_AGENT_ID) <= dma_tlp_ldwbe_fdwbe;
+
+    -- for completion transmit
+    tlp_out_attr(DMA_AGENT_ID)           <= dma_tlp_attr;
+    tlp_out_transaction_id(DMA_AGENT_ID) <= dma_tlp_transaction_id;
+    tlp_out_byte_count(DMA_AGENT_ID)     <= dma_tlp_byte_count;
+    tlp_out_lower_address(DMA_AGENT_ID)  <= dma_tlp_lower_address;
+
+    dma_tlp_grant     <= tlp_out_grant(DMA_AGENT_ID);
+    dma_tlp_dst_rdy_n <= tlp_out_dst_rdy_n(DMA_AGENT_ID);
+    
+  end generate;
 
 
   -----------------------------------------------------------------------------

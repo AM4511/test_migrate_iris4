@@ -4,16 +4,11 @@
 	xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<spirit:vendor>matrox.com</spirit:vendor>
-	<spirit:library>Imaging</spirit:library>
-	<spirit:name>FPGA_Info</spirit:name>
+	<spirit:library>user</spirit:library>
+	<spirit:name>tlp</spirit:name>
 	<spirit:version>1.0</spirit:version>
 	<spirit:directConnection>false</spirit:directConnection>
 	<spirit:isAddressable>false</spirit:isAddressable>
 	<spirit:maxMasters>1</spirit:maxMasters>
 	<spirit:maxSlaves>1</spirit:maxSlaves>
-	<spirit:vendorExtensions>
-		<xilinx:busDefinitionInfo>
-			<xilinx:displayName>FPGA_Info</xilinx:displayName>
-		</xilinx:busDefinitionInfo>
-	</spirit:vendorExtensions>
 </spirit:busDefinition>
