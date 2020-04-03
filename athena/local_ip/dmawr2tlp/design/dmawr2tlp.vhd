@@ -8,6 +8,7 @@ use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use work.dma_pack.all;
 
+
 entity dmawr2tlp is
   generic (
     NUMBER_OF_PLANE       : integer range 1 to 3 := 1;
@@ -109,8 +110,8 @@ architecture rtl of dmawr2tlp is
   component dma_write is
     generic (
       NUMBER_OF_PLANE       : integer range 1 to 3 := 1;
-      READ_ADDRESS_MSB      : integer              := 10;  -- doit etre ajuste en fonction de la ligne maximale. 4095 pixel x BGR32 = 16kB = 2k * 8 bytes 
-      MAX_PCIE_PAYLOAD_SIZE : integer              := 128  -- ceci sert a limiter la dimension maximale que les agents master sur le pcie (le DMA) peuvent utiliser, en plus de la limitation
+      READ_ADDRESS_MSB      : integer              := 10;
+      MAX_PCIE_PAYLOAD_SIZE : integer              := 128
 
       );
     port (
@@ -135,7 +136,7 @@ architecture rtl of dmawr2tlp is
       tlp_req_to_send : out std_logic;
       tlp_grant       : in  std_logic;
 
-      tlp_fmt_type     : out std_logic_vector(6 downto 0);  -- fmt and type field 
+      tlp_fmt_type     : out std_logic_vector(6 downto 0);
       tlp_length_in_dw : out std_logic_vector(9 downto 0);
 
       tlp_src_rdy_n : out std_logic;
@@ -147,9 +148,9 @@ architecture rtl of dmawr2tlp is
       tlp_ldwbe_fdwbe : out std_logic_vector(7 downto 0);
 
       -- for completion transmit
-      tlp_attr           : out std_logic_vector(1 downto 0);  -- relaxed ordering, no snoop
-      tlp_transaction_id : out std_logic_vector(23 downto 0);  -- bus, device, function, tag
-      tlp_byte_count     : out std_logic_vector(12 downto 0);  -- byte count tenant compte des byte enables
+      tlp_attr           : out std_logic_vector(1 downto 0);
+      tlp_transaction_id : out std_logic_vector(23 downto 0);
+      tlp_byte_count     : out std_logic_vector(12 downto 0);
       tlp_lower_address  : out std_logic_vector(6 downto 0);
 
       -- DMA transfer parameters
@@ -157,20 +158,20 @@ architecture rtl of dmawr2tlp is
       host_write_address   : in HOST_ADDRESS_ARRAY(NUMBER_OF_PLANE-1 downto 0);
       host_line_pitch      : in std_logic_vector(15 downto 0);
       host_line_size       : in std_logic_vector(13 downto 0);
-      host_reverse_y       : in std_logic;  -- ecrire a l'envers.
+      host_reverse_y       : in std_logic;
 
       -- To Sensor interface, grab abort logic
       dma_idle       : out std_logic;
-      dma_pcie_state : out std_logic_vector(2 downto 0);  -- pour debug seulement
+      dma_pcie_state : out std_logic_vector(2 downto 0);
 
       -- Interface to read data, on read_clk
-      start_of_frame  : in  std_logic;  -- repart l'ecriture au host_write_address, repart la lecture a l'adresse 0 de la ram partagee
-      line_ready      : in  std_logic;  -- indique qu'une ligne est disponible dans la RAM partagee
-      line_transfered : out std_logic;  -- indique que la ligne signalée par line_ready est maintenant consumée (transférée au host)
+      start_of_frame  : in  std_logic;
+      line_ready      : in  std_logic;
+      line_transfered : out std_logic;
       end_of_dma      : in  std_logic;
 
       read_enable_out : buffer std_logic;
-      read_address    : buffer std_logic_vector(READ_ADDRESS_MSB downto 0);  -- buffers 2k x 8 bytes hardcode pour l'instant
+      read_address    : buffer std_logic_vector(READ_ADDRESS_MSB downto 0);
       read_data       : in     std_logic_vector(63 downto 0)
       );
   end component;
@@ -190,7 +191,6 @@ architecture rtl of dmawr2tlp is
   signal read_enable_out      : std_logic;
   signal read_address         : std_logic_vector(READ_ADDRESS_MSB downto 0);
   signal read_data            : std_logic_vector(63 downto 0);
-
 
 
 begin

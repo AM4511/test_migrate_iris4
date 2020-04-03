@@ -58,7 +58,7 @@ set SDK_SCRIPT         ${SDK_DIR}/create_flash_image.tcl
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  2
-set QUICK_FLOW 1
+set QUICK_FLOW 0
 
 
 ###################################################################################
