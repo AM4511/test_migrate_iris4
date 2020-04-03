@@ -243,6 +243,7 @@ void CXGS_Ctrl::Check_otpm_depended_uploads() {
 //----------------------------------------------------
 void CXGS_Ctrl::Enable6lanes(void) {
 
+	printf("XGS Initializing 6 HiSPI lanes\n");
 	// mux mode dependent uploads
 	// Loading 6 lanes 12 bit specific settings
 	WriteSPI(0x38C4, 0x0600);
@@ -266,6 +267,8 @@ void CXGS_Ctrl::Enable6lanes(void) {
 }
 
 void CXGS_Ctrl::Enable24lanes(void) {
+
+	printf("XGS Initializing 24 HiSPI lanes\n");
 
 	// Loading 24 lanes 12 bit specific settings
 	WriteSPI(0x38C4, 0x1300);
@@ -296,7 +299,7 @@ void CXGS_Ctrl::Activate_sensor() {
 	// Enable PLL and Analog blocks: REG = 0x3700, 0x001c
 	WriteSPI(0x3700, 0x001c);
 
-	printf("POlling for innitialisation complete\n");
+	printf("Polling for initialisation complete\n");
 
 	// Check if initialization is complete (REG 0x3706[7:0] = 0xEB): POLL_REG = 0x3706, 0x00FF, != 0xEB, DELAY = 25, TIMEOUT = 500
 	PollRegSPI(0x3706, 0x00FF, 0xEB, 25, 40);

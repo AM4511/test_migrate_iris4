@@ -98,16 +98,18 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	Camera->sXGSptr.ACQ.DEBUG_PINS.u32 = 0;
 	Camera->rXGSptr.ACQ.DEBUG_PINS.u32 = Camera->sXGSptr.ACQ.DEBUG_PINS.u32;
 
+	printf("\n\n  (q) Quit this test");
+	printf("\n  (f) Print current FPS");
+	printf("\n  (d) Dump XGS controller registers(PCIe)");
+	printf("\n\n");
 
 	unsigned long fps_reg;
 
 	while (Sortie == 0)
 	{
 
-
-
-		//if (Camera->isGrabOverlap() == 0)
-		//	Camera->WaitEndExpReadout();
+		if (Camera->sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP == 0)
+			Camera->WaitEndExpReadout();
 
 		Camera->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 
@@ -116,11 +118,11 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 		//{
 		//	fps_reg = Camera->rXGSptr.ACQ.SENSOR_FPS.u32;
 		//	printf("\r%dfps   ", Camera->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
-		//	if ((fps_reg & 0xffff) == 0xffff)
-		//	{
-		//		printf("\n\nERROR de lecture au registre du fpga fps, press enter to continue! 0x%X\n\n\n", fps_reg);
-		//		_getch();
-		//	}
+		//	//if ((fps_reg & 0xffff) == 0xffff)
+		//    //{
+		//	//	printf("\n\nERROR de lecture au registre du fpga fps, press enter to continue! 0x%X\n\n\n", fps_reg);
+		//	//	_getch();
+		//	//}
 		//}
 
 
@@ -146,12 +148,28 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
+
+			case 'd':
+				Sleep(100);
+				Camera->XGS_PCIeCtrl_DumpFile();
+				Sleep(100);
+				break;
+
+			case 'f':
+				fps_reg = Camera->rXGSptr.ACQ.SENSOR_FPS.u32;
+				printf("\r%dfps   ", Camera->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+				break;
+
 			}
+
+
+
 		}
 
 	}
 
-
+	fps_reg = Camera->rXGSptr.ACQ.SENSOR_FPS.u32;
+	printf("\r%dfps   ", Camera->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
 	// Free MIL Display

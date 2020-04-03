@@ -876,3 +876,74 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	rXGSptr.ACQ.GRAB_CTRL.u32                             = sXGSptr.ACQ.GRAB_CTRL.u32;
 }
 
+
+//----------------------------------------------------
+// DUMP PYTHON REGISTERS TO FILE
+//----------------------------------------------------
+void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
+{
+
+	FILE* f_dump;
+	int   f_dump_Open = FALSE;
+
+
+
+	if (f_dump_Open != TRUE)
+	{
+		f_dump_Open = TRUE;
+		f_dump = fopen("XGS_CTRL PCIe_reg.txt", "w+t");
+
+		if (f_dump == NULL)
+		{
+			printf("ERROR when trying to open file : XGS_CTRL PCIe_reg.txt\n");
+			exit(1);
+		}
+		else
+		{
+			printf("\nDump of PCIe CRTL XGS registers into file: XGS_CTRL PCIe_reg.txt ");
+			fprintf(f_dump, "XGS CTRL REgister Dump\n\n");
+			fprintf(f_dump, "Add\tRegister Name\tData\n\n");
+			
+			fprintf(f_dump, "0x100\tACQ.GRAB_CTRL            0x%08X\n", rXGSptr.ACQ.GRAB_CTRL.u32);
+			fprintf(f_dump, "0x108\tACQ.GRAB_STAT            0x%08X\n", rXGSptr.ACQ.GRAB_STAT.u32);
+			fprintf(f_dump, "0x110\tACQ.READOUT_CFG1         0x%08X\n", rXGSptr.ACQ.READOUT_CFG1.u32);
+			fprintf(f_dump, "0x118\tACQ.READOUT_CFG2         0x%08X\n", rXGSptr.ACQ.READOUT_CFG2.u32);
+			fprintf(f_dump, "0x120\tACQ.READOUT_CFG3         0x%08X\n", rXGSptr.ACQ.READOUT_CFG3.u32);
+			fprintf(f_dump, "0x124\tACQ.READOUT_CFG4         0x%08X\n", rXGSptr.ACQ.READOUT_CFG4.u32);
+			fprintf(f_dump, "0x128\tACQ.EXP_CTRL1            0x%08X\n", rXGSptr.ACQ.EXP_CTRL1.u32);
+			fprintf(f_dump, "0x130\tACQ.EXP_CTRL2            0x%08X\n", rXGSptr.ACQ.EXP_CTRL2.u32);
+			fprintf(f_dump, "0x138\tACQ.EXP_CTRL3            0x%08X\n", rXGSptr.ACQ.EXP_CTRL3.u32);
+			fprintf(f_dump, "0x140\tACQ.TRIGGER_DELAY        0x%08X\n", rXGSptr.ACQ.TRIGGER_DELAY.u32);
+			fprintf(f_dump, "0x148\tACQ.STROBE_CTRL1         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL1.u32);
+			fprintf(f_dump, "0x150\tACQ.STROBE_CTRL2         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL2.u32);
+			fprintf(f_dump, "0x158\tACQ.ACQ_SER_CTRL         0x%08X\n", rXGSptr.ACQ.ACQ_SER_CTRL.u32);
+			fprintf(f_dump, "0x160\tACQ.ACQ_SER_ADDATA       0x%08X\n", rXGSptr.ACQ.ACQ_SER_ADDATA.u32);
+			fprintf(f_dump, "0x168\tACQ.ACQ_SER_STAT         0x%08X\n", rXGSptr.ACQ.ACQ_SER_STAT.u32);
+			fprintf(f_dump, "0x190\tACQ.SENSOR_CTRL          0x%08X\n", rXGSptr.ACQ.SENSOR_CTRL.u32);
+			fprintf(f_dump, "0x198\tACQ.SENSOR_STAT          0x%08X\n", rXGSptr.ACQ.SENSOR_STAT.u32);
+			fprintf(f_dump, "0x1a0\tACQ.SENSOR_SUBSAMPLING   0x%08X\n", rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32);
+			fprintf(f_dump, "0x1a4\tACQ.SENSOR_GAIN_ANA      0x%08X\n", rXGSptr.ACQ.SENSOR_GAIN_ANA.u32);
+			fprintf(f_dump, "0x1a8\tACQ.SENSOR_ROI_Y_START   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_START.u32);
+			fprintf(f_dump, "0x1ac\tACQ.SENSOR_ROI_Y_SIZE    0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32);
+			fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
+			fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
+			fprintf(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
+			fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
+			fprintf(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
+			fprintf(f_dump, "0x1e8\tACQ.TRIGGER_MISSED       0x%08X\n", rXGSptr.ACQ.TRIGGER_MISSED.u32);
+			fprintf(f_dump, "0x1f0\tACQ.SENSOR_FPS           0x%08X\n", rXGSptr.ACQ.SENSOR_FPS.u32);
+			fprintf(f_dump, "0x2a0\tACQ.DEBUG                0x%08X\n", rXGSptr.ACQ.DEBUG.u32);
+			fprintf(f_dump, "0x2a8\tACQ.DEBUG_CNTR1          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR1.u32);
+			fprintf(f_dump, "0x2b0\tACQ.DEBUG_CNTR2          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR2.u32);
+			fprintf(f_dump, "0x2b4\tACQ.DEBUG_CNTR3          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR3.u32);
+			fprintf(f_dump, "0x2b8\tACQ.EXP_FOT              0x%08X\n", rXGSptr.ACQ.EXP_FOT.u32);
+			fprintf(f_dump, "0x2c0\tACQ.ACQ_SFNC             0x%08X\n", rXGSptr.ACQ.ACQ_SFNC.u32);
+
+			fclose(f_dump);
+			f_dump_Open = FALSE;
+			printf(" done.");
+
+		}
+	}
+}
+

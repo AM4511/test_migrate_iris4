@@ -131,6 +131,8 @@ public:
 	int  GrabAbort(void);
 	void SetGrabCMD(unsigned long Throttling, int DoSleep);
 
+	void XGS_PCIeCtrl_DumpFile(void);
+
 private:
 	
 	double SystemPeriodNanoSecond= 16.000000;
