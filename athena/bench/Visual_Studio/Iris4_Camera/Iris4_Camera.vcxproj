@@ -163,6 +163,7 @@
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
+    <ClCompile Include="source\XGS12K.cpp" />
     <ClCompile Include="source\XGS_Ctrl.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />
   </ItemGroup>

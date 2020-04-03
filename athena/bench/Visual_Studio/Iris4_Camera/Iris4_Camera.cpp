@@ -27,7 +27,7 @@
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
-
+void Help(CXGS_Ctrl* Camera);
 void test_0000_Continu(CXGS_Ctrl* Camera);
 
 
@@ -120,7 +120,7 @@ int main(void)
 	// Init class XGS CONTROLLER
 	//------------------------------
 	unsigned char * XGS_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS ctrl
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE & rXGSptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr));
+	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGSptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr));
 	CXGS_Ctrl *XGS_Ctrl;
 	XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099);
 	printf("\nXGS Controller Static_ID : 0x%X\n", XGS_Ctrl->rXGSptr.SYSTEM.ID.f.STATICID);
@@ -129,7 +129,7 @@ int main(void)
 	// Init class I2C CONTROLLER
 	//------------------------------
 	unsigned char * I2C_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + 0x10000);   // Lets put a pointer to the FPGA I2C
-	volatile FPGA_REGFILE_I2C_TYPE & rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
+	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 	printf("\nI2C Controller Static_ID : 0x%X\n\n", I2C->rI2Cptr.I2C.I2C_ID.f.ID);
@@ -301,14 +301,9 @@ int main(void)
 	printf("Done. \n\n");
 	Sleep(500);
 
-	//------------------------------
-	// INITIALIZE XGS SENSOR
-	//------------------------------
-	XGS_Ctrl->InitXGS();
 
 
-
-	printf("\nPress 0 to run continuous grab, q to quit\n");
+	Help(XGS_Ctrl);
 
 	//------------------------------
 	//
@@ -355,7 +350,7 @@ int main(void)
 			case '0':
 				test_0000_Continu(XGS_Ctrl);
 				printf("\n\n");
-			//	//Help(Iris3);
+				Help(XGS_Ctrl);
 				break;
 //
 //			case 'p':
@@ -391,7 +386,11 @@ int main(void)
 
 	printf("\n\nPress any key to exit");
 
-	//if(Iris4!= NULL) delete Iris4;
+	
+	
+	MbufFree(MilRegBuf1);	//a effacer avec le vrai produit
+	delete XGS_Ctrl;
+	delete I2C;
 	IrisMilFree();
 	exit(0);
 
@@ -403,3 +402,19 @@ int main(void)
 }  //main
 
 
+//-----------------------
+//  print help
+//-----------------------
+void Help(CXGS_Ctrl* Camera)
+{
+
+	printf("\n------------------------------------------------------------------------------");
+	printf("\n");
+	Camera->PrintTime();
+	printf("\n  IRIS 4 - MENU ");
+	printf("\n");
+	printf("\n  (q) Quit the app");
+	printf("\n  (0) Grab Test Continu");
+	printf("\n------------------------------------------------------------------------------\n\n");
+
+}

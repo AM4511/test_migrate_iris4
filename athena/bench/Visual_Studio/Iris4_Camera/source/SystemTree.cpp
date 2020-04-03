@@ -171,6 +171,8 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 	MSM_HANDLE MSMHandle = NULL;
 	MSM_UINT32 LinkStatus;
 	MSM_UINT32 MasterBit = 0x100007;
+	MSM_UINT32 DevCtrlRegister = 0x2000;
+
 	MSMAttach(&MSMHandle);
 	if(MSMHandle != NULL)
 		{
@@ -180,6 +182,7 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 		func = 0;
 		MSMReadConfig(MSMHandle,  FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x70, 1, &LinkStatus);       // [link Status]
 		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x04, 1, &MasterBit);
+		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x68, 1, &DevCtrlRegister);
 
 		if((LinkStatus & 0xff0000)      == 0x110000) { printf("\nFPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
 		else if((LinkStatus & 0xff0000) == 0x120000) { printf("\nFPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1

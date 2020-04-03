@@ -39,6 +39,9 @@
     <ClCompile Include="tests\test_0000_Continu.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="source\XGS12K.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">

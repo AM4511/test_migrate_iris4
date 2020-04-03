@@ -147,29 +147,29 @@ void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
    //
    //---------------------
    MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
-   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
+   //MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
    MdispSelect(*MilDisplay, GrabBuffer);
    MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
 
    }
 
-void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20])
-   {
-   char title[50];
-
-   sprintf_s(title, "MIL Display %s", DisplayInfo);
-
-   //---------------------
-   //
-   // Create display
-   //
-   //---------------------
-   MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
-   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
-   MdispSelect(*MilDisplay, GrabBuffer);
-   MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
-
-   }
+//void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20])
+//   {
+//   char title[50];
+//
+//   sprintf_s(title, "MIL Display %s", DisplayInfo);
+//
+//   //---------------------
+//   //
+//   // Create display
+//   //
+//   //---------------------
+//   MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
+//   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
+//   MdispSelect(*MilDisplay, GrabBuffer);
+//   MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
+//
+//   }
 
 
 
@@ -177,6 +177,7 @@ void IrisMilFree(void)
    {
    for (int i=0 ;i<10;i++)
      MbufFree(LayerMilRegBuf[i]);
+
    MsysFree(LayerMilSystem);
    MappFree(LayerMilApplication);
    }
