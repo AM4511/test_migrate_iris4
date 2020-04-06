@@ -217,6 +217,9 @@ proc create_root_design { parentCell } {
 
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+  set_property -dict [ list \
+   CONFIG.G_KU706 {1} \
+ ] $axiXGS_controller_0
 
   # Create instance: axi_i2c_0, and set properties
   set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]

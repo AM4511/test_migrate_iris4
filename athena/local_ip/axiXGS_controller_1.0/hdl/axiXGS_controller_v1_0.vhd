@@ -114,7 +114,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
         S_AXI_ACLK        : in std_logic;
         S_AXI_ARESETN     : in std_logic;
         S_AXI_AWADDR      : in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-        S_AXI_AWPROT      : in std_logic_vector(2 downto 0);
+        --S_AXI_AWPROT      : in std_logic_vector(2 downto 0);
         S_AXI_AWVALID     : in std_logic;
         S_AXI_AWREADY     : out std_logic;
         
@@ -128,7 +128,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
         S_AXI_BREADY      : in std_logic;
         
         S_AXI_ARADDR      : in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-        S_AXI_ARPROT      : in std_logic_vector(2 downto 0);
+        --S_AXI_ARPROT      : in std_logic_vector(2 downto 0);
         S_AXI_ARVALID     : in std_logic;
         S_AXI_ARREADY     : out std_logic;
         
@@ -330,7 +330,7 @@ begin
         S_AXI_ACLK        => S_AXI_ACLK,   
         S_AXI_ARESETN     => S_AXI_ARESETN,
         S_AXI_AWADDR      => S_AXI_AWADDR, 
-        S_AXI_AWPROT      => S_AXI_AWPROT, 
+        --S_AXI_AWPROT      => S_AXI_AWPROT, 
         S_AXI_AWVALID     => S_AXI_AWVALID,
         S_AXI_AWREADY     => S_AXI_AWREADY,
                          
@@ -344,7 +344,7 @@ begin
         S_AXI_BREADY      => S_AXI_BREADY, 
                          
         S_AXI_ARADDR      => S_AXI_ARADDR, 
-        S_AXI_ARPROT      => S_AXI_ARPROT, 
+        --S_AXI_ARPROT      => S_AXI_ARPROT, 
         S_AXI_ARVALID     => S_AXI_ARVALID,
         S_AXI_ARREADY     => S_AXI_ARREADY,
                          

@@ -1870,7 +1870,7 @@ BEGIN
   ------------------------------------------
   Xxgs_spi : xgs_spi
              
-  generic map( G_SYS_CLK_PERIOD    => G_SYS_CLK_PERIOD
+  generic map( G_SYS_CLK_PERIOD    => G_SYS_CLK_PERIOD  
               )
              
   port map(
@@ -2272,8 +2272,8 @@ BEGIN
       
       --4 dummy lines after M_lines need to be confirmed by Onsemi      
       TOTAL_NB_LINES <= "11" +                                               -- 3 is first dummy lines after FOT
-                        REGFILE.ACQ.SENSOR_M_LINES.M_LINES +                 -- Black lines for calibartion  
-                        REGFILE.ACQ.SENSOR_F_LINES.F_LINES +                 -- F_lines, where are located F_LINES ???
+                        REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR +          -- Black lines for calibartion  
+                        REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +          -- F_lines, where are located F_LINES ???
                         '1' +                                                -- Embbeded line in Valid data
                         ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler
                         "111" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2,3 

@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0xD7056496
+* Register file CRC32 : 0xAB304108
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -632,9 +632,9 @@ typedef union
 
    struct
    {
-      M_UINT32 M_LINES      : 10;  /* Bits(9:0), null */
-      M_UINT32 M_SUPPRESSED : 5;   /* Bits(14:10), null */
-      M_UINT32 RSVD0        : 17;  /* Bits(31:15), Reserved */
+      M_UINT32 M_LINES_SENSOR : 10;  /* Bits(9:0), null */
+      M_UINT32 M_SUPPRESSED   : 5;   /* Bits(14:10), null */
+      M_UINT32 RSVD0          : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_M_LINES_TYPE;
@@ -651,9 +651,9 @@ typedef union
 
    struct
    {
-      M_UINT32 F_LINES      : 10;  /* Bits(9:0), null */
-      M_UINT32 F_SUPPRESSED : 5;   /* Bits(14:10), null */
-      M_UINT32 RSVD0        : 17;  /* Bits(31:15), Reserved */
+      M_UINT32 F_LINES_SENSOR : 10;  /* Bits(9:0), null */
+      M_UINT32 F_SUPPRESSED   : 5;   /* Bits(14:10), null */
+      M_UINT32 RSVD0          : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_F_LINES_TYPE;
