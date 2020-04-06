@@ -936,7 +936,7 @@ ibuf_200MHz : IBUFDS
 
 
   GPIO_LED_LEFT  <= heart_beat_cntr(27) and not(PCIE_PERST_LS);
-  GPIO_LED_RIGHT <= '0';
+  GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
 
   --Pour reveille le MUX IC2 : reset is active lo
   --I2C_MUX_resetN <='1';

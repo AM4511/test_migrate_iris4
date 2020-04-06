@@ -2,11 +2,11 @@
 ** File                : Cregfile_xgs_ctrl.cpp
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/03/18 14:41:24
+** Created on          : 2020/04/01 08:20:13
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0xD7056496
+** Register file CRC32 : 0xAB304108
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -388,7 +388,7 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    //Fields:
    pRegister->addField(createField(pRegister, "M_SUPPRESSED", 10, 5, CfdkField::RW, 0x0, 0x1f, 0x1f)); // SENSOR_M_LINES(14:10)
-   pRegister->addField(createField(pRegister, "M_LINES", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_M_LINES(9:0)
+   pRegister->addField(createField(pRegister, "M_LINES_SENSOR", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_M_LINES(9:0)
 
    /******************************************************************
    * Register: //ACQ/SENSOR_F_LINES(31:0)
@@ -400,7 +400,7 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    //Fields:
    pRegister->addField(createField(pRegister, "F_SUPPRESSED", 10, 5, CfdkField::RW, 0x0, 0x1f, 0x1f)); // SENSOR_F_LINES(14:10)
-   pRegister->addField(createField(pRegister, "F_LINES", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_F_LINES(9:0)
+   pRegister->addField(createField(pRegister, "F_LINES_SENSOR", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_F_LINES(9:0)
 
    /******************************************************************
    * Register: //ACQ/DEBUG_PINS(31:0)

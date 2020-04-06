@@ -1121,7 +1121,7 @@ BEGIN
       elsif(capture1= '1') then
         scanff(31 downto 0) <= fifo_out36_dat & fifo_out36(32) & fifo_out36_add;
       elsif(captureT= '1') then                                               -- XGS temperature read 
-        scanff(31 downto 0) <= "0000000000000000" & '0' & "000000000000000"; -- Data dontcare set to 0x0, read=0, add=????
+        scanff(31 downto 0) <= "0000000000000000" & '1' & "000000000000000"; -- Data dontcare set to 0x0, read=0, add=????
       elsif(scanout='1') then
         scanff(31)          <= '0';
         scanff(30 downto 0) <= scanff(31 downto 1);
@@ -1164,8 +1164,8 @@ BEGIN
           -- sclk_div = "0111110" : div 64
           
           --Pour supporter div 4 dans les access on devance d'un clk ici la generation du "read_flag"
-          if( (capture1='1' or captureT='1') and fifo_out36(35)='0' and sclk_div = sclk_div_reset_W) or  
-            ( (capture1='1' or captureT='1') and fifo_out36(35)='1' and sclk_div = sclk_div_reset_R) then
+          if( (capture1='1' or captureT='1') and fifo_out36(32)='0' and sclk_div = sclk_div_reset_W) or  
+            ( (capture1='1' or captureT='1') and fifo_out36(32)='1' and sclk_div = sclk_div_reset_R) then
             sclk_div_reset <= '1';
           elsif( read_flag='0' and sclk_div = sclk_div_reset_W) or    
                ( read_flag='1' and sclk_div = sclk_div_reset_R) then  

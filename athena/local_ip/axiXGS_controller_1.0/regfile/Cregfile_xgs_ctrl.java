@@ -371,7 +371,7 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       //Fields:
       register.addField(new CField(register, "M_SUPPRESSED", "null", CField.FieldType.RW, 10, 5, 0x0));
-      register.addField(new CField(register, "M_LINES", "null", CField.FieldType.RW, 0, 10, 0x8));
+      register.addField(new CField(register, "M_LINES_SENSOR", "null", CField.FieldType.RW, 0, 10, 0x8));
 
       /***************************************************************
       * Register: SENSOR_F_LINES
@@ -382,7 +382,7 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       //Fields:
       register.addField(new CField(register, "F_SUPPRESSED", "null", CField.FieldType.RW, 10, 5, 0x0));
-      register.addField(new CField(register, "F_LINES", "null", CField.FieldType.RW, 0, 10, 0x8));
+      register.addField(new CField(register, "F_LINES_SENSOR", "null", CField.FieldType.RW, 0, 10, 0x8));
 
       /***************************************************************
       * Register: DEBUG_PINS

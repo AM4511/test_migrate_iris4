@@ -2,7 +2,7 @@
 # IO clocks
 # #####################################################################################
 create_clock -period 10.000 -name io_sysclk_ref_clk200 -waveform {0.000 2.500} [get_ports SYSCLK_P]
-create_clock -period 10.000 -name io_pcie_ref_clk     -waveform {0.000 5.000} [get_ports PCIE_CLK_QO_P]
+create_clock -period 10.000 -name io_pcie_ref_clk -waveform {0.000 5.000} [get_ports PCIE_CLK_QO_P]
 #create_clock -period 2.570  -name io_hispi_clk_top    -waveform {0.000 1.285} [get_ports FMC_HPC_CLK0_M2C_P]
 #create_clock -period 2.570  -name io_hispi_clk_bottom -waveform {0.000 1.285} [get_ports FMC_HPC_CLK1_M2C_P]
 
@@ -127,5 +127,6 @@ set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbclk] 0.000
 set_max_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 16.000
 set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 0.000
 
-set_false_path -to [get_pins {*/*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D}]
-set_false_path -to [get_pins {*/*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D}]
+set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D]
+set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D]
+
