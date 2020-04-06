@@ -9,16 +9,14 @@ set myself [info script]
 puts "Running ${myself}"
 
 
-set BASE_NAME validation_athena
-#set DEVICE "xc7a35ticpg236-1L"
+set PROJECT_NAME validation_athena
 set DEVICE "xc7a50ticpg236-1L"
-
-set DEVICE "xc7z045ffg900-2"
 
 set VIVADO_SHORT_VERSION [version -short]
 
 
-set WORKDIR      $env(IRIS4)/athena
+set WORKDIR            $env(IRIS4)/athena
+set MODELSIM_LIB       $env(MTI_LIB_XILINX_PATH)
 
 # IP repositories
 set IPCORES_DIR        ${WORKDIR}/ipcores
@@ -26,11 +24,17 @@ set LOCAL_IP_DIR       ${WORKDIR}/local_ip
 set SRC_DIR            ${WORKDIR}/design
 				       
 set VIVADO_DIR         ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
+set PROJECT_DIR        ${VIVADO_DIR}/${PROJECT_NAME}
 set VALIDATION_DIR     ${WORKDIR}/validation
+set VALIDATION_SRCDIR  ${WORKDIR}/validation/src
+
 set TCL_DIR            ${VALIDATION_DIR}/tcl
 set SYSTEM_DIR         ${VALIDATION_DIR}/tcl
 
-set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
+
+set IP_USER_FILES      ${PROJECT_DIR}/${PROJECT_NAME}.ip_user_files 
+set IP_COMPILED_LIBS   ${IP_USER_FILES}/ipstatic 
+
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ipi_testbench.tcl
 
 
@@ -41,9 +45,6 @@ set FPGA_BUILD_DATE [clock seconds]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 
 puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
-set PROJECT_NAME  ${BASE_NAME}
-
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 
 file mkdir $PROJECT_DIR
 
@@ -56,7 +57,7 @@ file delete -force ${PROJECT_NAME}.xpr
 ###################################################################################
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
 
-set_property target_language VHDL [current_project]
+set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
@@ -82,17 +83,18 @@ reset_target all ${BD_FILE}
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 
+add_files -norecurse ${VALIDATION_SRCDIR}/testbench_athena.sv
 
-set_property top system_wrapper [current_fileset]
+set_property TOP testbench_athena [get_filesets sim_1]
 
 
-set MODELSIM_LIB     "D:/mtipe_lib/modelsim10.6c/vivado2019.1"
-set OUTPUT_DIR       "D:/work/iris4/athena/validation/mti"
-set IP_USER_FILES    "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files"
-set IP_COMPILED_LIBS "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files/ipstatic"
 
-file mkdir $OUTPUT_DIR/modelsim/modelsim_lib
-export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${OUTPUT_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
+#set OUTPUT_DIR       "D:/work/iris4/athena/validation"
+# set IP_USER_FILES    "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files"
+#set IP_COMPILED_LIBS "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files/ipstatic"
+
+export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
+file mkdir ${VALIDATION_DIR}/modelsim/modelsim_lib
 
 
 

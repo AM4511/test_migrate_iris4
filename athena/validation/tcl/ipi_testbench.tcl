@@ -43,7 +43,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7z045ffg900-2
+   create_project project_1 myproj -part xc7a50ticpg236-1L
 }
 
 
@@ -129,6 +129,7 @@ matrox.com:user:AXI_i2c_Matrox:1.0\
 xilinx.com:ip:clk_gen_sim:1.0\
 matrox.com:user:dmawr2tlp:1.0.0\
 matrox.com:user:modelAxiMasterLite:1.0\
+matrox.com:user:xgs12m_model:1.0\
 "
 
    set list_ips_missing ""
@@ -196,11 +197,7 @@ proc create_root_design { parentCell } {
 
   set dma_tlp [ create_bd_intf_port -mode Master -vlnv matrox.com:user:mtx_tlp_rtl:1.0 dma_tlp ]
 
-  set hispi [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi ]
-
   set i2c [ create_bd_intf_port -mode Master -vlnv matrox.com:user:I2C_Matrox_rtl:1.0 i2c ]
-
-  set xgs_ctrl [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl ]
 
 
   # Create ports
@@ -244,14 +241,18 @@ proc create_root_design { parentCell } {
   # Create instance: modelAxiMasterLite_0, and set properties
   set modelAxiMasterLite_0 [ create_bd_cell -type ip -vlnv matrox.com:user:modelAxiMasterLite:1.0 modelAxiMasterLite_0 ]
   set_property -dict [ list \
+   CONFIG.ENABLE_INPUT_IO {true} \
    CONFIG.USER_IN_WIDTH {1} \
-   CONFIG.USER_OUT_WIDTH {0} \
+   CONFIG.USER_OUT_WIDTH {1} \
  ] $modelAxiMasterLite_0
+
+  # Create instance: xgs12m_model_0, and set properties
+  set xgs12m_model_0 [ create_bd_cell -type ip -vlnv matrox.com:user:xgs12m_model:1.0 xgs12m_model_0 ]
 
   # Create interface connections
   connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr2tlp_0/s_axis]
   connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if] [get_bd_intf_pins xgs12m_model_0/xgs_ctrl]
   connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports i2c] [get_bd_intf_pins axi_i2c_0/I2C_interface]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
@@ -259,7 +260,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins dmawr2tlp_0/s_axi]
   connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_ports dma_tlp] [get_bd_intf_pins dmawr2tlp_0/dma_tlp]
   connect_bd_intf_net -intf_net modelAxiMasterLite_0_m_axi [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins modelAxiMasterLite_0/m_axi]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net xgs12m_model_0_hispi_io [get_bd_intf_pins axiHiSPi_0/s_hispi] [get_bd_intf_pins xgs12m_model_0/hispi_io]
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins clk_gen_sim_0/axi_clk_0] [get_bd_pins dmawr2tlp_0/sys_clk] [get_bd_pins modelAxiMasterLite_0/axi_clk]
