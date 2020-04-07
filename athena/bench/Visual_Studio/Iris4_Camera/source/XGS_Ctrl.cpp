@@ -145,8 +145,8 @@ SensorParamStruct* CXGS_Ctrl::getSensorParams(void)
 void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 {
 
-
 /*
+
     //CODE test
 	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) + ((data & 0xffff) << 16);
 	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
@@ -158,15 +158,14 @@ void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
 	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0000;
 	
-	while ((rXGSptr.ACQ.ACQ_SER_STAT.u32 &0xff000000 ) != 0x00000000);
-	
 	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0010;
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
 	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0000;
 
 	while ( (rXGSptr.ACQ.ACQ_SER_STAT.u32 & 0x00ff0000) == 0x00010000);
-
 */
+
+
 
 
 
@@ -484,7 +483,7 @@ void CXGS_Ctrl::InitXGS()
 
 	
 
-	M_UINT32 EXP_FOT_TIME     = 5360;  //5.36us calculated from start of FOT to end of real exposure in dev board
+	M_UINT32 EXP_FOT_TIME     = 5360;  //5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 	
 	//Enable EXP during FOT
 	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT_TIME = (M_UINT32) ((double)EXP_FOT_TIME / SystemPeriodNanoSecond);
@@ -499,7 +498,9 @@ void CXGS_Ctrl::InitXGS()
 	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA   = 1;
 	rXGSptr.ACQ.READOUT_CFG3.u32                   = sXGSptr.ACQ.READOUT_CFG3.u32;
 
- 
+	// Set FOT time (not used by fpga for the moment)
+	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = GrabParams.FOT;
+	rXGSptr.ACQ.READOUT_CFG1.u32          = sXGSptr.ACQ.READOUT_CFG1.u32;
 
 }
 
@@ -562,6 +563,14 @@ void CXGS_Ctrl::DisableXGS()
 	Sleep(100);
 }
 
+
+//----------------------------------------------------
+//  getExposure SingleSlope: in us
+//----------------------------------------------------
+M_UINT32 CXGS_Ctrl::getExposure(void)
+{
+	return((M_UINT32)(sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS * SystemPeriodNanoSecond / 1000));
+}
 
 
 //----------------------------------------------------

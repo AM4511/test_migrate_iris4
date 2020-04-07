@@ -96,6 +96,8 @@ public:
 	GrabParamStruct   GrabParams;
 	SensorParamStruct SensorParams;
 
+
+
 	void PrintTime(void);
 
 	//Pointeur aux registres dans fpga 
@@ -122,6 +124,7 @@ public:
 	void Activate_sensor(void);
 
 	void SetGrabParams(unsigned long Throttling = 0);
+	M_UINT32 getExposure(void);
 	void setExposure(M_UINT32 exposure_ss_us);
 	void setBlackRef(int value);
 	void SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTIVATION);
@@ -135,8 +138,9 @@ public:
 
 private:
 	
-	double SystemPeriodNanoSecond= 16.000000;
-	double SensorPeriodNanoSecond= 15.432099;
+	double SystemPeriodNanoSecond = 16.000000;
+	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
+	double SensorPeriodNanoSecond = 15.625000; //32Mhz
 
 	void SetGrabParamsInit12000(int lanes);
 	void LoadDCF_12K(int lanes);

@@ -12,13 +12,13 @@
 #include "XGS_Ctrl.h"
 
 //---------------------------------
-// Constants for XGS 12K FOT
+// Constants for XGS 12K FOT  greg ferrel 1/04/2020
 //---------------------------------
 // SFOTand EFOT numbers
 // SFOT 24 lanes -> 14.4us
 // SFOT 18 lanes -> 15.2us
 // SFOT 12 lanes -> 22.9us
-// SFOT 6 lanes ->  45.76us
+// SFOT 6 lanes ->  45.76us -> 4.05 lines
 // EFOT 24 lanes-> 29.9us
 // EFOT 18 lanes -> 31.1us
 // EFOT 12 lanes ->50.1us
@@ -29,10 +29,7 @@
 // EFOT 24 lanes -> 29.9us
 
 
-static unsigned long XGS12K_FOT_24L  = 0;                      
-static unsigned long XGS12K_FOT_18L  = 0;
-static unsigned long XGS12K_FOT_12L  = 0;
-static unsigned long XGS12K_FOT_6L   = 0;
+
 
 
 
@@ -48,10 +45,11 @@ void CXGS_Ctrl::SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch           = 24;
    SensorParams.Xsize_Full             = 4096; //+8; //8 Interpolation
    SensorParams.Ysize_Full             = 3072; //+8;
-   if (lanes == 24)   SensorParams.FOT = XGS12K_FOT_24L;
-   if (lanes == 18)   SensorParams.FOT = XGS12K_FOT_18L;
-   if (lanes == 12)   SensorParams.FOT = XGS12K_FOT_12L;
-   if (lanes == 6)    SensorParams.FOT = XGS12K_FOT_6L;
+
+   if (lanes == 24)   SensorParams.FOT = unsigned long(29900 / SystemPeriodNanoSecond);
+   if (lanes == 18)   SensorParams.FOT = unsigned long(31100 / SystemPeriodNanoSecond);
+   if (lanes == 12)   SensorParams.FOT = unsigned long(50100 / SystemPeriodNanoSecond);
+   if (lanes == 6)    SensorParams.FOT = unsigned long(95900 / SystemPeriodNanoSecond);
 
    GrabParams.LinePitch           = SensorParams.Xsize_Full; //pour linstant 8bpp
    GrabParams.Y_START             = 0;
@@ -81,8 +79,12 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 	// Program monitor pins in XGS
 	M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
 	M_UINT32 monitor_1_reg = 0x10;   // EFOT indication
-	M_UINT32 monitor_2_reg = 0x1;    // New_line
+	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+	M_UINT32 monitor_2_reg = 0x15;  // effective line
+
 	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+
 
 	// Copy some "mirror" registers from Sensor to FPGA
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = ReadSPI(0x3844);      //Analog Gain
@@ -99,7 +101,6 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 
 	sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = ReadSPI(0x3810);      //LINETIME
 	rXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME;
-
 
 
 

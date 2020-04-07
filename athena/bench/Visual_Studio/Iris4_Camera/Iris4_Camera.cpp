@@ -122,7 +122,8 @@ int main(void)
 	unsigned char * XGS_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS ctrl
 	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGSptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr));
 	CXGS_Ctrl *XGS_Ctrl;
-	XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099);
+	//XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099); //32.4Mhz
+	XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.625);    //32Mhz
 	printf("\nXGS Controller Static_ID : 0x%X\n", XGS_Ctrl->rXGSptr.SYSTEM.ID.f.STATICID);
 
 	//------------------------------

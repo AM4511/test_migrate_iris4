@@ -32,7 +32,7 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	bool DisplayOn  = true;
 	int PolldoSleep = 1;
 	bool FPS_On     = true;
-
+	M_UINT32 ExposureIncr = 10;
 
 	GrabParamStruct*   GrabParams   = Camera->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = Camera->getSensorParams();
@@ -68,7 +68,7 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	Camera->setExposure(8000);
+	Camera->setExposure(40000);
 
 	// For a full frame ROI
 	M_UINT32 ROI_Y_START = 0;                                         // Premiere ligne d'interpolation (si centree + 4)
@@ -101,10 +101,13 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	printf("\n\n  (q) Quit this test");
 	printf("\n  (f) Print current FPS");
 	printf("\n  (d) Dump XGS controller registers(PCIe)");
+	printf("\n  (+) Increase Exposure");
+	printf("\n  (-) Decrease Exposure");
+	printf("\n  (e) Exposure Incr/Decr gap");
 	printf("\n\n");
 
 	unsigned long fps_reg;
-
+	
 	while (Sortie == 0)
 	{
 
@@ -159,6 +162,23 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 				fps_reg = Camera->rXGSptr.ACQ.SENSOR_FPS.u32;
 				printf("\r%dfps   ", Camera->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 				break;
+
+			case 'e':
+				printf("\nEnter the ExposureIncr/Decr in us : ");
+				scanf_s("%d", &ExposureIncr);
+				printf("\n");
+				break;
+
+			case '+':
+				Camera->setExposure(Camera->getExposure() + ExposureIncr);
+				printf("\r\t\tExposure set to: %d us\n  ", Camera->getExposure() + ExposureIncr);
+				break;
+
+			case '-':
+				Camera->setExposure(Camera->getExposure() - ExposureIncr);
+				printf("\r\t\tExposure set to: %d us\n  ", Camera->getExposure() - ExposureIncr);
+				break;
+
 
 			}
 
