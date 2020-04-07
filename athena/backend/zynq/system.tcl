@@ -219,6 +219,7 @@ proc create_root_design { parentCell } {
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
   set_property -dict [ list \
    CONFIG.G_KU706 {1} \
+   CONFIG.G_SENSOR_FREQ {32000} \
  ] $axiXGS_controller_0
 
   # Create instance: axi_i2c_0, and set properties
@@ -232,8 +233,12 @@ proc create_root_design { parentCell } {
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
+   CONFIG.M00_HAS_DATA_FIFO {1} \
+   CONFIG.M01_HAS_DATA_FIFO {0} \
    CONFIG.NUM_MI {2} \
    CONFIG.NUM_SI {2} \
+   CONFIG.S00_HAS_DATA_FIFO {0} \
+   CONFIG.S01_HAS_DATA_FIFO {0} \
  ] $axi_interconnect_0
 
   # Create instance: pcie2AxiMaster_0, and set properties

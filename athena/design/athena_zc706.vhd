@@ -91,7 +91,7 @@ entity athena_zc706 is
     -- User clock input SMAs, limit input swing voltage to VADJ_FPGA setting
     -- See UG954 (v1.8) August 6, 2019; User SMA Clock Source, page 38.
     ---------------------------------------------------------------------------
-    -- USER_SMA_CLOCK_P : in std_logic;
+    USER_SMA_CLOCK_P : out std_logic;
     -- USER_SMA_CLOCK_N : in std_logic;
 
     ---------------------------------------------------------------------------
@@ -891,6 +891,7 @@ ibuf_200MHz : IBUFDS
 
   -- Exposure
   FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;
+  USER_SMA_CLOCK_P        <= xgs_ctrl_xgs_trig_int;
 
   -- TRigger read line. Not used on the zynq 
   FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;

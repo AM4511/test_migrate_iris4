@@ -159,7 +159,8 @@ set_property PACKAGE_PIN G9 [get_ports SYSCLK_N]
 # set_property PACKAGE_PIN AC18 [get_ports PMOD1_6_LS]
 # set_property PACKAGE_PIN AC19 [get_ports PMOD1_7_LS]
 
-# set_property PACKAGE_PIN AD18 [get_ports USER_SMA_CLOCK_P]
+set_property PACKAGE_PIN AD18 [get_ports USER_SMA_CLOCK_P]
+set_property IOSTANDARD LVCMOS18 [get_ports USER_SMA_CLOCK_P]
 # set_property PACKAGE_PIN AD19 [get_ports USER_SMA_CLOCK_N]
 
 # set_property PACKAGE_PIN AA18 [get_ports SFP_TX_DISABLE]

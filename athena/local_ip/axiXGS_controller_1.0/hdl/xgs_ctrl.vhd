@@ -2277,7 +2277,8 @@ BEGIN
                         '1' +                                                -- Embbeded line in Valid data
                         ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler
                         "111" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2,3 
-                        '1';                                                 -- For jitter
+                        '1'+
+                        "100000";                                              -- Xcerelator pour verifier readout length+32
      
       INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
     end if;
@@ -2327,21 +2328,15 @@ BEGIN
         Synthetic_EXPOSURE <='1';
         Synthetic_FOT      <='0';
         Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <= (others=>'0');       
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  END of EXP during FOT 12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"029e" ) then
-        Synthetic_EXPOSURE <='0';
-        Synthetic_FOT      <='1';
-        Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <= Synthetic_cntr+'1';              
+        Synthetic_cntr     <= (others=>'0');                     
       elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  END of EXP during FOT 12M @ 6 LANES  
            (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"029e" ) then
         Synthetic_EXPOSURE <='0';
         Synthetic_FOT      <='1';
         Synthetic_DELAI_EXP<='0';         
         Synthetic_cntr     <= Synthetic_cntr+'1';              
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"1725" ) or  -- 94.8 us :  END of FOT 12M @ 6 LANES
-           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"2e4a" ) then
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"1fbd" ) or  -- 94.8 us :  END of FOT 12M @ 6 LANES -> oscilloscope dit 22.9+102... je mets 130
+           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"3f7a" ) then
         Synthetic_EXPOSURE <='0';
         Synthetic_FOT      <='0';
         Synthetic_DELAI_EXP<='0';         

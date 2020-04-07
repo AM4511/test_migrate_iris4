@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.numeric_std.all; 
 
 library  work;
 use work.regfile_xgs_ctrl_pack.all;
@@ -9,6 +9,7 @@ entity axiXGS_controller_v1_0 is
 	generic (
 		-- Users to add parameters here
         G_SYS_CLK_PERIOD    : integer  := 16;
+        G_SENSOR_FREQ       : integer  := 32400; 
 		G_SIMULATION        : integer  := 0;
         G_KU706             : integer  := 0;
         -- User parameters ends
@@ -169,7 +170,8 @@ architecture arch_imp of axiXGS_controller_v1_0 is
    component xgs_ctrl
    generic(  G_KU706               : integer := 0;
              G_SIMULATION          : integer := 0;
-             G_SYS_CLK_PERIOD      : integer            
+             G_SYS_CLK_PERIOD      : integer := 16;
+             G_SENSOR_FREQ         : integer := 32400            
           );
    port (  
            sys_reset_n                     : in  std_logic;      --Reset pour le controleur au complet
@@ -450,7 +452,8 @@ begin
    Inst_xgs_ctrl : xgs_ctrl
    generic map(  G_KU706                   => G_KU706,
                  G_SIMULATION              => G_SIMULATION,
-                 G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD
+                 G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD,
+                 G_SENSOR_FREQ             => G_SENSOR_FREQ
           )
    port map(  
            sys_reset_n                     => sys_reset_n_ctrl,      --Reset pour le controleur au complet
