@@ -35,7 +35,7 @@ set SYSTEM_DIR         ${VALIDATION_DIR}/tcl
 set IP_USER_FILES      ${PROJECT_DIR}/${PROJECT_NAME}.ip_user_files 
 set IP_COMPILED_LIBS   ${IP_USER_FILES}/ipstatic 
 
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ipi_testbench.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ipi_testbench_v2.tcl
 
 
 ###################################################################################
@@ -94,6 +94,8 @@ set_property TOP testbench_athena [get_filesets sim_1]
 #set IP_COMPILED_LIBS "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files/ipstatic"
 
 export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
+report_compile_order -of_objects [get_filesets sim_1] -used_in simulation -file  ${VALIDATION_DIR}/output_list.txt
+
 file mkdir ${VALIDATION_DIR}/modelsim/modelsim_lib
 
 
