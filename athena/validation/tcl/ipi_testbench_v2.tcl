@@ -241,12 +241,17 @@ proc create_root_design { parentCell } {
    CONFIG.FREQ_HZ {200000000} \
  ] $idelayClk
   set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
+  set xgs_power_good [ create_bd_port -dir I xgs_power_good ]
 
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
 
   # Create instance: axiXGS_controller_0, and set properties
   set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+  set_property -dict [ list \
+   CONFIG.G_SIMULATION {1} \
+   CONFIG.G_SYS_CLK_PERIOD {16} \
+ ] $axiXGS_controller_0
 
   # Create instance: axi_i2c_0, and set properties
   set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
@@ -289,6 +294,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net dmawr2tlp_0_intevent [get_bd_ports dma_irq] [get_bd_pins dmawr2tlp_0/intevent]
   connect_bd_net -net idelayClk_1 [get_bd_ports idelayClk] [get_bd_pins axiHiSPi_0/idelay_clk]
   connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_ports axiReset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/sys_reset_n]
+  connect_bd_net -net xgs_power_good_1 [get_bd_ports xgs_power_good] [get_bd_pins axiXGS_controller_0/xgs_power_good]
 
   # Create address segments
   create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces s_axil_if] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile

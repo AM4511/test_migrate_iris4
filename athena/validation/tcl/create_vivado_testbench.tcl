@@ -90,7 +90,6 @@ set_property TOP testbench_athena [get_filesets sim_1]
 
 export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
 report_compile_order -of_objects [get_filesets sim_1] -used_in simulation -file  ${VALIDATION_DIR}/output_list.txt
-
 file mkdir ${VALIDATION_DIR}/modelsim/modelsim_lib
 
 
