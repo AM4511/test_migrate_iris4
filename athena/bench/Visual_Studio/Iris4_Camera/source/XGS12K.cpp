@@ -86,6 +86,8 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
 
+	WriteSPI(0x3812, 0);    // integration offset coarse default is 0 [3:0]
+
 	// Copy some "mirror" registers from Sensor to FPGA
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = ReadSPI(0x3844);      //Analog Gain
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;

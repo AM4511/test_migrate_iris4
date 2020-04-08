@@ -108,6 +108,10 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 
 	unsigned long fps_reg;
 	
+
+	Camera->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
+
+
 	while (Sortie == 0)
 	{
 
@@ -179,6 +183,11 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 				printf("\r\t\tExposure set to: %d us\n  ", Camera->getExposure() - ExposureIncr);
 				break;
 
+			case 'p':
+				printf("Paused. Press enter to restart grab...");
+				_getch();
+				printf(" GO!\n");
+				break;
 
 			}
 
