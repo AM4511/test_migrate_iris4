@@ -6,3 +6,4 @@ sdk/fsbl/**
 validation/vivado/**
 validation/modelsim/**
 ../doc/schematic_review/ares_final_pinout_review/**
+/vivado/

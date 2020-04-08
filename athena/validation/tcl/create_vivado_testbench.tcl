@@ -88,11 +88,6 @@ add_files -norecurse ${VALIDATION_SRCDIR}/testbench_athena.sv
 set_property TOP testbench_athena [get_filesets sim_1]
 
 
-
-#set OUTPUT_DIR       "D:/work/iris4/athena/validation"
-# set IP_USER_FILES    "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files"
-#set IP_COMPILED_LIBS "D:/work/iris4/athena/vivado/2019.1/validation_athena/validation_athena.ip_user_files/ipstatic"
-
 export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
 report_compile_order -of_objects [get_filesets sim_1] -used_in simulation -file  ${VALIDATION_DIR}/output_list.txt
 
