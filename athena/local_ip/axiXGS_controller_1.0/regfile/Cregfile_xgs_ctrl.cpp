@@ -2,11 +2,11 @@
 ** File                : Cregfile_xgs_ctrl.cpp
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/04/01 08:20:13
+** Created on          : 2020/04/08 09:30:17
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0xAB304108
+** Register file CRC32 : 0xC931B2A2
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -121,6 +121,18 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
    pRegister->addField(createField(pRegister, "GRAB_REVX", 28, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // READOUT_CFG1(28)
    pRegister->addField(createField(pRegister, "ROT_LENGTH", 16, 10, CfdkField::STATIC, 0x0, 0x0, 0x3ff)); // READOUT_CFG1(25:16)
    pRegister->addField(createField(pRegister, "FOT_LENGTH", 0, 16, CfdkField::STATIC, 0x0, 0x0, 0xffff)); // READOUT_CFG1(15:0)
+
+   /******************************************************************
+   * Register: //ACQ/READOUT_CFG_FRAME_LINE(31:0)
+   * Offset: 0x14
+   * Address: 0x114
+   *******************************************************************/
+   pRegister = createRegister(pSection, "READOUT_CFG_FRAME_LINE", 0x14, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "DUMMY_LINES", 16, 8, CfdkField::RW, 0x0, 0xff, 0xff)); // READOUT_CFG_FRAME_LINE(23:16)
+   pRegister->addField(createField(pRegister, "CURR_FRAME_LINES", 0, 13, CfdkField::RO, 0x0, 0x0, 0x1fff)); // READOUT_CFG_FRAME_LINE(12:0)
 
    /******************************************************************
    * Register: //ACQ/READOUT_CFG2(31:0)

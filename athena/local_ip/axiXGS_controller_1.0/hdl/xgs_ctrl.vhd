@@ -25,7 +25,8 @@ library UNISIM;
 entity xgs_ctrl is
    generic(  G_KU706               : integer := 0; -- Nous n'avons pas de monitor sur le board Xcelerator+KU706 , generation interne!
              G_SIMULATION          : integer := 0;
-             G_SYS_CLK_PERIOD      : integer := 16
+             G_SYS_CLK_PERIOD      : integer := 16;
+             G_SENSOR_FREQ         : integer := 32400
              
           );
    port (  
@@ -514,8 +515,9 @@ signal TOTAL_NB_LINES                : std_logic_vector(12 downto 0);
 signal INTERNAL_READOUT_LENGTH_FLOAT : std_logic_vector(47 downto 0);
 signal INTERNAL_READOUT_LENGTH       : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
   
-constant SENSOR_PERIOD               : std_logic_vector(18 downto 0):= "1111011011101001111"; --X"7B74F";  --[4].[15] : 15.4320985 ns = 1/(2x32.4Mhz)
-
+constant SENSOR_PERIOD_32p4          : std_logic_vector(18 downto 0):= "1111011011101001111"; --X"7B74F";  --[4].[15] : 15.4320985 ns = 1/(2x32.4Mhz)
+constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "1111100111111111111"; --X"7cfff";  --[4].[15] :     15.625 ns = 1/(2x32Mhz)
+signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0); 
 
 -- Pour le board de developpement, on n'a aps les signaux monitor
 signal Synthetic_EXPOSURE : std_logic :='0';
@@ -526,7 +528,10 @@ signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
 
 BEGIN
 
-  
+ 
+
+  SENSOR_PERIOD <=  SENSOR_PERIOD_32p4 when G_SENSOR_FREQ=32400 else SENSOR_PERIOD_32p0 ;
+ 
   ------------------------------------------------------------------------------------------------------------------------------ 
   -- For the 3D profiler, we want to be able to reload the parameters (Python sensor parameters and fpga parameters) with the 
   -- companIOn acquisition_start.
@@ -2273,16 +2278,19 @@ BEGIN
       --4 dummy lines after M_lines need to be confirmed by Onsemi      
       TOTAL_NB_LINES <= "11" +                                               -- 3 is first dummy lines after FOT
                         REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR +          -- Black lines for calibartion  
-                        REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +          -- F_lines, where are located F_LINES ???
-                        '1' +                                                -- Embbeded line in Valid data
-                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler
-                        "111" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2,3 
-                        '1'+
-                        "100000";                                              -- Xcerelator pour verifier readout length+32
+                        --REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +        -- F_lines, where are located F_LINES ???
+                        "100" +                                              -- Dummy 2
+                        --'1' +                                              -- Embbeded line in Valid data
+                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler                        
+                        "111" +                                              -- Dummy 3
+                        "101" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2 
+                        REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;      -- Xcerelator pour verifier readout length+32
      
       INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
     end if;
   end process;  
+  
+  
   
   
   -- First  LSR of 15 bits because of decimal [4].[15] of the sensor period
@@ -2294,7 +2302,7 @@ BEGIN
     
   REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length; -- INTERNAL_READOUT_LENGTH;
       
-      
+  REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          
       
   ----------------------------------------------------------------------
   --

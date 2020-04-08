@@ -127,6 +127,17 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       register.addField(new CField(register, "FOT_LENGTH", "Frame Overhead Time LENGTH", CField.FieldType.STATIC, 0, 16, 0x0));
 
       /***************************************************************
+      * Register: READOUT_CFG_FRAME_LINE
+      * Offset: 0x14
+      ****************************************************************/
+      register = new CRegister(section, "READOUT_CFG_FRAME_LINE", "null", 0x14);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "DUMMY_LINES", "null", CField.FieldType.RW, 16, 8, 0x0));
+      register.addField(new CField(register, "CURR_FRAME_LINES", "null", CField.FieldType.RO, 0, 13, 0x0));
+
+      /***************************************************************
       * Register: READOUT_CFG2
       * Offset: 0x18
       ****************************************************************/

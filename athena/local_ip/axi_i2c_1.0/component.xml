@@ -288,7 +288,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>2d29711e</spirit:value>
+            <spirit:value>ba7e7719</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -304,7 +304,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>2d29711e</spirit:value>
+            <spirit:value>ba7e7719</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -735,32 +735,38 @@
         <spirit:name>hdl/AxiSlave2Reg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>registerfile/regfile_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/event_cross_domain.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/i2c_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/resetsync.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/axi_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_07fd5a3b</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_0472bf0f</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -769,31 +775,37 @@
         <spirit:name>hdl/AxiSlave2Reg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>registerfile/regfile_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/event_cross_domain.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/i2c_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/resetsync.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/axi_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -932,11 +944,11 @@
       </xilinx:taxonomies>
       <xilinx:displayName>axi_i2c</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_0</xilinx:autoFamilySupportLevel>
-      <xilinx:coreRevision>4</xilinx:coreRevision>
+      <xilinx:coreRevision>6</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:axi_i2c:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-03-19T17:21:43Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-04-08T12:48:48Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@347a1a46_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@19e81a3f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
@@ -1134,13 +1146,32 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@4f9505d0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@2cab7edf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@2d898d27_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1b3236d6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5056fcb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1149f417_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@102830a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c4399b7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@39c49b96_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2c96f6c9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7fe86e90_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@442bbae9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3f8f5713_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@92113b3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1bfd12f2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1f730a45_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@315bbd3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@59c71446_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@345ad2d1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f489c9a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c6f155e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@401440fd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="e15660e7"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="ef34abca"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="a2740a74"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="e15a97bc"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="8fa36555"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="7c87e592"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="1845508a"/>
