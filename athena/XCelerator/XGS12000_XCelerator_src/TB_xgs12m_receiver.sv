@@ -74,6 +74,7 @@ module TB_xgs12m_receiver(  );
  wire xgs_trig_int;
  wire xgs_trig_rd;
  
+ int nbLaneSPI;
  bit [15:0] line_time   = 16'h00e6;  //default model
  
 
@@ -467,6 +468,8 @@ initial begin
     // PROGRAM XGS MODEL PART 1 
     //
     //-------------------------------------------------------    
+    nbLaneSPI = 6;
+
 
     // default dans le model XGS:
     // ---------------------------------
@@ -493,10 +496,21 @@ initial begin
     XGS_WriteSPI(16'h3e3e,16'h0001);
     
     //jmansill HISPI control common register
-    XGS_WriteSPI(16'h3e28,16'h2507);   //mux 4:4
-    //XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
-    //XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
-    //XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
+    if (nbLaneSPI==24) begin
+       XGS_WriteSPI(16'h3e28,16'h2507);   //mux 4:4
+    end;   
+    
+    if (nbLaneSPI==18) begin
+      XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
+    end;  
+    
+    if (nbLaneSPI==12) begin
+      XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
+    end;  
+    
+    if (nbLaneSPI==6) begin
+      XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
+    end;  
 
 
     
@@ -840,11 +854,23 @@ initial begin
     
     
     // jmansill : SET Slave triggered mode    
+    if (nbLaneSPI==24) begin
+      line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end;
+ 
+    if (nbLaneSPI==18) begin
+      line_time                     = 16'hf4;         // default in model and in devware is 0xf4  (12 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end;  
+
+    if (nbLaneSPI==12) begin
+      line_time                     = 16'h16e;         // default in model and in devware is 0x16e  (12 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end; 
     
-    line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
-                                                     // default              in devware is 0xf4  (18 lanes)
-                                                     // default              in devware is 0x16e (12 lanes)
-                                                     // default              in devware is 0x2dc (6 lanes)  
+    if (nbLaneSPI==6) begin
+      line_time                     = 16'h2dc;         // default in model and in devware is 0x2dc  (6 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end; 
+  
+  
                                                      
     XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
     

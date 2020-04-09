@@ -2281,7 +2281,7 @@ BEGIN
                         --REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +        -- F_lines, where are located F_LINES ???
                         "100" +                                              -- Dummy 2
                         --'1' +                                              -- Embbeded line in Valid data
-                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler                        
+                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler          --- mettre current ici????              
                         "111" +                                              -- Dummy 3
                         "101" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2 
                         REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;      -- Xcerelator pour verifier readout length+32
