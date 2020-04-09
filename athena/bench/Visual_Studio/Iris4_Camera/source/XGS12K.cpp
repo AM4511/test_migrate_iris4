@@ -78,13 +78,16 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 
 	// Program monitor pins in XGS
 	M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
-	M_UINT32 monitor_1_reg = 0x10;   // EFOT indication
+	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
 	//M_UINT32 monitor_2_reg = 0x1;    // New_line
 	M_UINT32 monitor_2_reg = 0x15;  // effective line
+	//M_UINT32 monitor_2_reg = 0x13;  // Mline
 
 	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
 	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
+	WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
+	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);    // Monitor_ctrl
 
 	WriteSPI(0x3812, 0);    // integration offset coarse default is 0 [3:0]
 
@@ -98,7 +101,7 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 	sXGSptr.ACQ.SENSOR_M_LINES.u32       = ReadSPI(0x389a);      //M_LINES cntx(0)
 	rXGSptr.ACQ.SENSOR_M_LINES.u32       = sXGSptr.ACQ.SENSOR_M_LINES.u32;
 
-	sXGSptr.ACQ.SENSOR_F_LINES.u32       = ReadSPI(0x389C);      //F_LINES cntx(0)
+	sXGSptr.ACQ.SENSOR_F_LINES.u32       = ReadSPI(0x389c);      //F_LINES cntx(0)
 	rXGSptr.ACQ.SENSOR_F_LINES.u32       = sXGSptr.ACQ.SENSOR_F_LINES.u32;
 
 	sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = ReadSPI(0x3810);      //LINETIME

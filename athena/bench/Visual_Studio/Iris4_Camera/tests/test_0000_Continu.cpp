@@ -33,7 +33,7 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	int PolldoSleep = 1;
 	bool FPS_On     = true;
 	M_UINT32 ExposureIncr = 10;
-
+	M_UINT32 XGSSize_Y = 0;
 	GrabParamStruct*   GrabParams   = Camera->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = Camera->getSensorParams();
 
@@ -71,8 +71,9 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	Camera->setExposure(40000);
 
 	// For a full frame ROI
-	M_UINT32 ROI_Y_START = 0;                                         // Premiere ligne d'interpolation (si centree + 4)
-	M_UINT32 ROI_Y_END   = ROI_Y_START + SensorParams->Ysize_Full;  
+	GrabParams->Y_START = 0;
+	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;
+	//GrabParams->Y_END   = 8;
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -109,8 +110,13 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 	unsigned long fps_reg;
 	
 
-	Camera->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
+	Camera->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 4;
 
+
+	//---------------------
+	// Give SPI control to FPGA
+	//---------------------
+	Camera->EnableRegUpdate();
 
 	while (Sortie == 0)
 	{
@@ -188,6 +194,24 @@ void test_0000_Continu(CXGS_Ctrl* Camera)
 				_getch();
 				printf(" GO!\n");
 				break;
+
+			case 'r':
+				Sleep(1000);
+				Camera->DisableRegUpdate();
+				Sleep(100);
+				printf("Y start0 is 0x%x x4\n", Camera->ReadSPI(0x381a));
+				printf("Y size0 is 0x%x x4\n", Camera->ReadSPI(0x381c));
+				printf("Y start1 is 0x%x x4\n", Camera->ReadSPI(0x381e));
+				printf("Y size1 is 0x%x x4\n", Camera->ReadSPI(0x3820));
+				printf("Readout Lenght 0x%x, %d dec, time is %dns\n", Camera->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, Camera->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, Camera->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH *16);
+				Sleep(100);
+				Camera->EnableRegUpdate();
+				break;
+
+			case 'y':
+				printf("\nEnter the new Size Y (1-based): ");
+				scanf_s("%d", &XGSSize_Y);				
+				GrabParams->Y_END = XGSSize_Y;
 
 			}
 
