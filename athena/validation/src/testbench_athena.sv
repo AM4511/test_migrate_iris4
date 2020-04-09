@@ -163,8 +163,6 @@ module testbench_athena();
 		master_agent.wait_n(1000);
 
 
-
-
 		//--------------------------------------------------------
 		//
 		// WakeUP XGS SENSOR : unreset and enable clk to the sensor : SENSOR_POWERUP
@@ -313,18 +311,20 @@ module testbench_athena();
 		//
 
     
-    
+		XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
+
 		// jmansill : SET Slave triggered mode
     
-		line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+		// default              in devware is 00E6  (24 lanes)
 		// default              in devware is 0xf4  (18 lanes)
 		// default              in devware is 0x16e (12 lanes)
 		// default              in devware is 0x2dc (6 lanes)
                                                      
-		XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
-    
+		//--------------------------------------------------------
+		// IMPORTANT LINE TIME POUR 6 lanes
+		//--------------------------------------------------------
+		line_time             = 'h02dc;                  // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
 		XGS_WriteSPI(16'h3810, line_time);               // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
-    
 
 		XGS_WriteSPI(16'h3800,16'h0030);                 // Slave + trigger mode
 		XGS_WriteSPI(16'h3800,16'h0031);                 // Enable sequencer
@@ -337,19 +337,19 @@ module testbench_athena();
     
 		#50us;
     
-			// XGS MODEL FRAME IS 4176 pixels when test mode !!!
-			// voir p.Figure 37. Pixel Readout Order
-			// voir p8 Figure 4. XGS 8000 Pixel Array
-			// 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
+		// XGS MODEL FRAME IS 4176 pixels when test mode !!!
+		// voir p.Figure 37. Pixel Readout Order
+		// voir p8 Figure 4. XGS 8000 Pixel Array
+		// 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
 
 
-			//--------------------------------------------------------
-			//
-			// PROGRAM XGS CONTROLLER
-			//
-			//-------------------------------------------------------
+		//--------------------------------------------------------
+		//
+		// PROGRAM XGS CONTROLLER
+		//
+		//-------------------------------------------------------
     
-			// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+		// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
 		master_agent.write(BAR_XGS_CTRL+16'h0190, 16'h0012);
 
 		xgs_ctrl_period     = 16.0;

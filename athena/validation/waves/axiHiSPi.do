@@ -62,39 +62,20 @@ add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiS
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/hispi_phy_en
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/regfile
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/state
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/band_offset
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/row_id
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/buffer_enable
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/flush_lane_packer
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/packer_busy
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/all_packer_busy
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/init_lane_packer
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/init_lane_buffer
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_id
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_read
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_address
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_data
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/lane_packer_req
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/lane_packer_ack
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/buff_write
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/packer_fifo_overrun
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/packer_fifo_underrun
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/buff_addr
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/buff_data
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_count
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_buffer_line_id
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/frame_cntr
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_cntr
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/line_valid
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/start
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/transfert_done
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/dest_address
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/transaction_id
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/init_line_buffer
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/init_line_buffer_ptr
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/transaction_en
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/w_buffer_init
-add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/w_buffer_incr
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/sbuff_rden
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/sbuff_en
 add wave -noupdate -expand -group axiHiSPi /testbench_athena/DUT/system_i/axiHiSPi_0/U0/sbuff_rdaddr
@@ -117,7 +98,7 @@ add wave -noupdate -expand -group {AXI Master Stream I/F} /testbench_athena/DUT/
 add wave -noupdate -expand -group {AXI Master Stream I/F} /testbench_athena/DUT/system_i/axiHiSPi_0/U0/m_axis_tlast
 add wave -noupdate -expand -group {AXI Master Stream I/F} /testbench_athena/DUT/system_i/axiHiSPi_0/U0/m_axis_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1809271680 ps} 0}
+WaveRestoreCursors {{Cursor 1} {514672193 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
