@@ -30,13 +30,14 @@ set VALIDATION_SRCDIR  ${WORKDIR}/validation/src
 
 set TCL_DIR            ${VALIDATION_DIR}/tcl
 set SYSTEM_DIR         ${VALIDATION_DIR}/tcl
+set WAVES_DIR          ${VALIDATION_DIR}/waves
 
 
 set IP_USER_FILES      ${PROJECT_DIR}/${PROJECT_NAME}.ip_user_files 
 set IP_COMPILED_LIBS   ${IP_USER_FILES}/ipstatic 
 
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/ipi_testbench_v2.tcl
-
+set WAVE_FILE          ${WAVES_DIR}/all_waves.do
 
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
@@ -65,6 +66,8 @@ set_property default_lib work [current_project]
 set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
 update_ip_catalog
 
+set_property -name {modelsim.simulate.custom_wave_do} -value ${WAVE_FILE} -objects [get_filesets sim_1]
+
 
 ################################################
 # Block design
@@ -90,6 +93,7 @@ set_property TOP testbench_athena [get_filesets sim_1]
 
 export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
 file copy -force ${VALIDATION_DIR}/util/touchup.sh ${VALIDATION_DIR}/modelsim
+file copy -force ${WAVE_FILE} ${VALIDATION_DIR}/modelsim/wave.do
 
 
 
