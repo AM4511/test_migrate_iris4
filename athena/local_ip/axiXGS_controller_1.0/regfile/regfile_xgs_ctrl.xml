@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="df7e9800-1198-4a57-9429-ea32222d21ef" VersionGuid="30650427-cb65-4560-86bd-c376cea489d8">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="a4d8d0ca-b42c-4c15-aea7-ec56c61df7f3" VersionGuid="faf5b6ac-81b7-46d9-bba6-02d74f308a57">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>
@@ -2445,7 +2445,7 @@
 					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_m_lines</pFeature>
 					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_m_lines</pFeature>
 					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_suppressed</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines_sensor</pFeature>
 				</Category>
 				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_m_lines">
 					<DisplayName>Offset:</DisplayName>
@@ -2472,13 +2472,13 @@
 					<Endianess>LittleEndian</Endianess>
 					<Representation>HexNumber</Representation>
 				</MaskedIntReg>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines">
-					<DisplayName>M_LINES</DisplayName>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines_sensor">
+					<DisplayName>M_LINES_SENSOR</DisplayName>
 					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines</pValue>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines_sensor</pValue>
 					<Representation>HexNumber</Representation>
 				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines">
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_m_lines_m_lines_sensor">
 					<Visibility>Invisible</Visibility>
 					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_m_lines</pAddress>
 					<Length>4</Length>
@@ -2508,7 +2508,7 @@
 					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_f_lines</pFeature>
 					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_f_lines</pFeature>
 					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_suppressed</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines_sensor</pFeature>
 				</Category>
 				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_f_lines">
 					<DisplayName>Offset:</DisplayName>
@@ -2535,13 +2535,13 @@
 					<Endianess>LittleEndian</Endianess>
 					<Representation>HexNumber</Representation>
 				</MaskedIntReg>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines">
-					<DisplayName>F_LINES</DisplayName>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines_sensor">
+					<DisplayName>F_LINES_SENSOR</DisplayName>
 					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines</pValue>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines_sensor</pValue>
 					<Representation>HexNumber</Representation>
 				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines">
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_f_lines_f_lines_sensor">
 					<Visibility>Invisible</Visibility>
 					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_f_lines</pAddress>
 					<Length>4</Length>

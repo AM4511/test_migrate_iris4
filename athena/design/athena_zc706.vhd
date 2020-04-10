@@ -56,11 +56,29 @@ entity athena_zc706 is
     PS_FIXED_IO_ps_srstb : inout std_logic;
 
     ---------------------------------------------------------------------------
+    -- PL I2C Bus
+    -- See UG954 (v1.8) August 6, 2019; I2C Bus page 55.
+    ---------------------------------------------------------------------------
+    -- IIC_SCL_MAIN_LS : in std_logic;
+    -- IIC_SDA_MAIN_LS : in std_logic;
+    ---------------------------------------------------------------------------
+    -- I2C
+    ---------------------------------------------------------------------------
+    smbdata               : inout std_logic;
+    smbclk                : inout std_logic;
+    
+    --IMPORTANT: The PCA9548 U65 RESET_B pin 24 is connected to FPGA U1 bank 501 pin F20 via
+    --level-shifter U25. FPGA pin F20 net IIC_MUX_RESET_B_LS must be driven High to enable I2C bus
+    --transactions with the devices connected to U65.
+    --MIO46 : il ya un pullup par defaut!!!! sti de chance ds design avec le zynq!
+    --I2C_MUX_resetN        : out std_logic;
+    
+    ---------------------------------------------------------------------------
     -- SiT9102 2.5V LVDS 200 MHz fixed-frequency oscillator (SiTime).
     -- See UG954 (v1.8) August 6, 2019; System Clock, page 36.
     ---------------------------------------------------------------------------
-    -- SYSCLK_P : in std_logic;
-    -- SYSCLK_N : in std_logic;
+    SYSCLK_P : in std_logic;
+    SYSCLK_N : in std_logic;
 
     ---------------------------------------------------------------------------
     -- Si570 3.3V LVDS I2C programmable oscillator, 156.250 MHz default
@@ -182,12 +200,7 @@ entity athena_zc706 is
     -- HDMI_R_D34 : in std_logic;
     -- HDMI_R_D35 : in std_logic;
 
-    ---------------------------------------------------------------------------
-    -- PL I2C Bus
-    -- See UG954 (v1.8) August 6, 2019; I2C Bus page 55.
-    ---------------------------------------------------------------------------
-    -- IIC_SCL_MAIN_LS : in std_logic;
-    -- IIC_SDA_MAIN_LS : in std_logic;
+    
 
     ---------------------------------------------------------------------------
     -- Real Time Clock (RTC)
@@ -202,8 +215,9 @@ entity athena_zc706 is
     GPIO_LED_LEFT  : out std_logic;     -- DS8
     -- GPIO_LED_CENTER : out std_logic;    -- DS9
     GPIO_LED_RIGHT : out std_logic;     -- DS10
-    -- GPIO_LED_0 : out std_logic;         -- DS35
+    GPIO_LED_0     : out std_logic;     -- DS35
 
+    heart_beat     : out std_logic;  
     ---------------------------------------------------------------------------
     -- User Pushbuttons
     -- See UG954 (v1.8) August 6, 2019; User Pushbuttons page 61.
@@ -416,11 +430,11 @@ entity athena_zc706 is
     -- High Pin Count (HPC) Connector (J37)
     -- See UG954 (v1.8) August 6, 2019; HPC Connector J37 p67.
     ---------------------------------------------------------------------------
-    FMC_HPC_CLK0_M2C_P : in std_logic;
-    FMC_HPC_CLK0_M2C_N : in std_logic;
+    --FMC_HPC_CLK0_M2C_P : in std_logic;
+    --FMC_HPC_CLK0_M2C_N : in std_logic;
 
-    FMC_HPC_CLK1_M2C_P : in std_logic;
-    FMC_HPC_CLK1_M2C_N : in std_logic;
+    --FMC_HPC_CLK1_M2C_P : in std_logic;
+    --FMC_HPC_CLK1_M2C_N : in std_logic;
 
 
 
@@ -430,24 +444,24 @@ entity athena_zc706 is
     -- FMC_HPC_LA01_CC_N : in std_logic;
     -- FMC_HPC_LA02_P    : in std_logic;
     -- FMC_HPC_LA02_N    : in std_logic;
-    FMC_HPC_LA03_P : in  std_logic;
-    FMC_HPC_LA03_N : in  std_logic;
+    --FMC_HPC_LA03_P : in  std_logic;
+    --FMC_HPC_LA03_N : in  std_logic;
     -- FMC_HPC_LA04_P    : in std_logic;
     -- FMC_HPC_LA04_N    : in std_logic;
     -- FMC_HPC_LA05_P    : in std_logic;
     -- FMC_HPC_LA05_N    : in std_logic;
     -- FMC_HPC_LA06_P    : in std_logic;
     -- FMC_HPC_LA06_N    : in std_logic;
-    FMC_HPC_LA07_P : in  std_logic;
-    FMC_HPC_LA07_N : in  std_logic;
+    --FMC_HPC_LA07_P : in  std_logic;
+    --FMC_HPC_LA07_N : in  std_logic;
     -- FMC_HPC_LA08_P    : in std_logic;
     -- FMC_HPC_LA08_N    : in std_logic;
     -- FMC_HPC_LA09_P    : in std_logic;
     -- FMC_HPC_LA09_N    : in std_logic;
     -- FMC_HPC_LA10_P    : in std_logic;
     -- FMC_HPC_LA10_N    : in std_logic;
-    FMC_HPC_LA11_P : in  std_logic;
-    FMC_HPC_LA11_N : in  std_logic;
+    --FMC_HPC_LA11_P : in  std_logic;
+    --FMC_HPC_LA11_N : in  std_logic;
     -- FMC_HPC_LA12_P    : in std_logic;
     -- FMC_HPC_LA12_N    : in std_logic;
     FMC_HPC_LA13_P : out std_logic;
@@ -457,7 +471,7 @@ entity athena_zc706 is
     FMC_HPC_LA15_P : out std_logic;
     FMC_HPC_LA15_N : out std_logic;
     FMC_HPC_LA16_P : in  std_logic;
-    FMC_HPC_LA16_N : out std_logic;
+    FMC_HPC_LA16_N : out std_logic
     -- FMC_HPC_LA17_CC_P : in std_logic;
     -- FMC_HPC_LA17_CC_N : in std_logic;
     -- FMC_HPC_LA18_CC_P : in std_logic;
@@ -470,18 +484,18 @@ entity athena_zc706 is
     -- FMC_HPC_LA21_N    : in std_logic;
     -- FMC_HPC_LA22_P    : in std_logic;
     -- FMC_HPC_LA22_N    : in std_logic;
-    FMC_HPC_LA23_P : in  std_logic;
-    FMC_HPC_LA23_N : in  std_logic;
-    -- FMC_HPC_LA24_P    : in std_logic;
+    --FMC_HPC_LA23_P : in  std_logic;
+    --FMC_HPC_LA23_N : in  std_logic;
+    --- FMC_HPC_LA24_P    : in std_logic;
     -- FMC_HPC_LA24_N    : in std_logic;
     -- FMC_HPC_LA25_P    : in std_logic;
     -- FMC_HPC_LA25_N    : in std_logic;
     -- FMC_HPC_LA26_P    : in std_logic;
     -- FMC_HPC_LA26_N    : in std_logic;
-    FMC_HPC_LA27_P : in  std_logic;
-    FMC_HPC_LA27_N : in  std_logic;
-    FMC_HPC_LA28_P : in  std_logic;
-    FMC_HPC_LA28_N : in  std_logic
+    --FMC_HPC_LA27_P : in  std_logic;
+    --FMC_HPC_LA27_N : in  std_logic;
+    --FMC_HPC_LA28_P : in  std_logic;
+    --FMC_HPC_LA28_N : in  std_logic
     -- FMC_HPC_LA29_P    : in std_logic;
     -- FMC_HPC_LA29_N    : in std_logic;
     -- FMC_HPC_LA30_P    : in std_logic;
@@ -634,6 +648,17 @@ architecture struct of athena_zc706 is
 
   component system_wrapper is
     port (
+      FPGA_Info_board_info : in STD_LOGIC_VECTOR ( 3 downto 0 );
+      FPGA_Info_fpga_build_id : in STD_LOGIC_VECTOR ( 31 downto 0 );
+      FPGA_Info_fpga_device_id : in STD_LOGIC_VECTOR ( 7 downto 0 );
+      FPGA_Info_fpga_firmware_type : in STD_LOGIC_VECTOR ( 7 downto 0 );
+      FPGA_Info_fpga_major_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+      FPGA_Info_fpga_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+      FPGA_Info_fpga_sub_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+      
+      I2C_if_i2c_sdata : inout STD_LOGIC;
+      I2C_if_i2c_slk :  inout STD_LOGIC;
+      
       PS_DDR_addr             : inout std_logic_vector (14 downto 0);
       PS_DDR_ba               : inout std_logic_vector (2 downto 0);
       PS_DDR_cas_n            : inout std_logic;
@@ -660,12 +685,13 @@ architecture struct of athena_zc706 is
       anput_if_strobe         : out   std_logic;
       anput_if_trig_rdy       : out   std_logic;
       led_out                 : out   std_logic_vector (1 downto 0);
+      --SYSCLK_200MHz           : in    std_logic;
       pcie_clk100MHz          : in    std_logic;
       pcie_reset_n            : in    std_logic;
-      pcie_rxn                : in    std_logic_vector (0 to 0);
-      pcie_rxp                : in    std_logic_vector (0 to 0);
-      pcie_txn                : out   std_logic_vector (0 to 0);
-      pcie_txp                : out   std_logic_vector (0 to 0);
+      pcie_rxn                : in    std_logic;
+      pcie_rxp                : in    std_logic;
+      pcie_txn                : out   std_logic;
+      pcie_txp                : out   std_logic;
       xgs_ctrl_xgs_clk_pll_en : out   std_logic;
       xgs_ctrl_xgs_cs_n       : out   std_logic;
       xgs_ctrl_xgs_fwsi_en    : out   std_logic;
@@ -678,21 +704,23 @@ architecture struct of athena_zc706 is
       xgs_ctrl_xgs_sdin       : in    std_logic;
       xgs_ctrl_xgs_sdout      : out   std_logic;
       xgs_ctrl_xgs_trig_int   : out   std_logic;
-      xgs_ctrl_xgs_trig_rd    : out   std_logic;
-      xgs_hispi_clk_n         : in    std_logic_vector (1 downto 0);
-      xgs_hispi_clk_p         : in    std_logic_vector (1 downto 0);
-      xgs_hispi_data_n        : in    std_logic_vector (5 downto 0);
-      xgs_hispi_data_p        : in    std_logic_vector (5 downto 0)
+      xgs_ctrl_xgs_trig_rd    : out   std_logic
+      --xgs_hispi_clk_n         : in    std_logic_vector (1 downto 0);
+      --xgs_hispi_clk_p         : in    std_logic_vector (1 downto 0);
+      --xgs_hispi_data_n        : in    std_logic_vector (5 downto 0);
+      --xgs_hispi_data_p        : in    std_logic_vector (5 downto 0)
       );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   signal pcie_clk100MHz          : std_logic;
   signal pcie_reset_n            : std_logic;
-  signal pcie_rxn                : std_logic_vector (0 downto 0);
-  signal pcie_rxp                : std_logic_vector (0 downto 0);
-  signal pcie_txn                : std_logic_vector (0 downto 0);
-  signal pcie_txp                : std_logic_vector (0 downto 0);
+  signal pcie_rxn                : std_logic;
+  signal pcie_rxp                : std_logic;
+  signal pcie_txn                : std_logic;
+  signal pcie_txp                : std_logic;
   signal led_out                 : std_logic_vector (1 downto 0);
   signal anput_if_exposure       : std_logic;
   signal anput_if_ext_trig       : std_logic;
@@ -714,7 +742,21 @@ architecture struct of athena_zc706 is
   signal xgs_hispi_clk_p         : std_logic_vector (1 downto 0);
   signal xgs_hispi_data_n        : std_logic_vector (5 downto 0);
   signal xgs_hispi_data_p        : std_logic_vector (5 downto 0);
+  signal SYSCLK_200MHz           : std_logic;
+  
+  signal local_reset_n_Meta : std_logic;
+  signal local_reset_n      : std_logic;
+  signal heartbeat_led      : std_logic;
 
+  constant HEARTBEAT_HALF_PERIOD : integer := 100000000;
+  constant HEARTBEAT_PERIOD      : integer := 2*HEARTBEAT_HALF_PERIOD;
+
+  signal heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1;
+
+
+  attribute mark_debug of local_reset_n  : signal is "true";
+  attribute mark_debug of heartbeat_cntr : signal is "true";
+  attribute mark_debug of heartbeat_led  : signal is "true";
 
 begin
 
@@ -728,9 +770,29 @@ begin
       ODIV2 => open
       );
 
+ibuf_200MHz : IBUFDS
+    port map (
+      O     => SYSCLK_200MHz,
+      I     => SYSCLK_P,
+      IB    => SYSCLK_N
+      );
+
+
+
 
   xsystem_wrapper : system_wrapper
     port map(
+      FPGA_Info_board_info         => "0000",
+      FPGA_Info_fpga_build_id      => "00000000000000000000000000000000",
+      FPGA_Info_fpga_device_id     => "00000000",
+      FPGA_Info_fpga_firmware_type => "00000000",
+      FPGA_Info_fpga_major_ver     => "00000000",
+      FPGA_Info_fpga_minor_ver     => "00000000",
+      FPGA_Info_fpga_sub_minor_ver => "00000000",
+    
+      I2C_if_i2c_sdata        => smbdata,
+      I2C_if_i2c_slk          => smbclk,   
+    
       PS_DDR_addr             => PS_DDR_addr,
       PS_DDR_ba               => PS_DDR_ba,
       PS_DDR_cas_n            => PS_DDR_cas_n,
@@ -757,6 +819,7 @@ begin
       anput_if_strobe         => anput_if_strobe,
       anput_if_trig_rdy       => anput_if_trig_rdy,
       led_out                 => led_out,
+      --SYSCLK_200MHz           => SYSCLK_200MHz,      
       pcie_clk100MHz          => pcie_clk100MHz,
       pcie_reset_n            => pcie_reset_n,
       pcie_rxn                => pcie_rxn,
@@ -775,11 +838,11 @@ begin
       xgs_ctrl_xgs_sdin       => xgs_ctrl_xgs_sdin,
       xgs_ctrl_xgs_sdout      => xgs_ctrl_xgs_sdout,
       xgs_ctrl_xgs_trig_int   => xgs_ctrl_xgs_trig_int,
-      xgs_ctrl_xgs_trig_rd    => xgs_ctrl_xgs_trig_rd,
-      xgs_hispi_clk_n         => xgs_hispi_clk_n,
-      xgs_hispi_clk_p         => xgs_hispi_clk_p,
-      xgs_hispi_data_n        => xgs_hispi_data_n,
-      xgs_hispi_data_p        => xgs_hispi_data_p
+      xgs_ctrl_xgs_trig_rd    => xgs_ctrl_xgs_trig_rd
+      --xgs_hispi_clk_n         => xgs_hispi_clk_n,
+      --xgs_hispi_clk_p         => xgs_hispi_clk_p,
+      --xgs_hispi_data_n        => xgs_hispi_data_n,
+      --xgs_hispi_data_p        => xgs_hispi_data_p
       );
 
 
@@ -795,16 +858,16 @@ begin
   -----------------------------------------------------------------------------
   -- Led
   -----------------------------------------------------------------------------
-  GPIO_LED_LEFT  <= led_out(0);
-  GPIO_LED_RIGHT <= led_out(1);
+  --GPIO_LED_LEFT  <= led_out(0);
+  --GPIO_LED_RIGHT <= led_out(1);
 
   -----------------------------------------------------------------------------
   -- PCIe Lane 0
   -----------------------------------------------------------------------------
-  pcie_rxn(0) <= PCIE_RX0_N;
-  pcie_rxp(0) <= PCIE_RX0_P;
-  PCIE_TX0_N  <= pcie_txn(0);
-  PCIE_TX0_P  <= pcie_txp(0);
+  pcie_rxn <= PCIE_RX0_N;
+  pcie_rxp <= PCIE_RX0_P;
+  PCIE_TX0_N  <= pcie_txn;
+  PCIE_TX0_P  <= pcie_txp;
 
   -----------------------------------------------------------------------------
   -- PCIe Lane 1
@@ -850,29 +913,78 @@ begin
   -----------------------------------------------------------------------------
   -- Top HiSPi
   -----------------------------------------------------------------------------
-  xgs_hispi_clk_n(0) <= FMC_HPC_CLK0_M2C_N;
-  xgs_hispi_clk_p(0) <= FMC_HPC_CLK0_M2C_P;
+  --xgs_hispi_clk_n(0) <= FMC_HPC_CLK0_M2C_N;
+  --xgs_hispi_clk_p(0) <= FMC_HPC_CLK0_M2C_P;
 
-  xgs_hispi_data_n(0) <= FMC_HPC_LA11_N;
-  xgs_hispi_data_p(0) <= FMC_HPC_LA11_P;
-  xgs_hispi_data_n(2) <= FMC_HPC_LA07_N;
-  xgs_hispi_data_p(2) <= FMC_HPC_LA07_P;
-  xgs_hispi_data_n(4) <= FMC_HPC_LA03_N;
-  xgs_hispi_data_p(4) <= FMC_HPC_LA03_P;
+  --xgs_hispi_data_n(0) <= FMC_HPC_LA11_N;
+  --xgs_hispi_data_p(0) <= FMC_HPC_LA11_P;
+  --xgs_hispi_data_n(2) <= FMC_HPC_LA07_N;
+  --xgs_hispi_data_p(2) <= FMC_HPC_LA07_P;
+  --xgs_hispi_data_n(4) <= FMC_HPC_LA03_N;
+  --xgs_hispi_data_p(4) <= FMC_HPC_LA03_P;
 
 
   -----------------------------------------------------------------------------
   -- Bottom HiSPi
   -----------------------------------------------------------------------------
-  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
-  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
+--  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
+--  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
 
-  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
-  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
-  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
-  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
-  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
-  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
+--  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
+--  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
+--  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
+--  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
+--  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
+--  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
+
+
+  P_local_reset_n : process (pcie_reset_n, pcie_clk100MHz) is
+  begin
+    if (pcie_reset_n = '0')then
+      local_reset_n      <= '0';
+      local_reset_n_Meta <= '0';
+    elsif (rising_edge(pcie_clk100MHz)) then
+      local_reset_n_Meta <= '1';
+      local_reset_n      <= local_reset_n_Meta;
+    end if;
+  end process;
+
+
+  GPIO_LED_LEFT  <= heartbeat_cntr(27) and not(PCIE_PERST_LS);
+  GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
+
+  P_heartbeat_cntr : process (pcie_clk100MHz) is
+  begin
+    if (rising_edge(pcie_clk100MHz)) then
+      if (local_reset_n = '0')then
+        heartbeat_cntr <= 0;
+      else
+        if (heartbeat_cntr = HEARTBEAT_PERIOD-1) then
+          heartbeat_cntr <= 0;
+        else
+          heartbeat_cntr <= heartbeat_cntr+1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  P_heartbeat_led : process (pcie_clk100MHz) is
+  begin
+    if (rising_edge(pcie_clk100MHz)) then
+      if (local_reset_n = '0')then
+        heartbeat_led <= '0';
+      else
+        if (heartbeat_cntr > HEARTBEAT_HALF_PERIOD) then
+          heartbeat_led <= '1';
+        else
+          heartbeat_led <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  GPIO_LED_0 <= heartbeat_led;
 
 
 end struct;

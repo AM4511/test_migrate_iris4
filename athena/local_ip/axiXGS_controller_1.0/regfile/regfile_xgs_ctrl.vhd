@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl_pack
--- Created on          : 2020/03/03 08:21:44
+-- Created on          : 2020/04/01 08:20:13
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0xD7056496
+-- Register file CRC32 : 0xAB304108
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -573,12 +573,12 @@ package regfile_xgs_ctrl_pack is
    ------------------------------------------------------------------------------------------
    type ACQ_SENSOR_M_LINES_TYPE is record
       M_SUPPRESSED   : std_logic_vector(4 downto 0);
-      M_LINES        : std_logic_vector(9 downto 0);
+      M_LINES_SENSOR : std_logic_vector(9 downto 0);
    end record ACQ_SENSOR_M_LINES_TYPE;
 
    constant INIT_ACQ_SENSOR_M_LINES_TYPE : ACQ_SENSOR_M_LINES_TYPE := (
       M_SUPPRESSED    => (others=> 'Z'),
-      M_LINES         => (others=> 'Z')
+      M_LINES_SENSOR  => (others=> 'Z')
    );
 
    -- Casting functions:
@@ -590,12 +590,12 @@ package regfile_xgs_ctrl_pack is
    ------------------------------------------------------------------------------------------
    type ACQ_SENSOR_F_LINES_TYPE is record
       F_SUPPRESSED   : std_logic_vector(4 downto 0);
-      F_LINES        : std_logic_vector(9 downto 0);
+      F_LINES_SENSOR : std_logic_vector(9 downto 0);
    end record ACQ_SENSOR_F_LINES_TYPE;
 
    constant INIT_ACQ_SENSOR_F_LINES_TYPE : ACQ_SENSOR_F_LINES_TYPE := (
       F_SUPPRESSED    => (others=> 'Z'),
-      F_LINES         => (others=> 'Z')
+      F_LINES_SENSOR  => (others=> 'Z')
    );
 
    -- Casting functions:
@@ -1590,7 +1590,7 @@ package body regfile_xgs_ctrl_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(14 downto 10) := reg.M_SUPPRESSED;
-      output(9 downto 0) := reg.M_LINES;
+      output(9 downto 0) := reg.M_LINES_SENSOR;
       return output;
    end to_std_logic_vector;
 
@@ -1602,7 +1602,7 @@ package body regfile_xgs_ctrl_pack is
    variable output : ACQ_SENSOR_M_LINES_TYPE;
    begin
       output.M_SUPPRESSED := stdlv(14 downto 10);
-      output.M_LINES := stdlv(9 downto 0);
+      output.M_LINES_SENSOR := stdlv(9 downto 0);
       return output;
    end to_ACQ_SENSOR_M_LINES_TYPE;
 
@@ -1615,7 +1615,7 @@ package body regfile_xgs_ctrl_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(14 downto 10) := reg.F_SUPPRESSED;
-      output(9 downto 0) := reg.F_LINES;
+      output(9 downto 0) := reg.F_LINES_SENSOR;
       return output;
    end to_std_logic_vector;
 
@@ -1627,7 +1627,7 @@ package body regfile_xgs_ctrl_pack is
    variable output : ACQ_SENSOR_F_LINES_TYPE;
    begin
       output.F_SUPPRESSED := stdlv(14 downto 10);
-      output.F_LINES := stdlv(9 downto 0);
+      output.F_LINES_SENSOR := stdlv(9 downto 0);
       return output;
    end to_ACQ_SENSOR_F_LINES_TYPE;
 
@@ -1870,11 +1870,11 @@ end package body;
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl
--- Created on          : 2020/03/03 08:21:44
+-- Created on          : 2020/04/01 08:20:13
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0xD7056496
+-- Register file CRC32 : 0xAB304108
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -2003,9 +2003,9 @@ signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                : std_logic_vector(9
 signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START             : std_logic_vector(9 downto 0);                    -- Field: Y_START
 signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE               : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
 signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
-signal field_rw_ACQ_SENSOR_M_LINES_M_LINES                  : std_logic_vector(9 downto 0);                    -- Field: M_LINES
+signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR           : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
 signal field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: F_SUPPRESSED
-signal field_rw_ACQ_SENSOR_F_LINES_F_LINES                  : std_logic_vector(9 downto 0);                    -- Field: F_LINES
+signal field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR           : std_logic_vector(9 downto 0);                    -- Field: F_LINES_SENSOR
 signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
@@ -4097,30 +4097,30 @@ begin
 end process P_ACQ_SENSOR_M_LINES_M_SUPPRESSED;
 
 ------------------------------------------------------------------------------------------
--- Field name: M_LINES(9 downto 0)
+-- Field name: M_LINES_SENSOR(9 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_M_LINES(9 downto 0) <= field_rw_ACQ_SENSOR_M_LINES_M_LINES(9 downto 0);
-regfile.ACQ.SENSOR_M_LINES.M_LINES <= field_rw_ACQ_SENSOR_M_LINES_M_LINES(9 downto 0);
+rb_ACQ_SENSOR_M_LINES(9 downto 0) <= field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR(9 downto 0);
+regfile.ACQ.SENSOR_M_LINES.M_LINES_SENSOR <= field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR(9 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_M_LINES_M_LINES
+-- Process: P_ACQ_SENSOR_M_LINES_M_LINES_SENSOR
 ------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_M_LINES_M_LINES : process(sysclk)
+P_ACQ_SENSOR_M_LINES_M_LINES_SENSOR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_SENSOR_M_LINES_M_LINES <= std_logic_vector(to_unsigned(integer(8),10));
+         field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR <= std_logic_vector(to_unsigned(integer(8),10));
       else
          for j in  9 downto 0  loop
             if(wEn(25) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_SENSOR_M_LINES_M_LINES(j-0) <= reg_writedata(j);
+               field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_ACQ_SENSOR_M_LINES_M_LINES;
+end process P_ACQ_SENSOR_M_LINES_M_LINES_SENSOR;
 
 
 
@@ -4158,30 +4158,30 @@ begin
 end process P_ACQ_SENSOR_F_LINES_F_SUPPRESSED;
 
 ------------------------------------------------------------------------------------------
--- Field name: F_LINES(9 downto 0)
+-- Field name: F_LINES_SENSOR(9 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_F_LINES(9 downto 0) <= field_rw_ACQ_SENSOR_F_LINES_F_LINES(9 downto 0);
-regfile.ACQ.SENSOR_F_LINES.F_LINES <= field_rw_ACQ_SENSOR_F_LINES_F_LINES(9 downto 0);
+rb_ACQ_SENSOR_F_LINES(9 downto 0) <= field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR(9 downto 0);
+regfile.ACQ.SENSOR_F_LINES.F_LINES_SENSOR <= field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR(9 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_F_LINES_F_LINES
+-- Process: P_ACQ_SENSOR_F_LINES_F_LINES_SENSOR
 ------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_F_LINES_F_LINES : process(sysclk)
+P_ACQ_SENSOR_F_LINES_F_LINES_SENSOR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_SENSOR_F_LINES_F_LINES <= std_logic_vector(to_unsigned(integer(8),10));
+         field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR <= std_logic_vector(to_unsigned(integer(8),10));
       else
          for j in  9 downto 0  loop
             if(wEn(26) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_SENSOR_F_LINES_F_LINES(j-0) <= reg_writedata(j);
+               field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_ACQ_SENSOR_F_LINES_F_LINES;
+end process P_ACQ_SENSOR_F_LINES_F_LINES_SENSOR;
 
 
 

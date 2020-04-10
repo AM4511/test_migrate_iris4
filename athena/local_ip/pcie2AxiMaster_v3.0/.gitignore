@@ -1,0 +1,12 @@
+############################################################
+# Validation files to ignore 
+############################################################
+validation/java/bin/**/*
+validation/mti/**/*
+validation/results/**/*
+cores/ip_user_files/**/*
+cores/managed_ip_project/**/*
+vivado/**/*
+validation2/vivado/**/*
+validation2/mti/**/*
+validation2/results/**/*

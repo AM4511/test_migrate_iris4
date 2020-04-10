@@ -59,6 +59,8 @@ set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  2
 
+
+
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
@@ -84,6 +86,8 @@ file delete -force ${PROJECT_NAME}.runs
 ###################################################################################
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
 set_property board_part xilinx.com:zc706:part0:1.4 [current_project]
+
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 set_property target_language VHDL [current_project]
 set_property simulator_language Mixed [current_project]
@@ -182,7 +186,7 @@ close_design
 ################################################
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
-     puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
+     puts "** Timing error. You have to source $SDK_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
 	 source  $SDK_SCRIPT

@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: design_1
+# This is a generated script based on design: system
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -35,7 +35,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source design_1_script.tcl
+# source system_script.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
@@ -43,14 +43,13 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7z045ffg900-2
-   set_property BOARD_PART xilinx.com:zc706:part0:1.4 [current_project]
+   create_project project_1 myproj -part xc7a50ticpg236-1L
 }
 
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name ipi_testbench
+set design_name system
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -125,7 +124,12 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 matrox.com:Imaging:axiHiSPi:1.1.1\
-matrox.com:fdklib:dmawr_sub4:3.0\
+matrox.com:user:axiXGS_controller:1.0\
+matrox.com:user:AXI_i2c_Matrox:1.0\
+xilinx.com:ip:clk_gen_sim:1.0\
+matrox.com:user:dmawr2tlp:1.0.0\
+matrox.com:user:modelAxiMasterLite:1.0\
+matrox.com:user:xgs12m_model:1.0\
 "
 
    set list_ips_missing ""
@@ -189,114 +193,87 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
-  set hispi [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi ]
+  set anput [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput ]
 
-  set m_axi [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 m_axi ]
-  set_property -dict [ list \
-   CONFIG.ADDR_WIDTH {33} \
-   CONFIG.CLK_DOMAIN {clock_domain_aclk} \
-   CONFIG.DATA_WIDTH {512} \
-   CONFIG.HAS_BURST {0} \
-   CONFIG.HAS_CACHE {0} \
-   CONFIG.HAS_LOCK {0} \
-   CONFIG.HAS_PROT {0} \
-   CONFIG.HAS_QOS {0} \
-   CONFIG.HAS_REGION {0} \
-   CONFIG.HAS_RRESP {0} \
-   CONFIG.NUM_READ_OUTSTANDING {2} \
-   CONFIG.NUM_WRITE_OUTSTANDING {2} \
-   CONFIG.PROTOCOL {AXI4} \
-   CONFIG.READ_WRITE_MODE {WRITE_ONLY} \
-   ] $m_axi
+  set dma_tlp [ create_bd_intf_port -mode Master -vlnv matrox.com:user:mtx_tlp_rtl:1.0 dma_tlp ]
 
-  set s_axi [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi ]
-  set_property -dict [ list \
-   CONFIG.ADDR_WIDTH {32} \
-   CONFIG.ARUSER_WIDTH {0} \
-   CONFIG.AWUSER_WIDTH {0} \
-   CONFIG.BUSER_WIDTH {0} \
-   CONFIG.CLK_DOMAIN {clock_domain_aclk} \
-   CONFIG.DATA_WIDTH {32} \
-   CONFIG.HAS_BRESP {1} \
-   CONFIG.HAS_BURST {1} \
-   CONFIG.HAS_CACHE {1} \
-   CONFIG.HAS_LOCK {1} \
-   CONFIG.HAS_PROT {1} \
-   CONFIG.HAS_QOS {1} \
-   CONFIG.HAS_REGION {0} \
-   CONFIG.HAS_RRESP {1} \
-   CONFIG.HAS_WSTRB {1} \
-   CONFIG.ID_WIDTH {0} \
-   CONFIG.MAX_BURST_LENGTH {256} \
-   CONFIG.NUM_READ_OUTSTANDING {2} \
-   CONFIG.NUM_READ_THREADS {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {2} \
-   CONFIG.NUM_WRITE_THREADS {1} \
-   CONFIG.PROTOCOL {AXI4} \
-   CONFIG.READ_WRITE_MODE {READ_WRITE} \
-   CONFIG.RUSER_BITS_PER_BYTE {0} \
-   CONFIG.RUSER_WIDTH {0} \
-   CONFIG.SUPPORTS_NARROW_BURST {1} \
-   CONFIG.WUSER_BITS_PER_BYTE {0} \
-   CONFIG.WUSER_WIDTH {0} \
-   ] $s_axi
+  set i2c [ create_bd_intf_port -mode Master -vlnv matrox.com:user:I2C_Matrox_rtl:1.0 i2c ]
 
 
   # Create ports
-  set aclk [ create_bd_port -dir I -type clk aclk ]
-  set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {s_axi:m_axi} \
-   CONFIG.CLK_DOMAIN {clock_domain_aclk} \
-   CONFIG.FREQ_HZ {100000000} \
- ] $aclk
-  set areset_n [ create_bd_port -dir I -type rst areset_n ]
-  set idelay_clk [ create_bd_port -dir I -type clk idelay_clk ]
-  set_property -dict [ list \
-   CONFIG.CLK_DOMAIN {clock_domain_idelay_clk} \
-   CONFIG.FREQ_HZ {200000000} \
- ] $idelay_clk
-  set intevent [ create_bd_port -dir O -type intr intevent ]
+  set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
 
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
 
-  set_property -dict [ list \
-   CONFIG.CLK_DOMAIN {clock_domain_aclk} \
- ] [get_bd_pins /axiHiSPi_0/axi_clk]
+  # Create instance: axiXGS_controller_0, and set properties
+  set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
 
+  # Create instance: axi_i2c_0, and set properties
+  set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {200000000} \
-   CONFIG.CLK_DOMAIN {clock_domain_idelay_clk} \
- ] [get_bd_pins /axiHiSPi_0/idelay_clk]
+   CONFIG.CLOCK_STRETCHING {false} \
+   CONFIG.NI_ACCESS {true} \
+   CONFIG.SIMULATION {false} \
+ ] $axi_i2c_0
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
-
-  # Create instance: dmawr_sub4_0, and set properties
-  set dmawr_sub4_0 [ create_bd_cell -type ip -vlnv matrox.com:fdklib:dmawr_sub4:3.0 dmawr_sub4_0 ]
-
   set_property -dict [ list \
-   CONFIG.CLK_DOMAIN {clock_domain_aclk} \
- ] [get_bd_pins /dmawr_sub4_0/sysclk]
+   CONFIG.ENABLE_ADVANCED_OPTIONS {1} \
+   CONFIG.NUM_MI {4} \
+   CONFIG.NUM_SI {1} \
+ ] $axi_interconnect_0
+
+  # Create instance: clk_gen_sim_0, and set properties
+  set clk_gen_sim_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_gen_sim:1.0 clk_gen_sim_0 ]
+  set_property -dict [ list \
+   CONFIG.USER_AXI_CLK_0_FREQ {100} \
+   CONFIG.USER_AXI_CLK_1_FREQ {200} \
+   CONFIG.USER_NUM_OF_AXI_CLK {2} \
+   CONFIG.USER_NUM_OF_SYS_CLK {0} \
+   CONFIG.USER_SYS_CLK0_FREQ {200.000} \
+ ] $clk_gen_sim_0
+
+  # Create instance: dmawr2tlp_0, and set properties
+  set dmawr2tlp_0 [ create_bd_cell -type ip -vlnv matrox.com:user:dmawr2tlp:1.0.0 dmawr2tlp_0 ]
+
+  # Create instance: modelAxiMasterLite_0, and set properties
+  set modelAxiMasterLite_0 [ create_bd_cell -type ip -vlnv matrox.com:user:modelAxiMasterLite:1.0 modelAxiMasterLite_0 ]
+  set_property -dict [ list \
+   CONFIG.ENABLE_INPUT_IO {true} \
+   CONFIG.USER_IN_WIDTH {1} \
+   CONFIG.USER_OUT_WIDTH {1} \
+ ] $modelAxiMasterLite_0
+
+  # Create instance: xgs12m_model_0, and set properties
+  set xgs12m_model_0 [ create_bd_cell -type ip -vlnv matrox.com:user:xgs12m_model:1.0 xgs12m_model_0 ]
 
   # Create interface connections
-  connect_bd_intf_net -intf_net S00_AXI_0_1 [get_bd_intf_ports s_axi] [get_bd_intf_pins axi_interconnect_0/S00_AXI]
-  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr_sub4_0/s_axis]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiHiSPi_0/s_axi] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins dmawr_sub4_0/s_axi]
-  connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_ports m_axi] [get_bd_intf_pins dmawr_sub4_0/m_axi]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr2tlp_0/s_axis]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if] [get_bd_intf_pins xgs12m_model_0/xgs_ctrl]
+  connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports i2c] [get_bd_intf_pins axi_i2c_0/I2C_interface]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axiHiSPi_0/s_axi] [get_bd_intf_pins axi_interconnect_0/M02_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins dmawr2tlp_0/s_axi]
+  connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_ports dma_tlp] [get_bd_intf_pins dmawr2tlp_0/dma_tlp]
+  connect_bd_intf_net -intf_net modelAxiMasterLite_0_m_axi [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins modelAxiMasterLite_0/m_axi]
+  connect_bd_intf_net -intf_net xgs12m_model_0_hispi_io [get_bd_intf_pins axiHiSPi_0/s_hispi] [get_bd_intf_pins xgs12m_model_0/hispi_io]
 
   # Create port connections
-  connect_bd_net -net ACLK_0_1 [get_bd_ports aclk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr_sub4_0/sysclk]
-  connect_bd_net -net ARESETN_0_1 [get_bd_ports areset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr_sub4_0/sysrstN]
-  connect_bd_net -net dmawr_sub4_0_intevent [get_bd_ports intevent] [get_bd_pins dmawr_sub4_0/intevent]
-  connect_bd_net -net idelay_clk [get_bd_ports idelay_clk] [get_bd_pins axiHiSPi_0/idelay_clk]
+  connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins clk_gen_sim_0/axi_clk_0] [get_bd_pins dmawr2tlp_0/sys_clk] [get_bd_pins modelAxiMasterLite_0/axi_clk]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
+  connect_bd_net -net clk_gen_sim_0_axi_clk_1 [get_bd_pins axiHiSPi_0/idelay_clk] [get_bd_pins clk_gen_sim_0/axi_clk_1]
+  connect_bd_net -net dmawr2tlp_0_intevent [get_bd_pins dmawr2tlp_0/intevent] [get_bd_pins modelAxiMasterLite_0/user_in]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins clk_gen_sim_0/axi_rst_0_n] [get_bd_pins dmawr2tlp_0/sys_reset_n] [get_bd_pins modelAxiMasterLite_0/axi_reset_n]
 
   # Create address segments
-  create_bd_addr_seg -range 0x000200000000 -offset 0x00000000 [get_bd_addr_spaces dmawr_sub4_0/m_axi] [get_bd_addr_segs m_axi/Reg] SEG_m_axi_Reg
-  create_bd_addr_seg -range 0x00001000 -offset 0x00000000 [get_bd_addr_spaces s_axi] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
-  create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces s_axi] [get_bd_addr_segs dmawr_sub4_0/s_axi/reg0] SEG_dmawr_sub4_0_reg0
+  create_bd_addr_seg -range 0x00001000 -offset 0x00000000 [get_bd_addr_spaces modelAxiMasterLite_0/m_axi] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
+  create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces modelAxiMasterLite_0/m_axi] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00002000 [get_bd_addr_spaces modelAxiMasterLite_0/m_axi] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00003000 [get_bd_addr_spaces modelAxiMasterLite_0/m_axi] [get_bd_addr_segs dmawr2tlp_0/s_axi/reg0] SEG_dmawr2tlp_0_reg0
 
 
   # Restore current instance

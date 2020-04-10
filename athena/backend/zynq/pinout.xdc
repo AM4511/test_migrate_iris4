@@ -3,40 +3,40 @@
 ################################################################
 
 # HiSPi top clock
-set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
-set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
+#set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
+#set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_N]
 
 # HiSPi Lane 0
-set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
-set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
+#set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
+#set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_N]
 
 # HiSPi Lane 8
-set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
-set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
+#set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
+#set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_N]
 
 # HiSPi Lane 16
-set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
-set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
+#set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
+#set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_N]
 
 
 
@@ -45,41 +45,41 @@ set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_N]
 ################################################################
 
 # HiSPi bottom clock
-set_property PACKAGE_PIN U26 [get_ports FMC_HPC_CLK1_M2C_P]
-set_property PACKAGE_PIN U27 [get_ports FMC_HPC_CLK1_M2C_N]
+#set_property PACKAGE_PIN U26 [get_ports FMC_HPC_CLK1_M2C_P]
+#set_property PACKAGE_PIN U27 [get_ports FMC_HPC_CLK1_M2C_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_N]
 
 
 # HiSPi Lane 1
-set_property PACKAGE_PIN P30 [get_ports FMC_HPC_LA28_P]
-set_property PACKAGE_PIN R30 [get_ports FMC_HPC_LA28_N]
+#set_property PACKAGE_PIN P30 [get_ports FMC_HPC_LA28_P]
+#set_property PACKAGE_PIN R30 [get_ports FMC_HPC_LA28_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_N]
 
 # HiSPi Lane 9
-set_property PACKAGE_PIN V28 [get_ports FMC_HPC_LA27_P]
-set_property PACKAGE_PIN V29 [get_ports FMC_HPC_LA27_N]
+#set_property PACKAGE_PIN V28 [get_ports FMC_HPC_LA27_P]
+#set_property PACKAGE_PIN V29 [get_ports FMC_HPC_LA27_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_N]
 
 # HiSPi Lane 17
-set_property PACKAGE_PIN P25 [get_ports FMC_HPC_LA23_P]
-set_property PACKAGE_PIN P26 [get_ports FMC_HPC_LA23_N]
+#set_property PACKAGE_PIN P25 [get_ports FMC_HPC_LA23_P]
+#set_property PACKAGE_PIN P26 [get_ports FMC_HPC_LA23_N]
 
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_P]
-set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_N]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_P]
-set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_N]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_P]
+#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_N]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_P]
+#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_N]
 
 
 ################################################################
@@ -112,30 +112,37 @@ set_property PACKAGE_PIN W21 [get_ports GPIO_LED_RIGHT]
 set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_RIGHT]
 set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_LEFT]
 
+set_property PACKAGE_PIN G2 [get_ports heart_beat]
+set_property IOSTANDARD LVCMOS18 [get_ports heart_beat]
+
+
 ################################################################
 # PCIe Interface
 ################################################################
 set_property PACKAGE_PIN AK23 [get_ports PCIE_PERST_LS]
+set_property PULLUP true [get_ports PCIE_PERST_LS]
+set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 
 set_property PACKAGE_PIN N8 [get_ports PCIE_CLK_QO_P]
 set_property PACKAGE_PIN N7 [get_ports PCIE_CLK_QO_N]
-set_property LOC GTXE2_CHANNEL_X0Y15 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
+#set_property LOC GTXE2_CHANNEL_X0Y15 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
+set_property LOC GTXE2_CHANNEL_X0Y15 [get_cells {xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
 set_property PACKAGE_PIN P5 [get_ports PCIE_RX0_N]
 set_property PACKAGE_PIN P6 [get_ports PCIE_RX0_P]
 set_property PACKAGE_PIN N3 [get_ports PCIE_TX0_N]
 set_property PACKAGE_PIN N4 [get_ports PCIE_TX0_P]
 
-set_property LOC GTXE2_CHANNEL_X0Y14 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
+#set_property LOC GTXE2_CHANNEL_X0Y14 [get_cells {xsystem_wrapper/system_i/pcie_system/axi_pcie_0/inst/comp_axi_enhanced_pcie/comp_enhanced_core_top_wrap/axi_pcie_enhanced_core_top_i/pcie_7x_v2_0_2_inst/pcie_top_with_gt_top.gt_ges.gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
 #set_property PACKAGE_PIN T5 [get_ports PCIE_RX1_N]
 #set_property PACKAGE_PIN T6 [get_ports PCIE_RX1_P]
 #set_property PACKAGE_PIN P1 [get_ports PCIE_TX1_N]
 #set_property PACKAGE_PIN P2 [get_ports PCIE_TX1_P]
 
-set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 
 
-# set_property PACKAGE_PIN H9   [get_ports SYSCLK_P]
-# set_property PACKAGE_PIN G9   [get_ports SYSCLK_N]
+
+set_property PACKAGE_PIN H9 [get_ports SYSCLK_P]
+set_property PACKAGE_PIN G9 [get_ports SYSCLK_N]
 
 # set_property PACKAGE_PIN AF14 [get_ports USRCLK_P]
 # set_property PACKAGE_PIN AG14 [get_ports USRCLK_N]
@@ -309,7 +316,7 @@ set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 
 
 
-# set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
+set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
 # set_property PACKAGE_PIN AB17 [get_ports GPIO_DIP_SW0]
 # set_property PACKAGE_PIN AC16 [get_ports GPIO_DIP_SW1]
 # set_property PACKAGE_PIN AC17 [get_ports GPIO_DIP_SW2]
@@ -856,8 +863,8 @@ set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 # set_property IOSTANDARD DIFF_SSTL15 [get_ports PL_DDR3_CLK0_N]
 # set_property IOSTANDARD DIFF_SSTL15 [get_ports PL_DDR3_CLK1_P]
 # set_property IOSTANDARD DIFF_SSTL15 [get_ports PL_DDR3_CLK1_N]
-# set_property IOSTANDARD LVDS [get_ports SYSCLK_P]
-# set_property IOSTANDARD LVDS [get_ports SYSCLK_N]
+set_property IOSTANDARD LVDS [get_ports SYSCLK_P]
+set_property IOSTANDARD LVDS [get_ports SYSCLK_N]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_A6]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_A7]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_A9]
@@ -917,7 +924,7 @@ set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D52]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D53]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D55]
-# set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_0]
+set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_0]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D62]
 #NET  VTTVREF_SODIMM            LOC = C13  | IOSTANDARD=SSTL15;   # Bank  35 VCCO - VCC1V5_PL - IO_L19N_T3_VREF_35
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D57]
@@ -931,4 +938,21 @@ set_property IOSTANDARD LVCMOS25 [get_ports PCIE_PERST_LS]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D60]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D58]
 #NET  VRP_35                    LOC = M16  | IOSTANDARD=SSTL15;    # Bank  35 VCCO - VCC1V5_PL - IO_25_VRP_35
+
+
+
+#set_property PACKAGE_PIN F20 [get_ports I2C_MUX_resetN]
+#set_property IOSTANDARD LVCMOS25 [get_ports I2C_MUX_resetN]
+#set_property DRIVE 8 [get_ports I2C_MUX_resetN]
+#set_property SLEW SLOW [get_ports I2C_MUX_resetN]
+
+set_property PACKAGE_PIN AJ14 [get_ports smbclk]
+set_property IOSTANDARD LVCMOS25 [get_ports smbclk]
+set_property DRIVE 8 [get_ports smbclk]
+set_property SLEW SLOW [get_ports smbclk]
+
+set_property PACKAGE_PIN AJ18 [get_ports smbdata]
+set_property IOSTANDARD LVCMOS25 [get_ports smbdata]
+set_property DRIVE 8 [get_ports smbdata]
+set_property SLEW SLOW [get_ports smbdata]
 

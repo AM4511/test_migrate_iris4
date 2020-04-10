@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="10" name="pcie2AxiMaster">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="info" alias="PCIe2AxiMaster IP-Core general information" description="This section contains all the register related to the IP-Core identification and capability listing." endAddress="10">
+    <registers name="tag" alias="Matrox Tag Identifier" description="This register contains the Matrox tag identifier string. Very convenient in debug mode for identifying the IP-Core register space.">
+      <fields name="value" alias="Tag value" description="This is a 3 character string. The value is &quot;MTX&quot;" size="24" valueAtReset="58544d" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=5788749&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>MTX ASCII string &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="fid" alias="Matrox IP-Core Function ID" offsetFromParent="4">
+      <fields name="value" size="32" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="version" alias="Register file version" description="Register file version composed of  3 sub-fields&#xD;&#xA;Major version&#xD;&#xA;Minor version&#xD;&#xA;sub-minor version&#xD;&#xA;&#xD;&#xA;v0.1.0 : First registerfile revision&#xD;&#xA;v0.2.0 : Added the fpga/board_info register " offsetFromParent="8">
+      <fields name="major" alias="Major version" description="Indicates a major register file change that breaks software compatibility." lsb="16" size="8" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="minor" alias="Minor version" description="Indicates a minor register file change that do not break software compatibility." lsb="8" size="8" valueAtReset="9" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="sub_minor" alias="Sub minor version" description="Indicates " size="8" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="capability" alias="Register file version" offsetFromParent="C">
+      <fields name="value" size="8" readWrite="false" staticVal="true"/>
+    </registers>
+    <registers name="scratchpad" alias="Scratch pad" description="R/W software debug register. Writing or reading to that register has no effect on the hardware." offsetFromParent="10">
+      <fields name="value" size="32">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="fpga" alias="FPGA informations" baseAddress="20" endAddress="2C">
+    <registers name="version" alias="Register file version" description="Register file version composed of  3 sub-fields&#xD;&#xA;Major version&#xD;&#xA;Minor version&#xD;&#xA;sub-minor version">
+      <fields name="firmware_type" alias="Firmware type" lsb="24" size="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Driver update&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>NPI Golden firmware&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Engineering firmware&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="major" alias="Major version" description="Indicates a major register file change that breaks software compatibility." lsb="16" size="8" valueAtReset="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="minor" alias="Minor version" description="Indicates a minor register file change that do not break software compatibility." lsb="8" size="8" valueAtReset="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="sub_minor" alias="Sub minor version" description="Indicates " size="8" valueAtReset="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="build_id" alias="Firmware build id" description="The build ID is a unique incrementing 32 bits number used to identify an FPGA firmware.  This value is simply the Unix time stamp (Unix Epoch)&#xD;&#xA;&#xD;&#xA;Unix time (also known as POSIX time or UNIX Epoch time) is a system for describing a point in time, defined as an approximation of the number of seconds that have elapsed since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970.&#xD;&#xA;&#xD;&#xA;For more info https://en.wikipedia.org/wiki/Unix_time&#xD;&#xA;" offsetFromParent="4">
+      <fields name="value" size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="device" offsetFromParent="8">
+      <fields name="id" alias="Manufacturer FPGA device ID" description="Lookup table providing the FPGA device ID. The value is user defined  (project specific) and specified outside of this document. " size="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Define outside of this document&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="board_info" alias="Board information" description="This register report board specific information" offsetFromParent="C">
+      <fields name="capability" alias="Board capability" description="Report the board capability (Connected to the board strapping)" size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>2 ToE Ports available &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 ToE ports available&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupts" description="&#xD;&#xA;Mapping provided in the system instantiating this IP." baseAddress="40" endAddress="58">
+    <registers name="ctrl">
+      <fields name="num_irq" alias="Number of IRQ" description="Indicated the total number of IRQ connected to the pcie2AxiMaster" lsb="1" size="7" valueAtReset="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="global_mask" alias="Global Mask interrupt " valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any enabled interrupt will bi signaled to the host&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No active interrrupt is signaled to the host&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="status" alias="Interrupt status register" offsetFromParent="4" useMultiples="true">
+      <fields name="value" size="32" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="enable" alias="Interrupt enable register" offsetFromParent="C" useMultiples="true">
+      <fields name="value" size="32">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="mask" alias="Interrupt mask register" offsetFromParent="14" useMultiples="true">
+      <fields name="value" size="32">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupt_queue" description="This section controls the behavior of the interrupt queue" baseAddress="60" endAddress="6C">
+    <registers name="control">
+      <fields name="nb_dw" alias="Number of DWORDS" description="This is the number of 32-bit DW used to represent all interrupt sources. It is used by the driver to know how to split the data of the interrupt queue in interrupt events.&#xD;&#xA;&#xD;&#xA;This number should always be a power of 2 to simply the hardware implementation and avoid having a single interrupt event split by the wrap-around boundary.&#xD;&#xA;" lsb="24" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="enable" alias="QInterrupt queue enable" description="This bit is used to enable the interrupt queue. When disabled, the interrupt will behave in a legacy way where all interrupts are merged into interrupt status register and driver has to read the status register to know the interrupt sources.&#xD;&#xA;&#xD;&#xA;To reset the interrupt queue, the driver should disable the queue and re-enable it. This will cause the producer index to be reset to 0 internally in the hardware.  The driver should write the whole queue area to 0 to make sure it does not mis-interpret the data in the queue as events when the queue is turned back to on."/>
+    </registers>
+    <registers name="cons_idx" alias="Consumer Index" description="The consumer index indicates up to which element of interrupt queue array it can write. Element in the queue between CONS_IDX (included) and PROD_IDX (not included) belong to the driver and are not written by the hardware. " offsetFromParent="4">
+      <fields name="cons_idx" description="When turning on the interrupt queue, the driver should first write this index to value 1023 (0X3FF) to indicate that the queue is empty." size="10"/>
+    </registers>
+    <registers name="addr_low" description="This is the lower part of the address in host memory where the PCIe device writes the interrupt queue. It has to be aligned on 4K bytes boundary." offsetFromParent="8">
+      <fields name="addr" size="32" readOnlyMsb="11" useFieldResolution="true"/>
+    </registers>
+    <registers name="addr_high" description="This is the high part of the address in host memory where the PCIe device writes the interrupt queue.  It must be written to 0 if the queue resides in the first 4 GB of memory." offsetFromParent="C">
+      <fields name="addr" size="32" readOnlyMsb="12"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="tlp" alias="Transaction Layer protocol" description="This section contains the registers related to the TLP transactions logic." baseAddress="70" endAddress="74">
+    <registers name="timeout" alias="TLP transaction timeout value" description="Set the time out value. &#xD;&#xA;&#xD;&#xA; When a transaction is initiate the counter is incremented at every.  Each count tick is 16 ns. The reset value is 500 ms">
+      <fields name="value" alias="TLP timeout value" description="Units are in clock tick. 1 Clock tick = 16 ns." size="32" valueAtReset="1DCD650">
+        <possibleValues>&lt;matrox_column_delimiter>value=31250000&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>500 ms&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="transaction_abort_cntr" alias="TLP transaction abort counter" description="This register calculate the number of transaction that aborted du to a transaction timeout or an internal error. This purpose of this counter is mainly for debugging. Transaction abort should not occur in normal operation.  " offsetFromParent="4">
+      <fields name="clr" alias="Clear transaction abort counter value" description="This write autoclear field reset the counter value to 0." lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>clr the counter value to 0&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="value" alias="Counter value" description="" size="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="spi" baseAddress="E0" endAddress="EC">
+    <registers name="SPIREGIN" alias="SPI Register In" useReservedSpaceBelow="true">
+      <fields name="SPI_OLD_ENABLE" description="This bit is a placeholder for the SPI_ENABLE in older version of the code. It is used both to define a field position in the .h file generated and to mark the bit as reserved in the register file to garantee that the bit will not be re-used in the future." lsb="25" readWrite="false" staticVal="true"/>
+      <fields name="SPI_ENABLE" alias="SPI ENABLE" description="This bit enables the Output enable of the pin of the FPGA. This is needed to put the SPI interface in hi-Z when not using it.&#xD;&#xA;&#xD;&#xA;Note that this bit has been moved from bit 24 to bit 25 so the existing software will not be compatible with new hardware and there will be no SPI transaction if old software is run over new hardware." lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The SPI interface is disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The SPI interface is enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIRW" alias="SPI  Read Write" description="Specify the SPI transfer type (read or write access)." lsb="22">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read Access&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPICMDDONE" alias="SPI  CoMmaD DONE" description="Specify the last transaction for an SPI command sequence." lsb="21"/>
+      <fields name="SPISEL" alias="SPI active channel SELection" description="Selects the active SPI x channel." lsb="18"/>
+      <fields name="SPITXST" alias="SPI SPITXST Transfer STart" description="Start an SPI transaction when 1 is written" lsb="16" readWrite="false" writeOnly="true"/>
+      <fields name="SPIDATAW" alias="SPI Data  byte to write" description="This is the data byte to be written." size="8"/>
+    </registers>
+    <registers name="SPIREGOUT" alias="SPI Register Out" offsetFromParent="8" useReservedSpaceBelow="true">
+      <fields name="SPI_WB_CAP" alias="SPI Write Burst CAPable" description="This register informs if the SPI core is able to write burst of 256 bytes to the SPI device (Write page), without requireing register polling between command, adress and data bytes in the write page command." lsb="17" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This fpga can't do write burst&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>This fpga is capable of doing write burst&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIWRTD" alias="SPI Write or Read Transfer Done" description="Specify if there is a transfer in progress." lsb="16" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Transfer in progress&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No transfer in progress&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="SPIDATARD" alias="SPI DATA  Read byte OUTput " description="This is the data read byte from the SPI " size="8" readWrite="false" readOnly="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="axi_window" baseAddress="100" endAddress="13C" useMultiples="true" numberOfMultiples="4">
+    <registers name="ctrl" alias="PCIe Bar 0 start address">
+      <fields name="enable"/>
+    </registers>
+    <registers name="pci_bar0_start" alias="PCIe Bar 0 window start offset" offsetFromParent="4">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="pci_bar0_stop" alias="PCIe Bar 0 window stop offset" offsetFromParent="8">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="axi_translation" alias="Axi offset translation" description="32 bits window offset in the axi space" offsetFromParent="C">
+      <fields name="value" size="32" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="debug" baseAddress="200" endAddress="204">
+    <registers name="input" alias="debug input signals">
+      <fields name="value" size="32" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="output" offsetFromParent="4">
+      <fields name="value" size="32"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;regfile_&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>

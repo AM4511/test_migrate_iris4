@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="12" name="PcieModelRegFile">
+  <registerFileRegisterNodes name="STRAP_VALUES_UBUS">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="LTSSM_RXELECIDLE_UBUS" offsetFromParent="4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MODE_DATA_UBUS" offsetFromParent="8">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MODE_PKT_SZ_UBUS" offsetFromParent="C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MODE_CFG_CONTINUE_UBUS" offsetFromParent="10">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MODE_DATA_CHECKING_RD_UBUS" offsetFromParent="14">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_POLLING_MASK_UBUS" offsetFromParent="18">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_POLLING_DATA_UBUS" offsetFromParent="1C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_TD_UBUS" offsetFromParent="20">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_STP_SDP_SAME_SYM_TIME_UBUS" offsetFromParent="24">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_PH_UBUS" offsetFromParent="28">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_PD_UBUS" offsetFromParent="2C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_NPH_UBUS" offsetFromParent="30">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_NPD_UBUS" offsetFromParent="34">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_CPLH_UBUS" offsetFromParent="38">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_DLLP_INIT_FC_CPLD_UBUS" offsetFromParent="3C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_SKIP_FREQUENCY_UBUS" offsetFromParent="40">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_DECODE_ERROR_UBUS" offsetFromParent="44">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_BUFFER_OVERFLOW_UBUS" offsetFromParent="48">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_BUFFER_UNDERFLOW_UBUS" offsetFromParent="4C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_DISPARITY_ERROR_UBUS" offsetFromParent="50">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_ADD_SKP_UBUS" offsetFromParent="54">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_PIPE_DEL_SKP_UBUS" offsetFromParent="58">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_CPL_ORDER_UBUS" offsetFromParent="5C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_CPL_TD_UBUS" offsetFromParent="60">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_ACK_FROM_REQ_UBUS" offsetFromParent="64">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_REQ_2CPL_UBUS" offsetFromParent="68">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MEM_SPACE_ADDRESS_HIGH_UBUS" offsetFromParent="6C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MEM_SPACE_ADDRESS_LOW_UBUS" offsetFromParent="70">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MEM_SPACE_DATA_UBUS" offsetFromParent="74">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_GO2RECOVERY_UBUS" offsetFromParent="78">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_PL_SETSPEED_UBUS" offsetFromParent="7C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_MEM_DUMP_UBUS" offsetFromParent="80">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_READ_MEM_SPACE_ADDRESS_HIGH_UBUS" offsetFromParent="84">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_READ_MEM_SPACE_ADDRESS_LOW_UBUS" offsetFromParent="88">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_READ_MEM_SPACE_DATA_UBUS" offsetFromParent="8C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="RUL_PL_END_WITHOUT_PACKET_UBUS" offsetFromParent="90">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_MSG_CODE_UBUS" offsetFromParent="94">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_MSG_ROUTING_UBUS" offsetFromParent="98">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_MSG_VENDOR_DEF_UBUS" offsetFromParent="9C">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_LDW_BE_UBUS" offsetFromParent="A0">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_FDW_BE_UBUS" offsetFromParent="A4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_EP_UBUS" offsetFromParent="A8">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_CPL_STATUS_UBUS" offsetFromParent="AC">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_CPL_BCM_UBUS" offsetFromParent="B0">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_CPL_LEN_UBUS" offsetFromParent="B4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_TLP_CPL_RIDTAG_UBUS" offsetFromParent="B8">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CFG_CPL_TIMEOUT_COUNT_UBUS" offsetFromParent="BC">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="CL_BUS_CONTROL_UBUS" offsetFromParent="C0">
+    <fields name="cl_clk_resetN">
+      <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>reset the bus clock&lt;/matrox_column_delimiter></possibleValues>
+      <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>start the bus clock&lt;/matrox_column_delimiter></possibleValues>
+      <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+    </fields>
+    <fields name="cl_bus_resetN" lsb="28">
+      <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>reset the bus&lt;/matrox_column_delimiter></possibleValues>
+      <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>de-assert the bus reset&lt;/matrox_column_delimiter></possibleValues>
+      <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+    </fields>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="TB_RESET_UBUS" offsetFromParent="C4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="TB_POLL_MASK_UBUS" offsetFromParent="C8">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="TB_READ_MASK_UBUS" offsetFromParent="CC">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="TB_POLL_TIMER_LIMIT_UBUS" offsetFromParent="D0">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="PKT_CMD_UBUS" offsetFromParent="D4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="PKT_ADDR_HIGH_UBUS" offsetFromParent="D8">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="PKT_ADDR_LOW_UBUS" offsetFromParent="DC">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="PKT_BYTE_COUNT_UBUS" offsetFromParent="E0">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <registerFileRegisterNodes name="PKT_DATA_UBUS" offsetFromParent="E4">
+    <fields name="value" size="32"/>
+  </registerFileRegisterNodes>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;regfile_&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SUFFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_LOW_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ACTIVE_HIGH_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_ASYNCHRONOUS_PREF=&quot;true&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_RESET_SYNCHRONOUS_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PACKAGE_NAME_SUFFIX_PREF=&quot;_pack&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_PREF=&quot;reg_write&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WRITE_DATA_PREF=&quot;reg_writedata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_PREF=&quot;reg_read&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_PREF=&quot;reg_readdata&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_READ_DATA_VALID_PREF=&quot;reg_readdatavalid&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_ADDRESS_PREF=&quot;reg_addr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_WAIT_PREF=&quot;reg_wait&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_CLOCK_PREF=&quot;sysclk&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_RESET_ACTIVE_LOW_PREF=&quot;resetN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;reg_beN&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PORT_NAMES_REGISTER_FILE_PREF=&quot;regfile&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_PREFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_INCLUDE_SUFFIX_PREF=&quot;false&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_HIT_PREF=&quot;hit&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_WRITE_ENABLE_PREF=&quot;wEn&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_FULL_ADDRESS_PREF=&quot;fullAddr&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_READ_BACK_MULTIPLEXER_PREF=&quot;readBackMux&quot;</vhdlGenerationPreferences>
+  <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_SIGNAL_NAMES_BYTE_ENABLE_ACTIVE_LOW_PREF=&quot;bitEnN&quot;</vhdlGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_PREFIX_PREF=&quot;fpga&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SUFFIX_PREF=&quot;type&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT64_PREF=&quot;M_UINT64&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT32_PREF=&quot;M_UINT32&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT16_PREF=&quot;M_UINT16&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_TYPE_NAME_UINT8_PREF=&quot;M_UINT8&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_DO_DEFINE_REGISTER_ADDRESSES_PREF=&quot;true&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_ADDRESS_DEFINE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_STRUCTURE_NAME_PREF=&quot;f&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_RESERVED_KEYWORD_PREF=&quot;rsvd&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_FIELD_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTER_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_SECTION_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_NAME_FORMAT_PREF=&quot;lower case&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_TYPE_FORMAT_PREF=&quot;UPPER CASE&quot;</sdkGenerationPreferences>
+  <sdkGenerationPreferences>GENERATOR_SDK_REGISTERFILE_REGISTERFILE_MIXED_ENDIANESS_SYSTEM_PREF=&quot;false&quot;</sdkGenerationPreferences>
+</com.matrox.fdk.editor.registerfile:RegisterFile>
