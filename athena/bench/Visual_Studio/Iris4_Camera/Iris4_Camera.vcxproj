@@ -165,9 +165,12 @@
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS12K.cpp" />
     <ClCompile Include="source\XGS_Ctrl.cpp" />
+    <ClCompile Include="source\XGS_Data.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />
+    <ClCompile Include="tests\test_0001_SWtrig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\hispi_registerfile.h" />
     <ClInclude Include="include\I2C.h" />
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
@@ -180,6 +183,7 @@
     <ClInclude Include="include\SystemTree.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\XGS_Ctrl.h" />
+    <ClInclude Include="include\XGS_Data.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

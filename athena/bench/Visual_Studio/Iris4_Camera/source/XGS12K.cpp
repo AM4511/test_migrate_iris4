@@ -91,6 +91,9 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 
 	WriteSPI(0x3812, 0);    // integration offset coarse default is 0 [3:0]
 
+
+	WriteSPI(0x389c, 0);   //F_line
+
 	// Copy some "mirror" registers from Sensor to FPGA
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = ReadSPI(0x3844);      //Analog Gain
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
@@ -227,6 +230,7 @@ void CXGS_Ctrl::Check_otpm_depended_uploads() {
 		WriteSPI_BURST(REG_BURST8);
 
 	}
+
 	if (otpmversion != 0) {
 		printf("No timing uploads necessary for OTPM version: 0x%X\n", otpmversion);
 		printf("Loading required register uploads\n");

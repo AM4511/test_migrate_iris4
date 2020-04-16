@@ -42,6 +42,12 @@
     <ClCompile Include="source\XGS12K.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\XGS_Data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0001_SWtrig.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">
@@ -72,6 +78,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\regfile_i2c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\XGS_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hispi_registerfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

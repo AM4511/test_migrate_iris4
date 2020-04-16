@@ -37,8 +37,8 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setS
 
 
 	//------------------------------------
-// GrabParams
-//------------------------------------
+    // GrabParams
+    //------------------------------------
 	GrabParams = {
 		0,              //TRIGGER_OVERLAP_BUFFn
 		1,              //TRIGGER OVERLAP 
@@ -69,7 +69,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setS
 		0,             //roi2 Y_START
 		480,           //roi2 Y_END	
 
-		0xf,           //BLACK_OFFSET
+		0x100,         //DataPedestal (pour l'instant je le mets pareils pour tous les pixels Gr+Gb+R+B)
 
 		0x0 ,          //ANALOG GAIN
  		0,             //REVERSE_Y
@@ -145,41 +145,20 @@ SensorParamStruct* CXGS_Ctrl::getSensorParams(void)
 void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 {
 
-/*
-
-    //CODE test
 	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) + ((data & 0xffff) << 16);
-	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
+	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;              // Set address and data to write in sensor
 
-	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0000;
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                   // Sensor access type
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x0;                                   // Write access  
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                   // Write the command to the queue fifo
+	rXGSptr.ACQ.ACQ_SER_CTRL.u32         = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x0;                                   // WO register 
 
-	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0001;
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0000;
-	
-	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0010;
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
-	sXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x0000;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Start the queue command
+	rXGSptr.ACQ.ACQ_SER_CTRL.u32         = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;
 
-	while ( (rXGSptr.ACQ.ACQ_SER_STAT.u32 & 0x00ff0000) == 0x00010000);
-*/
-
-
-
-
-
- 	//CODE OK
-	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) + ((data & 0xffff) << 16);
-	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00000;
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00001;
-	Sleep(100);                                                                  // Si je mets pas le sleep ici le compilateur optimize le volatile et le REad ne se fait pas!!!
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x00010;
-
-  	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);                          // Loop wait for the access end
-
-
+	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);                          // Loop wait for the access end
 
 }
 
@@ -245,38 +224,23 @@ void CXGS_Ctrl::WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write, M_UINT32 data
 M_UINT32 CXGS_Ctrl::ReadSPI(M_UINT32 address)
 {
 
-//	//CODE NO OK
-//	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff) ;
-//	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
-//	
-//	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0;
-//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;                                    // Sensor access type
-//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x1;                                    // Write access  
-//	rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;                                    // Write the command to the queue fifo
-//	M_UINT32 dataread = rXGSptr.ACQ.ACQ_SER_CTRL.u32;
-//	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = dataread + 0x10;
-//	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;                                   // Write the command to the queue fifo
-//	//rXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;
-//																				  //Sleep(100);
-//	//rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
-	
-//no snoop??? relax reordering ???
 
-
-//	//CODE OK
 	sXGSptr.ACQ.ACQ_SER_ADDATA.u32 = (address & 0x7fff);
 	rXGSptr.ACQ.ACQ_SER_ADDATA.u32 = sXGSptr.ACQ.ACQ_SER_ADDATA.u32;               // Set address and data to write in sensor
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10000;
-	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10001;
-	Sleep(100);
-	//while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY == 0x1);
 
-    rXGSptr.ACQ.ACQ_SER_CTRL.u32 = 0x10010;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_CMD   = 0x0;             // Sensor access type
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RWN   = 0x1;             // Read access  
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x1;             // Write the command to the queue fifo
+	rXGSptr.ACQ.ACQ_SER_CTRL.u32 = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_WF_SS = 0x0;          // WO register 
 
-	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);     // Loop wait for the access end
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x1;          // Start the queue command
+	rXGSptr.ACQ.ACQ_SER_CTRL.u32         = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
+	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;          // WO register
 
-	return ((rXGSptr.ACQ.ACQ_SER_STAT.u32) & 0xffff);       // Return the read value 
+	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1); // Loop wait for the access end
 
+	return ((rXGSptr.ACQ.ACQ_SER_STAT.u32) & 0xffff);    // Return the read value
 
 }
 
@@ -583,6 +547,29 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in us	
 }
 
+//----------------------------------------------------
+//  setAnalogGain   
+//----------------------------------------------------
+void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
+{
+
+	if (gain == 1) {
+		GrabParams.ANALOG_GAIN = 1;
+		printf("AnalogGain set to 1x\n");
+	}
+	else if (gain == 2) {
+		GrabParams.ANALOG_GAIN = 3;
+		printf("AnalogGain set to 2x\n");
+	}
+	else if (gain == 4) {
+		GrabParams.ANALOG_GAIN = 7;
+		printf("AnalogGain set to 4x\n");
+	}
+
+
+}
+
+
 
 //----------------------------------------------------
 //  setBalckRef
@@ -590,6 +577,7 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 void CXGS_Ctrl::setBlackRef(int value)
 {
 	GrabParams.BLACK_OFFSET = value;
+	printf("Black Offset (Data Pedestal) set to 0x%X\n", value);
 }
 
 //----------------------------------------------------
@@ -772,7 +760,7 @@ void CXGS_Ctrl::SetGrabCMD(unsigned long Throttling, int DoSleep)
 	{
 		if (loop_nb == max_iter)
 		{
-			printf("\n\nERROR : GRAB_PENDING TIMEOUT ! in proccess Camera->SetGrabCMD(void) \n");
+			printf("\n\nERROR : GRAB_PENDING TIMEOUT ! in proccess XGS_Ctrl->SetGrabCMD(void) \n");
 			//PrintFPGAGrabLogicState();
 			break;
 		}
@@ -782,9 +770,7 @@ void CXGS_Ctrl::SetGrabCMD(unsigned long Throttling, int DoSleep)
 
 	if (loop_nb != max_iter)
 	{
-
 		SetGrabParams(Throttling);
-		
 		sXGSptr.ACQ.GRAB_CTRL.f.GRAB_CMD = 1;
 		rXGSptr.ACQ.GRAB_CTRL.u32        = sXGSptr.ACQ.GRAB_CTRL.u32;
 		sXGSptr.ACQ.GRAB_CTRL.f.GRAB_CMD = 0;
@@ -863,9 +849,20 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	//rDMA.GRAB_CSC.u32 = sDMA.GRAB_CSC.u32;
 
 
-	// A implementer plus tard
-	//sXGSptr.ACQ.SENSOR_BLACK_CAL.f.BLACK_OFFSET = GrabParams.BLACK_OFFSET;
-	//rXGSptr.ACQ.SENSOR_BLACK_CAL.u32 = sXGSptr.ACQ.SENSOR_BLACK_CAL.u32;
+	// Black Offset (data Pedestal, pour le moment tous les pixels ont le meme pedestal)
+	sXGSptr.ACQ.SENSOR_DP_GR.f.DP_OFFSET_GR = GrabParams.BLACK_OFFSET;
+	rXGSptr.ACQ.SENSOR_DP_GR.u32            = sXGSptr.ACQ.SENSOR_DP_GR.u32;
+
+	sXGSptr.ACQ.SENSOR_DP_GB.f.DP_OFFSET_GB = GrabParams.BLACK_OFFSET;
+	rXGSptr.ACQ.SENSOR_DP_GB.u32            = sXGSptr.ACQ.SENSOR_DP_GB.u32;
+
+	sXGSptr.ACQ.SENSOR_DP_R.f.DP_OFFSET_R   = GrabParams.BLACK_OFFSET;
+	rXGSptr.ACQ.SENSOR_DP_R.u32             = sXGSptr.ACQ.SENSOR_DP_R.u32;
+
+	sXGSptr.ACQ.SENSOR_DP_B.f.DP_OFFSET_B   = GrabParams.BLACK_OFFSET;
+	rXGSptr.ACQ.SENSOR_DP_B.u32             = sXGSptr.ACQ.SENSOR_DP_B.u32;
+
+
 
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.f.ANALOG_GAIN = GrabParams.ANALOG_GAIN;
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32 = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
@@ -883,6 +880,43 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP               = GrabParams.TRIGGER_OVERLAP;
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP_BUFFN         = GrabParams.TRIGGER_OVERLAP_BUFFN;
 	rXGSptr.ACQ.GRAB_CTRL.u32                             = sXGSptr.ACQ.GRAB_CTRL.u32;
+}
+
+
+
+
+//----------------------------------------------------
+//  Snapshot SW
+//----------------------------------------------------
+void CXGS_Ctrl::SW_snapshot(int DoSleep)
+{
+	M_UINT32 loop_nb = 0;
+	M_UINT32 max_iter = 0xffffff;
+
+	while (rXGSptr.ACQ.GRAB_STAT.f.TRIGGER_RDY == 0)
+	{
+		if (loop_nb == max_iter)
+		{
+			//if (rUNIT.ERROR_CONDITION.f.REVX_OVERRUN == 1)
+			//{
+			//	printf("DMA GRAB OVERRUN detected in SW_snapshot!!!");
+			//	printf("\n\n");
+			//	rUNIT.ERROR_CONDITION.f.REVX_OVERRUN = 1;
+			//	Sleep(1000);
+			//}
+			printf("\n\nERROR : TRIGGER_RDY TIMEOUT ! in proccess Camera->SW_snapshot(void) \n");
+			break;
+		}
+		loop_nb++;
+		if (DoSleep == 1) Sleep(1); // This Sleep will decrease CPU usage but also decrease max framerate !!!!
+	}
+
+	if (loop_nb != max_iter)
+	{
+		sXGSptr.ACQ.GRAB_CTRL.f.GRAB_SS = 1;
+		rXGSptr.ACQ.GRAB_CTRL.u32       = sXGSptr.ACQ.GRAB_CTRL.u32;
+		sXGSptr.ACQ.GRAB_CTRL.f.GRAB_SS = 0;
+	}
 }
 
 

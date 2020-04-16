@@ -126,6 +126,7 @@ public:
 	void SetGrabParams(unsigned long Throttling = 0);
 	M_UINT32 getExposure(void);
 	void setExposure(M_UINT32 exposure_ss_us);
+	void setAnalogGain(M_UINT32 gain);
 	void setBlackRef(int value);
 	void SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTIVATION);
 	void EnableRegUpdate(void);
@@ -133,6 +134,7 @@ public:
 	void WaitEndExpReadout(void);
 	int  GrabAbort(void);
 	void SetGrabCMD(unsigned long Throttling, int DoSleep);
+	void SW_snapshot(int DoSleep);
 
 	void XGS_PCIeCtrl_DumpFile(void);
 

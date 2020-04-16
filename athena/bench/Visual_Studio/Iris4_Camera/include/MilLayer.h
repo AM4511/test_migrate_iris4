@@ -18,7 +18,7 @@
 
 void MilLayerAlloc(void);
 
-unsigned char * getMilLayerRegisterPtr(M_UINT32 regId, M_UINT64 fpga_bar0_add);
+volatile unsigned char * getMilLayerRegisterPtr(M_UINT32 regId, M_UINT64 fpga_bar0_add);
 //unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add);
 
 M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysize, int PixelType_bpp=8);

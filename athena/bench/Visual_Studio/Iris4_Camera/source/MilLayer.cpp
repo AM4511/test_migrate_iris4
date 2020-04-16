@@ -27,20 +27,21 @@ void MilLayerAlloc(void)
 }
 
 
-unsigned char * getMilLayerRegisterPtr(M_UINT32 regId, M_UINT64 fpga_bar0_add)
+volatile unsigned char * getMilLayerRegisterPtr(M_UINT32 regId, M_UINT64 fpga_bar0_add)
    {
 
     MbufCreate2d(M_DEFAULT_HOST,
                 8192,
                 1,
                 8 + M_UNSIGNED,
-                M_IMAGE + M_MMX_ENABLED,
+                //M_IMAGE + M_MMX_ENABLED,
+                M_IMAGE,
                 M_PHYSICAL_ADDRESS + M_PITCH_BYTE,
                 8192,
                 (void **)fpga_bar0_add,
                 &LayerMilRegBuf[regId]);
 
-   unsigned char * RegPtr = (unsigned char*)MbufInquire(LayerMilRegBuf[regId], M_HOST_ADDRESS, M_NULL);
+    volatile unsigned char * RegPtr = (unsigned char*)MbufInquire(LayerMilRegBuf[regId], M_HOST_ADDRESS, M_NULL);
 
    return RegPtr;
    }

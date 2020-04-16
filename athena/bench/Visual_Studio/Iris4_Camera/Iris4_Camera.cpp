@@ -22,6 +22,8 @@
 #include <Windows.h>
 
 #include "XGS_Ctrl.h"
+#include "XGS_Data.h"
+
 #include "I2C.h"
 
 #include "SystemTree.h" 
@@ -29,7 +31,7 @@
 
 void Help(CXGS_Ctrl* Camera);
 void test_0000_Continu(CXGS_Ctrl* Camera);
-
+void test_0001_SWtrig(CXGS_Ctrl* Camera);
 
 /* Main function. */
 int main(void)
@@ -119,23 +121,70 @@ int main(void)
 	//------------------------------
 	// Init class XGS CONTROLLER
 	//------------------------------
-	unsigned char * XGS_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS ctrl
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGSptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_regptr));
+	volatile unsigned char * XGS_Ctrl_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS ctrl
+	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGS_Ctrl_ptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_Ctrl_regptr));
 	CXGS_Ctrl *XGS_Ctrl;
 	//XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099); //32.4Mhz
-	XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.625);    //32Mhz
+	XGS_Ctrl = new CXGS_Ctrl(rXGS_Ctrl_ptr, 16.000000, 15.625);    //32Mhz
 	printf("\nXGS Controller Static_ID : 0x%X\n", XGS_Ctrl->rXGSptr.SYSTEM.ID.f.STATICID);
+
+	//------------------------------
+    // Init class XGS DATAPATH
+    //------------------------------
+	volatile unsigned char* XGS_Data_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + 0x00000);   // Lets put a pointer to the FPGA XGS Data  <-------- Setter la nouvelle adresse ici, aulieu de 0x00000  !!!
+	volatile FPGA_HISPI_REGISTERFILE_TYPE& rXGS_Data_ptr = (*(volatile FPGA_HISPI_REGISTERFILE_TYPE*)(XGS_Data_regptr));
+	CXGS_Data* XGS_Data;
+	XGS_Data = new CXGS_Data(rXGS_Data_ptr);
+	printf("\nXGS DataPath Static_ID   : 0x%X\n", XGS_Data->rXGSptr.info.tag.u32);
 
 	//------------------------------
 	// Init class I2C CONTROLLER
 	//------------------------------
-	unsigned char * I2C_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + 0x10000);   // Lets put a pointer to the FPGA I2C
+	volatile unsigned char * I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + 0x10000);       // Lets put a pointer to the FPGA I2C
 	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 	printf("\nI2C Controller Static_ID : 0x%X\n\n", I2C->rI2Cptr.I2C.I2C_ID.f.ID);
 
 
+
+
+	//// Test du fix TLP_2_AXI avec W/R 64 bits et W/R 32bits 
+	//// Faut modifier le regfile : regsitre READOUT_CFG3 ajouter le field .u64 pour pouvoir l'acceder en 64bits
+	// /**************************************************************************
+    // * Register name : READOUT_CFG3
+    // ***************************************************************************/
+	// typedef union
+	// {
+	// 	 M_UINT64 u64;
+	//   ...
+	//
+	//// Attention quand on met ce registres 64bits le regfile est tout offset!!!
+	////Access 64 bits
+	//XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG3.u64 = 0xcafefade0000caca;
+	//M_UINT64 READOUT64 = XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG3.u64;
+	////Access 32 bits
+	//XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG3.u32 = 0x0000cafe;
+	//M_UINT32  READOUT32 = XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG3.u32;
+	//printf("Ecriture et lecture 64 bits : %llX\n", READOUT64);
+	//printf("Ecriture et lecture 32 bits=0x%x\n",   READOUT32);
+
+
+
+	for (int j = 0; j < 10; j++) {
+		//Test pour W/R PCIe ultra rapides
+		for (M_UINT32 i = j * 100; i < ((j * 100)+100); i++)
+		{
+			XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32 = i;
+			M_UINT32 readback = XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32;
+			if (readback != i)
+  			  printf("R/W fail write=0x%x read=0x%x\n", i, readback);
+	
+		}
+		printf("end loop\n");
+	}
+
+	
 /*
 	//--------------------------------------------
     // TEST D'acces I2C vers EPROM I2c DU 7C706
@@ -353,6 +402,12 @@ int main(void)
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;
+
+			case '1':
+				test_0001_SWtrig(XGS_Ctrl);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
 //
 //			case 'p':
 //				Iris3->PowerEnable();
@@ -391,6 +446,7 @@ int main(void)
 	
 	MbufFree(MilRegBuf1);	//a effacer avec le vrai produit
 	delete XGS_Ctrl;
+	delete XGS_Data;
 	delete I2C;
 	IrisMilFree();
 	exit(0);
@@ -406,16 +462,17 @@ int main(void)
 //-----------------------
 //  print help
 //-----------------------
-void Help(CXGS_Ctrl* Camera)
+void Help(CXGS_Ctrl* XGS_Ctrl)
 {
 
 	printf("\n------------------------------------------------------------------------------");
 	printf("\n");
-	Camera->PrintTime();
+	XGS_Ctrl->PrintTime();
 	printf("\n  IRIS 4 - MENU ");
 	printf("\n");
 	printf("\n  (q) Quit the app");
 	printf("\n  (0) Grab Test Continu");
+	printf("\n  (1) Grab Test SW trig - Manual");
 	printf("\n------------------------------------------------------------------------------\n\n");
 
 }

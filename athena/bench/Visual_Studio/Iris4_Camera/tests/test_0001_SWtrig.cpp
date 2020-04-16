@@ -17,7 +17,7 @@
 #include "XGS_Ctrl.h"
 
 
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
+void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
    {
 	
 	MIL_ID MilDisplay;
@@ -32,6 +32,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	bool DisplayOn  = true;
 	int PolldoSleep =0;
 	bool FPS_On     = true;
+	M_UINT32 nbGrab = 0;
+
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
 	M_UINT32 XGSSize_Y = 0;
@@ -40,7 +42,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 
 
 	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0000.cpp    *\n");
+	printf(    "*    Executing Test0001.cpp    *\n");
 	printf(    "********************************\n\n");
 
 
@@ -72,8 +74,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	XGS_Ctrl->setExposure(8000);
 
 	// For a full frame ROI 
-	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	//1-base Here - Dois etre multiple de 4
+	GrabParams->Y_START = 0;                                               //1-base Here - Dois etre multiple de 4
+	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;  //1-base Here - Dois etre multiple de 4
 	//GrabParams->Y_END   = 8;
 
 	GrabParams->SUBSAMPLING_X        = 0;
@@ -87,7 +89,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
+	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
 
 
 	printf("\n\nTest started at : ");
@@ -109,6 +111,9 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (+) Increase Exposure");
 	printf("\n  (-) Decrease Exposure");
 	printf("\n  (e) Exposure Incr/Decr gap");
+	printf("\n");
+	printf("\n  (s) To do a SW snapshot");
+
 	printf("\n\n");
 
 	unsigned long fps_reg;
@@ -128,14 +133,16 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 		if (XGS_Ctrl->sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP == 0)
 			XGS_Ctrl->WaitEndExpReadout();
 
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
-
-
-		if (FPS_On)
-		{
-			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-			printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
-		}
+		//if (FPS_On)
+		//{
+		//	fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
+		//	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+		//	//if ((fps_reg & 0xffff) == 0xffff)
+		//    //{
+		//	//	printf("\n\nERROR de lecture au registre du fpga fps, press enter to continue! 0x%X\n\n\n", fps_reg);
+		//	//	_getch();
+		//	//}
+		//}
 
 
 		//if (DisplayOn)
@@ -228,6 +235,19 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 				printf("\nEnter the new Size Y (1-based): ");
 				scanf_s("%d", &XGSSize_Y);				
 				GrabParams->Y_END = XGSSize_Y;
+
+
+			case 's':
+				Sortie = 0;
+
+				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+				XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
+				XGS_Ctrl->WaitEndExpReadout();
+				//MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+				nbGrab++;
+				printf("\rGrabSnapshot completed : %d           ", nbGrab);
+
+				break;
 
 			}
 
