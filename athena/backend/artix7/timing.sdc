@@ -55,21 +55,28 @@ set dv_afe              0.512;                                   # Data valid af
 ####################################################################################################################
 ## XGS12M even lanes
 ####################################################################################################################
-set input_clock         [get_clocks {xgs_hispi_sclk_p[0]}];
-set input_ports         [get_ports {xgs_hispi_sdata_p[0] xgs_hispi_sdata_p[2] xgs_hispi_sdata_p[4]}];
+set input_clock [get_clocks {xgs_hispi_sclk_p[0]}];
+set input_ports [get_ports  {xgs_hispi_sdata_p[0] xgs_hispi_sdata_p[2] xgs_hispi_sdata_p[4]}];
 
 # Input Delay Constraint
 set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bfe] [get_ports $input_ports];
 set_input_delay -clock $input_clock -min $dv_are                                [get_ports $input_ports];
 set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bre] [get_ports $input_ports] -clock_fall -add_delay;
 set_input_delay -clock $input_clock -min $dv_afe                                [get_ports $input_ports] -clock_fall -add_delay;
+
+
+set_multicycle_path -setup 0 -from $input_ports -to $input_clock
+set_multicycle_path -hold -1 -from $input_ports -to $input_clock
+
+set_false_path -rise_from $input_clock -rise_to $input_clock
+set_false_path -fall_from $input_clock -fall_to $input_clock
 
 
 ####################################################################################################################
 ## XGS12M odd lanes
 ####################################################################################################################
-set input_clock         [get_clocks {xgs_hispi_sclk_p[1]}];
-set input_ports         [get_ports {xgs_hispi_sdata_p[1] xgs_hispi_sdata_p[3] xgs_hispi_sdata_p[5]}];
+set input_clock [get_clocks {xgs_hispi_sclk_p[1]}];
+set input_ports [get_ports  {xgs_hispi_sdata_p[1] xgs_hispi_sdata_p[3] xgs_hispi_sdata_p[5]}];
 
 # Input Delay Constraint
 set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bfe] [get_ports $input_ports];
@@ -77,6 +84,12 @@ set_input_delay -clock $input_clock -min $dv_are                                
 set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bre] [get_ports $input_ports] -clock_fall -add_delay;
 set_input_delay -clock $input_clock -min $dv_afe                                [get_ports $input_ports] -clock_fall -add_delay;
 
+
+set_multicycle_path -setup 0 -from $input_ports -to $input_clock
+set_multicycle_path -hold -1 -from $input_ports -to $input_clock
+
+set_false_path -rise_from $input_clock -rise_to $input_clock
+set_false_path -fall_from $input_clock -fall_to $input_clock
 
 
 
