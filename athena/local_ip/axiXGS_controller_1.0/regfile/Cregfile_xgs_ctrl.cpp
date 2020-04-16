@@ -2,11 +2,11 @@
 ** File                : Cregfile_xgs_ctrl.cpp
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/04/08 09:30:17
+** Created on          : 2020/04/14 11:38:45
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0xC931B2A2
+** Register file CRC32 : 0x1E8C251E
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -316,10 +316,10 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_SUBSAMPLING(31:0)
-   * Offset: 0xa0
-   * Address: 0x1a0
+   * Offset: 0x9c
+   * Address: 0x19c
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_SUBSAMPLING", 0xa0, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_SUBSAMPLING", 0x9c, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -392,10 +392,10 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_M_LINES(31:0)
-   * Offset: 0xd8
-   * Address: 0x1d8
+   * Offset: 0xb8
+   * Address: 0x1b8
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_M_LINES", 0xd8, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_M_LINES", 0xb8, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -404,15 +404,63 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_F_LINES(31:0)
-   * Offset: 0xdc
-   * Address: 0x1dc
+   * Offset: 0xbc
+   * Address: 0x1bc
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_F_LINES", 0xdc, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_F_LINES", 0xbc, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
    pRegister->addField(createField(pRegister, "F_SUPPRESSED", 10, 5, CfdkField::RW, 0x0, 0x1f, 0x1f)); // SENSOR_F_LINES(14:10)
    pRegister->addField(createField(pRegister, "F_LINES_SENSOR", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_F_LINES(9:0)
+
+   /******************************************************************
+   * Register: //ACQ/SENSOR_DP_GR(31:0)
+   * Offset: 0xc0
+   * Address: 0x1c0
+   *******************************************************************/
+   pRegister = createRegister(pSection, "SENSOR_DP_GR", 0xc0, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "reserved", 12, 4, CfdkField::STATIC, 0x0, 0x0, 0xf)); // SENSOR_DP_GR(15:12)
+   pRegister->addField(createField(pRegister, "DP_OFFSET_GR", 0, 12, CfdkField::RW, 0x100, 0xfff, 0xfff)); // SENSOR_DP_GR(11:0)
+
+   /******************************************************************
+   * Register: //ACQ/SENSOR_DP_GB(31:0)
+   * Offset: 0xc4
+   * Address: 0x1c4
+   *******************************************************************/
+   pRegister = createRegister(pSection, "SENSOR_DP_GB", 0xc4, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "reserved", 12, 4, CfdkField::STATIC, 0x0, 0x0, 0xf)); // SENSOR_DP_GB(15:12)
+   pRegister->addField(createField(pRegister, "DP_OFFSET_GB", 0, 12, CfdkField::RW, 0x100, 0xfff, 0xfff)); // SENSOR_DP_GB(11:0)
+
+   /******************************************************************
+   * Register: //ACQ/SENSOR_DP_R(31:0)
+   * Offset: 0xc8
+   * Address: 0x1c8
+   *******************************************************************/
+   pRegister = createRegister(pSection, "SENSOR_DP_R", 0xc8, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "reserved", 12, 4, CfdkField::STATIC, 0x0, 0x0, 0xf)); // SENSOR_DP_R(15:12)
+   pRegister->addField(createField(pRegister, "DP_OFFSET_R", 0, 12, CfdkField::RW, 0x100, 0xfff, 0xfff)); // SENSOR_DP_R(11:0)
+
+   /******************************************************************
+   * Register: //ACQ/SENSOR_DP_B(31:0)
+   * Offset: 0xcc
+   * Address: 0x1cc
+   *******************************************************************/
+   pRegister = createRegister(pSection, "SENSOR_DP_B", 0xcc, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "reserved", 12, 4, CfdkField::STATIC, 0x0, 0x0, 0xf)); // SENSOR_DP_B(15:12)
+   pRegister->addField(createField(pRegister, "DP_OFFSET_B", 0, 12, CfdkField::RW, 0x100, 0xfff, 0xfff)); // SENSOR_DP_B(11:0)
 
    /******************************************************************
    * Register: //ACQ/DEBUG_PINS(31:0)

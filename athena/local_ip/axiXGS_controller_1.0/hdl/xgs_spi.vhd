@@ -195,7 +195,7 @@ signal ser_data_read         : std_logic_vector(15 downto 0);
 signal sensor_reconf_add     : std_logic_vector(15 downto 0);
 signal sensor_reconf_dat     : std_logic_vector(15 downto 0);
 signal sensor_reconf_cmd     : std_logic_vector(1 downto 0);
-signal sensor_reconf_WF_pipe : std_logic_vector(8 downto 0);
+signal sensor_reconf_WF_pipe : std_logic_vector(12 downto 0);
 signal sensor_reconf_WF_ss   : std_logic;
 signal sensor_reconf_roi_sel : std_logic_vector(3 downto 0) := "0101";
 
@@ -326,7 +326,7 @@ BEGIN
           GRAB_ROI2_EN_DB        <= '0'; 
         else
           sensor_reconf_WF_pipe(0)           <= (GRAB_CMD or acquisition_start_SFNC) and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE;
-          sensor_reconf_WF_pipe(8 downto 1) <= sensor_reconf_WF_pipe(7 downto 0);
+          sensor_reconf_WF_pipe(12 downto 1) <= sensor_reconf_WF_pipe(11 downto 0);
           
           if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1' then
             GRAB_ROI2_EN_DB        <= regfile.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
@@ -337,7 +337,7 @@ BEGIN
         if(sys_reset_n='0') then
           sensor_reconf_roi_sel   <= "0101";
         else
-          if( sensor_reconf_WF_pipe(7)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
+          if( sensor_reconf_WF_pipe(11)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
             sensor_reconf_roi_sel <= not(sensor_reconf_roi_sel(3)) & not(sensor_reconf_roi_sel(2)) & not(sensor_reconf_roi_sel(1)) & not(sensor_reconf_roi_sel(0));
           else
             sensor_reconf_roi_sel <= sensor_reconf_roi_sel;
@@ -425,17 +425,36 @@ BEGIN
                                     regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN    &
                                     regfile.ACQ.SENSOR_GAIN_ANA.reserved0;
     
-          --elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg SENSOR_BLACK_CAL (128, 0x80)  XGS PEDESTAL is 4 registers!!!!
-          --  sensor_reconf_WF_ss  <= '1';
-          --  sensor_reconf_cmd    <= "00";
-          --  sensor_reconf_add    <= "000000"&"010000000";
-          --  sensor_reconf_dat    <=  regfile.ACQ.SENSOR_BLACK_CAL.CRC_SEED        &
-          --                           regfile.ACQ.SENSOR_BLACK_CAL.reserved        &
-          --                           regfile.ACQ.SENSOR_BLACK_CAL.black_samples   &
-          --                           regfile.ACQ.SENSOR_BLACK_CAL.black_offset;
-          --
+          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg Data Pedestal (Gr)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384A";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GR.reserved        &
+                                     regfile.ACQ.SENSOR_DP_GR.DP_OFFSET_GR;
           
-          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program STOP SEPARATOR 
+         
+          elsif(sensor_reconf_WF_pipe(8)='1') then            -- Program reg Data Pedestal (Gb)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384C";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GB.reserved        &
+                                     regfile.ACQ.SENSOR_DP_GB.DP_OFFSET_GB;
+                   
+          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg Data Pedestal (R)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384E";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_R.reserved        &
+                                     regfile.ACQ.SENSOR_DP_R.DP_OFFSET_R;
+          
+          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg Data Pedestal (B)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3850";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_B.reserved        &
+                                     regfile.ACQ.SENSOR_DP_B.DP_OFFSET_B;
+                            
+          elsif(sensor_reconf_WF_pipe(11)='1') then            -- Program STOP SEPARATOR 
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "10";
             sensor_reconf_add    <= (others => '-');
@@ -481,7 +500,7 @@ BEGIN
       else
         if (GRAB_CMD='1' or acquisition_start_SFNC='1') then
           GRAB_CMD_DONE                <= '0';
-        elsif(sensor_reconf_WF_pipe(8)='1') then
+        elsif(sensor_reconf_WF_pipe(12)='1') then
           GRAB_CMD_DONE                <= '1';
         end if;
       end if;

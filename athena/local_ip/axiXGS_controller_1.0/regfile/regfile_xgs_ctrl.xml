@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="af3202e3-1080-4b85-9d2e-e382453dee47" VersionGuid="eec20bd8-0dc7-4c5f-8788-8339d930536e">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="3c9f1571-bcf4-43c9-ac79-1b44d764a4f9" VersionGuid="f0da3c2f-c2b8-45cc-9707-d8acc71e7e93">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>
@@ -257,6 +257,10 @@
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_roi2_y_size</pFeature>
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_m_lines</pFeature>
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_f_lines</pFeature>
+				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_dp_gr</pFeature>
+				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_dp_gb</pFeature>
+				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_dp_r</pFeature>
+				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_dp_b</pFeature>
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_debug_pins</pFeature>
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_trigger_missed</pFeature>
 				<pFeature>REGISTER_regfile_xgs_ctrl_acq_sensor_fps</pFeature>
@@ -2068,7 +2072,7 @@
 					<DisplayName>Offset:</DisplayName>
 					<Visibility>Guru</Visibility>
 					<ImposedAccessMode>RO</ImposedAccessMode>
-					<Value>160</Value>
+					<Value>156</Value>
 					<Representation>HexNumber</Representation>
 				</Integer>
 				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_subsampling_reserved1">
@@ -2515,7 +2519,7 @@
 					<DisplayName>Offset:</DisplayName>
 					<Visibility>Guru</Visibility>
 					<ImposedAccessMode>RO</ImposedAccessMode>
-					<Value>216</Value>
+					<Value>184</Value>
 					<Representation>HexNumber</Representation>
 				</Integer>
 				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_m_lines_m_suppressed">
@@ -2578,7 +2582,7 @@
 					<DisplayName>Offset:</DisplayName>
 					<Visibility>Guru</Visibility>
 					<ImposedAccessMode>RO</ImposedAccessMode>
-					<Value>220</Value>
+					<Value>188</Value>
 					<Representation>HexNumber</Representation>
 				</Integer>
 				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_f_lines_f_suppressed">
@@ -2623,6 +2627,258 @@
 					<ImposedAccessMode>RO</ImposedAccessMode>
 					<pVariable Name="ParentOffset">OFFSET_regfile_xgs_ctrl_acq</pVariable>
 					<pVariable Name="RegisterOffset">OFFSET_regfile_xgs_ctrl_acq_sensor_f_lines</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : SENSOR_DP_GR-->
+			<Group Comment="GROUP_regfile_xgs_ctrl_acq_sensor_dp_gr">
+				<Category Name="REGISTER_regfile_xgs_ctrl_acq_sensor_dp_gr">
+					<DisplayName>SENSOR_DP_GR</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gr</pFeature>
+					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gr</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_gr_reserved</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_gr_dp_offset_gr</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>192</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_gr_reserved">
+					<DisplayName>reserved</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gr_reserved</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gr_reserved">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_gr_dp_offset_gr">
+					<DisplayName>DP_OFFSET_GR</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gr_dp_offset_gr</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gr_dp_offset_gr">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_xgs_ctrl_acq</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : SENSOR_DP_GB-->
+			<Group Comment="GROUP_regfile_xgs_ctrl_acq_sensor_dp_gb">
+				<Category Name="REGISTER_regfile_xgs_ctrl_acq_sensor_dp_gb">
+					<DisplayName>SENSOR_DP_GB</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gb</pFeature>
+					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gb</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_gb_reserved</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_gb_dp_offset_gb</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gb">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>196</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_gb_reserved">
+					<DisplayName>reserved</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gb_reserved</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gb_reserved">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gb</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_gb_dp_offset_gb">
+					<DisplayName>DP_OFFSET_GB</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gb_dp_offset_gb</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_gb_dp_offset_gb">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gb</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_gb">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_xgs_ctrl_acq</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_xgs_ctrl_acq_sensor_dp_gb</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : SENSOR_DP_R-->
+			<Group Comment="GROUP_regfile_xgs_ctrl_acq_sensor_dp_r">
+				<Category Name="REGISTER_regfile_xgs_ctrl_acq_sensor_dp_r">
+					<DisplayName>SENSOR_DP_R</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_dp_r</pFeature>
+					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_r</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_r_reserved</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_r_dp_offset_r</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_dp_r">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>200</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_r_reserved">
+					<DisplayName>reserved</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_r_reserved</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_r_reserved">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_r</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_r_dp_offset_r">
+					<DisplayName>DP_OFFSET_R</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_r_dp_offset_r</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_r_dp_offset_r">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_r</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_r">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_xgs_ctrl_acq</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_xgs_ctrl_acq_sensor_dp_r</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : SENSOR_DP_B-->
+			<Group Comment="GROUP_regfile_xgs_ctrl_acq_sensor_dp_b">
+				<Category Name="REGISTER_regfile_xgs_ctrl_acq_sensor_dp_b">
+					<DisplayName>SENSOR_DP_B</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_xgs_ctrl_acq_sensor_dp_b</pFeature>
+					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_b</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_b_reserved</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_sensor_dp_b_dp_offset_b</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_sensor_dp_b">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>204</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_b_reserved">
+					<DisplayName>reserved</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_b_reserved</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_b_reserved">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_b</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>12</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_sensor_dp_b_dp_offset_b">
+					<DisplayName>DP_OFFSET_B</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_b_dp_offset_b</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_sensor_dp_b_dp_offset_b">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_b</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_xgs_ctrl_acq_sensor_dp_b">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_xgs_ctrl_acq</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_xgs_ctrl_acq_sensor_dp_b</pVariable>
 					<Formula>ParentOffset+RegisterOffset</Formula>
 					<Representation>HexNumber</Representation>
 				</IntSwissKnife>

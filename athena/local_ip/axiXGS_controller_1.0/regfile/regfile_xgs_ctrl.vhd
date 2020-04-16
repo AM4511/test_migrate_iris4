@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl_pack
--- Created on          : 2020/04/08 09:30:17
+-- Created on          : 2020/04/14 11:38:45
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0xC931B2A2
+-- Register file CRC32 : 0x1E8C251E
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -38,14 +38,18 @@ package regfile_xgs_ctrl_pack is
    constant K_ACQ_ACQ_SER_STAT_ADDR          : natural := 16#168#;
    constant K_ACQ_SENSOR_CTRL_ADDR           : natural := 16#190#;
    constant K_ACQ_SENSOR_STAT_ADDR           : natural := 16#198#;
-   constant K_ACQ_SENSOR_SUBSAMPLING_ADDR    : natural := 16#1a0#;
+   constant K_ACQ_SENSOR_SUBSAMPLING_ADDR    : natural := 16#19c#;
    constant K_ACQ_SENSOR_GAIN_ANA_ADDR       : natural := 16#1a4#;
    constant K_ACQ_SENSOR_ROI_Y_START_ADDR    : natural := 16#1a8#;
    constant K_ACQ_SENSOR_ROI_Y_SIZE_ADDR     : natural := 16#1ac#;
    constant K_ACQ_SENSOR_ROI2_Y_START_ADDR   : natural := 16#1b0#;
    constant K_ACQ_SENSOR_ROI2_Y_SIZE_ADDR    : natural := 16#1b4#;
-   constant K_ACQ_SENSOR_M_LINES_ADDR        : natural := 16#1d8#;
-   constant K_ACQ_SENSOR_F_LINES_ADDR        : natural := 16#1dc#;
+   constant K_ACQ_SENSOR_M_LINES_ADDR        : natural := 16#1b8#;
+   constant K_ACQ_SENSOR_F_LINES_ADDR        : natural := 16#1bc#;
+   constant K_ACQ_SENSOR_DP_GR_ADDR          : natural := 16#1c0#;
+   constant K_ACQ_SENSOR_DP_GB_ADDR          : natural := 16#1c4#;
+   constant K_ACQ_SENSOR_DP_R_ADDR           : natural := 16#1c8#;
+   constant K_ACQ_SENSOR_DP_B_ADDR           : natural := 16#1cc#;
    constant K_ACQ_DEBUG_PINS_ADDR            : natural := 16#1e0#;
    constant K_ACQ_TRIGGER_MISSED_ADDR        : natural := 16#1e8#;
    constant K_ACQ_SENSOR_FPS_ADDR            : natural := 16#1f0#;
@@ -621,6 +625,74 @@ package regfile_xgs_ctrl_pack is
    function to_ACQ_SENSOR_F_LINES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_F_LINES_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_DP_GR
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_DP_GR_TYPE is record
+      reserved       : std_logic_vector(3 downto 0);
+      DP_OFFSET_GR   : std_logic_vector(11 downto 0);
+   end record ACQ_SENSOR_DP_GR_TYPE;
+
+   constant INIT_ACQ_SENSOR_DP_GR_TYPE : ACQ_SENSOR_DP_GR_TYPE := (
+      reserved        => (others=> 'Z'),
+      DP_OFFSET_GR    => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_GR_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_DP_GR_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_GR_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_DP_GB
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_DP_GB_TYPE is record
+      reserved       : std_logic_vector(3 downto 0);
+      DP_OFFSET_GB   : std_logic_vector(11 downto 0);
+   end record ACQ_SENSOR_DP_GB_TYPE;
+
+   constant INIT_ACQ_SENSOR_DP_GB_TYPE : ACQ_SENSOR_DP_GB_TYPE := (
+      reserved        => (others=> 'Z'),
+      DP_OFFSET_GB    => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_GB_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_DP_GB_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_GB_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_DP_R
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_DP_R_TYPE is record
+      reserved       : std_logic_vector(3 downto 0);
+      DP_OFFSET_R    : std_logic_vector(11 downto 0);
+   end record ACQ_SENSOR_DP_R_TYPE;
+
+   constant INIT_ACQ_SENSOR_DP_R_TYPE : ACQ_SENSOR_DP_R_TYPE := (
+      reserved        => (others=> 'Z'),
+      DP_OFFSET_R     => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_R_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_DP_R_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_R_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_DP_B
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_DP_B_TYPE is record
+      reserved       : std_logic_vector(3 downto 0);
+      DP_OFFSET_B    : std_logic_vector(11 downto 0);
+   end record ACQ_SENSOR_DP_B_TYPE;
+
+   constant INIT_ACQ_SENSOR_DP_B_TYPE : ACQ_SENSOR_DP_B_TYPE := (
+      reserved        => (others=> 'Z'),
+      DP_OFFSET_B     => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_B_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_DP_B_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_B_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: DEBUG_PINS
    ------------------------------------------------------------------------------------------
    type ACQ_DEBUG_PINS_TYPE is record
@@ -822,6 +894,10 @@ package regfile_xgs_ctrl_pack is
       SENSOR_ROI2_Y_SIZE: ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
       SENSOR_M_LINES : ACQ_SENSOR_M_LINES_TYPE;
       SENSOR_F_LINES : ACQ_SENSOR_F_LINES_TYPE;
+      SENSOR_DP_GR   : ACQ_SENSOR_DP_GR_TYPE;
+      SENSOR_DP_GB   : ACQ_SENSOR_DP_GB_TYPE;
+      SENSOR_DP_R    : ACQ_SENSOR_DP_R_TYPE;
+      SENSOR_DP_B    : ACQ_SENSOR_DP_B_TYPE;
       DEBUG_PINS     : ACQ_DEBUG_PINS_TYPE;
       TRIGGER_MISSED : ACQ_TRIGGER_MISSED_TYPE;
       SENSOR_FPS     : ACQ_SENSOR_FPS_TYPE;
@@ -860,6 +936,10 @@ package regfile_xgs_ctrl_pack is
       SENSOR_ROI2_Y_SIZE => INIT_ACQ_SENSOR_ROI2_Y_SIZE_TYPE,
       SENSOR_M_LINES  => INIT_ACQ_SENSOR_M_LINES_TYPE,
       SENSOR_F_LINES  => INIT_ACQ_SENSOR_F_LINES_TYPE,
+      SENSOR_DP_GR    => INIT_ACQ_SENSOR_DP_GR_TYPE,
+      SENSOR_DP_GB    => INIT_ACQ_SENSOR_DP_GB_TYPE,
+      SENSOR_DP_R     => INIT_ACQ_SENSOR_DP_R_TYPE,
+      SENSOR_DP_B     => INIT_ACQ_SENSOR_DP_B_TYPE,
       DEBUG_PINS      => INIT_ACQ_DEBUG_PINS_TYPE,
       TRIGGER_MISSED  => INIT_ACQ_TRIGGER_MISSED_TYPE,
       SENSOR_FPS      => INIT_ACQ_SENSOR_FPS_TYPE,
@@ -1678,6 +1758,106 @@ package body regfile_xgs_ctrl_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_DP_GR_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_GR_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 12) := reg.reserved;
+      output(11 downto 0) := reg.DP_OFFSET_GR;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_DP_GR_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_DP_GR_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_DP_GR_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_GR_TYPE is
+   variable output : ACQ_SENSOR_DP_GR_TYPE;
+   begin
+      output.reserved := stdlv(15 downto 12);
+      output.DP_OFFSET_GR := stdlv(11 downto 0);
+      return output;
+   end to_ACQ_SENSOR_DP_GR_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_DP_GB_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_GB_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 12) := reg.reserved;
+      output(11 downto 0) := reg.DP_OFFSET_GB;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_DP_GB_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_DP_GB_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_DP_GB_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_GB_TYPE is
+   variable output : ACQ_SENSOR_DP_GB_TYPE;
+   begin
+      output.reserved := stdlv(15 downto 12);
+      output.DP_OFFSET_GB := stdlv(11 downto 0);
+      return output;
+   end to_ACQ_SENSOR_DP_GB_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_DP_R_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_R_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 12) := reg.reserved;
+      output(11 downto 0) := reg.DP_OFFSET_R;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_DP_R_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_DP_R_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_DP_R_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_R_TYPE is
+   variable output : ACQ_SENSOR_DP_R_TYPE;
+   begin
+      output.reserved := stdlv(15 downto 12);
+      output.DP_OFFSET_R := stdlv(11 downto 0);
+      return output;
+   end to_ACQ_SENSOR_DP_R_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_DP_B_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_DP_B_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 12) := reg.reserved;
+      output(11 downto 0) := reg.DP_OFFSET_B;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_DP_B_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_DP_B_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_DP_B_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_B_TYPE is
+   variable output : ACQ_SENSOR_DP_B_TYPE;
+   begin
+      output.reserved := stdlv(15 downto 12);
+      output.DP_OFFSET_B := stdlv(11 downto 0);
+      return output;
+   end to_ACQ_SENSOR_DP_B_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from ACQ_DEBUG_PINS_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : ACQ_DEBUG_PINS_TYPE) return std_logic_vector is
@@ -1915,11 +2095,11 @@ end package body;
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl
--- Created on          : 2020/04/08 09:30:17
+-- Created on          : 2020/04/14 11:38:45
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0xC931B2A2
+-- Register file CRC32 : 0x1E8C251E
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -1957,8 +2137,8 @@ architecture rtl of regfile_xgs_ctrl is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                          : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                  : std_logic_vector(36 downto 0);                   -- Address decode hit
-signal wEn                                                  : std_logic_vector(36 downto 0);                   -- Write Enable
+signal hit                                                  : std_logic_vector(40 downto 0);                   -- Address decode hit
+signal wEn                                                  : std_logic_vector(40 downto 0);                   -- Write Enable
 signal fullAddr                                             : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                        : integer;                                        
 signal bitEnN                                               : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -1991,6 +2171,10 @@ signal rb_ACQ_SENSOR_ROI2_Y_START                           : std_logic_vector(3
 signal rb_ACQ_SENSOR_ROI2_Y_SIZE                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_M_LINES                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_F_LINES                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GR                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GB                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_R                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_B                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_DEBUG_PINS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_TRIGGER_MISSED                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_FPS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -2053,6 +2237,10 @@ signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED             : std_logic_vector(4
 signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR           : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
 signal field_rw_ACQ_SENSOR_F_LINES_F_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: F_SUPPRESSED
 signal field_rw_ACQ_SENSOR_F_LINES_F_LINES_SENSOR           : std_logic_vector(9 downto 0);                    -- Field: F_LINES_SENSOR
+signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR               : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GR
+signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB               : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
+signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
+signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
 signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
@@ -2107,23 +2295,27 @@ hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#160#,12)))	else 
 hit(17) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#168#,12)))	else '0'; -- Addr:  0x0168	ACQ_SER_STAT
 hit(18) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#190#,12)))	else '0'; -- Addr:  0x0190	SENSOR_CTRL
 hit(19) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#198#,12)))	else '0'; -- Addr:  0x0198	SENSOR_STAT
-hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a0#,12)))	else '0'; -- Addr:  0x01A0	SENSOR_SUBSAMPLING
+hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#19c#,12)))	else '0'; -- Addr:  0x019C	SENSOR_SUBSAMPLING
 hit(21) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
 hit(22) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
 hit(23) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
 hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b0#,12)))	else '0'; -- Addr:  0x01B0	SENSOR_ROI2_Y_START
 hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b4#,12)))	else '0'; -- Addr:  0x01B4	SENSOR_ROI2_Y_SIZE
-hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d8#,12)))	else '0'; -- Addr:  0x01D8	SENSOR_M_LINES
-hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	SENSOR_F_LINES
-hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
-hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
-hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
-hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
-hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
-hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b0#,12)))	else '0'; -- Addr:  0x02B0	DEBUG_CNTR2
-hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b4#,12)))	else '0'; -- Addr:  0x02B4	DEBUG_CNTR3
-hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
-hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
+hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b8#,12)))	else '0'; -- Addr:  0x01B8	SENSOR_M_LINES
+hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else '0'; -- Addr:  0x01BC	SENSOR_F_LINES
+hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GR
+hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_GB
+hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_R
+hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1cc#,12)))	else '0'; -- Addr:  0x01CC	SENSOR_DP_B
+hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
+hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
+hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
+hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
+hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
+hit(37) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b0#,12)))	else '0'; -- Addr:  0x02B0	DEBUG_CNTR2
+hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b4#,12)))	else '0'; -- Addr:  0x02B4	DEBUG_CNTR3
+hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
+hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
 
 
 
@@ -2162,6 +2354,10 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_ACQ_SENSOR_ROI2_Y_SIZE,
                             rb_ACQ_SENSOR_M_LINES,
                             rb_ACQ_SENSOR_F_LINES,
+                            rb_ACQ_SENSOR_DP_GR,
+                            rb_ACQ_SENSOR_DP_GB,
+                            rb_ACQ_SENSOR_DP_R,
+                            rb_ACQ_SENSOR_DP_B,
                             rb_ACQ_DEBUG_PINS,
                             rb_ACQ_TRIGGER_MISSED,
                             rb_ACQ_SENSOR_FPS,
@@ -2254,8 +2450,8 @@ begin
       when 16#198# =>
          readBackMux <= rb_ACQ_SENSOR_STAT;
 
-      -- [0x1a0]: /ACQ/SENSOR_SUBSAMPLING
-      when 16#1A0# =>
+      -- [0x19c]: /ACQ/SENSOR_SUBSAMPLING
+      when 16#19C# =>
          readBackMux <= rb_ACQ_SENSOR_SUBSAMPLING;
 
       -- [0x1a4]: /ACQ/SENSOR_GAIN_ANA
@@ -2278,13 +2474,29 @@ begin
       when 16#1B4# =>
          readBackMux <= rb_ACQ_SENSOR_ROI2_Y_SIZE;
 
-      -- [0x1d8]: /ACQ/SENSOR_M_LINES
-      when 16#1D8# =>
+      -- [0x1b8]: /ACQ/SENSOR_M_LINES
+      when 16#1B8# =>
          readBackMux <= rb_ACQ_SENSOR_M_LINES;
 
-      -- [0x1dc]: /ACQ/SENSOR_F_LINES
-      when 16#1DC# =>
+      -- [0x1bc]: /ACQ/SENSOR_F_LINES
+      when 16#1BC# =>
          readBackMux <= rb_ACQ_SENSOR_F_LINES;
+
+      -- [0x1c0]: /ACQ/SENSOR_DP_GR
+      when 16#1C0# =>
+         readBackMux <= rb_ACQ_SENSOR_DP_GR;
+
+      -- [0x1c4]: /ACQ/SENSOR_DP_GB
+      when 16#1C4# =>
+         readBackMux <= rb_ACQ_SENSOR_DP_GB;
+
+      -- [0x1c8]: /ACQ/SENSOR_DP_R
+      when 16#1C8# =>
+         readBackMux <= rb_ACQ_SENSOR_DP_R;
+
+      -- [0x1cc]: /ACQ/SENSOR_DP_B
+      when 16#1CC# =>
+         readBackMux <= rb_ACQ_SENSOR_DP_B;
 
       -- [0x1e0]: /ACQ/DEBUG_PINS
       when 16#1E0# =>
@@ -4282,10 +4494,182 @@ end process P_ACQ_SENSOR_F_LINES_F_LINES_SENSOR;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: ACQ_DEBUG_PINS
+-- Register name: ACQ_SENSOR_DP_GR
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(28) <= (hit(28)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: reserved
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_GR(15 downto 12) <= std_logic_vector(to_unsigned(integer(0),4));
+regfile.ACQ.SENSOR_DP_GR.reserved <= rb_ACQ_SENSOR_DP_GR(15 downto 12);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DP_OFFSET_GR(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_GR(11 downto 0) <= field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR(11 downto 0);
+regfile.ACQ.SENSOR_DP_GR.DP_OFFSET_GR <= field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_DP_GR_DP_OFFSET_GR
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_DP_GR_DP_OFFSET_GR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(28) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_DP_GR_DP_OFFSET_GR;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_DP_GB
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(29) <= (hit(29)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: reserved
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_GB(15 downto 12) <= std_logic_vector(to_unsigned(integer(0),4));
+regfile.ACQ.SENSOR_DP_GB.reserved <= rb_ACQ_SENSOR_DP_GB(15 downto 12);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DP_OFFSET_GB(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_GB(11 downto 0) <= field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB(11 downto 0);
+regfile.ACQ.SENSOR_DP_GB.DP_OFFSET_GB <= field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_DP_GB_DP_OFFSET_GB
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_DP_GB_DP_OFFSET_GB : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(29) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_DP_GB_DP_OFFSET_GB;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_DP_R
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(30) <= (hit(30)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: reserved
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_R(15 downto 12) <= std_logic_vector(to_unsigned(integer(0),4));
+regfile.ACQ.SENSOR_DP_R.reserved <= rb_ACQ_SENSOR_DP_R(15 downto 12);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DP_OFFSET_R(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_R(11 downto 0) <= field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R(11 downto 0);
+regfile.ACQ.SENSOR_DP_R.DP_OFFSET_R <= field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_DP_R_DP_OFFSET_R
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_DP_R_DP_OFFSET_R : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(30) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_DP_R_DP_OFFSET_R;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_DP_B
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(31) <= (hit(31)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: reserved
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_B(15 downto 12) <= std_logic_vector(to_unsigned(integer(0),4));
+regfile.ACQ.SENSOR_DP_B.reserved <= rb_ACQ_SENSOR_DP_B(15 downto 12);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DP_OFFSET_B(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_DP_B(11 downto 0) <= field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B(11 downto 0);
+regfile.ACQ.SENSOR_DP_B.DP_OFFSET_B <= field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_DP_B_DP_OFFSET_B
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_DP_B_DP_OFFSET_B : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(31) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_DP_B_DP_OFFSET_B;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_DEBUG_PINS
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(32) <= (hit(32)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Debug3_sel(28 downto 24)
@@ -4305,7 +4689,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug3_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  28 downto 24  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(32) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug3_sel(j-24) <= reg_writedata(j);
             end if;
          end loop;
@@ -4331,7 +4715,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug2_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  20 downto 16  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(32) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug2_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -4357,7 +4741,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug1_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  12 downto 8  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(32) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug1_sel(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -4383,7 +4767,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug0_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(32) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug0_sel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -4398,7 +4782,7 @@ end process P_ACQ_DEBUG_PINS_Debug0_sel;
 -- Register name: ACQ_TRIGGER_MISSED
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(29) <= (hit(29)) and (reg_write);
+wEn(33) <= (hit(33)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TRIGGER_MISSED_RST
@@ -4417,7 +4801,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
       else
-         if(wEn(29) = '1' and bitEnN(28) = '0') then
+         if(wEn(33) = '1' and bitEnN(28) = '0') then
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= reg_writedata(28);
          else
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
@@ -4440,7 +4824,7 @@ rb_ACQ_TRIGGER_MISSED(15 downto 0) <= regfile.ACQ.TRIGGER_MISSED.TRIGGER_MISSED_
 -- Register name: ACQ_SENSOR_FPS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(30) <= (hit(30)) and (reg_write);
+wEn(34) <= (hit(34)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FPS(15 downto 0)
@@ -4456,7 +4840,7 @@ rb_ACQ_SENSOR_FPS(15 downto 0) <= regfile.ACQ.SENSOR_FPS.SENSOR_FPS;
 -- Register name: ACQ_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(31) <= (hit(31)) and (reg_write);
+wEn(35) <= (hit(35)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DEBUG_RST_CNTR
@@ -4475,7 +4859,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= '1';
       else
-         if(wEn(31) = '1' and bitEnN(28) = '0') then
+         if(wEn(35) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= reg_writedata(28);
          end if;
       end if;
@@ -4500,7 +4884,7 @@ begin
          field_rw_ACQ_DEBUG_TEST_MODE_PIX_START <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  25 downto 16  loop
-            if(wEn(31) = '1' and bitEnN(j) = '0') then
+            if(wEn(35) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_TEST_MODE_PIX_START(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -4525,7 +4909,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_TEST_MOVE <= '0';
       else
-         if(wEn(31) = '1' and bitEnN(9) = '0') then
+         if(wEn(35) = '1' and bitEnN(9) = '0') then
             field_rw_ACQ_DEBUG_TEST_MOVE <= reg_writedata(9);
          end if;
       end if;
@@ -4549,7 +4933,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_TEST_MODE <= '0';
       else
-         if(wEn(31) = '1' and bitEnN(8) = '0') then
+         if(wEn(35) = '1' and bitEnN(8) = '0') then
             field_rw_ACQ_DEBUG_TEST_MODE <= reg_writedata(8);
          end if;
       end if;
@@ -4588,7 +4972,7 @@ begin
          field_rw_ACQ_DEBUG_LED_TEST_COLOR <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  2 downto 1  loop
-            if(wEn(31) = '1' and bitEnN(j) = '0') then
+            if(wEn(35) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_LED_TEST_COLOR(j-1) <= reg_writedata(j);
             end if;
          end loop;
@@ -4613,7 +4997,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_LED_TEST <= '0';
       else
-         if(wEn(31) = '1' and bitEnN(0) = '0') then
+         if(wEn(35) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_DEBUG_LED_TEST <= reg_writedata(0);
          end if;
       end if;
@@ -4627,7 +5011,7 @@ end process P_ACQ_DEBUG_LED_TEST;
 -- Register name: ACQ_DEBUG_CNTR1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(32) <= (hit(32)) and (reg_write);
+wEn(36) <= (hit(36)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EOF_CNTR(31 downto 0)
@@ -4643,7 +5027,7 @@ rb_ACQ_DEBUG_CNTR1(31 downto 0) <= regfile.ACQ.DEBUG_CNTR1.EOF_CNTR;
 -- Register name: ACQ_DEBUG_CNTR2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(33) <= (hit(33)) and (reg_write);
+wEn(37) <= (hit(37)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EOL_CNTR(11 downto 0)
@@ -4659,7 +5043,7 @@ rb_ACQ_DEBUG_CNTR2(11 downto 0) <= regfile.ACQ.DEBUG_CNTR2.EOL_CNTR;
 -- Register name: ACQ_DEBUG_CNTR3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(34) <= (hit(34)) and (reg_write);
+wEn(38) <= (hit(38)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FRAME_DURATION(27 downto 0)
@@ -4675,7 +5059,7 @@ rb_ACQ_DEBUG_CNTR3(27 downto 0) <= regfile.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION
 -- Register name: ACQ_EXP_FOT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(35) <= (hit(35)) and (reg_write);
+wEn(39) <= (hit(39)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXP_FOT
@@ -4694,7 +5078,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_EXP_FOT_EXP_FOT <= '1';
       else
-         if(wEn(35) = '1' and bitEnN(16) = '0') then
+         if(wEn(39) = '1' and bitEnN(16) = '0') then
             field_rw_ACQ_EXP_FOT_EXP_FOT <= reg_writedata(16);
          end if;
       end if;
@@ -4719,7 +5103,7 @@ begin
          field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(35) = '1' and bitEnN(j) = '0') then
+            if(wEn(39) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -4734,7 +5118,7 @@ end process P_ACQ_EXP_FOT_EXP_FOT_TIME;
 -- Register name: ACQ_ACQ_SFNC
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(36) <= (hit(36)) and (reg_write);
+wEn(40) <= (hit(40)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: RELOAD_GRAB_PARAMS
@@ -4753,7 +5137,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= '1';
       else
-         if(wEn(36) = '1' and bitEnN(0) = '0') then
+         if(wEn(40) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= reg_writedata(0);
          end if;
       end if;

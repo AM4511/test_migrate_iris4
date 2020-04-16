@@ -2278,13 +2278,13 @@ BEGIN
       --4 dummy lines after M_lines need to be confirmed by Onsemi      
       TOTAL_NB_LINES <= "11" +                                               -- 3 is first dummy lines after FOT
                         REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR +          -- Black lines for calibartion  
-                        --REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +        -- F_lines, where are located F_LINES ???
-                        "100" +                                              -- Dummy 2
-                        --'1' +                                              -- Embbeded line in Valid data
-                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler          --- mettre current ici????              
+                        --REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +        -- F_lines, where are located F_LINES ??? Dummy2??
+                        --"100" +                                              -- Dummy 2
+                        '1' +                                              -- Embbeded line in Valid data
+                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler              
                         "111" +                                              -- Dummy 3
-                        "101" +                                              -- Start of Exposure : when Exposure Coarse offset = 0,1,2 
-                        REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;      -- Xcerelator pour verifier readout length+32
+                        "111" +                                              -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid
+                        REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;      -- Pour allonger readout
      
       INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
     end if;

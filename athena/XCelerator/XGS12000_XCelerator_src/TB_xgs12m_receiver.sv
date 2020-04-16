@@ -939,12 +939,12 @@ initial begin
     FLines                = 0;
     FLines_supressed      = 0;
     
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01d8, prot, (MLines_supressed<<10)+ MLines, resp);    //M_LINE REGISTER
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01dc, prot, (FLines_supressed<<10)+ FLines, resp);    //F_LINE REGISTER
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01b8, prot, (MLines_supressed<<10)+ MLines, resp);    //M_LINE REGISTER
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01bc, prot, (FLines_supressed<<10)+ FLines, resp);    //F_LINE REGISTER
 
         
     //Set XGS registers (mirroir)
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a0, prot,    0, resp);                 // Subsampling
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h0000019c, prot,    0, resp);                 // Subsampling
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a4, prot, 2<<8, resp);                 // Analog Gain
     
     ROI_YSTART   =  0; 

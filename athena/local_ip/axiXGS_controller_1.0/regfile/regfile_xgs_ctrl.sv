@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_ctrl.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_ctrl
- ** Created on          : 2020/04/08 09:30:17
+ ** Created on          : 2020/04/14 11:38:45
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0xC931B2A2
+ ** Register file CRC32 : 0x1E8C251E
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -456,19 +456,18 @@ typedef union packed
 
    struct packed
    {
-      logic       SENSOR_POWERUP_DONE;     /* Bits(0:0), null */
-      logic       SENSOR_POWERUP_STAT;     /* Bits(1:1), null */
-      logic [5:0] rsvd0;                   /* Bits(7:2), Reserved */
-      logic       SENSOR_VCC_PG;           /* Bits(8:8), SENSOR supply VCC  Power Good */
-      logic [2:0] rsvd1;                   /* Bits(11:9), Reserved */
-      logic       SENSOR_OSC_EN;           /* Bits(12:12), SENSOR OSCILLATOR ENable */
-      logic       SENSOR_RESETN;           /* Bits(13:13), SENSOR RESET N */
-      logic [1:0] rsvd2;                   /* Bits(15:14), Reserved */
-      logic       SENSOR_POWERDOWN;        /* Bits(16:16), null */
-      logic [5:0] rsvd3;                   /* Bits(22:17), Reserved */
-      logic       SENSOR_TEMP_VALID;       /* Bits(23:23), SENSOR TEMPerature VALID */
-      logic [7:0] SENSOR_TEMP;             /* Bits(31:24), null */
-      logic       rsvd_register_space[1];  /* Reserved space below */
+      logic       SENSOR_POWERUP_DONE;  /* Bits(0:0), null */
+      logic       SENSOR_POWERUP_STAT;  /* Bits(1:1), null */
+      logic [5:0] rsvd0;                /* Bits(7:2), Reserved */
+      logic       SENSOR_VCC_PG;        /* Bits(8:8), SENSOR supply VCC  Power Good */
+      logic [2:0] rsvd1;                /* Bits(11:9), Reserved */
+      logic       SENSOR_OSC_EN;        /* Bits(12:12), SENSOR OSCILLATOR ENable */
+      logic       SENSOR_RESETN;        /* Bits(13:13), SENSOR RESET N */
+      logic [1:0] rsvd2;                /* Bits(15:14), Reserved */
+      logic       SENSOR_POWERDOWN;     /* Bits(16:16), null */
+      logic [5:0] rsvd3;                /* Bits(22:17), Reserved */
+      logic       SENSOR_TEMP_VALID;    /* Bits(23:23), SENSOR TEMPerature VALID */
+      logic [7:0] SENSOR_TEMP;          /* Bits(31:24), null */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_SENSOR_STAT_t;
@@ -485,12 +484,13 @@ typedef union packed
 
    struct packed
    {
-      logic        SUBSAMPLING_X;         /* Bits(0:0), */
-      logic        M_SUBSAMPLING_Y;       /* Bits(1:1), */
-      logic        reserved0;             /* Bits(2:2), */
-      logic        ACTIVE_SUBSAMPLING_Y;  /* Bits(3:3), null */
-      logic [11:0] reserved1;             /* Bits(15:4), null */
-      logic [15:0] rsvd0;                 /* Bits(31:16), Reserved */
+      logic        SUBSAMPLING_X;           /* Bits(0:0), */
+      logic        M_SUBSAMPLING_Y;         /* Bits(1:1), */
+      logic        reserved0;               /* Bits(2:2), */
+      logic        ACTIVE_SUBSAMPLING_Y;    /* Bits(3:3), null */
+      logic [11:0] reserved1;               /* Bits(15:4), null */
+      logic [15:0] rsvd0;                   /* Bits(31:16), Reserved */
+      logic        rsvd_register_space[1];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_SENSOR_SUBSAMPLING_t;
@@ -584,10 +584,9 @@ typedef union packed
 
    struct packed
    {
-      logic [9:0]  Y_SIZE;                  /* Bits(9:0), Y SIZE */
-      logic [5:0]  reserved;                /* Bits(15:10), null */
-      logic [15:0] rsvd0;                   /* Bits(31:16), Reserved */
-      logic        rsvd_register_space[8];  /* Reserved space below */
+      logic [9:0]  Y_SIZE;    /* Bits(9:0), Y SIZE */
+      logic [5:0]  reserved;  /* Bits(15:10), null */
+      logic [15:0] rsvd0;     /* Bits(31:16), Reserved */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI2_Y_SIZE_t;
@@ -629,6 +628,83 @@ typedef union packed
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_SENSOR_F_LINES_t;
+
+
+/**************************************************************************
+* Register name : SENSOR_DP_GR
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] DP_OFFSET_GR;  /* Bits(11:0), null */
+      logic [3:0]  reserved;      /* Bits(15:12), null */
+      logic [15:0] rsvd0;         /* Bits(31:16), Reserved */
+   } f;
+
+} fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GR_t;
+
+
+/**************************************************************************
+* Register name : SENSOR_DP_GB
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] DP_OFFSET_GB;  /* Bits(11:0), null */
+      logic [3:0]  reserved;      /* Bits(15:12), null */
+      logic [15:0] rsvd0;         /* Bits(31:16), Reserved */
+   } f;
+
+} fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GB_t;
+
+
+/**************************************************************************
+* Register name : SENSOR_DP_R
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] DP_OFFSET_R;  /* Bits(11:0), null */
+      logic [3:0]  reserved;     /* Bits(15:12), null */
+      logic [15:0] rsvd0;        /* Bits(31:16), Reserved */
+   } f;
+
+} fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_R_t;
+
+
+/**************************************************************************
+* Register name : SENSOR_DP_B
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] DP_OFFSET_B;             /* Bits(11:0), null */
+      logic [3:0]  reserved;                /* Bits(15:12), null */
+      logic [15:0] rsvd0;                   /* Bits(31:16), Reserved */
+      logic        rsvd_register_space[4];  /* Reserved space below */
+   } f;
+
+} fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_B_t;
 
 
 /**************************************************************************
@@ -852,14 +928,18 @@ typedef struct packed
    fdk_regfile_xgs_ctrl_ACQ_ACQ_SER_STAT_t           ACQ_SER_STAT;            /* Address offset: 0x68 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_CTRL_t            SENSOR_CTRL;             /* Address offset: 0x90 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_STAT_t            SENSOR_STAT;             /* Address offset: 0x98 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_SUBSAMPLING_t     SENSOR_SUBSAMPLING;      /* Address offset: 0xa0 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_SUBSAMPLING_t     SENSOR_SUBSAMPLING;      /* Address offset: 0x9c */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_GAIN_ANA_t        SENSOR_GAIN_ANA;         /* Address offset: 0xa4 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI_Y_START_t     SENSOR_ROI_Y_START;      /* Address offset: 0xa8 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI_Y_SIZE_t      SENSOR_ROI_Y_SIZE;       /* Address offset: 0xac */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI2_Y_START_t    SENSOR_ROI2_Y_START;     /* Address offset: 0xb0 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI2_Y_SIZE_t     SENSOR_ROI2_Y_SIZE;      /* Address offset: 0xb4 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_M_LINES_t         SENSOR_M_LINES;          /* Address offset: 0xd8 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_F_LINES_t         SENSOR_F_LINES;          /* Address offset: 0xdc */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_M_LINES_t         SENSOR_M_LINES;          /* Address offset: 0xb8 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_F_LINES_t         SENSOR_F_LINES;          /* Address offset: 0xbc */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GR_t           SENSOR_DP_GR;            /* Address offset: 0xc0 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GB_t           SENSOR_DP_GB;            /* Address offset: 0xc4 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_R_t            SENSOR_DP_R;             /* Address offset: 0xc8 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_B_t            SENSOR_DP_B;             /* Address offset: 0xcc */
    fdk_regfile_xgs_ctrl_ACQ_DEBUG_PINS_t             DEBUG_PINS;              /* Address offset: 0xe0 */
    fdk_regfile_xgs_ctrl_ACQ_TRIGGER_MISSED_t         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_FPS_t             SENSOR_FPS;              /* Address offset: 0xf0 */

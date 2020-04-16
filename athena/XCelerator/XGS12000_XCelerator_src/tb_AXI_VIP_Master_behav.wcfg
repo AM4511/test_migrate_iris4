@@ -20,22 +20,22 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="950056559766fs"></ZoomStartTime>
-      <ZoomEndTime time="953650728863fs"></ZoomEndTime>
-      <Cursor1Time time="951816000000fs"></Cursor1Time>
+      <ZoomStartTime time="126558408333fs"></ZoomStartTime>
+      <ZoomEndTime time="986566395041fs"></ZoomEndTime>
+      <Cursor1Time time="838570441000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="277"></NameColumnWidth>
-      <ValueColumnWidth column_width="119"></ValueColumnWidth>
+      <ValueColumnWidth column_width="115"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="10" />
+   <WVObjectSize size="13" />
    <wave_markers>
       <marker time="1900000000000" label="" />
       <marker time="1323797752000" label="" />
       <marker time="722441616000" label="" />
-      <marker time="722441616000" label="" />
       <marker time="1323797752000" label="" />
       <marker time="204508322000" label="" />
+      <marker time="648622877000" label="" />
    </wave_markers>
    <wvobject fp_name="group32" type="group">
       <obj_property name="label">TB_Top</obj_property>
@@ -825,6 +825,7 @@
       <wvobject fp_name="group38924" type="group">
          <obj_property name="label">XGS_SensorConfig</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_sensor_config_inst/RESET_B" type="logic">
             <obj_property name="ElementShortName">RESET_B</obj_property>
             <obj_property name="ObjectShortName">RESET_B</obj_property>
@@ -2023,6 +2024,18 @@
             <obj_property name="ObjectShortName">G_PXL_ARRAY_ROWS</obj_property>
          </wvobject>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_hispi_0_inst/line_time" type="array">
+      <obj_property name="ElementShortName">line_time[15:0]</obj_property>
+      <obj_property name="ObjectShortName">line_time[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_hispi_0_inst/line_time" type="array">
+      <obj_property name="ElementShortName">line_time[15:0]</obj_property>
+      <obj_property name="ObjectShortName">line_time[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_hispi_0_inst/line_time" type="array">
+      <obj_property name="ElementShortName">line_time[15:0]</obj_property>
+      <obj_property name="ObjectShortName">line_time[15:0]</obj_property>
    </wvobject>
    <wvobject fp_name="group642" type="group">
       <obj_property name="label">xgs12m_receiver_TOP</obj_property>

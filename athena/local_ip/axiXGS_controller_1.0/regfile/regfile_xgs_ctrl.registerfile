@@ -318,7 +318,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="SENSOR_STAT" alias="SENSOR control STATus" offsetFromParent="98" useReservedSpaceBelow="true">
+    <registers name="SENSOR_STAT" alias="SENSOR control STATus" offsetFromParent="98">
       <fields name="SENSOR_TEMP" description="This register gives the Temperature of the Python sensor after a SENSOR_REFRESH_TEMP snapshot. The field SENSOR_TEMP_VALID indicates when the SENSOR_TEMP value is valid." lsb="24" size="8" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -359,7 +359,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="SENSOR_SUBSAMPLING" description="SENSOR ADDRESS " offsetFromParent="A0">
+    <registers name="SENSOR_SUBSAMPLING" description="SENSOR ADDRESS " offsetFromParent="9C" useReservedSpaceBelow="true">
       <fields name="reserved1" description="&#xD;&#xA;" lsb="4" size="12" readWrite="false" staticVal="true"/>
       <fields name="ACTIVE_SUBSAMPLING_Y" description="Subsampling (Row) for ROI Configurations" lsb="3">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -382,7 +382,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="SENSOR_GAIN_ANA" description="SENSOR ADDRESS 204 DEC" offsetFromParent="A4">
+    <registers name="SENSOR_GAIN_ANA" description="SENSOR ADDRESS 204 DEC" offsetFromParent="A4" numberOfReservedSpacesBelow="4">
       <fields name="reserved1" lsb="11" size="5" readWrite="false" staticVal="true"/>
       <fields name="ANALOG_GAIN" alias="" description="" lsb="8" size="3" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1x&lt;/matrox_column_delimiter></possibleValues>
@@ -404,17 +404,33 @@
       <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
       <fields name="Y_START" alias="Y START" description="Y Start  in Kernel size (Kernel is 4 lines)" size="10"/>
     </registers>
-    <registers name="SENSOR_ROI2_Y_SIZE" description="SENSOR ADDRESS " offsetFromParent="B4" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="8">
+    <registers name="SENSOR_ROI2_Y_SIZE" description="SENSOR ADDRESS " offsetFromParent="B4">
       <fields name="reserved" lsb="10" size="6" readWrite="false" staticVal="true"/>
       <fields name="Y_SIZE" alias="Y SIZE" description="Y SIZE in Kernel size (Kernel is 4 lines)" size="10" valueAtReset="302"/>
     </registers>
-    <registers name="SENSOR_M_LINES" offsetFromParent="D8">
+    <registers name="SENSOR_M_LINES" offsetFromParent="B8">
       <fields name="M_SUPPRESSED" description="Suppress the Readout of Initial Lines in the M Region" lsb="10" size="5"/>
       <fields name="M_LINES_SENSOR" description="Number of Lines to Readout from M Region in Context 0 Unit is #lines&#xD;&#xA;&#xD;&#xA;Total number of Black lines = M_LINES-M_SUPRESSED" size="10" valueAtReset="8"/>
     </registers>
-    <registers name="SENSOR_F_LINES" offsetFromParent="DC">
+    <registers name="SENSOR_F_LINES" offsetFromParent="BC" numberOfReservedSpacesBelow="5">
       <fields name="F_SUPPRESSED" description="Suppress the Readout of Initial Lines in the F Region , Unit is #lines" lsb="10" size="5"/>
       <fields name="F_LINES_SENSOR" description="Number of Lines to Read from F Region in Context 0 Unit is #lines&#xD;&#xA;&#xD;&#xA;" size="10" valueAtReset="8"/>
+    </registers>
+    <registers name="SENSOR_DP_GR" description="Sensor Analog data pedestal for Gr pixels (Black offset)" offsetFromParent="C0">
+      <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
+      <fields name="DP_OFFSET_GR" description="Sensor Analog data pedestal for Gr pixels (Black offset)" size="12" valueAtReset="100"/>
+    </registers>
+    <registers name="SENSOR_DP_GB" description="Sensor Analog data pedestal for Gb pixels (Black offset)" offsetFromParent="C4">
+      <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
+      <fields name="DP_OFFSET_GB" description="Sensor Analog data pedestal for Gb pixels (Black offset)" size="12" valueAtReset="100"/>
+    </registers>
+    <registers name="SENSOR_DP_R" description="Sensor Analog data pedestal for R pixels (Black offset)" offsetFromParent="C8">
+      <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
+      <fields name="DP_OFFSET_R" description="Sensor Analog data pedestal for R pixels (Black offset)" size="12" valueAtReset="100"/>
+    </registers>
+    <registers name="SENSOR_DP_B" description="Sensor Analog data pedestal for B pixels (Black offset)" offsetFromParent="CC" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="4">
+      <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
+      <fields name="DP_OFFSET_B" description="Sensor Analog data pedestal for B pixels (Black offset)" size="12" valueAtReset="100"/>
     </registers>
     <registers name="DEBUG_PINS" offsetFromParent="E0" useReservedSpaceBelow="true">
       <fields name="Debug3_sel" description="  debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " lsb="24" size="5" valueAtReset="1f"/>
