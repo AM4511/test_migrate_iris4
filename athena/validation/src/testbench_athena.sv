@@ -38,7 +38,8 @@ module testbench_athena();
 	bit idelayClk;
 	bit axiReset_n;
 	bit dma_irq;
-
+        bit pciAxiReset_n;
+        bit pcieAxiClk62MHz;
 	bit [15:0] line_time   = 16'h00e6;  //default model
 	bit [4:0] monitor_0_reg;
 	bit [4:0] monitor_1_reg;
@@ -60,9 +61,9 @@ module testbench_athena();
 
 	// Clock and Reset generation
 	//always #5 axiClk100MHz = ~axiClk100MHz; TODO
-	always #8 axiClk100MHz = ~axiClk100MHz;
 	always #2.5  idelayClk = ~idelayClk;
-
+	always #5    axiClk100MHz = ~axiClk100MHz;
+	always #8    pcieAxiClk62MHz =~pcieAxiClk62MHz;
 
 
 	task automatic XGS_WriteSPI(input int add, input int data);
@@ -104,6 +105,8 @@ module testbench_athena();
 			.anput_trig_rdy(),
 			.axiClk100MHz(axiClk100MHz),
 			.axiReset_n(axil.reset_n),
+			.pciAxiReset_n(pciAxiReset_n),
+                        .pcieAxiClk62MHz(pcieAxiClk62MHz),
 			.dma_irq(dma_irq),
 			.dma_tlp_cfg_bus_mast_en(),
 			.dma_tlp_cfg_setmaxpld(),
@@ -152,6 +155,9 @@ module testbench_athena();
 	begin
 
 
+	        #100 pciAxiReset_n = 1'b1;
+
+	   
 		//////////////////////////////////////////////////////////
 		//
 		// Start Simulation

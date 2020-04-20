@@ -13,7 +13,7 @@ set PROJECT_NAME           dmawr2tlp
 set ROOT_PATH              ${LOCAL_IP}/dmawr2tlp
 set LIBRARY_NAME           ${PROJECT_NAME}.lib
 
-#set COMMON_SRC_PATH        ${IPCORES}/common/design
+set COMMON_SRC_PATH        ${IPCORES}/common/design
 #set INTERFACES_SRC_PATH    ${IPCORES}/interfaces/sv
 set VLIB_PATH              ${IPCORES}/vlib       
 
@@ -45,21 +45,13 @@ set XILINX_IP_PATH         ${DUT_SRC_PATH}/phy/xilinx
 # ]
 
 set dut_fileset [join [list  [subst { 
-# ${COMMON_SRC_PATH}/mtx_types_pkg.vhd
-# ${COMMON_SRC_PATH}/dualPortRamVar.vhd
-# ${COMMON_SRC_PATH}/mtxDCFIFO.vhd
-# ${COMMON_SRC_PATH}/mtxSCFIFO.vhd
-# ${COMMON_SRC_PATH}/round_robin.vhd
-# ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
-# ${DUT_SRC_PATH}/hispi_pack.vhd
-# ${DUT_SRC_PATH}/hispi_registerfile.vhd
-# ${DUT_SRC_PATH}/bit_split.vhd
-# ${DUT_SRC_PATH}/lane_decoder.vhd
-# ${DUT_SRC_PATH}/hispi_phy.vhd
-# ${DUT_SRC_PATH}/lane_packer.vhd
-# ${DUT_SRC_PATH}/axi_line_streamer.vhd
+${COMMON_SRC_PATH}/mtx_types_pkg.vhd
+${COMMON_SRC_PATH}/dualPortRamVar.vhd
+${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 ${DUT_SRC_PATH}/dma_pack.vhd
+${DUT_SRC_PATH}/axi_stream_in.vhd
 ${DUT_SRC_PATH}/dma_write.vhd
+${DUT_SRC_PATH}/regfile_dma2tlp.vhd
 ${DUT_SRC_PATH}/dmawr2tlp.vhd
 }
 ]

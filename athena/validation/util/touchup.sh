@@ -60,7 +60,8 @@ compile()
   cat simulate.do | grep -v "quit -f" > tmp.do
   mv tmp.do simulate.do
   source compile.do 2>&1 | tee -a compile.log
-
+  cp -f ../modelsim.ini .
+  vmake  -fullsrcpath > Makefile 
 }
 
 # RUN_STEP: <simulate>

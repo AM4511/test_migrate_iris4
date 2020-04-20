@@ -232,6 +232,7 @@ proc create_root_design { parentCell } {
   # Create ports
   set axiClk100MHz [ create_bd_port -dir I -type clk axiClk100MHz ]
   set_property -dict [ list \
+   CONFIG.ASSOCIATED_RESET {axiReset_n} \
    CONFIG.FREQ_HZ {100000000} \
  ] $axiClk100MHz
   set axiReset_n [ create_bd_port -dir I -type rst axiReset_n ]
@@ -241,6 +242,11 @@ proc create_root_design { parentCell } {
    CONFIG.FREQ_HZ {200000000} \
  ] $idelayClk
   set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
+  set pciAxiReset_n [ create_bd_port -dir I -type rst pciAxiReset_n ]
+  set pcieAxiClk62MHz [ create_bd_port -dir I -type clk pcieAxiClk62MHz ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {62500000} \
+ ] $pcieAxiClk62MHz
   set xgs_power_good [ create_bd_port -dir I xgs_power_good ]
 
   # Create instance: axiHiSPi_0, and set properties
@@ -289,11 +295,13 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net xgs12m_model_0_hispi_io [get_bd_intf_pins axiHiSPi_0/s_hispi] [get_bd_intf_pins xgs12m_model_0/hispi_io]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_ports axiClk100MHz] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/sys_clk]
+  connect_bd_net -net ACLK_1 [get_bd_ports axiClk100MHz] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/sys_clk]
   connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
   connect_bd_net -net dmawr2tlp_0_intevent [get_bd_ports dma_irq] [get_bd_pins dmawr2tlp_0/intevent]
   connect_bd_net -net idelayClk_1 [get_bd_ports idelayClk] [get_bd_pins axiHiSPi_0/idelay_clk]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_ports axiReset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/sys_reset_n]
+  connect_bd_net -net pciAxiReset_n_1 [get_bd_ports pciAxiReset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_ports axiReset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/sys_reset_n]
+  connect_bd_net -net pcieAxiClk62MHz_1 [get_bd_ports pcieAxiClk62MHz] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK]
   connect_bd_net -net xgs_power_good_1 [get_bd_ports xgs_power_good] [get_bd_pins axiXGS_controller_0/xgs_power_good]
 
   # Create address segments
