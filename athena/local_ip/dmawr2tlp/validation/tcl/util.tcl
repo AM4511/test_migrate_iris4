@@ -5,7 +5,6 @@ set my_path [file dirname $me]
 puts "Running : ${me}"
 puts "MY PATH : ${my_path}"
 
-
 #####################################################
 # Help Command
 #####################################################
@@ -35,10 +34,11 @@ proc n {} {
 proc r {} {
 	puts "Running runsim"
 	
-    set IPCORES_PATH [file normalize  $::{my_path}/../../..]
-
-	set IP "${IPCORES_PATH}/axiHiSPi"
+  	set ATHENA                 $::env(IRIS4)/athena
+	set IP                     ${ATHENA}/local_ip/dmawr2tlp
+	
 	puts "MY IP ${IP}"
-	vsim -gui work.testbench_hispi work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf
+	#vsim -gui work.testbench_dmawr2tlp work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf
+	vsim -gui work.testbench_dmawr2tlp  -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf
 	run -all
 }

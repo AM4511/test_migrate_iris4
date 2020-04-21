@@ -69,17 +69,15 @@ ${DUT_SRC_PATH}/dmawr2tlp.vhd
 # ]
 
 
-# set testbench_fileset [join [list  [subst {
-# ${REGISTERFILE_PATH}/hispi_registerfile.sv		
+set testbench_fileset [join [list  [subst {
 # ${TESTBENCH_SRC_PATH}/glbl.v
-# ${TESTBENCH_SRC_PATH}/hispi_interface.sv
-# ${TESTBENCH_SRC_PATH}/hispi_pkg.sv	
-# ${TESTBENCH_SRC_PATH}/testbench_hispi.sv
+${TESTBENCH_SRC_PATH}/dmawr2tlp_pkg.sv	
+${TESTBENCH_SRC_PATH}/testbench_dmawr2tlp.sv
 # ${TEST_PATH}/tests_pkg.sv
-# }
-# ]
-# ]
-# ]
+}
+]
+]
+]
 
 		
 ############################################################
@@ -120,7 +118,7 @@ source ${VLIB_PATH}/tcl/vlib_fileset.do
 #add_file_set $technology_specific_fileset
 add_file_set $dut_fileset
 #add_file_set $model_file_list
-#add_file_set $testbench_fileset
+add_file_set $testbench_fileset
 
 
 ############################################################

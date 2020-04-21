@@ -89,6 +89,7 @@ architecture rtl of axi_stream_in is
   signal buffer_read_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
+  signal axis_data_ack : std_logic;
 
 begin
 
@@ -202,8 +203,12 @@ begin
     end if;
   end process;
 
+  buffer_write_data <= s_axis_tdata;
 
-
+  
+  -----------------------------------------------------------------------------
+  -- Line buffer 
+  -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,

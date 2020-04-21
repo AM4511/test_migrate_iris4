@@ -10,13 +10,15 @@ package dma_pack is
     line_pitch  : std_logic_vector(15 downto 0);
     line_size   : std_logic_vector(13 downto 0);
     reverse_y   : std_logic;
+    numb_plane  : integer;
   end record DMA_CONTEXT_TYPE;
 
   constant INIT_DMA_CONTEXT_TYPE : DMA_CONTEXT_TYPE := (
     frame_start => (others => (others => '0')),
     line_pitch  => (others => '0'),
     line_size   => (others => '0'),
-    reverse_y   => '0'
+    reverse_y   => '0',
+    numb_plane  => 0
     );
 
 

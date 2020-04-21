@@ -175,7 +175,6 @@ architecture rtl of dmawr2tlp is
 
 
   component regfile_dma2tlp is
-
     port (
       resetN        : in    std_logic;  -- System reset
       sysclk        : in    std_logic;  -- System clock
@@ -186,14 +185,12 @@ architecture rtl of dmawr2tlp is
       ------------------------------------------------------------------------------------
       reg_read      : in    std_logic;  -- Read
       reg_write     : in    std_logic;  -- Write
-      reg_addr      : in    std_logic_vector(7 downto 3);   -- Address
-      reg_beN       : in    std_logic_vector(7 downto 0);   -- Byte enable
-      reg_writedata : in    std_logic_vector(63 downto 0);  -- Write data
-      reg_readdata  : out   std_logic_vector(63 downto 0)   -- Read data
+      reg_addr      : in    std_logic_vector(7 downto 2);   -- Address
+      reg_beN       : in    std_logic_vector(3 downto 0);   -- Byte enable
+      reg_writedata : in    std_logic_vector(31 downto 0);  -- Write data
+      reg_readdata  : out   std_logic_vector(31 downto 0)   -- Read data
       );
-
   end component regfile_dma2tlp;
-
 
 
   component axi_stream_in is
@@ -235,6 +232,7 @@ architecture rtl of dmawr2tlp is
       line_buffer_read_data    : out std_logic_vector(63 downto 0)
       );
   end component;
+
 
   component dma_write is
     generic (
@@ -304,12 +302,14 @@ architecture rtl of dmawr2tlp is
       );
   end component;
 
-  constant C_S_AXI_ADDR_WIDTH : integer := 8;
-  constant C_S_AXI_DATA_WIDTH : integer := 32;
-  constant READ_ADDRESS_MSB   : integer := 10;
-  constant AXIS_DATA_WIDTH    : integer := 64;
-  constant AXIS_USER_WIDTH    : integer := 2;
-  constant BUFFER_ADDR_WIDTH  : integer := 10;
+
+  constant C_S_AXI_ADDR_WIDTH  : integer := 8;
+  constant C_S_AXI_DATA_WIDTH  : integer := 32;
+  constant AXIS_DATA_WIDTH     : integer := 64;
+  constant AXIS_USER_WIDTH     : integer := 2;
+  constant BUFFER_ADDR_WIDTH   : integer := 11;
+  constant READ_ADDRESS_MSB    : integer := 10;
+  constant MAX_NUMBER_OF_PLANE : integer := 3;
 
   signal axi_reset         : std_logic;
   signal reg_read          : std_logic;
@@ -321,32 +321,25 @@ architecture rtl of dmawr2tlp is
   signal reg_readdata      : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
   signal regfile           : REGFILE_DMA2TLP_TYPE                            := INIT_REGFILE_DMA2TLP_TYPE;
 
-  signal host_number_of_plane     : integer;
-  signal host_write_address       : HOST_ADDRESS_ARRAY(NUMBER_OF_PLANE-1 downto 0) := (others => (others => '0'));
-  signal host_line_pitch          : std_logic_vector(15 downto 0);
-  signal host_line_size           : std_logic_vector(13 downto 0);
-  signal host_reverse_y           : std_logic;
   signal dma_idle                 : std_logic;
   signal dma_pcie_state           : std_logic_vector(2 downto 0);
   signal start_of_frame           : std_logic;
   signal line_ready               : std_logic;
   signal line_transfered          : std_logic;
   signal end_of_dma               : std_logic;
-  signal read_enable_out          : std_logic;
-  signal read_address             : std_logic_vector(READ_ADDRESS_MSB downto 0);
-  signal read_data                : std_logic_vector(63 downto 0);
   signal init_frame               : std_logic;
   signal line_buffer_read_en      : std_logic;
   signal line_buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal line_buffer_read_data    : std_logic_vector(63 downto 0);
 
+
   -----------------------------------------------------------------------------
   -- Register context structure
   -----------------------------------------------------------------------------
   signal dma_context_mapping : DMA_CONTEXT_TYPE;
-  signal dma_context_p0       : DMA_CONTEXT_TYPE;
-  signal dma_context_P1       : DMA_CONTEXT_TYPE;
-  signal dma_context_mux       : DMA_CONTEXT_TYPE;
+  signal dma_context_p0      : DMA_CONTEXT_TYPE;
+  signal dma_context_P1      : DMA_CONTEXT_TYPE;
+  signal dma_context_mux     : DMA_CONTEXT_TYPE;
 
 
 begin
@@ -392,6 +385,35 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_reg_readdataValid : process(axi_clk)
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0')then
+        reg_readdataValid <= '0';
+      else
+        reg_readdataValid <= reg_read;
+      end if;
+    end if;
+  end process;
+
+
+  xregfile_dma2tlp : regfile_dma2tlp
+    port map(
+      resetN        => axi_reset_n,
+      sysclk        => axi_clk,
+      regfile       => regfile,
+      reg_read      => reg_read,
+      reg_write     => reg_write,
+      reg_addr      => reg_addr(C_S_AXI_ADDR_WIDTH-1 downto 2),
+      reg_beN       => reg_beN,
+      reg_writedata => reg_writedata,
+      reg_readdata  => reg_readdata
+      );
+
+  
+  -----------------------------------------------------------------------------
   -- Registerfile remapping
   -----------------------------------------------------------------------------
   dma_context_mapping.frame_start(0) <= regfile.dma.frame_start(1).value & regfile.dma.frame_start(0).value;
@@ -400,17 +422,18 @@ begin
   dma_context_mapping.line_pitch     <= regfile.dma.line_pitch.value;
   dma_context_mapping.line_size      <= regfile.dma.line_size.value;
   dma_context_mapping.reverse_y      <= regfile.dma.csc.reverse_y;
+  dma_context_mapping.numb_plane     <= 3;
 
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline
   -----------------------------------------------------------------------------
-  P_dma_context : process (axi_clk) is
+  P_dma_context : process(axi_clk)
   begin
     if (rising_edge(axi_clk)) then
       if (axi_reset_n = '0')then
-         dma_context_p0 <= INIT_DMA_CONTEXT_TYPE;
-         dma_context_p1 <= INIT_DMA_CONTEXT_TYPE;
+        dma_context_p0 <= INIT_DMA_CONTEXT_TYPE;
+        dma_context_p1 <= INIT_DMA_CONTEXT_TYPE;
       else
         if (context_strb(0) = '1') then
           dma_context_p0 <= dma_context_mapping;
@@ -428,7 +451,7 @@ begin
   -----------------------------------------------------------------------------
   dma_context_mux <= dma_context_p1 when (regfile.dma.ctrl.grab_queue_enable = '1') else
                      dma_context_mapping;
-    
+
   xaxi_stream_in : axi_stream_in
     generic map(
       AXIS_DATA_WIDTH   => AXIS_DATA_WIDTH,
@@ -455,8 +478,8 @@ begin
 
   xdma_write : dma_write
     generic map(
-      NUMBER_OF_PLANE       => NUMBER_OF_PLANE,
-      READ_ADDRESS_MSB      => READ_ADDRESS_MSB,
+      NUMBER_OF_PLANE       => MAX_NUMBER_OF_PLANE,
+      READ_ADDRESS_MSB      => (BUFFER_ADDR_WIDTH-1),
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
@@ -477,7 +500,7 @@ begin
       tlp_transaction_id   => tlp_transaction_id,
       tlp_byte_count       => tlp_byte_count,
       tlp_lower_address    => tlp_lower_address,
-      host_number_of_plane => host_number_of_plane,
+      host_number_of_plane => dma_context_mux.numb_plane,
       host_write_address   => dma_context_mux.frame_start,
       host_line_pitch      => dma_context_mux.line_pitch,
       host_line_size       => dma_context_mux.line_size,
