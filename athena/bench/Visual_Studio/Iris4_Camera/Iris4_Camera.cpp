@@ -177,8 +177,10 @@ int main(void)
 		{
 			XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32 = i;
 			M_UINT32 readback = XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32;
-			if (readback != i)
-  			  printf("R/W fail write=0x%x read=0x%x\n", i, readback);
+			if (readback != i) {
+				printf("Test d'access PCIe R/W fail write=0x%x read=0x%x\n", i, readback);
+				exit(0);
+			}
 	
 		}
 		printf("end loop\n");
@@ -243,9 +245,9 @@ int main(void)
 	//Disable the PMIC in case it is enabled
 	I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 0 to output0 : HWEN=0)
 	Sleep(30);
-	I2C->Write_i2c(0, 0x20, 0, 3, 0xfe);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC)
+	I2C->Write_i2c(0, 0x20, 0, 3, 0xce);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC + Monitor_mux_select=output)
 	Sleep(30);
-	I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 1 to output0 : HWEN=0)
+	I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 0 to output0 : HWEN=0, monitor select is monitor0)
 	Sleep(30);
 
 	// Reset the PMIC to default register values
@@ -340,7 +342,7 @@ int main(void)
 	//-------------------------------------------------------------------------------
 	// Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), ENABLE PMIC
 	//-------------------------------------------------------------------------------
-	I2C->Write_i2c(0, 0x20, 0, 1, 0x1);              // Write add=1 (Write 1 to output0 : HWEN=1)
+	I2C->Write_i2c(0, 0x20, 0, 1, 0x11);              // Write add=1 (Write 1 to output0 : HWEN=1 and Monitor_Mux_sel is 0x1 so EFOT is sent to FPGA)
 	Sleep(250);
 
     

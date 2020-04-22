@@ -459,12 +459,15 @@ void CXGS_Ctrl::InitXGS()
 	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_END   = (M_UINT32)(double( sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond);           //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter 	
 	rXGSptr.ACQ.READOUT_CFG4.u32= sXGSptr.ACQ.READOUT_CFG4.u32;
 	
-	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA   = 1;
+	// Pour le moment non enable car on recois pas le signal New_line du XGS (Xcelerator)
+	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA   = 0;
 	rXGSptr.ACQ.READOUT_CFG3.u32                   = sXGSptr.ACQ.READOUT_CFG3.u32;
 
 	// Set FOT time (not used by fpga for the moment)
-	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = GrabParams.FOT;
-	rXGSptr.ACQ.READOUT_CFG1.u32          = sXGSptr.ACQ.READOUT_CFG1.u32;
+	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;
+	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH      = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
+	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL      = 1;
+	rXGSptr.ACQ.READOUT_CFG1.u32               = sXGSptr.ACQ.READOUT_CFG1.u32;
 
 }
 
@@ -543,8 +546,14 @@ M_UINT32 CXGS_Ctrl::getExposure(void)
 void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 {
 
-	if (exposure_ss_us >= 10 && exposure_ss_us < 4200000)
+	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in us	
+		printf("Exposure set to %dus\n", exposure_ss_us);
+	}
+	else {
+		printf("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+	}
+	
 }
 
 //----------------------------------------------------

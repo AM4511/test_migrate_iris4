@@ -49,7 +49,9 @@ void CXGS_Ctrl::SetGrabParamsInit12000(int lanes)
    if (lanes == 24)   SensorParams.FOT = unsigned long(29900 / SystemPeriodNanoSecond);
    if (lanes == 18)   SensorParams.FOT = unsigned long(31100 / SystemPeriodNanoSecond);
    if (lanes == 12)   SensorParams.FOT = unsigned long(50100 / SystemPeriodNanoSecond);
-   if (lanes == 6)    SensorParams.FOT = unsigned long(95900 / SystemPeriodNanoSecond);
+   if (lanes == 6)    SensorParams.FOT = unsigned long(95900 / SystemPeriodNanoSecond); // ns/sysclk
+
+   GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
    GrabParams.LinePitch           = SensorParams.Xsize_Full; //pour linstant 8bpp
    GrabParams.Y_START             = 0;
@@ -58,7 +60,6 @@ void CXGS_Ctrl::SetGrabParamsInit12000(int lanes)
    GrabParams.BLACK_OFFSET        = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN         = 0x1;        // gain=1
 						          
-   GrabParams.FOT                 = SensorParams.FOT;
    printf("XGS12K Sensor detected, ");
    }
 
@@ -77,12 +78,17 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 	Activate_sensor();
 
 	// Program monitor pins in XGS
-	M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+	//M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+	//M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+
+	M_UINT32 monitor_0_reg = 0x0;    // modifie plus bas pour aller chercher 1 signal du datapath
 	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
 	//M_UINT32 monitor_2_reg = 0x1;    // New_line
-	M_UINT32 monitor_2_reg = 0x15;  // effective line
+	M_UINT32 monitor_2_reg = 0x6;  // real int
 	//M_UINT32 monitor_2_reg = 0x13;  // Mline
 
+	//Monitor 0 is Line valid
 	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
 	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 

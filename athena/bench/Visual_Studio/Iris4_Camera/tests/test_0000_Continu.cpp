@@ -57,10 +57,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
-	//LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
+	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 
-	GrabParams->FrameStart = ImageBufferAddr;
+	GrabParams->FrameStart = ImageBufferAddr; //Adresse pour DMA
 
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
@@ -94,12 +94,31 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	XGS_Ctrl->PrintTime();
 
 
+	//------------------------------------
+	//  XGS Ctrl Debug pin in Xcelerator
+	//------------------------------------
+	//debug_ctrl16_int(0) <= xgs_exposure; --python_monitor0;  --resync to sysclk
+	//debug_ctrl16_int(1) <= xgs_FOT;      --python_monitor1;  --resync to sysclk
+	//debug_ctrl16_int(2) <= grab_mngr_trig_rdy;
+	//debug_ctrl16_int(3) <= readout_cntr_FOT;
+	//debug_ctrl16_int(4) <= readout_cntr_EO_FOT;
+	//debug_ctrl16_int(5) <= curr_trig0;
+	//debug_ctrl16_int(6) <= strobe;
+	//debug_ctrl16_int(7) <= FOT;
+	//debug_ctrl16_int(8) <= readout;
+	//debug_ctrl16_int(9) <= readout_stateD;
+	//debug_ctrl16_int(10) <= readout_cntr2_armed;
+	//debug_ctrl16_int(11) <= REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+	//debug_ctrl16_int(12) <= REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+	//debug_ctrl16_int(14) <= grab_pending;
+	//debug_ctrl16_int(15) <= grab_active;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 3; // sort sur XCELERATOR : USER_CLK_N
+
+
 	//---------------------
 	// START GRAB 
 	//---------------------
-	XGS_Ctrl->sXGSptr.ACQ.DEBUG_PINS.u32 = 0;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.u32 = XGS_Ctrl->sXGSptr.ACQ.DEBUG_PINS.u32;
-
 	printf("\n");
 	printf("\n  (q) Quit this test");
 	printf("\n  (f) Print current FPS");
@@ -138,10 +157,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 		}
 
 
-		//if (DisplayOn)
+		if (DisplayOn)
 		//{
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-		//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
 		//	//printf("%f", DisplayLength1 - DisplayLength0);
 		//}
@@ -180,12 +199,12 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 
 			case '+':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() + ExposureIncr);
-				printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
+				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
 				break;
 
 			case '-':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() - ExposureIncr);
-				printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
+				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
 				break;
 
 			case 'g':
@@ -225,7 +244,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 				break;
 
 			case 'y':
-				printf("\nEnter the new Size Y (1-based): ");
+				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);				
 				GrabParams->Y_END = XGSSize_Y;
 
@@ -243,11 +262,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
-	//MbufFree(MilGrabBuffer);
-	//MdispFree(MilDisplay);
-
-
-
+	MbufFree(MilGrabBuffer);
+	MdispFree(MilDisplay);
 
 	//----------------------
 	// Disable HW

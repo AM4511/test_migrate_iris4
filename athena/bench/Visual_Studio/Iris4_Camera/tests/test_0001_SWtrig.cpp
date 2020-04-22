@@ -95,13 +95,30 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
 
+	//------------------------------------
+	//  XGS Ctrl Debug pin in Xcelerator
+	//------------------------------------
+	// debug_pin(0) <= xgs_exposure;
+	// debug_pin(1) <= xgs_FOT;     
+	// debug_pin(2) <= grab_mngr_trig_rdy;
+	// debug_pin(3) <= curr_db_BUFFER_ID_int;
+	// debug_pin(4) <= hw_trig;  
+	// debug_pin(5) <= curr_trig0;
+	// debug_pin(6) <= strobe;
+	// debug_pin(7) <= FOT;
+	// debug_pin(8) <= readout;
+	// debug_pin(9) <= readout_stateD;
+	// debug_pin(10) <= readout_cntr2_armed;
+	// debug_pin(11) <= REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+	// debug_pin(12) <= REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+	// debug_pin(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+	// debug_pin(14) <= grab_pending;
+	// debug_pin(15) <= grab_active;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 8;
 
 	//---------------------
 	// START GRAB 
 	//---------------------
-	XGS_Ctrl->sXGSptr.ACQ.DEBUG_PINS.u32 = 0;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.u32 = XGS_Ctrl->sXGSptr.ACQ.DEBUG_PINS.u32;
-
 	printf("\n");
 	printf("\n  (q) Quit this test");
 	printf("\n  (f) Print current FPS");
@@ -232,8 +249,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 				break;
 
 			case 'y':
-				printf("\nEnter the new Size Y (1-based): ");
-				scanf_s("%d", &XGSSize_Y);				
+				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
+				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = XGSSize_Y;
 
 
