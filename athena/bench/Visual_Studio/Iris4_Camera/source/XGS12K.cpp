@@ -2,6 +2,7 @@
 //
 //  Configuration for XGS12000
 //
+//  From WIP Last Changed Rev: WIP Last Changed Rev: 16907:  C:\Aptina Imaging\apps_data\XGS12M-REV2.ini 
 //-----------------------------------------------
 
 /* Headers */
@@ -11,22 +12,7 @@
 
 #include "XGS_Ctrl.h"
 
-//---------------------------------
-// Constants for XGS 12K FOT  greg ferrel 1/04/2020
-//---------------------------------
-// SFOTand EFOT numbers
-// SFOT 24 lanes -> 14.4us
-// SFOT 18 lanes -> 15.2us
-// SFOT 12 lanes -> 22.9us
-// SFOT 6 lanes ->  45.76us -> 4.05 lines
-// EFOT 24 lanes-> 29.9us
-// EFOT 18 lanes -> 31.1us
-// EFOT 12 lanes ->50.1us
-// EFOT 6 lanes ->  95.9us
 
-//Short Integration time
-// SFOT 24 lanes -> 3.605us
-// EFOT 24 lanes -> 29.9us
 
 
 
@@ -38,13 +24,30 @@
 //-----------------------------------------------
 // Init specific 
 //-----------------------------------------------
-void CXGS_Ctrl::SetGrabParamsInit12000(int lanes)
+void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    {
 
    SensorParams.SENSOR_TYPE            = 12000;
    SensorParams.XGS_HiSPI_Ch           = 24;
-   SensorParams.Xsize_Full             = 4096; //+8; //8 Interpolation
-   SensorParams.Ysize_Full             = 3072; //+8;
+   SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED
+
+   //---------------------------------
+   // Constants for XGS 12M FOT  greg ferrel 1/04/2020
+   //---------------------------------
+   // SFOTand EFOT numbers
+   // SFOT 24 lanes -> 14.4us
+   // SFOT 18 lanes -> 15.2us
+   // SFOT 12 lanes -> 22.9us
+   // SFOT 6 lanes ->  45.76us -> 4.05 lines
+   // EFOT 24 lanes-> 29.9us
+   // EFOT 18 lanes -> 31.1us
+   // EFOT 12 lanes ->50.1us
+   // EFOT 6 lanes ->  95.9us
+   
+   // Short Integration time
+   // SFOT 24 lanes -> 3.605us
+   // EFOT 24 lanes -> 29.9us
 
    if (lanes == 24)   SensorParams.FOT = unsigned long(29900 / SystemPeriodNanoSecond);
    if (lanes == 18)   SensorParams.FOT = unsigned long(31100 / SystemPeriodNanoSecond);
@@ -60,45 +63,107 @@ void CXGS_Ctrl::SetGrabParamsInit12000(int lanes)
    GrabParams.BLACK_OFFSET        = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN         = 0x1;        // gain=1
 						          
-   printf("XGS12K Sensor detected, ");
+   printf("XGS12M Sensor detected, ");
    }
 
+void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
+{
 
+	SensorParams.SENSOR_TYPE  = 9400;
+	SensorParams.XGS_HiSPI_Ch = 24;
+	SensorParams.Xsize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
+	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
 
+	//---------------------------------
+	// Constants for XGS 9.4M FOT
+	//---------------------------------
+	// SFOTand EFOT numbers
+	// SFOT 24 lanes -> 
+	// SFOT 18 lanes -> 
+	// SFOT 12 lanes -> 
+	// SFOT 6 lanes  -> 
+	// EFOT 24 lanes -> 
+	// EFOT 18 lanes -> 
+	// EFOT 12 lanes ->
+	// EFOT 6 lanes  -> 
 
-void CXGS_Ctrl::LoadDCF_12K(int lanes)
-      {
-      
+	// Short Integration time
+	// SFOT 24 lanes ->
+	// EFOT 24 lanes ->
 
-	Initialize_sensor();             // Wait until the sensor is ready to receive register writes 
-	Check_otpm_depended_uploads();   // OTM write
-	if (lanes == 6)  Enable6lanes();                  
-	if (lanes == 24) Enable24lanes();
+	if (lanes == 24)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 18)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 12)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 6)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
 
-	Activate_sensor();
+	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-	// Program monitor pins in XGS
-	//M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
-	//M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+	GrabParams.LinePitch    = SensorParams.Xsize_Full; //pour linstant 8bpp
+	GrabParams.Y_START      = 0;
+	GrabParams.Y_END        = SensorParams.Ysize_Full - 1;
+	GrabParams.REVERSE_Y    = 0;
+	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
+	GrabParams.ANALOG_GAIN  = 0x1;        // gain=1
 
-	M_UINT32 monitor_0_reg = 0x0;    // modifie plus bas pour aller chercher 1 signal du datapath
-	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-	//M_UINT32 monitor_2_reg = 0x1;    // New_line
-	M_UINT32 monitor_2_reg = 0x6;  // real int
-	//M_UINT32 monitor_2_reg = 0x13;  // Mline
+	printf("XGS9.4M Sensor detected, ");
+}
 
-	//Monitor 0 is Line valid
-	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
+{
 
-	WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);    // Monitor_ctrl
+	SensorParams.SENSOR_TYPE = 8000;
+	SensorParams.XGS_HiSPI_Ch = 24;
+	SensorParams.Xsize_Full = 4096; //+8; // Interpolation NOT INCLUDED
+	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
+
+	//---------------------------------
+	// Constants for XGS 9.4M FOT
+	//---------------------------------
+	// SFOTand EFOT numbers
+	// SFOT 24 lanes -> 
+	// SFOT 18 lanes -> 
+	// SFOT 12 lanes -> 
+	// SFOT 6 lanes  -> 
+	// EFOT 24 lanes -> 
+	// EFOT 18 lanes -> 
+	// EFOT 12 lanes ->
+	// EFOT 6 lanes  -> 
+
+	// Short Integration time
+	// SFOT 24 lanes ->
+	// EFOT 24 lanes ->
+
+	if (lanes == 24)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 18)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 12)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
+	if (lanes == 6)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
+
+	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
+
+	GrabParams.LinePitch = SensorParams.Xsize_Full; //pour linstant 8bpp
+	GrabParams.Y_START = 0;
+	GrabParams.Y_END = SensorParams.Ysize_Full - 1;
+	GrabParams.REVERSE_Y = 0;
+	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
+	GrabParams.ANALOG_GAIN = 0x1;        // gain=1
+
+	printf("XGS8M Sensor detected, ");
+}
+
+void CXGS_Ctrl::XGS12M_LoadDCF(int lanes)
+{
+     
+	XGS12M_WaitRdy();                       // Wait until the sensor is ready to receive register writes 
+	XGS12M_Check_otpm_depended_uploads();   // OTM write
+	if (lanes == 6)  XGS12M_Enable6lanes();
+	//no support for other nblane for the moment
+
+	XGS12M_Activate_sensor();               // Set slave and external trig
+
+	XGS12M_Config_Monitor();
 
 	WriteSPI(0x3812, 0);    // integration offset coarse default is 0 [3:0]
-
-
-	WriteSPI(0x389c, 0);   //F_line
+	WriteSPI(0x389c, 0);    // F_line
 
 	// Copy some "mirror" registers from Sensor to FPGA
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = ReadSPI(0x3844);      //Analog Gain
@@ -116,39 +181,39 @@ void CXGS_Ctrl::LoadDCF_12K(int lanes)
 	sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = ReadSPI(0x3810);      //LINETIME
 	rXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME;
 
+}
 
+//-----------------------------------------
+// Cofig Monitor PINS
+//-----------------------------------------
+void CXGS_Ctrl::XGS12M_Config_Monitor() {
+	
+	// Program monitor pins in XGS
+	//M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+	//M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+	//M_UINT32 monitor_2_reg = 0x1;    // New_line
 
-//	  //-----------------------------------------------
-//	  // Set ExposureTime during FOT, but not enabled!
-//	  //-----------------------------------------------
-//	  rACQ.EXP_FOT.f.EXP_FOT_TIME = (unsigned long)(27300 / 16); //P1300/P500/P300 : 27.3us calculated from DCF
-//
-//
-//    //-------------------------------
-//    // In PET engin Python inserts dummy lines before/after start of integration
-//    // We set 2 dummy lines, 1 before and 1 after start of integration in PET mode
-//    // see reg 224 : [0:3]-1 is the total dummy lines [4:7] is the lines before start of integration 
-//    // Those dummy lines inserted are complete lines as BL lines
-//    //-------------------------------
-//    SensorParams.EXP_DUMMY_LINES = (ReadSPI(224) & 0xf)-1;
-//
-//	  //WriteSPI_B(224, 0, 3, 0xe);                    //  jmansill : Total of dummy rows inserted at Exposure , add 3-1-Reg[4:7] = 1 dummy line after exposure start)
-//	  //WriteSPI_B(224, 4, 7, 0x5);                    //  jmansill : Delai start of exposure of 1 line when in PET engin, insert 1 dummy line before exposure start)	  
-//
-//
-//
-//	  EnableDecoder();                        // Enable DataPath Decoder
-//	  EnableReadout();                        // Enable Frame Redaout
-//	  EnableRegUpdate();                      // Enable Python Register Update by the controller
-//
+	M_UINT32 monitor_0_reg = 0x0;    // modifie plus bas pour aller chercher 1 signal du datapath
+	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+	//M_UINT32 monitor_2_reg = 0x6;  // real int
+	M_UINT32 monitor_2_reg = 0x13;  // Mline
 
-      }
+	//Monitor 0 is Line valid
+	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+
+	WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
+	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);    // Monitor_ctrl
+
+}
+
 
 
 //-----------------------------------------
 // PowerUp and wait until Sensor is rdy
 //-----------------------------------------
-void CXGS_Ctrl::Initialize_sensor() {
+void CXGS_Ctrl::XGS12M_WaitRdy() {
 
 	//	Wait until the sensor is ready to receive register writes: (REG 0x3706[3:0] = 0x3) : POLL_REG = 0x3706, 0x000F, != 0x3, DELAY = 25, TIMEOUT = 500
 	PollRegSPI(0x3706, 0xF, 0x3, 25, 40);
@@ -160,7 +225,7 @@ void CXGS_Ctrl::Initialize_sensor() {
 //-----------------------------------------
 // Check if need to optimize XGS register
 //-----------------------------------------
-void CXGS_Ctrl::Check_otpm_depended_uploads() {
+void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 
 	// Checking the version of OTPM and uploading settings accordingly, reg 0x3700[5] needs to be enabled to read the OTPM version
 	// apbase.log("Checking OTPM version (enable register 0x3700[5] = 1) -. reg 0x3016[3:0]")
@@ -257,7 +322,7 @@ void CXGS_Ctrl::Check_otpm_depended_uploads() {
 //----------------------------------------------------
 // This fonction load specific registers for MUX mode
 //----------------------------------------------------
-void CXGS_Ctrl::Enable6lanes(void) {
+void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 
 	printf("XGS Initializing 6 HiSPI lanes\n");
 	// mux mode dependent uploads
@@ -282,34 +347,12 @@ void CXGS_Ctrl::Enable6lanes(void) {
 
 }
 
-void CXGS_Ctrl::Enable24lanes(void) {
 
-	printf("XGS Initializing 24 HiSPI lanes\n");
-
-	// Loading 24 lanes 12 bit specific settings
-	WriteSPI(0x38C4, 0x1300);
-
-	WriteSPI(0x3A00, 0x000A);
-	WriteSPI(0x3A02, 0x0001);
-
-	WriteSPI(0x3E00, 0x0008);
-	WriteSPI(0x3E28, 0x2507);
-	WriteSPI(0x3E80, 0x0001);
-
-	WriteSPI(0x3810, 0x00E6); // minimum line time
-
-	//LOG = Setting framerate to 90FPS
-	WriteSPI(0x383A, 0x0C3A);
-
-	//LOG = Setting 5ms exposure time
-	WriteSPI(0x3840, 0x0580);
-	WriteSPI(0x3842, 0x009c);
-}
 
 //----------------------
 // Activating sensor
 //----------------------
-void CXGS_Ctrl::Activate_sensor() {
+void CXGS_Ctrl::XGS12M_Activate_sensor() {
 	M_UINT32 read;
 
 	// Enable PLL and Analog blocks: REG = 0x3700, 0x001c
@@ -319,7 +362,6 @@ void CXGS_Ctrl::Activate_sensor() {
 
 	// Check if initialization is complete (REG 0x3706[7:0] = 0xEB): POLL_REG = 0x3706, 0x00FF, != 0xEB, DELAY = 25, TIMEOUT = 500
 	PollRegSPI(0x3706, 0x00FF, 0xEB, 25, 40);
-
 
 	// Slave mode + Trigger mode
 	M_UINT32 GeneralConfig0 = ReadSPI(0x3800);

@@ -436,8 +436,8 @@ void CXGS_Ctrl::InitXGS()
 		if ((DataRead & 0x3) == 2)
 			printf("XGS is MONO\n");
 
-		SetGrabParamsInit12000(6);
-		LoadDCF_12K(6);
+		XGS12M_SetGrabParamsInit12000(6);
+		XGS12M_LoadDCF(6);
 	}
 	else
 	{

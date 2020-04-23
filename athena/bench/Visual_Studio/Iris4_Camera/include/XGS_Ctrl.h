@@ -117,12 +117,6 @@ public:
 	void InitXGS(void);
 	void DisableXGS(void);
 
-	void Initialize_sensor(void);
-	void Check_otpm_depended_uploads(void);
-	void Enable6lanes(void);
-	void Enable24lanes(void);
-	void Activate_sensor(void);
-
 	void SetGrabParams(unsigned long Throttling = 0);
 	M_UINT32 getExposure(void);
 	void setExposure(M_UINT32 exposure_ss_us);
@@ -144,8 +138,19 @@ private:
 	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
 	double SensorPeriodNanoSecond = 15.625000; //32Mhz
 
-	void SetGrabParamsInit12000(int lanes);
-	void LoadDCF_12K(int lanes);
+	void XGS12M_SetGrabParamsInit12000(int lanes);
+	void XGS12M_SetGrabParamsInit9400(int lanes);
+	void XGS12M_SetGrabParamsInit8000(int lanes);
+
+	void XGS12M_LoadDCF(int lanes);
+	void XGS12M_Config_Monitor(void);
+	void XGS12M_WaitRdy(void);
+
+	void XGS12M_Check_otpm_depended_uploads(void);
+	void XGS12M_Enable6lanes(void);
+	void XGS12M_Activate_sensor(void);
+
+
 };
   
 

@@ -113,7 +113,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 3; // sort sur XCELERATOR : USER_CLK_N
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; // sort sur XCELERATOR : USER_CLK_N
 
 
 	//---------------------
@@ -153,7 +153,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 		if (FPS_On)
 		{
 			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-			printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+			printf("\r%dfps, Calculated Max fps is %f        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 1.0 / (0.0000114 + 0.000023+(0.0000114375*(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 )))  );
 		}
 
 

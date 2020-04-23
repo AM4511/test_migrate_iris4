@@ -59,8 +59,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
-	//LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
+	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 
 	GrabParams->FrameStart = ImageBufferAddr;
 
@@ -150,25 +150,14 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 		if (XGS_Ctrl->sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP == 0)
 			XGS_Ctrl->WaitEndExpReadout();
 
-		//if (FPS_On)
-		//{
-		//	fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-		//	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
-		//	//if ((fps_reg & 0xffff) == 0xffff)
-		//    //{
-		//	//	printf("\n\nERROR de lecture au registre du fpga fps, press enter to continue! 0x%X\n\n\n", fps_reg);
-		//	//	_getch();
-		//	//}
-		//}
 
-
-		//if (DisplayOn)
-		//{
+		if (DisplayOn)
+		{
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-		//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
 		//	//printf("%f", DisplayLength1 - DisplayLength0);
-		//}
+		}
 
 
 
