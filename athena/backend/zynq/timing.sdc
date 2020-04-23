@@ -130,4 +130,3 @@ set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 0.000
 set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D]
 set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D]
 
-
