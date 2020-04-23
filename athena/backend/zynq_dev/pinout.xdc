@@ -3,83 +3,82 @@
 ################################################################
 
 # HiSPi top clock
-#set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
-#set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
+set_property PACKAGE_PIN AE22 [get_ports FMC_HPC_CLK0_M2C_P]
+set_property PACKAGE_PIN AF22 [get_ports FMC_HPC_CLK0_M2C_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK0_M2C_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK0_M2C_N]
 
 # HiSPi Lane 0
-#set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
-#set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
+set_property PACKAGE_PIN AD23 [get_ports FMC_HPC_LA11_P]
+set_property PACKAGE_PIN AE23 [get_ports FMC_HPC_LA11_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA11_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA11_N]
 
 # HiSPi Lane 8
-#set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
-#set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
+set_property PACKAGE_PIN AJ23 [get_ports FMC_HPC_LA07_P]
+set_property PACKAGE_PIN AJ24 [get_ports FMC_HPC_LA07_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA07_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA07_N]
 
 # HiSPi Lane 16
-#set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
-#set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
+set_property PACKAGE_PIN AH19 [get_ports FMC_HPC_LA03_P]
+set_property PACKAGE_PIN AJ19 [get_ports FMC_HPC_LA03_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA03_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA03_N]
 
 
 
 ################################################################
 # HiSPi BOTTOM Interface
 ################################################################
-
 # HiSPi bottom clock
-#set_property PACKAGE_PIN U26 [get_ports FMC_HPC_CLK1_M2C_P]
-#set_property PACKAGE_PIN U27 [get_ports FMC_HPC_CLK1_M2C_N]
+set_property PACKAGE_PIN U26 [get_ports FMC_HPC_CLK1_M2C_P]
+set_property PACKAGE_PIN U27 [get_ports FMC_HPC_CLK1_M2C_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_CLK1_M2C_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_CLK1_M2C_N]
 
 
 # HiSPi Lane 1
-#set_property PACKAGE_PIN P30 [get_ports FMC_HPC_LA28_P]
-#set_property PACKAGE_PIN R30 [get_ports FMC_HPC_LA28_N]
+set_property PACKAGE_PIN P30 [get_ports FMC_HPC_LA28_P]
+set_property PACKAGE_PIN R30 [get_ports FMC_HPC_LA28_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA28_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA28_N]
 
 # HiSPi Lane 9
-#set_property PACKAGE_PIN V28 [get_ports FMC_HPC_LA27_P]
-#set_property PACKAGE_PIN V29 [get_ports FMC_HPC_LA27_N]
+set_property PACKAGE_PIN V28 [get_ports FMC_HPC_LA27_P]
+set_property PACKAGE_PIN V29 [get_ports FMC_HPC_LA27_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA27_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA27_N]
 
 # HiSPi Lane 17
-#set_property PACKAGE_PIN P25 [get_ports FMC_HPC_LA23_P]
-#set_property PACKAGE_PIN P26 [get_ports FMC_HPC_LA23_N]
+set_property PACKAGE_PIN P25 [get_ports FMC_HPC_LA23_P]
+set_property PACKAGE_PIN P26 [get_ports FMC_HPC_LA23_N]
 
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_P]
-#set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_N]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_P]
-#set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_N]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_P]
+set_property IOSTANDARD LVDS_25 [get_ports FMC_HPC_LA23_N]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_P]
+set_property DIFF_TERM FALSE [get_ports FMC_HPC_LA23_N]
 
 
 ################################################################

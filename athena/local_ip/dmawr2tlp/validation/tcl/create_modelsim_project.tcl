@@ -51,7 +51,7 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 ${DUT_SRC_PATH}/dma_pack.vhd
 ${DUT_SRC_PATH}/axi_stream_in.vhd
 ${DUT_SRC_PATH}/dma_write.vhd
-${DUT_SRC_PATH}/regfile_dma2tlp.vhd
+${DUT_SRC_PATH}/regfile_dmawr2tlp.vhd
 ${DUT_SRC_PATH}/dmawr2tlp.vhd
 }
 ]
@@ -72,7 +72,7 @@ ${DUT_SRC_PATH}/dmawr2tlp.vhd
 set testbench_fileset [join [list  [subst {
 # ${TESTBENCH_SRC_PATH}/glbl.v
 ${TESTBENCH_SRC_PATH}/dmawr2tlp_pkg.sv	
-${TESTBENCH_SRC_PATH}/testbench_dmawr2tlp.sv
+${TESTBENCH_SRC_PATH}/testbench_dmawr2tlp_3.sv
 # ${TEST_PATH}/tests_pkg.sv
 }
 ]

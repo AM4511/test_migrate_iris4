@@ -124,13 +124,13 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
+xilinx.com:ip:xlconstant:1.1\
 matrox.com:Imaging:axiHiSPi:1.1.1\
 matrox.com:user:axiXGS_controller:1.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
 matrox.com:user:dmawr2tlp:1.0.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -204,9 +204,9 @@ proc create_root_design { parentCell } {
 
   set anput_if [ create_bd_intf_port -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if ]
 
-  set hispi [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi ]
-
   set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
+
+  set xgs [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs ]
 
   set xgs_ctrl [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl ]
 
@@ -218,6 +218,13 @@ proc create_root_design { parentCell } {
    CONFIG.FREQ_HZ {100000000} \
  ] $pcie_clk100MHz
   set pcie_reset_n [ create_bd_port -dir I -type rst pcie_reset_n ]
+
+  # Create instance: Context_strb, and set properties
+  set Context_strb [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 Context_strb ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {0} \
+   CONFIG.CONST_WIDTH {2} \
+ ] $Context_strb
 
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
@@ -248,6 +255,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_DMA {true} \
    CONFIG.ENABLE_DMA {1} \
+   CONFIG.NUMB_IRQ {1} \
    CONFIG.PCIE_DEVICE_ID {5396} \
  ] $pcie2AxiMaster_0
 
@@ -662,13 +670,6 @@ proc create_root_design { parentCell } {
    CONFIG.preset {ZC706} \
  ] $processing_system7_0
 
-  # Create instance: xlconstant_0, and set properties
-  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
-   CONFIG.CONST_WIDTH {8} \
- ] $xlconstant_0
-
   # Create interface connections
   connect_bd_intf_net -intf_net FPGA_Info_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
@@ -684,16 +685,17 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net pcie2AxiMaster_1_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports PS_FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins axiHiSPi_0/s_hispi]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/sys_clk] [get_bd_pins pcie2AxiMaster_0/axim_clk]
+  connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/axi_clk] [get_bd_pins pcie2AxiMaster_0/axim_clk]
   connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/sys_reset_n] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net dmawr2tlp_0_intevent [get_bd_pins dmawr2tlp_0/intevent] [get_bd_pins pcie2AxiMaster_0/irq_event]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/axi_reset_n] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axiHiSPi_0/idelay_clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-  connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
+  connect_bd_net -net xlconstant_1_dout [get_bd_pins Context_strb/dout] [get_bd_pins dmawr2tlp_0/context_strb]
 
   # Create address segments
   create_bd_addr_seg -range 0x00001000 -offset 0x00002000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile

@@ -6,11 +6,7 @@ import scoreboard_pkg::*;
 import axiMaio_pkg::*;
 
 
-class Ctest0001 extends Ctest;
-	static int MAX_PACKET_SIZE_IN_DW = 32;
-	static int MAX_PACKET_COUNT      = 32; // Context list max size
-
-	static int currentPktID = 0;
+class Ctest0000 extends Ctest;
 	static int timeout = 100;
 
 

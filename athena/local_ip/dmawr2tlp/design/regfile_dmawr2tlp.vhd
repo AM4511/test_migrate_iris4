@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
--- File                : dma2tlp.vhd
+-- File                : dmawr2tlp.vhd
 -- Project             : FDK
--- Module              : regfile_dma2tlp_pack
--- Created on          : 2020/04/23 11:30:16
+-- Module              : regfile_dmawr2tlp_pack
+-- Created on          : 2020/04/23 12:39:55
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1D520EF7
+-- Register file CRC32 : 0x7A6095C5
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -14,7 +14,7 @@ library ieee;        -- The standard IEEE library
    use ieee.std_logic_unsigned.all;
 
 
-package regfile_dma2tlp_pack is
+package regfile_dmawr2tlp_pack is
    --------------------------------------------------------------------------------
    -- Address constants
    --------------------------------------------------------------------------------
@@ -333,24 +333,24 @@ package regfile_dma2tlp_pack is
    );
 
    ------------------------------------------------------------------------------------------
-   -- Register file name: regfile_dma2tlp
+   -- Register file name: regfile_dmawr2tlp
    ------------------------------------------------------------------------------------------
-   type REGFILE_DMA2TLP_TYPE is record
+   type REGFILE_DMAWR2TLP_TYPE is record
       info           : INFO_TYPE;
       dma            : DMA_TYPE;
       status         : STATUS_TYPE;
-   end record REGFILE_DMA2TLP_TYPE;
+   end record REGFILE_DMAWR2TLP_TYPE;
 
-   constant INIT_REGFILE_DMA2TLP_TYPE : REGFILE_DMA2TLP_TYPE := (
+   constant INIT_REGFILE_DMAWR2TLP_TYPE : REGFILE_DMAWR2TLP_TYPE := (
       info            => INIT_INFO_TYPE,
       dma             => INIT_DMA_TYPE,
       status          => INIT_STATUS_TYPE
    );
 
    
-end regfile_dma2tlp_pack;
+end regfile_dmawr2tlp_pack;
 
-package body regfile_dma2tlp_pack is
+package body regfile_dmawr2tlp_pack is
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
    -- Description: Cast from INFO_TAG_TYPE to std_logic_vector
@@ -694,14 +694,14 @@ end package body;
 
 
 -------------------------------------------------------------------------------
--- File                : regfile_dma2tlp.vhd
+-- File                : regfile_dmawr2tlp.vhd
 -- Project             : FDK
--- Module              : regfile_dma2tlp
--- Created on          : 2020/04/23 11:30:16
+-- Module              : regfile_dmawr2tlp
+-- Created on          : 2020/04/23 12:39:55
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1D520EF7
+-- Register file CRC32 : 0x7A6095C5
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -711,30 +711,30 @@ library ieee;
 
 -- Work library
 library work;
-   use work.regfile_dma2tlp_pack.all;
+   use work.regfile_dmawr2tlp_pack.all;
 
 
-entity regfile_dma2tlp is
+entity regfile_dmawr2tlp is
    
    port (
-      resetN        : in    std_logic;                                         -- System reset
-      sysclk        : in    std_logic;                                         -- System clock
-      regfile       : inout REGFILE_DMA2TLP_TYPE := INIT_REGFILE_DMA2TLP_TYPE; -- Register file
+      resetN        : in    std_logic;                                             -- System reset
+      sysclk        : in    std_logic;                                             -- System clock
+      regfile       : inout REGFILE_DMAWR2TLP_TYPE := INIT_REGFILE_DMAWR2TLP_TYPE; -- Register file
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
       -- Description: 
       ------------------------------------------------------------------------------------
-      reg_read      : in    std_logic;                                         -- Read
-      reg_write     : in    std_logic;                                         -- Write
-      reg_addr      : in    std_logic_vector(7 downto 2);                      -- Address
-      reg_beN       : in    std_logic_vector(3 downto 0);                      -- Byte enable
-      reg_writedata : in    std_logic_vector(31 downto 0);                     -- Write data
-      reg_readdata  : out   std_logic_vector(31 downto 0)                      -- Read data
+      reg_read      : in    std_logic;                                             -- Read
+      reg_write     : in    std_logic;                                             -- Write
+      reg_addr      : in    std_logic_vector(7 downto 2);                          -- Address
+      reg_beN       : in    std_logic_vector(3 downto 0);                          -- Byte enable
+      reg_writedata : in    std_logic_vector(31 downto 0);                         -- Write data
+      reg_readdata  : out   std_logic_vector(31 downto 0)                          -- Read data
    );
    
-end regfile_dma2tlp;
+end regfile_dmawr2tlp;
 
-architecture rtl of regfile_dma2tlp is
+architecture rtl of regfile_dmawr2tlp is
 ------------------------------------------------------------------------------------------
 -- Signals declaration
 ------------------------------------------------------------------------------------------

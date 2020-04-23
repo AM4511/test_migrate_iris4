@@ -10,7 +10,7 @@ use work.dma_pack.all;
 
 -- Work library
 library work;
-use work.regfile_dma2tlp_pack.all;
+use work.regfile_dmawr2tlp_pack.all;
 
 
 entity dmawr2tlp is
@@ -172,11 +172,11 @@ architecture rtl of dmawr2tlp is
   end component axiSlave2RegFile;
 
 
-  component regfile_dma2tlp is
+  component regfile_dmawr2tlp is
     port (
       resetN        : in    std_logic;  -- System reset
       sysclk        : in    std_logic;  -- System clock
-      regfile       : inout REGFILE_DMA2TLP_TYPE := INIT_REGFILE_DMA2TLP_TYPE;  -- Register file
+      regfile       : inout REGFILE_DMAWR2TLP_TYPE := INIT_REGFILE_DMAWR2TLP_TYPE;  -- Register file
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
       -- Description: 
@@ -188,7 +188,7 @@ architecture rtl of dmawr2tlp is
       reg_writedata : in    std_logic_vector(31 downto 0);  -- Write data
       reg_readdata  : out   std_logic_vector(31 downto 0)   -- Read data
       );
-  end component regfile_dma2tlp;
+  end component regfile_dmawr2tlp;
 
 
   component axi_stream_in is
@@ -316,7 +316,7 @@ architecture rtl of dmawr2tlp is
   signal reg_writedata     : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
   signal reg_readdatavalid : std_logic;
   signal reg_readdata      : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-  signal regfile           : REGFILE_DMA2TLP_TYPE                            := INIT_REGFILE_DMA2TLP_TYPE;
+  signal regfile           : REGFILE_DMAWR2TLP_TYPE                          := INIT_REGFILE_DMAWR2TLP_TYPE;
 
   signal dma_idle                 : std_logic;
   signal dma_pcie_state           : std_logic_vector(2 downto 0);
@@ -396,7 +396,7 @@ begin
   end process;
 
 
-  xregfile_dma2tlp : regfile_dma2tlp
+  xregfile_dmawr2tlp : regfile_dmawr2tlp
     port map(
       resetN        => axi_reset_n,
       sysclk        => axi_clk,
