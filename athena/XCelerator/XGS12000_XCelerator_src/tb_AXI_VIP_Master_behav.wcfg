@@ -11,6 +11,7 @@
             <top_module name="ipif_pkg" />
             <top_module name="pck_crc16_d10" />
             <top_module name="pck_crc16_d12" />
+            <top_module name="regfile_xgs_ctrl_pack" />
             <top_module name="serdes_pack" />
             <top_module name="std" />
             <top_module name="vcomponents" />
@@ -20,22 +21,22 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="126558408333fs"></ZoomStartTime>
-      <ZoomEndTime time="986566395041fs"></ZoomEndTime>
-      <Cursor1Time time="838570441000fs"></Cursor1Time>
+      <ZoomStartTime time="1751852241996fs"></ZoomStartTime>
+      <ZoomEndTime time="1861018351601fs"></ZoomEndTime>
+      <Cursor1Time time="1842824000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="277"></NameColumnWidth>
-      <ValueColumnWidth column_width="115"></ValueColumnWidth>
+      <ValueColumnWidth column_width="93"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="13" />
    <wave_markers>
       <marker time="1900000000000" label="" />
       <marker time="1323797752000" label="" />
-      <marker time="722441616000" label="" />
-      <marker time="1323797752000" label="" />
-      <marker time="204508322000" label="" />
-      <marker time="648622877000" label="" />
+      <marker time="1053880100000" label="" />
+      <marker time="2220000000000" label="" />
+      <marker time="791976000000" label="" />
+      <marker time="5300000000000" label="" />
    </wave_markers>
    <wvobject fp_name="group32" type="group">
       <obj_property name="label">TB_Top</obj_property>
@@ -294,7 +295,6 @@
    <wvobject fp_name="group6771" type="group">
       <obj_property name="label">XGS_MODEL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/G_MODEL_ID" type="array">
          <obj_property name="ElementShortName">G_MODEL_ID[15:0]</obj_property>
          <obj_property name="ObjectShortName">G_MODEL_ID[15:0]</obj_property>
@@ -643,6 +643,10 @@
          <obj_property name="label">XGS_SPI</obj_property>
          <obj_property name="DisplayName">label</obj_property>
          <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/EO_FOT" type="logic">
+            <obj_property name="ElementShortName">EO_FOT</obj_property>
+            <obj_property name="ObjectShortName">EO_FOT</obj_property>
+         </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_spi_i2c_inst/reg_rd_data" type="array">
             <obj_property name="ElementShortName">reg_rd_data[15:0]</obj_property>
             <obj_property name="ObjectShortName">reg_rd_data[15:0]</obj_property>
@@ -711,20 +715,20 @@
          <obj_property name="ObjectShortName">abort_fifo_cmd_done</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sclk_div" type="array">
-         <obj_property name="ElementShortName">sclk_div[1:1]</obj_property>
-         <obj_property name="ObjectShortName">sclk_div[1:1]</obj_property>
+         <obj_property name="ElementShortName">sclk_div[6:0]</obj_property>
+         <obj_property name="ObjectShortName">sclk_div[6:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sclk_div_reset" type="logic">
          <obj_property name="ElementShortName">sclk_div_reset</obj_property>
          <obj_property name="ObjectShortName">sclk_div_reset</obj_property>
       </wvobject>
-      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_currentState" type="array">
-         <obj_property name="ElementShortName">S_currentState[4:0]</obj_property>
-         <obj_property name="ObjectShortName">S_currentState[4:0]</obj_property>
+      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_currentState" type="other">
+         <obj_property name="ElementShortName">S_currentState</obj_property>
+         <obj_property name="ObjectShortName">S_currentState</obj_property>
       </wvobject>
-      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_nextState" type="array">
-         <obj_property name="ElementShortName">S_nextState[4:0]</obj_property>
-         <obj_property name="ObjectShortName">S_nextState[4:0]</obj_property>
+      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_nextState" type="other">
+         <obj_property name="ElementShortName">S_nextState</obj_property>
+         <obj_property name="ObjectShortName">S_nextState</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/scanout" type="logic">
          <obj_property name="ElementShortName">scanout</obj_property>
@@ -791,8 +795,8 @@
          <obj_property name="ObjectShortName">sys_reset</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sensor_reconf_add" type="array">
-         <obj_property name="ElementShortName">sensor_reconf_add[6:1]</obj_property>
-         <obj_property name="ObjectShortName">sensor_reconf_add[6:1]</obj_property>
+         <obj_property name="ElementShortName">sensor_reconf_add[15:0]</obj_property>
+         <obj_property name="ObjectShortName">sensor_reconf_add[15:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sensor_reconf_WF_ss" type="logic">
          <obj_property name="ElementShortName">sensor_reconf_WF_ss</obj_property>
@@ -2297,7 +2301,6 @@
    <wvobject fp_name="group782" type="group">
       <obj_property name="label">DECODER_0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="group6856" type="group">
          <obj_property name="label">FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -5172,25 +5175,14 @@
    <wvobject fp_name="group1241" type="group">
       <obj_property name="label">XGS_CTRL</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Synthetic_DELAI_EXP" type="logic">
-         <obj_property name="ElementShortName">Synthetic_DELAI_EXP</obj_property>
-         <obj_property name="ObjectShortName">Synthetic_DELAI_EXP</obj_property>
-         <obj_property name="CustomSignalColor">#DCDCDC</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
-      <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Synthetic_EXPOSURE" type="logic">
-         <obj_property name="ElementShortName">Synthetic_EXPOSURE</obj_property>
-         <obj_property name="ObjectShortName">Synthetic_EXPOSURE</obj_property>
-         <obj_property name="CustomSignalColor">#DCDCDC</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-      </wvobject>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/reg_read" type="logic">
          <obj_property name="ElementShortName">reg_read</obj_property>
          <obj_property name="ObjectShortName">reg_read</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/reg_addr" type="array">
-         <obj_property name="ElementShortName">reg_addr[7:3]</obj_property>
-         <obj_property name="ObjectShortName">reg_addr[7:3]</obj_property>
+         <obj_property name="ElementShortName">reg_addr[11:2]</obj_property>
+         <obj_property name="ObjectShortName">reg_addr[11:2]</obj_property>
       </wvobject>
       <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/reg_writedata" type="array">
          <obj_property name="ElementShortName">reg_writedata[31:0]</obj_property>
@@ -5207,6 +5199,343 @@
       <wvobject fp_name="group8164" type="group">
          <obj_property name="label">CTRL_TOP</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile" type="array">
+            <obj_property name="ElementShortName">regfile</obj_property>
+            <obj_property name="ObjectShortName">regfile</obj_property>
+            <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.SYSTEM" type="array">
+               <obj_property name="ElementShortName">.SYSTEM</obj_property>
+               <obj_property name="ObjectShortName">.SYSTEM</obj_property>
+            </wvobject>
+            <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ" type="array">
+               <obj_property name="ElementShortName">.ACQ</obj_property>
+               <obj_property name="ObjectShortName">.ACQ</obj_property>
+               <obj_property name="isExpanded"></obj_property>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.GRAB_CTRL" type="array">
+                  <obj_property name="ElementShortName">.GRAB_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.GRAB_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.GRAB_STAT" type="array">
+                  <obj_property name="ElementShortName">.GRAB_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.GRAB_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG1" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG1</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG1</obj_property>
+                  <obj_property name="isExpanded"></obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG_FRAME_LINE" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG_FRAME_LINE</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG_FRAME_LINE</obj_property>
+                  <obj_property name="isExpanded"></obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG2" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG2</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG2</obj_property>
+                  <obj_property name="isExpanded"></obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG3" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG3</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG3</obj_property>
+                  <obj_property name="isExpanded"></obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG4" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG4</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG4</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL1" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL1</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL2" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL2</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL3" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL3</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL3</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.TRIGGER_DELAY" type="array">
+                  <obj_property name="ElementShortName">.TRIGGER_DELAY</obj_property>
+                  <obj_property name="ObjectShortName">.TRIGGER_DELAY</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.STROBE_CTRL1" type="array">
+                  <obj_property name="ElementShortName">.STROBE_CTRL1</obj_property>
+                  <obj_property name="ObjectShortName">.STROBE_CTRL1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.STROBE_CTRL2" type="array">
+                  <obj_property name="ElementShortName">.STROBE_CTRL2</obj_property>
+                  <obj_property name="ObjectShortName">.STROBE_CTRL2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_CTRL" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_ADDATA" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_ADDATA</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_ADDATA</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_STAT" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_CTRL" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_STAT" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_SUBSAMPLING" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_SUBSAMPLING</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_SUBSAMPLING</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_GAIN_ANA" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_GAIN_ANA</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_GAIN_ANA</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI_Y_START" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI_Y_START</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI_Y_START</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI_Y_SIZE" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI_Y_SIZE</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI_Y_SIZE</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI2_Y_START" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI2_Y_START</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI2_Y_START</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI2_Y_SIZE" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI2_Y_SIZE</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI2_Y_SIZE</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_M_LINES" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_M_LINES</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_M_LINES</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_F_LINES" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_F_LINES</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_F_LINES</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_GR" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_GR</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_GR</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_GB" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_GB</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_GB</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_R" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_R</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_R</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_B" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_B</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_B</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_PINS" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_PINS</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_PINS</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.TRIGGER_MISSED" type="array">
+                  <obj_property name="ElementShortName">.TRIGGER_MISSED</obj_property>
+                  <obj_property name="ObjectShortName">.TRIGGER_MISSED</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_FPS" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_FPS</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_FPS</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG" type="array">
+                  <obj_property name="ElementShortName">.DEBUG</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR1" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR1</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR2" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR2</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR3" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR3</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR3</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_FOT" type="array">
+                  <obj_property name="ElementShortName">.EXP_FOT</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_FOT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SFNC" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SFNC</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SFNC</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.GRAB_CTRL" type="array">
+                  <obj_property name="ElementShortName">.GRAB_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.GRAB_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.GRAB_STAT" type="array">
+                  <obj_property name="ElementShortName">.GRAB_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.GRAB_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG1" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG1</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG_FRAME_LINE" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG_FRAME_LINE</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG_FRAME_LINE</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG2" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG2</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG3" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG3</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG3</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.READOUT_CFG4" type="array">
+                  <obj_property name="ElementShortName">.READOUT_CFG4</obj_property>
+                  <obj_property name="ObjectShortName">.READOUT_CFG4</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL1" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL1</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL2" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL2</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_CTRL3" type="array">
+                  <obj_property name="ElementShortName">.EXP_CTRL3</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_CTRL3</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.TRIGGER_DELAY" type="array">
+                  <obj_property name="ElementShortName">.TRIGGER_DELAY</obj_property>
+                  <obj_property name="ObjectShortName">.TRIGGER_DELAY</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.STROBE_CTRL1" type="array">
+                  <obj_property name="ElementShortName">.STROBE_CTRL1</obj_property>
+                  <obj_property name="ObjectShortName">.STROBE_CTRL1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.STROBE_CTRL2" type="array">
+                  <obj_property name="ElementShortName">.STROBE_CTRL2</obj_property>
+                  <obj_property name="ObjectShortName">.STROBE_CTRL2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_CTRL" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_ADDATA" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_ADDATA</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_ADDATA</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SER_STAT" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SER_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SER_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_CTRL" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_CTRL</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_CTRL</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_STAT" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_STAT</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_STAT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_SUBSAMPLING" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_SUBSAMPLING</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_SUBSAMPLING</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_GAIN_ANA" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_GAIN_ANA</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_GAIN_ANA</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI_Y_START" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI_Y_START</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI_Y_START</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI_Y_SIZE" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI_Y_SIZE</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI_Y_SIZE</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI2_Y_START" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI2_Y_START</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI2_Y_START</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_ROI2_Y_SIZE" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_ROI2_Y_SIZE</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_ROI2_Y_SIZE</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_M_LINES" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_M_LINES</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_M_LINES</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_F_LINES" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_F_LINES</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_F_LINES</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_GR" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_GR</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_GR</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_GB" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_GB</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_GB</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_R" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_R</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_R</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_DP_B" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_DP_B</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_DP_B</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_PINS" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_PINS</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_PINS</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.TRIGGER_MISSED" type="array">
+                  <obj_property name="ElementShortName">.TRIGGER_MISSED</obj_property>
+                  <obj_property name="ObjectShortName">.TRIGGER_MISSED</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.SENSOR_FPS" type="array">
+                  <obj_property name="ElementShortName">.SENSOR_FPS</obj_property>
+                  <obj_property name="ObjectShortName">.SENSOR_FPS</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG" type="array">
+                  <obj_property name="ElementShortName">.DEBUG</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR1" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR1</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR1</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR2" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR2</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR2</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.DEBUG_CNTR3" type="array">
+                  <obj_property name="ElementShortName">.DEBUG_CNTR3</obj_property>
+                  <obj_property name="ObjectShortName">.DEBUG_CNTR3</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.EXP_FOT" type="array">
+                  <obj_property name="ElementShortName">.EXP_FOT</obj_property>
+                  <obj_property name="ObjectShortName">.EXP_FOT</obj_property>
+               </wvobject>
+               <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ.ACQ_SFNC" type="array">
+                  <obj_property name="ElementShortName">.ACQ_SFNC</obj_property>
+                  <obj_property name="ObjectShortName">.ACQ_SFNC</obj_property>
+               </wvobject>
+            </wvobject>
+            <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.SYSTEM" type="array">
+               <obj_property name="ElementShortName">.SYSTEM</obj_property>
+               <obj_property name="ObjectShortName">.SYSTEM</obj_property>
+            </wvobject>
+            <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/regfile.ACQ" type="array">
+               <obj_property name="ElementShortName">.ACQ</obj_property>
+               <obj_property name="ObjectShortName">.ACQ</obj_property>
+            </wvobject>
+         </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_power_good" type="logic">
             <obj_property name="ElementShortName">xgs_power_good</obj_property>
             <obj_property name="ObjectShortName">xgs_power_good</obj_property>
@@ -5218,6 +5547,84 @@
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_sclk" type="logic">
             <obj_property name="ElementShortName">xgs_sclk</obj_property>
             <obj_property name="ObjectShortName">xgs_sclk</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Synthetic_EXPOSURE" type="logic">
+            <obj_property name="ElementShortName">Synthetic_EXPOSURE</obj_property>
+            <obj_property name="ObjectShortName">Synthetic_EXPOSURE</obj_property>
+            <obj_property name="CustomSignalColor">#DCDCDC</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cnt" type="logic">
+            <obj_property name="ElementShortName">readout_cnt</obj_property>
+            <obj_property name="ObjectShortName">readout_cnt</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_FOT_p1" type="logic">
+            <obj_property name="ElementShortName">xgs_FOT_p1</obj_property>
+            <obj_property name="ObjectShortName">xgs_FOT_p1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_monitor2_p1" type="logic">
+            <obj_property name="ElementShortName">xgs_monitor2_p1</obj_property>
+            <obj_property name="ObjectShortName">xgs_monitor2_p1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr_FOT" type="logic">
+            <obj_property name="ElementShortName">readout_cntr_FOT</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr_FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr_EO_FOT" type="logic">
+            <obj_property name="ElementShortName">readout_cntr_EO_FOT</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr_EO_FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_EO_FOT" type="logic">
+            <obj_property name="ElementShortName">xgs_EO_FOT</obj_property>
+            <obj_property name="ObjectShortName">xgs_EO_FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr" type="array">
+            <obj_property name="ElementShortName">readout_cntr[28:0]</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr[28:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/EO_FOT" type="logic">
+            <obj_property name="ElementShortName">EO_FOT</obj_property>
+            <obj_property name="ObjectShortName">EO_FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/FOT" type="logic">
+            <obj_property name="ElementShortName">FOT</obj_property>
+            <obj_property name="ObjectShortName">FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cnt" type="logic">
+            <obj_property name="ElementShortName">readout_cnt</obj_property>
+            <obj_property name="ObjectShortName">readout_cnt</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr2" type="array">
+            <obj_property name="ElementShortName">readout_cntr2[28:0]</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr2[28:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr2_armed" type="logic">
+            <obj_property name="ElementShortName">readout_cntr2_armed</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr2_armed</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr2_end" type="logic">
+            <obj_property name="ElementShortName">readout_cntr2_end</obj_property>
+            <obj_property name="ObjectShortName">readout_cntr2_end</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_readout_stateD" type="logic">
+            <obj_property name="ElementShortName">next_readout_stateD</obj_property>
+            <obj_property name="ObjectShortName">next_readout_stateD</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_stateD" type="logic">
+            <obj_property name="ElementShortName">readout_stateD</obj_property>
+            <obj_property name="ObjectShortName">readout_stateD</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout" type="logic">
+            <obj_property name="ElementShortName">readout</obj_property>
+            <obj_property name="ObjectShortName">readout</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/SO_FOT" type="logic">
+            <obj_property name="ElementShortName">SO_FOT</obj_property>
+            <obj_property name="ObjectShortName">SO_FOT</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/xgs_FOT" type="logic">
+            <obj_property name="ElementShortName">xgs_FOT</obj_property>
+            <obj_property name="ObjectShortName">xgs_FOT</obj_property>
          </wvobject>
          <wvobject fp_name="group3113" type="group">
             <obj_property name="label">TRIGGER_INT_KEEP-OUT ZONE</obj_property>
@@ -5335,13 +5742,13 @@
                <obj_property name="ObjectShortName">M_AXIS_VIDEO_TDEST[0:0]</obj_property>
             </wvobject>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/curr_grab_mngr_state" type="array">
-            <obj_property name="ElementShortName">curr_grab_mngr_state[3:0]</obj_property>
-            <obj_property name="ObjectShortName">curr_grab_mngr_state[3:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/curr_grab_mngr_state" type="other">
+            <obj_property name="ElementShortName">curr_grab_mngr_state</obj_property>
+            <obj_property name="ObjectShortName">curr_grab_mngr_state</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/curr_trig_mngr_state" type="array">
-            <obj_property name="ElementShortName">curr_trig_mngr_state[3:0]</obj_property>
-            <obj_property name="ObjectShortName">curr_trig_mngr_state[3:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/curr_trig_mngr_state" type="other">
+            <obj_property name="ElementShortName">curr_trig_mngr_state</obj_property>
+            <obj_property name="ObjectShortName">curr_trig_mngr_state</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cnt" type="logic">
             <obj_property name="ElementShortName">readout_cnt</obj_property>
@@ -5369,12 +5776,6 @@
             <obj_property name="ElementShortName">EFOT</obj_property>
             <obj_property name="ObjectShortName">EFOT</obj_property>
             <obj_property name="CustomSignalColor">#FF00FF</obj_property>
-            <obj_property name="UseCustomSignalColor">true</obj_property>
-         </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/readout_cntr2_armed" type="logic">
-            <obj_property name="ElementShortName">readout_cntr2_armed</obj_property>
-            <obj_property name="ObjectShortName">readout_cntr2_armed</obj_property>
-            <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
             <obj_property name="UseCustomSignalColor">true</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/XGS_MODEL/xgs_hispi_0_inst/dataline_valid" type="logic">
@@ -5448,8 +5849,8 @@
             <obj_property name="DisplayName">label</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_grab_mngr_stat" type="array">
-            <obj_property name="ElementShortName">next_grab_mngr_stat[2:0]</obj_property>
-            <obj_property name="ObjectShortName">next_grab_mngr_stat[2:0]</obj_property>
+            <obj_property name="ElementShortName">next_grab_mngr_stat[3:0]</obj_property>
+            <obj_property name="ObjectShortName">next_grab_mngr_stat[3:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_timer_mngr_stat" type="array">
             <obj_property name="ElementShortName">next_timer_mngr_stat[2:0]</obj_property>
@@ -5519,13 +5920,13 @@
             <obj_property name="ElementShortName">grab_mngr_sensor_reconf</obj_property>
             <obj_property name="ObjectShortName">grab_mngr_sensor_reconf</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_trig_mngr_state" type="array">
-            <obj_property name="ElementShortName">next_trig_mngr_state[2:0]</obj_property>
-            <obj_property name="ObjectShortName">next_trig_mngr_state[2:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_trig_mngr_state" type="other">
+            <obj_property name="ElementShortName">next_trig_mngr_state</obj_property>
+            <obj_property name="ObjectShortName">next_trig_mngr_state</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_timer_mngr_state" type="array">
-            <obj_property name="ElementShortName">next_timer_mngr_state[2:0]</obj_property>
-            <obj_property name="ObjectShortName">next_timer_mngr_state[2:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_timer_mngr_state" type="other">
+            <obj_property name="ElementShortName">next_timer_mngr_state</obj_property>
+            <obj_property name="ObjectShortName">next_timer_mngr_state</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/timer_exposure_end" type="logic">
             <obj_property name="ElementShortName">timer_exposure_end</obj_property>
@@ -5539,17 +5940,9 @@
             <obj_property name="ElementShortName">next_FOT</obj_property>
             <obj_property name="ObjectShortName">next_FOT</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_EO_FOT" type="logic">
-            <obj_property name="ElementShortName">next_EO_FOT</obj_property>
-            <obj_property name="ObjectShortName">next_EO_FOT</obj_property>
-         </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/exposure_outpin" type="logic">
             <obj_property name="ElementShortName">exposure_outpin</obj_property>
             <obj_property name="ObjectShortName">exposure_outpin</obj_property>
-         </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/exposure_reg" type="logic">
-            <obj_property name="ElementShortName">exposure_reg</obj_property>
-            <obj_property name="ObjectShortName">exposure_reg</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/trig_rdy_outpin" type="logic">
             <obj_property name="ElementShortName">trig_rdy_outpin</obj_property>
@@ -5607,9 +6000,9 @@
             <obj_property name="ElementShortName">fps_cntr_ld</obj_property>
             <obj_property name="ObjectShortName">fps_cntr_ld</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_grab_abort_state" type="array">
-            <obj_property name="ElementShortName">next_grab_abort_state[2:0]</obj_property>
-            <obj_property name="ObjectShortName">next_grab_abort_state[2:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/next_grab_abort_state" type="other">
+            <obj_property name="ElementShortName">next_grab_abort_state</obj_property>
+            <obj_property name="ObjectShortName">next_grab_abort_state</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/abort_grab_cmd" type="logic">
             <obj_property name="ElementShortName">abort_grab_cmd</obj_property>
@@ -5636,12 +6029,65 @@
             <obj_property name="ObjectShortName">next_abort_done</obj_property>
          </wvobject>
       </wvobject>
+      <wvobject fp_name="group15606" type="group">
+         <obj_property name="label">IF_CTRL_2DATA</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/abort_readout_datapath" type="logic">
+            <obj_property name="ElementShortName">abort_readout_datapath</obj_property>
+            <obj_property name="ObjectShortName">abort_readout_datapath</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/dma_idle" type="logic">
+            <obj_property name="ElementShortName">dma_idle</obj_property>
+            <obj_property name="ObjectShortName">dma_idle</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/strobe_DMA_P1" type="logic">
+            <obj_property name="ElementShortName">strobe_DMA_P1</obj_property>
+            <obj_property name="ObjectShortName">strobe_DMA_P1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/strobe_DMA_P2" type="logic">
+            <obj_property name="ElementShortName">strobe_DMA_P2</obj_property>
+            <obj_property name="ObjectShortName">strobe_DMA_P2</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_GRAB_ROI2_EN" type="logic">
+            <obj_property name="ElementShortName">curr_db_GRAB_ROI2_EN</obj_property>
+            <obj_property name="ObjectShortName">curr_db_GRAB_ROI2_EN</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_y_start_ROI1" type="array">
+            <obj_property name="ElementShortName">curr_db_y_start_ROI1[11:0]</obj_property>
+            <obj_property name="ObjectShortName">curr_db_y_start_ROI1[11:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_nblines_ROI1" type="array">
+            <obj_property name="ElementShortName">curr_db_nblines_ROI1[11:0]</obj_property>
+            <obj_property name="ObjectShortName">curr_db_nblines_ROI1[11:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_y_start_ROI2" type="array">
+            <obj_property name="ElementShortName">curr_db_y_start_ROI2[11:0]</obj_property>
+            <obj_property name="ObjectShortName">curr_db_y_start_ROI2[11:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_nblines_ROI2" type="array">
+            <obj_property name="ElementShortName">curr_db_nblines_ROI2[11:0]</obj_property>
+            <obj_property name="ObjectShortName">curr_db_nblines_ROI2[11:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_subsampling_X" type="logic">
+            <obj_property name="ElementShortName">curr_db_subsampling_X</obj_property>
+            <obj_property name="ObjectShortName">curr_db_subsampling_X</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_subsampling_Y" type="logic">
+            <obj_property name="ElementShortName">curr_db_subsampling_Y</obj_property>
+            <obj_property name="ObjectShortName">curr_db_subsampling_Y</obj_property>
+         </wvobject>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/curr_db_BUFFER_ID" type="logic">
+            <obj_property name="ElementShortName">curr_db_BUFFER_ID</obj_property>
+            <obj_property name="ObjectShortName">curr_db_BUFFER_ID</obj_property>
+         </wvobject>
+      </wvobject>
       <wvobject fp_name="group1284" type="group">
          <obj_property name="label">CTRL_SPI</obj_property>
          <obj_property name="DisplayName">label</obj_property>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sclk_div" type="array">
-            <obj_property name="ElementShortName">sclk_div[1:1]</obj_property>
-            <obj_property name="ObjectShortName">sclk_div[1:1]</obj_property>
+            <obj_property name="ElementShortName">sclk_div[6:0]</obj_property>
+            <obj_property name="ObjectShortName">sclk_div[6:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sclk_div_reset" type="logic">
             <obj_property name="ElementShortName">sclk_div_reset</obj_property>
@@ -5659,13 +6105,13 @@
             <obj_property name="ElementShortName">abort_fifo_cmd_done</obj_property>
             <obj_property name="ObjectShortName">abort_fifo_cmd_done</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_currentState" type="array">
-            <obj_property name="ElementShortName">S_currentState[4:0]</obj_property>
-            <obj_property name="ObjectShortName">S_currentState[4:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_currentState" type="other">
+            <obj_property name="ElementShortName">S_currentState</obj_property>
+            <obj_property name="ObjectShortName">S_currentState</obj_property>
          </wvobject>
-         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_nextState" type="array">
-            <obj_property name="ElementShortName">S_nextState[4:0]</obj_property>
-            <obj_property name="ObjectShortName">S_nextState[4:0]</obj_property>
+         <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/S_nextState" type="other">
+            <obj_property name="ElementShortName">S_nextState</obj_property>
+            <obj_property name="ObjectShortName">S_nextState</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/scanout" type="logic">
             <obj_property name="ElementShortName">scanout</obj_property>
@@ -5732,8 +6178,8 @@
             <obj_property name="ObjectShortName">sys_reset</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sensor_reconf_add" type="array">
-            <obj_property name="ElementShortName">sensor_reconf_add[6:1]</obj_property>
-            <obj_property name="ObjectShortName">sensor_reconf_add[6:1]</obj_property>
+            <obj_property name="ElementShortName">sensor_reconf_add[15:0]</obj_property>
+            <obj_property name="ObjectShortName">sensor_reconf_add[15:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/TB_xgs12m_receiver/DUT/xgs12m_receiver_i/axiXGS_controller_0/U0/Inst_xgs_ctrl/Xxgs_spi/sensor_reconf_WF_ss" type="logic">
             <obj_property name="ElementShortName">sensor_reconf_WF_ss</obj_property>

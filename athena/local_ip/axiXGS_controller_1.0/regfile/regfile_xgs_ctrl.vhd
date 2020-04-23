@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl_pack
--- Created on          : 2020/04/14 11:38:45
+-- Created on          : 2020/04/21 14:33:46
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x1E8C251E
+-- Register file CRC32 : 0x4BE916FE
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -182,18 +182,14 @@ package regfile_xgs_ctrl_pack is
    -- Register Name: READOUT_CFG1
    ------------------------------------------------------------------------------------------
    type ACQ_READOUT_CFG1_TYPE is record
-      GRAB_REVX_OVER_RST: std_logic;
-      GRAB_REVX_OVER : std_logic;
-      GRAB_REVX      : std_logic;
-      ROT_LENGTH     : std_logic_vector(9 downto 0);
+      FOT_LENGTH_LINE: std_logic_vector(4 downto 0);
+      EO_FOT_SEL     : std_logic;
       FOT_LENGTH     : std_logic_vector(15 downto 0);
    end record ACQ_READOUT_CFG1_TYPE;
 
    constant INIT_ACQ_READOUT_CFG1_TYPE : ACQ_READOUT_CFG1_TYPE := (
-      GRAB_REVX_OVER_RST => 'Z',
-      GRAB_REVX_OVER  => 'Z',
-      GRAB_REVX       => 'Z',
-      ROT_LENGTH      => (others=> 'Z'),
+      FOT_LENGTH_LINE => (others=> 'Z'),
+      EO_FOT_SEL      => 'Z',
       FOT_LENGTH      => (others=> 'Z')
    );
 
@@ -1126,10 +1122,8 @@ package body regfile_xgs_ctrl_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(30) := reg.GRAB_REVX_OVER_RST;
-      output(29) := reg.GRAB_REVX_OVER;
-      output(28) := reg.GRAB_REVX;
-      output(25 downto 16) := reg.ROT_LENGTH;
+      output(28 downto 24) := reg.FOT_LENGTH_LINE;
+      output(16) := reg.EO_FOT_SEL;
       output(15 downto 0) := reg.FOT_LENGTH;
       return output;
    end to_std_logic_vector;
@@ -1141,10 +1135,8 @@ package body regfile_xgs_ctrl_pack is
    function to_ACQ_READOUT_CFG1_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG1_TYPE is
    variable output : ACQ_READOUT_CFG1_TYPE;
    begin
-      output.GRAB_REVX_OVER_RST := stdlv(30);
-      output.GRAB_REVX_OVER := stdlv(29);
-      output.GRAB_REVX := stdlv(28);
-      output.ROT_LENGTH := stdlv(25 downto 16);
+      output.FOT_LENGTH_LINE := stdlv(28 downto 24);
+      output.EO_FOT_SEL := stdlv(16);
       output.FOT_LENGTH := stdlv(15 downto 0);
       return output;
    end to_ACQ_READOUT_CFG1_TYPE;
@@ -2095,11 +2087,11 @@ end package body;
 -- File                : regfile_xgs_ctrl.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_ctrl
--- Created on          : 2020/04/14 11:38:45
+-- Created on          : 2020/04/21 14:33:46
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x1E8C251E
+-- Register file CRC32 : 0x4BE916FE
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -2194,8 +2186,9 @@ signal field_rw_ACQ_GRAB_CTRL_TRIGGER_SRC                   : std_logic_vector(2
 signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_SS                 : std_logic;                                       -- Field: GRAB_SS
 signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                     : std_logic;                                       -- Field: BUFFER_ID
 signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                : std_logic;                                       -- Field: GRAB_CMD
-signal field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST   : std_logic;                                       -- Field: GRAB_REVX_OVER_RST
-signal field_rw_ACQ_READOUT_CFG1_GRAB_REVX                  : std_logic;                                       -- Field: GRAB_REVX
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE            : std_logic_vector(4 downto 0);                    -- Field: FOT_LENGTH_LINE
+signal field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL                 : std_logic;                                       -- Field: EO_FOT_SEL
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                 : std_logic_vector(15 downto 0);                   -- Field: FOT_LENGTH
 signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES      : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
 signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA          : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
 signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                  : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
@@ -3018,77 +3011,80 @@ rb_ACQ_GRAB_STAT(0) <= regfile.ACQ.GRAB_STAT.GRAB_IDLE;
 wEn(4) <= (hit(4)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_REVX_OVER_RST
--- Field type: WAUTOCLR
-------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG1(30) <= '0';
-regfile.ACQ.READOUT_CFG1.GRAB_REVX_OVER_RST <= field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST
-------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST <= '0';
-      else
-         if(wEn(4) = '1' and bitEnN(30) = '0') then
-            field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST <= reg_writedata(30);
-         else
-            field_wautoclr_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST <= '0';
-         end if;
-      end if;
-   end if;
-end process P_ACQ_READOUT_CFG1_GRAB_REVX_OVER_RST;
-
-------------------------------------------------------------------------------------------
--- Field name: GRAB_REVX_OVER
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG1(29) <= regfile.ACQ.READOUT_CFG1.GRAB_REVX_OVER;
-
-
-------------------------------------------------------------------------------------------
--- Field name: GRAB_REVX
+-- Field name: FOT_LENGTH_LINE(28 downto 24)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG1(28) <= field_rw_ACQ_READOUT_CFG1_GRAB_REVX;
-regfile.ACQ.READOUT_CFG1.GRAB_REVX <= field_rw_ACQ_READOUT_CFG1_GRAB_REVX;
+rb_ACQ_READOUT_CFG1(28 downto 24) <= field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE(4 downto 0);
+regfile.ACQ.READOUT_CFG1.FOT_LENGTH_LINE <= field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE(4 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG1_GRAB_REVX
+-- Process: P_ACQ_READOUT_CFG1_FOT_LENGTH_LINE
 ------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG1_GRAB_REVX : process(sysclk)
+P_ACQ_READOUT_CFG1_FOT_LENGTH_LINE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG1_GRAB_REVX <= '0';
+         field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE <= std_logic_vector(to_unsigned(integer(0),5));
       else
-         if(wEn(4) = '1' and bitEnN(28) = '0') then
-            field_rw_ACQ_READOUT_CFG1_GRAB_REVX <= reg_writedata(28);
+         for j in  28 downto 24  loop
+            if(wEn(4) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE(j-24) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_READOUT_CFG1_FOT_LENGTH_LINE;
+
+------------------------------------------------------------------------------------------
+-- Field name: EO_FOT_SEL
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_READOUT_CFG1(16) <= field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL;
+regfile.ACQ.READOUT_CFG1.EO_FOT_SEL <= field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_READOUT_CFG1_EO_FOT_SEL
+------------------------------------------------------------------------------------------
+P_ACQ_READOUT_CFG1_EO_FOT_SEL : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL <= '0';
+      else
+         if(wEn(4) = '1' and bitEnN(16) = '0') then
+            field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL <= reg_writedata(16);
          end if;
       end if;
    end if;
-end process P_ACQ_READOUT_CFG1_GRAB_REVX;
+end process P_ACQ_READOUT_CFG1_EO_FOT_SEL;
 
 ------------------------------------------------------------------------------------------
--- Field name: ROT_LENGTH
--- Field type: STATIC
+-- Field name: FOT_LENGTH(15 downto 0)
+-- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG1(25 downto 16) <= std_logic_vector(to_unsigned(integer(0),10));
-regfile.ACQ.READOUT_CFG1.ROT_LENGTH <= rb_ACQ_READOUT_CFG1(25 downto 16);
+rb_ACQ_READOUT_CFG1(15 downto 0) <= field_rw_ACQ_READOUT_CFG1_FOT_LENGTH(15 downto 0);
+regfile.ACQ.READOUT_CFG1.FOT_LENGTH <= field_rw_ACQ_READOUT_CFG1_FOT_LENGTH(15 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Field name: FOT_LENGTH
--- Field type: STATIC
+-- Process: P_ACQ_READOUT_CFG1_FOT_LENGTH
 ------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG1(15 downto 0) <= std_logic_vector(to_unsigned(integer(0),16));
-regfile.ACQ.READOUT_CFG1.FOT_LENGTH <= rb_ACQ_READOUT_CFG1(15 downto 0);
-
+P_ACQ_READOUT_CFG1_FOT_LENGTH : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_READOUT_CFG1_FOT_LENGTH <= std_logic_vector(to_unsigned(integer(0),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(4) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_READOUT_CFG1_FOT_LENGTH(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_READOUT_CFG1_FOT_LENGTH;
 
 
 

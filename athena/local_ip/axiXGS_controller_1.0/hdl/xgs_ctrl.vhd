@@ -89,28 +89,31 @@ entity xgs_ctrl is
            
            ---------------------------------------------------------------------------
            --   signals
-           ---------------------------------------------------------------------------
-           DEC_EOF_sys                     : in  std_logic;
-           
-           abort_readout_datapath          : out std_logic;
+           ---------------------------------------------------------------------------          
            --start_calibration               : out std_logic;
+
+           abort_readout_datapath          : out std_logic;
            dma_idle                        : in  std_logic;
 
+           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers  
+           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers 
+           
            curr_db_GRAB_ROI2_EN            : out std_logic;
-           curr_db_nblines_ROI1            : out std_logic_vector;
-           curr_db_nblines_ROI2            : out std_logic_vector;
+                      
+           curr_db_y_start_ROI1            : out std_logic_vector;     -- 1-base
+           curr_db_nblines_ROI1            : out std_logic_vector;     -- 1-base  
 
+           curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
+           curr_db_nblines_ROI2            : out std_logic_vector;     -- 1-base
+             
            curr_db_subsampling_X           : out std_logic;
            curr_db_subsampling_Y           : out std_logic;
-           
-           curr_db_y_start                 : out std_logic_vector;
-           curr_db_y_end                   : out std_logic_vector;
-           
-           --curr_db_CSC_32                  : out std_logic_vector;
-           --curr_db_DMA_PARAMETER           : out ALIAS_DMA_TYPE;
+                           
            curr_db_BUFFER_ID               : out std_logic;
-           --curr_db_reverse_y               : out std_logic;
-       
+
+           ---------------------------------------------------------------------------
+           --  RegFile
+           ---------------------------------------------------------------------------         
            regfile                         : inout REGFILE_XGS_CTRL_TYPE-- := INIT_REGFILE_TYPE
 
         );
@@ -178,6 +181,25 @@ architecture functional of xgs_ctrl is
   ------------------------------------------
   --  SIGNALS DECLARATION
   ------------------------------------------
+
+  -----------------------------------------------------------------------------
+  -- Function making a OR of a group of signals
+  -----------------------------------------------------------------------------
+  function OrN (arg: std_logic_vector) return std_logic is
+    variable result : std_logic;
+  begin
+    result := '0';
+
+    for i in arg'range loop
+      result := result or arg(i);
+    end loop;
+
+    return result;
+  end OrN;
+
+
+
+
 
   attribute ASYNC_REG       : string;
   attribute mark_debug      : string;
@@ -250,7 +272,7 @@ architecture functional of xgs_ctrl is
 
   signal  curr_CSC_32            : std_logic_vector(31 downto 0):= (others=>'0');
   signal  curr_BUFFER_ID         : std_logic; -- hardcode a un seul bit a cause du register file. Si jamais le register file est etendu, ca ne va pas compiler
-  signal  curr_db_BUFFER_ID_int  : std_logic;
+  --signal  curr_db_BUFFER_ID_int  : std_logic;
   --signal  curr_DMA_PARAMETER     : ALIAS_DMA_TYPE;
   
   signal  curr_y_start           : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
@@ -329,7 +351,10 @@ architecture functional of xgs_ctrl is
   signal  exposure_cntr          : std_logic_vector(REGFILE.ACQ.EXP_CTRL1.EXPOSURE_SS'range);
   signal  readout_cnt            : std_logic;
   signal  readout_cntr           : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range); 
-
+  signal  readout_cntr_FOT       : std_logic:= '0'; -- generation du EO_FOT a l'interne
+  signal  readout_cntr_EO_FOT    : std_logic:= '0'; -- generation du EO_FOT a l'interne
+  
+  
   signal  readout_cntr2          : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
   signal  readout_cntr2_armed    : std_logic;
   signal  readout_cntr2_end      : std_logic;
@@ -521,10 +546,14 @@ signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0);
 
 -- Pour le board de developpement, on n'a aps les signaux monitor
 signal Synthetic_EXPOSURE : std_logic :='0';
-signal Synthetic_FOT      : std_logic :='0'; 
 signal Synthetic_DELAI_EXP: std_logic :='0'; 
 signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
 
+signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
+signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
+
+
+signal debug_ctrl16_int : std_logic_vector(debug_ctrl16'range);
 
 BEGIN
 
@@ -862,6 +891,24 @@ BEGIN
       --  Those are Readout parameters GRAB
       ------------------------------------------------------------------------
       if (acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" ) then
+        strobe_DMA_P1_vector(0) <= '1';
+      else
+        strobe_DMA_P1_vector(0) <= '0';
+      end if;  
+      
+      if(EO_FOT='1') then
+        strobe_DMA_P2_vector(0) <= '1';
+      else
+        strobe_DMA_P2_vector(0) <= '0';
+      end if; 
+      
+      strobe_DMA_P1_vector(strobe_DMA_P1_vector'high downto 1) <= strobe_DMA_P1_vector(strobe_DMA_P1_vector'high -1 downto 0);
+      strobe_DMA_P1                                            <= orN(strobe_DMA_P1_vector);
+      strobe_DMA_P2_vector(strobe_DMA_P2_vector'high downto 1) <= strobe_DMA_P2_vector(strobe_DMA_P2_vector'high -1 downto 0);
+      strobe_DMA_P2                                            <= orN(strobe_DMA_P2_vector);
+      
+      
+      if (acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" ) then
               
         curr_y_start               <= REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
         curr_y_size                <= REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE   & "00";
@@ -871,21 +918,20 @@ BEGIN
 
         curr_GRAB_ROI2_EN          <= REGFILE.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
 
-        --curr_reverse_y             <= REGFILE.DMA.GRAB_CSC.reverse_y;
         curr_subsampling_X         <= REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;
         curr_subsampling_Y         <= REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y;
-
       end if;
-
+     
+      
       if(EO_FOT='1') then
-        curr_db_y_start            <= curr_y_start;                 --Only used in Bayer
-        curr_db_y_end              <= curr_y_start + curr_y_size;
+        curr_db_y_start_ROI1       <= curr_y_start;                 --Only used in Bayer
         curr_db_nblines_ROI1       <= curr_y_size;
+
+        curr_db_y_start_ROI2       <= curr_y_start_ROI2;
         curr_db_nblines_ROI2       <= curr_y_size_ROI2;
         
         curr_db_GRAB_ROI2_EN       <= curr_GRAB_ROI2_EN;
         
-        --curr_db_reverse_y          <= curr_reverse_y;
         curr_db_subsampling_X      <= curr_subsampling_X;
         curr_db_subsampling_Y      <= curr_subsampling_Y;
       end if;
@@ -902,34 +948,16 @@ BEGIN
 --    --variable reg : ALIAS_DMA_GRAB_CSC_TYPE;
   begin  
     if (sys_clk'event and sys_clk = '1') then
---      ------------------------------------------------------------------------
---      --  Those are Readout parameters DMA
---      ------------------------------------------------------------------------
+      ------------------------------------------------------------------------
+      --  Those are Readout parameters DMA
+      ------------------------------------------------------------------------
       if(acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" ) then     
---
---        --Pour la synthese je ne dois pas referer aucun autre fpga(ANPUT)
---        curr_CSC_32(26 DOWNTO 24)                            <= COLOR_SPACE;
---        curr_CSC_32(16)                                      <= MONO10;
---        curr_CSC_32(9)                                       <= REVERSE_Y;
---        curr_CSC_32(8)                                       <= GRAB_REVX;
---      
---        -- -- ce qui serait sympa ici, ca serait d'utiliser la fonction provenant du register file au lieu de hardcode le mapping a 2 places independantes.
---        -- -- voyons si on peut referencer la fonction:
---        -- --function to_std_logic_vector(reg : DMA_GRAB_CSC_TYPE) return std_logic_vector;
---        -- -- du register file sans tout casser...
--- 
---        curr_DMA_PARAMETER <= regfile_dma_parameters;  -- tous les parametres plus haut en un seul signal
---        
---        -- a ce moment-ci nous sauvons les parametres du DMA. Dans Nexis3, nous sauvons le buffer ID pour le renvoyer a l'autre FPGA
+        -- a ce moment-ci nous sauvons les parametres du DMA. Dans Nexis3, nous sauvons le buffer ID pour le renvoyer a l'autre FPGA
         curr_BUFFER_ID  <= REGFILE.ACQ.GRAB_CTRL.BUFFER_ID;
---               
       end if;
---
+
       if(EO_FOT='1') then
---        curr_db_CSC_32             <= curr_CSC_32;
---        curr_db_DMA_PARAMETER      <= curr_DMA_PARAMETER; -- tout les signaux plus haut, en un seul signal
         curr_db_BUFFER_ID          <= curr_BUFFER_ID;
-        curr_db_BUFFER_ID_int      <= curr_BUFFER_ID;
       end if;
       
     end if;
@@ -1244,7 +1272,7 @@ BEGIN
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est  <= (others=>'0');
-      elsif(DEC_EOF_sys='1') then
+      elsif(readout_cntr2_end='1' ) then
         fast_fps_est  <= (others=>'0');
       elsif(fast_fps_est=X"FFFFFFF") then
         fast_fps_est  <= fast_fps_est;
@@ -1254,7 +1282,7 @@ BEGIN
     
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est_DB  <= (others=>'0');
-      elsif(DEC_EOF_sys='1') then
+      elsif(readout_cntr2_end='1' ) then
         fast_fps_est_DB  <= fast_fps_est;
       end if;
     end if;    
@@ -1778,16 +1806,18 @@ BEGIN
         xgs_FOT_p1       <= '0';
         xgs_EO_FOT       <= '0';
       else
-        xgs_monitor1_p1  <= xgs_monitor1;
-        
-        if(G_KU706=0) then
-          xgs_FOT        <= xgs_monitor1_p1;
-        else
-          xgs_FOT        <= Synthetic_FOT;
-        end if;
+        xgs_monitor1_p1  <= xgs_monitor1;       
+        xgs_FOT          <= xgs_monitor1_p1;
         
         xgs_FOT_p1       <= xgs_FOT;
         xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
+        
+        if(REGFILE.ACQ.READOUT_CFG1.EO_FOT_SEL='0')then 
+          xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
+        else  
+          xgs_EO_FOT       <= readout_cntr_EO_FOT;
+        end if;  
+        
       end if;
    
       if(sys_reset_n='0') then
@@ -1821,18 +1851,42 @@ BEGIN
   xgs_monitor0_sysclk <=  xgs_exposure;
   xgs_monitor1_sysclk <=  xgs_FOT;
 
-  -- Readout
+  -- Readout_cntr : ce compteur arrete de compter lorsqu'un exposure durant le readout commence (compteur actif seulement ds states: readout et wait_pet)
   process(sys_clk)
   begin
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
         readout_cntr <= (others=> '0');
-      elsif(EO_FOT = '1') then
-        readout_cntr <= curr_readout_length;
-      elsif(readout_cnt = '1') then
-        readout_cntr <= readout_cntr - '1';
+      elsif(REGFILE.ACQ.READOUT_CFG1.EO_FOT_SEL='0') then
+        readout_cntr_FOT    <= '0'; 
+        readout_cntr_EO_FOT <= '0'; 
+        if(EO_FOT = '1') then
+          readout_cntr <= curr_readout_length;
+        elsif(readout_cnt = '1') then
+          readout_cntr <= readout_cntr - '1';
+        end if;
+      else
+        --ce code test permet de s'isoler de l'incertitude sur FOT 
+        if(xgs_FOT='1' and xgs_FOT_p1 <='0') then                           --SO_FOT
+          readout_cntr        <= '0' & X"000" & REGFILE.ACQ.READOUT_CFG1.FOT_LENGTH;
+          readout_cntr_FOT    <= '1';
+          readout_cntr_EO_FOT <= '0';
+        elsif(readout_cntr_FOT='1' and readout_cntr= ('0' & X"0000000") ) then    -- signal internal EO_FOT
+          readout_cntr        <= curr_readout_length;
+          readout_cntr_FOT    <= '0';
+          readout_cntr_EO_FOT <= '1';
+        elsif(readout_cntr_EO_FOT='1') then                                       -- unsignal internal EO_FOT 
+          readout_cntr        <= curr_readout_length;  
+          readout_cntr_FOT    <= '0';    
+          readout_cntr_EO_FOT <= '0';              
+        elsif(readout_cnt = '1' or readout_cntr_FOT='1') then                     -- Count  
+          readout_cntr        <= readout_cntr - '1';  
+          readout_cntr_FOT    <= readout_cntr_FOT; 
+          readout_cntr_EO_FOT <= '0';    
+        end if;  
       end if;
-      
+ 
+
       --Pour pallier au manque du signal EOF du datapath
       if(sys_reset_n='0') then
         readout_cntr2        <= (others=> '0');
@@ -1957,7 +2011,10 @@ BEGIN
   
   xgs_trig_rd       <= '0'; --XGS pour le moment on ne fait rien avec le readout sequencer! 
   
-  exposure_out      <= exposure_outpin;
+  -- Pour valider la longueur du readout du FPGA temporairement on change ce signal :
+  exposure_out <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
+  --exposure_out      <= exposure_outpin;
+  
   strobe_out        <= strobe_outpin;
   trig_rdy_out      <= trig_rdy_outpin;
   
@@ -1991,25 +2048,25 @@ BEGIN
   -- DEBUG PINS
   --
   -------------------------------------------------------------------------------
-  debug_ctrl16(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
-  debug_ctrl16(2)  <=  grab_mngr_trig_rdy;
-  debug_ctrl16(3)  <=  curr_BUFFER_ID;              --(ext_trig_p1 and ext_trig_p2 and ext_trig_p3) or (REGFILE.ACQ.GRAB_CTRL.GRAB_SS) ;
-  debug_ctrl16(4)  <=  curr_db_BUFFER_ID_int;
-  debug_ctrl16(5)  <=  hw_trig;                     --hw_trig_miss or sw_trig_miss;
-  debug_ctrl16(6)  <=  curr_trig0;
-  debug_ctrl16(7)  <=  strobe;
-  debug_ctrl16(8)  <=  FOT;
-  debug_ctrl16(9)  <=  readout;
-  debug_ctrl16(10) <=  readout_stateD;
-  debug_ctrl16(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
-  debug_ctrl16(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
-  debug_ctrl16(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
-  debug_ctrl16(14) <=  grab_pending;
-  debug_ctrl16(15) <=  grab_active;
+  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
+  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
+  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
+  debug_ctrl16_int(5)  <=  curr_trig0;
+  debug_ctrl16_int(6)  <=  strobe;
+  debug_ctrl16_int(7)  <=  FOT;
+  debug_ctrl16_int(8)  <=  readout;
+  debug_ctrl16_int(9)  <=  readout_stateD;
+  debug_ctrl16_int(10) <=  readout_cntr2_armed;
+  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+  debug_ctrl16_int(14) <=  grab_pending;
+  debug_ctrl16_int(15) <=  grab_active;
 
-
-
+  
+  debug_ctrl16 <= debug_ctrl16_int;
 
 
 
@@ -2270,7 +2327,7 @@ BEGIN
   
   ------------------------------------------------------------
   -- For XGS we will calculate the readout length internally
-  ------------------------------------------------------------    
+  ------------------------------------------------------------
   process(sys_clk)
   begin
     if(rising_edge(sys_clk)) then
@@ -2318,45 +2375,36 @@ BEGIN
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
         Synthetic_EXPOSURE <='0';
-        Synthetic_FOT      <='0'; 
         Synthetic_DELAI_EXP<='0';
         Synthetic_cntr     <=(others=>'0');
-      elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GFENERATE EXPOSURE
+      elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GENERATE EXPOSURE
         Synthetic_EXPOSURE <='0';
-        Synthetic_FOT      <='0';
         Synthetic_DELAI_EXP<='1';    
         Synthetic_cntr     <=(others=>'0');    
       elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
         Synthetic_EXPOSURE <='1';
-        Synthetic_FOT      <='1'; 
         Synthetic_DELAI_EXP<='0'; 
         Synthetic_cntr     <=(others=>'0');
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Delay one line Start Of Exposure  12M @ 6 LANES  
+      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Start of exposure Delay one line Start Of Exposure  12M @ 6 LANES  
            (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
         Synthetic_EXPOSURE <='1';
-        Synthetic_FOT      <='0';
         Synthetic_DELAI_EXP<='0'; 
         Synthetic_cntr     <= (others=>'0');                     
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  END of EXP during FOT 12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"029e" ) then
+      elsif(G_SYS_CLK_PERIOD=16 and XGS_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  Simulating END of EXP during FOT 12M @ 6 LANES  
+           (G_SYS_CLK_PERIOD=8  and XGS_FOT='1' and Synthetic_cntr=X"029e" ) then
         Synthetic_EXPOSURE <='0';
-        Synthetic_FOT      <='1';
         Synthetic_DELAI_EXP<='0';         
         Synthetic_cntr     <= Synthetic_cntr+'1';              
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_FOT='1' and Synthetic_cntr=X"1fbd" ) or  -- 94.8 us :  END of FOT 12M @ 6 LANES -> oscilloscope dit 22.9+102... je mets 130
-           (G_SYS_CLK_PERIOD=8  and Synthetic_FOT='1' and Synthetic_cntr=X"3f7a" ) then
+      elsif(XGS_FOT='0' and XGS_FOT_p1='1') then -- END OF FOT
         Synthetic_EXPOSURE <='0';
-        Synthetic_FOT      <='0';
         Synthetic_DELAI_EXP<='0';         
         Synthetic_cntr     <= (others=>'0');
-      elsif(Synthetic_FOT='1' or Synthetic_DELAI_EXP='1') then 
+      elsif(XGS_FOT='1' or Synthetic_DELAI_EXP='1') then 
         Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_FOT      <= Synthetic_FOT; 
         Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
         Synthetic_cntr     <= Synthetic_cntr+'1';
       else
         Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_FOT      <= Synthetic_FOT; 
         Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
         Synthetic_cntr     <= Synthetic_cntr;      
       end if;                 

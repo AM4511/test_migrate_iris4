@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="3c9f1571-bcf4-43c9-ac79-1b44d764a4f9" VersionGuid="f0da3c2f-c2b8-45cc-9707-d8acc71e7e93">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_xgs_ctrl" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="1babbe7a-09f5-4606-97dd-f76845aece1f" VersionGuid="f9e7713a-52ee-4149-a9d2-c8a37173d0a3">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>
@@ -792,10 +792,8 @@
 					<Visibility>Beginner</Visibility>
 					<pFeature>OFFSET_regfile_xgs_ctrl_acq_readout_cfg1</pFeature>
 					<pFeature>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over_rst</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx</pFeature>
-					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_rot_length</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_fot_length_line</pFeature>
+					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_eo_fot_sel</pFeature>
 					<pFeature>FIELD_regfile_xgs_ctrl_acq_readout_cfg1_fot_length</pFeature>
 				</Category>
 				<Integer Name="OFFSET_regfile_xgs_ctrl_acq_readout_cfg1">
@@ -805,72 +803,38 @@
 					<Value>16</Value>
 					<Representation>HexNumber</Representation>
 				</Integer>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over_rst">
-					<DisplayName>GRAB_REVX_OVER_RST</DisplayName>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_fot_length_line">
+					<DisplayName>FOT_LENGTH_LINE</DisplayName>
 					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over_rst</pValue>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_fot_length_line</pValue>
 					<Representation>HexNumber</Representation>
 				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over_rst">
-					<Visibility>Invisible</Visibility>
-					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pAddress>
-					<Length>4</Length>
-					<AccessMode>RO</AccessMode>
-					<pPort>Device</pPort>
-					<Cachable>NoCache</Cachable>
-					<Bit>30</Bit>
-					<Endianess>LittleEndian</Endianess>
-					<Representation>HexNumber</Representation>
-				</MaskedIntReg>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over">
-					<DisplayName>GRAB_REVX_OVER</DisplayName>
-					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over</pValue>
-					<Representation>HexNumber</Representation>
-				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx_over">
-					<Visibility>Invisible</Visibility>
-					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pAddress>
-					<Length>4</Length>
-					<AccessMode>RO</AccessMode>
-					<pPort>Device</pPort>
-					<Cachable>NoCache</Cachable>
-					<Bit>29</Bit>
-					<Endianess>LittleEndian</Endianess>
-					<Representation>HexNumber</Representation>
-				</MaskedIntReg>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx">
-					<DisplayName>GRAB_REVX</DisplayName>
-					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx</pValue>
-					<Representation>HexNumber</Representation>
-				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_grab_revx">
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_fot_length_line">
 					<Visibility>Invisible</Visibility>
 					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pAddress>
 					<Length>4</Length>
 					<AccessMode>RW</AccessMode>
 					<pPort>Device</pPort>
 					<Cachable>NoCache</Cachable>
-					<Bit>28</Bit>
+					<LSB>24</LSB>
+					<MSB>28</MSB>
 					<Endianess>LittleEndian</Endianess>
 					<Representation>HexNumber</Representation>
 				</MaskedIntReg>
-				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_rot_length">
-					<DisplayName>ROT_LENGTH</DisplayName>
+				<Integer Name="FIELD_regfile_xgs_ctrl_acq_readout_cfg1_eo_fot_sel">
+					<DisplayName>EO_FOT_SEL</DisplayName>
 					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_rot_length</pValue>
+					<pValue>MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_eo_fot_sel</pValue>
 					<Representation>HexNumber</Representation>
 				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_rot_length">
+				<MaskedIntReg Name="MASKEDINTREG_regfile_xgs_ctrl_acq_readout_cfg1_eo_fot_sel">
 					<Visibility>Invisible</Visibility>
 					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pAddress>
 					<Length>4</Length>
-					<AccessMode>RO</AccessMode>
+					<AccessMode>RW</AccessMode>
 					<pPort>Device</pPort>
 					<Cachable>NoCache</Cachable>
-					<LSB>16</LSB>
-					<MSB>25</MSB>
+					<Bit>16</Bit>
 					<Endianess>LittleEndian</Endianess>
 					<Representation>HexNumber</Representation>
 				</MaskedIntReg>
@@ -884,7 +848,7 @@
 					<Visibility>Invisible</Visibility>
 					<pAddress>ADDRESS_regfile_xgs_ctrl_acq_readout_cfg1</pAddress>
 					<Length>4</Length>
-					<AccessMode>RO</AccessMode>
+					<AccessMode>RW</AccessMode>
 					<pPort>Device</pPort>
 					<Cachable>NoCache</Cachable>
 					<LSB>0</LSB>

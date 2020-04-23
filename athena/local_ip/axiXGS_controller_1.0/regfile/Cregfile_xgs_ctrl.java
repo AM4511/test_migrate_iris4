@@ -120,11 +120,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "GRAB_REVX_OVER_RST", "null", CField.FieldType.WO, 30, 1, 0x0));
-      register.addField(new CField(register, "GRAB_REVX_OVER", "null", CField.FieldType.RO, 29, 1, 0x0));
-      register.addField(new CField(register, "GRAB_REVX", "null", CField.FieldType.RW, 28, 1, 0x0));
-      register.addField(new CField(register, "ROT_LENGTH", "Row Overhead Time LENGTH", CField.FieldType.STATIC, 16, 10, 0x0));
-      register.addField(new CField(register, "FOT_LENGTH", "Frame Overhead Time LENGTH", CField.FieldType.STATIC, 0, 16, 0x0));
+      register.addField(new CField(register, "FOT_LENGTH_LINE", "Frame Overhead Time LENGTH LINE", CField.FieldType.RW, 24, 5, 0x0));
+      register.addField(new CField(register, "EO_FOT_SEL", "null", CField.FieldType.RW, 16, 1, 0x0));
+      register.addField(new CField(register, "FOT_LENGTH", "Frame Overhead Time LENGTH", CField.FieldType.RW, 0, 16, 0x0));
 
       /***************************************************************
       * Register: READOUT_CFG_FRAME_LINE

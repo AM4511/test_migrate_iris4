@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0x1E8C251E
+* Register file CRC32 : 0x4BE916FE
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -194,13 +194,11 @@ typedef union
 
    struct
    {
-      M_UINT32 FOT_LENGTH         : 16;  /* Bits(15:0), Frame Overhead Time LENGTH */
-      M_UINT32 ROT_LENGTH         : 10;  /* Bits(25:16), Row Overhead Time LENGTH */
-      M_UINT32 RSVD0              : 2;   /* Bits(27:26), Reserved */
-      M_UINT32 GRAB_REVX          : 1;   /* Bits(28:28), null */
-      M_UINT32 GRAB_REVX_OVER     : 1;   /* Bits(29:29), null */
-      M_UINT32 GRAB_REVX_OVER_RST : 1;   /* Bits(30:30), null */
-      M_UINT32 RSVD1              : 1;   /* Bits(31:31), Reserved */
+      M_UINT32 FOT_LENGTH      : 16;  /* Bits(15:0), Frame Overhead Time LENGTH */
+      M_UINT32 EO_FOT_SEL      : 1;   /* Bits(16:16), null */
+      M_UINT32 RSVD0           : 7;   /* Bits(23:17), Reserved */
+      M_UINT32 FOT_LENGTH_LINE : 5;   /* Bits(28:24), Frame Overhead Time LENGTH LINE */
+      M_UINT32 RSVD1           : 3;   /* Bits(31:29), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_CTRL_ACQ_READOUT_CFG1_TYPE;

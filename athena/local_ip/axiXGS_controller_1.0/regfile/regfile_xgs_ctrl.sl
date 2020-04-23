@@ -125,13 +125,9 @@ Register("grab_stat", 0x108, 4, "null");
 			FieldValue("Grab is Idle", 1);
 
 Register("readout_cfg1", 0x110, 4, "null");
-		Field("grab_revx_over_rst", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("grab_revx_over", 29, 29, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("No ReverseX Overrun detected", 0);
-			FieldValue("At least one ReverseX Overrun was detected", 1);
-		Field("grab_revx", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("rot_length", 25, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Row Overhead Time LENGTH");
-		Field("fot_length", 15, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Frame Overhead Time LENGTH");
+		Field("fot_length_line", 28, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH LINE");
+		Field("eo_fot_sel", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fot_length", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH");
 
 Register("readout_cfg_frame_line", 0x114, 4, "null");
 		Field("dummy_lines", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

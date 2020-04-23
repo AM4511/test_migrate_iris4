@@ -3,46 +3,46 @@
 	<section name="VHDLFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.vhd"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="MilSDKFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.h"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="PdfFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.pdf"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="CppFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/Cregfile_xgs_ctrl.cpp"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="HeaderFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/Cregfile_xgs_ctrl.h"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="SVFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.sv"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="SlangFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.sl"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="GenICamFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/regfile_xgs_ctrl.xml"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 	<section name="JavaFileGenerator">
 		<item key="output_file" value="/registerfile_xgs_ctrl/Cregfile_xgs_ctrl.java"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/04/14 11:38:43"/>
+		<item key="last_generation_date" value="2020/04/21 14:33:45"/>
 	</section>
 </section>

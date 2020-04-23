@@ -159,9 +159,12 @@ set_property PACKAGE_PIN G9 [get_ports SYSCLK_N]
 # set_property PACKAGE_PIN AC18 [get_ports PMOD1_6_LS]
 # set_property PACKAGE_PIN AC19 [get_ports PMOD1_7_LS]
 
+# debug je sorts trigger0 par ici sur le board de xilinx
 set_property PACKAGE_PIN AD18 [get_ports USER_SMA_CLOCK_P]
 set_property IOSTANDARD LVCMOS18 [get_ports USER_SMA_CLOCK_P]
-# set_property PACKAGE_PIN AD19 [get_ports USER_SMA_CLOCK_N]
+# debug je sorts readout par ici sur le board de xilinx
+set_property PACKAGE_PIN AD19 [get_ports USER_SMA_CLOCK_N]
+set_property IOSTANDARD LVCMOS18 [get_ports USER_SMA_CLOCK_N]
 
 # set_property PACKAGE_PIN AA18 [get_ports SFP_TX_DISABLE]
 # set_property PACKAGE_PIN W4   [get_ports SFP_TX_P]
@@ -956,4 +959,5 @@ set_property PACKAGE_PIN AJ18 [get_ports smbdata]
 set_property IOSTANDARD LVCMOS25 [get_ports smbdata]
 set_property DRIVE 8 [get_ports smbdata]
 set_property SLEW SLOW [get_ports smbdata]
+
 

@@ -141,25 +141,19 @@
       </fields>
     </registers>
     <registers name="READOUT_CFG1" offsetFromParent="10">
-      <fields name="GRAB_REVX_OVER_RST" description="This field reset the reverseX overrun flag GRAB_REVX_OVER. " lsb="30" readWrite="false" writeOnly="true"/>
-      <fields name="GRAB_REVX_OVER" description="This field informs the software that a reverseX overrun has been detected. When this status bit is set to '1' by the fpga, it will remain at '1' until it is reset by the field GRAB_REVX_OVER_RST." lsb="29" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No ReverseX Overrun detected&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>At least one ReverseX Overrun was detected&lt;/matrox_column_delimiter></possibleValues>
+      <fields name="FOT_LENGTH_LINE" alias="Frame Overhead Time LENGTH LINE" description="This is the length of the Frame Overhead Time in line_time unit. For debug only for the moment.&#xD;&#xA;&#xD;&#xA;" lsb="24" size="5">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bit value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="GRAB_REVX" lsb="28"/>
-      <fields name="ROT_LENGTH" alias="Row Overhead Time LENGTH" description="This is the length of the Row Overhead Time.&#xD;&#xA;&#xD;&#xA;[NOT USED FOR THE MOMENT- FOR FUTURE USE]" lsb="16" size="10" readWrite="false" staticVal="true">
-        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 8 bits value&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="FOT_LENGTH" alias="Frame Overhead Time LENGTH" description="This is the length of the Frame Overhead Time.&#xD;&#xA;&#xD;&#xA;[NOT USED FOR THE MOMENT- FOR FUTURE USE]" size="16" readWrite="false" staticVal="true">
+      <fields name="EO_FOT_SEL" description="This selector selects who will generate the EO_FOT in the controller. &#xD;&#xA;When select 0, the EO_FOT is the falling edge detection of the monitor FOT.&#xD;&#xA;When select 1, the EO_FOT will be generated inside the controller with programmed FOT_LENGTH." lsb="16"/>
+      <fields name="FOT_LENGTH" alias="Frame Overhead Time LENGTH" description="This is the length of the Frame Overhead Time. This register is defined as number of lines. It is used when EO_FOT_SEL is set to 1.&#xD;&#xA;&#xD;&#xA;" size="16">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bit value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
     <registers name="READOUT_CFG_FRAME_LINE" offsetFromParent="14">
       <fields name="DUMMY_LINES" description="Number of lines to add in the readout (to debug XGS)" lsb="16" size="8"/>
-      <fields name="CURR_FRAME_LINES" description="Current number of lines in the readout calculated by the XGS controller." size="13" readWrite="false" readOnly="true"/>
+      <fields name="CURR_FRAME_LINES" description="Current number of lines in the readout calculated by the XGS controller (without FOT)." size="13" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="READOUT_CFG2" offsetFromParent="18" useReservedSpaceBelow="true">
       <fields name="READOUT_LENGTH" description="This is the readout length register. This register is a register software calculated that gives the readout lenght to the grab engin. This register will depend on the ROI, Subsampling, Binning and LVDS channels used. It is used in the PET engin calculations. In Sys_Clock domain." size="29" readWrite="false" readOnly="true">

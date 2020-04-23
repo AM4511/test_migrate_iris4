@@ -87,7 +87,7 @@ module TB_xgs12m_receiver(  );
  int ROI_YSIZE; 
  int EXPOSURE;  
  int EXP_FOT_TIME;
- 
+ int FOT_LENGTH_LINES;
  //bit [23:0] readout_length;
  bit [15:0] KEEP_OUT_TRIG_START_sysclk;
  bit [15:0] KEEP_OUT_TRIG_END_sysclk; 
@@ -946,6 +946,10 @@ initial begin
     //Set XGS registers (mirroir)
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h0000019c, prot,    0, resp);                 // Subsampling
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a4, prot, 2<<8, resp);                 // Analog Gain
+    
+    //internal EO_FOT generation
+    //FOT_LENGTH_LINES=9;
+    //master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000110, prot, (FOT_LENGTH_LINES<<24) + 32'h00010000 + (FOT_LENGTH_LINES*line_time*xgs_bitrate_period/xgs_ctrl_period), resp);
     
     ROI_YSTART   =  0; 
     ROI_YSIZE    = 16;

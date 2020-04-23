@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_ctrl.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_ctrl
- ** Created on          : 2020/04/14 11:38:45
+ ** Created on          : 2020/04/21 14:33:46
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0x1E8C251E
+ ** Register file CRC32 : 0x4BE916FE
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -142,13 +142,11 @@ typedef union packed
 
    struct packed
    {
-      logic [15:0] FOT_LENGTH;          /* Bits(15:0), Frame Overhead Time LENGTH */
-      logic [9:0]  ROT_LENGTH;          /* Bits(25:16), Row Overhead Time LENGTH */
-      logic [1:0]  rsvd0;               /* Bits(27:26), Reserved */
-      logic        GRAB_REVX;           /* Bits(28:28), null */
-      logic        GRAB_REVX_OVER;      /* Bits(29:29), null */
-      logic        GRAB_REVX_OVER_RST;  /* Bits(30:30), null */
-      logic        rsvd1;               /* Bits(31:31), Reserved */
+      logic [15:0] FOT_LENGTH;       /* Bits(15:0), Frame Overhead Time LENGTH */
+      logic        EO_FOT_SEL;       /* Bits(16:16), null */
+      logic [6:0]  rsvd0;            /* Bits(23:17), Reserved */
+      logic [4:0]  FOT_LENGTH_LINE;  /* Bits(28:24), Frame Overhead Time LENGTH LINE */
+      logic [2:0]  rsvd1;            /* Bits(31:29), Reserved */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_READOUT_CFG1_t;
