@@ -26,37 +26,42 @@ module testbench_athena();
 	int MLines_supressed;
 	int FLines;
 	int FLines_supressed;
- 
+
 	int ROI_YSTART;
 	int ROI_YSIZE;
 	int EXPOSURE;
 	int EXP_FOT_TIME;
 
-	
+
 	//clock and reset signal declaration
 	bit axiClk100MHz;
 	bit idelayClk;
 	bit axiReset_n;
 	bit dma_irq;
-        bit pciAxiReset_n;
-        bit pcieAxiClk62MHz;
+	bit pciAxiReset_n;
+	bit pcieAxiClk62MHz;
 	bit [15:0] line_time   = 16'h00e6;  //default model
 	bit [4:0] monitor_0_reg;
 	bit [4:0] monitor_1_reg;
 	bit [4:0] monitor_2_reg;
 	bit [15:0] KEEP_OUT_TRIG_START_sysclk;
 	bit [15:0] KEEP_OUT_TRIG_END_sysclk;
-	
+	bit [2:0]  cfg_setmaxpld;
+	bit 	      cfg_bus_mast_en;
+
 	real xgs_ctrl_period     = 10.0;
 	real xgs_bitrate_period  = (1000.0/32.4)/(2.0*12.0);  //32.4Mhz ref clk*2 /12 bits per clk
 
-	
+
 	Cdriver_axil #(.DATA_WIDTH(AXI_DATA_WIDTH),.ADDR_WIDTH(AXI_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_INPUT_WIDTH), .NUMB_OUTPUT_IO(GPIO_OUTPUT_WIDTH)) master_agent;
 
 
 	// Interface
 	axi_lite_interface #(.DATA_WIDTH(AXI_DATA_WIDTH), .ADDR_WIDTH(AXI_ADDR_WIDTH)) axil(axiClk100MHz);
 	io_interface #(.NUMB_INPUT_IO(GPIO_INPUT_WIDTH),.NUMB_OUTPUT_IO(GPIO_OUTPUT_WIDTH)) gpio_if();
+	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(axi_clk, axil_reset_n);
+
+	tlp_interface tlp();
 
 
 	// Clock and Reset generation
@@ -80,11 +85,11 @@ module testbench_athena();
 		master_agent.write(BAR_XGS_CTRL+16'h0158, 1<<4);                      // read from fifo
 
 		//wait for read access to be done, and return data to SV
-//		do
-//		begin
-//			master_agent.read(BAR_XGS_CTRL+32'h00000168, data_rd);
-//		end
-//		while(data_rd[16] == 1);
+		//		do
+		//		begin
+		//			master_agent.read(BAR_XGS_CTRL+32'h00000168, data_rd);
+		//		end
+		//		while(data_rd[16] == 1);
 		axi_addr = BAR_XGS_CTRL + 'h00000168;
 		axi_poll_mask = (1<<16);
 		axi_expected_value = 0;
@@ -106,23 +111,24 @@ module testbench_athena();
 			.axiClk100MHz(axiClk100MHz),
 			.axiReset_n(axil.reset_n),
 			.pciAxiReset_n(pciAxiReset_n),
-                        .pcieAxiClk62MHz(pcieAxiClk62MHz),
+			.pcieAxiClk62MHz(pcieAxiClk62MHz),
 			.dma_irq(dma_irq),
 			.dma_tlp_cfg_bus_mast_en(),
-			.dma_tlp_cfg_setmaxpld(),
-			.dma_tlp_tlp_address(),
-			.dma_tlp_tlp_attr(),
-			.dma_tlp_tlp_byte_count(),
-			.dma_tlp_tlp_data(),
-			.dma_tlp_tlp_dst_rdy_n(),
-			.dma_tlp_tlp_fmt_type(),
-			.dma_tlp_tlp_grant(),
-			.dma_tlp_tlp_ldwbe_fdwbe(),
-			.dma_tlp_tlp_length_in_dw(),
-			.dma_tlp_tlp_lower_address(),
-			.dma_tlp_tlp_req_to_send(),
-			.dma_tlp_tlp_src_rdy_n(),
-			.dma_tlp_tlp_transaction_id(),
+			.dma_tlp_cfg_setmaxpld(cfg_setmaxpld),
+			.dma_tlp_tlp_address(tlp.address),
+			.dma_tlp_tlp_attr(tlp.attr),
+			.dma_tlp_tlp_byte_count(tlp.byte_count),
+			.dma_tlp_tlp_data(tlp.data),
+			.dma_tlp_tlp_dst_rdy_n(tlp.dst_rdy_n),
+			.dma_tlp_tlp_fmt_type(tlp.fmt_type),
+			.dma_tlp_tlp_grant(tlp.grant),
+			.dma_tlp_tlp_ldwbe_fdwbe(tlp.ldwbe_fdwbe),
+			.dma_tlp_tlp_length_in_dw(tlp.length_in_dw),
+			.dma_tlp_tlp_lower_address(tlp.lower_address),
+			.dma_tlp_tlp_req_to_send(tlp.req_to_send),
+			.dma_tlp_tlp_src_rdy_n(tlp.src_rdy_n),
+			.dma_tlp_tlp_transaction_id(tlp.transaction_id),
+
 			.i2c_i2c_sdata(),
 			.i2c_i2c_slk(),
 			.idelayClk(idelayClk),
@@ -149,20 +155,54 @@ module testbench_athena();
 			.xgs_power_good(1'b1)
 		);
 
+
+	pcie_tx_axi #(.NB_PCIE_AGENTS(1), .AGENT_IS_64_BIT(1'b1), .C_DATA_WIDTH(64)) inst_pcie_tx_axi
+		(
+			.sys_clk(axiClk100MHz),
+			.sys_reset_n(axil.reset_n),
+			.s_axis_tx_tready(tx_axis.tready),
+			.s_axis_tx_tdata(tx_axis.tdata),
+			.s_axis_tx_tkeep(),
+			.s_axis_tx_tlast(tx_axis.tlast),
+			.s_axis_tx_tvalid(tx_axis.tvalid),
+			.s_axis_tx_tuser(tx_axis.tuser),
+			.cfg_bus_number(8'hbb),
+			.cfg_device_number(5'b10101),
+			.cfg_no_snoop_en(1'b0),
+			.cfg_relax_ord_en(1'b0),
+
+			.tlp_out_req_to_send(tlp.req_to_send),
+			.tlp_out_grant(tlp.grant),
+			.tlp_out_fmt_type(tlp.fmt_type),
+			.tlp_out_length_in_dw(tlp.length_in_dw),
+			.tlp_out_src_rdy_n(tlp.src_rdy_n),
+			.tlp_out_dst_rdy_n(tlp.dst_rdy_n),
+			.tlp_out_data(tlp.data),
+			.tlp_out_address(tlp.address),
+			.tlp_out_ldwbe_fdwbe(tlp.ldwbe_fdwbe),
+			.tlp_out_attr(tlp.attr),
+			.tlp_out_transaction_id(tlp.transaction_id),
+			.tlp_out_byte_count(tlp.byte_count),
+			.tlp_out_lower_address(tlp.lower_address)
+		);
+
+
 	assign gpio_if.input_io[0] = dma_irq;
+	assign cfg_bus_mast_en = 1'b1;
+	assign tx_axis.tready = 1'b1;
 
 	initial
 	begin
 
 
-	        #100 pciAxiReset_n = 1'b1;
+		#100 pciAxiReset_n = 1'b1;
 
-	   
-		//////////////////////////////////////////////////////////
-		//
-		// Start Simulation
-		//
-		//////////////////////////////////////////////////////////
+
+			//////////////////////////////////////////////////////////
+			//
+			// Start Simulation
+			//
+			//////////////////////////////////////////////////////////
 		master_agent = new(axil, gpio_if);
 
 		master_agent.reset(100);
@@ -217,11 +257,11 @@ module testbench_athena();
 		// register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
 		// register_map(1812) <= X"2507";    --Address 0x3E28 - hispi_control_common
 		// register_map(1817) <= X"03A6";    --Address 0x3E32 - hispi_blanking_data
-    
-    
+
+
 		// Dans le modele XGS  le decodage registres est fait :
 		// register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
-    
+
 		//The following registers must be programmed with the specified value to enable test image generation on the HiSPi interface.
 		//The commands below specify the register address followed by the register value.
 		//In case of I2C, it must use the I2C slave address 0x20/0x21 as defined in the datasheet.
@@ -231,7 +271,7 @@ module testbench_athena();
 		#500us;
 			//- REG Write = 0x3E3E, 0x0001
 		XGS_WriteSPI(16'h3e3e,16'h0001);
-    
+
 		//--------------------------------------------------------
 		// XGS model : setting mux output ratio to 4:1
 		//-------------------------------------------------------
@@ -241,7 +281,7 @@ module testbench_athena();
 		// XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
 		XGS_WriteSPI(16'h3e28,16'h2537);    //mux 4:1
 
-		
+
 		//--------------------------------------------------------
 		// Validate the presence of the HiSPi Matrox tag
 		//-------------------------------------------------------
@@ -265,7 +305,7 @@ module testbench_athena();
 
 
 
-		
+
 		//--------------------------------------------------------
 		//
 		// PROGRAM XGS MODEL PART 2 - Set to output test mode image
@@ -273,9 +313,9 @@ module testbench_athena();
 		//-------------------------------------------------------
 		// Dans le modele XGS  le decodage registres est fait :
 		// register_map(1285) : (addresse & 0xfff) >>1  :  0x3a08=>1284
-    
 
-    
+
+
 		//XGS_MODEL_SLAVE_TRIGGERED_MODE=0
 		//  // REG Write = 0x3E0E, <any value from 0x1 to 0x7>. This selects the testpattern to be sent
 		//  // 0=jmansill B&W diagonal ramp 0->4095...
@@ -316,16 +356,16 @@ module testbench_athena();
 		//  XGS_WriteSPI(16'h3A06,16'h8000+ test_numberclk_between_2lines); //Enable sequencer test mode
 		//
 
-    
+
 		XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
 
 		// jmansill : SET Slave triggered mode
-    
+
 		// default              in devware is 00E6  (24 lanes)
 		// default              in devware is 0xf4  (18 lanes)
 		// default              in devware is 0x16e (12 lanes)
 		// default              in devware is 0x2dc (6 lanes)
-                                                     
+
 		//--------------------------------------------------------
 		// IMPORTANT LINE TIME POUR 6 lanes
 		//--------------------------------------------------------
@@ -339,46 +379,46 @@ module testbench_athena();
 		monitor_1_reg = 16'h10;   // EFOT indication
 		monitor_2_reg = 16'h1;    // New_line
 		XGS_WriteSPI(16'h3806, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
-      
-    
+
+
 		#50us;
-    
-		// XGS MODEL FRAME IS 4176 pixels when test mode !!!
-		// voir p.Figure 37. Pixel Readout Order
-		// voir p8 Figure 4. XGS 8000 Pixel Array
-		// 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
+
+			// XGS MODEL FRAME IS 4176 pixels when test mode !!!
+			// voir p.Figure 37. Pixel Readout Order
+			// voir p8 Figure 4. XGS 8000 Pixel Array
+			// 4176 = 4 dummy + 24 BL K+ 4 dummy + 4 interpol + 4096 + 4 interpol + 4 dummy + 32 BLK + 4 dummy
 
 
-		//--------------------------------------------------------
-		//
-		// PROGRAM XGS CONTROLLER
-		//
-		//-------------------------------------------------------
-    
-		// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+			//--------------------------------------------------------
+			//
+			// PROGRAM XGS CONTROLLER
+			//
+			//-------------------------------------------------------
+
+			// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
 		master_agent.write(BAR_XGS_CTRL+16'h0190, 16'h0012);
 
 		xgs_ctrl_period     = 16.0;
 		xgs_bitrate_period  = (1000.0/32.4)/(2.0);  // 30.864197ns /2
-    
+
 		EXP_FOT_TIME        = 5360;  //5.36us calculated from start of FOT to end of real exposure
-    
+
 		// LINE_TIME
 		// default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
 		// default              in devware is 0xf4  (18 lanes)
 		// default              in devware is 0x16e (12 lanes)
 		// default              in devware is 0x2dc (6 lanes)
-     
+
 		master_agent.write(BAR_XGS_CTRL+32'h00000120, line_time);                                      //LineTime in pixel CLK
-    
+
 		master_agent.write(BAR_XGS_CTRL+32'h000002b8, (1<<16) + (EXP_FOT_TIME/xgs_ctrl_period ));      //Enable EXP during FOT
-       
-  
+
+
 		KEEP_OUT_TRIG_START_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //START Keepout trigger zone (100ns)
 		KEEP_OUT_TRIG_END_sysclk   = (line_time*xgs_bitrate_period)/xgs_ctrl_period;             //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter
 		master_agent.write(BAR_XGS_CTRL+32'h00000124, (KEEP_OUT_TRIG_END_sysclk<<16) + KEEP_OUT_TRIG_START_sysclk);
 		master_agent.write(BAR_XGS_CTRL+32'h00000120, (0<<16) + line_time);      //Enable KEEP_OUT ZONE[bit 16]
- 
+
 		// XGS CONTROLLER readout_length calculated in FPGA now!!!!
 		//
 		// TOTAL_NB_LINES <= "11" +                                                -- 3 is first dummy lines after FOT
@@ -393,15 +433,15 @@ module testbench_athena();
 		MLines_supressed      = 0;
 		FLines                = 0;
 		FLines_supressed      = 0;
-    
+
 		master_agent.write(BAR_XGS_CTRL+16'h01d8, (MLines_supressed<<10)+ MLines);    //M_LINE REGISTER
 		master_agent.write(BAR_XGS_CTRL+16'h01dc,(FLines_supressed<<10)+ FLines);    //F_LINE REGISTER
 
-        
+
 		//Set XGS registers (mirroir)
 		master_agent.write(BAR_XGS_CTRL+32'h000001a0, 0);                 // Subsampling
 		master_agent.write(BAR_XGS_CTRL+32'h000001a4, 2<<8);                 // Analog Gain
-    
+
 		ROI_YSTART   =  0;
 		ROI_YSIZE    = 16;
 		EXPOSURE     = 50;  //in us
@@ -413,8 +453,8 @@ module testbench_athena();
 		//master_agent.AXI4LITE_WRITE_BURST(BAR_XGS_CTRL+32'h00000100, prot, (1<<15)+(3<<8)+1, resp);                 // Grab_ctrl: source is sw ss + trig_overlap + grab cmd
 		//#5us
 		//master_agent.AXI4LITE_WRITE_BURST(BAR_XGS_CTRL+32'h00000100, prot, (1<<15)+(3<<8)+(1<<4), resp);            // Grab_ctrl: sw ss !
-  
-    
+
+
 		ROI_YSTART   =   8;
 		ROI_YSIZE    =   8;
 		EXPOSURE     =  50;  //in us
@@ -423,9 +463,9 @@ module testbench_athena();
 		master_agent.write(BAR_XGS_CTRL+32'h00000128, EXPOSURE * (1000.0 /xgs_ctrl_period));               // Exposure 50us @100mhz
 		master_agent.write(BAR_XGS_CTRL+32'h00000100, (1<<15)+(1<<8)+1);                                   // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-    
-    
-    
+
+
+
 		#1ms;
 
 			//--------------------------------------------------------

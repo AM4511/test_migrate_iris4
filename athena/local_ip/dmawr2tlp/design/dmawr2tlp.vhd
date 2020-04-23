@@ -6,11 +6,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
-use work.dma_pack.all;
 
 -- Work library
 library work;
 use work.regfile_dmawr2tlp_pack.all;
+use work.dma_pack.all;
 
 
 entity dmawr2tlp is

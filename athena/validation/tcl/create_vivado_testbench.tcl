@@ -86,22 +86,29 @@ reset_target all ${BD_FILE}
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 
+
+################################################
+# Add files required for the testbench
+################################################
+add_files -norecurse ${LOCAL_IP_DIR}/pcie2AxiMaster_v3.0/design/regfile_pcie2AxiMaster.vhd 
+add_files -norecurse ${LOCAL_IP_DIR}/pcie2AxiMaster_v3.0/design/pciepack.vhd
+add_files -norecurse ${LOCAL_IP_DIR}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd 
+
+add_files -norecurse ${LOCAL_IP_DIR}/dmawr2tlp/validation/src/tlp_interface.sv
+add_files -norecurse ${IPCORES_DIR}/interfaces/sv/axi_stream_interface.sv
+
 add_files -norecurse ${VALIDATION_SRCDIR}/testbench_athena.sv
 
 set_property TOP testbench_athena [get_filesets sim_1]
+update_compile_order -fileset sources_1
 
 
+################################################
+# Export simulation framework for Modelsim
+################################################
 export_simulation  -lib_map_path ${MODELSIM_LIB} -absolute_path -force -directory ${VALIDATION_DIR} -simulator modelsim  -ip_user_files_dir ${IP_USER_FILES} -ipstatic_source_dir ${IP_COMPILED_LIBS}   -use_ip_compiled_libs 
 file copy -force ${VALIDATION_DIR}/util/touchup.sh ${VALIDATION_DIR}/modelsim
 file copy -force ${WAVE_FILE} ${VALIDATION_DIR}/modelsim/wave.do
-
-
-
-################################################
-# Generate IP-Integrator system
-################################################
-#set HDL_FILESET [get_filesets sources_1]
-#set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 
 puts "** Done."
