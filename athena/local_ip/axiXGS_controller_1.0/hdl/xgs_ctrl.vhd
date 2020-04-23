@@ -541,7 +541,9 @@ signal INTERNAL_READOUT_LENGTH_FLOAT : std_logic_vector(47 downto 0);
 signal INTERNAL_READOUT_LENGTH       : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
   
 constant SENSOR_PERIOD_32p4          : std_logic_vector(18 downto 0):= "1111011011101001111"; --X"7B74F";  --[4].[15] : 15.4320985 ns = 1/(2x32.4Mhz)
-constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "1111100111111111111"; --X"7cfff";  --[4].[15] :     15.625 ns = 1/(2x32Mhz)
+--constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "1111100111111111111"; --X"7cfff";  --[4].[15] :     15.625 ns = 1/(2x32Mhz)
+constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "1111101000000000000"; --X"7d000";  --[4].[15] :     15.625 ns = 1/(2x32Mhz)
+
 signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0); 
 
 -- Pour le board de developpement, on n'a aps les signaux monitor
@@ -2333,17 +2335,17 @@ BEGIN
     if(rising_edge(sys_clk)) then
       
       --4 dummy lines after M_lines need to be confirmed by Onsemi      
-      TOTAL_NB_LINES <= "11" +                                               -- 3 is first dummy lines after FOT
-                        REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR +          -- Black lines for calibartion  
-                        --REGFILE.ACQ.SENSOR_F_LINES.F_LINES_SENSOR +        -- F_lines, where are located F_LINES ??? Dummy2??
-                        --"100" +                                              -- Dummy 2
-                        '1' +                                              -- Embbeded line in Valid data
-                        ('0'& REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00")+  -- Y_size is a 4 line multipler              
-                        "111" +                                              -- Dummy 3
-                        "111" +                                              -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid
-                        REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;      -- Pour allonger readout
+      TOTAL_NB_LINES <= "11"                                                  -- 3 is first dummy lines after FOT
+                        + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR           -- Black lines for calibration 
+                        - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED   
+                        + "100"                                               -- Dummy 2
+                        --+ '1'                                                 -- Embbeded line in Valid data  (during the 4th dummy line, do not count???)
+                        + ('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00") -- Y_size is a 4 line multiplier              
+                        + "111"                                               -- Dummy 3
+                        + "111"                                               -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid
+                        + REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;     -- Pour allonger readout (Debug)
      
-      INTERNAL_READOUT_LENGTH_FLOAT <=   TOTAL_NB_LINES *  REGFILE.ACQ.READOUT_CFG3.LINE_TIME * SENSOR_PERIOD;   
+      INTERNAL_READOUT_LENGTH_FLOAT <=   (TOTAL_NB_LINES * REGFILE.ACQ.READOUT_CFG3.LINE_TIME) * SENSOR_PERIOD;   
     end if;
   end process;  
   

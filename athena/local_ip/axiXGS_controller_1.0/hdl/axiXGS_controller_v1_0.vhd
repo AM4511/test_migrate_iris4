@@ -60,7 +60,7 @@ entity axiXGS_controller_v1_0 is
         --  Signals to Datapath/DMA
         ---------------------------------------------------------------------------
         abort_readout_datapath          : out   std_logic := '0';
-        dma_idle                        : in    std_logic := '0';
+        dma_idle                        : in    std_logic := '1';
 
         strobe_DMA_P1                   : out   std_logic := '0';            -- Load DMA 1st stage registers  
         strobe_DMA_P2                   : out   std_logic := '0';            -- Load DMA 2nd stage registers 
