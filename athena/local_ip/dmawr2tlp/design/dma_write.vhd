@@ -41,7 +41,7 @@ entity dma_write is
     ---------------------------------------------------------------------
     -- transmit interface
     ---------------------------------------------------------------------
-    tlp_req_to_send                 : out std_logic;
+    tlp_req_to_send                 : out std_logic := '0';
     tlp_grant                       : in  std_logic;
 
     tlp_fmt_type                    : out std_logic_vector(6 downto 0); -- fmt and type field 

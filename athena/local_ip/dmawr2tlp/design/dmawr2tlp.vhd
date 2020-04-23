@@ -15,8 +15,7 @@ use work.regfile_dma2tlp_pack.all;
 
 entity dmawr2tlp is
   generic (
-    NUMBER_OF_PLANE       : integer range 1 to 3 := 1;
-    MAX_PCIE_PAYLOAD_SIZE : integer              := 128
+    MAX_PCIE_PAYLOAD_SIZE : integer := 128
     );
   port (
     ---------------------------------------------------------------------
@@ -78,7 +77,7 @@ entity dmawr2tlp is
     ---------------------------------------------------------------------
     -- TLP Interface
     ---------------------------------------------------------------------
-    tlp_req_to_send : out std_logic;
+    tlp_req_to_send : out std_logic := '0';
     tlp_grant       : in  std_logic;
 
     tlp_fmt_type     : out std_logic_vector(6 downto 0);
@@ -103,7 +102,6 @@ end dmawr2tlp;
 
 
 architecture rtl of dmawr2tlp is
-
 
 
   component axiSlave2RegFile
@@ -209,7 +207,6 @@ architecture rtl of dmawr2tlp is
       ----------------------------------------------------
       -- Control I/F
       ----------------------------------------------------
-      init_frame : in std_logic;
 
       ----------------------------------------------------
       -- AXI stream interface (Slave port)
@@ -223,6 +220,7 @@ architecture rtl of dmawr2tlp is
       ----------------------------------------------------
       -- Line buffer I/F
       ----------------------------------------------------
+      start_of_frame  : out std_logic;
       line_ready      : out std_logic;
       line_transfered : in  std_logic;
       end_of_dma      : out std_logic;
@@ -259,7 +257,7 @@ architecture rtl of dmawr2tlp is
       ---------------------------------------------------------------------
       -- transmit interface
       ---------------------------------------------------------------------
-      tlp_req_to_send : out std_logic;
+      tlp_req_to_send : out std_logic := '0';
       tlp_grant       : in  std_logic;
 
       tlp_fmt_type     : out std_logic_vector(6 downto 0);
@@ -311,7 +309,6 @@ architecture rtl of dmawr2tlp is
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
-  signal axi_reset         : std_logic;
   signal reg_read          : std_logic;
   signal reg_write         : std_logic;
   signal reg_addr          : std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0) := (others => '0');
@@ -327,10 +324,10 @@ architecture rtl of dmawr2tlp is
   signal line_ready               : std_logic;
   signal line_transfered          : std_logic;
   signal end_of_dma               : std_logic;
-  signal init_frame               : std_logic;
   signal line_buffer_read_en      : std_logic;
   signal line_buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal line_buffer_read_data    : std_logic_vector(63 downto 0);
+  signal color_space              : std_logic_vector(2 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -412,7 +409,7 @@ begin
       reg_readdata  => reg_readdata
       );
 
-  
+
   -----------------------------------------------------------------------------
   -- Registerfile remapping
   -----------------------------------------------------------------------------
@@ -422,7 +419,8 @@ begin
   dma_context_mapping.line_pitch     <= regfile.dma.line_pitch.value;
   dma_context_mapping.line_size      <= regfile.dma.line_size.value;
   dma_context_mapping.reverse_y      <= regfile.dma.csc.reverse_y;
-  dma_context_mapping.numb_plane     <= 3;
+  dma_context_mapping.numb_plane     <= 1 when (regfile.dma.csc.COLOR_SPACE = "00") else
+                                    3;
 
 
   -----------------------------------------------------------------------------
@@ -452,6 +450,7 @@ begin
   dma_context_mux <= dma_context_p1 when (regfile.dma.ctrl.grab_queue_enable = '1') else
                      dma_context_mapping;
 
+
   xaxi_stream_in : axi_stream_in
     generic map(
       AXIS_DATA_WIDTH   => AXIS_DATA_WIDTH,
@@ -461,12 +460,12 @@ begin
     port map(
       axi_clk                  => axi_clk,
       axi_reset_n              => axi_reset_n,
-      init_frame               => init_frame,
       s_axis_tready            => s_axis_tready,
       s_axis_tvalid            => s_axis_tvalid,
       s_axis_tdata             => s_axis_tdata,
       s_axis_tlast             => s_axis_tlast,
       s_axis_tuser             => s_axis_tuser,
+      start_of_frame           => start_of_frame,
       line_ready               => line_ready,
       line_transfered          => line_transfered,
       end_of_dma               => end_of_dma,
@@ -515,6 +514,8 @@ begin
       read_address         => line_buffer_read_address,
       read_data            => line_buffer_read_data
       );
+
+  intevent <= '0';                      -- TBD
 
 end rtl;
 

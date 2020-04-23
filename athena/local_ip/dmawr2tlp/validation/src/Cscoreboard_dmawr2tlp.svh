@@ -25,88 +25,153 @@ class Cscoreboard_dmawr2tlp #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 		dataBuffer={};
 		this.number_of_errors=0;
 		this.no_transactions=0;
+		this.tlp.dst_rdy_n <= 1'b1;
+		this.tlp.grant <= 1'b0;
 		//#100;
-			//this.axi_strm.tready = 1'b1;
+		//this.axi_strm.tready = 1'b1;
 	endtask
+
 
 	task run ();
+		int transaction_active;
+
+		int tlp_fmt_type;
+		int tlp_length_in_dw;
+		longint  tlp_address;
+		int tlp_ldwbe_fdwbe;
+		int tlp_attr;
+		int tlp_transaction_id;
+		int tlp_byte_count;
+		int tlp_lower_address;
+		int dw_count;
+		longint data_array[$];
+
+
+		/////////////////////////////////////////////////////////////////////////
+		// Initialization
+		/////////////////////////////////////////////////////////////////////////
+		this.init();
+		transaction_active = 0;
+
+
+		/////////////////////////////////////////////////////////////////////////
+		// Infinite loop
+		/////////////////////////////////////////////////////////////////////////
+		do begin
+			@(posedge this.tlp.clk);
+				/////////////////////////////////////////////////////////////////
+				// Arbiter
+				/////////////////////////////////////////////////////////////////
+			if (this.tlp.req_to_send == 1'b1 && this.tlp.grant == 1'b0 && transaction_active == 0) begin
+				this.tlp.grant <= 1'b1;
+
+
+				/////////////////////////////////////////////////////////////////
+				// Transaction parameters
+				/////////////////////////////////////////////////////////////////
+				transaction_active = 1;
+				tlp_fmt_type = this.tlp.fmt_type;
+				tlp_length_in_dw = this.tlp.length_in_dw;
+				tlp_address = this.tlp.address & 2'b00;
+				tlp_ldwbe_fdwbe = this.tlp.ldwbe_fdwbe;
+				tlp_attr = this.tlp.attr;
+				tlp_transaction_id = this.tlp.transaction_id;
+				tlp_byte_count = this.tlp.byte_count;
+				tlp_lower_address = this.tlp.lower_address;
+
+
+			end else if (transaction_active == 1) begin
+				this.tlp.grant <= 1'b0;
+
+				if (transaction_active == 1 && this.tlp.src_rdy_n == 1'b0) begin
+					data_array.push_back(this.tlp.data);
+				end
+			end
+
+			/////////////////////////////////////////////////////////////////
+			// Transaction handshake
+			/////////////////////////////////////////////////////////////////
+			if (transaction_active == 1) begin
+				this.tlp.dst_rdy_n <= 1'b0;
+			end
+		end while (1);
 
 	endtask
 
-//	task run ();
-//		int id;
-//		string sync;
-//		typedef struct {
-//			logic [63:0] data;
-//			logic [1:0]  sync;
-//		} stream_rec;
-//
-//		stream_rec rec;
-//		stream_rec strm[$] = {};
-//
-//
-//		// When we start the Scoreboard we first initialize it
-//		this.init();
-//
-//		id = 0;
-//		do begin
-//
-//			@(posedge this.axi_strm.clk) begin
-//				if (this.axi_strm.tvalid == 1'b1) begin
-//					rec.sync[0] = this.axi_strm.tuser;
-//					rec.sync[1] = this.axi_strm.tlast;
-//					if (this.axi_strm.tlast == 1'b0 && this.axi_strm.tuser == 1'b1) begin
-//						sync = "SOF";
-//					end
-//					else if (this.axi_strm.tlast == 1'b1 && this.axi_strm.tuser == 1'b0) begin
-//						sync = "EOF";
-//					end
-//					else begin
-//						sync = "CONT";
-//					end
-//
-//					rec.data = this.axi_strm.tdata;
-//
-//					strm.push_back(rec);
-//
-//					//$display("SCOREBOARD %s\t\t%d : 0x%h", sync, id, this.axi_strm.tdata);
-//					id++;
-//
-//				end
-//
-//				if (this.axi_strm.tlast == 1'b1) begin
-//					#1000;
-//						// Iterate through queue and access each class object
-//					foreach (strm[i])
-//						$display("SCOREBOARD %s\t\t%d : 0x%h", strm[i].sync, i, strm[i].data);
-//
-//					$display("SIMULATION COMPLETED SUCCESSFULLY");
-//					$finish();
-//				end
-//
-//			end
-//
-//
-//			//				if ( mii.rst_n == 0) begin
-//			//					dw_buffer = 0;
-//			//					nibble_ptr =0;
-//			//					tx_data=0;
-//			//					dataBuffer={};
-//			//				end
-//			//				else if (mii.tx_en == 1'b1) begin
-//			//					tx_data = mii.tx_data;
-//			//					dw_buffer = dw_buffer | (tx_data << nibble_ptr);
-//			//					nibble_ptr = nibble_ptr + 4;
-//			//					if (nibble_ptr == 32) begin
-//			//						dataBuffer.push_back(dw_buffer);
-//			//						nibble_ptr = 0;
-//			//						dw_buffer = 0;
-//			//						nibble_ptr =0;
-//			//
-//			//					end
-//			//				end
-//		end while (1);
-//	endtask
+	//	task run ();
+	//		int id;
+	//		string sync;
+	//		typedef struct {
+	//			logic [63:0] data;
+	//			logic [1:0]  sync;
+	//		} stream_rec;
+	//
+	//		stream_rec rec;
+	//		stream_rec strm[$] = {};
+	//
+	//
+	//		// When we start the Scoreboard we first initialize it
+	//		this.init();
+	//
+	//		id = 0;
+	//		do begin
+	//
+	//			@(posedge this.axi_strm.clk) begin
+	//				if (this.axi_strm.tvalid == 1'b1) begin
+	//					rec.sync[0] = this.axi_strm.tuser;
+	//					rec.sync[1] = this.axi_strm.tlast;
+	//					if (this.axi_strm.tlast == 1'b0 && this.axi_strm.tuser == 1'b1) begin
+	//						sync = "SOF";
+	//					end
+	//					else if (this.axi_strm.tlast == 1'b1 && this.axi_strm.tuser == 1'b0) begin
+	//						sync = "EOF";
+	//					end
+	//					else begin
+	//						sync = "CONT";
+	//					end
+	//
+	//					rec.data = this.axi_strm.tdata;
+	//
+	//					strm.push_back(rec);
+	//
+	//					//$display("SCOREBOARD %s\t\t%d : 0x%h", sync, id, this.axi_strm.tdata);
+	//					id++;
+	//
+	//				end
+	//
+	//				if (this.axi_strm.tlast == 1'b1) begin
+	//					#1000;
+	//						// Iterate through queue and access each class object
+	//					foreach (strm[i])
+	//						$display("SCOREBOARD %s\t\t%d : 0x%h", strm[i].sync, i, strm[i].data);
+	//
+	//					$display("SIMULATION COMPLETED SUCCESSFULLY");
+	//					$finish();
+	//				end
+	//
+	//			end
+	//
+	//
+	//			//				if ( mii.rst_n == 0) begin
+	//			//					dw_buffer = 0;
+	//			//					nibble_ptr =0;
+	//			//					tx_data=0;
+	//			//					dataBuffer={};
+	//			//				end
+	//			//				else if (mii.tx_en == 1'b1) begin
+	//			//					tx_data = mii.tx_data;
+	//			//					dw_buffer = dw_buffer | (tx_data << nibble_ptr);
+	//			//					nibble_ptr = nibble_ptr + 4;
+	//			//					if (nibble_ptr == 32) begin
+	//			//						dataBuffer.push_back(dw_buffer);
+	//			//						nibble_ptr = 0;
+	//			//						dw_buffer = 0;
+	//			//						nibble_ptr =0;
+	//			//
+	//			//					end
+	//			//				end
+	//		end while (1);
+	//	endtask
 
 
 	/*******************************************************

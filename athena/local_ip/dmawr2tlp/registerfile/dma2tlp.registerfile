@@ -10,9 +10,9 @@
     <registers name="fid" alias="Matrox IP-Core Function ID" offsetFromParent="4">
       <fields name="value" size="32" readWrite="false" staticVal="true"/>
     </registers>
-    <registers name="version" alias="Register file version" description="Revisions&#xD;&#xA;1.3.x : First functionnal revision with a single list of multiple Ethernet frames&#xD;&#xA;1.4.x : Second revision. Implements multiple list of frames" offsetFromParent="8">
-      <fields name="major" lsb="16" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
-      <fields name="minor" lsb="8" size="8" valueAtReset="5" readWrite="false" staticVal="true"/>
+    <registers name="version" alias="Register file version" description="Revisions&#xD;&#xA;0.1.x : First draft" offsetFromParent="8">
+      <fields name="major" lsb="16" size="8" readWrite="false" staticVal="true"/>
+      <fields name="minor" lsb="8" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
       <fields name="hw" size="8" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="capability" alias="Register file version" offsetFromParent="C">
@@ -22,47 +22,50 @@
       <fields name="value" size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="dma" baseAddress="40" endAddress="70">
-    <registers name="ctrl">
-      <fields name="enable"/>
-      <fields name="grab_queue_enable" lsb="1">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="dma" baseAddress="40" endAddress="7C">
+    <registers name="ctrl" alias="DMA control register" description="This register groups all field required ton control the DMA process" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="grab_queue_enable" alias="Grab queue enable" description="Enable queueing 2 transfer" lsb="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab queue disabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Grab queue enabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+      <fields name="enable" alias="Enable the DMA engine"/>
     </registers>
-    <registers name="frame_start" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" offsetFromParent="4" useMultiples="true" address="108">
-      <fields name="value" alias="INitial GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="status" alias="DMA status" description="Provide the current  DMA status" offsetFromParent="C">
+      <fields name="busy" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="frame_start" alias="Host buffer frame start address (Mono buffer/Blue Buffer)" description="This register array contains the 64 bits start address of the destination buffer on the Host. &#xD;&#xA;&#xD;&#xA;This is a 64 bits register implemented using an array of 2 consecutives 32 bits registers&#xD;&#xA;frame_start[0] = address low bits  (31 downto 0)&#xD;&#xA;frame_start[1] = address high bits (63 downto 32)&#xD;&#xA;" offsetFromParent="10" useMultiples="true" address="108">
+      <fields name="value" alias="INitial GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="frame_start_g" alias="Green Grab Address Register " description="Grab Address LOW 32 bits for the Green plane.  Only used when grabbing in Planar mode." offsetFromParent="C" useMultiples="true" address="108">
-      <fields name="value" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="frame_start_g" alias="Host green buffer frame start address" description="This register array contains the 64 bits start address of the green destination buffer on the Host. &#xD;&#xA;&#xD;&#xA;Note: Used only when transferring color images.&#xD;&#xA;&#xD;&#xA;This is a 64 bits register implemented using an array of 2 consecutives 32 bits registers&#xD;&#xA;frame_start[0] = address low bits  (31 downto 0)&#xD;&#xA;frame_start[1] = address high bits (63 downto 32)&#xD;&#xA;" offsetFromParent="18" useMultiples="true" address="108">
+      <fields name="value" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="frame_start_r" alias="Red Grab Address Register " description="Grab Address LOW 32 bits for the Red plane.  Only used when grabbing in Planar mode." offsetFromParent="14" useMultiples="true" address="108">
-      <fields name="value" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="frame_start_r" alias="Host red buffer frame start address" description="This register array contains the 64 bits start address of the red destination buffer on the Host. &#xD;&#xA;&#xD;&#xA;Note: Used only when transferring color images.&#xD;&#xA;&#xD;&#xA;This is a 64 bits register implemented using an array of 2 consecutives 32 bits registers&#xD;&#xA;frame_start[0] = address low bits  (31 downto 0)&#xD;&#xA;frame_start[1] = address high bits (63 downto 32)&#xD;&#xA;" offsetFromParent="20" useMultiples="true" address="108">
+      <fields name="value" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="line_pitch" alias="Grab Line Pitch Register" description="Grab Line Pitch Register" offsetFromParent="1C" address="110">
-      <fields name="value" alias="Grab LinePitch" description="This is the line pitch when writing in ram. It is measured in bytes, not pixels.  " size="16" implementReset="false" readOnlyMsb="2">
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-    </registers>
-    <registers name="line_size" alias="Host Line Size Register" description="Host Line Size Register." offsetFromParent="20" address="110">
+    <registers name="line_size" alias="Host Line Size Register" description="Host Line Size Register." offsetFromParent="28" address="110">
       <fields name="value" alias="Host Line size" description="This is the line size when writing in host ram. It is measured in bytes, not pixels.  If this register is higher than the actual data provided by the sensor, stray data will be written into host memory.  If this register is lower than the data provided by the sensor, image data will be cropped at the end of the line.&#xD;&#xA;&#xD;&#xA;For backward compatibility, the value of 0 indicates that the FPGA should auto-compute the line sized based on data provided by the sensor interface." size="14" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>range=1-16383&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Written line size in host frame.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Auto-compute line size from sensor data.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="csc" offsetFromParent="24" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
-      <fields name="COLOR_SPACE" description="Output color space used to transfer data to the DMA engine. " lsb="24" size="3">
+    <registers name="line_pitch" alias="Grab Line Pitch Register" description="Grab Line Pitch Register" offsetFromParent="2C" address="110">
+      <fields name="value" alias="Grab LinePitch" description="This is the line pitch when writing in ram. It is measured in bytes, not pixels.  " size="16" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="csc" offsetFromParent="30" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
+      <fields name="color_space" description="Output color space used to transfer data to the DMA engine. " lsb="24" size="3">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Mono sensor operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>BGR32&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>YUV 4:2:2 in full range&lt;/matrox_column_delimiter></possibleValues>
@@ -71,14 +74,9 @@
         <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RAW color pixels (8bpp or 10bpp selected with  MONO10 regsiter)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="DUP_LAST_LINE" description="This field is used to enable the duplicate last line feature.  When turned on, the datapath will regenerate the last line when it receives the end of frame marker from the acquisition section.&#xD;&#xA;&#xD;&#xA;The goal of this feature is to compensate for the lost line during the Bayer demosaic processing." lsb="23">
+      <fields name="duplicate_last_line" description="This field is used to enable the duplicate last line feature.  When turned on, the datapath will regenerate the last line when it receives the end of frame marker from the acquisition section.&#xD;&#xA;&#xD;&#xA;The goal of this feature is to compensate for the lost line during the Bayer demosaic processing." lsb="23">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>normal processing&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>last line is duplicated&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="MONO10" description="For monochrome sensors, this bit is used to select between 8-bit mode and 10-bit mode.&#xD;&#xA;&#xD;&#xA;This is a construction register since the 10-bit mode is not part of the product requirement.  We want to qualify the noise reduction algorithm in 10 bits. This bit may move of its behavior may change." lsb="16">
-        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Mono is in 8 bits&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Mono is in 10 bits&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="reverse_y" alias="REVERSE Y " description="Reverse readout" lsb="9">
@@ -86,14 +84,11 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Top to bottom readout&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="GRAB_REVX" lsb="8"/>
+      <fields name="reverse_x" lsb="8"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="status" baseAddress="C0" endAddress="C4">
-    <registers name="active">
-      <fields name="busy" readWrite="false" readOnly="true"/>
-    </registers>
-    <registers name="debug" description="FOR DEBUG" offsetFromParent="4">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="status" baseAddress="C0" endAddress="C0">
+    <registers name="debug" description="FOR DEBUG">
       <fields name="GRAB_MAX_ADD" lsb="2" size="30" valueAtReset="3fffffff"/>
       <fields name="OUT_OF_MEMORY_CLEAR" lsb="1" readWrite="false" writeOnly="true"/>
       <fields name="OUT_OF_MEMORY_STAT" description="" readWrite="false" readOnly="true"/>

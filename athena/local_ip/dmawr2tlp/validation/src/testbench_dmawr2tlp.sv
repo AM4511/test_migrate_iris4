@@ -13,6 +13,16 @@ module testbench_dmawr2tlp();
 	parameter GPIO_NUMB_INPUT=8;
 	parameter GPIO_NUMB_OUTPUT=8;
 
+
+	parameter FSTART_OFFSET_LOW     = 'h050;
+	parameter FSTART_OFFSET_HIGH    = 'h054;
+	parameter FSTART_R_OFFSET_LOW   = 'h058;
+	parameter FSTART_R_OFFSET_HIGH  = 'h05C;
+	parameter FSTART_G_OFFSET_LOW   = 'h060;
+	parameter FSTART_G_OFFSET_HIGH  = 'h064;
+	parameter LINE_SIZE_OFFSET      = 'h068;
+	parameter LINE_PITCH_OFFSET     = 'h06C;
+
 	integer  address;
 	integer  data;
 	integer  ben;
@@ -88,11 +98,13 @@ module testbench_dmawr2tlp();
 			.tlp_lower_address(tlp.lower_address)
 		);
 
+	assign cfg_bus_mast_en = 1'b1;
 
 	//Connect the GPIO
 	assign if_gpio.input_io[0] = irq[22];
 	assign user_data_in = if_gpio.output_io;
 
+	assign tlp.clk = axi_clk;
 
 	// Clock and Reset generation
 	always #5 axi_clk = ~axi_clk;
@@ -117,10 +129,20 @@ module testbench_dmawr2tlp();
 				int axi_address;
 				int axi_read_data;
 				int axi_write_data;
+				longint data;
 				logic [AXIS_DATA_WIDTH-1:0] stream_data[$];
 				logic [AXIS_USER_WIDTH-1:0] stream_user[$];
 				logic [AXIS_USER_WIDTH-1:0] sync;
 
+				// Parameters
+				longint fstart;
+				int line_size;
+				int line_pitch;
+
+
+				fstart = 'hA0000000;
+				line_size = 'h1000;
+				line_pitch = 'h1000;
 
 				$display("Reset driver models");
 				axis_driver.reset(10);
@@ -155,19 +177,48 @@ module testbench_dmawr2tlp();
 
 
 				///////////////////////////////////////////////////
+				// DMA frame start register
+				///////////////////////////////////////////////////
+				$display("Write FSTART register @0x%h", FSTART_OFFSET_LOW);
+				axil_driver.write(FSTART_OFFSET_LOW, fstart);
+				axil_driver.write(FSTART_OFFSET_HIGH, fstart>>32);
+				axil_driver.wait_n(10);
+
+
+				///////////////////////////////////////////////////
+				// DMA line size register
+				///////////////////////////////////////////////////
+				$display("Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
+				axil_driver.write(LINE_SIZE_OFFSET, line_size);
+				axil_driver.wait_n(10);
+
+
+				///////////////////////////////////////////////////
+				// DMA line pitch register
+				///////////////////////////////////////////////////
+				$display("Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
+				axil_driver.write(LINE_PITCH_OFFSET, line_pitch);
+				axil_driver.wait_n(10);
+
+
+				///////////////////////////////////////////////////
 				// Construct the video stream
 				///////////////////////////////////////////////////
 				stream_data = {};
 				stream_user = {};
-				for (int counter=0; counter<100; counter++) begin
-					stream_data.push_back(counter);
+				for (int counter=0; counter<line_size/8; counter++) begin
 
-					// Calculate sync
-					case (counter)
-						0 : sync = 2'b01;
-						100 : sync = 2'b10;
-						default: sync = 2'b00;
-					endcase
+					data =64'hAA00000000000000 | counter;
+					stream_data.push_back(data);
+
+                    // Calculate sync
+					if (counter == 0) begin
+                        sync = 2'b01;
+					end else if (counter == (line_size/8) - 1) begin
+						sync = 2'b10;
+					end else begin
+						sync = 2'b00;
+					end
 					stream_user.push_back(sync);
 				end
 
@@ -181,13 +232,13 @@ module testbench_dmawr2tlp();
 				///////////////////////////////////////////////////
 				// Terminate the simulation
 				///////////////////////////////////////////////////
-				axil_driver.wait_n(100);
-				axil_driver.terminate();
+				axil_driver.wait_n(1000);
+				//axil_driver.terminate();
 
 			end
 
 		join_any;
-		#1ms;
+			#1ms;
 		$finish;
 	end
 

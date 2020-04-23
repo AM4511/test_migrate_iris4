@@ -25,7 +25,6 @@ entity axi_stream_in is
     ----------------------------------------------------
     -- Control I/F
     ----------------------------------------------------
-    init_frame : in std_logic;
 
     ----------------------------------------------------
     -- AXI stream interface (Slave port)
@@ -39,6 +38,7 @@ entity axi_stream_in is
     ----------------------------------------------------
     -- Line buffer I/F
     ----------------------------------------------------
+    start_of_frame  : out std_logic;
     line_ready      : out std_logic;
     line_transfered : in  std_logic;
     end_of_dma      : out std_logic;
@@ -77,24 +77,32 @@ architecture rtl of axi_stream_in is
   constant C_S_AXI_ADDR_WIDTH   : integer := 8;
   constant C_S_AXI_DATA_WIDTH   : integer := 32;
   constant BUFFER_DATA_WIDTH    : integer := 64;
-  constant BUFFER_ADDRESS_WIDTH : integer := 12;
+
+  constant CONT : std_logic_vector(1 downto 0) := "00";
+  constant SOF  : std_logic_vector(1 downto 0) := "01";
+  constant EOL  : std_logic_vector(1 downto 0) := "10";
+  constant EOF  : std_logic_vector(1 downto 0) := "11";
 
   signal state : FSM_TYPE := S_IDLE;
 
   signal buffer_write_en      : std_logic;
-  signal buffer_write_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal buffer_write_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
   signal buffer_read_en      : std_logic;
-  signal buffer_read_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
   signal axis_data_ack : std_logic;
+  signal sync          : std_logic_vector(1 downto 0);
 
 begin
 
   s_axis_tready <= '1' when (state = S_LOAD_LINE) else
                    '0';
+
+  sync(0) <= s_axis_tuser(0);
+  sync(1) <= s_axis_tlast;
 
   -----------------------------------------------------------------------------
   -- Process     : P_hispi_state
@@ -205,14 +213,14 @@ begin
 
   buffer_write_data <= s_axis_tdata;
 
-  
+
   -----------------------------------------------------------------------------
   -- Line buffer 
   -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
-      ADDRWIDTH => BUFFER_ADDRESS_WIDTH
+      ADDRWIDTH => BUFFER_ADDR_WIDTH
       )
     port map(
       data      => buffer_write_data,
@@ -224,13 +232,36 @@ begin
       wren      => buffer_write_en,
       q         => buffer_read_data
       );
+  
+  buffer_read_en        <= line_buffer_read_en;
+  buffer_read_address   <= line_buffer_read_address;
+  line_buffer_read_data <= buffer_read_data;
+
+  
+-----------------------------------------------------------------------------
+-- line_ready
+-----------------------------------------------------------------------------
+  P_line_ready : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0')then
+        line_ready <= '0';
+      else
+        if (state = S_INIT_HOST_TRANSFER) then
+          line_ready <= '1';
+        elsif (line_transfered = '1') then
+          line_ready <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
+  start_of_frame <= '1' when (state = S_INIT and sync = SOF) else
+                    '0';
 
-  line_ready <= '1' when (state = S_INIT_HOST_TRANSFER) else
-                '0';
-
-
+  line_buffer_read_data <= buffer_read_data;
+  end_of_dma            <= '0';         -- TBD
 
 end rtl;
 

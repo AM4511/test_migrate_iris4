@@ -2,11 +2,11 @@
 -- File                : dma2tlp.vhd
 -- Project             : FDK
 -- Module              : regfile_dma2tlp_pack
--- Created on          : 2020/04/20 17:59:57
+-- Created on          : 2020/04/23 11:30:16
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xC8DD74C0
+-- Register file CRC32 : 0x1D520EF7
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -24,17 +24,17 @@ package regfile_dma2tlp_pack is
    constant K_info_capability_ADDR    : natural := 16#c#;
    constant K_info_scratchpad_ADDR    : natural := 16#10#;
    constant K_dma_ctrl_ADDR           : natural := 16#40#;
-   constant K_dma_frame_start_0_ADDR  : natural := 16#44#;
-   constant K_dma_frame_start_1_ADDR  : natural := 16#48#;
-   constant K_dma_frame_start_g_0_ADDR : natural := 16#4c#;
-   constant K_dma_frame_start_g_1_ADDR : natural := 16#50#;
-   constant K_dma_frame_start_r_0_ADDR : natural := 16#54#;
-   constant K_dma_frame_start_r_1_ADDR : natural := 16#58#;
-   constant K_dma_line_pitch_ADDR     : natural := 16#5c#;
-   constant K_dma_line_size_ADDR      : natural := 16#60#;
-   constant K_dma_csc_ADDR            : natural := 16#64#;
-   constant K_status_active_ADDR      : natural := 16#c0#;
-   constant K_status_debug_ADDR       : natural := 16#c4#;
+   constant K_dma_status_ADDR         : natural := 16#4c#;
+   constant K_dma_frame_start_0_ADDR  : natural := 16#50#;
+   constant K_dma_frame_start_1_ADDR  : natural := 16#54#;
+   constant K_dma_frame_start_g_0_ADDR : natural := 16#58#;
+   constant K_dma_frame_start_g_1_ADDR : natural := 16#5c#;
+   constant K_dma_frame_start_r_0_ADDR : natural := 16#60#;
+   constant K_dma_frame_start_r_1_ADDR : natural := 16#64#;
+   constant K_dma_line_size_ADDR      : natural := 16#68#;
+   constant K_dma_line_pitch_ADDR     : natural := 16#6c#;
+   constant K_dma_csc_ADDR            : natural := 16#70#;
+   constant K_status_debug_ADDR       : natural := 16#c0#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: tag
@@ -133,6 +133,21 @@ package regfile_dma2tlp_pack is
    function to_DMA_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CTRL_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: status
+   ------------------------------------------------------------------------------------------
+   type DMA_STATUS_TYPE is record
+      busy           : std_logic;
+   end record DMA_STATUS_TYPE;
+
+   constant INIT_DMA_STATUS_TYPE : DMA_STATUS_TYPE := (
+      busy            => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DMA_STATUS_TYPE) return std_logic_vector;
+   function to_DMA_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_STATUS_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: frame_start
    ------------------------------------------------------------------------------------------
    type DMA_FRAME_START_TYPE is record
@@ -193,21 +208,6 @@ package regfile_dma2tlp_pack is
    function to_DMA_FRAME_START_R_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FRAME_START_R_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: line_pitch
-   ------------------------------------------------------------------------------------------
-   type DMA_LINE_PITCH_TYPE is record
-      value          : std_logic_vector(15 downto 0);
-   end record DMA_LINE_PITCH_TYPE;
-
-   constant INIT_DMA_LINE_PITCH_TYPE : DMA_LINE_PITCH_TYPE := (
-      value           => (others=> 'Z')
-   );
-
-   -- Casting functions:
-   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector;
-   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE;
-   
-   ------------------------------------------------------------------------------------------
    -- Register Name: line_size
    ------------------------------------------------------------------------------------------
    type DMA_LINE_SIZE_TYPE is record
@@ -223,42 +223,40 @@ package regfile_dma2tlp_pack is
    function to_DMA_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_SIZE_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: line_pitch
+   ------------------------------------------------------------------------------------------
+   type DMA_LINE_PITCH_TYPE is record
+      value          : std_logic_vector(15 downto 0);
+   end record DMA_LINE_PITCH_TYPE;
+
+   constant INIT_DMA_LINE_PITCH_TYPE : DMA_LINE_PITCH_TYPE := (
+      value           => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector;
+   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: csc
    ------------------------------------------------------------------------------------------
    type DMA_CSC_TYPE is record
-      COLOR_SPACE    : std_logic_vector(2 downto 0);
-      DUP_LAST_LINE  : std_logic;
-      MONO10         : std_logic;
+      color_space    : std_logic_vector(2 downto 0);
+      duplicate_last_line: std_logic;
       reverse_y      : std_logic;
-      GRAB_REVX      : std_logic;
+      reverse_x      : std_logic;
    end record DMA_CSC_TYPE;
 
    constant INIT_DMA_CSC_TYPE : DMA_CSC_TYPE := (
-      COLOR_SPACE     => (others=> 'Z'),
-      DUP_LAST_LINE   => 'Z',
-      MONO10          => 'Z',
+      color_space     => (others=> 'Z'),
+      duplicate_last_line => 'Z',
       reverse_y       => 'Z',
-      GRAB_REVX       => 'Z'
+      reverse_x       => 'Z'
    );
 
    -- Casting functions:
    function to_std_logic_vector(reg : DMA_CSC_TYPE) return std_logic_vector;
    function to_DMA_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CSC_TYPE;
-   
-   ------------------------------------------------------------------------------------------
-   -- Register Name: active
-   ------------------------------------------------------------------------------------------
-   type STATUS_ACTIVE_TYPE is record
-      busy           : std_logic;
-   end record STATUS_ACTIVE_TYPE;
-
-   constant INIT_STATUS_ACTIVE_TYPE : STATUS_ACTIVE_TYPE := (
-      busy            => 'Z'
-   );
-
-   -- Casting functions:
-   function to_std_logic_vector(reg : STATUS_ACTIVE_TYPE) return std_logic_vector;
-   function to_STATUS_ACTIVE_TYPE(stdlv : std_logic_vector(31 downto 0)) return STATUS_ACTIVE_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: debug
@@ -303,21 +301,23 @@ package regfile_dma2tlp_pack is
    ------------------------------------------------------------------------------------------
    type DMA_TYPE is record
       ctrl           : DMA_CTRL_TYPE;
+      status         : DMA_STATUS_TYPE;
       frame_start    : DMA_FRAME_START_TYPE_ARRAY;
       frame_start_g  : DMA_FRAME_START_G_TYPE_ARRAY;
       frame_start_r  : DMA_FRAME_START_R_TYPE_ARRAY;
-      line_pitch     : DMA_LINE_PITCH_TYPE;
       line_size      : DMA_LINE_SIZE_TYPE;
+      line_pitch     : DMA_LINE_PITCH_TYPE;
       csc            : DMA_CSC_TYPE;
    end record DMA_TYPE;
 
    constant INIT_DMA_TYPE : DMA_TYPE := (
       ctrl            => INIT_DMA_CTRL_TYPE,
+      status          => INIT_DMA_STATUS_TYPE,
       frame_start     => INIT_DMA_FRAME_START_TYPE_ARRAY,
       frame_start_g   => INIT_DMA_FRAME_START_G_TYPE_ARRAY,
       frame_start_r   => INIT_DMA_FRAME_START_R_TYPE_ARRAY,
-      line_pitch      => INIT_DMA_LINE_PITCH_TYPE,
       line_size       => INIT_DMA_LINE_SIZE_TYPE,
+      line_pitch      => INIT_DMA_LINE_PITCH_TYPE,
       csc             => INIT_DMA_CSC_TYPE
    );
 
@@ -325,12 +325,10 @@ package regfile_dma2tlp_pack is
    -- Section Name: status
    ------------------------------------------------------------------------------------------
    type STATUS_TYPE is record
-      active         : STATUS_ACTIVE_TYPE;
       debug          : STATUS_DEBUG_TYPE;
    end record STATUS_TYPE;
 
    constant INIT_STATUS_TYPE : STATUS_TYPE := (
-      active          => INIT_STATUS_ACTIVE_TYPE,
       debug           => INIT_STATUS_DEBUG_TYPE
    );
 
@@ -499,6 +497,29 @@ package body regfile_dma2tlp_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from DMA_STATUS_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DMA_STATUS_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(0) := reg.busy;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DMA_STATUS_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_STATUS_TYPE
+   --------------------------------------------------------------------------------
+   function to_DMA_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_STATUS_TYPE is
+   variable output : DMA_STATUS_TYPE;
+   begin
+      output.busy := stdlv(0);
+      return output;
+   end to_DMA_STATUS_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from DMA_FRAME_START_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : DMA_FRAME_START_TYPE) return std_logic_vector is
@@ -568,29 +589,6 @@ package body regfile_dma2tlp_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_LINE_PITCH_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(15 downto 0) := reg.value;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_LINE_PITCH_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_LINE_PITCH_TYPE
-   --------------------------------------------------------------------------------
-   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE is
-   variable output : DMA_LINE_PITCH_TYPE;
-   begin
-      output.value := stdlv(15 downto 0);
-      return output;
-   end to_DMA_LINE_PITCH_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
    -- Description: Cast from DMA_LINE_SIZE_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : DMA_LINE_SIZE_TYPE) return std_logic_vector is
@@ -614,17 +612,39 @@ package body regfile_dma2tlp_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from DMA_LINE_PITCH_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 0) := reg.value;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DMA_LINE_PITCH_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_LINE_PITCH_TYPE
+   --------------------------------------------------------------------------------
+   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE is
+   variable output : DMA_LINE_PITCH_TYPE;
+   begin
+      output.value := stdlv(15 downto 0);
+      return output;
+   end to_DMA_LINE_PITCH_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from DMA_CSC_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : DMA_CSC_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(26 downto 24) := reg.COLOR_SPACE;
-      output(23) := reg.DUP_LAST_LINE;
-      output(16) := reg.MONO10;
+      output(26 downto 24) := reg.color_space;
+      output(23) := reg.duplicate_last_line;
       output(9) := reg.reverse_y;
-      output(8) := reg.GRAB_REVX;
+      output(8) := reg.reverse_x;
       return output;
    end to_std_logic_vector;
 
@@ -635,36 +655,12 @@ package body regfile_dma2tlp_pack is
    function to_DMA_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CSC_TYPE is
    variable output : DMA_CSC_TYPE;
    begin
-      output.COLOR_SPACE := stdlv(26 downto 24);
-      output.DUP_LAST_LINE := stdlv(23);
-      output.MONO10 := stdlv(16);
+      output.color_space := stdlv(26 downto 24);
+      output.duplicate_last_line := stdlv(23);
       output.reverse_y := stdlv(9);
-      output.GRAB_REVX := stdlv(8);
+      output.reverse_x := stdlv(8);
       return output;
    end to_DMA_CSC_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
-   -- Description: Cast from STATUS_ACTIVE_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : STATUS_ACTIVE_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(0) := reg.busy;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_STATUS_ACTIVE_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to STATUS_ACTIVE_TYPE
-   --------------------------------------------------------------------------------
-   function to_STATUS_ACTIVE_TYPE(stdlv : std_logic_vector(31 downto 0)) return STATUS_ACTIVE_TYPE is
-   variable output : STATUS_ACTIVE_TYPE;
-   begin
-      output.busy := stdlv(0);
-      return output;
-   end to_STATUS_ACTIVE_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -701,11 +697,11 @@ end package body;
 -- File                : regfile_dma2tlp.vhd
 -- Project             : FDK
 -- Module              : regfile_dma2tlp
--- Created on          : 2020/04/20 17:59:57
+-- Created on          : 2020/04/23 11:30:16
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xC8DD74C0
+-- Register file CRC32 : 0x1D520EF7
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -755,16 +751,16 @@ signal rb_info_version                                 : std_logic_vector(31 dow
 signal rb_info_capability                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_info_scratchpad                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_ctrl                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_dma_status                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_0                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_1                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_g_0                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_g_1                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_r_0                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_frame_start_r_1                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_dma_line_pitch                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_line_size                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_dma_line_pitch                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_dma_csc                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_status_active                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_status_debug                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_info_scratchpad_value                  : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw_dma_ctrl_grab_queue_enable             : std_logic;                                       -- Field: grab_queue_enable
@@ -775,13 +771,12 @@ signal field_rw_dma_frame_start_g_0_value              : std_logic_vector(31 dow
 signal field_rw_dma_frame_start_g_1_value              : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw_dma_frame_start_r_0_value              : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw_dma_frame_start_r_1_value              : std_logic_vector(31 downto 0);                   -- Field: value
-signal field_rw_dma_line_pitch_value                   : std_logic_vector(15 downto 0);                   -- Field: value
 signal field_rw_dma_line_size_value                    : std_logic_vector(13 downto 0);                   -- Field: value
-signal field_rw_dma_csc_COLOR_SPACE                    : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
-signal field_rw_dma_csc_DUP_LAST_LINE                  : std_logic;                                       -- Field: DUP_LAST_LINE
-signal field_rw_dma_csc_MONO10                         : std_logic;                                       -- Field: MONO10
+signal field_rw_dma_line_pitch_value                   : std_logic_vector(15 downto 0);                   -- Field: value
+signal field_rw_dma_csc_color_space                    : std_logic_vector(2 downto 0);                    -- Field: color_space
+signal field_rw_dma_csc_duplicate_last_line            : std_logic;                                       -- Field: duplicate_last_line
 signal field_rw_dma_csc_reverse_y                      : std_logic;                                       -- Field: reverse_y
-signal field_rw_dma_csc_GRAB_REVX                      : std_logic;                                       -- Field: GRAB_REVX
+signal field_rw_dma_csc_reverse_x                      : std_logic;                                       -- Field: reverse_x
 signal field_rw_status_debug_GRAB_MAX_ADD              : std_logic_vector(29 downto 0);                   -- Field: GRAB_MAX_ADD
 signal field_wautoclr_status_debug_OUT_OF_MEMORY_CLEAR : std_logic;                                       -- Field: OUT_OF_MEMORY_CLEAR
 
@@ -810,17 +805,17 @@ hit(2)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,8)))	else '0'
 hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,8)))	else '0'; -- Addr:  0x000C	capability
 hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#10#,8)))	else '0'; -- Addr:  0x0010	scratchpad
 hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40#,8)))	else '0'; -- Addr:  0x0040	ctrl
-hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44#,8)))	else '0'; -- Addr:  0x0044	frame_start[0]
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48#,8)))	else '0'; -- Addr:  0x0048	frame_start[1]
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c#,8)))	else '0'; -- Addr:  0x004C	frame_start_g[0]
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#50#,8)))	else '0'; -- Addr:  0x0050	frame_start_g[1]
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#54#,8)))	else '0'; -- Addr:  0x0054	frame_start_r[0]
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#58#,8)))	else '0'; -- Addr:  0x0058	frame_start_r[1]
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#5c#,8)))	else '0'; -- Addr:  0x005C	line_pitch
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#60#,8)))	else '0'; -- Addr:  0x0060	line_size
-hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#64#,8)))	else '0'; -- Addr:  0x0064	csc
-hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c0#,8)))	else '0'; -- Addr:  0x00C0	active
-hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c4#,8)))	else '0'; -- Addr:  0x00C4	debug
+hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c#,8)))	else '0'; -- Addr:  0x004C	status
+hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#50#,8)))	else '0'; -- Addr:  0x0050	frame_start[0]
+hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#54#,8)))	else '0'; -- Addr:  0x0054	frame_start[1]
+hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#58#,8)))	else '0'; -- Addr:  0x0058	frame_start_g[0]
+hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#5c#,8)))	else '0'; -- Addr:  0x005C	frame_start_g[1]
+hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#60#,8)))	else '0'; -- Addr:  0x0060	frame_start_r[0]
+hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#64#,8)))	else '0'; -- Addr:  0x0064	frame_start_r[1]
+hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#68#,8)))	else '0'; -- Addr:  0x0068	line_size
+hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#6c#,8)))	else '0'; -- Addr:  0x006C	line_pitch
+hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,8)))	else '0'; -- Addr:  0x0070	csc
+hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c0#,8)))	else '0'; -- Addr:  0x00C0	debug
 
 
 
@@ -837,16 +832,16 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_info_capability,
                             rb_info_scratchpad,
                             rb_dma_ctrl,
+                            rb_dma_status,
                             rb_dma_frame_start_0,
                             rb_dma_frame_start_1,
                             rb_dma_frame_start_g_0,
                             rb_dma_frame_start_g_1,
                             rb_dma_frame_start_r_0,
                             rb_dma_frame_start_r_1,
-                            rb_dma_line_pitch,
                             rb_dma_line_size,
+                            rb_dma_line_pitch,
                             rb_dma_csc,
-                            rb_status_active,
                             rb_status_debug
                            )
 begin
@@ -875,48 +870,48 @@ begin
       when 16#40# =>
          readBackMux <= rb_dma_ctrl;
 
-      -- [0x44]: /dma/frame_start_0
-      when 16#44# =>
+      -- [0x4c]: /dma/status
+      when 16#4C# =>
+         readBackMux <= rb_dma_status;
+
+      -- [0x50]: /dma/frame_start_0
+      when 16#50# =>
          readBackMux <= rb_dma_frame_start_0;
 
-      -- [0x48]: /dma/frame_start_1
-      when 16#48# =>
+      -- [0x54]: /dma/frame_start_1
+      when 16#54# =>
          readBackMux <= rb_dma_frame_start_1;
 
-      -- [0x4c]: /dma/frame_start_g_0
-      when 16#4C# =>
+      -- [0x58]: /dma/frame_start_g_0
+      when 16#58# =>
          readBackMux <= rb_dma_frame_start_g_0;
 
-      -- [0x50]: /dma/frame_start_g_1
-      when 16#50# =>
+      -- [0x5c]: /dma/frame_start_g_1
+      when 16#5C# =>
          readBackMux <= rb_dma_frame_start_g_1;
 
-      -- [0x54]: /dma/frame_start_r_0
-      when 16#54# =>
+      -- [0x60]: /dma/frame_start_r_0
+      when 16#60# =>
          readBackMux <= rb_dma_frame_start_r_0;
 
-      -- [0x58]: /dma/frame_start_r_1
-      when 16#58# =>
+      -- [0x64]: /dma/frame_start_r_1
+      when 16#64# =>
          readBackMux <= rb_dma_frame_start_r_1;
 
-      -- [0x5c]: /dma/line_pitch
-      when 16#5C# =>
-         readBackMux <= rb_dma_line_pitch;
-
-      -- [0x60]: /dma/line_size
-      when 16#60# =>
+      -- [0x68]: /dma/line_size
+      when 16#68# =>
          readBackMux <= rb_dma_line_size;
 
-      -- [0x64]: /dma/csc
-      when 16#64# =>
+      -- [0x6c]: /dma/line_pitch
+      when 16#6C# =>
+         readBackMux <= rb_dma_line_pitch;
+
+      -- [0x70]: /dma/csc
+      when 16#70# =>
          readBackMux <= rb_dma_csc;
 
-      -- [0xc0]: /status/active
+      -- [0xc0]: /status/debug
       when 16#C0# =>
-         readBackMux <= rb_status_active;
-
-      -- [0xc4]: /status/debug
-      when 16#C4# =>
          readBackMux <= rb_status_debug;
 
       -- Default value
@@ -989,7 +984,7 @@ wEn(2) <= (hit(2)) and (reg_write);
 -- Field name: major
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_info_version(23 downto 16) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_info_version(23 downto 16) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.info.version.major <= rb_info_version(23 downto 16);
 
 
@@ -997,7 +992,7 @@ regfile.info.version.major <= rb_info_version(23 downto 16);
 -- Field name: minor
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_info_version(15 downto 8) <= std_logic_vector(to_unsigned(integer(5),8));
+rb_info_version(15 downto 8) <= std_logic_vector(to_unsigned(integer(1),8));
 regfile.info.version.minor <= rb_info_version(15 downto 8);
 
 
@@ -1115,10 +1110,26 @@ end process P_dma_ctrl_enable;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: dma_frame_start_0
+-- Register name: dma_status
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(6) <= (hit(6)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: busy
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_dma_status(0) <= regfile.dma.status.busy;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: dma_frame_start_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(7) <= (hit(7)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1131,11 +1142,13 @@ regfile.dma.frame_start(0).value <= field_rw_dma_frame_start_0_value(31 downto 0
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_0_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_0_value : process(sysclk)
+P_dma_frame_start_0_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_0_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(6) = '1' and bitEnN(j) = '0') then
+         if(wEn(7) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_0_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -1149,7 +1162,7 @@ end process P_dma_frame_start_0_value;
 -- Register name: dma_frame_start_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(7) <= (hit(7)) and (reg_write);
+wEn(8) <= (hit(8)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1162,11 +1175,13 @@ regfile.dma.frame_start(1).value <= field_rw_dma_frame_start_1_value(31 downto 0
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_1_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_1_value : process(sysclk)
+P_dma_frame_start_1_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_1_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(7) = '1' and bitEnN(j) = '0') then
+         if(wEn(8) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_1_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -1180,7 +1195,7 @@ end process P_dma_frame_start_1_value;
 -- Register name: dma_frame_start_g_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(8) <= (hit(8)) and (reg_write);
+wEn(9) <= (hit(9)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1193,11 +1208,13 @@ regfile.dma.frame_start_g(0).value <= field_rw_dma_frame_start_g_0_value(31 down
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_g_0_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_g_0_value : process(sysclk)
+P_dma_frame_start_g_0_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_g_0_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(8) = '1' and bitEnN(j) = '0') then
+         if(wEn(9) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_g_0_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -1211,7 +1228,7 @@ end process P_dma_frame_start_g_0_value;
 -- Register name: dma_frame_start_g_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(9) <= (hit(9)) and (reg_write);
+wEn(10) <= (hit(10)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1224,11 +1241,13 @@ regfile.dma.frame_start_g(1).value <= field_rw_dma_frame_start_g_1_value(31 down
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_g_1_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_g_1_value : process(sysclk)
+P_dma_frame_start_g_1_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_g_1_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(9) = '1' and bitEnN(j) = '0') then
+         if(wEn(10) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_g_1_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -1242,7 +1261,7 @@ end process P_dma_frame_start_g_1_value;
 -- Register name: dma_frame_start_r_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(10) <= (hit(10)) and (reg_write);
+wEn(11) <= (hit(11)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1255,11 +1274,13 @@ regfile.dma.frame_start_r(0).value <= field_rw_dma_frame_start_r_0_value(31 down
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_r_0_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_r_0_value : process(sysclk)
+P_dma_frame_start_r_0_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_r_0_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(10) = '1' and bitEnN(j) = '0') then
+         if(wEn(11) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_r_0_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -1273,7 +1294,7 @@ end process P_dma_frame_start_r_0_value;
 -- Register name: dma_frame_start_r_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(11) <= (hit(11)) and (reg_write);
+wEn(12) <= (hit(12)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -1286,47 +1307,18 @@ regfile.dma.frame_start_r(1).value <= field_rw_dma_frame_start_r_1_value(31 down
 ------------------------------------------------------------------------------------------
 -- Process: P_dma_frame_start_r_1_value
 ------------------------------------------------------------------------------------------
-P_dma_frame_start_r_1_value : process(sysclk)
+P_dma_frame_start_r_1_value : process(sysclk, resetN)
 begin
-   if (rising_edge(sysclk)) then
+   if (resetN = '0') then
+      field_rw_dma_frame_start_r_1_value <= X"00000000";
+   elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(11) = '1' and bitEnN(j) = '0') then
+         if(wEn(12) = '1' and bitEnN(j) = '0') then
             field_rw_dma_frame_start_r_1_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
 end process P_dma_frame_start_r_1_value;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
--- Register name: dma_line_pitch
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(12) <= (hit(12)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: value(15 downto 0)
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_dma_line_pitch(15 downto 0) <= field_rw_dma_line_pitch_value(15 downto 0);
-regfile.dma.line_pitch.value <= field_rw_dma_line_pitch_value(15 downto 0);
-
-
-------------------------------------------------------------------------------------------
--- Process: P_dma_line_pitch_value
-------------------------------------------------------------------------------------------
-P_dma_line_pitch_value : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      for j in  15 downto 0  loop
-         if(wEn(12) = '1' and bitEnN(j) = '0') then
-            field_rw_dma_line_pitch_value(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
-   end if;
-end process P_dma_line_pitch_value;
 
 
 
@@ -1365,78 +1357,89 @@ end process P_dma_line_size_value;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: dma_csc
+-- Register name: dma_line_pitch
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(14) <= (hit(14)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: COLOR_SPACE(26 downto 24)
+-- Field name: value(15 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_dma_csc(26 downto 24) <= field_rw_dma_csc_COLOR_SPACE(2 downto 0);
-regfile.dma.csc.COLOR_SPACE <= field_rw_dma_csc_COLOR_SPACE(2 downto 0);
+rb_dma_line_pitch(15 downto 0) <= field_rw_dma_line_pitch_value(15 downto 0);
+regfile.dma.line_pitch.value <= field_rw_dma_line_pitch_value(15 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_dma_csc_COLOR_SPACE
+-- Process: P_dma_line_pitch_value
 ------------------------------------------------------------------------------------------
-P_dma_csc_COLOR_SPACE : process(sysclk, resetN)
+P_dma_line_pitch_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_dma_csc_COLOR_SPACE <= std_logic_vector(to_unsigned(integer(0),3));
+      field_rw_dma_line_pitch_value <= std_logic_vector(to_unsigned(integer(0),16));
    elsif (rising_edge(sysclk)) then
-      for j in  26 downto 24  loop
+      for j in  15 downto 0  loop
          if(wEn(14) = '1' and bitEnN(j) = '0') then
-            field_rw_dma_csc_COLOR_SPACE(j-24) <= reg_writedata(j);
+            field_rw_dma_line_pitch_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_dma_csc_COLOR_SPACE;
+end process P_dma_line_pitch_value;
+
+
 
 ------------------------------------------------------------------------------------------
--- Field name: DUP_LAST_LINE
+------------------------------------------------------------------------------------------
+-- Register name: dma_csc
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(15) <= (hit(15)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: color_space(26 downto 24)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_dma_csc(23) <= field_rw_dma_csc_DUP_LAST_LINE;
-regfile.dma.csc.DUP_LAST_LINE <= field_rw_dma_csc_DUP_LAST_LINE;
+rb_dma_csc(26 downto 24) <= field_rw_dma_csc_color_space(2 downto 0);
+regfile.dma.csc.color_space <= field_rw_dma_csc_color_space(2 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_dma_csc_DUP_LAST_LINE
+-- Process: P_dma_csc_color_space
 ------------------------------------------------------------------------------------------
-P_dma_csc_DUP_LAST_LINE : process(sysclk, resetN)
+P_dma_csc_color_space : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_dma_csc_DUP_LAST_LINE <= '0';
+      field_rw_dma_csc_color_space <= std_logic_vector(to_unsigned(integer(0),3));
    elsif (rising_edge(sysclk)) then
-      if(wEn(14) = '1' and bitEnN(23) = '0') then
-         field_rw_dma_csc_DUP_LAST_LINE <= reg_writedata(23);
-      end if;
+      for j in  26 downto 24  loop
+         if(wEn(15) = '1' and bitEnN(j) = '0') then
+            field_rw_dma_csc_color_space(j-24) <= reg_writedata(j);
+         end if;
+      end loop;
    end if;
-end process P_dma_csc_DUP_LAST_LINE;
+end process P_dma_csc_color_space;
 
 ------------------------------------------------------------------------------------------
--- Field name: MONO10
+-- Field name: duplicate_last_line
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_dma_csc(16) <= field_rw_dma_csc_MONO10;
-regfile.dma.csc.MONO10 <= field_rw_dma_csc_MONO10;
+rb_dma_csc(23) <= field_rw_dma_csc_duplicate_last_line;
+regfile.dma.csc.duplicate_last_line <= field_rw_dma_csc_duplicate_last_line;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_dma_csc_MONO10
+-- Process: P_dma_csc_duplicate_last_line
 ------------------------------------------------------------------------------------------
-P_dma_csc_MONO10 : process(sysclk, resetN)
+P_dma_csc_duplicate_last_line : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_dma_csc_MONO10 <= '0';
+      field_rw_dma_csc_duplicate_last_line <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(14) = '1' and bitEnN(16) = '0') then
-         field_rw_dma_csc_MONO10 <= reg_writedata(16);
+      if(wEn(15) = '1' and bitEnN(23) = '0') then
+         field_rw_dma_csc_duplicate_last_line <= reg_writedata(23);
       end if;
    end if;
-end process P_dma_csc_MONO10;
+end process P_dma_csc_duplicate_last_line;
 
 ------------------------------------------------------------------------------------------
 -- Field name: reverse_y
@@ -1454,49 +1457,33 @@ begin
    if (resetN = '0') then
       field_rw_dma_csc_reverse_y <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(14) = '1' and bitEnN(9) = '0') then
+      if(wEn(15) = '1' and bitEnN(9) = '0') then
          field_rw_dma_csc_reverse_y <= reg_writedata(9);
       end if;
    end if;
 end process P_dma_csc_reverse_y;
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_REVX
+-- Field name: reverse_x
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_dma_csc(8) <= field_rw_dma_csc_GRAB_REVX;
-regfile.dma.csc.GRAB_REVX <= field_rw_dma_csc_GRAB_REVX;
+rb_dma_csc(8) <= field_rw_dma_csc_reverse_x;
+regfile.dma.csc.reverse_x <= field_rw_dma_csc_reverse_x;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_dma_csc_GRAB_REVX
+-- Process: P_dma_csc_reverse_x
 ------------------------------------------------------------------------------------------
-P_dma_csc_GRAB_REVX : process(sysclk, resetN)
+P_dma_csc_reverse_x : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_dma_csc_GRAB_REVX <= '0';
+      field_rw_dma_csc_reverse_x <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(14) = '1' and bitEnN(8) = '0') then
-         field_rw_dma_csc_GRAB_REVX <= reg_writedata(8);
+      if(wEn(15) = '1' and bitEnN(8) = '0') then
+         field_rw_dma_csc_reverse_x <= reg_writedata(8);
       end if;
    end if;
-end process P_dma_csc_GRAB_REVX;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
--- Register name: status_active
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(15) <= (hit(15)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: busy
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_status_active(0) <= regfile.status.active.busy;
-
+end process P_dma_csc_reverse_x;
 
 
 
