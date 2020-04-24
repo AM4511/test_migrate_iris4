@@ -1,0 +1,79 @@
+Pin No.,   Dir, Function                 
+H16, OUT   ,DATA_0_P                     
+G15, OUT   ,DATA_2_P                     
+C14, OUT   ,DATA_4_P                     
+D14, OUT   ,DATA_6_P                     
+H13, OUT   ,DATA_8_P                     
+G12, OUT   ,DATA_10_P                    
+D11, OUT   ,DATA_12_P                    
+C10, OUT   ,DATA_14_P                    
+G9 , OUT   ,DATA_16_P                    
+H10, OUT   ,DATA_18_P                    
+D8 , OUT   ,DATA_20_P                    
+H7 , OUT   ,DATA_22_P                    
+H31, OUT   ,DATA_1_P                     
+G30, OUT   ,DATA_3_P                     
+G27, OUT   ,DATA_5_P                     
+H28, OUT   ,DATA_7_P                     
+C26, OUT   ,DATA_9_P                     
+D26, OUT   ,DATA_11_P                    
+H25, OUT   ,DATA_13_P                    
+G24, OUT   ,DATA_15_P                    
+D23, OUT   ,DATA_17_P                    
+H22, OUT   ,DATA_19_P                    
+C22, OUT   ,DATA_21_P                    
+G21, OUT   ,DATA_23_P                    
+H4 , INOUT ,D_CLK_2_P                    
+G2 , INOUT ,D_CLK_3_P                    
+C35, PWR   ,12 V FMC                     
+C37, PWR   ,12 V FMC                     
+F40, PWR   ,VADJ (for voltage convertor) 
+E39, PWR   ,VADJ (for voltage convertor) 
+G39, PWR   ,VADJ (for voltage convertor) 
+H40, PWR   ,VADJ (for voltage convertor) 
+H1 , PWR   ,VREF_A_M2C                   
+J39, PWR   ,VIO_B_M2C                    
+K40, PWR   ,VIO_B_M2C                    
+H20, IN    ,TRIGGER_INT_VADJ             
+D17, IN    ,SCLK_VADJ                    
+C18, IN    ,CS_N_VADJ                    
+C30, IN    ,SCL (EEPROM)                 
+C34, IN    ,GA0 (EEPROM)  
+H17, OUT   ,DATA_0_N
+G16, OUT   ,DATA_2_N
+C15, OUT   ,DATA_4_N
+D15, OUT   ,DATA_6_N
+H14, OUT   ,DATA_8_N
+G13, OUT   ,DATA_10_N
+D12, OUT   ,DATA_12_N
+C11, OUT   ,DATA_14_N
+G10, OUT   ,DATA_16_N
+H11, OUT   ,DATA_18_N
+D9 , OUT   ,DATA_20_N
+H8 , OUT   ,DATA_22_N
+H32, OUT   ,DATA_1_N
+G31, OUT   ,DATA_3_N
+G28, OUT   ,DATA_5_N
+H29, OUT   ,DATA_7_N
+C27, OUT   ,DATA_9_N
+D27, OUT   ,DATA_11_N
+C26, OUT   ,DATA_13_N
+G25, OUT   ,DATA_15_N
+D24, OUT   ,DATA_17_N
+H23, OUT   ,DATA_19_N
+C23, OUT   ,DATA_21_N
+G22, OUT   ,DATA_23_N
+H5 , INOUT ,D_CLK_2_N
+G3 , INOUT ,D_CLK_3_N
+C39, PWR   ,3.3V FMC
+D36, PWR   ,3.3V FMC
+D38, PWR   ,3.3V FMC
+D40, PWR   ,3.3V FMC
+D32, PWR   ,3.3V_VAUX_FMC (EEPROM)
+K1 ,PWR    ,VREF_B_M2C
+H19, IN    ,RESET_N_VADJ
+G19, IN    ,TRIGGER_RD_VADJ
+D18, IN    ,SDATA_VADJ
+C19, OUT   ,SDATAOUT_VADJ
+C31, INOUT ,SDA (EEPROM)
+C35, IN    ,GA1 (EEPROM)

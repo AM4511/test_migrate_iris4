@@ -125,13 +125,13 @@ Register("grab_stat", 0x108, 4, "null");
 			FieldValue("Grab is Idle", 1);
 
 Register("readout_cfg1", 0x110, 4, "null");
-		Field("grab_revx_over_rst", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("grab_revx_over", 29, 29, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("No ReverseX Overrun detected", 0);
-			FieldValue("At least one ReverseX Overrun was detected", 1);
-		Field("grab_revx", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("rot_length", 25, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Row Overhead Time LENGTH");
-		Field("fot_length", 15, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Frame Overhead Time LENGTH");
+		Field("fot_length_line", 28, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH LINE");
+		Field("eo_fot_sel", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fot_length", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH");
+
+Register("readout_cfg_frame_line", 0x114, 4, "null");
+		Field("dummy_lines", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("curr_frame_lines", 12, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg2", 0x118, 4, "null");
 		Field("readout_length", 28, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
@@ -249,7 +249,7 @@ Register("sensor_stat", 0x198, 4, "SENSOR control STATus");
 			FieldValue("PowerUp sequence not started", 0);
 			FieldValue("PowerUp sequence finish", 1);
 
-Register("sensor_subsampling", 0x1a0, 4, "null");
+Register("sensor_subsampling", 0x19c, 4, "null");
 		Field("reserved1", 15, 4, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("active_subsampling_y", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
@@ -288,13 +288,29 @@ Register("sensor_roi2_y_size", 0x1b4, 4, "null");
 		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("y_size", 9, 0, "rd|wr", 0x0, 0x302, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y SIZE");
 
-Register("sensor_m_lines", 0x1d8, 4, "null");
+Register("sensor_m_lines", 0x1b8, 4, "null");
 		Field("m_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("m_lines", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("m_lines_sensor", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_f_lines", 0x1dc, 4, "null");
+Register("sensor_f_lines", 0x1bc, 4, "null");
 		Field("f_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("f_lines", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("f_lines_sensor", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_dp_gr", 0x1c0, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_gr", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_dp_gb", 0x1c4, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_gb", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_dp_r", 0x1c8, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_r", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_dp_b", 0x1cc, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

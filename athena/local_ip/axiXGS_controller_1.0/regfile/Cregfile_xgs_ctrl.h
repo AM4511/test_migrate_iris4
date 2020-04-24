@@ -2,11 +2,11 @@
 ** File                : Cregfile_xgs_ctrl.h
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/03/03 08:21:44
+** Created on          : 2020/04/21 14:33:46
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0xD7056496
+** Register file CRC32 : 0x4BE916FE
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved

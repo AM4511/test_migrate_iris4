@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use ieee.numeric_std.all; 
 
 library  work;
 use work.regfile_xgs_ctrl_pack.all;
@@ -9,6 +9,7 @@ entity axiXGS_controller_v1_0 is
 	generic (
 		-- Users to add parameters here
         G_SYS_CLK_PERIOD    : integer  := 16;
+        G_SENSOR_FREQ       : integer  := 32400; 
 		G_SIMULATION        : integer  := 0;
         G_KU706             : integer  := 0;
         -- User parameters ends
@@ -53,7 +54,30 @@ entity axiXGS_controller_v1_0 is
         anput_trig_rdy_out     : out   std_logic;                       --
         
         led_out                : out   std_logic_vector(1 downto 0);     -- led_out(0) --> vert, led_out(1) --> rouge
-                
+
+        
+        ---------------------------------------------------------------------------
+        --  Signals to Datapath/DMA
+        ---------------------------------------------------------------------------
+        abort_readout_datapath          : out   std_logic := '0';
+        dma_idle                        : in    std_logic := '1';
+
+        strobe_DMA_P1                   : out   std_logic := '0';            -- Load DMA 1st stage registers  
+        strobe_DMA_P2                   : out   std_logic := '0';            -- Load DMA 2nd stage registers 
+        
+        curr_db_GRAB_ROI2_EN            : out   std_logic := '0';
+        
+        curr_db_y_start_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+        curr_db_nblines_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+                 
+        curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+        curr_db_nblines_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+
+        curr_db_subsampling_X           : out   std_logic:='0';
+        curr_db_subsampling_Y           : out   std_logic:='0';
+        
+        curr_db_BUFFER_ID               : out   std_logic:='0';
+        
         
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -114,7 +138,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
         S_AXI_ACLK        : in std_logic;
         S_AXI_ARESETN     : in std_logic;
         S_AXI_AWADDR      : in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-        S_AXI_AWPROT      : in std_logic_vector(2 downto 0);
+        --S_AXI_AWPROT      : in std_logic_vector(2 downto 0);
         S_AXI_AWVALID     : in std_logic;
         S_AXI_AWREADY     : out std_logic;
         
@@ -128,7 +152,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
         S_AXI_BREADY      : in std_logic;
         
         S_AXI_ARADDR      : in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
-        S_AXI_ARPROT      : in std_logic_vector(2 downto 0);
+        --S_AXI_ARPROT      : in std_logic_vector(2 downto 0);
         S_AXI_ARVALID     : in std_logic;
         S_AXI_ARREADY     : out std_logic;
         
@@ -169,7 +193,8 @@ architecture arch_imp of axiXGS_controller_v1_0 is
    component xgs_ctrl
    generic(  G_KU706               : integer := 0;
              G_SIMULATION          : integer := 0;
-             G_SYS_CLK_PERIOD      : integer            
+             G_SYS_CLK_PERIOD      : integer := 16;
+             G_SENSOR_FREQ         : integer := 32400            
           );
    port (  
            sys_reset_n                     : in  std_logic;      --Reset pour le controleur au complet
@@ -231,30 +256,36 @@ architecture arch_imp of axiXGS_controller_v1_0 is
            
            ---------------------------------------------------------------------------
            --   signals
-           ---------------------------------------------------------------------------
-           DEC_EOF_sys                     : in  std_logic;
-           
-           abort_readout_datapath          : out std_logic;
+           ---------------------------------------------------------------------------          
            --start_calibration               : out std_logic;
+
+           abort_readout_datapath          : out std_logic;
            dma_idle                        : in  std_logic;
 
+           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers  
+           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers 
+
+           
            curr_db_GRAB_ROI2_EN            : out std_logic;
-           curr_db_nblines_ROI1            : out std_logic_vector;
-           curr_db_nblines_ROI2            : out std_logic_vector;
+                      
+           curr_db_y_start_ROI1            : out std_logic_vector;     -- 1-base
+           curr_db_nblines_ROI1            : out std_logic_vector;     -- 1-base  
+
+           curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
+           curr_db_nblines_ROI2            : out std_logic_vector;     -- 1-base
 
            curr_db_subsampling_X           : out std_logic;
            curr_db_subsampling_Y           : out std_logic;
-           
-           curr_db_y_start                 : out std_logic_vector;
-           curr_db_y_end                   : out std_logic_vector;
-           
-           --curr_db_CSC_32                  : out std_logic_vector;
-           --curr_db_DMA_PARAMETER           : out ALIAS_DMA_TYPE;
+                      
            curr_db_BUFFER_ID               : out std_logic;
-           --curr_db_reverse_y               : out std_logic;
        
            regfile                         : inout REGFILE_XGS_CTRL_TYPE-- := INIT_REGFILE_TYPE
 
+           
+
+
+           
+           
         );
   end component;  
   
@@ -289,14 +320,6 @@ architecture arch_imp of axiXGS_controller_v1_0 is
   signal regfile             :  REGFILE_XGS_CTRL_TYPE;  
     
   
-  signal curr_db_y_start             : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
-  signal curr_db_y_end               : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
-  signal curr_db_subsampling_X       : std_logic;
-  signal curr_db_subsampling_Y       : std_logic;
-  signal curr_db_nblines_ROI1        : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
-  signal curr_db_nblines_ROI2        : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
-  
-  
   
   
 begin
@@ -330,7 +353,7 @@ begin
         S_AXI_ACLK        => S_AXI_ACLK,   
         S_AXI_ARESETN     => S_AXI_ARESETN,
         S_AXI_AWADDR      => S_AXI_AWADDR, 
-        S_AXI_AWPROT      => S_AXI_AWPROT, 
+        --S_AXI_AWPROT      => S_AXI_AWPROT, 
         S_AXI_AWVALID     => S_AXI_AWVALID,
         S_AXI_AWREADY     => S_AXI_AWREADY,
                          
@@ -344,7 +367,7 @@ begin
         S_AXI_BREADY      => S_AXI_BREADY, 
                          
         S_AXI_ARADDR      => S_AXI_ARADDR, 
-        S_AXI_ARPROT      => S_AXI_ARPROT, 
+        --S_AXI_ARPROT      => S_AXI_ARPROT, 
         S_AXI_ARVALID     => S_AXI_ARVALID,
         S_AXI_ARREADY     => S_AXI_ARREADY,
                          
@@ -450,7 +473,8 @@ begin
    Inst_xgs_ctrl : xgs_ctrl
    generic map(  G_KU706                   => G_KU706,
                  G_SIMULATION              => G_SIMULATION,
-                 G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD
+                 G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD,
+                 G_SENSOR_FREQ             => G_SENSOR_FREQ
           )
    port map(  
            sys_reset_n                     => sys_reset_n_ctrl,      --Reset pour le controleur au complet
@@ -512,29 +536,32 @@ begin
            irq_abort                       => open,
            
            ---------------------------------------------------------------------------
-           --   signals
+           --  Signals to Datapath/DMA
            ---------------------------------------------------------------------------
-           DEC_EOF_sys                     => '0', --ca va planter ici
-           
-           abort_readout_datapath          => open,
            --start_calibration               => open,
-           dma_idle                        => '1',
 
-           curr_db_GRAB_ROI2_EN            => open,
-           curr_db_nblines_ROI1            => curr_db_nblines_ROI1,
-           curr_db_nblines_ROI2            => curr_db_nblines_ROI2,
+           abort_readout_datapath          => abort_readout_datapath,
+           dma_idle                        => dma_idle,
+
+           strobe_DMA_P1                   => strobe_DMA_P1,            -- Load DMA 1st stage registers  
+           strobe_DMA_P2                   => strobe_DMA_P2,            -- Load DMA 2nd stage registers 
+           
+           curr_db_GRAB_ROI2_EN            => curr_db_GRAB_ROI2_EN,
+          
+           curr_db_y_start_ROI1            => curr_db_y_start_ROI1,     -- 1-base
+           curr_db_nblines_ROI1            => curr_db_nblines_ROI1,     -- 1-base  
+                    
+           curr_db_y_start_ROI2            => curr_db_y_start_ROI2,     -- 1-base  
+           curr_db_nblines_ROI2            => curr_db_nblines_ROI2,     -- 1-base
 
            curr_db_subsampling_X           => curr_db_subsampling_X,
            curr_db_subsampling_Y           => curr_db_subsampling_Y,
            
-           curr_db_y_start                 => curr_db_y_start,
-           curr_db_y_end                   => curr_db_y_end,
-           
-           --curr_db_CSC_32                  : out std_logic_vector;
-           --curr_db_DMA_PARAMETER           : out ALIAS_DMA_TYPE;
-           curr_db_BUFFER_ID               => open,
-           --curr_db_reverse_y               : out std_logic;
-       
+           curr_db_BUFFER_ID               => curr_db_BUFFER_ID,
+
+           ---------------------------------------------------------------------------
+           --  RegFile
+           ---------------------------------------------------------------------------       
            regfile                         => regfile
 
         );

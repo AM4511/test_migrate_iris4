@@ -4,6 +4,7 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "G_SYS_CLK_PERIOD"
   ipgui::add_param $IPINST -name "G_SIMULATION"
   ipgui::add_param $IPINST -name "G_KU706"
+  ipgui::add_param $IPINST -name "G_SENSOR_FREQ" -widget comboBox
 
 }
 
@@ -31,6 +32,15 @@ proc update_PARAM_VALUE.G_KU706 { PARAM_VALUE.G_KU706 } {
 
 proc validate_PARAM_VALUE.G_KU706 { PARAM_VALUE.G_KU706 } {
 	# Procedure called to validate G_KU706
+	return true
+}
+
+proc update_PARAM_VALUE.G_SENSOR_FREQ { PARAM_VALUE.G_SENSOR_FREQ } {
+	# Procedure called to update G_SENSOR_FREQ when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.G_SENSOR_FREQ { PARAM_VALUE.G_SENSOR_FREQ } {
+	# Procedure called to validate G_SENSOR_FREQ
 	return true
 }
 
@@ -94,5 +104,10 @@ proc update_MODELPARAM_VALUE.C_S_AXI_DATA_WIDTH { MODELPARAM_VALUE.C_S_AXI_DATA_
 proc update_MODELPARAM_VALUE.C_S_AXI_ADDR_WIDTH { MODELPARAM_VALUE.C_S_AXI_ADDR_WIDTH PARAM_VALUE.C_S_AXI_ADDR_WIDTH } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.C_S_AXI_ADDR_WIDTH}] ${MODELPARAM_VALUE.C_S_AXI_ADDR_WIDTH}
+}
+
+proc update_MODELPARAM_VALUE.G_SENSOR_FREQ { MODELPARAM_VALUE.G_SENSOR_FREQ PARAM_VALUE.G_SENSOR_FREQ } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.G_SENSOR_FREQ}] ${MODELPARAM_VALUE.G_SENSOR_FREQ}
 }
 
