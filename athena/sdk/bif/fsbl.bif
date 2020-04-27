@@ -1,0 +1,6 @@
+//arch = zynq; split = false; format = MCS
+the_ROM_image:
+{
+	[bootloader]fsbl.elf
+	athena_zc706.bit
+}

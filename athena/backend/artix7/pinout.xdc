@@ -1,7 +1,7 @@
 
 
 #----------------------------------------------
-# 
+#
 # FPGA BANK 216 MGT (PCIe)
 #
 #----------------------------------------------
@@ -10,7 +10,7 @@ set_property PACKAGE_PIN A8 [get_ports pcie_clk_n]
 
 
 #----------------------------------------------
-# 
+#
 # FPGA BANK 35 1.8V
 #
 # XGS CONTROL, PCIe RESET, REF clk 100mhz
@@ -77,7 +77,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {xgs_monitor[2]}]
 
 
 #----------------------------------------------
-# 
+#
 # FPGA BANK 14 1.8V
 #
 # SPI, XGS Hispi(4-5), LED, Signal to other fpga, strappings
@@ -162,7 +162,7 @@ set_property SLEW SLOW [get_ports trig_rdy_out]
 set_property PACKAGE_PIN J17 [get_ports ext_trig]
 set_property IOSTANDARD LVCMOS18 [get_ports ext_trig]
 
-set_property PACKAGE_PIN G17  [get_ports {fpga_var_type[0]}]
+set_property PACKAGE_PIN G17 [get_ports {fpga_var_type[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_var_type[0]}]
 set_property PULLDOWN true [get_ports {fpga_var_type[0]}]
 
@@ -175,32 +175,32 @@ set_property PULLDOWN true [get_ports {fpga_var_type[1]}]
 ## set_property PACKAGE_PIN M18 [get_ports {xgs_hispi_sclk_p[4]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[4]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[4]}]
-## 
+##
 ## set_property PACKAGE_PIN M19 [get_ports {xgs_hispi_sclk_n[4]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[4]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[4]}]
-## 
+##
 ## set_property PACKAGE_PIN P19 [get_ports {xgs_hispi_sdata_p[4]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[4]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[4]}]
-## 
+##
 ## set_property PACKAGE_PIN R19 [get_ports {xgs_hispi_sdata_n[4]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[4]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[4]}]
-## 
+##
 ## # HiSPI(5)
 ## set_property PACKAGE_PIN P18 [get_ports {xgs_hispi_sclk_p[5]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[5]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[5]}]
-## 
+##
 ## set_property PACKAGE_PIN R18 [get_ports {xgs_hispi_sclk_n[5]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[5]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[5]}]
-## 
+##
 ## set_property PACKAGE_PIN U19 [get_ports {xgs_hispi_sdata_p[5]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[5]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[5]}]
-## 
+##
 ## set_property PACKAGE_PIN V19 [get_ports {xgs_hispi_sdata_n[5]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[5]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[5]}]
@@ -208,7 +208,7 @@ set_property PULLDOWN true [get_ports {fpga_var_type[1]}]
 
 
 #----------------------------------------------
-# 
+#
 # FPGA BANK 34 1.8V
 #
 # XGS HiSPI 0,1,2,3
@@ -219,69 +219,69 @@ set_property PULLDOWN true [get_ports {fpga_var_type[1]}]
 ## set_property PACKAGE_PIN U4 [get_ports {xgs_hispi_sclk_p[0]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[0]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[0]}]
-## 
+##
 ## set_property PACKAGE_PIN V4 [get_ports {xgs_hispi_sclk_n[0]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[0]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[0]}]
-## 
+##
 ## set_property PACKAGE_PIN V3 [get_ports {xgs_hispi_sdata_p[0]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[0]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[0]}]
-## 
+##
 ## set_property PACKAGE_PIN W3 [get_ports {xgs_hispi_sdata_n[0]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[0]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[0]}]
-## 
-## 
+##
+##
 ## # HiSPI(1)
 ## set_property PACKAGE_PIN W5 [get_ports {xgs_hispi_sclk_p[1]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[1]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[1]}]
-## 
+##
 ## set_property PACKAGE_PIN W4 [get_ports {xgs_hispi_sclk_n[1]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[1]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[1]}]
-## 
+##
 ## set_property PACKAGE_PIN U3 [get_ports {xgs_hispi_sdata_p[1]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[1]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[1]}]
-## 
+##
 ## set_property PACKAGE_PIN U2 [get_ports {xgs_hispi_sdata_n[1]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[1]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[1]}]
-## 
-## 
+##
+##
 ## # HiSPI(2)
 ## set_property PACKAGE_PIN W7 [get_ports {xgs_hispi_sclk_p[2]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[2]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[2]}]
-## 
+##
 ## set_property PACKAGE_PIN W6 [get_ports {xgs_hispi_sclk_n[2]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[2]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[2]}]
-## 
+##
 ## set_property PACKAGE_PIN U5 [get_ports {xgs_hispi_sdata_p[2]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[2]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[2]}]
-## 
+##
 ## set_property PACKAGE_PIN V5 [get_ports {xgs_hispi_sdata_n[2]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[2]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[2]}]
-## 
-## 
+##
+##
 ## # HiSPI(3)
 ## set_property PACKAGE_PIN U8 [get_ports {xgs_hispi_sclk_p[3]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[3]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[3]}]
-## 
+##
 ## set_property PACKAGE_PIN V8 [get_ports {xgs_hispi_sclk_n[3]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[3]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[3]}]
-## 
+##
 ## set_property PACKAGE_PIN U7 [get_ports {xgs_hispi_sdata_p[3]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[3]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[3]}]
-## 
+##
 ## set_property PACKAGE_PIN V7 [get_ports {xgs_hispi_sdata_n[3]}]
 ## set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[3]}]
 ## set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[3]}]
@@ -289,13 +289,13 @@ set_property PULLDOWN true [get_ports {fpga_var_type[1]}]
 
 ##--------------------------------------------------------------------------------------------------------
 ##
-## Routing 6 DATA LANES + 2 CLK on same bank : 
+## Routing 6 DATA LANES + 2 CLK on same bank :
 ##
-## Sensor HiSPI CLK[2]  + Sensor HiSPI DATA[0] + HiSPI DATA[8] + HiSPI DATA[16]   --    TOP, EVEN HiSPI 
-## Sensor HiSPI CLK[3]  + Sensor HiSPI DATA[1] + HiSPI DATA[9] + HiSPI DATA[17]   -- BOTTOM, ODD HiSPI  
+## Sensor HiSPI CLK[2]  + Sensor HiSPI DATA[0] + HiSPI DATA[8] + HiSPI DATA[16]   --    TOP, EVEN HiSPI
+## Sensor HiSPI CLK[3]  + Sensor HiSPI DATA[1] + HiSPI DATA[9] + HiSPI DATA[17]   -- BOTTOM, ODD HiSPI
 ##
-## FPGA HiSPI CLK[0]    + FPGA HiSPI DATA[0] + FPGA DATA[1] + FPGA DATA[2]        --    TOP, EVEN HiSPI 
-## FPGA HiSPI CLK[1]    + FPGA HiSPI DATA[3] + FPGA DATA[4] + FPGA DATA[5]        -- BOTTOM, ODD HiSPI   
+## FPGA HiSPI CLK[0]    + FPGA HiSPI DATA[0] + FPGA DATA[1] + FPGA DATA[2]        --    TOP, EVEN HiSPI
+## FPGA HiSPI CLK[1]    + FPGA HiSPI DATA[3] + FPGA DATA[4] + FPGA DATA[5]        -- BOTTOM, ODD HiSPI
 ##
 ## --TOP sensor readout
 ## Sensor HiSPI CLK[2]    => FPGA HiSPI CLK[0]
@@ -312,85 +312,142 @@ set_property PULLDOWN true [get_ports {fpga_var_type[1]}]
 ##---------------------------------------------------------------------------------------------------------
 
 
-# FPGA HiSPI CLK[0]  : SENSOR HiSPI[2]
+# # FPGA HiSPI CLK[0]  : SENSOR HiSPI[2]
+# set_property PACKAGE_PIN W5 [get_ports {xgs_hispi_sclk_p[0]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[0]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[0]}]
+
+# set_property PACKAGE_PIN W4 [get_ports {xgs_hispi_sclk_n[0]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[0]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[0]}]
+
+
+# # FPGA HiSPI CLK[1]  : SENSOR HiSPI[3]
+# set_property PACKAGE_PIN W7 [get_ports {xgs_hispi_sclk_p[1]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[1]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[1]}]
+
+# set_property PACKAGE_PIN W6 [get_ports {xgs_hispi_sclk_n[1]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[1]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[1]}]
+
+
+
+# # FPGA HiSPI[0] : SENSOR HiSPI[0]
+# set_property PACKAGE_PIN R2 [get_ports {xgs_hispi_sdata_p[0]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[0]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[0]}]
+
+# set_property PACKAGE_PIN T2 [get_ports {xgs_hispi_sdata_n[0]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[0]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[0]}]
+
+
+# # FPGA HiSPI[1]  : SENSOR HiSPI[8]
+# set_property PACKAGE_PIN T1 [get_ports {xgs_hispi_sdata_p[1]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[1]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[1]}]
+
+# set_property PACKAGE_PIN U1 [get_ports {xgs_hispi_sdata_n[1]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[1]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[1]}]
+
+
+# # FPGA HiSPI[2]  : SENSOR HiSPI[16]
+# set_property PACKAGE_PIN V2 [get_ports {xgs_hispi_sdata_p[2]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[2]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[2]}]
+
+# set_property PACKAGE_PIN W2 [get_ports {xgs_hispi_sdata_n[2]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[2]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[2]}]
+
+
+# # FPGA HiSPI[3]  : SENSOR HiSPI[1]
+# set_property PACKAGE_PIN V3 [get_ports {xgs_hispi_sdata_p[3]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[3]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[3]}]
+
+# set_property PACKAGE_PIN W3 [get_ports {xgs_hispi_sdata_n[3]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[3]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[3]}]
+
+
+# # FPGA HiSPI[4]  : SENSOR HiSPI[9]
+# set_property PACKAGE_PIN U5 [get_ports {xgs_hispi_sdata_p[4]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[4]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[4]}]
+
+# set_property PACKAGE_PIN V5 [get_ports {xgs_hispi_sdata_n[4]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[4]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[4]}]
+
+
+# # FPGA HiSPI[5]  : SENSOR HiSPI[17]
+# set_property PACKAGE_PIN U7 [get_ports {xgs_hispi_sdata_p[5]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[5]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[5]}]
+
+# set_property PACKAGE_PIN V7 [get_ports {xgs_hispi_sdata_n[5]}]
+# set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[5]}]
+# set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[5]}]
+
+
+
+
+###############################################################
+# HiSPi pinout After pcb swapping
+###############################################################
 set_property PACKAGE_PIN W5 [get_ports {xgs_hispi_sclk_p[0]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[0]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[0]}]
-
 set_property PACKAGE_PIN W4 [get_ports {xgs_hispi_sclk_n[0]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[0]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[0]}]
 
-
-# FPGA HiSPI CLK[1]  : SENSOR HiSPI[3]
 set_property PACKAGE_PIN W7 [get_ports {xgs_hispi_sclk_p[1]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[1]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_p[1]}]
-
 set_property PACKAGE_PIN W6 [get_ports {xgs_hispi_sclk_n[1]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[1]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sclk_n[1]}]
 
+## XGS Lane 0
+set_property PACKAGE_PIN V3 [get_ports {xgs_hispi_sdata_p[0]}]
+set_property PACKAGE_PIN W3 [get_ports {xgs_hispi_sdata_n[0]}]
 
-
-# FPGA HiSPI[0] : SENSOR HiSPI[0]
-set_property PACKAGE_PIN R2 [get_ports {xgs_hispi_sdata_p[0]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[0]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[0]}]
-
-set_property PACKAGE_PIN T2 [get_ports {xgs_hispi_sdata_n[0]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[0]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[0]}]
-
-
-# FPGA HiSPI[1]  : SENSOR HiSPI[8] 
+## XGS Lane 1
 set_property PACKAGE_PIN T1 [get_ports {xgs_hispi_sdata_p[1]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[1]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[1]}]
-
 set_property PACKAGE_PIN U1 [get_ports {xgs_hispi_sdata_n[1]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[1]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[1]}]
+
+## XGS Lane 8
+set_property PACKAGE_PIN U5 [get_ports {xgs_hispi_sdata_p[2]}]
+set_property PACKAGE_PIN V5 [get_ports {xgs_hispi_sdata_n[2]}]
+
+## XGS Lane 9
+set_property PACKAGE_PIN R2 [get_ports {xgs_hispi_sdata_p[3]}]
+set_property PACKAGE_PIN T2 [get_ports {xgs_hispi_sdata_n[3]}]
+
+## XGS Lane 16
+set_property PACKAGE_PIN U7 [get_ports {xgs_hispi_sdata_p[4]}]
+set_property PACKAGE_PIN V7 [get_ports {xgs_hispi_sdata_n[4]}]
+
+## XGS Lane 17
+set_property PACKAGE_PIN V2 [get_ports {xgs_hispi_sdata_p[5]}]
+set_property PACKAGE_PIN W2 [get_ports {xgs_hispi_sdata_n[5]}]
 
 
-# FPGA HiSPI[2]  : SENSOR HiSPI[16]
-set_property PACKAGE_PIN V2 [get_ports {xgs_hispi_sdata_p[2]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[2]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[2]}]
 
-set_property PACKAGE_PIN W2 [get_ports {xgs_hispi_sdata_n[2]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[2]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[2]}]
+set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_p[*]}]
+set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sclk_n[*]}]
+
+set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[*]}]
+set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[*]}]
 
 
-# FPGA HiSPI[3]  : SENSOR HiSPI[1]
-set_property PACKAGE_PIN V3 [get_ports {xgs_hispi_sdata_p[3]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[3]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[3]}]
+set_property DIFF_TERM true [get_ports {xgs_hispi_sclk_p[*]}]
+set_property DIFF_TERM true [get_ports {xgs_hispi_sclk_n[*]}]
 
-set_property PACKAGE_PIN W3 [get_ports {xgs_hispi_sdata_n[3]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[3]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[3]}]
+set_property DIFF_TERM true [get_ports {xgs_hispi_sdata_p[*]}]
+set_property DIFF_TERM true [get_ports {xgs_hispi_sdata_n[*]}]
 
 
-# FPGA HiSPI[4]  : SENSOR HiSPI[9]
-set_property PACKAGE_PIN U5 [get_ports {xgs_hispi_sdata_p[4]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[4]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[4]}]
-
-set_property PACKAGE_PIN V5 [get_ports {xgs_hispi_sdata_n[4]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[4]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[4]}]
 
 
-# FPGA HiSPI[5]  : SENSOR HiSPI[17]
-set_property PACKAGE_PIN U7 [get_ports {xgs_hispi_sdata_p[5]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_p[5]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_p[5]}]
 
-set_property PACKAGE_PIN V7 [get_ports {xgs_hispi_sdata_n[5]}]
-set_property IOSTANDARD LVDS_25 [get_ports {xgs_hispi_sdata_n[5]}]
-set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[5]}]
+#_________________________________stop
 
 
 # Test of Differential Termination Attribute
@@ -402,22 +459,14 @@ set_property DIFF_TERM FALSE [get_ports {xgs_hispi_sdata_n[5]}]
 # and therefore greatly improving signal integrity. Additionally it:
 # • Consumes less power than DCI termination
 # • Does not use VRP/VRN pins (DCI)
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sclk_p[0]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sclk_p[1]}]
 
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[0]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[1]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[2]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[3]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[4]}]
-set_property DIFF_TERM TRUE [get_ports {xgs_hispi_sdata_p[5]}]
 
 
 #----------------------------------------------
 #
 # BANK 16 - 3.3V
 #
-# Pcie reset, I2c, DEBUG, temp alert 
+# Pcie reset, I2c, DEBUG, temp alert
 #
 #----------------------------------------------
 set_property PACKAGE_PIN B16 [get_ports sys_rst_n]
@@ -462,3 +511,4 @@ set_property IOSTANDARD LVCMOS33 [get_ports temp_alertN]
 
 set_property PACKAGE_PIN A18 [get_ports xgs_power_good]
 set_property IOSTANDARD LVCMOS33 [get_ports xgs_power_good]
+

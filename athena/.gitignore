@@ -1,5 +1,9 @@
 vivado/**
 
-
-
-
+local_ip/dmawr/validation/mti/**
+local_ip/dmawr/validation/vivado/**
+sdk/fsbl/**
+validation/vivado/**
+validation/modelsim/**
+../doc/schematic_review/ares_final_pinout_review/**
+/vivado/

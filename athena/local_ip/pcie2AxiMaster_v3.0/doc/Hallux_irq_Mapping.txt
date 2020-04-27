@@ -1,0 +1,16 @@
+Interrupts mappings 
+Registre Status[0]: @BAR2 + 0x40
+	io[7:0]
+	tick[9:8]
+	tick_latch[11:10]
+	tick_wrap[13:12]
+	tick_wrap[13:12]
+	toe_overrun[17:14]
+	toe_frame_sent[21:18]
+	toe_list_sent[25:22]
+	toe_log_available[26]
+	toe_log_overflow[27]
+
+Registre Status[1]: @BAR2 + 0x44
+	timer_start[15:0]
+	timer_end[31:16]

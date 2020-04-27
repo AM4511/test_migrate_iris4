@@ -123,13 +123,14 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-xilinx.com:ip:axi_pcie:2.9\
 xilinx.com:ip:axi_quad_spi:3.2\
 xilinx.com:ip:clk_wiz:6.0\
-xilinx.com:ip:proc_sys_reset:5.0\
 matrox.com:Imaging:axiHiSPi:1.1.1\
-xilinx.com:ip:axi_mm2s_mapper:1.1\
+matrox.com:fdklib:dmawr_sub4:3.0\
 xilinx.com:ip:util_reduced_logic:2.0\
+xilinx.com:ip:xlconcat:2.1\
+xilinx.com:ip:axi_pcie:2.9\
+xilinx.com:ip:proc_sys_reset:5.0\
 "
 
    set list_ips_missing ""
@@ -159,13 +160,123 @@ if { $bCheckIPsPassed != 1 } {
 ##################################################################
 
 
-# Hierarchical cell: interrupt_mapping
-proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
+# Hierarchical cell: pcie_0
+proc create_hier_cell_pcie_0 { parentCell nameHier } {
 
   variable script_folder
 
   if { $parentCell eq "" || $nameHier eq "" } {
-     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_interrupt_mapping() - Empty argument(s)!"}
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_pcie_0() - Empty argument(s)!"}
+     return
+  }
+
+  # Get object for parentCell
+  set parentObj [get_bd_cells $parentCell]
+  if { $parentObj == "" } {
+     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     return
+  }
+
+  # Make sure parentObj is hier blk
+  set parentType [get_property TYPE $parentObj]
+  if { $parentType ne "hier" } {
+     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     return
+  }
+
+  # Save current instance; Restore later
+  set oldCurInst [current_bd_instance .]
+
+  # Set parent object as current
+  current_bd_instance $parentObj
+
+  # Create cell and set as current instance
+  set hier_obj [create_bd_cell -type hier $nameHier]
+  current_bd_instance $hier_obj
+
+  # Create interface pins
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M00_AXI
+
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M01_AXI
+
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M02_AXI
+
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_pcie
+
+
+  # Create pins
+  create_bd_pin -dir I -type rst ext_reset_n
+  create_bd_pin -dir I host_irq
+  create_bd_pin -dir O paxiclk
+  create_bd_pin -dir I -type clk pcie_clk_100MHz
+  create_bd_pin -dir O -from 0 -to 0 -type rst presetn
+
+  # Create instance: axi_interconnect_1, and set properties
+  set axi_interconnect_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_1 ]
+  set_property -dict [ list \
+   CONFIG.NUM_MI {4} \
+ ] $axi_interconnect_1
+
+  # Create instance: axi_pcie_0, and set properties
+  set axi_pcie_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_pcie:2.9 axi_pcie_0 ]
+  set_property -dict [ list \
+   CONFIG.AXIBAR_AS_0 {true} \
+   CONFIG.BAR0_SCALE {Megabytes} \
+   CONFIG.BAR0_SIZE {32} \
+   CONFIG.BAR1_ENABLED {true} \
+   CONFIG.BAR1_SCALE {Megabytes} \
+   CONFIG.BAR1_SIZE {1} \
+   CONFIG.BAR1_TYPE {Memory} \
+   CONFIG.BAR_64BIT {true} \
+   CONFIG.BASE_CLASS_MENU {Input_devices} \
+   CONFIG.DEVICE_ID {0x7012} \
+   CONFIG.INTERRUPT_PIN {true} \
+   CONFIG.MAX_LINK_SPEED {2.5_GT/s} \
+   CONFIG.M_AXI_DATA_WIDTH {64} \
+   CONFIG.NO_OF_LANES {X2} \
+   CONFIG.SLOT_CLOCK_CONFIG {true} \
+   CONFIG.SUB_CLASS_INTERFACE_MENU {Other_input_controller} \
+   CONFIG.S_AXI_DATA_WIDTH {64} \
+   CONFIG.S_AXI_SUPPORTS_NARROW_BURST {true} \
+   CONFIG.enable_jtag_dbg {true} \
+   CONFIG.shared_logic_in_core {false} \
+ ] $axi_pcie_0
+
+  # Create instance: pcie_reset_n, and set properties
+  set pcie_reset_n [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 pcie_reset_n ]
+
+  # Create interface connections
+  connect_bd_intf_net -intf_net axi_interconnect_1_M00_AXI [get_bd_intf_pins M00_AXI] [get_bd_intf_pins axi_interconnect_1/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M01_AXI [get_bd_intf_pins M01_AXI] [get_bd_intf_pins axi_interconnect_1/M01_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M02_AXI [get_bd_intf_pins M02_AXI] [get_bd_intf_pins axi_interconnect_1/M02_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M03_AXI [get_bd_intf_pins axi_interconnect_1/M03_AXI] [get_bd_intf_pins axi_pcie_0/S_AXI_CTL]
+  connect_bd_intf_net -intf_net axi_pcie_0_M_AXI [get_bd_intf_pins axi_interconnect_1/S00_AXI] [get_bd_intf_pins axi_pcie_0/M_AXI]
+  connect_bd_intf_net -intf_net axi_pcie_0_pcie_7x_mgt [get_bd_intf_pins pcie] [get_bd_intf_pins axi_pcie_0/pcie_7x_mgt]
+  connect_bd_intf_net -intf_net hispi_line_writer_m_dma [get_bd_intf_pins s_axi_pcie] [get_bd_intf_pins axi_pcie_0/S_AXI]
+
+  # Create port connections
+  connect_bd_net -net ARESETN_1 [get_bd_pins axi_interconnect_1/ARESETN] [get_bd_pins axi_interconnect_1/M00_ARESETN] [get_bd_pins axi_interconnect_1/M01_ARESETN] [get_bd_pins axi_interconnect_1/M02_ARESETN] [get_bd_pins axi_interconnect_1/M03_ARESETN] [get_bd_pins axi_interconnect_1/S00_ARESETN] [get_bd_pins pcie_reset_n/interconnect_aresetn]
+  connect_bd_net -net axi_pcie_0_axi_aclk_out [get_bd_pins paxiclk] [get_bd_pins axi_interconnect_1/ACLK] [get_bd_pins axi_interconnect_1/M00_ACLK] [get_bd_pins axi_interconnect_1/M01_ACLK] [get_bd_pins axi_interconnect_1/M02_ACLK] [get_bd_pins axi_interconnect_1/S00_ACLK] [get_bd_pins axi_pcie_0/axi_aclk_out] [get_bd_pins pcie_reset_n/slowest_sync_clk]
+  connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_interconnect_1/M03_ACLK] [get_bd_pins axi_pcie_0/axi_ctl_aclk_out]
+  connect_bd_net -net axi_pcie_0_mmcm_lock [get_bd_pins axi_pcie_0/mmcm_lock] [get_bd_pins pcie_reset_n/dcm_locked]
+  connect_bd_net -net pcie_clk_100MHz_1 [get_bd_pins pcie_clk_100MHz] [get_bd_pins axi_pcie_0/REFCLK]
+  connect_bd_net -net pcie_reset_n_peripheral_aresetn [get_bd_pins presetn] [get_bd_pins axi_pcie_0/axi_aresetn] [get_bd_pins pcie_reset_n/peripheral_aresetn]
+  connect_bd_net -net sys_rst_n_1 [get_bd_pins ext_reset_n] [get_bd_pins pcie_reset_n/ext_reset_in]
+  connect_bd_net -net util_reduced_logic_0_Res [get_bd_pins host_irq] [get_bd_pins axi_pcie_0/INTX_MSI_Request]
+
+  # Restore current instance
+  current_bd_instance $oldCurInst
+}
+
+# Hierarchical cell: irq_logic
+proc create_hier_cell_irq_logic { parentCell nameHier } {
+
+  variable script_folder
+
+  if { $parentCell eq "" || $nameHier eq "" } {
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_irq_logic() - Empty argument(s)!"}
      return
   }
 
@@ -196,20 +307,26 @@ proc create_hier_cell_interrupt_mapping { parentCell nameHier } {
   # Create interface pins
 
   # Create pins
-  create_bd_pin -dir O irq_event
-  create_bd_pin -dir I -from 7 -to 0 irq_spi
+  create_bd_pin -dir I -from 0 -to 0 In0
+  create_bd_pin -dir I -from 0 -to 0 In1
+  create_bd_pin -dir O Res
 
-  # Create instance: util_reduced_logic_1, and set properties
-  set util_reduced_logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_reduced_logic:2.0 util_reduced_logic_1 ]
+  # Create instance: util_reduced_logic_0, and set properties
+  set util_reduced_logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_reduced_logic:2.0 util_reduced_logic_0 ]
   set_property -dict [ list \
    CONFIG.C_OPERATION {or} \
-   CONFIG.C_SIZE {8} \
+   CONFIG.C_SIZE {2} \
    CONFIG.LOGO_FILE {data/sym_orgate.png} \
- ] $util_reduced_logic_1
+ ] $util_reduced_logic_0
+
+  # Create instance: xlconcat_0, and set properties
+  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
 
   # Create port connections
-  connect_bd_net -net irq_spi_1 [get_bd_pins irq_spi] [get_bd_pins util_reduced_logic_1/Op1]
-  connect_bd_net -net util_reduced_logic_1_Res [get_bd_pins irq_event] [get_bd_pins util_reduced_logic_1/Res]
+  connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins In1] [get_bd_pins xlconcat_0/In1]
+  connect_bd_net -net hispi_line_writer_irq_dma [get_bd_pins In0] [get_bd_pins xlconcat_0/In0]
+  connect_bd_net -net util_reduced_logic_0_Res [get_bd_pins Res] [get_bd_pins util_reduced_logic_0/Res]
+  connect_bd_net -net xlconcat_0_dout [get_bd_pins util_reduced_logic_0/Op1] [get_bd_pins xlconcat_0/dout]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -250,18 +367,20 @@ proc create_hier_cell_hispi_line_writer { parentCell nameHier } {
   current_bd_instance $hier_obj
 
   # Create interface pins
-  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI
+  create_bd_intf_pin -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 hispi
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 m_dma
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_reg_dma
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_reg_hispi
 
 
   # Create pins
   create_bd_pin -dir I -type clk axi_clk
   create_bd_pin -dir I -type rst axi_reset_n
-  create_bd_pin -dir I -from 5 -to 0 hispi_data_n_0
-  create_bd_pin -dir I -from 5 -to 0 hispi_data_p_0
-  create_bd_pin -dir I -from 1 -to 0 hispi_serial_clk_n_0
-  create_bd_pin -dir I -from 1 -to 0 hispi_serial_clk_p_0
+  create_bd_pin -dir I -type clk idelay_clk
+  create_bd_pin -dir O -type intr irq_dma
 
   # Create instance: axiHiSPi_0, and set properties
   set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
@@ -270,27 +389,25 @@ proc create_hier_cell_hispi_line_writer { parentCell nameHier } {
    CONFIG.NUMBER_OF_LANE {6} \
  ] $axiHiSPi_0
 
-  # Create instance: axi_mm2s_mapper_0, and set properties
-  set axi_mm2s_mapper_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_mm2s_mapper:1.1 axi_mm2s_mapper_0 ]
+  # Create instance: dmawr_sub4_0, and set properties
+  set dmawr_sub4_0 [ create_bd_cell -type ip -vlnv matrox.com:fdklib:dmawr_sub4:3.0 dmawr_sub4_0 ]
   set_property -dict [ list \
-   CONFIG.DATA_WIDTH {64} \
-   CONFIG.INTERFACES {M_AXI} \
-   CONFIG.TDATA_NUM_BYTES {8} \
- ] $axi_mm2s_mapper_0
+   CONFIG.AXI_ADDR_WIDTH {32} \
+   CONFIG.AXI_DATA_WIDTH {64} \
+ ] $dmawr_sub4_0
 
   # Create interface connections
-  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins M_AXI] [get_bd_intf_pins axi_mm2s_mapper_0/M_AXI]
-  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins axi_mm2s_mapper_0/S_AXIS]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins s_axi] [get_bd_intf_pins axiHiSPi_0/s_axi]
-  connect_bd_intf_net -intf_net axi_mm2s_mapper_0_M_AXIS [get_bd_intf_pins axiHiSPi_0/s_axis] [get_bd_intf_pins axi_mm2s_mapper_0/M_AXIS]
+  connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins s_reg_dma] [get_bd_intf_pins dmawr_sub4_0/s_axi]
+  connect_bd_intf_net -intf_net Conn2 [get_bd_intf_pins hispi] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr_sub4_0/s_axis]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins s_reg_hispi] [get_bd_intf_pins axiHiSPi_0/s_axi]
+  connect_bd_intf_net -intf_net dmawr_sub4_0_m_axi [get_bd_intf_pins m_dma] [get_bd_intf_pins dmawr_sub4_0/m_axi]
 
   # Create port connections
-  connect_bd_net -net Profinet_axi_clk_100MHz1 [get_bd_pins axi_clk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axi_mm2s_mapper_0/aclk]
-  connect_bd_net -net hispi_data_n_0_1 [get_bd_pins hispi_data_n_0] [get_bd_pins axiHiSPi_0/hispi_data_n]
-  connect_bd_net -net hispi_data_p_0_1 [get_bd_pins hispi_data_p_0] [get_bd_pins axiHiSPi_0/hispi_data_p]
-  connect_bd_net -net hispi_serial_clk_n_0_1 [get_bd_pins hispi_serial_clk_n_0] [get_bd_pins axiHiSPi_0/hispi_serial_clk_n]
-  connect_bd_net -net hispi_serial_clk_p_0_1 [get_bd_pins hispi_serial_clk_p_0] [get_bd_pins axiHiSPi_0/hispi_serial_clk_p]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins axi_reset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axi_mm2s_mapper_0/aresetn]
+  connect_bd_net -net axi_clk_1 [get_bd_pins axi_clk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins dmawr_sub4_0/sysclk]
+  connect_bd_net -net axi_reset_n_1 [get_bd_pins axi_reset_n] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins dmawr_sub4_0/sysrstN]
+  connect_bd_net -net dmawr_sub4_0_intevent [get_bd_pins irq_dma] [get_bd_pins dmawr_sub4_0/intevent]
+  connect_bd_net -net idelay_clk_0_1 [get_bd_pins idelay_clk] [get_bd_pins axiHiSPi_0/idelay_clk]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -336,46 +453,16 @@ proc create_root_design { parentCell } {
 
   set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
 
+  set xgs [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs ]
+
 
   # Create ports
+  set ext_reset_n [ create_bd_port -dir I -type rst ext_reset_n ]
   set pcie_clk_100MHz [ create_bd_port -dir I -type clk pcie_clk_100MHz ]
   set ref_clk [ create_bd_port -dir I -type clk ref_clk ]
-  set sys_rst_n [ create_bd_port -dir I -type rst sys_rst_n ]
-  set xgs_hispi_data_n [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_data_n ]
-  set xgs_hispi_data_p [ create_bd_port -dir I -from 5 -to 0 xgs_hispi_data_p ]
-  set xgs_hispi_sclk_n [ create_bd_port -dir I -from 1 -to 0 xgs_hispi_sclk_n ]
-  set xgs_hispi_sclk_p [ create_bd_port -dir I -from 1 -to 0 xgs_hispi_sclk_p ]
-
-  # Create instance: axi_interconnect_0, and set properties
-  set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {4} \
-   CONFIG.NUM_SI {2} \
- ] $axi_interconnect_0
-
-  # Create instance: axi_pcie_0, and set properties
-  set axi_pcie_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_pcie:2.9 axi_pcie_0 ]
-  set_property -dict [ list \
-   CONFIG.AXIBAR_AS_0 {true} \
-   CONFIG.BAR0_SCALE {Megabytes} \
-   CONFIG.BAR0_SIZE {32} \
-   CONFIG.BAR1_ENABLED {true} \
-   CONFIG.BAR1_SCALE {Megabytes} \
-   CONFIG.BAR1_SIZE {1} \
-   CONFIG.BAR1_TYPE {Memory} \
-   CONFIG.BAR_64BIT {true} \
-   CONFIG.BASE_CLASS_MENU {Input_devices} \
-   CONFIG.DEVICE_ID {0x7012} \
-   CONFIG.INTERRUPT_PIN {true} \
-   CONFIG.MAX_LINK_SPEED {2.5_GT/s} \
-   CONFIG.M_AXI_DATA_WIDTH {64} \
-   CONFIG.NO_OF_LANES {X2} \
-   CONFIG.SLOT_CLOCK_CONFIG {true} \
-   CONFIG.SUB_CLASS_INTERFACE_MENU {Other_input_controller} \
-   CONFIG.S_AXI_DATA_WIDTH {64} \
-   CONFIG.S_AXI_SUPPORTS_NARROW_BURST {false} \
-   CONFIG.shared_logic_in_core {false} \
- ] $axi_pcie_0
+   CONFIG.FREQ_HZ {100000000} \
+ ] $ref_clk
 
   # Create instance: axi_quad_spi_0, and set properties
   set axi_quad_spi_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_quad_spi:3.2 axi_quad_spi_0 ]
@@ -394,96 +481,92 @@ proc create_root_design { parentCell } {
   # Create instance: clk_wiz_0, and set properties
   set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
   set_property -dict [ list \
+   CONFIG.CLKIN1_JITTER_PS {100.0} \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {137.681} \
-   CONFIG.CLKOUT1_PHASE_ERROR {105.461} \
+   CONFIG.CLKOUT1_JITTER {114.829} \
+   CONFIG.CLKOUT1_PHASE_ERROR {98.575} \
+   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
+   CONFIG.CLKOUT1_USED {true} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {159.475} \
-   CONFIG.CLKOUT2_PHASE_ERROR {105.461} \
+   CONFIG.CLKOUT2_JITTER {151.636} \
+   CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {50.000} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {BUFG} \
+   CONFIG.CLKOUT3_JITTER {114.829} \
+   CONFIG.CLKOUT3_PHASE_ERROR {98.575} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {100.000} \
+   CONFIG.CLKOUT3_USED {false} \
    CONFIG.CLKOUT4_DRIVES {BUFG} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
    CONFIG.CLKOUT6_DRIVES {BUFG} \
    CONFIG.CLKOUT7_DRIVES {BUFG} \
-   CONFIG.CLK_OUT1_PORT {axi_clk} \
+   CONFIG.CLK_OUT1_PORT {idly_clk} \
    CONFIG.CLK_OUT2_PORT {qspi_clk} \
+   CONFIG.CLK_OUT3_PORT {clk_out3} \
+   CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
    CONFIG.JITTER_SEL {No_Jitter} \
    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {9} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {9} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {10} \
+   CONFIG.MMCM_CLKIN1_PERIOD {10.000} \
+   CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {5} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {18} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {20} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
+   CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.500} \
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
+   CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {2} \
    CONFIG.PRIMITIVE {PLL} \
+   CONFIG.PRIM_IN_FREQ {100.000} \
    CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
+   CONFIG.USE_LOCKED {false} \
    CONFIG.USE_MIN_POWER {true} \
-   CONFIG.USE_PHASE_ALIGNMENT {false} \
+   CONFIG.USE_PHASE_ALIGNMENT {true} \
  ] $clk_wiz_0
 
   # Create instance: hispi_line_writer
   create_hier_cell_hispi_line_writer [current_bd_instance .] hispi_line_writer
 
-  # Create instance: interrupt_mapping
-  create_hier_cell_interrupt_mapping [current_bd_instance .] interrupt_mapping
+  # Create instance: irq_logic
+  create_hier_cell_irq_logic [current_bd_instance .] irq_logic
 
-  # Create instance: pcie_axi_reset, and set properties
-  set pcie_axi_reset [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 pcie_axi_reset ]
-
-  # Create instance: proc_sys_reset_0, and set properties
-  set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
+  # Create instance: pcie_0
+  create_hier_cell_pcie_0 [current_bd_instance .] pcie_0
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins axi_pcie_0/S_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins axi_pcie_0/S_AXI_CTL]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axi_interconnect_0/M02_AXI] [get_bd_intf_pins hispi_line_writer/s_axi]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins axi_quad_spi_0/AXI_LITE]
-  connect_bd_intf_net -intf_net axi_pcie_0_M_AXI [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins axi_pcie_0/M_AXI]
-  connect_bd_intf_net -intf_net axi_pcie_0_pcie_7x_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins axi_pcie_0/pcie_7x_mgt]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M00_AXI [get_bd_intf_pins hispi_line_writer/s_reg_hispi] [get_bd_intf_pins pcie_0/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M01_AXI [get_bd_intf_pins hispi_line_writer/s_reg_dma] [get_bd_intf_pins pcie_0/M01_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_1_M03_AXI [get_bd_intf_pins axi_quad_spi_0/AXI_LITE] [get_bd_intf_pins pcie_0/M02_AXI]
+  connect_bd_intf_net -intf_net axi_pcie_0_pcie_7x_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie_0/pcie]
   connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_ports cfg_qspi] [get_bd_intf_pins axi_quad_spi_0/SPI_0]
   connect_bd_intf_net -intf_net axi_quad_spi_0_STARTUP_IO [get_bd_intf_ports cfg_startup_io] [get_bd_intf_pins axi_quad_spi_0/STARTUP_IO]
-  connect_bd_intf_net -intf_net hispi_line_writer_M_AXI [get_bd_intf_pins axi_interconnect_0/S01_AXI] [get_bd_intf_pins hispi_line_writer/M_AXI]
+  connect_bd_intf_net -intf_net hispi_line_writer_m_dma [get_bd_intf_pins hispi_line_writer/m_dma] [get_bd_intf_pins pcie_0/s_axi_pcie]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins hispi_line_writer/hispi]
 
   # Create port connections
-  connect_bd_net -net M01_ACLK_1 [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_pcie_0/axi_ctl_aclk_out]
-  connect_bd_net -net PCIE_REFCLK_100MHz_2 [get_bd_ports pcie_clk_100MHz] [get_bd_pins axi_pcie_0/REFCLK]
-  connect_bd_net -net PCIE_RESET_N_1 [get_bd_ports sys_rst_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins pcie_axi_reset/ext_reset_in] [get_bd_pins proc_sys_reset_0/ext_reset_in]
-  connect_bd_net -net axi_pcie_0_axi_aclk_out [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_pcie_0/axi_aclk_out] [get_bd_pins pcie_axi_reset/slowest_sync_clk]
-  connect_bd_net -net axi_pcie_0_mmcm_lock [get_bd_pins axi_pcie_0/mmcm_lock] [get_bd_pins pcie_axi_reset/dcm_locked]
-  connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins interrupt_mapping/irq_spi]
-  connect_bd_net -net clk_in1_0_1 [get_bd_ports ref_clk] [get_bd_pins clk_wiz_0/clk_in1]
-  connect_bd_net -net clk_wiz_0_axi_clk [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins clk_wiz_0/axi_clk] [get_bd_pins hispi_line_writer/axi_clk]
-  connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins proc_sys_reset_0/dcm_locked]
-  connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins clk_wiz_0/qspi_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
-  connect_bd_net -net hispi_data_n_0_1 [get_bd_ports xgs_hispi_data_n] [get_bd_pins hispi_line_writer/hispi_data_n_0]
-  connect_bd_net -net hispi_data_p_0_1 [get_bd_ports xgs_hispi_data_p] [get_bd_pins hispi_line_writer/hispi_data_p_0]
-  connect_bd_net -net hispi_serial_clk_n_0_1 [get_bd_ports xgs_hispi_sclk_n] [get_bd_pins hispi_line_writer/hispi_serial_clk_n_0]
-  connect_bd_net -net hispi_serial_clk_p_0_1 [get_bd_ports xgs_hispi_sclk_p] [get_bd_pins hispi_line_writer/hispi_serial_clk_p_0]
-  connect_bd_net -net interrupt_mapping_irq_event [get_bd_pins axi_pcie_0/INTX_MSI_Request] [get_bd_pins interrupt_mapping/irq_event]
-  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_pcie_0/axi_aresetn] [get_bd_pins pcie_axi_reset/interconnect_aresetn]
-  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn1 [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins hispi_line_writer/axi_reset_n] [get_bd_pins proc_sys_reset_0/interconnect_aresetn]
+  connect_bd_net -net axi_pcie_0_axi_ctl_aclk_out [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins hispi_line_writer/axi_clk] [get_bd_pins pcie_0/paxiclk]
+  connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins irq_logic/In1]
+  connect_bd_net -net clk_wiz_0_idly_clk [get_bd_pins clk_wiz_0/idly_clk] [get_bd_pins hispi_line_writer/idelay_clk]
+  connect_bd_net -net clk_wiz_0_qspi_clk [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins clk_wiz_0/qspi_clk]
+  connect_bd_net -net e_n_1 [get_bd_ports ext_reset_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins pcie_0/ext_reset_n]
+  connect_bd_net -net hispi_line_writer_irq_dma [get_bd_pins hispi_line_writer/irq_dma] [get_bd_pins irq_logic/In0]
+  connect_bd_net -net pcie_clk_100MHz_1 [get_bd_ports pcie_clk_100MHz] [get_bd_pins pcie_0/pcie_clk_100MHz]
+  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins hispi_line_writer/axi_reset_n] [get_bd_pins pcie_0/presetn]
+  connect_bd_net -net ref_clk_1 [get_bd_ports ref_clk] [get_bd_pins clk_wiz_0/clk_in1]
+  connect_bd_net -net util_reduced_logic_0_Res [get_bd_pins irq_logic/Res] [get_bd_pins pcie_0/host_irq]
 
   # Create address segments
-  create_bd_addr_seg -range 0x10000000 -offset 0x80000000 [get_bd_addr_spaces axi_pcie_0/M_AXI] [get_bd_addr_segs axi_pcie_0/S_AXI_CTL/CTL0] SEG_axi_pcie_0_CTL0
-  create_bd_addr_seg -range 0x00010000 -offset 0x90010000 [get_bd_addr_spaces axi_pcie_0/M_AXI] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
-  create_bd_addr_seg -range 0x80000000 -offset 0x00000000 [get_bd_addr_spaces hispi_line_writer/axi_mm2s_mapper_0/Bridge] [get_bd_addr_segs axi_pcie_0/S_AXI/BAR0] SEG_axi_pcie_0_BAR0
-
-  # Exclude Address Segments
-  create_bd_addr_seg -range 0x80000000 -offset 0x00000000 [get_bd_addr_spaces axi_pcie_0/M_AXI] [get_bd_addr_segs axi_pcie_0/S_AXI/BAR0] SEG_axi_pcie_0_BAR0
-  exclude_bd_addr_seg [get_bd_addr_segs axi_pcie_0/M_AXI/SEG_axi_pcie_0_BAR0]
-
-  create_bd_addr_seg -range 0x10000000 -offset 0x80000000 [get_bd_addr_spaces hispi_line_writer/axi_mm2s_mapper_0/Bridge] [get_bd_addr_segs axi_pcie_0/S_AXI_CTL/CTL0] SEG_axi_pcie_0_CTL0
-  exclude_bd_addr_seg [get_bd_addr_segs hispi_line_writer/axi_mm2s_mapper_0/Bridge/SEG_axi_pcie_0_CTL0]
-
-  create_bd_addr_seg -range 0x00010000 -offset 0x90010000 [get_bd_addr_spaces hispi_line_writer/axi_mm2s_mapper_0/Bridge] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
-  exclude_bd_addr_seg [get_bd_addr_segs hispi_line_writer/axi_mm2s_mapper_0/Bridge/SEG_axi_quad_spi_0_Reg]
-
+  create_bd_addr_seg -range 0x000100000000 -offset 0x00000000 [get_bd_addr_spaces hispi_line_writer/dmawr_sub4_0/m_axi] [get_bd_addr_segs pcie_0/axi_pcie_0/S_AXI/BAR0] SEG_axi_pcie_0_BAR0
+  create_bd_addr_seg -range 0x00001000 -offset 0x00020000 [get_bd_addr_spaces pcie_0/axi_pcie_0/M_AXI] [get_bd_addr_segs hispi_line_writer/axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
+  create_bd_addr_seg -range 0x00010000 -offset 0x00000000 [get_bd_addr_spaces pcie_0/axi_pcie_0/M_AXI] [get_bd_addr_segs pcie_0/axi_pcie_0/S_AXI_CTL/CTL0] SEG_axi_pcie_0_CTL0
+  create_bd_addr_seg -range 0x00001000 -offset 0x00010000 [get_bd_addr_spaces pcie_0/axi_pcie_0/M_AXI] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00030000 [get_bd_addr_spaces pcie_0/axi_pcie_0/M_AXI] [get_bd_addr_segs hispi_line_writer/dmawr_sub4_0/s_axi/reg0] SEG_dmawr_sub4_0_reg0
 
 
   # Restore current instance
