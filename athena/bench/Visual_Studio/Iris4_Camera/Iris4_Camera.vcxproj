@@ -159,13 +159,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Iris4_Camera.cpp" />
-    <ClCompile Include="source\Iris4.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
+    <ClCompile Include="source\XGS_Ctrl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Iris4.h" />
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
@@ -173,6 +172,7 @@
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />
     <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\XGS_Ctrl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <spirit:busDefinition xmlns:xilinx="http://www.xilinx.com" xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <spirit:vendor>onsemi.com</spirit:vendor>
+  <spirit:vendor>matrox.com</spirit:vendor>
   <spirit:library>user</spirit:library>
-  <spirit:name>xgs_bus</spirit:name>
+  <spirit:name>XGS_Ctrl2_Data_IF</spirit:name>
   <spirit:version>1.0</spirit:version>
   <spirit:directConnection>false</spirit:directConnection>
   <spirit:isAddressable>false</spirit:isAddressable>
