@@ -8,7 +8,7 @@ import dmawr2tlp_pkg::*;
 module testbench_dmawr2tlp();
 	parameter DATA_WIDTH=32;
 	parameter AXIS_DATA_WIDTH=64;
-	parameter AXIS_USER_WIDTH=2;
+	parameter AXIS_USER_WIDTH=4;
 	parameter ADDR_WIDTH=8;
 	parameter GPIO_NUMB_INPUT=8;
 	parameter GPIO_NUMB_OUTPUT=8;
@@ -246,11 +246,11 @@ module testbench_dmawr2tlp();
 
                     // Calculate sync
 					if (counter == 0) begin
-                        sync = 2'b01;
+                        sync = 4'b0001;
 					end else if (counter == (line_size/8) - 1) begin
-						sync = 2'b10;
+						sync = 4'b1000;
 					end else begin
-						sync = 2'b00;
+						sync = 4'b0000;
 					end
 					stream_user.push_back(sync);
 				end

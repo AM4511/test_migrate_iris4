@@ -12,7 +12,7 @@ use ieee.numeric_std.all;
 entity axi_stream_in is
   generic (
     AXIS_DATA_WIDTH   : integer := 64;
-    AXIS_USER_WIDTH   : integer := 1;
+    AXIS_USER_WIDTH   : integer := 4;
     BUFFER_ADDR_WIDTH : integer := 10
     );
   port (
@@ -72,11 +72,11 @@ architecture rtl of axi_stream_in is
         );
   end component;
 
-  type FSM_TYPE is (S_IDLE, S_INIT, S_LOAD_LINE, S_INIT_HOST_TRANSFER, S_WAIT_COMPLETION, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_INIT_HOST_TRANSFER, S_WAIT_COMPLETION, S_DONE);
 
-  constant C_S_AXI_ADDR_WIDTH   : integer := 8;
-  constant C_S_AXI_DATA_WIDTH   : integer := 32;
-  constant BUFFER_DATA_WIDTH    : integer := 64;
+  constant C_S_AXI_ADDR_WIDTH : integer := 8;
+  constant C_S_AXI_DATA_WIDTH : integer := 32;
+  constant BUFFER_DATA_WIDTH  : integer := 64;
 
   constant CONT : std_logic_vector(1 downto 0) := "00";
   constant SOF  : std_logic_vector(1 downto 0) := "01";
@@ -93,16 +93,32 @@ architecture rtl of axi_stream_in is
   signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
-  signal axis_data_ack : std_logic;
-  signal sync          : std_logic_vector(1 downto 0);
 
 begin
 
-  s_axis_tready <= '1' when (state = S_LOAD_LINE) else
-                   '0';
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_s_axis_tready
+  -- Description : AXI Stream input tready. 
+  -----------------------------------------------------------------------------
+  P_s_axis_tready : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0')then
+        s_axis_tready <= '0';
+      else
+        if (state = S_IDLE) then
+          s_axis_tready <= '0';
+        elsif (state = S_INIT) then
+          s_axis_tready <= '1';
+        elsif (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1') then
+          s_axis_tready <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
-  sync(0) <= s_axis_tuser(0);
-  sync(1) <= s_axis_tlast;
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_hispi_state
@@ -121,12 +137,23 @@ begin
           -------------------------------------------------------------------
           when S_IDLE =>
             if (s_axis_tvalid = '1') then
-              state <= S_INIT;
+              if (s_axis_tuser(0) = '1') then
+                state <= S_SOF;
+              else
+                state <= S_INIT;
+              end if;
             else
               state <= S_IDLE;
             end if;
 
 
+          -------------------------------------------------------------------
+          -- S_SOF : 
+          -------------------------------------------------------------------
+          when S_SOF =>
+            state <= S_INIT;
+
+            
           -------------------------------------------------------------------
           -- S_INIT : 
           -------------------------------------------------------------------
@@ -232,12 +259,12 @@ begin
       wren      => buffer_write_en,
       q         => buffer_read_data
       );
-  
+
   buffer_read_en        <= line_buffer_read_en;
   buffer_read_address   <= line_buffer_read_address;
   line_buffer_read_data <= buffer_read_data;
 
-  
+
 -----------------------------------------------------------------------------
 -- line_ready
 -----------------------------------------------------------------------------
@@ -257,7 +284,7 @@ begin
   end process;
 
 
-  start_of_frame <= '1' when (state = S_INIT and sync = SOF) else
+  start_of_frame <= '1' when (state = S_SOF) else
                     '0';
 
   line_buffer_read_data <= buffer_read_data;

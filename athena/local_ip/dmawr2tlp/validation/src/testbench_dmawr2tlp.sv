@@ -8,7 +8,7 @@ import dmawr2tlp_pkg::*;
 module testbench_dmawr2tlp();
 	parameter DATA_WIDTH=32;
 	parameter AXIS_DATA_WIDTH=64;
-	parameter AXIS_USER_WIDTH=2;
+	parameter AXIS_USER_WIDTH=4;
 	parameter ADDR_WIDTH=8;
 	parameter GPIO_NUMB_INPUT=8;
 	parameter GPIO_NUMB_OUTPUT=8;

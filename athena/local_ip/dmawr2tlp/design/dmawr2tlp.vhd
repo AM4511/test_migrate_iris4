@@ -64,7 +64,7 @@ entity dmawr2tlp is
     s_axis_tready : out std_logic;
     s_axis_tvalid : in  std_logic;
     s_axis_tdata  : in  std_logic_vector(63 downto 0);
-    s_axis_tuser  : in  std_logic_vector(1 downto 0);
+    s_axis_tuser  : in  std_logic_vector(3 downto 0);
     s_axis_tlast  : in  std_logic;
 
 
@@ -194,7 +194,7 @@ architecture rtl of dmawr2tlp is
   component axi_stream_in is
     generic (
       AXIS_DATA_WIDTH   : integer := 64;
-      AXIS_USER_WIDTH   : integer := 1;
+      AXIS_USER_WIDTH   : integer := 4;
       BUFFER_ADDR_WIDTH : integer := 10
       );
     port (
@@ -304,7 +304,7 @@ architecture rtl of dmawr2tlp is
   constant C_S_AXI_ADDR_WIDTH  : integer := 8;
   constant C_S_AXI_DATA_WIDTH  : integer := 32;
   constant AXIS_DATA_WIDTH     : integer := 64;
-  constant AXIS_USER_WIDTH     : integer := 2;
+  constant AXIS_USER_WIDTH     : integer := 4;
   constant BUFFER_ADDR_WIDTH   : integer := 11;
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;

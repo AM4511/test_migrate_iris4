@@ -8,11 +8,25 @@ module testbench_athena();
 
 	parameter BAR_XGS_CTRL   = 32'h00000000;
 	parameter BAR_AXIHISPI   = 32'h00001000;
+	parameter BAR_DMAWR2TLP  = 32'h00003000;
 
-	parameter AXI_DATA_WIDTH   = 32;
-	parameter AXI_ADDR_WIDTH   = 32;
-	parameter GPIO_INPUT_WIDTH   = 1;
-	parameter GPIO_OUTPUT_WIDTH   = 1;
+	parameter AXI_DATA_WIDTH    = 32;
+	parameter AXI_ADDR_WIDTH    = 32;
+	parameter GPIO_INPUT_WIDTH  = 1;
+	parameter GPIO_OUTPUT_WIDTH = 1;
+
+
+	//////////////////////////////////////////////////////
+	// DMA PARAMETERS
+	//////////////////////////////////////////////////////
+	parameter DMA_FRAME_START_OFFSET = BAR_DMAWR2TLP + 'h50;
+	parameter DMA_FRAME_START        = 'h10000;
+
+	parameter DMA_LINE_SIZE_OFFSET = BAR_DMAWR2TLP + 'h68;
+	parameter DMA_LINE_SIZE        = 4176;
+
+	parameter DMA_LINE_PITCH_OFFSET = BAR_DMAWR2TLP + 'h6C;
+	parameter DMA_LINE_PITCH        = DMA_LINE_SIZE + 'h1000;
 
 	int axi_addr;
 	int axi_data;
@@ -113,7 +127,7 @@ module testbench_athena();
 			.pciAxiReset_n(pciAxiReset_n),
 			.pcieAxiClk62MHz(pcieAxiClk62MHz),
 			.dma_irq(dma_irq),
-			.dma_tlp_cfg_bus_mast_en(),
+			.dma_tlp_cfg_bus_mast_en(cfg_bus_mast_en),
 			.dma_tlp_cfg_setmaxpld(cfg_setmaxpld),
 			.dma_tlp_tlp_address(tlp.address),
 			.dma_tlp_tlp_attr(tlp.attr),
@@ -198,11 +212,11 @@ module testbench_athena();
 		#100 pciAxiReset_n = 1'b1;
 
 
-			//////////////////////////////////////////////////////////
-			//
-			// Start Simulation
-			//
-			//////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////
+		//
+		// Start Simulation
+		//
+		//////////////////////////////////////////////////////////
 		master_agent = new(axil, gpio_if);
 
 		master_agent.reset(100);
@@ -224,6 +238,7 @@ module testbench_athena();
 		axi_poll_mask = 'h00000001;
 		axi_expected_value = 'h00000001;
 		master_agent.poll(axi_addr, axi_expected_value, axi_poll_mask, .polling_period(1us));
+
 
 		//--------------------------------------------------------
 		//
@@ -302,7 +317,19 @@ module testbench_athena();
 
 
 
+		//-------------------------------------------------------
+		// Set configure the DMAWR2TLP IP
+		//-------------------------------------------------------
+		$display("Enabling dmawr2tlp module");
 
+		$display("Setting DMA frame start");
+		master_agent.write(DMA_FRAME_START_OFFSET, DMA_FRAME_START);
+
+		$display("Setting DMA line size");
+		master_agent.write(DMA_LINE_SIZE_OFFSET, DMA_LINE_SIZE);
+
+		$display("Setting DMA line pitch");
+		master_agent.write(DMA_LINE_PITCH_OFFSET, DMA_LINE_PITCH);
 
 
 
