@@ -164,6 +164,8 @@
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS12K.cpp" />
+    <ClCompile Include="source\XGS5K.cpp" />
+    <ClCompile Include="source\XGSxK.cpp" />
     <ClCompile Include="source\XGS_Ctrl.cpp" />
     <ClCompile Include="source\XGS_Data.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />

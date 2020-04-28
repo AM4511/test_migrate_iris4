@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0x4BE916FE
+* Register file CRC32 : 0x5D1A90CF
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -55,18 +55,15 @@
 #define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_ROI2_Y_START_ADDRESS        0x1B0
 #define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_ROI2_Y_SIZE_ADDRESS         0x1B4
 #define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_M_LINES_ADDRESS             0x1B8
-#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_F_LINES_ADDRESS             0x1BC
-#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GR_ADDRESS               0x1C0
-#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GB_ADDRESS               0x1C4
-#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_R_ADDRESS                0x1C8
-#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_B_ADDRESS                0x1CC
+#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GR_ADDRESS               0x1BC
+#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GB_ADDRESS               0x1C0
+#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_R_ADDRESS                0x1C4
+#define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_B_ADDRESS                0x1C8
 #define FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_CTRL_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
 #define FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_ADDRESS                      0x2A0
 #define FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR1_ADDRESS                0x2A8
-#define FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR2_ADDRESS                0x2B0
-#define FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR3_ADDRESS                0x2B4
 #define FPGA_REGFILE_XGS_CTRL_ACQ_EXP_FOT_ADDRESS                    0x2B8
 #define FPGA_REGFILE_XGS_CTRL_ACQ_ACQ_SFNC_ADDRESS                   0x2C0
 
@@ -662,25 +659,6 @@ typedef union
 
 
 /**************************************************************************
-* Register name : SENSOR_F_LINES
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 F_LINES_SENSOR : 10;  /* Bits(9:0), null */
-      M_UINT32 F_SUPPRESSED   : 5;   /* Bits(14:10), null */
-      M_UINT32 RSVD0          : 17;  /* Bits(31:15), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_F_LINES_TYPE;
-
-
-/**************************************************************************
 * Register name : SENSOR_DP_GR
 ***************************************************************************/
 typedef union
@@ -751,7 +729,7 @@ typedef union
       M_UINT32 DP_OFFSET_B            : 12;  /* Bits(11:0), null */
       M_UINT32 RESERVED               : 4;   /* Bits(15:12), null */
       M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[4] ;      /* Reserved space below */
+      M_UINT32 RSVD_REGISTER_SPACE[5] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_B_TYPE;
@@ -835,16 +813,9 @@ typedef union
    {
       M_UINT32 LED_TEST               : 1;   /* Bits(0:0), null */
       M_UINT32 LED_TEST_COLOR         : 2;   /* Bits(2:1), null */
-      M_UINT32 RSVD0                  : 1;   /* Bits(3:3), Reserved */
-      M_UINT32 LED_STAT_CTRL          : 2;   /* Bits(5:4), null */
-      M_UINT32 LED_STAT_CLHS          : 2;   /* Bits(7:6), null */
-      M_UINT32 TEST_MODE              : 1;   /* Bits(8:8), null */
-      M_UINT32 TEST_MOVE              : 1;   /* Bits(9:9), null */
-      M_UINT32 RSVD1                  : 6;   /* Bits(15:10), Reserved */
-      M_UINT32 TEST_MODE_PIX_START    : 10;  /* Bits(25:16), null */
-      M_UINT32 RSVD2                  : 2;   /* Bits(27:26), Reserved */
+      M_UINT32 RSVD0                  : 25;  /* Bits(27:3), Reserved */
       M_UINT32 DEBUG_RST_CNTR         : 1;   /* Bits(28:28), null */
-      M_UINT32 RSVD3                  : 3;   /* Bits(31:29), Reserved */
+      M_UINT32 RSVD1                  : 3;   /* Bits(31:29), Reserved */
       M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 
@@ -862,47 +833,12 @@ typedef union
 
    struct
    {
-      M_UINT32 EOF_CNTR               : 32;  /* Bits(31:0), null */
-      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
+      M_UINT32 SENSOR_FRAME_DURATION  : 28;  /* Bits(27:0), */
+      M_UINT32 RSVD0                  : 4;   /* Bits(31:28), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR1_TYPE;
-
-
-/**************************************************************************
-* Register name : DEBUG_CNTR2
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 EOL_CNTR : 12;  /* Bits(11:0), null */
-      M_UINT32 RSVD0    : 20;  /* Bits(31:12), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR2_TYPE;
-
-
-/**************************************************************************
-* Register name : DEBUG_CNTR3
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 SENSOR_FRAME_DURATION : 28;  /* Bits(27:0), */
-      M_UINT32 RSVD0                 : 4;   /* Bits(31:28), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR3_TYPE;
 
 
 /**************************************************************************
@@ -984,18 +920,15 @@ typedef struct
    FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_ROI2_Y_START_TYPE    SENSOR_ROI2_Y_START;     /* Address offset: 0xb0 */
    FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_ROI2_Y_SIZE_TYPE     SENSOR_ROI2_Y_SIZE;      /* Address offset: 0xb4 */
    FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_M_LINES_TYPE         SENSOR_M_LINES;          /* Address offset: 0xb8 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_F_LINES_TYPE         SENSOR_F_LINES;          /* Address offset: 0xbc */
-   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GR_TYPE           SENSOR_DP_GR;            /* Address offset: 0xc0 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GB_TYPE           SENSOR_DP_GB;            /* Address offset: 0xc4 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_R_TYPE            SENSOR_DP_R;             /* Address offset: 0xc8 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xcc */
+   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GR_TYPE           SENSOR_DP_GR;            /* Address offset: 0xbc */
+   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_GB_TYPE           SENSOR_DP_GB;            /* Address offset: 0xc0 */
+   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_R_TYPE            SENSOR_DP_R;             /* Address offset: 0xc4 */
+   FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xc8 */
    FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_CTRL_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_CTRL_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */
    FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_TYPE                  DEBUG;                   /* Address offset: 0x1a0 */
    FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR1_TYPE            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR2_TYPE            DEBUG_CNTR2;             /* Address offset: 0x1b0 */
-   FPGA_REGFILE_XGS_CTRL_ACQ_DEBUG_CNTR3_TYPE            DEBUG_CNTR3;             /* Address offset: 0x1b4 */
    FPGA_REGFILE_XGS_CTRL_ACQ_EXP_FOT_TYPE                EXP_FOT;                 /* Address offset: 0x1b8 */
    FPGA_REGFILE_XGS_CTRL_ACQ_ACQ_SFNC_TYPE               ACQ_SFNC;                /* Address offset: 0x1c0 */
 } FPGA_REGFILE_XGS_CTRL_ACQ_TYPE;

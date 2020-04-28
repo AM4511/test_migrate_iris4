@@ -409,8 +409,45 @@ void CXGS_Ctrl::InitXGS()
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 	DataRead = ReadSPI(0x0);
-	if (DataRead == 0x0358) 
+	if (DataRead == 0x0358) {
 		printf("XGS Model ID detected is 0x358, XGS5M");
+		DataRead = ReadSPI(0x2);
+		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
+
+		DataRead = ReadSPI(0x3012);
+		if (((DataRead & 0x1c) >> 2) == 0x18)
+			printf("XGS Resolution is 5Mp\n");
+		if (((DataRead & 0x1c) >> 2) == 0x19)
+			printf("XGS Resolution is 3Mp\n");
+		if (((DataRead & 0x1c) >> 2) == 0x1a)
+			printf("XGS Resolution is 2Mp\n");
+		if (((DataRead & 0x1c) >> 2) == 0x1b)
+			printf("XGS Resolution is 1.3Mp\n");
+
+		if (((DataRead & 0x60) >> 5) == 0)
+			printf("XGS Speedgrade is 16 ports\n");
+		if (((DataRead & 0x60) >> 5) == 1)
+			printf("XGS Speedgrade is 12 ports\n");
+		if (((DataRead & 0x60) >> 5) == 2)
+			printf("XGS Speedgrade is 8 ports\n");
+		if (((DataRead & 0x60) >> 5) == 3)
+			printf("XGS Speedgrade is 4 ports\n");
+
+		if (((DataRead & 0x180) >> 7) == 0)
+			printf("XGS Lens Shift is 0 degree\n");
+		if (((DataRead & 0x180) >> 7) == 1)
+			printf("XGS Lens Shift is 7.3 degree\n");
+
+		if ((DataRead & 0x3) == 1)
+			printf("XGS is COLOR\n");
+		if ((DataRead & 0x3) == 2)
+			printf("XGS is MONO\n");
+
+
+		XGS5M_SetGrabParamsInit5000(6);
+		XGS5M_LoadDCF(6);
+
+	}
 
 	else if (DataRead == 0x0058) {
 		printf("XGS Model ID detected is 0x58, XGS12M\n");
@@ -431,6 +468,11 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x60) >> 5) == 3)
 			printf("XGS Speedgrade is 6 ports\n");
 
+		if (((DataRead & 0x180) >> 7) == 0)
+			printf("XGS Lens Shift is 0 degree\n");
+		if (((DataRead & 0x180) >> 7) == 1)
+			printf("XGS Lens Shift is 7.3 degree\n");
+
 		if ((DataRead & 0x3)  == 1)
 			printf("XGS is COLOR\n");
 		if ((DataRead & 0x3) == 2)
@@ -446,29 +488,6 @@ void CXGS_Ctrl::InitXGS()
 	}
 
 	
-
-	M_UINT32 EXP_FOT_TIME     = 5360;  //5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
-	
-	//Enable EXP during FOT
-	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT_TIME = (M_UINT32) ((double)EXP_FOT_TIME / SystemPeriodNanoSecond);
-	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT      = 1;
-	rXGSptr.ACQ.EXP_FOT.u32 = sXGSptr.ACQ.EXP_FOT.u32;
-
-	//Trigger KeepOut zone
-	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_START = (M_UINT32)(double((sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) - 100) / SystemPeriodNanoSecond);   //START Keepout trigger zone (100ns)
-	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_END   = (M_UINT32)(double( sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond);           //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter 	
-	rXGSptr.ACQ.READOUT_CFG4.u32= sXGSptr.ACQ.READOUT_CFG4.u32;
-	
-	// Pour le moment non enable car on recois pas le signal New_line du XGS (Xcelerator)
-	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA   = 0;
-	rXGSptr.ACQ.READOUT_CFG3.u32                   = sXGSptr.ACQ.READOUT_CFG3.u32;
-
-	// Set FOT time (not used by fpga for the moment)
-	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;
-	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH      = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
-	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL      = 1;
-	rXGSptr.ACQ.READOUT_CFG1.u32               = sXGSptr.ACQ.READOUT_CFG1.u32;
-
 }
 
 

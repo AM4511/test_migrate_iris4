@@ -48,6 +48,12 @@
     <ClCompile Include="tests\test_0001_SWtrig.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="source\XGS5K.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\XGSxK.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">

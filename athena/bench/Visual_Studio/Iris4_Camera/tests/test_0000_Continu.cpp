@@ -35,9 +35,14 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
 	M_UINT32 XGSSize_Y = 0;
+
+	M_UINT32 SubX = 0;
+	M_UINT32 SubY = 0;
+
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 
+	M_UINT32 FileDumpNum = 0;
 
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0000.cpp    *\n");
@@ -121,13 +126,17 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	//---------------------
 	printf("\n");
 	printf("\n  (q) Quit this test");
-	printf("\n  (f) Print current FPS");
+	printf("\n  (f) Dump image to .tiff file");
 	printf("\n  (d) Dump XGS controller registers(PCIe)");
 	printf("\n  (g) Change Analog Gain");
 	printf("\n  (b) Change Black Offset(XGS Data Pedestal)");
+	printf("\n  (e) Exposure Incr/Decr gap");
 	printf("\n  (+) Increase Exposure");
 	printf("\n  (-) Decrease Exposure");
-	printf("\n  (e) Exposure Incr/Decr gap");
+	printf("\n  (p) Pause grab");
+	printf("\n  (y) Set new ROI (Y-only)");
+	printf("\n  (r) Read current ROI configuration in XGS");
+	printf("\n  (S) Subsampling mode");
 	printf("\n\n");
 
 	unsigned long fps_reg;
@@ -152,8 +161,20 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 
 		if (FPS_On)
 		{
+
+			// Le max FPS est facile a calculer : Treadout2trigfall (~1ligne) + Ttrigfall2FOTstart + Tfot + Treadout
+			// Tfot fixe en nmbre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
+			//
+			// Le exp_max pour fps max est un peu plus tricky a calculer.
+			// Avec le Xcerelator j'utilise une exposure_synthetique qui ne reflete pas le timing exact du real_integration, 
+			// alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
+			// width minimum sur le signal trig0 du senseur.
+
 			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-			printf("\r%dfps, Calculated Max fps is %f        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 1.0 / (0.0000114 + 0.000023+(0.0000114375*(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 )))  );
+			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
+				                                                             1.0 / (0.0000114 + 0.000023+(0.0000114375*(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 ))),  
+				                                                            ((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES +1 ) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond/1000.0)
+			                                                                 );
 		}
 
 
@@ -187,9 +208,15 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 				break;
 
 			case 'f':
-				fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-				printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				FileDumpNum++;
+				MIL_TEXT_CHAR FileName[50];
+				MosSprintf(FileName, 50, MIL_TEXT(".\\Images_dump\\Image_Test0001_%d.tiff"), FileDumpNum);
+				printf("\nPrinting .tiff file: %S\n", FileName);
+				MbufSave(FileName, MilGrabBuffer);
 				break;
+
 
 			case 'e':
 				printf("\nEnter the ExposureIncr/Decr in us : ");
@@ -247,6 +274,24 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);				
 				GrabParams->Y_END = XGSSize_Y;
+				break;
+
+			case 'S':
+				XGS_Ctrl->WaitEndExpReadout();
+
+				printf("\n\n");
+				printf("Subsampling X (0=NO, 1=YES) ? : ");
+				scanf_s("%d", &SubX);
+				printf("Subsampling Y (0=NO, 1=YES) ? : ");
+				scanf_s("%d", &SubY);
+
+				XGS_Ctrl->GrabParams.SUBSAMPLING_X = SubX;
+				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+
+				printf("\n");
+
+				break;
+
 
 			}
 

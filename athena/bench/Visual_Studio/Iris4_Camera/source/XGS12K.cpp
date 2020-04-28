@@ -31,6 +31,10 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch           = 24;
    SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
    SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED
+ 
+   // This may depend on the configuration (Lanes+SensorArea)
+   SensorParams.EXP_FOT_TIME           = 23000 + 5360;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
 
    //---------------------------------
    // Constants for XGS 12M FOT  greg ferrel 1/04/2020
@@ -73,6 +77,9 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 	SensorParams.XGS_HiSPI_Ch = 24;
 	SensorParams.Xsize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
+  
+    // This may depend on the configuration (Lanes+SensorArea)
+	SensorParams.EXP_FOT_TIME = 0;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 	//---------------------------------
 	// Constants for XGS 9.4M FOT
@@ -116,6 +123,10 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	SensorParams.Xsize_Full = 4096; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
 
+    // This may depend on the configuration (Lanes+SensorArea)
+	SensorParams.EXP_FOT_TIME = 0;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+
 	//---------------------------------
 	// Constants for XGS 9.4M FOT
 	//---------------------------------
@@ -153,72 +164,23 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 void CXGS_Ctrl::XGS12M_LoadDCF(int lanes)
 {
      
-	XGS12M_WaitRdy();                       // Wait until the sensor is ready to receive register writes 
-	XGS12M_Check_otpm_depended_uploads();   // OTM write
-	if (lanes == 6)  XGS12M_Enable6lanes();
-	//no support for other nblane for the moment
-
-	XGS12M_Activate_sensor();               // Set slave and external trig
-
-	XGS12M_Config_Monitor();
-
-	WriteSPI(0x3812, 0);    // integration offset coarse default is 0 [3:0]
-	WriteSPI(0x389c, 0);    // F_line
-
-	// Copy some "mirror" registers from Sensor to FPGA
-	sXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = ReadSPI(0x3844);      //Analog Gain
-	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32      = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
-
-	sXGSptr.ACQ.SENSOR_SUBSAMPLING.u32   = ReadSPI(0x383c);      //Subsampling
-	rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32   = sXGSptr.ACQ.SENSOR_SUBSAMPLING.u32;
-
-	sXGSptr.ACQ.SENSOR_M_LINES.u32       = ReadSPI(0x389a);      //M_LINES cntx(0)
-	rXGSptr.ACQ.SENSOR_M_LINES.u32       = sXGSptr.ACQ.SENSOR_M_LINES.u32;
-
-	sXGSptr.ACQ.SENSOR_F_LINES.u32       = ReadSPI(0x389c);      //F_LINES cntx(0)
-	rXGSptr.ACQ.SENSOR_F_LINES.u32       = sXGSptr.ACQ.SENSOR_F_LINES.u32;
-
-	sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = ReadSPI(0x3810);      //LINETIME
-	rXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME = sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME;
-
-}
-
-//-----------------------------------------
-// Cofig Monitor PINS
-//-----------------------------------------
-void CXGS_Ctrl::XGS12M_Config_Monitor() {
+	XGS_WaitRdy();                          // Wait until the sensor is ready to receive register writes 
 	
-	// Program monitor pins in XGS
-	//M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
-	//M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+	XGS12M_Check_otpm_depended_uploads();   // OTM : timing settings 
+	
+	XGS12M_Enable6lanes();               	// No support for other nblane for the moment
 
-	M_UINT32 monitor_0_reg = 0x0;    // modifie plus bas pour aller chercher 1 signal du datapath
-	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-	//M_UINT32 monitor_2_reg = 0x1;    // New_line
-	//M_UINT32 monitor_2_reg = 0x6;  // real int
-	M_UINT32 monitor_2_reg = 0x13;  // Mline
+	XGS_Activate_sensor();                  // Set slave and external trig
 
-	//Monitor 0 is Line valid
-	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+	XGS_Config_Monitor();                   // Config monitor pins
 
-	WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);    // Monitor_ctrl
+	XGS_CopyMirror_regs();                  // Copy some "mirror" registers from Sensor to FPGA
+
+	XGS_SetConfigFPGA();                    // Confif FPGA registers, Readout_cfg, Exposure during FOT...
 
 }
 
 
-
-//-----------------------------------------
-// PowerUp and wait until Sensor is rdy
-//-----------------------------------------
-void CXGS_Ctrl::XGS12M_WaitRdy() {
-
-	//	Wait until the sensor is ready to receive register writes: (REG 0x3706[3:0] = 0x3) : POLL_REG = 0x3706, 0x000F, != 0x3, DELAY = 25, TIMEOUT = 500
-	PollRegSPI(0x3706, 0xF, 0x3, 25, 40);
-
-}
 
 
 
@@ -238,7 +200,7 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 
 	if (otpmversion == 0) {
 
-		printf("\n\nL version otpmversion devrait etre a 1 avec ce senseur!\n\n");
+		printf("\n\nL version otpmversion devrait etre a 1 avec ce senseur! (WIP Last Changed Rev: 16907)\n\n");
 		exit(1);
 
 		//apbase.log("Loading required register uploads")
@@ -302,8 +264,8 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 
 	}
 
-	if (otpmversion != 0) {
-		printf("No timing uploads necessary for OTPM version: 0x%X\n", otpmversion);
+	if (otpmversion == 1) {
+		printf("No timing uploads necessary for OTPM version: 0x%X (WIP Last Changed Rev: 16907)\n", otpmversion);
 		printf("Loading required register uploads\n");
 
 		//apbase.load_preset("Req_Reg_Up_1")
@@ -315,7 +277,14 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 		WriteSPI(0x38CA, 0x0707);
 		WriteSPI(0x38CC, 0x0007);
 		WriteSPI(0x389A, 0x0C03); //M-lines 3-3
+
 	}
+
+	if (otpmversion > 1) {
+		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 16907)\n", otpmversion);
+		exit(1);
+	}
+
 }
 
 
@@ -349,30 +318,6 @@ void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 
 
 
-//----------------------
-// Activating sensor
-//----------------------
-void CXGS_Ctrl::XGS12M_Activate_sensor() {
-	M_UINT32 read;
 
-	// Enable PLL and Analog blocks: REG = 0x3700, 0x001c
-	WriteSPI(0x3700, 0x001c);
 
-	printf("Polling for initialisation complete\n");
 
-	// Check if initialization is complete (REG 0x3706[7:0] = 0xEB): POLL_REG = 0x3706, 0x00FF, != 0xEB, DELAY = 25, TIMEOUT = 500
-	PollRegSPI(0x3706, 0x00FF, 0xEB, 25, 40);
-
-	// Slave mode + Trigger mode
-	M_UINT32 GeneralConfig0 = ReadSPI(0x3800);
-	WriteSPI(0x3800, GeneralConfig0 | 0x30);
-	if ((ReadSPI(0x3800) & 0x30) == 0x30) printf("XGS is now in Slave trigger mode.\n");
-
-	//Enable sequencer : BITFIELD = 0x3800, 0x0001, 1
-	WriteSPI_Bit(0x3800, 0, 1);
-
-	read = ReadSPI(0x3800);
-	if (read == 0x31)
-		printf("XGS sequencer enable!!!\n\n\n");
-
-}

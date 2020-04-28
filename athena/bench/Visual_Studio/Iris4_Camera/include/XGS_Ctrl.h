@@ -73,6 +73,8 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
+	M_UINT32 EXP_FOT_TIME;
+
 };
 
 
@@ -96,7 +98,9 @@ public:
 	GrabParamStruct   GrabParams;
 	SensorParamStruct SensorParams;
 
-
+	double SystemPeriodNanoSecond = 16.000000;
+	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
+	double SensorPeriodNanoSecond = 15.625000; //32Mhz
 
 	void PrintTime(void);
 
@@ -134,23 +138,27 @@ public:
 
 private:
 	
-	double SystemPeriodNanoSecond = 16.000000;
-	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
-	double SensorPeriodNanoSecond = 15.625000; //32Mhz
+	//Common for all DCF
+	void XGS_Config_Monitor(void);
+	void XGS_WaitRdy(void);
+	void XGS_Activate_sensor(void);
+	void XGS_CopyMirror_regs(void);
+	void XGS_SetConfigFPGA(void);
 
+	//XGS 12/9.6/8
 	void XGS12M_SetGrabParamsInit12000(int lanes);
 	void XGS12M_SetGrabParamsInit9400(int lanes);
 	void XGS12M_SetGrabParamsInit8000(int lanes);
-
 	void XGS12M_LoadDCF(int lanes);
-	void XGS12M_Config_Monitor(void);
-	void XGS12M_WaitRdy(void);
-
 	void XGS12M_Check_otpm_depended_uploads(void);
 	void XGS12M_Enable6lanes(void);
-	void XGS12M_Activate_sensor(void);
 
 
+	//XGS 5/3/1.3
+	void XGS5M_SetGrabParamsInit5000(int lanes);
+	void XGS5M_LoadDCF(int lanes);
+	void XGS5M_Check_otpm_depended_uploads(void);
+	void XGS5M_Enable4lanes(void);
 };
   
 

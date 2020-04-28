@@ -16,7 +16,6 @@
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
 
-
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
    {
 	
@@ -34,12 +33,16 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	bool FPS_On     = true;
 	M_UINT32 nbGrab = 0;
 
+	M_UINT32 SubX = 0;
+	M_UINT32 SubY = 0;
+
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
 	M_UINT32 XGSSize_Y = 0;
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 
+	M_UINT32 FileDumpNum = 0;
 
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0001.cpp    *\n");
@@ -121,13 +124,17 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	//---------------------
 	printf("\n");
 	printf("\n  (q) Quit this test");
-	printf("\n  (f) Print current FPS");
+	printf("\n  (f) Save image to .tiff file");
 	printf("\n  (d) Dump XGS controller registers(PCIe)");
 	printf("\n  (g) Change Analog Gain");
 	printf("\n  (b) Change Black Offset(XGS Data Pedestal)");
+	printf("\n  (e) Exposure Incr/Decr gap");
 	printf("\n  (+) Increase Exposure");
 	printf("\n  (-) Decrease Exposure");
-	printf("\n  (e) Exposure Incr/Decr gap");
+	printf("\n  (y) Set new ROI (Y-only)");
+	printf("\n  (r) Read current ROI configuration in XGS");
+	printf("\n  (S) Subsampling mode");
+	printf("\n  (X) Dump FPGA XGS controller registers to a file");
 	printf("\n");
 	printf("\n  (s) To do a SW snapshot");
 
@@ -180,9 +187,12 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 				Sleep(100);
 				break;
 
-			case 'f':
-				fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-				printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+			case 'f':	
+				FileDumpNum++;
+				MIL_TEXT_CHAR FileName[50];
+				MosSprintf(FileName, 50, MIL_TEXT(".\\Images_dump\\Image_Test0001_%d.tiff"), FileDumpNum);
+				printf("\nPrinting .tiff file: %S\n", FileName);
+				MbufSave(FileName, MilGrabBuffer);
 				break;
 
 			case 'e':
@@ -217,13 +227,6 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 				XGS_Ctrl->setBlackRef(BlackOffset);			
 				break;
 
-
-			case 'p':
-				printf("Paused. Press enter to restart grab...");
-				_getch();
-				printf(" GO!\n");
-				break;
-
 			case 'r':
 				Sleep(1000);
 				XGS_Ctrl->DisableRegUpdate();
@@ -238,10 +241,12 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 				break;
 
 			case 'y':
+				XGS_Ctrl->WaitEndExpReadout();
+
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = XGSSize_Y;
-
+				break;
 
 			case 's':
 				Sortie = 0;
@@ -255,7 +260,33 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 
 				break;
 
+			case 'X':
+
+				Sleep(100);
+				XGS_Ctrl->XGS_PCIeCtrl_DumpFile();
+				Sleep(100);
+				break;
+
+			case 'S':
+				XGS_Ctrl->WaitEndExpReadout();
+				
+				printf("\n\n");
+				printf("Subsampling X (0=NO, 1=YES) ? : ");
+				scanf_s("%d", &SubX);
+				printf("Subsampling Y (0=NO, 1=YES) ? : ");
+				scanf_s("%d", &SubY);
+
+				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
+				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+
+				printf("\n");
+
+				break;
+
+
 			}
+
+
 
 
 
@@ -269,8 +300,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
-	//MbufFree(MilGrabBuffer);
-	//MdispFree(MilDisplay);
+	MbufFree(MilGrabBuffer);
+	MdispFree(MilDisplay);
 
 
 
