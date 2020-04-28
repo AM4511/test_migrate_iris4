@@ -29,24 +29,6 @@ Section("SYSTEM", 0, 0x0);
 Register("id", 0x0, 4, "");
 		Field("staticid", 31, 0, "rd", 0x0, 0xCAFE0CCD, 0x0, 0x0, NO_TEST, 0, 0, "MINUTEs of the build");
 
-Register("acq_cap", 0x30, 4, "null");
-		Field("dpc", 15, 15, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-			FieldValue("DPC is not implemented", 0);
-			FieldValue("DPC is implemented", 1);
-		Field("exp_fot", 14, 14, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("fpn_73", 13, 13, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "FPN 7.3 correction CAP");
-			FieldValue("Default 5.3 FPN correction  implemented", 0);
-			FieldValue("New 7.3 FPN correction  implemented", 1);
-		Field("color", 12, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("ch_lvds", 11, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("lut_width", 4, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("LUT 10 to 10 Bits", 0);
-			FieldValue("LUT 10 to 8 Bits", 1);
-		Field("lut_palette", 1, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("No LUT implemented", 0);
-			FieldValue("1 LUT implemented", 1);
-			FieldValue("2 LUT implemented", 2);
-
 %=================================================================
 % SECTION NAME	: ACQ
 %=================================================================
@@ -292,23 +274,19 @@ Register("sensor_m_lines", 0x1b8, 4, "null");
 		Field("m_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("m_lines_sensor", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_f_lines", 0x1bc, 4, "null");
-		Field("f_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("f_lines_sensor", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("sensor_dp_gr", 0x1c0, 4, "null");
+Register("sensor_dp_gr", 0x1bc, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_gr", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_dp_gb", 0x1c4, 4, "null");
+Register("sensor_dp_gb", 0x1c0, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_gb", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_dp_r", 0x1c8, 4, "null");
+Register("sensor_dp_r", 0x1c4, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_r", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_dp_b", 0x1cc, 4, "null");
+Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
@@ -330,15 +308,6 @@ Register("debug", 0x2a0, 4, "null");
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
-		Field("test_mode_pix_start", 25, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("test_move", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Static test ramp", 0);
-			FieldValue("The test ramp moves", 1);
-		Field("test_mode", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Normal acquisition data from sensor", 0);
-			FieldValue("Test mode, a ramp is generated.", 1);
-		Field("led_stat_clhs", 7, 6, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("led_stat_ctrl", 5, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("led_test_color", 2, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("The LED is OFF", 0);
 			FieldValue("The LED is GREEN", 1);
@@ -349,12 +318,6 @@ Register("debug", 0x2a0, 4, "null");
 			FieldValue("The LED is in test mode.", 1);
 
 Register("debug_cntr1", 0x2a8, 4, "null");
-		Field("eof_cntr", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-
-Register("debug_cntr2", 0x2b0, 4, "null");
-		Field("eol_cntr", 11, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-
-Register("debug_cntr3", 0x2b4, 4, "null");
 		Field("sensor_frame_duration", 27, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "");
 
 Register("exp_fot", 0x2b8, 4, "null");

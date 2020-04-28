@@ -45,22 +45,6 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       //Fields:
       register.addField(new CField(register, "StaticID", "MINUTEs of the build", CField.FieldType.RO, 0, 32, 0xcafe0ccd));
 
-      /***************************************************************
-      * Register: ACQ_CAP
-      * Offset: 0x30
-      ****************************************************************/
-      register = new CRegister(section, "ACQ_CAP", "null", 0x30);
-      section.addRegister(register);
-
-      //Fields:
-      register.addField(new CField(register, "DPC", "null", CField.FieldType.STATIC, 15, 1, 0x1));
-      register.addField(new CField(register, "EXP_FOT", "null", CField.FieldType.STATIC, 14, 1, 0x1));
-      register.addField(new CField(register, "FPN_73", "FPN 7.3 correction CAP", CField.FieldType.RO, 13, 1, 0x0));
-      register.addField(new CField(register, "COLOR", "null", CField.FieldType.RO, 12, 1, 0x0));
-      register.addField(new CField(register, "CH_LVDS", "null", CField.FieldType.RO, 8, 4, 0x0));
-      register.addField(new CField(register, "LUT_WIDTH", "null", CField.FieldType.RO, 4, 1, 0x0));
-      register.addField(new CField(register, "LUT_PALETTE", "null", CField.FieldType.RO, 0, 2, 0x0));
-
 
       /***************************************************************
       * Section: ACQ
@@ -383,21 +367,10 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       register.addField(new CField(register, "M_LINES_SENSOR", "null", CField.FieldType.RW, 0, 10, 0x8));
 
       /***************************************************************
-      * Register: SENSOR_F_LINES
+      * Register: SENSOR_DP_GR
       * Offset: 0xbc
       ****************************************************************/
-      register = new CRegister(section, "SENSOR_F_LINES", "null", 0xbc);
-      section.addRegister(register);
-
-      //Fields:
-      register.addField(new CField(register, "F_SUPPRESSED", "null", CField.FieldType.RW, 10, 5, 0x0));
-      register.addField(new CField(register, "F_LINES_SENSOR", "null", CField.FieldType.RW, 0, 10, 0x8));
-
-      /***************************************************************
-      * Register: SENSOR_DP_GR
-      * Offset: 0xc0
-      ****************************************************************/
-      register = new CRegister(section, "SENSOR_DP_GR", "null", 0xc0);
+      register = new CRegister(section, "SENSOR_DP_GR", "null", 0xbc);
       section.addRegister(register);
 
       //Fields:
@@ -406,9 +379,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: SENSOR_DP_GB
-      * Offset: 0xc4
+      * Offset: 0xc0
       ****************************************************************/
-      register = new CRegister(section, "SENSOR_DP_GB", "null", 0xc4);
+      register = new CRegister(section, "SENSOR_DP_GB", "null", 0xc0);
       section.addRegister(register);
 
       //Fields:
@@ -417,9 +390,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: SENSOR_DP_R
-      * Offset: 0xc8
+      * Offset: 0xc4
       ****************************************************************/
-      register = new CRegister(section, "SENSOR_DP_R", "null", 0xc8);
+      register = new CRegister(section, "SENSOR_DP_R", "null", 0xc4);
       section.addRegister(register);
 
       //Fields:
@@ -428,9 +401,9 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       /***************************************************************
       * Register: SENSOR_DP_B
-      * Offset: 0xcc
+      * Offset: 0xc8
       ****************************************************************/
-      register = new CRegister(section, "SENSOR_DP_B", "null", 0xcc);
+      register = new CRegister(section, "SENSOR_DP_B", "null", 0xc8);
       section.addRegister(register);
 
       //Fields:
@@ -480,11 +453,6 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
 
       //Fields:
       register.addField(new CField(register, "DEBUG_RST_CNTR", "null", CField.FieldType.RW, 28, 1, 0x1));
-      register.addField(new CField(register, "TEST_MODE_PIX_START", "null", CField.FieldType.RW, 16, 10, 0x0));
-      register.addField(new CField(register, "TEST_MOVE", "null", CField.FieldType.RW, 9, 1, 0x0));
-      register.addField(new CField(register, "TEST_MODE", "null", CField.FieldType.RW, 8, 1, 0x0));
-      register.addField(new CField(register, "LED_STAT_CLHS", "null", CField.FieldType.RO, 6, 2, 0x0));
-      register.addField(new CField(register, "LED_STAT_CTRL", "null", CField.FieldType.RO, 4, 2, 0x0));
       register.addField(new CField(register, "LED_TEST_COLOR", "null", CField.FieldType.RW, 1, 2, 0x0));
       register.addField(new CField(register, "LED_TEST", "null", CField.FieldType.RW, 0, 1, 0x0));
 
@@ -493,26 +461,6 @@ public class Cregfile_xgs_ctrl  extends CRegisterFile {
       * Offset: 0x1a8
       ****************************************************************/
       register = new CRegister(section, "DEBUG_CNTR1", "null", 0x1a8);
-      section.addRegister(register);
-
-      //Fields:
-      register.addField(new CField(register, "EOF_CNTR", "null", CField.FieldType.RO, 0, 32, 0x0));
-
-      /***************************************************************
-      * Register: DEBUG_CNTR2
-      * Offset: 0x1b0
-      ****************************************************************/
-      register = new CRegister(section, "DEBUG_CNTR2", "null", 0x1b0);
-      section.addRegister(register);
-
-      //Fields:
-      register.addField(new CField(register, "EOL_CNTR", "null", CField.FieldType.RO, 0, 12, 0x0));
-
-      /***************************************************************
-      * Register: DEBUG_CNTR3
-      * Offset: 0x1b4
-      ****************************************************************/
-      register = new CRegister(section, "DEBUG_CNTR3", "null", 0x1b4);
       section.addRegister(register);
 
       //Fields:
