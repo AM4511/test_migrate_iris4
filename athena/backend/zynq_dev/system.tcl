@@ -124,13 +124,13 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-xilinx.com:ip:xlconstant:1.1\
-matrox.com:Imaging:axiHiSPi:1.1.1\
-matrox.com:user:axiXGS_controller:1.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
-matrox.com:user:dmawr2tlp:1.0.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
+matrox.com:Imaging:axiHiSPi:1.1.1\
+matrox.com:user:axiXGS_controller:1.0\
+matrox.com:user:dmawr2tlp:1.0.0\
+xilinx.com:ip:xlconcat:2.1\
 "
 
    set list_ips_missing ""
@@ -159,6 +159,99 @@ if { $bCheckIPsPassed != 1 } {
 # DESIGN PROCs
 ##################################################################
 
+
+# Hierarchical cell: xgs_system
+proc create_hier_cell_xgs_system { parentCell nameHier } {
+
+  variable script_folder
+
+  if { $parentCell eq "" || $nameHier eq "" } {
+     catch {common::send_msg_id "BD_TCL-102" "ERROR" "create_hier_cell_xgs_system() - Empty argument(s)!"}
+     return
+  }
+
+  # Get object for parentCell
+  set parentObj [get_bd_cells $parentCell]
+  if { $parentObj == "" } {
+     catch {common::send_msg_id "BD_TCL-100" "ERROR" "Unable to find parent cell <$parentCell>!"}
+     return
+  }
+
+  # Make sure parentObj is hier blk
+  set parentType [get_property TYPE $parentObj]
+  if { $parentType ne "hier" } {
+     catch {common::send_msg_id "BD_TCL-101" "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     return
+  }
+
+  # Save current instance; Restore later
+  set oldCurInst [current_bd_instance .]
+
+  # Set parent object as current
+  current_bd_instance $parentObj
+
+  # Create cell and set as current instance
+  set hier_obj [create_bd_cell -type hier $nameHier]
+  current_bd_instance $hier_obj
+
+  # Create interface pins
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI2
+
+  create_bd_intf_pin -mode Master -vlnv matrox.com:user:Athena2Ares_if_rtl:1.0 anput_if
+
+  create_bd_intf_pin -mode Master -vlnv matrox.com:user:mtx_tlp_rtl:1.0 dma_tlp
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi1
+
+  create_bd_intf_pin -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs
+
+  create_bd_intf_pin -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl
+
+
+  # Create pins
+  create_bd_pin -dir I -type clk idelay_clk
+  create_bd_pin -dir O intevent
+  create_bd_pin -dir O -from 1 -to 0 led_out
+  create_bd_pin -dir I -type clk s_axi_aclk
+  create_bd_pin -dir I -type rst s_axi_aresetn
+
+  # Create instance: axiHiSPi_0, and set properties
+  set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
+
+  # Create instance: axiXGS_controller_0, and set properties
+  set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+
+  # Create instance: dmawr2tlp_0, and set properties
+  set dmawr2tlp_0 [ create_bd_cell -type ip -vlnv matrox.com:user:dmawr2tlp:1.0.0 dmawr2tlp_0 ]
+
+  # Create instance: xlconcat_0, and set properties
+  set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
+
+  # Create interface connections
+  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr2tlp_0/s_axis]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_pins anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_pins xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins S_AXI2] [get_bd_intf_pins axiXGS_controller_0/S_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins s_axi] [get_bd_intf_pins axiHiSPi_0/s_axi]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins s_axi1] [get_bd_intf_pins dmawr2tlp_0/s_axi]
+  connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_pins dma_tlp] [get_bd_intf_pins dmawr2tlp_0/dma_tlp]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_pins xgs] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+
+  # Create port connections
+  connect_bd_net -net ACLK_1 [get_bd_pins s_axi_aclk] [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins dmawr2tlp_0/axi_clk]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_pins led_out] [get_bd_pins axiXGS_controller_0/led_out]
+  connect_bd_net -net axiXGS_controller_0_strobe_DMA_P1 [get_bd_pins axiXGS_controller_0/strobe_DMA_P1] [get_bd_pins xlconcat_0/In1]
+  connect_bd_net -net axiXGS_controller_0_strobe_DMA_P2 [get_bd_pins axiXGS_controller_0/strobe_DMA_P2] [get_bd_pins xlconcat_0/In0]
+  connect_bd_net -net dmawr2tlp_0_intevent [get_bd_pins intevent] [get_bd_pins dmawr2tlp_0/intevent]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins s_axi_aresetn] [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins dmawr2tlp_0/axi_reset_n]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins idelay_clk] [get_bd_pins axiHiSPi_0/idelay_clk]
+  connect_bd_net -net xlconcat_0_dout [get_bd_pins dmawr2tlp_0/context_strb] [get_bd_pins xlconcat_0/dout]
+
+  # Restore current instance
+  current_bd_instance $oldCurInst
+}
 
 
 # Procedure to create entire design; Provide argument to make
@@ -219,19 +312,6 @@ proc create_root_design { parentCell } {
  ] $pcie_clk100MHz
   set pcie_reset_n [ create_bd_port -dir I -type rst pcie_reset_n ]
 
-  # Create instance: Context_strb, and set properties
-  set Context_strb [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 Context_strb ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
-   CONFIG.CONST_WIDTH {2} \
- ] $Context_strb
-
-  # Create instance: axiHiSPi_0, and set properties
-  set axiHiSPi_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:axiHiSPi:1.1.1 axiHiSPi_0 ]
-
-  # Create instance: axiXGS_controller_0, and set properties
-  set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
-
   # Create instance: axi_i2c_0, and set properties
   set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
   set_property -dict [ list \
@@ -247,17 +327,14 @@ proc create_root_design { parentCell } {
    CONFIG.NUM_SI {1} \
  ] $axi_interconnect_0
 
-  # Create instance: dmawr2tlp_0, and set properties
-  set dmawr2tlp_0 [ create_bd_cell -type ip -vlnv matrox.com:user:dmawr2tlp:1.0.0 dmawr2tlp_0 ]
-
-  # Create instance: pcie2AxiMaster_0, and set properties
-  set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:3.0 pcie2AxiMaster_0 ]
+  # Create instance: pcie2AxiMaster_v3, and set properties
+  set pcie2AxiMaster_v3 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:3.0 pcie2AxiMaster_v3 ]
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_DMA {true} \
    CONFIG.ENABLE_DMA {1} \
    CONFIG.NUMB_IRQ {1} \
    CONFIG.PCIE_DEVICE_ID {5396} \
- ] $pcie2AxiMaster_0
+ ] $pcie2AxiMaster_v3
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -670,38 +747,39 @@ proc create_root_design { parentCell } {
    CONFIG.preset {ZC706} \
  ] $processing_system7_0
 
+  # Create instance: xgs_system
+  create_hier_cell_xgs_system [current_bd_instance .] xgs_system
+
   # Create interface connections
-  connect_bd_intf_net -intf_net FPGA_Info_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
-  connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
-  connect_bd_intf_net -intf_net axiHiSPi_0_m_axis [get_bd_intf_pins axiHiSPi_0/m_axis] [get_bd_intf_pins dmawr2tlp_0/s_axis]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net FPGA_Info_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_v3/FPGA_Info]
+  connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_v3/M_AXI]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins xgs_system/anput_if]
+  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins xgs_system/xgs_ctrl]
   connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports I2C_if] [get_bd_intf_pins axi_i2c_0/I2C_interface]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins xgs_system/S_AXI2]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axiHiSPi_0/s_axi] [get_bd_intf_pins axi_interconnect_0/M02_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins dmawr2tlp_0/s_axi]
-  connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_pins dmawr2tlp_0/dma_tlp] [get_bd_intf_pins pcie2AxiMaster_0/dma_tlp]
-  connect_bd_intf_net -intf_net pcie2AxiMaster_1_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M02_AXI [get_bd_intf_pins axi_interconnect_0/M02_AXI] [get_bd_intf_pins xgs_system/s_axi]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M03_AXI [get_bd_intf_pins axi_interconnect_0/M03_AXI] [get_bd_intf_pins xgs_system/s_axi1]
+  connect_bd_intf_net -intf_net dmawr2tlp_0_dma_tlp [get_bd_intf_pins pcie2AxiMaster_v3/dma_tlp] [get_bd_intf_pins xgs_system/dma_tlp]
+  connect_bd_intf_net -intf_net pcie2AxiMaster_1_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_v3/pcie_mgt]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports PS_FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins axiHiSPi_0/s_hispi]
+  connect_bd_intf_net -intf_net s_hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins xgs_system/xgs]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_pins axiHiSPi_0/axi_clk] [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins dmawr2tlp_0/axi_clk] [get_bd_pins pcie2AxiMaster_0/axim_clk]
-  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
-  connect_bd_net -net dmawr2tlp_0_intevent [get_bd_pins dmawr2tlp_0/intevent] [get_bd_pins pcie2AxiMaster_0/irq_event]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiHiSPi_0/axi_reset_n] [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins dmawr2tlp_0/axi_reset_n] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
-  connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
-  connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axiHiSPi_0/idelay_clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins Context_strb/dout] [get_bd_pins dmawr2tlp_0/context_strb]
+  connect_bd_net -net ACLK_1 [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins pcie2AxiMaster_v3/axim_clk] [get_bd_pins xgs_system/s_axi_aclk]
+  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins xgs_system/led_out]
+  connect_bd_net -net dmawr2tlp_0_intevent [get_bd_pins pcie2AxiMaster_v3/irq_event] [get_bd_pins xgs_system/intevent]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie2AxiMaster_v3/axim_rst_n] [get_bd_pins xgs_system/s_axi_aresetn]
+  connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_v3/pcie_sys_clk]
+  connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_v3/pcie_sys_rst_n]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins xgs_system/idelay_clk]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00001000 -offset 0x00002000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
-  create_bd_addr_seg -range 0x00001000 -offset 0x00000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00001000 -offset 0x00003000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs dmawr2tlp_0/s_axi/reg0] SEG_dmawr2tlp_0_reg0
+  create_bd_addr_seg -range 0x00001000 -offset 0x00002000 [get_bd_addr_spaces pcie2AxiMaster_v3/M_AXI] [get_bd_addr_segs xgs_system/axiHiSPi_0/s_axi/registerfile] SEG_axiHiSPi_0_registerfile
+  create_bd_addr_seg -range 0x00001000 -offset 0x00000000 [get_bd_addr_spaces pcie2AxiMaster_v3/M_AXI] [get_bd_addr_segs xgs_system/axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00001000 [get_bd_addr_spaces pcie2AxiMaster_v3/M_AXI] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x00003000 [get_bd_addr_spaces pcie2AxiMaster_v3/M_AXI] [get_bd_addr_segs xgs_system/dmawr2tlp_0/s_axi/reg0] SEG_dmawr2tlp_0_reg0
 
 
   # Restore current instance
