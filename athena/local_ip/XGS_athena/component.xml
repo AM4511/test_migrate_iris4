@@ -880,7 +880,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.idelay_clk" xilinx:dependency="$BOOL_ENABLE_IDELAYCTRL = true">true</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.idelay_clk" xilinx:dependency="$BOOL_ENABLE_IDELAYCTRL = true">false</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -1196,7 +1196,7 @@
       <spirit:modelParameter xsi:type="spirit:nameValueTypeType" spirit:dataType="integer">
         <spirit:name>ENABLE_IDELAYCTRL</spirit:name>
         <spirit:displayName>Enable Idelayctrl</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ENABLE_IDELAYCTRL" spirit:minimum="0" spirit:maximum="1" spirit:rangeType="long">1</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ENABLE_IDELAYCTRL" spirit:minimum="0" spirit:maximum="1" spirit:rangeType="long">0</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>NUMBER_OF_LANE</spirit:name>
@@ -1232,7 +1232,7 @@
   </spirit:model>
   <spirit:choices>
     <spirit:choice>
-      <spirit:name>choice_list_89becca8</spirit:name>
+      <spirit:name>choice_list_1011a6f6</spirit:name>
       <spirit:enumeration>4</spirit:enumeration>
       <spirit:enumeration>6</spirit:enumeration>
     </spirit:choice>
@@ -1555,7 +1555,7 @@
     <spirit:parameter>
       <spirit:name>ENABLE_IDELAYCTRL</spirit:name>
       <spirit:displayName>Enable Idelayctrl</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ENABLE_IDELAYCTRL">1</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.ENABLE_IDELAYCTRL">0</spirit:value>
       <spirit:vendorExtensions>
         <xilinx:parameterInfo>
           <xilinx:enablement>
@@ -1567,7 +1567,7 @@
     <spirit:parameter>
       <spirit:name>NUMBER_OF_LANE</spirit:name>
       <spirit:displayName>Number Of Lane</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.NUMBER_OF_LANE" spirit:choiceRef="choice_list_89becca8">6</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.NUMBER_OF_LANE" spirit:choiceRef="choice_list_1011a6f6">6</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>MUX_RATIO</spirit:name>
@@ -1595,6 +1595,13 @@
       <spirit:name>PIXEL_SIZE</spirit:name>
       <spirit:displayName>Pixel Size</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.PIXEL_SIZE">12</spirit:value>
+      <spirit:vendorExtensions>
+        <xilinx:parameterInfo>
+          <xilinx:enablement>
+            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.PIXEL_SIZE">false</xilinx:isEnabled>
+          </xilinx:enablement>
+        </xilinx:parameterInfo>
+      </spirit:vendorExtensions>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>MAX_PCIE_PAYLOAD_SIZE</spirit:name>
@@ -1608,7 +1615,7 @@
     <spirit:parameter>
       <spirit:name>BOOL_ENABLE_IDELAYCTRL</spirit:name>
       <spirit:displayName>Enable Idelayctrl</spirit:displayName>
-      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL">true</spirit:value>
+      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL">false</spirit:value>
     </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
@@ -1619,8 +1626,8 @@
       <xilinx:displayName>XGS_athena_v1_0</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_1</xilinx:autoFamilySupportLevel>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>9</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2020-04-29T17:58:59Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>10</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2020-04-29T18:03:49Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@616448f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3bc016e5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
@@ -1685,6 +1692,13 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@27ee40af_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@26366d5d_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7448ec05_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67dd0dea_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1924a7a9_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75c9ad49_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@13d6d325_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7e5045fc_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6a574abf_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3f64788c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
@@ -1692,9 +1706,9 @@
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="1153839f"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="37925ff9"/>
       <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="3acbab43"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="b225b2bc"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ef3e3dd4"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="b557ba98"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="2d9af4b7"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ee469ce8"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="26d6a2ca"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>
