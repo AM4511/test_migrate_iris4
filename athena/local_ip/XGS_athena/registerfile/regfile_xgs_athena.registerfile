@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" hasChildrenWithGuiWarnings="true" registersDataBusWidth="32" registersAddressBusWidth="12" name="regfile_xgs_athena">
+<com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" hasChildrenWithGuiWarnings="true" registersDataBusWidth="32" registersAddressBusWidth="11" name="regfile_xgs_athena">
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="SYSTEM" endAddress="C">
     <registers name="TAG">
       <fields name="VALUE" alias="Tag identifier" description="" size="24" valueAtReset="58544d" readWrite="false" staticVal="true">
@@ -15,63 +15,67 @@
     <registers name="CAPABILITY" alias="Register file version" offsetFromParent="8">
       <fields name="VALUE" size="8" readWrite="false" staticVal="true"/>
     </registers>
-    <registers name="scratchpad" alias="Register file version" offsetFromParent="C">
-      <fields name="value" size="32"/>
+    <registers name="SCRATCHPAD" alias="Register file version" offsetFromParent="C">
+      <fields name="VALUE" size="32"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="A0">
-    <registers name="GRAB_INIT_ADDR" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" address="108">
-      <fields name="INIT_GRAB_ADDR" alias="INitial GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="CTRL" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" address="108">
+      <fields name="GRAB_QUEUE_EN" alias="" description="" implementReset="false" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="FSTART" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" offsetFromParent="4" address="108">
+      <fields name="VALUE" alias="INitial GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_INIT_ADDR_HI" alias="Initial Grab Address Register HI 32 bits" description="Initial Grab Address HI 32 bits" offsetFromParent="4">
-      <fields name="reserved" description="This hardcodes to 0 the highest part of the memory address, thereby limiting the highest memory location where the DMA can write.  This reserved field must be present to lock the highest bit to 0 because the DMA code uses the whole 32 bit of the register." lsb="4" size="28" readWrite="false" staticVal="true"/>
-      <fields name="INIT_GRAB_ADDR" alias="INitial GRAb ADDRess Register High" description="This is the high 32 bits of the 64-bit addresess in the host ram where the grab engine will start writing pixel data." size="4" implementReset="false" readOnlyMsb="12">
+    <registers name="FSTART_HIGH" alias="Initial Grab Address Register HI 32 bits" description="Initial Grab Address HI 32 bits" offsetFromParent="8">
+      <fields name="VALUE" alias="INitial GRAb ADDRess Register High" description="This is the high 32 bits of the 64-bit addresess in the host ram where the grab engine will start writing pixel data." size="32" implementReset="false" readOnlyMsb="12">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_GREEN_ADDR" alias="Green Grab Address Register " description="Grab Address LOW 32 bits for the Green plane.  Only used when grabbing in Planar mode." offsetFromParent="8" address="108">
-      <fields name="GRAB_ADDR" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="FSTART_G" alias="Green Grab Address Register " description="Grab Address LOW 32 bits for the Green plane.  Only used when grabbing in Planar mode." offsetFromParent="C" address="108">
+      <fields name="VALUE" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_GREEN_ADDR_HI" alias="Green Grab Address Register HIGH 32 bits" description="Green Grab Address HIGH 32 bits" offsetFromParent="C">
-      <fields name="reserved" description="This hardcodes to 0 the highest part of the memory address, thereby limiting the highest memory location where the DMA can write.  This reserved field must be present to lock the highest bit to 0 because the DMA code uses the whole 32 bit of the register." lsb="4" size="28" readWrite="false" staticVal="true"/>
-      <fields name="GRAB_ADDR" alias="GRAb ADDRess Register High" description="This is the high part of the 64-bit addresess in the host ram where the grab engine will start writing pixel data. &#xD;&#xA;&#xD;&#xA;" size="4" implementReset="false" readOnlyMsb="12">
+    <registers name="FSTART_G_HIGH" alias="Green Grab Address Register HIGH 32 bits" description="Green Grab Address HIGH 32 bits" offsetFromParent="10">
+      <fields name="VALUE" alias="GRAb ADDRess Register High" description="This is the high part of the 64-bit addresess in the host ram where the grab engine will start writing pixel data. &#xD;&#xA;&#xD;&#xA;" size="32" implementReset="false" readOnlyMsb="12">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_RED_ADDR" alias="Red Grab Address Register " description="Grab Address LOW 32 bits for the Red plane.  Only used when grabbing in Planar mode." offsetFromParent="10" address="108">
-      <fields name="GRAB_ADDR" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
+    <registers name="FSTART_R" alias="Red Grab Address Register " description="Grab Address LOW 32 bits for the Red plane.  Only used when grabbing in Planar mode." offsetFromParent="14" address="108">
+      <fields name="VALUE" alias="GRAb ADDRess Register" description="This is the address in the host ram where the grab engine will start writing pixel data.  " size="32" implementReset="false" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_RED_ADDR_HI" alias="Red Grab Address Register HIGH 32 bits" description="Red Grab Address HIGH 32 bits" offsetFromParent="14" numberOfReservedSpacesBelow="2">
-      <fields name="reserved" description="This hardcodes to 0 the highest part of the memory address, thereby limiting the highest memory location where the DMA can write.  This reserved field must be present to lock the highest bit to 0 because the DMA code uses the whole 32 bit of the register." lsb="4" size="28" readWrite="false" staticVal="true"/>
-      <fields name="GRAB_ADDR" alias="GRAb ADDRess Register High" description="This is the high part of the 64-bit addresess in the host ram where the grab engine will start writing pixel data. &#xD;&#xA;&#xD;&#xA;" size="4" implementReset="false" readOnlyMsb="12">
+    <registers name="FSTART_R_HIGH" alias="Red Grab Address Register HIGH 32 bits" description="Red Grab Address HIGH 32 bits" offsetFromParent="18" numberOfReservedSpacesBelow="2">
+      <fields name="VALUE" alias="GRAb ADDRess Register High" description="This is the high part of the 64-bit addresess in the host ram where the grab engine will start writing pixel data. &#xD;&#xA;&#xD;&#xA;" size="32" implementReset="false" readOnlyMsb="12">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_LINE_PITCH" alias="Grab Line Pitch Register" description="Grab Line Pitch Register" offsetFromParent="18" address="110">
-      <fields name="GRAB_LINE_PITCH" alias="Grab LinePitch" description="This is the line pitch when writing in ram. It is measured in bytes, not pixels.  " size="16" implementReset="false" readOnlyMsb="2">
+    <registers name="LINE_PITCH" alias="Grab Line Pitch Register" description="Grab Line Pitch Register" offsetFromParent="1C" address="110">
+      <fields name="VALUE" alias="Grab LinePitch" description="This is the line pitch when writing in ram. It is measured in bytes, not pixels.  " size="16" implementReset="false" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="HOST_LINE_SIZE" alias="Host Line Size Register" description="Host Line Size Register." offsetFromParent="1C" address="110">
-      <fields name="HOST_LINE_SIZE" alias="Host Line size" description="This is the line size when writing in host ram. It is measured in bytes, not pixels.  If this register is higher than the actual data provided by the sensor, stray data will be written into host memory.  If this register is lower than the data provided by the sensor, image data will be cropped at the end of the line.&#xD;&#xA;&#xD;&#xA;For backward compatibility, the value of 0 indicates that the FPGA should auto-compute the line sized based on data provided by the sensor interface." size="14" readOnlyMsb="2">
+    <registers name="LINE_SIZE" alias="Host Line Size Register" description="Host Line Size Register." offsetFromParent="20" address="110">
+      <fields name="VALUE" alias="Host Line size" description="This is the line size when writing in host ram. It is measured in bytes, not pixels.  If this register is higher than the actual data provided by the sensor, stray data will be written into host memory.  If this register is lower than the data provided by the sensor, image data will be cropped at the end of the line.&#xD;&#xA;&#xD;&#xA;For backward compatibility, the value of 0 indicates that the FPGA should auto-compute the line sized based on data provided by the sensor interface." size="14" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>range=1-16383&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Written line size in host frame.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Auto-compute line size from sensor data.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="GRAB_CSC" offsetFromParent="20" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
+    <registers name="CSC" offsetFromParent="24" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
       <fields name="COLOR_SPACE" description="Output color space used to transfer data to the DMA engine. " lsb="24" size="3">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Mono sensor operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>BGR32&lt;/matrox_column_delimiter></possibleValues>
@@ -92,11 +96,6 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="REVERSE_X" lsb="8"/>
-    </registers>
-    <registers name="GRAB_MAX_ADD" description="FOR DEBUG" offsetFromParent="30">
-      <fields name="GRAB_MAX_ADD" lsb="2" size="30" valueAtReset="3fffffff"/>
-      <fields name="OUT_OF_MEMORY_CLEAR" lsb="1" readWrite="false" writeOnly="true"/>
-      <fields name="OUT_OF_MEMORY_STAT" description="" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="254">
@@ -967,10 +966,10 @@
       <fields name="dpc_list_corr_x" description="This is X location of the pixel read from the DPC list." size="12" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="" baseAddress="30" endAddress="34">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="" baseAddress="400" endAddress="404">
     <registers name="CTRL">
-      <fields name="RESET_IDELAYCTRL" alias="Reset the xilinx macro IDELAYCTRL"/>
       <fields name="CLR" lsb="1"/>
+      <fields name="RESET_IDELAYCTRL" alias="Reset the xilinx macro IDELAYCTRL"/>
     </registers>
     <registers name="STATUS" offsetFromParent="4">
       <fields name="PLL_LOCKED" readWrite="false" readOnly="true"/>

@@ -46,35 +46,37 @@ Register("scratchpad", 0xc, 4, "Register file version");
 %=================================================================
 Section("DMA", 0, 0x70);
 
-Register("grab_init_addr", 0x70, 4, "Initial Grab Address Register ");
-		Field("init_grab_addr", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register");
+Register("ctrl", 0x70, 4, "Initial Grab Address Register ");
+		Field("grab_queue_en", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
+			FieldValue("", 0);
+			FieldValue("", 1);
 
-Register("grab_init_addr_hi", 0x74, 4, "Initial Grab Address Register HI 32 bits");
-		Field("reserved", 31, 4, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("init_grab_addr", 3, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register High");
+Register("fstart", 0x74, 4, "Initial Grab Address Register ");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register");
 
-Register("grab_green_addr", 0x78, 4, "Green Grab Address Register ");
-		Field("grab_addr", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
+Register("fstart_high", 0x78, 4, "Initial Grab Address Register HI 32 bits");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register High");
 
-Register("grab_green_addr_hi", 0x7c, 4, "Green Grab Address Register HIGH 32 bits");
-		Field("reserved", 31, 4, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("grab_addr", 3, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
+Register("fstart_g", 0x7c, 4, "Green Grab Address Register ");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("grab_red_addr", 0x80, 4, "Red Grab Address Register ");
-		Field("grab_addr", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
+Register("fstart_g_high", 0x80, 4, "Green Grab Address Register HIGH 32 bits");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("grab_red_addr_hi", 0x84, 4, "Red Grab Address Register HIGH 32 bits");
-		Field("reserved", 31, 4, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("grab_addr", 3, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
+Register("fstart_r", 0x84, 4, "Red Grab Address Register ");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("grab_line_pitch", 0x88, 4, "Grab Line Pitch Register");
-		Field("grab_line_pitch", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
+Register("fstart_r_high", 0x88, 4, "Red Grab Address Register HIGH 32 bits");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("host_line_size", 0x8c, 4, "Host Line Size Register");
-		Field("host_line_size", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
+Register("line_pitch", 0x8c, 4, "Grab Line Pitch Register");
+		Field("value", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
+
+Register("line_size", 0x90, 4, "Host Line Size Register");
+		Field("value", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
 			FieldValue("Auto-compute line size from sensor data.", 0);
 
-Register("grab_csc", 0x90, 4, "null");
+Register("csc", 0x94, 4, "null");
 		Field("color_space", 26, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Reserved for Mono sensor operation", 0);
 			FieldValue("BGR32", 1);
@@ -89,11 +91,6 @@ Register("grab_csc", 0x90, 4, "null");
 			FieldValue("Bottom to top readout", 0);
 			FieldValue("Top to bottom readout", 1);
 		Field("reverse_x", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("grab_max_add", 0xa0, 4, "null");
-		Field("grab_max_add", 31, 2, "rd|wr", 0x0, 0x3fffffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("out_of_memory_clear", 1, 1, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("out_of_memory_stat", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 %=================================================================
 % SECTION NAME	: ACQ
@@ -697,13 +694,13 @@ Register("dpc_list_data_rd", 0x388, 4, "null");
 %=================================================================
 % SECTION NAME	: HISPI
 %=================================================================
-Section("HISPI", 0, 0x30);
+Section("HISPI", 0, 0x400);
 
-Register("ctrl", 0x30, 4, "null");
+Register("ctrl", 0x400, 4, "null");
 		Field("clr", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("reset_idelayctrl", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the xilinx macro IDELAYCTRL");
 
-Register("status", 0x34, 4, "null");
+Register("status", 0x404, 4, "null");
 		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 

@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x3C6068D1
+* Register file CRC32 : 0x6C02943B
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -28,80 +28,80 @@
 /**************************************************************************
 * Register address defines
 ***************************************************************************/
-#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_TAG_ADDRESS                 0x000
-#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_VERSION_ADDRESS             0x004
-#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_CAPABILITY_ADDRESS          0x008
-#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_SCRATCHPAD_ADDRESS          0x00C
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_ADDRESS                 0x030
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS               0x034
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_ADDRESS         0x070
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_HI_ADDRESS      0x074
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_ADDRESS        0x078
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_HI_ADDRESS     0x07C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_ADDRESS          0x080
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_HI_ADDRESS       0x084
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_LINE_PITCH_ADDRESS        0x088
-#define FPGA_REGFILE_XGS_ATHENA_DMA_HOST_LINE_SIZE_ADDRESS         0x08C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_CSC_ADDRESS               0x090
-#define FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_MAX_ADD_ADDRESS           0x0A0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS              0x100
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS              0x108
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS           0x110
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG2_ADDRESS           0x118
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG3_ADDRESS           0x120
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL1_ADDRESS              0x128
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL2_ADDRESS              0x130
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL3_ADDRESS              0x138
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_DELAY_ADDRESS          0x140
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_STROBE_CTRL1_ADDRESS           0x148
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_STROBE_CTRL2_ADDRESS           0x150
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_CTRL_ADDRESS           0x158
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_ADDATA_ADDRESS         0x160
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_STAT_ADDRESS           0x168
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_CTRL_ADDRESS              0x170
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_CTRL2_ADDRESS             0x178
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_TRAINING_ADDRESS          0x180
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_STAT_ADDRESS              0x188
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_STAT2_ADDRESS             0x18C
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_CTRL_ADDRESS            0x190
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_STAT_ADDRESS            0x198
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GEN_CFG_ADDRESS         0x1A0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_INT_CTL_ADDRESS         0x1A8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_ANA_ADDRESS        0x1B0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_BLACK_CAL_ADDRESS       0x1B8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF0_ADDRESS       0x1C0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF0_ADDRESS      0x1C4
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF1_ADDRESS       0x1C8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF1_ADDRESS      0x1CC
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF2_ADDRESS       0x1D0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF2_ADDRESS      0x1D4
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_CRC_ADDRESS                    0x1D8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS             0x1E0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS         0x1E8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS             0x1F0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_ADDRESS                  0x220
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_ADDRESS            0x228
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR2_ADDRESS            0x230
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR3_ADDRESS            0x234
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_ADDRESS                0x23C
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_ADDRESS               0x244
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_NOPEL_ADDRESS                  0x254
-#define FPGA_REGFILE_XGS_ATHENA_DATA_LUT_CTRL_ADDRESS              0x300
-#define FPGA_REGFILE_XGS_ATHENA_DATA_LUT_RB_ADDRESS                0x308
-#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_MULT1_ADDRESS              0x310
-#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_MULT2_ADDRESS              0x318
-#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_B_ACC_ADDRESS              0x320
-#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_G_ACC_ADDRESS              0x328
-#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_R_ACC_ADDRESS              0x330
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ADD_ADDRESS               0x338
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_READ_REG_ADDRESS          0x33C
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_DATA_ADDRESS              0x340
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_CONTRAST_ADDRESS          0x360
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ACC_ADD_ADDRESS           0x368
-#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ACC_DATA_ADDRESS          0x370
-#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_CTRL_ADDRESS         0x380
-#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_ADDRESS         0x384
-#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_RD_ADDRESS      0x388
+#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_TAG_ADDRESS                0x000
+#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_VERSION_ADDRESS            0x004
+#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_CAPABILITY_ADDRESS         0x008
+#define FPGA_REGFILE_XGS_ATHENA_SYSTEM_SCRATCHPAD_ADDRESS         0x00C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_ADDRESS                  0x070
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_ADDRESS                0x074
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_ADDRESS           0x078
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_ADDRESS              0x07C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_ADDRESS         0x080
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_ADDRESS              0x084
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_ADDRESS         0x088
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS            0x08C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS             0x090
+#define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                   0x094
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS             0x100
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS             0x108
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS          0x110
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG2_ADDRESS          0x118
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG3_ADDRESS          0x120
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL1_ADDRESS             0x128
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL2_ADDRESS             0x130
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_CTRL3_ADDRESS             0x138
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_DELAY_ADDRESS         0x140
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_STROBE_CTRL1_ADDRESS          0x148
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_STROBE_CTRL2_ADDRESS          0x150
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_CTRL_ADDRESS          0x158
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_ADDATA_ADDRESS        0x160
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SER_STAT_ADDRESS          0x168
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_CTRL_ADDRESS             0x170
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_CTRL2_ADDRESS            0x178
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_TRAINING_ADDRESS         0x180
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_STAT_ADDRESS             0x188
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_LVDS_STAT2_ADDRESS            0x18C
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_CTRL_ADDRESS           0x190
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_STAT_ADDRESS           0x198
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GEN_CFG_ADDRESS        0x1A0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_INT_CTL_ADDRESS        0x1A8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_ANA_ADDRESS       0x1B0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_BLACK_CAL_ADDRESS      0x1B8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF0_ADDRESS      0x1C0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF0_ADDRESS     0x1C4
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF1_ADDRESS      0x1C8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF1_ADDRESS     0x1CC
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_CONF2_ADDRESS      0x1D0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_CONF2_ADDRESS     0x1D4
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_CRC_ADDRESS                   0x1D8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS            0x1E0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS        0x1E8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS            0x1F0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_ADDRESS                 0x220
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_ADDRESS           0x228
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR2_ADDRESS           0x230
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR3_ADDRESS           0x234
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_ADDRESS               0x23C
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_ADDRESS              0x244
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_NOPEL_ADDRESS                 0x254
+#define FPGA_REGFILE_XGS_ATHENA_DATA_LUT_CTRL_ADDRESS             0x300
+#define FPGA_REGFILE_XGS_ATHENA_DATA_LUT_RB_ADDRESS               0x308
+#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_MULT1_ADDRESS             0x310
+#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_MULT2_ADDRESS             0x318
+#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_B_ACC_ADDRESS             0x320
+#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_G_ACC_ADDRESS             0x328
+#define FPGA_REGFILE_XGS_ATHENA_DATA_WB_R_ACC_ADDRESS             0x330
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ADD_ADDRESS              0x338
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_READ_REG_ADDRESS         0x33C
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_DATA_ADDRESS             0x340
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_CONTRAST_ADDRESS         0x360
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ACC_ADD_ADDRESS          0x368
+#define FPGA_REGFILE_XGS_ATHENA_DATA_FPN_ACC_DATA_ADDRESS         0x370
+#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_CTRL_ADDRESS        0x380
+#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_ADDRESS        0x384
+#define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_RD_ADDRESS     0x388
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_ADDRESS                0x400
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS              0x404
 
 /**************************************************************************
 * Register name : TAG
@@ -187,16 +187,15 @@ typedef union
 
    struct
    {
-      M_UINT32 RESET_IDELAYCTRL : 1;   /* Bits(0:0), Reset the xilinx macro IDELAYCTRL */
-      M_UINT32 CLR              : 1;   /* Bits(1:1), null */
-      M_UINT32 RSVD0            : 30;  /* Bits(31:2), Reserved */
+      M_UINT32 GRAB_QUEUE_EN : 1;   /* Bits(0:0), */
+      M_UINT32 RSVD0         : 31;  /* Bits(31:1), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE;
 
 
 /**************************************************************************
-* Register name : STATUS
+* Register name : FSTART
 ***************************************************************************/
 typedef union
 {
@@ -206,15 +205,14 @@ typedef union
 
    struct
    {
-      M_UINT32 PLL_LOCKED : 1;   /* Bits(0:0), null */
-      M_UINT32 RSVD0      : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), INitial GRAb ADDRess Register */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_INIT_ADDR
+* Register name : FSTART_HIGH
 ***************************************************************************/
 typedef union
 {
@@ -224,14 +222,14 @@ typedef union
 
    struct
    {
-      M_UINT32 INIT_GRAB_ADDR : 32;  /* Bits(31:0), INitial GRAb ADDRess Register */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), INitial GRAb ADDRess Register High */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_INIT_ADDR_HI
+* Register name : FSTART_G
 ***************************************************************************/
 typedef union
 {
@@ -241,15 +239,14 @@ typedef union
 
    struct
    {
-      M_UINT32 INIT_GRAB_ADDR : 4;   /* Bits(3:0), INitial GRAb ADDRess Register High */
-      M_UINT32 RESERVED       : 28;  /* Bits(31:4), null */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), GRAb ADDRess Register */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_HI_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_GREEN_ADDR
+* Register name : FSTART_G_HIGH
 ***************************************************************************/
 typedef union
 {
@@ -259,14 +256,14 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_ADDR : 32;  /* Bits(31:0), GRAb ADDRess Register */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), GRAb ADDRess Register High */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_GREEN_ADDR_HI
+* Register name : FSTART_R
 ***************************************************************************/
 typedef union
 {
@@ -276,15 +273,14 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_ADDR : 4;   /* Bits(3:0), GRAb ADDRess Register High */
-      M_UINT32 RESERVED  : 28;  /* Bits(31:4), null */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), GRAb ADDRess Register */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_HI_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_RED_ADDR
+* Register name : FSTART_R_HIGH
 ***************************************************************************/
 typedef union
 {
@@ -294,14 +290,14 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_ADDR : 32;  /* Bits(31:0), GRAb ADDRess Register */
+      M_UINT32 VALUE : 32;  /* Bits(31:0), GRAb ADDRess Register High */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_RED_ADDR_HI
+* Register name : LINE_PITCH
 ***************************************************************************/
 typedef union
 {
@@ -311,15 +307,15 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_ADDR : 4;   /* Bits(3:0), GRAb ADDRess Register High */
-      M_UINT32 RESERVED  : 28;  /* Bits(31:4), null */
+      M_UINT32 VALUE : 16;  /* Bits(15:0), Grab LinePitch */
+      M_UINT32 RSVD0 : 16;  /* Bits(31:16), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_HI_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE;
 
 
 /**************************************************************************
-* Register name : GRAB_LINE_PITCH
+* Register name : LINE_SIZE
 ***************************************************************************/
 typedef union
 {
@@ -329,33 +325,15 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_LINE_PITCH : 16;  /* Bits(15:0), Grab LinePitch */
-      M_UINT32 RSVD0           : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 VALUE : 14;  /* Bits(13:0), Host Line size */
+      M_UINT32 RSVD0 : 18;  /* Bits(31:14), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_LINE_PITCH_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE;
 
 
 /**************************************************************************
-* Register name : HOST_LINE_SIZE
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 HOST_LINE_SIZE : 14;  /* Bits(13:0), Host Line size */
-      M_UINT32 RSVD0          : 18;  /* Bits(31:14), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_DMA_HOST_LINE_SIZE_TYPE;
-
-
-/**************************************************************************
-* Register name : GRAB_CSC
+* Register name : CSC
 ***************************************************************************/
 typedef union
 {
@@ -375,26 +353,7 @@ typedef union
       M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_CSC_TYPE;
-
-
-/**************************************************************************
-* Register name : GRAB_MAX_ADD
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 OUT_OF_MEMORY_STAT  : 1;   /* Bits(0:0), null */
-      M_UINT32 OUT_OF_MEMORY_CLEAR : 1;   /* Bits(1:1), null */
-      M_UINT32 GRAB_MAX_ADD        : 30;  /* Bits(31:2), null */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_MAX_ADD_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE;
 
 
 /**************************************************************************
@@ -1693,6 +1652,43 @@ typedef union
 
 
 /**************************************************************************
+* Register name : CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RESET_IDELAYCTRL : 1;   /* Bits(0:0), Reset the xilinx macro IDELAYCTRL */
+      M_UINT32 CLR              : 1;   /* Bits(1:1), null */
+      M_UINT32 RSVD0            : 30;  /* Bits(31:2), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : STATUS
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 PLL_LOCKED : 1;   /* Bits(0:0), null */
+      M_UINT32 RSVD0      : 31;  /* Bits(31:1), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE;
+
+
+/**************************************************************************
 * Section name   : SYSTEM
 ***************************************************************************/
 typedef struct
@@ -1704,29 +1700,20 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE;
 
 /**************************************************************************
-* Section name   : HISPI
-***************************************************************************/
-typedef struct
-{
-   FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE   CTRL;    /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE STATUS;  /* Address offset: 0x4 */
-} FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
-
-/**************************************************************************
 * Section name   : DMA
 ***************************************************************************/
 typedef struct
 {
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_TYPE     GRAB_INIT_ADDR;      /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_INIT_ADDR_HI_TYPE  GRAB_INIT_ADDR_HI;   /* Address offset: 0x4 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_TYPE    GRAB_GREEN_ADDR;     /* Address offset: 0x8 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_GREEN_ADDR_HI_TYPE GRAB_GREEN_ADDR_HI;  /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_TYPE      GRAB_RED_ADDR;       /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_RED_ADDR_HI_TYPE   GRAB_RED_ADDR_HI;    /* Address offset: 0x14 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_LINE_PITCH_TYPE    GRAB_LINE_PITCH;     /* Address offset: 0x18 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_HOST_LINE_SIZE_TYPE     HOST_LINE_SIZE;      /* Address offset: 0x1c */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_CSC_TYPE           GRAB_CSC;            /* Address offset: 0x20 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_GRAB_MAX_ADD_TYPE       GRAB_MAX_ADD;        /* Address offset: 0x30 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE          CTRL;           /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE        FSTART;         /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE   FSTART_HIGH;    /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE      FSTART_G;       /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE FSTART_G_HIGH;  /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE      FSTART_R;       /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE FSTART_R_HIGH;  /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x1c */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x24 */
 } FPGA_REGFILE_XGS_ATHENA_DMA_TYPE;
 
 /**************************************************************************
@@ -1802,19 +1789,28 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_DATA_TYPE;
 
 /**************************************************************************
+* Section name   : HISPI
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE   CTRL;    /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE STATUS;  /* Address offset: 0x4 */
+} FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
+
+/**************************************************************************
 * Register file name : REGFILE_XGS_ATHENA
 ***************************************************************************/
 typedef struct
 {
    FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE SYSTEM;     /* Section; Base address offset: 0x0 */
-   M_UINT32                            RSVD0[8];   /* Padding; Size (32 Bytes) */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE  HISPI;      /* Section; Base address offset: 0x30 */
-   M_UINT32                            RSVD1[14];  /* Padding; Size (56 Bytes) */
+   M_UINT32                            RSVD0[24];  /* Padding; Size (96 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE    DMA;        /* Section; Base address offset: 0x70 */
-   M_UINT32                            RSVD2[23];  /* Padding; Size (92 Bytes) */
+   M_UINT32                            RSVD1[23];  /* Padding; Size (92 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE    ACQ;        /* Section; Base address offset: 0x100 */
-   M_UINT32                            RSVD3[42];  /* Padding; Size (168 Bytes) */
+   M_UINT32                            RSVD2[42];  /* Padding; Size (168 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DATA_TYPE   DATA;       /* Section; Base address offset: 0x300 */
+   M_UINT32                            RSVD3[29];  /* Padding; Size (116 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE  HISPI;      /* Section; Base address offset: 0x400 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 
 
