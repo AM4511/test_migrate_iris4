@@ -1,0 +1,44 @@
+
+################################################
+# Matrox Project info #
+################################################
+setenv PROJECT_PATH
+$IPCORES/pcie2AxiMaster
+setenv PROJECT_NAME pcie2AxiMaster
+
+echo "Running $PROJECT_PATH/.setup"
+
+
+################################################
+# Prompt setting
+################################################
+set
+prompt="%{\033]0;%~\007%}%{\033[32m%}[%m]%{\033[0m%} %c > "
+
+
+################################################
+# Project environment
+variable #
+################################################
+setenv
+SNAP_PATH $PROJECT_PATH/snap
+setenv BACKEND_DIR $PROJECT_PATH/backend
+setenv MODELSIM $PROJECT_PATH/validation/modelsim.ini
+setenv VALIDATE_DIR
+$PROJECT_PATH/validation
+
+echo ""
+echo "SNAP_PATH : $SNAP_PATH"
+echo
+"BACKEND_DIR : $BACKEND_DIR"
+echo "MODELSIM : $MODELSIM"
+echo
+"VALIDATE_DIR : $VALIDATE_DIR"
+
+set cdpath = ($PROJECT_PATH)
+
+
+################################################
+# Alias #
+################################################
+

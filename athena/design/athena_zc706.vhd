@@ -137,10 +137,10 @@ entity athena_zc706 is
     PCIE_RX0_P : in  std_logic;
     PCIE_RX0_N : in  std_logic;
 
-    --PCIE_TX1_P : out std_logic;
-    --PCIE_TX1_N : out std_logic;
-    --PCIE_RX1_P : in  std_logic;
-    --PCIE_RX1_N : in  std_logic;
+    -- PCIE_TX1_P : out std_logic;
+    -- PCIE_TX1_N : out std_logic;
+    -- PCIE_RX1_P : in  std_logic;
+    -- PCIE_RX1_N : in  std_logic;
 
     -- PCIE_WAKE_B_LS : in std_logic;
     -- PCIE_TX2_P    : in std_logic;
@@ -215,8 +215,8 @@ entity athena_zc706 is
     GPIO_LED_LEFT  : out std_logic;     -- DS8
     -- GPIO_LED_CENTER : out std_logic;    -- DS9
     GPIO_LED_RIGHT : out std_logic;     -- DS10
-    -- GPIO_LED_0 : out std_logic;         -- DS35
-   
+    GPIO_LED_0     : out std_logic;     -- DS35
+
     heart_beat     : out std_logic;  
     ---------------------------------------------------------------------------
     -- User Pushbuttons
@@ -712,6 +712,8 @@ architecture struct of athena_zc706 is
       );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   signal pcie_clk100MHz          : std_logic;
   signal pcie_reset_n            : std_logic;
@@ -723,7 +725,7 @@ architecture struct of athena_zc706 is
   signal anput_if_exposure       : std_logic;
   signal anput_if_ext_trig       : std_logic;
   signal anput_if_strobe         : std_logic;
-  signal anput_if_trig_rdy       : std_logic;  signal xgs_ctrl_xgs_clk_pll_en : std_logic;
+  signal anput_if_trig_rdy       : std_logic; signal xgs_ctrl_xgs_clk_pll_en : std_logic;
   signal xgs_ctrl_xgs_cs_n       : std_logic;
   signal xgs_ctrl_xgs_fwsi_en    : std_logic;
   signal xgs_ctrl_xgs_monitor0   : std_logic;
@@ -740,9 +742,21 @@ architecture struct of athena_zc706 is
   signal xgs_hispi_clk_p         : std_logic_vector (1 downto 0);
   signal xgs_hispi_data_n        : std_logic_vector (5 downto 0);
   signal xgs_hispi_data_p        : std_logic_vector (5 downto 0);
+  signal SYSCLK_200MHz           : std_logic;
+  
+  signal local_reset_n_Meta : std_logic;
+  signal local_reset_n      : std_logic;
+  signal heartbeat_led      : std_logic;
 
-  signal SYSCLK_200MHz   : std_logic;
-  signal heart_beat_cntr : std_logic_vector(27 downto 0):= (others=>'0');
+  constant HEARTBEAT_HALF_PERIOD : integer := 100000000;
+  constant HEARTBEAT_PERIOD      : integer := 2*HEARTBEAT_HALF_PERIOD;
+
+  signal heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1;
+
+
+  attribute mark_debug of local_reset_n  : signal is "true";
+  attribute mark_debug of heartbeat_cntr : signal is "true";
+  attribute mark_debug of heartbeat_led  : signal is "true";
 
 begin
 
@@ -858,10 +872,10 @@ ibuf_200MHz : IBUFDS
   -----------------------------------------------------------------------------
   -- PCIe Lane 1
   -----------------------------------------------------------------------------
-  --pcie_rxn(1) <= PCIE_RX1_N;
-  --pcie_rxp(1) <= PCIE_RX1_P;
-  --PCIE_TX1_N  <= pcie_txn(1);
-  --PCIE_TX1_P  <= pcie_txp(1);
+  -- pcie_rxn(1) <= PCIE_RX1_N;
+  -- pcie_rxp(1) <= PCIE_RX1_P;
+  -- PCIE_TX1_N  <= pcie_txn(1);
+  -- PCIE_TX1_P  <= pcie_txp(1);
 
   pcie_reset_n <= PCIE_PERST_LS;
 
@@ -873,10 +887,10 @@ ibuf_200MHz : IBUFDS
 
 
   -- SPI
-  FMC_HPC_LA13_P          <= xgs_ctrl_xgs_sclk;
-  FMC_HPC_LA14_P <= xgs_ctrl_xgs_cs_n;
-  xgs_ctrl_xgs_sdin       <= FMC_HPC_LA14_N;
-  FMC_HPC_LA13_N          <= xgs_ctrl_xgs_sdout;
+  FMC_HPC_LA13_P    <= xgs_ctrl_xgs_sclk;
+  FMC_HPC_LA14_P    <= xgs_ctrl_xgs_cs_n;
+  xgs_ctrl_xgs_sdin <= FMC_HPC_LA14_N;
+  FMC_HPC_LA13_N    <= xgs_ctrl_xgs_sdout;
   -- open <= xgs_ctrl_xgs_fwsi_en;
 
   -- Monitor TBD
@@ -887,16 +901,16 @@ ibuf_200MHz : IBUFDS
   -- Power good du sensor board (PMIC)
   xgs_ctrl_xgs_power_good <= '1';
 
-  FMC_HPC_LA15_P          <= xgs_ctrl_xgs_reset_n;
+  FMC_HPC_LA15_P <= xgs_ctrl_xgs_reset_n;
 
   -- Exposure
-  FMC_HPC_LA15_N          <= xgs_ctrl_xgs_trig_int;
-  
+  FMC_HPC_LA15_N <= xgs_ctrl_xgs_trig_int;
+
   USER_SMA_CLOCK_P        <= xgs_ctrl_xgs_trig_int;
   USER_SMA_CLOCK_N        <= anput_if_exposure;
   
   -- TRigger read line. Not used on the zynq 
-  FMC_HPC_LA16_N          <= xgs_ctrl_xgs_trig_rd;
+  FMC_HPC_LA16_N <= xgs_ctrl_xgs_trig_rd;
 
 
   -----------------------------------------------------------------------------
@@ -916,36 +930,64 @@ ibuf_200MHz : IBUFDS
   -----------------------------------------------------------------------------
   -- Bottom HiSPi
   -----------------------------------------------------------------------------
-  --xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
-  --xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
+--  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
+--  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
 
-  --xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
-  --xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
-  --xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
-  --xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
-  --xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
-  --xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
+--  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
+--  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
+--  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
+--  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
+--  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
+--  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;
 
 
-
-  process(SYSCLK_200MHz)
+  P_local_reset_n : process (pcie_reset_n, pcie_clk100MHz) is
   begin
-    if(rising_edge(SYSCLK_200MHz)) then
-      heart_beat_cntr <= heart_beat_cntr+'1';      
+    if (pcie_reset_n = '0')then
+      local_reset_n      <= '0';
+      local_reset_n_Meta <= '0';
+    elsif (rising_edge(pcie_clk100MHz)) then
+      local_reset_n_Meta <= '1';
+      local_reset_n      <= local_reset_n_Meta;
     end if;
-  end process;  
-
-  heart_beat <= heart_beat_cntr(27);
+  end process;
 
 
-  GPIO_LED_LEFT  <= heart_beat_cntr(27) and not(PCIE_PERST_LS);
+  GPIO_LED_LEFT  <= heartbeat_cntr(27) and not(PCIE_PERST_LS);
   GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
 
-  --Pour reveille le MUX IC2 : reset is active lo
-  --I2C_MUX_resetN <='1';
+  P_heartbeat_cntr : process (pcie_clk100MHz) is
+  begin
+    if (rising_edge(pcie_clk100MHz)) then
+      if (local_reset_n = '0')then
+        heartbeat_cntr <= 0;
+      else
+        if (heartbeat_cntr = HEARTBEAT_PERIOD-1) then
+          heartbeat_cntr <= 0;
+        else
+          heartbeat_cntr <= heartbeat_cntr+1;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
+  P_heartbeat_led : process (pcie_clk100MHz) is
+  begin
+    if (rising_edge(pcie_clk100MHz)) then
+      if (local_reset_n = '0')then
+        heartbeat_led <= '0';
+      else
+        if (heartbeat_cntr > HEARTBEAT_HALF_PERIOD) then
+          heartbeat_led <= '1';
+        else
+          heartbeat_led <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
+  GPIO_LED_0 <= heartbeat_led;
 
 
 end struct;

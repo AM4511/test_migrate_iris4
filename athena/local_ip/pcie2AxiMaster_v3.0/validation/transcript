@@ -1,0 +1,157 @@
+# Reading C:/mentor/modeltech_pe_10.6c/tcl/vsim/pref.tcl
+# vsim -modelsimini D:/git/gitlab/ipcores/pcie2AxiMaster/validation/modelsim.ini -lib D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib -t fs -donotcollapsepartiallydriven glbl -do "run -all;" -gui testbench 
+# Start time: 17:33:04 on Nov 29,2018
+# //  ModelSim PE 10.6c Jul 26 2017
+# //
+# //  Copyright 1991-2017 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim PE and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.glbl
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.testbench
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.std_logic_arith(body)
+# Loading matrox.utilbuspak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.modelpcie(behavioral)
+# Loading ieee.std_logic_unsigned(body)
+# Loading ieee.numeric_std(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_constants_pak
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.msspak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_types_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_conversion_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_files_common_pak
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_ubus_registers_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.gentypepak
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_globals_pak
+# Loading ieee.std_logic_textio(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_common_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_random_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_data_structure_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_parser_pak(body)
+# Loading modelsim_lib.util(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_controller(default)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.get_ubus_registers(functionnal)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_pciepak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_pciexp_bus_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.std_logic_arith(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_logger_defines(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_bfm_defines(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_defines(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_utils(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_symbol_lut
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_pl_util(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_per_param_ds(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_config(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_pool(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_files_host_pak
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_memory(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.address_space(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_fifo(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_fc(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_random_generator(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_bfm_cfg_ds(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_monitor_cfg_ds(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_mon_chk_defines(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_checker_param_ds(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_checker_cfg_ds(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_ds_manager(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_user_if(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.hst_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.chippak(body)
+# Loading synopsys.attributes
+# Loading ieee.std_logic_misc(body)
+# Loading dware.dwpackages(body)
+# Loading dw04.dw04_components(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.swt_pciepak
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_err_messages(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_init_cfg(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_rtl_util(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_report_err(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_tag_q(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_ttl_util(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_scrambler(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_corelogic(nvs_tb)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_refclk(default)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_clock(default)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_training_model(functional)
+# Loading dw04.dw_8b10b_enc(sim)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_rxlane(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_rxcomebuf(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_deskew(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_deskew0(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_staticdeskew(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_bfm(translated)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_monitor(monitor)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_mon_chk(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_logger(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_mon_txrx(nvs_ex_mon_txrx)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_check(checker)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_check_rules(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.nvs_ex_check_txrx(nvs_ex_check_txrx)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tb_parser_nsys(default)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pciepack
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.regfile_pcie2aximaster_pack(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie2aximaster(struct)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie2_top
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_core_top
+# ** Error: (vsim-3033) D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_core_top.v(1027): Instantiation of 'xpm_cdc_single' failed. The design unit was not found.
+#    Time: 0 fs  Iteration: 0  Instance: /testbench/dut/xxil_pcie/inst/inst File: D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_core_top.v
+#         Searched libraries:
+#             D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib
+# ** Error: (vsim-3033) D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_core_top.v(1036): Instantiation of 'xpm_cdc_single' failed. The design unit was not found.
+#    Time: 0 fs  Iteration: 0  Instance: /testbench/dut/xxil_pcie/inst/inst File: D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_core_top.v
+#         Searched libraries:
+#             D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_top
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_top
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_rx
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_rx_pipeline
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_rx_null_gen
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_tx
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_axi_basic_tx_pipeline
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_7x
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_bram_top_7x
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_brams_7x
+# ** Error: (vsim-3033) D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pcie_7x.v(1152): Instantiation of 'PCIE_2_1' failed. The design unit was not found.
+#    Time: 0 fs  Iteration: 0  Instance: /testbench/dut/xxil_pcie/inst/inst/pcie_top_i/pcie_7x_i File: D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pcie_7x.v
+#         Searched libraries:
+#             D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_pipe_pipeline
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_pipe_misc
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pcie_pipe_lane
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_gt_top
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pipe_wrapper
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_7x_0_pipe_clock
+# ** Error: (vsim-3033) D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pipe_clock.v(275): Instantiation of 'MMCME2_ADV' failed. The design unit was not found.
+#    Time: 0 fs  Iteration: 0  Instance: /testbench/dut/xxil_pcie/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int/pipe_clock_i File: D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pipe_clock.v
+#         Searched libraries:
+#             D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib
+# ** Error: (vsim-3033) D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pipe_wrapper.v(885): Instantiation of 'BUFG' failed. The design unit was not found.
+#    Time: 0 fs  Iteration: 0  Instance: /testbench/dut/xxil_pcie/inst/inst/gt_top_i/pipe_wrapper_i File: D:/git/gitlab/ipcores/pcie2AxiMaster/cores/pcie_7x_0/source/pcie_7x_0_pipe_wrapper.v
+#         Searched libraries:
+#             D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_rx_axi(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_tx_axi(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tlp_to_axi_master(rtl)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.tlp_completion(rtl)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.mtxscfifo(rtl)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_irq_axi(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.int_queue_pak(body)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_int_queue(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.pcie_reg(functional)
+# Loading D:/git/gitlab/ipcores/pcie2AxiMaster/validation/mti/pcie2AxiMaster.lib.xil_pcie_reg_fifo(mtx_ip_wrapper)
+# Error loading design
+# End time: 17:33:05 on Nov 29,2018, Elapsed time: 0:00:01
+# Errors: 5, Warnings: 0
