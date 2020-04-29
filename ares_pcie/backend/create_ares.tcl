@@ -36,7 +36,8 @@ set WORKDIR     $env(IRIS4)/ares_pcie
 
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
-set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
+#set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
+set VIVADO_DIR   D:/vivado
 set BACKEND_DIR  ${WORKDIR}/backend
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}

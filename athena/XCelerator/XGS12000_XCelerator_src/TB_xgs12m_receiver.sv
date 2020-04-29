@@ -74,6 +74,7 @@ module TB_xgs12m_receiver(  );
  wire xgs_trig_int;
  wire xgs_trig_rd;
  
+ int nbLaneSPI;
  bit [15:0] line_time   = 16'h00e6;  //default model
  
 
@@ -86,7 +87,7 @@ module TB_xgs12m_receiver(  );
  int ROI_YSIZE; 
  int EXPOSURE;  
  int EXP_FOT_TIME;
- 
+ int FOT_LENGTH_LINES;
  //bit [23:0] readout_length;
  bit [15:0] KEEP_OUT_TRIG_START_sysclk;
  bit [15:0] KEEP_OUT_TRIG_END_sysclk; 
@@ -467,6 +468,8 @@ initial begin
     // PROGRAM XGS MODEL PART 1 
     //
     //-------------------------------------------------------    
+    nbLaneSPI = 6;
+
 
     // default dans le model XGS:
     // ---------------------------------
@@ -493,10 +496,21 @@ initial begin
     XGS_WriteSPI(16'h3e3e,16'h0001);
     
     //jmansill HISPI control common register
-    XGS_WriteSPI(16'h3e28,16'h2507);   //mux 4:4
-    //XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
-    //XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
-    //XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
+    if (nbLaneSPI==24) begin
+       XGS_WriteSPI(16'h3e28,16'h2507);   //mux 4:4
+    end;   
+    
+    if (nbLaneSPI==18) begin
+      XGS_WriteSPI(16'h3e28,16'h2517); //mux 4:3
+    end;  
+    
+    if (nbLaneSPI==12) begin
+      XGS_WriteSPI(16'h3e28,16'h2527); //mux 4:2
+    end;  
+    
+    if (nbLaneSPI==6) begin
+      XGS_WriteSPI(16'h3e28,16'h2537); //mux 4:1    , Ca marche!!! le data suit la spec sur les 6 BUS HISPI en mode XGS12M et en mode XGS5M!!!
+    end;  
 
 
     
@@ -840,11 +854,23 @@ initial begin
     
     
     // jmansill : SET Slave triggered mode    
+    if (nbLaneSPI==24) begin
+      line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end;
+ 
+    if (nbLaneSPI==18) begin
+      line_time                     = 16'hf4;         // default in model and in devware is 0xf4  (12 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end;  
+
+    if (nbLaneSPI==12) begin
+      line_time                     = 16'h16e;         // default in model and in devware is 0x16e  (12 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end; 
     
-    line_time                     = 16'h0e6;         // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
-                                                     // default              in devware is 0xf4  (18 lanes)
-                                                     // default              in devware is 0x16e (12 lanes)
-                                                     // default              in devware is 0x2dc (6 lanes)  
+    if (nbLaneSPI==6) begin
+      line_time                     = 16'h2dc;         // default in model and in devware is 0x2dc  (6 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+    end; 
+  
+  
                                                      
     XGS_WriteSPI(16'h3e0e,16'h0000);                 // Image Diagonal ramp:  line0 start=0, line1 start=1, line2 start=2...
     
@@ -913,13 +939,17 @@ initial begin
     FLines                = 0;
     FLines_supressed      = 0;
     
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01d8, prot, (MLines_supressed<<10)+ MLines, resp);    //M_LINE REGISTER
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01dc, prot, (FLines_supressed<<10)+ FLines, resp);    //F_LINE REGISTER
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01b8, prot, (MLines_supressed<<10)+ MLines, resp);    //M_LINE REGISTER
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+16'h01bc, prot, (FLines_supressed<<10)+ FLines, resp);    //F_LINE REGISTER
 
         
     //Set XGS registers (mirroir)
-    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a0, prot,    0, resp);                 // Subsampling
+    master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h0000019c, prot,    0, resp);                 // Subsampling
     master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h000001a4, prot, 2<<8, resp);                 // Analog Gain
+    
+    //internal EO_FOT generation
+    //FOT_LENGTH_LINES=9;
+    //master_agent.AXI4LITE_WRITE_BURST(xgs_ctrl_addr+32'h00000110, prot, (FOT_LENGTH_LINES<<24) + 32'h00010000 + (FOT_LENGTH_LINES*line_time*xgs_bitrate_period/xgs_ctrl_period), resp);
     
     ROI_YSTART   =  0; 
     ROI_YSIZE    = 16;
