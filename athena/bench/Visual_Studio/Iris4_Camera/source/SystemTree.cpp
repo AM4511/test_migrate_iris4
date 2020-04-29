@@ -107,7 +107,7 @@ M_UINT8 FindMultiFpga(M_UINT32 vendorID, M_UINT32 devID, Struck_FPGAs FPGAs[])
 			if(FPGAs[i].DevID == devID)
 			     { //fpga founded
 			       fpga_founded++;
-				   if(FPGAs[i].DevID == 0x5350)
+				   if(FPGAs[i].DevID == devID)
 				     printf("Found GTR ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
 				   //if(FPGAs[i].DevID == 0x5300)
 				   // printf("(%d) Found N3 ANPUT FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x,  BAR1=0x%08x \n",i+1, vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0, FPGAs[i].PhyRefReg_BAR1);
@@ -171,6 +171,8 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 	MSM_HANDLE MSMHandle = NULL;
 	MSM_UINT32 LinkStatus;
 	MSM_UINT32 MasterBit = 0x100007;
+	MSM_UINT32 DevCtrlRegister = 0x2000;
+
 	MSMAttach(&MSMHandle);
 	if(MSMHandle != NULL)
 		{
@@ -180,6 +182,7 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 		func = 0;
 		MSMReadConfig(MSMHandle,  FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x70, 1, &LinkStatus);       // [link Status]
 		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x04, 1, &MasterBit);
+		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x68, 1, &DevCtrlRegister);
 
 		if((LinkStatus & 0xff0000)      == 0x110000) { printf("\nFPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
 		else if((LinkStatus & 0xff0000) == 0x120000) { printf("\nFPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1
