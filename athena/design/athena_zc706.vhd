@@ -953,7 +953,7 @@ ibuf_200MHz : IBUFDS
   end process;
 
 
-  GPIO_LED_LEFT  <= heartbeat_cntr(27) and not(PCIE_PERST_LS);
+  GPIO_LED_LEFT  <= heartbeat_led and not(PCIE_PERST_LS);
   GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
 
   P_heartbeat_cntr : process (pcie_clk100MHz) is
