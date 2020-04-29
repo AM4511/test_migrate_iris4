@@ -174,5 +174,33 @@
         </spirit:onSlave>
       </spirit:wire>
     </spirit:port>
+    <spirit:port>
+      <spirit:logicalName>dec_EOF</spirit:logicalName>
+      <spirit:wire>
+        <spirit:onMaster>
+          <spirit:presence>required</spirit:presence>
+          <spirit:width>1</spirit:width>
+          <spirit:direction>in</spirit:direction>
+        </spirit:onMaster>
+        <spirit:onSlave>
+          <spirit:presence>required</spirit:presence>
+          <spirit:width>1</spirit:width>
+        </spirit:onSlave>
+      </spirit:wire>
+    </spirit:port>
+    <spirit:port>
+      <spirit:logicalName>HISPI_pix_clk</spirit:logicalName>
+      <spirit:wire>
+        <spirit:onMaster>
+          <spirit:presence>required</spirit:presence>
+          <spirit:width>1</spirit:width>
+          <spirit:direction>in</spirit:direction>
+        </spirit:onMaster>
+        <spirit:onSlave>
+          <spirit:presence>required</spirit:presence>
+          <spirit:width>1</spirit:width>
+        </spirit:onSlave>
+      </spirit:wire>
+    </spirit:port>
   </spirit:ports>
 </spirit:abstractionDefinition>

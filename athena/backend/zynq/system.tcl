@@ -246,7 +246,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.AXI_ID_WIDTH {6} \
    CONFIG.NUMB_IRQ {0} \
-   CONFIG.PCIE_DEVICE_ID {5396} \
+   CONFIG.PCIE_DEVICE_ID {20564} \
    CONFIG.PCIE_SUBSYS_ID {0} \
  ] $pcie2AxiMaster_0
 
@@ -703,7 +703,6 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -715,4 +714,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
