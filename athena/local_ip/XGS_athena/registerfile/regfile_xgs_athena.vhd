@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/04/28 15:28:36
+-- Created on          : 2020/04/29 11:37:34
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x3C6068D1
+-- Register file CRC32 : 0x6C02943B
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -18,87 +18,87 @@ package regfile_xgs_athena_pack is
    --------------------------------------------------------------------------------
    -- Address constants
    --------------------------------------------------------------------------------
-   constant K_SYSTEM_TAG_ADDR            : natural := 16#0#;
-   constant K_SYSTEM_VERSION_ADDR        : natural := 16#4#;
-   constant K_SYSTEM_CAPABILITY_ADDR     : natural := 16#8#;
-   constant K_SYSTEM_scratchpad_ADDR     : natural := 16#c#;
-   constant K_DMA_GRAB_INIT_ADDR_ADDR    : natural := 16#70#;
-   constant K_DMA_GRAB_INIT_ADDR_HI_ADDR : natural := 16#74#;
-   constant K_DMA_GRAB_GREEN_ADDR_ADDR   : natural := 16#78#;
-   constant K_DMA_GRAB_GREEN_ADDR_HI_ADDR : natural := 16#7c#;
-   constant K_DMA_GRAB_RED_ADDR_ADDR     : natural := 16#80#;
-   constant K_DMA_GRAB_RED_ADDR_HI_ADDR  : natural := 16#84#;
-   constant K_DMA_GRAB_LINE_PITCH_ADDR   : natural := 16#88#;
-   constant K_DMA_HOST_LINE_SIZE_ADDR    : natural := 16#8c#;
-   constant K_DMA_GRAB_CSC_ADDR          : natural := 16#90#;
-   constant K_DMA_GRAB_MAX_ADD_ADDR      : natural := 16#a0#;
-   constant K_ACQ_GRAB_CTRL_ADDR         : natural := 16#100#;
-   constant K_ACQ_GRAB_STAT_ADDR         : natural := 16#108#;
-   constant K_ACQ_READOUT_CFG1_ADDR      : natural := 16#110#;
-   constant K_ACQ_READOUT_CFG2_ADDR      : natural := 16#118#;
-   constant K_ACQ_READOUT_CFG3_ADDR      : natural := 16#120#;
-   constant K_ACQ_EXP_CTRL1_ADDR         : natural := 16#128#;
-   constant K_ACQ_EXP_CTRL2_ADDR         : natural := 16#130#;
-   constant K_ACQ_EXP_CTRL3_ADDR         : natural := 16#138#;
-   constant K_ACQ_TRIGGER_DELAY_ADDR     : natural := 16#140#;
-   constant K_ACQ_STROBE_CTRL1_ADDR      : natural := 16#148#;
-   constant K_ACQ_STROBE_CTRL2_ADDR      : natural := 16#150#;
-   constant K_ACQ_ACQ_SER_CTRL_ADDR      : natural := 16#158#;
-   constant K_ACQ_ACQ_SER_ADDATA_ADDR    : natural := 16#160#;
-   constant K_ACQ_ACQ_SER_STAT_ADDR      : natural := 16#168#;
-   constant K_ACQ_LVDS_CTRL_ADDR         : natural := 16#170#;
-   constant K_ACQ_LVDS_CTRL2_ADDR        : natural := 16#178#;
-   constant K_ACQ_LVDS_TRAINING_ADDR     : natural := 16#180#;
-   constant K_ACQ_LVDS_STAT_ADDR         : natural := 16#188#;
-   constant K_ACQ_LVDS_STAT2_ADDR        : natural := 16#18c#;
-   constant K_ACQ_SENSOR_CTRL_ADDR       : natural := 16#190#;
-   constant K_ACQ_SENSOR_STAT_ADDR       : natural := 16#198#;
-   constant K_ACQ_SENSOR_GEN_CFG_ADDR    : natural := 16#1a0#;
-   constant K_ACQ_SENSOR_INT_CTL_ADDR    : natural := 16#1a8#;
-   constant K_ACQ_SENSOR_GAIN_ANA_ADDR   : natural := 16#1b0#;
-   constant K_ACQ_SENSOR_BLACK_CAL_ADDR  : natural := 16#1b8#;
-   constant K_ACQ_SENSOR_ROI_CONF0_ADDR  : natural := 16#1c0#;
+   constant K_SYSTEM_TAG_ADDR           : natural := 16#0#;
+   constant K_SYSTEM_VERSION_ADDR       : natural := 16#4#;
+   constant K_SYSTEM_CAPABILITY_ADDR    : natural := 16#8#;
+   constant K_SYSTEM_SCRATCHPAD_ADDR    : natural := 16#c#;
+   constant K_DMA_CTRL_ADDR             : natural := 16#70#;
+   constant K_DMA_FSTART_ADDR           : natural := 16#74#;
+   constant K_DMA_FSTART_HIGH_ADDR      : natural := 16#78#;
+   constant K_DMA_FSTART_G_ADDR         : natural := 16#7c#;
+   constant K_DMA_FSTART_G_HIGH_ADDR    : natural := 16#80#;
+   constant K_DMA_FSTART_R_ADDR         : natural := 16#84#;
+   constant K_DMA_FSTART_R_HIGH_ADDR    : natural := 16#88#;
+   constant K_DMA_LINE_PITCH_ADDR       : natural := 16#8c#;
+   constant K_DMA_LINE_SIZE_ADDR        : natural := 16#90#;
+   constant K_DMA_CSC_ADDR              : natural := 16#94#;
+   constant K_ACQ_GRAB_CTRL_ADDR        : natural := 16#100#;
+   constant K_ACQ_GRAB_STAT_ADDR        : natural := 16#108#;
+   constant K_ACQ_READOUT_CFG1_ADDR     : natural := 16#110#;
+   constant K_ACQ_READOUT_CFG2_ADDR     : natural := 16#118#;
+   constant K_ACQ_READOUT_CFG3_ADDR     : natural := 16#120#;
+   constant K_ACQ_EXP_CTRL1_ADDR        : natural := 16#128#;
+   constant K_ACQ_EXP_CTRL2_ADDR        : natural := 16#130#;
+   constant K_ACQ_EXP_CTRL3_ADDR        : natural := 16#138#;
+   constant K_ACQ_TRIGGER_DELAY_ADDR    : natural := 16#140#;
+   constant K_ACQ_STROBE_CTRL1_ADDR     : natural := 16#148#;
+   constant K_ACQ_STROBE_CTRL2_ADDR     : natural := 16#150#;
+   constant K_ACQ_ACQ_SER_CTRL_ADDR     : natural := 16#158#;
+   constant K_ACQ_ACQ_SER_ADDATA_ADDR   : natural := 16#160#;
+   constant K_ACQ_ACQ_SER_STAT_ADDR     : natural := 16#168#;
+   constant K_ACQ_LVDS_CTRL_ADDR        : natural := 16#170#;
+   constant K_ACQ_LVDS_CTRL2_ADDR       : natural := 16#178#;
+   constant K_ACQ_LVDS_TRAINING_ADDR    : natural := 16#180#;
+   constant K_ACQ_LVDS_STAT_ADDR        : natural := 16#188#;
+   constant K_ACQ_LVDS_STAT2_ADDR       : natural := 16#18c#;
+   constant K_ACQ_SENSOR_CTRL_ADDR      : natural := 16#190#;
+   constant K_ACQ_SENSOR_STAT_ADDR      : natural := 16#198#;
+   constant K_ACQ_SENSOR_GEN_CFG_ADDR   : natural := 16#1a0#;
+   constant K_ACQ_SENSOR_INT_CTL_ADDR   : natural := 16#1a8#;
+   constant K_ACQ_SENSOR_GAIN_ANA_ADDR  : natural := 16#1b0#;
+   constant K_ACQ_SENSOR_BLACK_CAL_ADDR : natural := 16#1b8#;
+   constant K_ACQ_SENSOR_ROI_CONF0_ADDR : natural := 16#1c0#;
    constant K_ACQ_SENSOR_ROI2_CONF0_ADDR : natural := 16#1c4#;
-   constant K_ACQ_SENSOR_ROI_CONF1_ADDR  : natural := 16#1c8#;
+   constant K_ACQ_SENSOR_ROI_CONF1_ADDR : natural := 16#1c8#;
    constant K_ACQ_SENSOR_ROI2_CONF1_ADDR : natural := 16#1cc#;
-   constant K_ACQ_SENSOR_ROI_CONF2_ADDR  : natural := 16#1d0#;
+   constant K_ACQ_SENSOR_ROI_CONF2_ADDR : natural := 16#1d0#;
    constant K_ACQ_SENSOR_ROI2_CONF2_ADDR : natural := 16#1d4#;
-   constant K_ACQ_CRC_ADDR               : natural := 16#1d8#;
-   constant K_ACQ_DEBUG_PINS_ADDR        : natural := 16#1e0#;
-   constant K_ACQ_TRIGGER_MISSED_ADDR    : natural := 16#1e8#;
-   constant K_ACQ_SENSOR_FPS_ADDR        : natural := 16#1f0#;
-   constant K_ACQ_DEBUG_ADDR             : natural := 16#220#;
-   constant K_ACQ_DEBUG_CNTR1_ADDR       : natural := 16#228#;
-   constant K_ACQ_DEBUG_CNTR2_ADDR       : natural := 16#230#;
-   constant K_ACQ_DEBUG_CNTR3_ADDR       : natural := 16#234#;
-   constant K_ACQ_EXP_FOT_ADDR           : natural := 16#23c#;
-   constant K_ACQ_ACQ_SFNC_ADDR          : natural := 16#244#;
-   constant K_ACQ_NOPEL_ADDR             : natural := 16#254#;
-   constant K_DATA_LUT_CTRL_ADDR         : natural := 16#300#;
-   constant K_DATA_LUT_RB_ADDR           : natural := 16#308#;
-   constant K_DATA_WB_MULT1_ADDR         : natural := 16#310#;
-   constant K_DATA_WB_MULT2_ADDR         : natural := 16#318#;
-   constant K_DATA_WB_B_ACC_ADDR         : natural := 16#320#;
-   constant K_DATA_WB_G_ACC_ADDR         : natural := 16#328#;
-   constant K_DATA_WB_R_ACC_ADDR         : natural := 16#330#;
-   constant K_DATA_FPN_ADD_ADDR          : natural := 16#338#;
-   constant K_DATA_FPN_READ_REG_ADDR     : natural := 16#33c#;
-   constant K_DATA_FPN_DATA_0_ADDR       : natural := 16#340#;
-   constant K_DATA_FPN_DATA_1_ADDR       : natural := 16#344#;
-   constant K_DATA_FPN_DATA_2_ADDR       : natural := 16#348#;
-   constant K_DATA_FPN_DATA_3_ADDR       : natural := 16#34c#;
-   constant K_DATA_FPN_DATA_4_ADDR       : natural := 16#350#;
-   constant K_DATA_FPN_DATA_5_ADDR       : natural := 16#354#;
-   constant K_DATA_FPN_DATA_6_ADDR       : natural := 16#358#;
-   constant K_DATA_FPN_DATA_7_ADDR       : natural := 16#35c#;
-   constant K_DATA_FPN_CONTRAST_ADDR     : natural := 16#360#;
-   constant K_DATA_FPN_ACC_ADD_ADDR      : natural := 16#368#;
-   constant K_DATA_FPN_ACC_DATA_ADDR     : natural := 16#370#;
-   constant K_DATA_DPC_LIST_CTRL_ADDR    : natural := 16#380#;
-   constant K_DATA_DPC_LIST_DATA_ADDR    : natural := 16#384#;
+   constant K_ACQ_CRC_ADDR              : natural := 16#1d8#;
+   constant K_ACQ_DEBUG_PINS_ADDR       : natural := 16#1e0#;
+   constant K_ACQ_TRIGGER_MISSED_ADDR   : natural := 16#1e8#;
+   constant K_ACQ_SENSOR_FPS_ADDR       : natural := 16#1f0#;
+   constant K_ACQ_DEBUG_ADDR            : natural := 16#220#;
+   constant K_ACQ_DEBUG_CNTR1_ADDR      : natural := 16#228#;
+   constant K_ACQ_DEBUG_CNTR2_ADDR      : natural := 16#230#;
+   constant K_ACQ_DEBUG_CNTR3_ADDR      : natural := 16#234#;
+   constant K_ACQ_EXP_FOT_ADDR          : natural := 16#23c#;
+   constant K_ACQ_ACQ_SFNC_ADDR         : natural := 16#244#;
+   constant K_ACQ_NOPEL_ADDR            : natural := 16#254#;
+   constant K_DATA_LUT_CTRL_ADDR        : natural := 16#300#;
+   constant K_DATA_LUT_RB_ADDR          : natural := 16#308#;
+   constant K_DATA_WB_MULT1_ADDR        : natural := 16#310#;
+   constant K_DATA_WB_MULT2_ADDR        : natural := 16#318#;
+   constant K_DATA_WB_B_ACC_ADDR        : natural := 16#320#;
+   constant K_DATA_WB_G_ACC_ADDR        : natural := 16#328#;
+   constant K_DATA_WB_R_ACC_ADDR        : natural := 16#330#;
+   constant K_DATA_FPN_ADD_ADDR         : natural := 16#338#;
+   constant K_DATA_FPN_READ_REG_ADDR    : natural := 16#33c#;
+   constant K_DATA_FPN_DATA_0_ADDR      : natural := 16#340#;
+   constant K_DATA_FPN_DATA_1_ADDR      : natural := 16#344#;
+   constant K_DATA_FPN_DATA_2_ADDR      : natural := 16#348#;
+   constant K_DATA_FPN_DATA_3_ADDR      : natural := 16#34c#;
+   constant K_DATA_FPN_DATA_4_ADDR      : natural := 16#350#;
+   constant K_DATA_FPN_DATA_5_ADDR      : natural := 16#354#;
+   constant K_DATA_FPN_DATA_6_ADDR      : natural := 16#358#;
+   constant K_DATA_FPN_DATA_7_ADDR      : natural := 16#35c#;
+   constant K_DATA_FPN_CONTRAST_ADDR    : natural := 16#360#;
+   constant K_DATA_FPN_ACC_ADD_ADDR     : natural := 16#368#;
+   constant K_DATA_FPN_ACC_DATA_ADDR    : natural := 16#370#;
+   constant K_DATA_DPC_LIST_CTRL_ADDR   : natural := 16#380#;
+   constant K_DATA_DPC_LIST_DATA_ADDR   : natural := 16#384#;
    constant K_DATA_DPC_LIST_DATA_RD_ADDR : natural := 16#388#;
-   constant K_HISPI_CTRL_ADDR            : natural := 16#30#;
-   constant K_HISPI_STATUS_ADDR          : natural := 16#34#;
+   constant K_HISPI_CTRL_ADDR           : natural := 16#400#;
+   constant K_HISPI_STATUS_ADDR         : natural := 16#404#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -150,14 +150,14 @@ package regfile_xgs_athena_pack is
    function to_SYSTEM_CAPABILITY_TYPE(stdlv : std_logic_vector(31 downto 0)) return SYSTEM_CAPABILITY_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: scratchpad
+   -- Register Name: SCRATCHPAD
    ------------------------------------------------------------------------------------------
    type SYSTEM_SCRATCHPAD_TYPE is record
-      value          : std_logic_vector(31 downto 0);
+      VALUE          : std_logic_vector(31 downto 0);
    end record SYSTEM_SCRATCHPAD_TYPE;
 
    constant INIT_SYSTEM_SCRATCHPAD_TYPE : SYSTEM_SCRATCHPAD_TYPE := (
-      value           => (others=> 'Z')
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
@@ -165,142 +165,151 @@ package regfile_xgs_athena_pack is
    function to_SYSTEM_SCRATCHPAD_TYPE(stdlv : std_logic_vector(31 downto 0)) return SYSTEM_SCRATCHPAD_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_INIT_ADDR
+   -- Register Name: CTRL
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_INIT_ADDR_TYPE is record
-      INIT_GRAB_ADDR : std_logic_vector(31 downto 0);
-   end record DMA_GRAB_INIT_ADDR_TYPE;
+   type DMA_CTRL_TYPE is record
+      GRAB_QUEUE_EN  : std_logic;
+   end record DMA_CTRL_TYPE;
 
-   constant INIT_DMA_GRAB_INIT_ADDR_TYPE : DMA_GRAB_INIT_ADDR_TYPE := (
-      INIT_GRAB_ADDR  => (others=> 'Z')
+   constant INIT_DMA_CTRL_TYPE : DMA_CTRL_TYPE := (
+      GRAB_QUEUE_EN   => 'Z'
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_INIT_ADDR_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_INIT_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_INIT_ADDR_TYPE;
+   function to_std_logic_vector(reg : DMA_CTRL_TYPE) return std_logic_vector;
+   function to_DMA_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CTRL_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_INIT_ADDR_HI
+   -- Register Name: FSTART
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_INIT_ADDR_HI_TYPE is record
-      reserved       : std_logic_vector(27 downto 0);
-      INIT_GRAB_ADDR : std_logic_vector(3 downto 0);
-   end record DMA_GRAB_INIT_ADDR_HI_TYPE;
+   type DMA_FSTART_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_TYPE;
 
-   constant INIT_DMA_GRAB_INIT_ADDR_HI_TYPE : DMA_GRAB_INIT_ADDR_HI_TYPE := (
-      reserved        => (others=> 'Z'),
-      INIT_GRAB_ADDR  => (others=> 'Z')
+   constant INIT_DMA_FSTART_TYPE : DMA_FSTART_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_INIT_ADDR_HI_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_INIT_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_INIT_ADDR_HI_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_GREEN_ADDR
+   -- Register Name: FSTART_HIGH
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_GREEN_ADDR_TYPE is record
-      GRAB_ADDR      : std_logic_vector(31 downto 0);
-   end record DMA_GRAB_GREEN_ADDR_TYPE;
+   type DMA_FSTART_HIGH_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_HIGH_TYPE;
 
-   constant INIT_DMA_GRAB_GREEN_ADDR_TYPE : DMA_GRAB_GREEN_ADDR_TYPE := (
-      GRAB_ADDR       => (others=> 'Z')
+   constant INIT_DMA_FSTART_HIGH_TYPE : DMA_FSTART_HIGH_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_GREEN_ADDR_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_GREEN_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_GREEN_ADDR_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_HIGH_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_HIGH_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_GREEN_ADDR_HI
+   -- Register Name: FSTART_G
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_GREEN_ADDR_HI_TYPE is record
-      reserved       : std_logic_vector(27 downto 0);
-      GRAB_ADDR      : std_logic_vector(3 downto 0);
-   end record DMA_GRAB_GREEN_ADDR_HI_TYPE;
+   type DMA_FSTART_G_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_G_TYPE;
 
-   constant INIT_DMA_GRAB_GREEN_ADDR_HI_TYPE : DMA_GRAB_GREEN_ADDR_HI_TYPE := (
-      reserved        => (others=> 'Z'),
-      GRAB_ADDR       => (others=> 'Z')
+   constant INIT_DMA_FSTART_G_TYPE : DMA_FSTART_G_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_GREEN_ADDR_HI_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_GREEN_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_GREEN_ADDR_HI_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_G_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_G_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_G_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_RED_ADDR
+   -- Register Name: FSTART_G_HIGH
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_RED_ADDR_TYPE is record
-      GRAB_ADDR      : std_logic_vector(31 downto 0);
-   end record DMA_GRAB_RED_ADDR_TYPE;
+   type DMA_FSTART_G_HIGH_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_G_HIGH_TYPE;
 
-   constant INIT_DMA_GRAB_RED_ADDR_TYPE : DMA_GRAB_RED_ADDR_TYPE := (
-      GRAB_ADDR       => (others=> 'Z')
+   constant INIT_DMA_FSTART_G_HIGH_TYPE : DMA_FSTART_G_HIGH_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_RED_ADDR_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_RED_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_RED_ADDR_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_G_HIGH_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_G_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_G_HIGH_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_RED_ADDR_HI
+   -- Register Name: FSTART_R
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_RED_ADDR_HI_TYPE is record
-      reserved       : std_logic_vector(27 downto 0);
-      GRAB_ADDR      : std_logic_vector(3 downto 0);
-   end record DMA_GRAB_RED_ADDR_HI_TYPE;
+   type DMA_FSTART_R_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_R_TYPE;
 
-   constant INIT_DMA_GRAB_RED_ADDR_HI_TYPE : DMA_GRAB_RED_ADDR_HI_TYPE := (
-      reserved        => (others=> 'Z'),
-      GRAB_ADDR       => (others=> 'Z')
+   constant INIT_DMA_FSTART_R_TYPE : DMA_FSTART_R_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_RED_ADDR_HI_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_RED_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_RED_ADDR_HI_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_R_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_R_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_R_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_LINE_PITCH
+   -- Register Name: FSTART_R_HIGH
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_LINE_PITCH_TYPE is record
-      GRAB_LINE_PITCH: std_logic_vector(15 downto 0);
-   end record DMA_GRAB_LINE_PITCH_TYPE;
+   type DMA_FSTART_R_HIGH_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record DMA_FSTART_R_HIGH_TYPE;
 
-   constant INIT_DMA_GRAB_LINE_PITCH_TYPE : DMA_GRAB_LINE_PITCH_TYPE := (
-      GRAB_LINE_PITCH => (others=> 'Z')
+   constant INIT_DMA_FSTART_R_HIGH_TYPE : DMA_FSTART_R_HIGH_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_LINE_PITCH_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_LINE_PITCH_TYPE;
+   function to_std_logic_vector(reg : DMA_FSTART_R_HIGH_TYPE) return std_logic_vector;
+   function to_DMA_FSTART_R_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_R_HIGH_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: HOST_LINE_SIZE
+   -- Register Name: LINE_PITCH
    ------------------------------------------------------------------------------------------
-   type DMA_HOST_LINE_SIZE_TYPE is record
-      HOST_LINE_SIZE : std_logic_vector(13 downto 0);
-   end record DMA_HOST_LINE_SIZE_TYPE;
+   type DMA_LINE_PITCH_TYPE is record
+      VALUE          : std_logic_vector(15 downto 0);
+   end record DMA_LINE_PITCH_TYPE;
 
-   constant INIT_DMA_HOST_LINE_SIZE_TYPE : DMA_HOST_LINE_SIZE_TYPE := (
-      HOST_LINE_SIZE  => (others=> 'Z')
+   constant INIT_DMA_LINE_PITCH_TYPE : DMA_LINE_PITCH_TYPE := (
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_HOST_LINE_SIZE_TYPE) return std_logic_vector;
-   function to_DMA_HOST_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_HOST_LINE_SIZE_TYPE;
+   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector;
+   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_CSC
+   -- Register Name: LINE_SIZE
    ------------------------------------------------------------------------------------------
-   type DMA_GRAB_CSC_TYPE is record
+   type DMA_LINE_SIZE_TYPE is record
+      VALUE          : std_logic_vector(13 downto 0);
+   end record DMA_LINE_SIZE_TYPE;
+
+   constant INIT_DMA_LINE_SIZE_TYPE : DMA_LINE_SIZE_TYPE := (
+      VALUE           => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DMA_LINE_SIZE_TYPE) return std_logic_vector;
+   function to_DMA_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_SIZE_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CSC
+   ------------------------------------------------------------------------------------------
+   type DMA_CSC_TYPE is record
       COLOR_SPACE    : std_logic_vector(2 downto 0);
       DUP_LAST_LINE  : std_logic;
       REVERSE_Y      : std_logic;
       REVERSE_X      : std_logic;
-   end record DMA_GRAB_CSC_TYPE;
+   end record DMA_CSC_TYPE;
 
-   constant INIT_DMA_GRAB_CSC_TYPE : DMA_GRAB_CSC_TYPE := (
+   constant INIT_DMA_CSC_TYPE : DMA_CSC_TYPE := (
       COLOR_SPACE     => (others=> 'Z'),
       DUP_LAST_LINE   => 'Z',
       REVERSE_Y       => 'Z',
@@ -308,27 +317,8 @@ package regfile_xgs_athena_pack is
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_CSC_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_CSC_TYPE;
-   
-   ------------------------------------------------------------------------------------------
-   -- Register Name: GRAB_MAX_ADD
-   ------------------------------------------------------------------------------------------
-   type DMA_GRAB_MAX_ADD_TYPE is record
-      GRAB_MAX_ADD   : std_logic_vector(29 downto 0);
-      OUT_OF_MEMORY_CLEAR: std_logic;
-      OUT_OF_MEMORY_STAT: std_logic;
-   end record DMA_GRAB_MAX_ADD_TYPE;
-
-   constant INIT_DMA_GRAB_MAX_ADD_TYPE : DMA_GRAB_MAX_ADD_TYPE := (
-      GRAB_MAX_ADD    => (others=> 'Z'),
-      OUT_OF_MEMORY_CLEAR => 'Z',
-      OUT_OF_MEMORY_STAT => 'Z'
-   );
-
-   -- Casting functions:
-   function to_std_logic_vector(reg : DMA_GRAB_MAX_ADD_TYPE) return std_logic_vector;
-   function to_DMA_GRAB_MAX_ADD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_MAX_ADD_TYPE;
+   function to_std_logic_vector(reg : DMA_CSC_TYPE) return std_logic_vector;
+   function to_DMA_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CSC_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: GRAB_CTRL
@@ -1552,43 +1542,43 @@ package regfile_xgs_athena_pack is
       TAG            : SYSTEM_TAG_TYPE;
       VERSION        : SYSTEM_VERSION_TYPE;
       CAPABILITY     : SYSTEM_CAPABILITY_TYPE;
-      scratchpad     : SYSTEM_SCRATCHPAD_TYPE;
+      SCRATCHPAD     : SYSTEM_SCRATCHPAD_TYPE;
    end record SYSTEM_TYPE;
 
    constant INIT_SYSTEM_TYPE : SYSTEM_TYPE := (
       TAG             => INIT_SYSTEM_TAG_TYPE,
       VERSION         => INIT_SYSTEM_VERSION_TYPE,
       CAPABILITY      => INIT_SYSTEM_CAPABILITY_TYPE,
-      scratchpad      => INIT_SYSTEM_SCRATCHPAD_TYPE
+      SCRATCHPAD      => INIT_SYSTEM_SCRATCHPAD_TYPE
    );
 
    ------------------------------------------------------------------------------------------
    -- Section Name: DMA
    ------------------------------------------------------------------------------------------
    type DMA_TYPE is record
-      GRAB_INIT_ADDR : DMA_GRAB_INIT_ADDR_TYPE;
-      GRAB_INIT_ADDR_HI: DMA_GRAB_INIT_ADDR_HI_TYPE;
-      GRAB_GREEN_ADDR: DMA_GRAB_GREEN_ADDR_TYPE;
-      GRAB_GREEN_ADDR_HI: DMA_GRAB_GREEN_ADDR_HI_TYPE;
-      GRAB_RED_ADDR  : DMA_GRAB_RED_ADDR_TYPE;
-      GRAB_RED_ADDR_HI: DMA_GRAB_RED_ADDR_HI_TYPE;
-      GRAB_LINE_PITCH: DMA_GRAB_LINE_PITCH_TYPE;
-      HOST_LINE_SIZE : DMA_HOST_LINE_SIZE_TYPE;
-      GRAB_CSC       : DMA_GRAB_CSC_TYPE;
-      GRAB_MAX_ADD   : DMA_GRAB_MAX_ADD_TYPE;
+      CTRL           : DMA_CTRL_TYPE;
+      FSTART         : DMA_FSTART_TYPE;
+      FSTART_HIGH    : DMA_FSTART_HIGH_TYPE;
+      FSTART_G       : DMA_FSTART_G_TYPE;
+      FSTART_G_HIGH  : DMA_FSTART_G_HIGH_TYPE;
+      FSTART_R       : DMA_FSTART_R_TYPE;
+      FSTART_R_HIGH  : DMA_FSTART_R_HIGH_TYPE;
+      LINE_PITCH     : DMA_LINE_PITCH_TYPE;
+      LINE_SIZE      : DMA_LINE_SIZE_TYPE;
+      CSC            : DMA_CSC_TYPE;
    end record DMA_TYPE;
 
    constant INIT_DMA_TYPE : DMA_TYPE := (
-      GRAB_INIT_ADDR  => INIT_DMA_GRAB_INIT_ADDR_TYPE,
-      GRAB_INIT_ADDR_HI => INIT_DMA_GRAB_INIT_ADDR_HI_TYPE,
-      GRAB_GREEN_ADDR => INIT_DMA_GRAB_GREEN_ADDR_TYPE,
-      GRAB_GREEN_ADDR_HI => INIT_DMA_GRAB_GREEN_ADDR_HI_TYPE,
-      GRAB_RED_ADDR   => INIT_DMA_GRAB_RED_ADDR_TYPE,
-      GRAB_RED_ADDR_HI => INIT_DMA_GRAB_RED_ADDR_HI_TYPE,
-      GRAB_LINE_PITCH => INIT_DMA_GRAB_LINE_PITCH_TYPE,
-      HOST_LINE_SIZE  => INIT_DMA_HOST_LINE_SIZE_TYPE,
-      GRAB_CSC        => INIT_DMA_GRAB_CSC_TYPE,
-      GRAB_MAX_ADD    => INIT_DMA_GRAB_MAX_ADD_TYPE
+      CTRL            => INIT_DMA_CTRL_TYPE,
+      FSTART          => INIT_DMA_FSTART_TYPE,
+      FSTART_HIGH     => INIT_DMA_FSTART_HIGH_TYPE,
+      FSTART_G        => INIT_DMA_FSTART_G_TYPE,
+      FSTART_G_HIGH   => INIT_DMA_FSTART_G_HIGH_TYPE,
+      FSTART_R        => INIT_DMA_FSTART_R_TYPE,
+      FSTART_R_HIGH   => INIT_DMA_FSTART_R_HIGH_TYPE,
+      LINE_PITCH      => INIT_DMA_LINE_PITCH_TYPE,
+      LINE_SIZE       => INIT_DMA_LINE_SIZE_TYPE,
+      CSC             => INIT_DMA_CSC_TYPE
    );
 
    ------------------------------------------------------------------------------------------
@@ -1842,7 +1832,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 0) := reg.value;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
@@ -1853,205 +1843,222 @@ package body regfile_xgs_athena_pack is
    function to_SYSTEM_SCRATCHPAD_TYPE(stdlv : std_logic_vector(31 downto 0)) return SYSTEM_SCRATCHPAD_TYPE is
    variable output : SYSTEM_SCRATCHPAD_TYPE;
    begin
-      output.value := stdlv(31 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
    end to_SYSTEM_SCRATCHPAD_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_INIT_ADDR_TYPE to std_logic_vector
+   -- Description: Cast from DMA_CTRL_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_INIT_ADDR_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_CTRL_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 0) := reg.INIT_GRAB_ADDR;
+      output(0) := reg.GRAB_QUEUE_EN;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_INIT_ADDR_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_INIT_ADDR_TYPE
+   -- Function Name: to_DMA_CTRL_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_CTRL_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_INIT_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_INIT_ADDR_TYPE is
-   variable output : DMA_GRAB_INIT_ADDR_TYPE;
+   function to_DMA_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CTRL_TYPE is
+   variable output : DMA_CTRL_TYPE;
    begin
-      output.INIT_GRAB_ADDR := stdlv(31 downto 0);
+      output.GRAB_QUEUE_EN := stdlv(0);
       return output;
-   end to_DMA_GRAB_INIT_ADDR_TYPE;
+   end to_DMA_CTRL_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_INIT_ADDR_HI_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_INIT_ADDR_HI_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 4) := reg.reserved;
-      output(3 downto 0) := reg.INIT_GRAB_ADDR;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_INIT_ADDR_HI_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_INIT_ADDR_HI_TYPE
+   -- Function Name: to_DMA_FSTART_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_INIT_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_INIT_ADDR_HI_TYPE is
-   variable output : DMA_GRAB_INIT_ADDR_HI_TYPE;
+   function to_DMA_FSTART_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_TYPE is
+   variable output : DMA_FSTART_TYPE;
    begin
-      output.reserved := stdlv(31 downto 4);
-      output.INIT_GRAB_ADDR := stdlv(3 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_INIT_ADDR_HI_TYPE;
+   end to_DMA_FSTART_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_GREEN_ADDR_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_HIGH_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_GREEN_ADDR_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_HIGH_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 0) := reg.GRAB_ADDR;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_GREEN_ADDR_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_GREEN_ADDR_TYPE
+   -- Function Name: to_DMA_FSTART_HIGH_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_HIGH_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_GREEN_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_GREEN_ADDR_TYPE is
-   variable output : DMA_GRAB_GREEN_ADDR_TYPE;
+   function to_DMA_FSTART_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_HIGH_TYPE is
+   variable output : DMA_FSTART_HIGH_TYPE;
    begin
-      output.GRAB_ADDR := stdlv(31 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_GREEN_ADDR_TYPE;
+   end to_DMA_FSTART_HIGH_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_GREEN_ADDR_HI_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_G_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_GREEN_ADDR_HI_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_G_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 4) := reg.reserved;
-      output(3 downto 0) := reg.GRAB_ADDR;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_GREEN_ADDR_HI_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_GREEN_ADDR_HI_TYPE
+   -- Function Name: to_DMA_FSTART_G_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_G_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_GREEN_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_GREEN_ADDR_HI_TYPE is
-   variable output : DMA_GRAB_GREEN_ADDR_HI_TYPE;
+   function to_DMA_FSTART_G_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_G_TYPE is
+   variable output : DMA_FSTART_G_TYPE;
    begin
-      output.reserved := stdlv(31 downto 4);
-      output.GRAB_ADDR := stdlv(3 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_GREEN_ADDR_HI_TYPE;
+   end to_DMA_FSTART_G_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_RED_ADDR_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_G_HIGH_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_RED_ADDR_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_G_HIGH_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 0) := reg.GRAB_ADDR;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_RED_ADDR_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_RED_ADDR_TYPE
+   -- Function Name: to_DMA_FSTART_G_HIGH_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_G_HIGH_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_RED_ADDR_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_RED_ADDR_TYPE is
-   variable output : DMA_GRAB_RED_ADDR_TYPE;
+   function to_DMA_FSTART_G_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_G_HIGH_TYPE is
+   variable output : DMA_FSTART_G_HIGH_TYPE;
    begin
-      output.GRAB_ADDR := stdlv(31 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_RED_ADDR_TYPE;
+   end to_DMA_FSTART_G_HIGH_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_RED_ADDR_HI_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_R_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_RED_ADDR_HI_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_R_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 4) := reg.reserved;
-      output(3 downto 0) := reg.GRAB_ADDR;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_RED_ADDR_HI_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_RED_ADDR_HI_TYPE
+   -- Function Name: to_DMA_FSTART_R_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_R_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_RED_ADDR_HI_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_RED_ADDR_HI_TYPE is
-   variable output : DMA_GRAB_RED_ADDR_HI_TYPE;
+   function to_DMA_FSTART_R_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_R_TYPE is
+   variable output : DMA_FSTART_R_TYPE;
    begin
-      output.reserved := stdlv(31 downto 4);
-      output.GRAB_ADDR := stdlv(3 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_RED_ADDR_HI_TYPE;
+   end to_DMA_FSTART_R_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_LINE_PITCH_TYPE to std_logic_vector
+   -- Description: Cast from DMA_FSTART_R_HIGH_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_LINE_PITCH_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_FSTART_R_HIGH_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(15 downto 0) := reg.GRAB_LINE_PITCH;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_LINE_PITCH_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_LINE_PITCH_TYPE
+   -- Function Name: to_DMA_FSTART_R_HIGH_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_FSTART_R_HIGH_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_LINE_PITCH_TYPE is
-   variable output : DMA_GRAB_LINE_PITCH_TYPE;
+   function to_DMA_FSTART_R_HIGH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_FSTART_R_HIGH_TYPE is
+   variable output : DMA_FSTART_R_HIGH_TYPE;
    begin
-      output.GRAB_LINE_PITCH := stdlv(15 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
-   end to_DMA_GRAB_LINE_PITCH_TYPE;
+   end to_DMA_FSTART_R_HIGH_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_HOST_LINE_SIZE_TYPE to std_logic_vector
+   -- Description: Cast from DMA_LINE_PITCH_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_HOST_LINE_SIZE_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_LINE_PITCH_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(13 downto 0) := reg.HOST_LINE_SIZE;
+      output(15 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_HOST_LINE_SIZE_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_HOST_LINE_SIZE_TYPE
+   -- Function Name: to_DMA_LINE_PITCH_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_LINE_PITCH_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_HOST_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_HOST_LINE_SIZE_TYPE is
-   variable output : DMA_HOST_LINE_SIZE_TYPE;
+   function to_DMA_LINE_PITCH_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_PITCH_TYPE is
+   variable output : DMA_LINE_PITCH_TYPE;
    begin
-      output.HOST_LINE_SIZE := stdlv(13 downto 0);
+      output.VALUE := stdlv(15 downto 0);
       return output;
-   end to_DMA_HOST_LINE_SIZE_TYPE;
+   end to_DMA_LINE_PITCH_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_CSC_TYPE to std_logic_vector
+   -- Description: Cast from DMA_LINE_SIZE_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_CSC_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : DMA_LINE_SIZE_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(13 downto 0) := reg.VALUE;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DMA_LINE_SIZE_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_LINE_SIZE_TYPE
+   --------------------------------------------------------------------------------
+   function to_DMA_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_SIZE_TYPE is
+   variable output : DMA_LINE_SIZE_TYPE;
+   begin
+      output.VALUE := stdlv(13 downto 0);
+      return output;
+   end to_DMA_LINE_SIZE_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DMA_CSC_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DMA_CSC_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
@@ -2063,45 +2070,18 @@ package body regfile_xgs_athena_pack is
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_CSC_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_CSC_TYPE
+   -- Function Name: to_DMA_CSC_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_CSC_TYPE
    --------------------------------------------------------------------------------
-   function to_DMA_GRAB_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_CSC_TYPE is
-   variable output : DMA_GRAB_CSC_TYPE;
+   function to_DMA_CSC_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_CSC_TYPE is
+   variable output : DMA_CSC_TYPE;
    begin
       output.COLOR_SPACE := stdlv(26 downto 24);
       output.DUP_LAST_LINE := stdlv(23);
       output.REVERSE_Y := stdlv(9);
       output.REVERSE_X := stdlv(8);
       return output;
-   end to_DMA_GRAB_CSC_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
-   -- Description: Cast from DMA_GRAB_MAX_ADD_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : DMA_GRAB_MAX_ADD_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 2) := reg.GRAB_MAX_ADD;
-      output(1) := reg.OUT_OF_MEMORY_CLEAR;
-      output(0) := reg.OUT_OF_MEMORY_STAT;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_DMA_GRAB_MAX_ADD_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to DMA_GRAB_MAX_ADD_TYPE
-   --------------------------------------------------------------------------------
-   function to_DMA_GRAB_MAX_ADD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_GRAB_MAX_ADD_TYPE is
-   variable output : DMA_GRAB_MAX_ADD_TYPE;
-   begin
-      output.GRAB_MAX_ADD := stdlv(31 downto 2);
-      output.OUT_OF_MEMORY_CLEAR := stdlv(1);
-      output.OUT_OF_MEMORY_STAT := stdlv(0);
-      return output;
-   end to_DMA_GRAB_MAX_ADD_TYPE;
+   end to_DMA_CSC_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -3801,11 +3781,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/04/28 15:28:36
+-- Created on          : 2020/04/29 11:37:34
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x3C6068D1
+-- Register file CRC32 : 0x6C02943B
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3830,7 +3810,7 @@ entity regfile_xgs_athena is
       ------------------------------------------------------------------------------------
       reg_read      : in    std_logic;                                               -- Read
       reg_write     : in    std_logic;                                               -- Write
-      reg_addr      : in    std_logic_vector(11 downto 2);                           -- Address
+      reg_addr      : in    std_logic_vector(10 downto 2);                           -- Address
       reg_beN       : in    std_logic_vector(3 downto 0);                            -- Byte enable
       reg_writedata : in    std_logic_vector(31 downto 0);                           -- Write data
       reg_readdata  : out   std_logic_vector(31 downto 0)                            -- Read data
@@ -3852,17 +3832,17 @@ signal ldData                                               : std_logic;
 signal rb_SYSTEM_TAG                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_SYSTEM_VERSION                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_SYSTEM_CAPABILITY                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_scratchpad                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_INIT_ADDR                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_INIT_ADDR_HI                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_GREEN_ADDR                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_GREEN_ADDR_HI                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_RED_ADDR                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_RED_ADDR_HI                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_LINE_PITCH                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_HOST_LINE_SIZE                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_CSC                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_GRAB_MAX_ADD                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_SCRATCHPAD                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CTRL                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_HIGH                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G_HIGH                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R_HIGH                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_PITCH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_SIZE                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CSC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_GRAB_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_GRAB_STAT                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_READOUT_CFG1                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -3930,21 +3910,20 @@ signal rb_DATA_DPC_LIST_DATA                                : std_logic_vector(3
 signal rb_DATA_DPC_LIST_DATA_RD                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_STATUS                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal field_rw_SYSTEM_scratchpad_value                     : std_logic_vector(31 downto 0);                   -- Field: value
-signal field_rw_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR           : std_logic_vector(31 downto 0);                   -- Field: INIT_GRAB_ADDR
-signal field_rw_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR        : std_logic_vector(3 downto 0);                    -- Field: INIT_GRAB_ADDR
-signal field_rw_DMA_GRAB_GREEN_ADDR_GRAB_ADDR               : std_logic_vector(31 downto 0);                   -- Field: GRAB_ADDR
-signal field_rw_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR            : std_logic_vector(3 downto 0);                    -- Field: GRAB_ADDR
-signal field_rw_DMA_GRAB_RED_ADDR_GRAB_ADDR                 : std_logic_vector(31 downto 0);                   -- Field: GRAB_ADDR
-signal field_rw_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR              : std_logic_vector(3 downto 0);                    -- Field: GRAB_ADDR
-signal field_rw_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH         : std_logic_vector(15 downto 0);                   -- Field: GRAB_LINE_PITCH
-signal field_rw_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE           : std_logic_vector(13 downto 0);                   -- Field: HOST_LINE_SIZE
-signal field_rw_DMA_GRAB_CSC_COLOR_SPACE                    : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
-signal field_rw_DMA_GRAB_CSC_DUP_LAST_LINE                  : std_logic;                                       -- Field: DUP_LAST_LINE
-signal field_rw_DMA_GRAB_CSC_REVERSE_Y                      : std_logic;                                       -- Field: REVERSE_Y
-signal field_rw_DMA_GRAB_CSC_REVERSE_X                      : std_logic;                                       -- Field: REVERSE_X
-signal field_rw_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD               : std_logic_vector(29 downto 0);                   -- Field: GRAB_MAX_ADD
-signal field_wautoclr_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR  : std_logic;                                       -- Field: OUT_OF_MEMORY_CLEAR
+signal field_rw_SYSTEM_SCRATCHPAD_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                      : std_logic;                                       -- Field: GRAB_QUEUE_EN
+signal field_rw_DMA_FSTART_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_HIGH_VALUE                       : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_HIGH_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_HIGH_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_PITCH_VALUE                        : std_logic_vector(15 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_SIZE_VALUE                         : std_logic_vector(13 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CSC_COLOR_SPACE                         : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
+signal field_rw_DMA_CSC_DUP_LAST_LINE                       : std_logic;                                       -- Field: DUP_LAST_LINE
+signal field_rw_DMA_CSC_REVERSE_Y                           : std_logic;                                       -- Field: REVERSE_Y
+signal field_rw_DMA_CSC_REVERSE_X                           : std_logic;                                       -- Field: REVERSE_X
 signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                    : std_logic;                                       -- Field: RESET_GRAB
 signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                  : std_logic;                                       -- Field: GRAB_ROI2_EN
 signal field_wautoclr_ACQ_GRAB_CTRL_ABORT_GRAB              : std_logic;                                       -- Field: ABORT_GRAB
@@ -4118,22 +4097,22 @@ end process P_bitEnN;
 --------------------------------------------------------------------------------
 -- Address decoding logic
 --------------------------------------------------------------------------------
-fullAddr(11 downto 2)<= reg_addr;
+fullAddr(10 downto 2)<= reg_addr;
 
 hit(0)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#0#,12)))	else '0'; -- Addr:  0x0000	TAG
 hit(1)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4#,12)))	else '0'; -- Addr:  0x0004	VERSION
 hit(2)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	CAPABILITY
-hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	scratchpad
-hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	GRAB_INIT_ADDR
-hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#74#,12)))	else '0'; -- Addr:  0x0074	GRAB_INIT_ADDR_HI
-hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	GRAB_GREEN_ADDR
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	GRAB_GREEN_ADDR_HI
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	GRAB_RED_ADDR
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	GRAB_RED_ADDR_HI
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	GRAB_LINE_PITCH
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	HOST_LINE_SIZE
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	GRAB_CSC
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a0#,12)))	else '0'; -- Addr:  0x00A0	GRAB_MAX_ADD
+hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	SCRATCHPAD
+hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	CTRL
+hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#74#,12)))	else '0'; -- Addr:  0x0074	FSTART
+hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART_HIGH
+hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_G
+hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G_HIGH
+hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_R
+hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R_HIGH
+hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	LINE_PITCH
+hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_SIZE
+hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	CSC
 hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	GRAB_CTRL
 hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	GRAB_STAT
 hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
@@ -4199,8 +4178,8 @@ hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#370#,12)))	else 
 hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#380#,12)))	else '0'; -- Addr:  0x0380	DPC_LIST_CTRL
 hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#384#,12)))	else '0'; -- Addr:  0x0384	DPC_LIST_DATA
 hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#388#,12)))	else '0'; -- Addr:  0x0388	DPC_LIST_DATA_RD
-hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#30#,12)))	else '0'; -- Addr:  0x0030	CTRL
-hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#34#,12)))	else '0'; -- Addr:  0x0034	STATUS
+hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
+hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
 
 
 
@@ -4214,17 +4193,17 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_SYSTEM_TAG,
                             rb_SYSTEM_VERSION,
                             rb_SYSTEM_CAPABILITY,
-                            rb_SYSTEM_scratchpad,
-                            rb_DMA_GRAB_INIT_ADDR,
-                            rb_DMA_GRAB_INIT_ADDR_HI,
-                            rb_DMA_GRAB_GREEN_ADDR,
-                            rb_DMA_GRAB_GREEN_ADDR_HI,
-                            rb_DMA_GRAB_RED_ADDR,
-                            rb_DMA_GRAB_RED_ADDR_HI,
-                            rb_DMA_GRAB_LINE_PITCH,
-                            rb_DMA_HOST_LINE_SIZE,
-                            rb_DMA_GRAB_CSC,
-                            rb_DMA_GRAB_MAX_ADD,
+                            rb_SYSTEM_SCRATCHPAD,
+                            rb_DMA_CTRL,
+                            rb_DMA_FSTART,
+                            rb_DMA_FSTART_HIGH,
+                            rb_DMA_FSTART_G,
+                            rb_DMA_FSTART_G_HIGH,
+                            rb_DMA_FSTART_R,
+                            rb_DMA_FSTART_R_HIGH,
+                            rb_DMA_LINE_PITCH,
+                            rb_DMA_LINE_SIZE,
+                            rb_DMA_CSC,
                             rb_ACQ_GRAB_CTRL,
                             rb_ACQ_GRAB_STAT,
                             rb_ACQ_READOUT_CFG1,
@@ -4307,49 +4286,49 @@ begin
       when 16#8# =>
          readBackMux <= rb_SYSTEM_CAPABILITY;
 
-      -- [0x00c]: /SYSTEM/scratchpad
+      -- [0x00c]: /SYSTEM/SCRATCHPAD
       when 16#C# =>
-         readBackMux <= rb_SYSTEM_scratchpad;
+         readBackMux <= rb_SYSTEM_SCRATCHPAD;
 
-      -- [0x070]: /DMA/GRAB_INIT_ADDR
+      -- [0x070]: /DMA/CTRL
       when 16#70# =>
-         readBackMux <= rb_DMA_GRAB_INIT_ADDR;
+         readBackMux <= rb_DMA_CTRL;
 
-      -- [0x074]: /DMA/GRAB_INIT_ADDR_HI
+      -- [0x074]: /DMA/FSTART
       when 16#74# =>
-         readBackMux <= rb_DMA_GRAB_INIT_ADDR_HI;
+         readBackMux <= rb_DMA_FSTART;
 
-      -- [0x078]: /DMA/GRAB_GREEN_ADDR
+      -- [0x078]: /DMA/FSTART_HIGH
       when 16#78# =>
-         readBackMux <= rb_DMA_GRAB_GREEN_ADDR;
+         readBackMux <= rb_DMA_FSTART_HIGH;
 
-      -- [0x07c]: /DMA/GRAB_GREEN_ADDR_HI
+      -- [0x07c]: /DMA/FSTART_G
       when 16#7C# =>
-         readBackMux <= rb_DMA_GRAB_GREEN_ADDR_HI;
+         readBackMux <= rb_DMA_FSTART_G;
 
-      -- [0x080]: /DMA/GRAB_RED_ADDR
+      -- [0x080]: /DMA/FSTART_G_HIGH
       when 16#80# =>
-         readBackMux <= rb_DMA_GRAB_RED_ADDR;
+         readBackMux <= rb_DMA_FSTART_G_HIGH;
 
-      -- [0x084]: /DMA/GRAB_RED_ADDR_HI
+      -- [0x084]: /DMA/FSTART_R
       when 16#84# =>
-         readBackMux <= rb_DMA_GRAB_RED_ADDR_HI;
+         readBackMux <= rb_DMA_FSTART_R;
 
-      -- [0x088]: /DMA/GRAB_LINE_PITCH
+      -- [0x088]: /DMA/FSTART_R_HIGH
       when 16#88# =>
-         readBackMux <= rb_DMA_GRAB_LINE_PITCH;
+         readBackMux <= rb_DMA_FSTART_R_HIGH;
 
-      -- [0x08c]: /DMA/HOST_LINE_SIZE
+      -- [0x08c]: /DMA/LINE_PITCH
       when 16#8C# =>
-         readBackMux <= rb_DMA_HOST_LINE_SIZE;
+         readBackMux <= rb_DMA_LINE_PITCH;
 
-      -- [0x090]: /DMA/GRAB_CSC
+      -- [0x090]: /DMA/LINE_SIZE
       when 16#90# =>
-         readBackMux <= rb_DMA_GRAB_CSC;
+         readBackMux <= rb_DMA_LINE_SIZE;
 
-      -- [0x0a0]: /DMA/GRAB_MAX_ADD
-      when 16#A0# =>
-         readBackMux <= rb_DMA_GRAB_MAX_ADD;
+      -- [0x094]: /DMA/CSC
+      when 16#94# =>
+         readBackMux <= rb_DMA_CSC;
 
       -- [0x100]: /ACQ/GRAB_CTRL
       when 16#100# =>
@@ -4611,12 +4590,12 @@ begin
       when 16#388# =>
          readBackMux <= rb_DATA_DPC_LIST_DATA_RD;
 
-      -- [0x030]: /HISPI/CTRL
-      when 16#30# =>
+      -- [0x400]: /HISPI/CTRL
+      when 16#400# =>
          readBackMux <= rb_HISPI_CTRL;
 
-      -- [0x034]: /HISPI/STATUS
-      when 16#34# =>
+      -- [0x404]: /HISPI/STATUS
+      when 16#404# =>
          readBackMux <= rb_HISPI_STATUS;
 
       -- Default value
@@ -4714,487 +4693,424 @@ regfile.SYSTEM.CAPABILITY.VALUE <= rb_SYSTEM_CAPABILITY(7 downto 0);
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: SYSTEM_scratchpad
+-- Register name: SYSTEM_SCRATCHPAD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(3) <= (hit(3)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: value(31 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_scratchpad(31 downto 0) <= field_rw_SYSTEM_scratchpad_value(31 downto 0);
-regfile.SYSTEM.scratchpad.value <= field_rw_SYSTEM_scratchpad_value(31 downto 0);
+rb_SYSTEM_SCRATCHPAD(31 downto 0) <= field_rw_SYSTEM_SCRATCHPAD_VALUE(31 downto 0);
+regfile.SYSTEM.SCRATCHPAD.VALUE <= field_rw_SYSTEM_SCRATCHPAD_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_SYSTEM_scratchpad_value
+-- Process: P_SYSTEM_SCRATCHPAD_VALUE
 ------------------------------------------------------------------------------------------
-P_SYSTEM_scratchpad_value : process(sysclk)
+P_SYSTEM_SCRATCHPAD_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_SYSTEM_scratchpad_value <= X"00000000";
+         field_rw_SYSTEM_SCRATCHPAD_VALUE <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(3) = '1' and bitEnN(j) = '0') then
-               field_rw_SYSTEM_scratchpad_value(j-0) <= reg_writedata(j);
+               field_rw_SYSTEM_SCRATCHPAD_VALUE(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_SYSTEM_scratchpad_value;
+end process P_SYSTEM_SCRATCHPAD_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_INIT_ADDR
+-- Register name: DMA_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(4) <= (hit(4)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: INIT_GRAB_ADDR(31 downto 0)
+-- Field name: GRAB_QUEUE_EN
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_INIT_ADDR(31 downto 0) <= field_rw_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR(31 downto 0);
-regfile.DMA.GRAB_INIT_ADDR.INIT_GRAB_ADDR <= field_rw_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR(31 downto 0);
+rb_DMA_CTRL(0) <= field_rw_DMA_CTRL_GRAB_QUEUE_EN;
+regfile.DMA.CTRL.GRAB_QUEUE_EN <= field_rw_DMA_CTRL_GRAB_QUEUE_EN;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR
+-- Process: P_DMA_CTRL_GRAB_QUEUE_EN
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR : process(sysclk)
+P_DMA_CTRL_GRAB_QUEUE_EN : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(4) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if(wEn(4) = '1' and bitEnN(0) = '0') then
+         field_rw_DMA_CTRL_GRAB_QUEUE_EN <= reg_writedata(0);
+      end if;
    end if;
-end process P_DMA_GRAB_INIT_ADDR_INIT_GRAB_ADDR;
+end process P_DMA_CTRL_GRAB_QUEUE_EN;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_INIT_ADDR_HI
+-- Register name: DMA_FSTART
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(5) <= (hit(5)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: reserved
--- Field type: STATIC
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_INIT_ADDR_HI(31 downto 4) <= std_logic_vector(to_unsigned(integer(0),28));
-regfile.DMA.GRAB_INIT_ADDR_HI.reserved <= rb_DMA_GRAB_INIT_ADDR_HI(31 downto 4);
-
-
-------------------------------------------------------------------------------------------
--- Field name: INIT_GRAB_ADDR(3 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_INIT_ADDR_HI(3 downto 0) <= field_rw_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR(3 downto 0);
-regfile.DMA.GRAB_INIT_ADDR_HI.INIT_GRAB_ADDR <= field_rw_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR(3 downto 0);
+rb_DMA_FSTART(31 downto 0) <= field_rw_DMA_FSTART_VALUE(31 downto 0);
+regfile.DMA.FSTART.VALUE <= field_rw_DMA_FSTART_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR
+-- Process: P_DMA_FSTART_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR : process(sysclk)
+P_DMA_FSTART_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  3 downto 0  loop
+      for j in  31 downto 0  loop
          if(wEn(5) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_INIT_ADDR_HI_INIT_GRAB_ADDR;
+end process P_DMA_FSTART_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_GREEN_ADDR
+-- Register name: DMA_FSTART_HIGH
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(6) <= (hit(6)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_ADDR(31 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_GREEN_ADDR(31 downto 0) <= field_rw_DMA_GRAB_GREEN_ADDR_GRAB_ADDR(31 downto 0);
-regfile.DMA.GRAB_GREEN_ADDR.GRAB_ADDR <= field_rw_DMA_GRAB_GREEN_ADDR_GRAB_ADDR(31 downto 0);
+rb_DMA_FSTART_HIGH(31 downto 0) <= field_rw_DMA_FSTART_HIGH_VALUE(31 downto 0);
+regfile.DMA.FSTART_HIGH.VALUE <= field_rw_DMA_FSTART_HIGH_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_GREEN_ADDR_GRAB_ADDR
+-- Process: P_DMA_FSTART_HIGH_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_GREEN_ADDR_GRAB_ADDR : process(sysclk)
+P_DMA_FSTART_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(6) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_GREEN_ADDR_GRAB_ADDR(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_HIGH_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_GREEN_ADDR_GRAB_ADDR;
+end process P_DMA_FSTART_HIGH_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_GREEN_ADDR_HI
+-- Register name: DMA_FSTART_G
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(7) <= (hit(7)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: reserved
--- Field type: STATIC
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_GREEN_ADDR_HI(31 downto 4) <= std_logic_vector(to_unsigned(integer(0),28));
-regfile.DMA.GRAB_GREEN_ADDR_HI.reserved <= rb_DMA_GRAB_GREEN_ADDR_HI(31 downto 4);
-
-
-------------------------------------------------------------------------------------------
--- Field name: GRAB_ADDR(3 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_GREEN_ADDR_HI(3 downto 0) <= field_rw_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR(3 downto 0);
-regfile.DMA.GRAB_GREEN_ADDR_HI.GRAB_ADDR <= field_rw_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR(3 downto 0);
+rb_DMA_FSTART_G(31 downto 0) <= field_rw_DMA_FSTART_G_VALUE(31 downto 0);
+regfile.DMA.FSTART_G.VALUE <= field_rw_DMA_FSTART_G_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR
+-- Process: P_DMA_FSTART_G_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR : process(sysclk)
+P_DMA_FSTART_G_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  3 downto 0  loop
+      for j in  31 downto 0  loop
          if(wEn(7) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_G_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_GREEN_ADDR_HI_GRAB_ADDR;
+end process P_DMA_FSTART_G_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_RED_ADDR
+-- Register name: DMA_FSTART_G_HIGH
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(8) <= (hit(8)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_ADDR(31 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_RED_ADDR(31 downto 0) <= field_rw_DMA_GRAB_RED_ADDR_GRAB_ADDR(31 downto 0);
-regfile.DMA.GRAB_RED_ADDR.GRAB_ADDR <= field_rw_DMA_GRAB_RED_ADDR_GRAB_ADDR(31 downto 0);
+rb_DMA_FSTART_G_HIGH(31 downto 0) <= field_rw_DMA_FSTART_G_HIGH_VALUE(31 downto 0);
+regfile.DMA.FSTART_G_HIGH.VALUE <= field_rw_DMA_FSTART_G_HIGH_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_RED_ADDR_GRAB_ADDR
+-- Process: P_DMA_FSTART_G_HIGH_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_RED_ADDR_GRAB_ADDR : process(sysclk)
+P_DMA_FSTART_G_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(8) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_RED_ADDR_GRAB_ADDR(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_G_HIGH_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_RED_ADDR_GRAB_ADDR;
+end process P_DMA_FSTART_G_HIGH_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_RED_ADDR_HI
+-- Register name: DMA_FSTART_R
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(9) <= (hit(9)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: reserved
--- Field type: STATIC
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_RED_ADDR_HI(31 downto 4) <= std_logic_vector(to_unsigned(integer(0),28));
-regfile.DMA.GRAB_RED_ADDR_HI.reserved <= rb_DMA_GRAB_RED_ADDR_HI(31 downto 4);
-
-
-------------------------------------------------------------------------------------------
--- Field name: GRAB_ADDR(3 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_RED_ADDR_HI(3 downto 0) <= field_rw_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR(3 downto 0);
-regfile.DMA.GRAB_RED_ADDR_HI.GRAB_ADDR <= field_rw_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR(3 downto 0);
+rb_DMA_FSTART_R(31 downto 0) <= field_rw_DMA_FSTART_R_VALUE(31 downto 0);
+regfile.DMA.FSTART_R.VALUE <= field_rw_DMA_FSTART_R_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR
+-- Process: P_DMA_FSTART_R_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR : process(sysclk)
+P_DMA_FSTART_R_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  3 downto 0  loop
+      for j in  31 downto 0  loop
          if(wEn(9) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_R_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_RED_ADDR_HI_GRAB_ADDR;
+end process P_DMA_FSTART_R_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_LINE_PITCH
+-- Register name: DMA_FSTART_R_HIGH
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(10) <= (hit(10)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_LINE_PITCH(15 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_LINE_PITCH(15 downto 0) <= field_rw_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH(15 downto 0);
-regfile.DMA.GRAB_LINE_PITCH.GRAB_LINE_PITCH <= field_rw_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH(15 downto 0);
+rb_DMA_FSTART_R_HIGH(31 downto 0) <= field_rw_DMA_FSTART_R_HIGH_VALUE(31 downto 0);
+regfile.DMA.FSTART_R_HIGH.VALUE <= field_rw_DMA_FSTART_R_HIGH_VALUE(31 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH
+-- Process: P_DMA_FSTART_R_HIGH_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH : process(sysclk)
+P_DMA_FSTART_R_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  15 downto 0  loop
+      for j in  31 downto 0  loop
          if(wEn(10) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH(j-0) <= reg_writedata(j);
+            field_rw_DMA_FSTART_R_HIGH_VALUE(j-0) <= reg_writedata(j);
          end if;
       end loop;
    end if;
-end process P_DMA_GRAB_LINE_PITCH_GRAB_LINE_PITCH;
+end process P_DMA_FSTART_R_HIGH_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_HOST_LINE_SIZE
+-- Register name: DMA_LINE_PITCH
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(11) <= (hit(11)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: HOST_LINE_SIZE(13 downto 0)
+-- Field name: VALUE(15 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_HOST_LINE_SIZE(13 downto 0) <= field_rw_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE(13 downto 0);
-regfile.DMA.HOST_LINE_SIZE.HOST_LINE_SIZE <= field_rw_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE(13 downto 0);
+rb_DMA_LINE_PITCH(15 downto 0) <= field_rw_DMA_LINE_PITCH_VALUE(15 downto 0);
+regfile.DMA.LINE_PITCH.VALUE <= field_rw_DMA_LINE_PITCH_VALUE(15 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE
+-- Process: P_DMA_LINE_PITCH_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE : process(sysclk)
+P_DMA_LINE_PITCH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE <= std_logic_vector(to_unsigned(integer(0),14));
-      else
-         for j in  13 downto 0  loop
-            if(wEn(11) = '1' and bitEnN(j) = '0') then
-               field_rw_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
+      for j in  15 downto 0  loop
+         if(wEn(11) = '1' and bitEnN(j) = '0') then
+            field_rw_DMA_LINE_PITCH_VALUE(j-0) <= reg_writedata(j);
+         end if;
+      end loop;
    end if;
-end process P_DMA_HOST_LINE_SIZE_HOST_LINE_SIZE;
+end process P_DMA_LINE_PITCH_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_CSC
+-- Register name: DMA_LINE_SIZE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(12) <= (hit(12)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: COLOR_SPACE(26 downto 24)
+-- Field name: VALUE(13 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_CSC(26 downto 24) <= field_rw_DMA_GRAB_CSC_COLOR_SPACE(2 downto 0);
-regfile.DMA.GRAB_CSC.COLOR_SPACE <= field_rw_DMA_GRAB_CSC_COLOR_SPACE(2 downto 0);
+rb_DMA_LINE_SIZE(13 downto 0) <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
+regfile.DMA.LINE_SIZE.VALUE <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_CSC_COLOR_SPACE
+-- Process: P_DMA_LINE_SIZE_VALUE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_CSC_COLOR_SPACE : process(sysclk)
+P_DMA_LINE_SIZE_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_GRAB_CSC_COLOR_SPACE <= std_logic_vector(to_unsigned(integer(0),3));
+         field_rw_DMA_LINE_SIZE_VALUE <= std_logic_vector(to_unsigned(integer(0),14));
       else
-         for j in  26 downto 24  loop
+         for j in  13 downto 0  loop
             if(wEn(12) = '1' and bitEnN(j) = '0') then
-               field_rw_DMA_GRAB_CSC_COLOR_SPACE(j-24) <= reg_writedata(j);
+               field_rw_DMA_LINE_SIZE_VALUE(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_DMA_GRAB_CSC_COLOR_SPACE;
-
-------------------------------------------------------------------------------------------
--- Field name: DUP_LAST_LINE
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_CSC(23) <= field_rw_DMA_GRAB_CSC_DUP_LAST_LINE;
-regfile.DMA.GRAB_CSC.DUP_LAST_LINE <= field_rw_DMA_GRAB_CSC_DUP_LAST_LINE;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_CSC_DUP_LAST_LINE
-------------------------------------------------------------------------------------------
-P_DMA_GRAB_CSC_DUP_LAST_LINE : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_DMA_GRAB_CSC_DUP_LAST_LINE <= '0';
-      else
-         if(wEn(12) = '1' and bitEnN(23) = '0') then
-            field_rw_DMA_GRAB_CSC_DUP_LAST_LINE <= reg_writedata(23);
-         end if;
-      end if;
-   end if;
-end process P_DMA_GRAB_CSC_DUP_LAST_LINE;
-
-------------------------------------------------------------------------------------------
--- Field name: REVERSE_Y
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_CSC(9) <= field_rw_DMA_GRAB_CSC_REVERSE_Y;
-regfile.DMA.GRAB_CSC.REVERSE_Y <= field_rw_DMA_GRAB_CSC_REVERSE_Y;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_CSC_REVERSE_Y
-------------------------------------------------------------------------------------------
-P_DMA_GRAB_CSC_REVERSE_Y : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_DMA_GRAB_CSC_REVERSE_Y <= '0';
-      else
-         if(wEn(12) = '1' and bitEnN(9) = '0') then
-            field_rw_DMA_GRAB_CSC_REVERSE_Y <= reg_writedata(9);
-         end if;
-      end if;
-   end if;
-end process P_DMA_GRAB_CSC_REVERSE_Y;
-
-------------------------------------------------------------------------------------------
--- Field name: REVERSE_X
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_DMA_GRAB_CSC(8) <= field_rw_DMA_GRAB_CSC_REVERSE_X;
-regfile.DMA.GRAB_CSC.REVERSE_X <= field_rw_DMA_GRAB_CSC_REVERSE_X;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_CSC_REVERSE_X
-------------------------------------------------------------------------------------------
-P_DMA_GRAB_CSC_REVERSE_X : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_DMA_GRAB_CSC_REVERSE_X <= '0';
-      else
-         if(wEn(12) = '1' and bitEnN(8) = '0') then
-            field_rw_DMA_GRAB_CSC_REVERSE_X <= reg_writedata(8);
-         end if;
-      end if;
-   end if;
-end process P_DMA_GRAB_CSC_REVERSE_X;
+end process P_DMA_LINE_SIZE_VALUE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DMA_GRAB_MAX_ADD
+-- Register name: DMA_CSC
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(13) <= (hit(13)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: GRAB_MAX_ADD(31 downto 2)
+-- Field name: COLOR_SPACE(26 downto 24)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_MAX_ADD(31 downto 2) <= field_rw_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD(29 downto 0);
-regfile.DMA.GRAB_MAX_ADD.GRAB_MAX_ADD <= field_rw_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD(29 downto 0);
+rb_DMA_CSC(26 downto 24) <= field_rw_DMA_CSC_COLOR_SPACE(2 downto 0);
+regfile.DMA.CSC.COLOR_SPACE <= field_rw_DMA_CSC_COLOR_SPACE(2 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD
+-- Process: P_DMA_CSC_COLOR_SPACE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD : process(sysclk)
+P_DMA_CSC_COLOR_SPACE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD <= std_logic_vector(to_unsigned(integer(1073741823),30));
+         field_rw_DMA_CSC_COLOR_SPACE <= std_logic_vector(to_unsigned(integer(0),3));
       else
-         for j in  31 downto 2  loop
+         for j in  26 downto 24  loop
             if(wEn(13) = '1' and bitEnN(j) = '0') then
-               field_rw_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD(j-2) <= reg_writedata(j);
+               field_rw_DMA_CSC_COLOR_SPACE(j-24) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_DMA_GRAB_MAX_ADD_GRAB_MAX_ADD;
+end process P_DMA_CSC_COLOR_SPACE;
 
 ------------------------------------------------------------------------------------------
--- Field name: OUT_OF_MEMORY_CLEAR
--- Field type: WAUTOCLR
+-- Field name: DUP_LAST_LINE
+-- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_MAX_ADD(1) <= '0';
-regfile.DMA.GRAB_MAX_ADD.OUT_OF_MEMORY_CLEAR <= field_wautoclr_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR;
+rb_DMA_CSC(23) <= field_rw_DMA_CSC_DUP_LAST_LINE;
+regfile.DMA.CSC.DUP_LAST_LINE <= field_rw_DMA_CSC_DUP_LAST_LINE;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR
+-- Process: P_DMA_CSC_DUP_LAST_LINE
 ------------------------------------------------------------------------------------------
-P_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR : process(sysclk)
+P_DMA_CSC_DUP_LAST_LINE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_wautoclr_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR <= '0';
+         field_rw_DMA_CSC_DUP_LAST_LINE <= '0';
       else
-         if(wEn(13) = '1' and bitEnN(1) = '0') then
-            field_wautoclr_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR <= reg_writedata(1);
-         else
-            field_wautoclr_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR <= '0';
+         if(wEn(13) = '1' and bitEnN(23) = '0') then
+            field_rw_DMA_CSC_DUP_LAST_LINE <= reg_writedata(23);
          end if;
       end if;
    end if;
-end process P_DMA_GRAB_MAX_ADD_OUT_OF_MEMORY_CLEAR;
+end process P_DMA_CSC_DUP_LAST_LINE;
 
 ------------------------------------------------------------------------------------------
--- Field name: OUT_OF_MEMORY_STAT
--- Field type: RO
+-- Field name: REVERSE_Y
+-- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_GRAB_MAX_ADD(0) <= regfile.DMA.GRAB_MAX_ADD.OUT_OF_MEMORY_STAT;
+rb_DMA_CSC(9) <= field_rw_DMA_CSC_REVERSE_Y;
+regfile.DMA.CSC.REVERSE_Y <= field_rw_DMA_CSC_REVERSE_Y;
 
+
+------------------------------------------------------------------------------------------
+-- Process: P_DMA_CSC_REVERSE_Y
+------------------------------------------------------------------------------------------
+P_DMA_CSC_REVERSE_Y : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DMA_CSC_REVERSE_Y <= '0';
+      else
+         if(wEn(13) = '1' and bitEnN(9) = '0') then
+            field_rw_DMA_CSC_REVERSE_Y <= reg_writedata(9);
+         end if;
+      end if;
+   end if;
+end process P_DMA_CSC_REVERSE_Y;
+
+------------------------------------------------------------------------------------------
+-- Field name: REVERSE_X
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DMA_CSC(8) <= field_rw_DMA_CSC_REVERSE_X;
+regfile.DMA.CSC.REVERSE_X <= field_rw_DMA_CSC_REVERSE_X;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DMA_CSC_REVERSE_X
+------------------------------------------------------------------------------------------
+P_DMA_CSC_REVERSE_X : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DMA_CSC_REVERSE_X <= '0';
+      else
+         if(wEn(13) = '1' and bitEnN(8) = '0') then
+            field_rw_DMA_CSC_REVERSE_X <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_DMA_CSC_REVERSE_X;
 
 
 
