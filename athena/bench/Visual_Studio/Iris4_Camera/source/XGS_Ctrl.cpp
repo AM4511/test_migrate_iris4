@@ -999,14 +999,14 @@ void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
 			fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
 			fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
 			fprintf(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
-			fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
+			//fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
 			fprintf(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
 			fprintf(f_dump, "0x1e8\tACQ.TRIGGER_MISSED       0x%08X\n", rXGSptr.ACQ.TRIGGER_MISSED.u32);
 			fprintf(f_dump, "0x1f0\tACQ.SENSOR_FPS           0x%08X\n", rXGSptr.ACQ.SENSOR_FPS.u32);
 			fprintf(f_dump, "0x2a0\tACQ.DEBUG                0x%08X\n", rXGSptr.ACQ.DEBUG.u32);
 			fprintf(f_dump, "0x2a8\tACQ.DEBUG_CNTR1          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR1.u32);
-			fprintf(f_dump, "0x2b0\tACQ.DEBUG_CNTR2          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR2.u32);
-			fprintf(f_dump, "0x2b4\tACQ.DEBUG_CNTR3          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR3.u32);
+			//fprintf(f_dump, "0x2b0\tACQ.DEBUG_CNTR2          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR2.u32);
+			//fprintf(f_dump, "0x2b4\tACQ.DEBUG_CNTR3          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR3.u32);
 			fprintf(f_dump, "0x2b8\tACQ.EXP_FOT              0x%08X\n", rXGSptr.ACQ.EXP_FOT.u32);
 			fprintf(f_dump, "0x2c0\tACQ.ACQ_SFNC             0x%08X\n", rXGSptr.ACQ.ACQ_SFNC.u32);
 
