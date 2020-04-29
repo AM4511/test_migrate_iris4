@@ -1,25 +1,52 @@
+
+# Loading additional proc with user specified bodies to compute parameter values.
+source [file join [file dirname [file dirname [info script]]] gui/XGS_athena_v1_0.gtcl]
+
 # Definitional proc to organize widgets for parameters.
 proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "Component_Name"
   #Adding Page
-  set Page_0 [ipgui::add_page $IPINST -name "Page 0"]
-  ipgui::add_param $IPINST -name "ENABLE_IDELAYCTRL" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "LINES_PER_FRAME" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${Page_0}
+  set Controller [ipgui::add_page $IPINST -name "Controller"]
+  set_property tooltip {Controller} ${Controller}
+
+  #Adding Page
+  set DMA [ipgui::add_page $IPINST -name "DMA"]
+  set_property tooltip {DMA} ${DMA}
+  ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${DMA}
+  ipgui::add_param $IPINST -name "LINES_PER_FRAME" -parent ${DMA}
+  ipgui::add_param $IPINST -name "PIXELS_PER_LINE" -parent ${DMA}
+  ipgui::add_param $IPINST -name "PIXEL_SIZE" -parent ${DMA}
+
+  #Adding Page
+  set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {HiSPi}]
+  set_property tooltip {HiSPi} ${Page_0}
   ipgui::add_param $IPINST -name "MUX_RATIO" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "NUMBER_OF_LANE" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "PIXELS_PER_LINE" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "PIXEL_SIZE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "NUMBER_OF_LANE" -parent ${Page_0} -widget comboBox
+  ipgui::add_param $IPINST -name "BOOL_ENABLE_IDELAYCTRL" -parent ${Page_0}
 
 
 }
 
-proc update_PARAM_VALUE.ENABLE_IDELAYCTRL { PARAM_VALUE.ENABLE_IDELAYCTRL } {
+proc update_PARAM_VALUE.ENABLE_IDELAYCTRL { PARAM_VALUE.ENABLE_IDELAYCTRL PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL } {
 	# Procedure called to update ENABLE_IDELAYCTRL when any of the dependent parameters in the arguments change
+	
+	set ENABLE_IDELAYCTRL ${PARAM_VALUE.ENABLE_IDELAYCTRL}
+	set BOOL_ENABLE_IDELAYCTRL ${PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL}
+	set values(BOOL_ENABLE_IDELAYCTRL) [get_property value $BOOL_ENABLE_IDELAYCTRL]
+	set_property value [gen_USERPARAMETER_ENABLE_IDELAYCTRL_VALUE $values(BOOL_ENABLE_IDELAYCTRL)] $ENABLE_IDELAYCTRL
 }
 
 proc validate_PARAM_VALUE.ENABLE_IDELAYCTRL { PARAM_VALUE.ENABLE_IDELAYCTRL } {
 	# Procedure called to validate ENABLE_IDELAYCTRL
+	return true
+}
+
+proc update_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL } {
+	# Procedure called to update BOOL_ENABLE_IDELAYCTRL when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL } {
+	# Procedure called to validate BOOL_ENABLE_IDELAYCTRL
 	return true
 }
 
