@@ -208,10 +208,10 @@ begin
           window_low <= (others => '1');
         elsif (state = S_EVALUATE) then
           if (valid_pixel_cntr = (others => '1')) then
-            if () then
-            else
-              
-            end if;
+            --if () then
+            --else
+            --  
+            --end if;
           end if;
         end if;
       end if;

@@ -187,6 +187,10 @@
           <spirit:name>ASSOCIATED_BUSIF</spirit:name>
           <spirit:value spirit:id="BUSIFPARAM_VALUE.AXI_CLK.ASSOCIATED_BUSIF">s_axi</spirit:value>
         </spirit:parameter>
+        <spirit:parameter>
+          <spirit:name>ASSOCIATED_RESET</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.AXI_CLK.ASSOCIATED_RESET">axi_reset_n</spirit:value>
+        </spirit:parameter>
       </spirit:parameters>
     </spirit:busInterface>
     <spirit:busInterface>
@@ -421,6 +425,160 @@
         </spirit:portMap>
       </spirit:portMaps>
     </spirit:busInterface>
+    <spirit:busInterface>
+      <spirit:name>Athena2Anput</spirit:name>
+      <spirit:displayName>Athena2Anput</spirit:displayName>
+      <spirit:busType spirit:vendor="matrox.com" spirit:library="user" spirit:name="Athena2Ares_if" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="matrox.com" spirit:library="user" spirit:name="Athena2Ares_if_rtl" spirit:version="1.0"/>
+      <spirit:master/>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>strobe</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>anput_strobe_out</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>exposure</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>anput_exposure_out</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>ext_trig</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>anput_ext_trig</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>trig_rdy</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>anput_trig_rdy_out</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+    </spirit:busInterface>
+    <spirit:busInterface>
+      <spirit:name>XGS_Controller_IF</spirit:name>
+      <spirit:displayName>XGS_Controller_IF</spirit:displayName>
+      <spirit:busType spirit:vendor="matrox.com" spirit:library="user" spirit:name="XGS_controller_if" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="matrox.com" spirit:library="user" spirit:name="XGS_controller_if_rtl" spirit:version="1.0"/>
+      <spirit:master/>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_monitor2</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_monitor2</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_clk_pll_en</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_clk_pll_en</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_monitor1</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_monitor1</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_monitor0</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_monitor0</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_trig_int</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_trig_int</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_sdin</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_sdin</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_power_good</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_power_good</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_cs_n</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_cs_n</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_reset_n</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_reset_n</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_sclk</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_sclk</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_fwsi_en</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_fwsi_en</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_trig_rd</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_trig_rd</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>xgs_sdout</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>xgs_sdout</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+    </spirit:busInterface>
   </spirit:busInterfaces>
   <spirit:memoryMaps>
     <spirit:memoryMap>
@@ -451,7 +609,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>d72aebf1</spirit:value>
+            <spirit:value>8a2851a9</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -469,7 +627,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>d72aebf1</spirit:value>
+            <spirit:value>8a2851a9</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -483,7 +641,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>129ae656</spirit:value>
+            <spirit:value>10a01185</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -535,6 +693,244 @@
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
             <spirit:left spirit:format="long">7</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_power_good</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_clk_pll_en</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_reset_n</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_fwsi_en</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_sclk</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_cs_n</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_sdout</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_sdin</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_trig_int</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_trig_rd</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_monitor0</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_monitor1</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>xgs_monitor2</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>anput_ext_trig</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>anput_strobe_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>anput_exposure_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>anput_trig_rdy_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>led_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">1</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -1228,6 +1624,26 @@
         <spirit:displayName>Max Pcie Payload Size</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE">128</spirit:value>
       </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_SYS_CLK_PERIOD</spirit:name>
+        <spirit:displayName>G Sys Clk Period</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_SYS_CLK_PERIOD">16</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_SENSOR_FREQ</spirit:name>
+        <spirit:displayName>G Sensor Freq</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_SENSOR_FREQ">32000</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_SIMULATION</spirit:name>
+        <spirit:displayName>G Simulation</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_SIMULATION">1</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_KU706</spirit:name>
+        <spirit:displayName>G Ku706</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_KU706">0</spirit:value>
+      </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
   <spirit:choices>
@@ -1237,62 +1653,56 @@
       <spirit:enumeration>6</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
+      <spirit:name>choice_list_5bfbadf1</spirit:name>
+      <spirit:enumeration>32000</spirit:enumeration>
+      <spirit:enumeration>32400</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
+      <spirit:name>choice_list_8af5a703</spirit:name>
+      <spirit:enumeration>0</spirit:enumeration>
+      <spirit:enumeration>1</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
       <spirit:name>choice_list_99a1d2b9</spirit:name>
       <spirit:enumeration>LEVEL_HIGH</spirit:enumeration>
       <spirit:enumeration>LEVEL_LOW</spirit:enumeration>
       <spirit:enumeration>EDGE_RISING</spirit:enumeration>
       <spirit:enumeration>EDGE_FALLING</spirit:enumeration>
     </spirit:choice>
+    <spirit:choice>
+      <spirit:name>choice_list_bc823bbe</spirit:name>
+      <spirit:enumeration>16</spirit:enumeration>
+      <spirit:enumeration>8</spirit:enumeration>
+    </spirit:choice>
   </spirit:choices>
   <spirit:fileSets>
     <spirit:fileSet>
       <spirit:name>xilinx_anylanguagesynthesis_view_fileset</spirit:name>
       <spirit:file>
+        <spirit:name>hdl/XGS_athena.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_edbc26de</spirit:userFileType>
+        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/phy/xilinx/hispi_phy_xilinx/hispi_phy_xilinx.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtx_types_pkg.vhd</spirit:name>
+        <spirit:name>registerfile/regfile_xgs_athena.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>../../ipcores/common/design/dualPortRamVar.vhd</spirit:name>
+        <spirit:name>hdl/controller/XGS_controller_top.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/round_robin.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>../../ipcores/common/design/axiSlave2RegFile.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtxSCFIFO.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtxDCFIFO.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_pack.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/phy/xilinx/hispi_serdes.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_phy.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -1302,52 +1712,22 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtx_types_pkg.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/bit_split.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/data/xgs_hispi.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_top.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/lane_packer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/lane_decoder.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/tap_controller.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/line_buffer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/multi_line_buffer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_registerfile.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/dma/dma2tlp_registerfile.vhd</spirit:name>
+        <spirit:name>hdl/dma/dma_pack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -1362,20 +1742,83 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/dma/dma_pack.vhd</spirit:name>
+        <spirit:name>../../ipcores/common/design/dualPortRamVar.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:name>hdl/data/hispi_pack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/XGS_athena.vhd</spirit:name>
+        <spirit:name>hdl/data/hispi_phy.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_edbc26de</spirit:userFileType>
-        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/phy/xilinx/hispi_serdes.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/lane_decoder.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/lane_packer.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/led_status.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/line_buffer.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtxDCFIFO.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtxSCFIFO.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/round_robin.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_ctrl.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/xgs_hispi.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_power.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_spi.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_9c07f2af</spirit:userFileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
@@ -1392,51 +1835,30 @@
     <spirit:fileSet>
       <spirit:name>xilinx_anylanguagebehavioralsimulation_view_fileset</spirit:name>
       <spirit:file>
+        <spirit:name>hdl/XGS_athena.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_edbc26de</spirit:userFileType>
+        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/phy/xilinx/hispi_phy_xilinx/hispi_phy_xilinx.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtx_types_pkg.vhd</spirit:name>
+        <spirit:name>registerfile/regfile_xgs_athena.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>../../ipcores/common/design/dualPortRamVar.vhd</spirit:name>
+        <spirit:name>hdl/controller/XGS_controller_top.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/round_robin.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>../../ipcores/common/design/axiSlave2RegFile.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtxSCFIFO.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>../../ipcores/common/design/mtxDCFIFO.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_pack.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/phy/xilinx/hispi_serdes.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_phy.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -1446,52 +1868,22 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtx_types_pkg.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/bit_split.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/data/xgs_hispi.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_top.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/lane_packer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/lane_decoder.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/tap_controller.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/line_buffer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/multi_line_buffer.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/hispi_registerfile.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/dma/dma2tlp_registerfile.vhd</spirit:name>
+        <spirit:name>hdl/dma/dma_pack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -1506,20 +1898,82 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/dma/dma_pack.vhd</spirit:name>
+        <spirit:name>../../ipcores/common/design/dualPortRamVar.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:name>hdl/data/hispi_pack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/XGS_athena.vhd</spirit:name>
+        <spirit:name>hdl/data/hispi_phy.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_edbc26de</spirit:userFileType>
-        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/phy/xilinx/hispi_serdes.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/lane_decoder.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/lane_packer.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/led_status.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/line_buffer.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtxDCFIFO.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/mtxSCFIFO.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>../../ipcores/common/design/round_robin.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_ctrl.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/xgs_hispi.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_power.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/controller/xgs_spi.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
@@ -1538,7 +1992,7 @@
       <spirit:file>
         <spirit:name>xgui/XGS_athena_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_129ae656</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_10a01185</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1617,6 +2071,26 @@
       <spirit:displayName>Enable Idelayctrl</spirit:displayName>
       <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL">false</spirit:value>
     </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_SYS_CLK_PERIOD</spirit:name>
+      <spirit:displayName>G Sys Clk Period</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SYS_CLK_PERIOD" spirit:choiceRef="choice_list_bc823bbe">16</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_SENSOR_FREQ</spirit:name>
+      <spirit:displayName>G Sensor Freq</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SENSOR_FREQ" spirit:choiceRef="choice_list_5bfbadf1">32000</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_SIMULATION</spirit:name>
+      <spirit:displayName>G Simulation</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_SIMULATION" spirit:choiceRef="choice_list_8af5a703">1</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_KU706</spirit:name>
+      <spirit:displayName>G Ku706</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_KU706" spirit:choiceRef="choice_list_8af5a703">0</spirit:value>
+    </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
     <xilinx:coreExtensions>
@@ -1626,8 +2100,8 @@
       <xilinx:displayName>XGS_athena_v1_0</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_1</xilinx:autoFamilySupportLevel>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>10</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2020-04-29T18:03:49Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>17</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2020-04-30T17:05:20Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@616448f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3bc016e5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
@@ -1699,16 +2173,91 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7e5045fc_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6a574abf_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3f64788c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b3f0dbb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4459b11_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@48336f0d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1412335a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@15e618f3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@21605456_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@50a0378b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b832348_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1de336a7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4037f76_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@79636539_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30be5cb8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3cd2d3b5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37659e70_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@48f5209d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@682187d2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45699e0e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40281136_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c9d1bc9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@13e8ba66_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53f470c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6a4a3ff2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@e679903_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7d651caf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5fe3f021_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ec25d35_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@69129017_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34cd55bd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3323c262_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c476566_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a06b28f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@10ee7dea_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@465138fc_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@389cf7e6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@784f5a22_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58e2e574_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5ce191ef_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ab04b03_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@42296c8d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f28b663_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22ec87c9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@50fc9435_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34e55c90_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1eef999c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@117d9f82_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7555316a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5ff5cd4d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@48092383_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d9d0695_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2d09b745_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b6fe79a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d84fae9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@664e40cb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5faaa209_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2561c8ad_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7bc99efd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70c8bf44_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e2f8042_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6285bceb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2674659d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5d60566f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@158f6d2c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@84191e6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5756370a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@560469c5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d1f3131_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@698ff867_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@515e284a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f8fc59c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@596ab949_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5e110a5c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c547d51_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1fe61384_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@41a867de_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37abbd4d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
-      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="1153839f"/>
+      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="5a518916"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="37925ff9"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="3acbab43"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="2d9af4b7"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ee469ce8"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="26d6a2ca"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="bbd84d53"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="27e03b34"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="f68484f1"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="ab204847"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

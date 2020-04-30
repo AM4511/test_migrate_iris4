@@ -2,7 +2,7 @@
 ** File                : Cregfile_xgs_ctrl.h
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/04/28 13:44:50
+** Created on          : 2020/04/29 10:32:24
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127

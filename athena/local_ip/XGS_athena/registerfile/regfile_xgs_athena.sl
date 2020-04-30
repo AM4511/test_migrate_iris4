@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
-%  FDK IDE Version: 4.7.0_beta4
-%  Build ID: I20191220-1537
+%  FDK IDE Version: 4.7.0_beta3
+%  Build ID: I20191219-1127
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -107,11 +107,6 @@ Register("grab_ctrl", 0x100, 4, "GRAB ConTRoL Register");
 		Field("abort_grab", 28, 28, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "ABORT GRAB");
 			FieldValue("Normal operation", 0);
 			FieldValue("Reset Grab", 1);
-		Field("slope_cfg", 25, 24, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Multiple SLOPE integration ConFiGuration");
-			FieldValue("RESERVED", 0);
-			FieldValue("Single slope mode (default mode)", 1);
-			FieldValue("Dual slope mode", 2);
-			FieldValue("Triple slope mode", 3);
 		Field("trigger_overlap_buffn", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Buffer the trigger received during the dead window in PET mode and execute", 0);
 			FieldValue("The trigger will be ignored during dead window in PET mode.", 1);
@@ -127,11 +122,12 @@ Register("grab_ctrl", 0x100, 4, "GRAB ConTRoL Register");
 			FieldValue("RESERVED", 5);
 			FieldValue("RESERVED", 6);
 			FieldValue("RESERVED", 7);
-		Field("trigger_src", 9, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER SouRCe");
+		Field("trigger_src", 10, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER SouRCe");
 			FieldValue("RESERVED", 0);
 			FieldValue("Immediate mode (Continuous)", 1);
 			FieldValue("Hardware Snapshop mode", 2);
 			FieldValue("Software Snapshot mode", 3);
+			FieldValue("SFNC mode (auto trig)", 4);
 		Field("grab_ss", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "GRAB Software Snapshot");
 			FieldValue("Idle", 0);
 			FieldValue("Start a grab", 1);
@@ -174,17 +170,24 @@ Register("grab_stat", 0x108, 4, "null");
 			FieldValue("Grab is Idle", 1);
 
 Register("readout_cfg1", 0x110, 4, "null");
-		Field("rot_length", 25, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Row Overhead Time LENGTH");
-		Field("fot_length", 15, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Frame Overhead Time LENGTH");
+		Field("fot_length_line", 28, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH LINE");
+		Field("eo_fot_sel", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fot_length", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Frame Overhead Time LENGTH");
+
+Register("readout_cfg_frame_line", 0x114, 4, "null");
+		Field("dummy_lines", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("curr_frame_lines", 12, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg2", 0x118, 4, "null");
-		Field("readout_en", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "READOUT ENable");
-			FieldValue("Disable readout", 0);
-			FieldValue("Enable readout ", 1);
-		Field("readout_length", 23, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("readout_length", 28, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg3", 0x120, 4, "null");
-		Field("bl_lines", 7, 0, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "BLack LINES");
+		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("line_time", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
+
+Register("readout_cfg4", 0x124, 4, "null");
+		Field("keep_out_trig_end", 31, 16, "rd|wr", 0x0, 0x16d, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_lev_mode", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE LEVel MODE");
@@ -193,10 +196,10 @@ Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_ss", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Single Slope");
 
 Register("exp_ctrl2", 0x130, 4, "null");
-		Field("exposure_ds", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Dual Slope");
+		Field("exposure_ds", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Dual ");
 
 Register("exp_ctrl3", 0x138, 4, "null");
-		Field("exposure_ts", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Tripple Slope");
+		Field("exposure_ts", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE Tripple ");
 
 Register("trigger_delay", 0x140, 4, "null");
 		Field("trigger_delay", 27, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER DELAY");
@@ -214,22 +217,18 @@ Register("strobe_ctrl2", 0x150, 4, "null");
 		Field("strobe_mode", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "STROBE MODE");
 			FieldValue("Strobe start during exposure", 0);
 			FieldValue("Strobe start during trigger delay", 1);
-		Field("strobe_b_en", 29, 29, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "STROBE phase B ENable");
+		Field("strobe_b_en", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "STROBE phase B ENable");
 			FieldValue("Enable Strobe B", 0);
 			FieldValue("Disable Strobe B", 1);
-		Field("strobe_a_en", 28, 28, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "STROBE phase A ENable");
+		Field("strobe_a_en", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "STROBE phase A ENable");
 			FieldValue("Enable Strobe A (default strobe)", 0);
 			FieldValue("Disable Strobe A", 1);
 		Field("strobe_end", 27, 0, "rd|wr", 0x0, 0xfffffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "STROBE END");
 
 Register("acq_ser_ctrl", 0x158, 4, "Acquisition Serial Control");
-		Field("ser_roi_update", 20, 20, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("ser_blackcal_update", 19, 19, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("ser_gain_update", 18, 18, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("ser_subbin_update", 17, 17, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("ser_wrn", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial Write/Readn");
-			FieldValue("Read access", 0);
-			FieldValue("Write access", 1);
+		Field("ser_rwn", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial Read/Writen");
+			FieldValue("Write access", 0);
+			FieldValue("Read access", 1);
 		Field("ser_cmd", 9, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial CoMmand ");
 			FieldValue("CMOS sensor access COMMAND", 0);
 			FieldValue("Insert timer COMMAND", 1);
@@ -244,7 +243,7 @@ Register("acq_ser_ctrl", 0x158, 4, "Acquisition Serial Control");
 
 Register("acq_ser_addata", 0x160, 4, "Serial Interface Data");
 		Field("ser_dat", 31, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial interface DATa");
-		Field("ser_add", 8, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial interface ADDress");
+		Field("ser_add", 14, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SERial interface ADDress");
 
 Register("acq_ser_stat", 0x168, 4, "Serial Interface Data");
 		Field("ser_fifo_empty", 24, 24, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SERial FIFO EMPTY");
@@ -253,83 +252,11 @@ Register("acq_ser_stat", 0x168, 4, "Serial Interface Data");
 			FieldValue("FIFO read logic is runnning", 1);
 		Field("ser_dat_r", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SERial interface DATa Read");
 
-Register("lvds_ctrl", 0x170, 4, "null");
-		Field("lvds_bit_rate", 31, 16, "rd|wr", 0x0, 0x720, 0xffffffff, 0xffffffff, TEST, 0, 0, "LVDS BIT RATE selector");
-		Field("lvds_mode", 12, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("LVDS10", 0);
-			FieldValue("LVDS8", 1);
-		Field("lvds_ser_factor", 11, 8, "rd|wr", 0x0, 0xa, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("lvds_ch", 7, 4, "rd|wr", 0x0, 0x4, 0xffffffff, 0xffffffff, TEST, 0, 0, "LVDS CHannels ");
-			FieldValue("1 LVDS channel", 1);
-			FieldValue("2 LVDS channels", 2);
-			FieldValue("4 LVDS Channels", 4);
-			FieldValue("8 LVDS Channels", 8);
-		Field("lvds_start_calib", 1, 1, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LVDS START CALIBration");
-			FieldValue("Idle", 0);
-			FieldValue("Perform a LVDS calibration", 1);
-		Field("lvds_sys_reset", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "LVDS SYStem LVDS RESET");
-			FieldValue("LVDS not in reset state", 0);
-			FieldValue("LVDS module reset", 1);
-
-Register("lvds_ctrl2", 0x178, 4, "null");
-		Field("remap_mode_supp", 23, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "REMAPer MODE SUPPorted");
-			FieldValue("P1300 x4 supported", 1);
-			FieldValue("P1300 x1 supported", 2);
-			FieldValue("P5000 x4 supported", 4);
-			FieldValue("P5000 x1 supported", 8);
-			FieldValue("P5000 x8 supported", 16);
-			FieldValue("P5000 x2 supported", 32);
-			FieldValue("P1300 x2 supported", 64);
-			FieldValue("Not implemented yet", 128);
-		Field("lvds_decod_en", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Decoder Disable", 0);
-			FieldValue("Decoder Enable", 1);
-		Field("lvds_decod_remap_mode", 2, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Python 1300, 4x LVDS", 0);
-			FieldValue("Python 1300, 1x LVDS", 1);
-			FieldValue("Python 5000, 4x LVDS", 2);
-			FieldValue("Python 5000, 1x LVDS", 3);
-			FieldValue("Python 5000, 8x LVDS", 4);
-			FieldValue("Python 5000, 2x LVDS", 5);
-			FieldValue("Python 1300, 2x LVDS", 6);
-
-Register("lvds_training", 0x180, 4, "null");
-		Field("data_training", 25, 16, "rd|wr", 0x0, 0x3a6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("crtl_training", 9, 0, "rd|wr", 0x0, 0x3a6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("lvds_stat", 0x188, 4, "null");
-		Field("idelay_rdy", 29, 29, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Input DELAY ReaDY");
-			FieldValue("IDELAYE2 module not calibrated", 0);
-			FieldValue("IDELAYE2 module calibrated", 1);
-		Field("lvds_rdy", 28, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LVDS ReaDY");
-			FieldValue("LVDS module not ready to calibration", 0);
-			FieldValue("LVDS module ready to calibration", 1);
-		Field("lvds_calib_ok", 25, 25, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LVDS CALIBration OK");
-			FieldValue("Calibration sequence fail", 0);
-			FieldValue("Calibration sequence success", 1);
-		Field("lvds_calib_act", 24, 24, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LVDS CALIBration ACTivate");
-			FieldValue("Calibration is idle", 0);
-			FieldValue("Calibration is active", 1);
-		Field("bs_done_stat", 21, 21, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "BitSlip DONE STATus");
-			FieldValue("BitSlip sequence in progress", 0);
-			FieldValue("BitSlip sequence finish", 1);
-		Field("bs_ch_lock_stat", 20, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "BitSlip CHannel LOCK STATus");
-		Field("pd_done_stat", 9, 9, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("pd_ch_lock_stat", 8, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Phase Detect LOCK STATus");
-
-Register("lvds_stat2", 0x18c, 4, "null");
-		Field("word_align", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Word ALIGnement");
-
 Register("sensor_ctrl", 0x190, 4, "SENSOR ConTRoL");
 		Field("sensor_refresh_temp", 24, 24, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR REFRESH TEMPerature");
 			FieldValue("Idle", 0);
 			FieldValue("Starts a Temperature read on Python SPI interface", 1);
 		Field("sensor_powerdown", 16, 16, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("sensor_remap_cfg", 13, 12, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR REMAPing ConFiGuration");
-			FieldValue("", 0);
-			FieldValue("Black data disabled, Valid data enabled", 1);
-			FieldValue("", 2);
-			FieldValue("", 3);
 		Field("sensor_color", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR COLOR");
 			FieldValue("Monochrone sensor", 0);
 			FieldValue("Color sensor", 1);
@@ -357,22 +284,7 @@ Register("sensor_stat", 0x198, 4, "SENSOR control STATus");
 		Field("sensor_osc_en", 12, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR OSCILLATOR ENable");
 			FieldValue("Disable", 0);
 			FieldValue("Enable", 1);
-		Field("sensor_vccpix_pg", 10, 10, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply PIX VCC  Power Good");
-			FieldValue("Disable", 0);
-			FieldValue("Enable", 1);
-		Field("sensor_vcc33_pg", 9, 9, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply 3.3 VCC  Power Good");
-			FieldValue("Disable", 0);
-			FieldValue("Enable", 1);
-		Field("sensor_vcc18_pg", 8, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply 1.8 VCC Power Good");
-			FieldValue("Disable", 0);
-			FieldValue("Enable", 1);
-		Field("sensor_vccpix_en", 6, 6, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply PIX VCC ENable");
-			FieldValue("Disable", 0);
-			FieldValue("Enable", 1);
-		Field("sensor_vcc33_en", 5, 5, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply 3.3 VCC ENable");
-			FieldValue("Disable", 0);
-			FieldValue("Enable", 1);
-		Field("sensor_vcc18_en", 4, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply 1.8 VCC ENable");
+		Field("sensor_vcc_pg", 8, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR supply VCC  Power Good");
 			FieldValue("Disable", 0);
 			FieldValue("Enable", 1);
 		Field("sensor_powerup_stat", 1, 1, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
@@ -382,97 +294,64 @@ Register("sensor_stat", 0x198, 4, "SENSOR control STATus");
 			FieldValue("PowerUp sequence not started", 0);
 			FieldValue("PowerUp sequence finish", 1);
 
-Register("sensor_gen_cfg", 0x1a0, 4, "null");
-		Field("reserved_1", 15, 9, "rd|wr", 0x0, 0x4, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("binning", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "BINNING enable");
-			FieldValue("No binning", 0);
-			FieldValue("Binning", 1);
-		Field("subsampling", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SUBSAMPLING enable");
-			FieldValue("No subsampling", 0);
-			FieldValue("Subsampling", 1);
-		Field("nzrot_xsm_delay_enable", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "NZROT XSM DELAY ENABLE");
-			FieldValue("Don't insert delai", 0);
-			FieldValue("Insert delay defined by register nzrot_xsm_delay", 1);
-		Field("slave_mode", 5, 5, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SLAVE MODE");
-			FieldValue("Master", 0);
-			FieldValue("Slave", 1);
-		Field("triggered_mode", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGERED MODE");
-			FieldValue("Normal mode", 0);
-			FieldValue("Triggered mode", 1);
-		Field("xlag_enable", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Xlag OFF", 0);
-			FieldValue("Xlag ON", 1);
-		Field("zero_rot_enable", 2, 2, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "ZERO ROT ENABLE");
+Register("sensor_subsampling", 0x19c, 4, "null");
+		Field("reserved1", 15, 4, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("active_subsampling_y", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("", 0);
+			FieldValue("", 1);
+		Field("reserved0", 2, 2, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "");
 			FieldValue("Idle", 0);
 			FieldValue("Enable", 1);
-		Field("rolling_shutter", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "ROLLING SHUTTER");
-			FieldValue("Rolling shutter disable", 0);
-			FieldValue("Rolling shutter enable(non supported)", 1);
-		Field("enable", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Sequencer ENABLE");
-			FieldValue("Idle", 0);
-			FieldValue("Enable", 1);
+		Field("m_subsampling_y", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
+			FieldValue("", 0);
+			FieldValue("", 1);
+		Field("subsampling_x", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
+			FieldValue("", 0);
+			FieldValue("", 1);
 
-Register("sensor_int_ctl", 0x1a8, 4, "null");
-		Field("reserved_2", 15, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("binning_mode", 13, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "BINNING MODE");
-			FieldValue("Binning in x and y (VITA compatible)", 0);
-			FieldValue("Binning in x, not y ", 1);
-			FieldValue("Binning in y, not x", 2);
-			FieldValue("Binning in x and y", 3);
-		Field("subsampling_mode", 11, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SUBSAMPLING MODE");
-			FieldValue("Subsampling in x and y (VITA compatible)", 0);
-			FieldValue("Subsampling in x, not y ", 1);
-			FieldValue("Subsampling in y, not in x", 2);
-			FieldValue("Subsampling in x and y ", 3);
-		Field("reserved1", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("reserved0", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+Register("sensor_gain_ana", 0x1a4, 4, "null");
+		Field("reserved1", 15, 11, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("analog_gain", 10, 8, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
+			FieldValue("1x", 1);
+			FieldValue("2x", 3);
+			FieldValue("4x", 7);
+		Field("reserved0", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
-Register("sensor_gain_ana", 0x1b0, 4, "null");
-		Field("reserved", 15, 13, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("afe_gain0", 12, 5, "rd|wr", 0x0, 0xf, 0xffffffff, 0xffffffff, TEST, 0, 0, "AFE GAIN");
-		Field("mux_gainsw0", 4, 0, "rd|wr", 0x0, 0x3, 0xffffffff, 0xffffffff, TEST, 0, 0, "Column MUX GAIN");
+Register("sensor_roi_y_start", 0x1a8, 4, "null");
+		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("y_start", 9, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y START");
 
-Register("sensor_black_cal", 0x1b8, 4, "null");
-		Field("crc_seed", 15, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("reserved", 14, 11, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("black_samples", 10, 8, "rd", 0x0, 0x7, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("black_offset", 7, 0, "rd|wr", 0x0, 0xf, 0xffffffff, 0xffffffff, TEST, 0, 0, "BLACK OFFSET");
+Register("sensor_roi_y_size", 0x1ac, 4, "null");
+		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("y_size", 9, 0, "rd|wr", 0x0, 0x302, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y SIZE");
 
-Register("sensor_roi_conf0", 0x1c0, 4, "null");
-		Field("x_end_msb", 24, 24, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "X END");
-		Field("x_start_msb", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START MSB ");
-		Field("x_end", 15, 8, "rd|wr", 0x0, 0x9f, 0xffffffff, 0xffffffff, TEST, 0, 0, "X END");
-		Field("x_start", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START");
+Register("sensor_roi2_y_start", 0x1b0, 4, "null");
+		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("y_start", 9, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y START");
 
-Register("sensor_roi2_conf0", 0x1c4, 4, "null");
-		Field("x_end_msb", 24, 24, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "X END");
-		Field("x_start_msb", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START MSB ");
-		Field("x_end", 15, 8, "rd|wr", 0x0, 0x9f, 0xffffffff, 0xffffffff, TEST, 0, 0, "X END");
-		Field("x_start", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START");
+Register("sensor_roi2_y_size", 0x1b4, 4, "null");
+		Field("reserved", 15, 10, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("y_size", 9, 0, "rd|wr", 0x0, 0x302, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y SIZE");
 
-Register("sensor_roi_conf1", 0x1c8, 4, "null");
-		Field("reserved", 15, 13, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("y_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y START");
+Register("sensor_m_lines", 0x1b8, 4, "null");
+		Field("m_suppressed", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("m_lines_sensor", 9, 0, "rd|wr", 0x0, 0x8, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_roi2_conf1", 0x1cc, 4, "null");
-		Field("reserved", 15, 13, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("y_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y START");
+Register("sensor_dp_gr", 0x1bc, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_gr", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_roi_conf2", 0x1d0, 4, "null");
-		Field("reserved", 15, 13, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("y_end", 12, 0, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y END");
+Register("sensor_dp_gb", 0x1c0, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_gb", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_roi2_conf2", 0x1d4, 4, "null");
-		Field("reserved", 15, 13, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("y_end", 12, 0, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "Y END");
+Register("sensor_dp_r", 0x1c4, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_r", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("crc", 0x1d8, 4, "null");
-		Field("crc_initvalue", 18, 18, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("crc_reset", 17, 17, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("crc_en", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "CRC ENable");
-		Field("crc_status", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("NO ERROR", 0);
-			FieldValue("CRC ERROR", 1);
+Register("sensor_dp_b", 0x1c8, 4, "null");
+		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -488,17 +367,10 @@ Register("trigger_missed", 0x1e8, 4, "null");
 Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
-Register("debug", 0x220, 4, "null");
+Register("debug", 0x2a0, 4, "null");
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
-		Field("test_mode_pix_start", 25, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("test_move", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Static test ramp", 0);
-			FieldValue("The test ramp moves", 1);
-		Field("test_mode", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Normal acquisition data from sensor", 0);
-			FieldValue("Test mode, a ramp is generated.", 1);
 		Field("led_test_color", 2, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("The LED is OFF", 0);
 			FieldValue("The LED is GREEN", 1);
@@ -508,43 +380,19 @@ Register("debug", 0x220, 4, "null");
 			FieldValue("The LED is in user mode.", 0);
 			FieldValue("The LED is in test mode.", 1);
 
-Register("debug_cntr1", 0x228, 4, "null");
-		Field("eof_cntr", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+Register("debug_cntr1", 0x2a8, 4, "null");
+		Field("sensor_frame_duration", 27, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "");
 
-Register("debug_cntr2", 0x230, 4, "null");
-		Field("eol_cntr", 11, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-
-Register("debug_cntr3", 0x234, 4, "null");
-		Field("sensor_frame_duration", 27, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-
-Register("exp_fot", 0x23c, 4, "null");
-		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
+Register("exp_fot", 0x2b8, 4, "null");
+		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
 			FieldValue("Disable exposure during FOT in output exposure signal and Strobe", 0);
 			FieldValue("Enable exposure during FOT in output exposure signal and Strobe", 1);
-		Field("exp_fot_time", 11, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
+		Field("exp_fot_time", 11, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
 
-Register("acq_sfnc", 0x244, 4, "null");
-		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0x0, 0x0, NO_TEST, 0, 0, "");
+Register("acq_sfnc", 0x2c0, 4, "null");
+		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
 			FieldValue("", 0);
 			FieldValue("", 1);
-
-Register("nopel", 0x254, 4, "NOise Peak ELimination adaptative filter with threshold");
-		Field("nopel_fifo_underrun", 25, 25, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "NOPEL FIFO UNDERRUN");
-			FieldValue("Underrun not detected", 0);
-			FieldValue("Underrun detected", 1);
-		Field("nopel_fifo_overrun", 24, 24, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("Overrun not detected", 0);
-			FieldValue("Overrun detected", 1);
-		Field("nopel_fifo_rst", 20, 20, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "NOPEL FIFO RESET");
-			FieldValue("Fifo in normal operation", 0);
-			FieldValue("Fifo in reset State", 1);
-		Field("nopel_bypass", 17, 17, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "NOPEL BYPASS");
-			FieldValue("Nopel MIN-MAX used", 0);
-			FieldValue("Nopel MIN-MAX bypass, send current pixel", 1);
-		Field("nopel_enable", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Nopel filter bypassed", 0);
-			FieldValue("Nopel filter used", 1);
-		Field("nopel_threshold", 7, 0, "rd|wr", 0x0, 0x10, 0xffffffff, 0xffffffff, TEST, 0, 0, "NOPEL THRESHOLD");
 
 %=================================================================
 % SECTION NAME	: DATA
@@ -654,19 +502,19 @@ Register("fpn_acc_data", 0x370, 4, "null");
 		Field("fpn_acc_data", 23, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "FPN ACCumulator DATA");
 
 Register("dpc_list_ctrl", 0x380, 4, "null");
-		Field("dpc_fifo_underrun", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("dpc_fifo_underrun", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "");
 			FieldValue("Underrun not detected", 0);
 			FieldValue("Underrun detected", 1);
 		Field("dpc_fifo_overrun", 30, 30, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 			FieldValue("Overrun not detected", 0);
 			FieldValue("Overrun detected", 1);
-		Field("dpc_fifo_reset", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dpc_fifo_reset", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
 			FieldValue("Fifo in normal operation", 0);
 			FieldValue("Fifo in reset State", 1);
-		Field("dpc_firstlast_line_rem", 26, 26, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dpc_firstlast_line_rem", 26, 26, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Do not remove any lines of the image received", 0);
 			FieldValue("Remove first and last line of the image received", 1);
-		Field("dpc_pattern0_cfg", 25, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dpc_pattern0_cfg", 25, 25, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Do not correct current pixel", 0);
 			FieldValue("Replace current pixel by a white pixel (0x3ff)", 1);
 		Field("dpc_enable", 24, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
