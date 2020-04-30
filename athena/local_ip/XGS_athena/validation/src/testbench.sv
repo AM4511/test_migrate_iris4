@@ -13,23 +13,30 @@ module testbench();
 	parameter PIXEL_SIZE = 12;
 	parameter NUMBER_ACTIVE_LINES = 8;
 
-	parameter DATA_WIDTH=32;
-	parameter AXIS_DATA_WIDTH=64;
-	parameter AXIS_USER_WIDTH=4;
-	parameter ADDR_WIDTH=11;
-	parameter GPIO_NUMB_INPUT=8;
-	parameter GPIO_NUMB_OUTPUT=8;
-        parameter MAX_PCIE_PAYLOAD_SIZE=128;
+	parameter AXIL_DATA_WIDTH=32;
+	parameter AXIL_ADDR_WIDTH=11;
+
+	parameter GPIO_NUMB_INPUT=1;
+	parameter GPIO_NUMB_OUTPUT=1;
+	parameter MAX_PCIE_PAYLOAD_SIZE=128;
+
+	parameter BAR_XGS_ATHENA   = 32'h00000000;
+	parameter TAG_OFFSET = BAR_XGS_ATHENA + 'h00000000;
+	parameter SCRATCHPAD_OFFSET = BAR_XGS_ATHENA + 'h0000000c;
+
+	parameter FSTART_OFFSET         = 'h078;
+	parameter FSTART_HIGH_OFFSET    = 'h07c;
 
 
-	parameter FSTART_OFFSET_LOW     = 'h050;
-	parameter FSTART_OFFSET_HIGH    = 'h054;
-	parameter FSTART_R_OFFSET_LOW   = 'h058;
-	parameter FSTART_R_OFFSET_HIGH  = 'h05C;
-	parameter FSTART_G_OFFSET_LOW   = 'h060;
-	parameter FSTART_G_OFFSET_HIGH  = 'h064;
-	parameter LINE_SIZE_OFFSET      = 'h068;
-	parameter LINE_PITCH_OFFSET     = 'h06C;
+	parameter FSTART_G_OFFSET       = 'h080;
+	parameter FSTART_G_OFFSET_HIGH  = 'h084;
+
+	parameter FSTART_R_OFFSET       = 'h088;
+	parameter FSTART_R_OFFSET_HIGH  = 'h08C;
+
+	parameter LINE_PITCH_OFFSET     = 'h090;
+
+	parameter LINE_SIZE_OFFSET      = 'h094;
 
 	integer  address;
 	integer  data;
@@ -44,23 +51,19 @@ module testbench();
 	bit [1:0]  context_strb;
 	bit 	      cfg_bus_mast_en;
 	bit [2:0]  cfg_setmaxpld;
-        bit [7:0] 	   irq;
+	bit [7:0] 	   irq;
 
 
 
-	Cdriver_axil #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) axil_driver;
-	Cdriver_axis #(.DATA_WIDTH(AXIS_DATA_WIDTH), .USER_WIDTH(AXIS_USER_WIDTH)) axis_driver;
+	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) axil_driver;
 	Cscoreboard scoreboard;
-	//Ctest0000 test0000;
 
 	// Define the interfaces
-	axi_lite_interface #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH)) axil(axi_clk);
-	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(AXIS_USER_WIDTH)) axis(axi_clk, axil_reset_n);
+	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) axil(axi_clk);
 	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(axi_clk, axil_reset_n);
 	io_interface #(GPIO_NUMB_INPUT,GPIO_NUMB_OUTPUT) if_gpio();
 	hispi_interface #(.NUMB_LANE(NUMBER_OF_LANE)) if_hispi(XGS_MODEL_EXTCLK);
 	tlp_interface tlp();
-
 
 
 
@@ -136,7 +139,6 @@ module testbench();
 			.MONITOR2(),
 
 			.RESET_B(XGS_MODEL_RESET_B),
-			//.EXTCLK(XGS_MODEL_EXTCLK),  if_hispi
 			.EXTCLK(if_hispi.refclk),
 			.FWSI_EN(Vcc),
 
@@ -314,9 +316,6 @@ module testbench();
 		// Initialize classes
 		axil_driver = new(axil, if_gpio);
 
-		axis_driver = new(axis);
-		//scoreboard  = new(tlp);
-
 		fork
 			// Start the scorboard
 			begin
@@ -329,9 +328,9 @@ module testbench();
 				int axi_read_data;
 				int axi_write_data;
 				longint data;
-				logic [AXIS_DATA_WIDTH-1:0] stream_data[$];
-				logic [AXIS_USER_WIDTH-1:0] stream_user[$];
-				logic [AXIS_USER_WIDTH-1:0] sync;
+				//				logic [AXIS_DATA_WIDTH-1:0] stream_data[$];
+				//				logic [AXIS_USER_WIDTH-1:0] stream_user[$];
+				//				logic [AXIS_USER_WIDTH-1:0] sync;
 
 				// Parameters
 				longint fstart;
@@ -344,7 +343,6 @@ module testbench();
 				line_pitch = 'h1000;
 
 				$display("Reset driver models");
-				axis_driver.reset(10);
 				axil_driver.reset(10);
 				// MIn XGS model reset is 30 clk, set it to 50
 				axil_driver.wait_n(1000);
@@ -356,8 +354,8 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Read the Matrox info register
 				///////////////////////////////////////////////////
-				axi_address = 'h00000000;
-				$display("Read the info register @0x%h", axi_address);
+				axi_address = TAG_OFFSET;
+				$display("Read the TAG register @0x%h", axi_address);
 				axil_driver.read(axi_address, axi_read_data);
 				assert (axi_read_data == 'h0058544d) else $error("Read error @0x%h", axi_address);
 				axil_driver.wait_n(10);
@@ -366,9 +364,9 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Write/Read the scratch pad
 				///////////////////////////////////////////////////
-				axi_address = 'h00000010;
+				axi_address = SCRATCHPAD_OFFSET;
 				axi_write_data = 'hcafefade;
-				$display("Write/Read back the scratch register @0x%h", axi_address);
+				$display("Write/Read back the SCRATCHPAD register @0x%h", axi_address);
 				axil_driver.write(axi_address, axi_write_data);
 				axil_driver.read(axi_address, axi_read_data);
 				assert (axi_read_data == axi_write_data) else $error("Write/Read error @0x%h", axi_address);
@@ -378,9 +376,9 @@ module testbench();
 				///////////////////////////////////////////////////
 				// DMA frame start register
 				///////////////////////////////////////////////////
-				$display("Write FSTART register @0x%h", FSTART_OFFSET_LOW);
-				axil_driver.write(FSTART_OFFSET_LOW, fstart);
-				axil_driver.write(FSTART_OFFSET_HIGH, fstart>>32);
+				$display("Write FSTART register @0x%h", FSTART_OFFSET);
+				axil_driver.write(FSTART_OFFSET, fstart);
+				axil_driver.write(FSTART_HIGH_OFFSET, fstart>>32);
 				axil_driver.wait_n(10);
 
 
@@ -399,34 +397,6 @@ module testbench();
 				axil_driver.write(LINE_PITCH_OFFSET, line_pitch);
 				axil_driver.wait_n(10);
 
-
-				///////////////////////////////////////////////////
-				// Construct the video stream
-				///////////////////////////////////////////////////
-				stream_data = {};
-				stream_user = {};
-				for (int counter=0; counter<line_size/8; counter++) begin
-
-					data =64'hAA00000000000000 | counter;
-					stream_data.push_back(data);
-
-					// Calculate sync
-					if (counter == 0) begin
-						sync = 4'b0001;
-					end else if (counter == (line_size/8) - 1) begin
-						sync = 4'b1000;
-					end else begin
-						sync = 4'b0000;
-					end
-					stream_user.push_back(sync);
-				end
-
-
-
-				///////////////////////////////////////////////////
-				// Send the video stream
-				///////////////////////////////////////////////////
-				axis_driver.write(stream_data, stream_user);
 
 
 				///////////////////////////////////////////////////

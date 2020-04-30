@@ -31,8 +31,8 @@ Register("tag", 0x0, 4, "null");
 			FieldValue("MTX ASCII string ", 5788749);
 
 Register("version", 0x4, 4, "Register file version");
-		Field("major", 23, 16, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("minor", 15, 8, "rd", 0x0, 0x5, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("major", 23, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("minor", 15, 8, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("hw", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("capability", 0x8, 4, "Register file version");
@@ -51,32 +51,32 @@ Register("ctrl", 0x70, 4, "Initial Grab Address Register ");
 			FieldValue("", 0);
 			FieldValue("", 1);
 
-Register("fstart", 0x74, 4, "Initial Grab Address Register ");
+Register("fstart", 0x78, 4, "Initial Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register");
 
-Register("fstart_high", 0x78, 4, "Initial Grab Address Register HI 32 bits");
+Register("fstart_high", 0x7c, 4, "Initial Grab Address Register HI 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register High");
 
-Register("fstart_g", 0x7c, 4, "Green Grab Address Register ");
+Register("fstart_g", 0x80, 4, "Green Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("fstart_g_high", 0x80, 4, "Green Grab Address Register HIGH 32 bits");
+Register("fstart_g_high", 0x84, 4, "Green Grab Address Register HIGH 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("fstart_r", 0x84, 4, "Red Grab Address Register ");
+Register("fstart_r", 0x88, 4, "Red Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("fstart_r_high", 0x88, 4, "Red Grab Address Register HIGH 32 bits");
+Register("fstart_r_high", 0x8c, 4, "Red Grab Address Register HIGH 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("line_pitch", 0x8c, 4, "Grab Line Pitch Register");
+Register("line_pitch", 0x90, 4, "Grab Line Pitch Register");
 		Field("value", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
 
-Register("line_size", 0x90, 4, "Host Line Size Register");
+Register("line_size", 0x94, 4, "Host Line Size Register");
 		Field("value", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
 			FieldValue("Auto-compute line size from sensor data.", 0);
 
-Register("csc", 0x94, 4, "null");
+Register("csc", 0x98, 4, "null");
 		Field("color_space", 26, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Reserved for Mono sensor operation", 0);
 			FieldValue("BGR32", 1);

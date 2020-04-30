@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x353DA9DF
+* Register file CRC32 : 0x48F2887
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -33,15 +33,15 @@
 #define FPGA_REGFILE_XGS_ATHENA_SYSTEM_CAPABILITY_ADDRESS           0x008
 #define FPGA_REGFILE_XGS_ATHENA_SYSTEM_SCRATCHPAD_ADDRESS           0x00C
 #define FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_ADDRESS                    0x070
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_ADDRESS                  0x074
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_ADDRESS             0x078
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_ADDRESS                0x07C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_ADDRESS           0x080
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_ADDRESS                0x084
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_ADDRESS           0x088
-#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS              0x08C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS               0x090
-#define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                     0x094
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_ADDRESS                  0x078
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_ADDRESS             0x07C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_ADDRESS                0x080
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_ADDRESS           0x084
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_ADDRESS                0x088
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_ADDRESS           0x08C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS              0x090
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS               0x094
+#define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                     0x098
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS               0x100
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS               0x108
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS            0x110
@@ -189,8 +189,9 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_QUEUE_EN : 1;   /* Bits(0:0), */
-      M_UINT32 RSVD0         : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 GRAB_QUEUE_EN          : 1;   /* Bits(0:0), */
+      M_UINT32 RSVD0                  : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE;
@@ -1751,15 +1752,15 @@ typedef struct
 typedef struct
 {
    FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE          CTRL;           /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE        FSTART;         /* Address offset: 0x4 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE   FSTART_HIGH;    /* Address offset: 0x8 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE      FSTART_G;       /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE FSTART_G_HIGH;  /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE      FSTART_R;       /* Address offset: 0x14 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE FSTART_R_HIGH;  /* Address offset: 0x18 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x1c */
-   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x20 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE        FSTART;         /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE   FSTART_HIGH;    /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE      FSTART_G;       /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE FSTART_G_HIGH;  /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE      FSTART_R;       /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE FSTART_R_HIGH;  /* Address offset: 0x1c */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x28 */
 } FPGA_REGFILE_XGS_ATHENA_DMA_TYPE;
 
 /**************************************************************************
@@ -1853,7 +1854,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE SYSTEM;     /* Section; Base address offset: 0x0 */
    M_UINT32                            RSVD0[24];  /* Padding; Size (96 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE    DMA;        /* Section; Base address offset: 0x70 */
-   M_UINT32                            RSVD1[23];  /* Padding; Size (92 Bytes) */
+   M_UINT32                            RSVD1[22];  /* Padding; Size (88 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE    ACQ;        /* Section; Base address offset: 0x100 */
    M_UINT32                            RSVD2[42];  /* Padding; Size (168 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DATA_TYPE   DATA;       /* Section; Base address offset: 0x300 */

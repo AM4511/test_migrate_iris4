@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/04/30 17:05:24
+-- Created on          : 2020/04/30 18:00:18
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x353DA9DF
+-- Register file CRC32 : 0x48F2887
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -23,15 +23,15 @@ package regfile_xgs_athena_pack is
    constant K_SYSTEM_CAPABILITY_ADDR          : natural := 16#8#;
    constant K_SYSTEM_SCRATCHPAD_ADDR          : natural := 16#c#;
    constant K_DMA_CTRL_ADDR                   : natural := 16#70#;
-   constant K_DMA_FSTART_ADDR                 : natural := 16#74#;
-   constant K_DMA_FSTART_HIGH_ADDR            : natural := 16#78#;
-   constant K_DMA_FSTART_G_ADDR               : natural := 16#7c#;
-   constant K_DMA_FSTART_G_HIGH_ADDR          : natural := 16#80#;
-   constant K_DMA_FSTART_R_ADDR               : natural := 16#84#;
-   constant K_DMA_FSTART_R_HIGH_ADDR          : natural := 16#88#;
-   constant K_DMA_LINE_PITCH_ADDR             : natural := 16#8c#;
-   constant K_DMA_LINE_SIZE_ADDR              : natural := 16#90#;
-   constant K_DMA_CSC_ADDR                    : natural := 16#94#;
+   constant K_DMA_FSTART_ADDR                 : natural := 16#78#;
+   constant K_DMA_FSTART_HIGH_ADDR            : natural := 16#7c#;
+   constant K_DMA_FSTART_G_ADDR               : natural := 16#80#;
+   constant K_DMA_FSTART_G_HIGH_ADDR          : natural := 16#84#;
+   constant K_DMA_FSTART_R_ADDR               : natural := 16#88#;
+   constant K_DMA_FSTART_R_HIGH_ADDR          : natural := 16#8c#;
+   constant K_DMA_LINE_PITCH_ADDR             : natural := 16#90#;
+   constant K_DMA_LINE_SIZE_ADDR              : natural := 16#94#;
+   constant K_DMA_CSC_ADDR                    : natural := 16#98#;
    constant K_ACQ_GRAB_CTRL_ADDR              : natural := 16#100#;
    constant K_ACQ_GRAB_STAT_ADDR              : natural := 16#108#;
    constant K_ACQ_READOUT_CFG1_ADDR           : natural := 16#110#;
@@ -3908,11 +3908,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/04/30 17:05:24
+-- Created on          : 2020/04/30 18:00:18
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x353DA9DF
+-- Register file CRC32 : 0x48F2887
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4266,15 +4266,15 @@ hit(1)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4#,12)))	else '0
 hit(2)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	CAPABILITY
 hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	SCRATCHPAD
 hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	CTRL
-hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#74#,12)))	else '0'; -- Addr:  0x0074	FSTART
-hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART_HIGH
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_G
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G_HIGH
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_R
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R_HIGH
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	LINE_PITCH
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_SIZE
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	CSC
+hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART
+hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_HIGH
+hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G
+hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_G_HIGH
+hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R
+hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	FSTART_R_HIGH
+hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_PITCH
+hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	LINE_SIZE
+hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98#,12)))	else '0'; -- Addr:  0x0098	CSC
 hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	GRAB_CTRL
 hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	GRAB_STAT
 hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
@@ -4474,40 +4474,40 @@ begin
       when 16#70# =>
          readBackMux <= rb_DMA_CTRL;
 
-      -- [0x074]: /DMA/FSTART
-      when 16#74# =>
+      -- [0x078]: /DMA/FSTART
+      when 16#78# =>
          readBackMux <= rb_DMA_FSTART;
 
-      -- [0x078]: /DMA/FSTART_HIGH
-      when 16#78# =>
+      -- [0x07c]: /DMA/FSTART_HIGH
+      when 16#7C# =>
          readBackMux <= rb_DMA_FSTART_HIGH;
 
-      -- [0x07c]: /DMA/FSTART_G
-      when 16#7C# =>
+      -- [0x080]: /DMA/FSTART_G
+      when 16#80# =>
          readBackMux <= rb_DMA_FSTART_G;
 
-      -- [0x080]: /DMA/FSTART_G_HIGH
-      when 16#80# =>
+      -- [0x084]: /DMA/FSTART_G_HIGH
+      when 16#84# =>
          readBackMux <= rb_DMA_FSTART_G_HIGH;
 
-      -- [0x084]: /DMA/FSTART_R
-      when 16#84# =>
+      -- [0x088]: /DMA/FSTART_R
+      when 16#88# =>
          readBackMux <= rb_DMA_FSTART_R;
 
-      -- [0x088]: /DMA/FSTART_R_HIGH
-      when 16#88# =>
+      -- [0x08c]: /DMA/FSTART_R_HIGH
+      when 16#8C# =>
          readBackMux <= rb_DMA_FSTART_R_HIGH;
 
-      -- [0x08c]: /DMA/LINE_PITCH
-      when 16#8C# =>
+      -- [0x090]: /DMA/LINE_PITCH
+      when 16#90# =>
          readBackMux <= rb_DMA_LINE_PITCH;
 
-      -- [0x090]: /DMA/LINE_SIZE
-      when 16#90# =>
+      -- [0x094]: /DMA/LINE_SIZE
+      when 16#94# =>
          readBackMux <= rb_DMA_LINE_SIZE;
 
-      -- [0x094]: /DMA/CSC
-      when 16#94# =>
+      -- [0x098]: /DMA/CSC
+      when 16#98# =>
          readBackMux <= rb_DMA_CSC;
 
       -- [0x100]: /ACQ/GRAB_CTRL
@@ -4869,7 +4869,7 @@ wEn(1) <= (hit(1)) and (reg_write);
 -- Field name: MAJOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 
 
@@ -4877,7 +4877,7 @@ regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 -- Field name: MINOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(5),8));
+rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
@@ -4963,8 +4963,12 @@ regfile.DMA.CTRL.GRAB_QUEUE_EN <= field_rw_DMA_CTRL_GRAB_QUEUE_EN;
 P_DMA_CTRL_GRAB_QUEUE_EN : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      if(wEn(4) = '1' and bitEnN(0) = '0') then
-         field_rw_DMA_CTRL_GRAB_QUEUE_EN <= reg_writedata(0);
+      if (resetN = '0') then
+         field_rw_DMA_CTRL_GRAB_QUEUE_EN <= '0';
+      else
+         if(wEn(4) = '1' and bitEnN(0) = '0') then
+            field_rw_DMA_CTRL_GRAB_QUEUE_EN <= reg_writedata(0);
+         end if;
       end if;
    end if;
 end process P_DMA_CTRL_GRAB_QUEUE_EN;
@@ -4992,11 +4996,15 @@ regfile.DMA.FSTART.VALUE <= field_rw_DMA_FSTART_VALUE(31 downto 0);
 P_DMA_FSTART_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(5) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(5) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_VALUE;
 
@@ -5023,11 +5031,15 @@ regfile.DMA.FSTART_HIGH.VALUE <= field_rw_DMA_FSTART_HIGH_VALUE(31 downto 0);
 P_DMA_FSTART_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(6) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(6) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_HIGH_VALUE;
 
@@ -5054,11 +5066,15 @@ regfile.DMA.FSTART_G.VALUE <= field_rw_DMA_FSTART_G_VALUE(31 downto 0);
 P_DMA_FSTART_G_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(7) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_G_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_G_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(7) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_G_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_G_VALUE;
 
@@ -5085,11 +5101,15 @@ regfile.DMA.FSTART_G_HIGH.VALUE <= field_rw_DMA_FSTART_G_HIGH_VALUE(31 downto 0)
 P_DMA_FSTART_G_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(8) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_G_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_G_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(8) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_G_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_G_HIGH_VALUE;
 
@@ -5116,11 +5136,15 @@ regfile.DMA.FSTART_R.VALUE <= field_rw_DMA_FSTART_R_VALUE(31 downto 0);
 P_DMA_FSTART_R_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(9) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_R_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_R_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(9) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_R_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_R_VALUE;
 
@@ -5147,11 +5171,15 @@ regfile.DMA.FSTART_R_HIGH.VALUE <= field_rw_DMA_FSTART_R_HIGH_VALUE(31 downto 0)
 P_DMA_FSTART_R_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(10) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_R_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_R_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(10) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_R_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_R_HIGH_VALUE;
 
@@ -5178,11 +5206,15 @@ regfile.DMA.LINE_PITCH.VALUE <= field_rw_DMA_LINE_PITCH_VALUE(15 downto 0);
 P_DMA_LINE_PITCH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  15 downto 0  loop
-         if(wEn(11) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_LINE_PITCH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_LINE_PITCH_VALUE <= std_logic_vector(to_unsigned(integer(0),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(11) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_LINE_PITCH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_LINE_PITCH_VALUE;
 
