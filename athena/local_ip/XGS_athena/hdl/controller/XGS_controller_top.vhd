@@ -16,7 +16,9 @@ entity XGS_controller_top is
         G_KU706             : integer  := 0
 	);
 	port (
-		-- Users to add ports here
+		
+        sys_clk      : in  std_logic;
+        sys_reset_n  : in  std_logic;
 
         ------------------------------------------
         -- CMOS INTERFACE TO SENSOR
@@ -237,8 +239,6 @@ architecture arch_imp of XGS_controller_top is
   -- Signals 
   -------------------------------
 
-  signal sys_clk           : std_logic;
-  signal sys_reset_n       : std_logic;
   signal sys_reset_n_ctrl  : std_logic;
   
   signal xgs_sclk_int      : std_logic;
@@ -259,8 +259,7 @@ architecture arch_imp of XGS_controller_top is
 begin
 
 
-  sys_clk      <= s_axi_aclk;
-  sys_reset_n  <= s_axi_aresetn;
+  
 
 
 

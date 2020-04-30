@@ -54,7 +54,7 @@ entity xgs_spi is
            ---------------------------------------------------------------------------
            --  RegFile
            ---------------------------------------------------------------------------         
-           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
+           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
         );
 end xgs_spi;

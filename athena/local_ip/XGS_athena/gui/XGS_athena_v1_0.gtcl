@@ -1,0 +1,2 @@
+# This file is automatically written.  Do not modify.
+proc gen_USERPARAMETER_ENABLE_IDELAYCTRL_VALUE {BOOL_ENABLE_IDELAYCTRL } {expr $BOOL_ENABLE_IDELAYCTRL == true ? 1 : 0}

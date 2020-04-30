@@ -115,7 +115,7 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            --  RegFile
            ---------------------------------------------------------------------------         
-           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
+           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
         );
 end xgs_ctrl;
@@ -153,7 +153,7 @@ architecture functional of xgs_ctrl is
     
     acquisition_start_SFNC       : in std_logic:='0';
     
-    regfile                      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
+    regfile                      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
   );
   end component;
 
@@ -175,7 +175,7 @@ architecture functional of xgs_ctrl is
             xgs_osc_en                      : out std_logic;
             xgs_reset_n                     : out std_logic;
 
-            regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
+            regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
          );
   end component;
 

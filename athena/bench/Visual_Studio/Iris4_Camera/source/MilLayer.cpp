@@ -11,38 +11,42 @@
 //-----------------------------------
 MIL_ID   LayerMilApplication;
 MIL_ID   LayerMilSystem;
-MIL_ID   LayerMilRegBuf;
-MIL_ID   LayerMilRegBuf2;
+MIL_ID   LayerMilRegBuf[10];
+//MIL_ID   LayerMilRegBuf2;
 
-unsigned char * getMilLayerRegisterPtr(M_UINT64 fpga_bar0_add)
+void MilLayerAlloc(void)
+{
+
+	//---------------------
+	//
+	// MIL ALLOCs
+	//
+	//---------------------
+	MappAlloc(M_DEFAULT, &LayerMilApplication);
+	MsysAlloc(M_SYSTEM_HOST, M_DEFAULT, M_DEFAULT, &LayerMilSystem);
+}
+
+
+volatile unsigned char * getMilLayerRegisterPtr(M_UINT32 regId, M_UINT64 fpga_bar0_add)
    {
 
-   //---------------------
-   //
-   // MIL ALLOCs
-   //
-   //---------------------
-   MappAlloc(M_DEFAULT, &LayerMilApplication);
-   MsysAlloc(M_SYSTEM_HOST, M_DEFAULT, M_DEFAULT, &LayerMilSystem);
-
-
-
-   MbufCreate2d(M_DEFAULT_HOST,
+    MbufCreate2d(M_DEFAULT_HOST,
                 8192,
                 1,
                 8 + M_UNSIGNED,
-                M_IMAGE + M_MMX_ENABLED,
+                //M_IMAGE + M_MMX_ENABLED,
+                M_IMAGE,
                 M_PHYSICAL_ADDRESS + M_PITCH_BYTE,
                 8192,
                 (void **)fpga_bar0_add,
-                &LayerMilRegBuf);
+                &LayerMilRegBuf[regId]);
 
-   unsigned char * RegPtr = (unsigned char*)MbufInquire(LayerMilRegBuf, M_HOST_ADDRESS, M_NULL);
+    volatile unsigned char * RegPtr = (unsigned char*)MbufInquire(LayerMilRegBuf[regId], M_HOST_ADDRESS, M_NULL);
 
    return RegPtr;
    }
 
-
+/*
 unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add)
 	{
 
@@ -61,7 +65,7 @@ unsigned char * getMilLayerRegisterPtr2(M_UINT64 fpga_bar0_add)
 	return RegPtr;
 	}
 
-
+	*/
 
 //----------------------------------------------------
 // Create ONE grab buffer and return address
@@ -144,36 +148,37 @@ void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
    //
    //---------------------
    MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
-   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
+   //MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
    MdispSelect(*MilDisplay, GrabBuffer);
    MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
 
    }
 
-void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20])
-   {
-   char title[50];
-
-   sprintf_s(title, "MIL Display %s", DisplayInfo);
-
-   //---------------------
-   //
-   // Create display
-   //
-   //---------------------
-   MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
-   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
-   MdispSelect(*MilDisplay, GrabBuffer);
-   MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
-
-   }
+//void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20])
+//   {
+//   char title[50];
+//
+//   sprintf_s(title, "MIL Display %s", DisplayInfo);
+//
+//   //---------------------
+//   //
+//   // Create display
+//   //
+//   //---------------------
+//   MdispAlloc(M_DEFAULT_HOST, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, MilDisplay);
+//   MdispControl(*MilDisplay, M_TITLE, M_PTR_TO_DOUBLE(title));
+//   MdispSelect(*MilDisplay, GrabBuffer);
+//   MbufControl(GrabBuffer, M_MODIFIED, M_DEFAULT);   // <-- update display here
+//
+//   }
 
 
 
 void IrisMilFree(void)
    {
-   MbufFree(LayerMilRegBuf);
-   MbufFree(LayerMilRegBuf2);
+   for (int i=0 ;i<10;i++)
+     MbufFree(LayerMilRegBuf[i]);
+
    MsysFree(LayerMilSystem);
    MappFree(LayerMilApplication);
    }
