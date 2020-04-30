@@ -22,15 +22,23 @@ entity bit_split is
     PIXEL_SIZE       : integer := 12    -- Pixel size in bits
     );
   port (
-    hispi_clk      : in std_logic;
-    hispi_reset    : in std_logic;
-    -- Register file interface
-    idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    hispi_phy_en   : in std_logic;
+    ---------------------------------------------------------------------------
+    -- HiSPi clock domain
+    ---------------------------------------------------------------------------
+    hclk           : in std_logic;
+    hclk_reset     : in std_logic;
+    hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
-    input_data : in  std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
-    pix_clk    : out std_logic;
-    pix_data   : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+    -------------------------------------------------------------------------
+    -- Register file interface
+    -------------------------------------------------------------------------
+    rclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+
+    ---------------------------------------------------------------------------
+    -- Pixel clock domain
+    ---------------------------------------------------------------------------
+    pclk      : out std_logic;
+    pclk_data : out std_logic_vector(PIXEL_SIZE-1 downto 0)
     );
 end entity bit_split;
 
@@ -40,34 +48,34 @@ architecture rtl of bit_split is
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant HISPI_SHIFT_REGISTER_SIZE : integer := HISPI_WORDS_PER_SYNC_CODE * PIXEL_SIZE + PHY_OUTPUT_WIDTH;
 
-  signal hispi_shift_register    : std_logic_vector (HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
-  signal hispi_lsb_ptr           : integer range 0 to PIXEL_SIZE-1;
-  signal hispi_lsb_ptr_reg       : integer range 0 to 2*PIXEL_SIZE-1;
-  signal hispi_aligned_pixel_mux : std_logic_vector (PIXEL_SIZE- 1 downto 0);
-  signal idle_detected           : std_logic;
-  signal load_data               : std_logic := '0';
-  signal hispi_clk_div2          : std_logic := '0';
+  signal hclk_shift_register    : std_logic_vector (HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal hclk_lsb_ptr           : integer range 0 to PIXEL_SIZE-1;
+  signal hclk_lsb_ptr_reg       : integer range 0 to 2*PIXEL_SIZE-1;
+  signal hclk_aligned_pixel_mux : std_logic_vector (PIXEL_SIZE- 1 downto 0);
+  signal hclk_idle_detected     : std_logic;
+  signal load_data              : std_logic := '0';
+  signal hclk_div2              : std_logic := '0';
 
 
 begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_shift_register
+  -- Process     : P_hclk_shift_register
   -- Description : Concatenate input data in a parallel shift register. The
   --               size of the shift register is HISPI_SHIFT_REGISTER_SIZE.
   -----------------------------------------------------------------------------
-  P_hispi_shift_register : process (hispi_clk) is
+  P_hclk_shift_register : process (hclk) is
     variable src_msb : integer;
     variable src_lsb : integer;
     variable dst_msb : integer;
     variable dst_lsb : integer;
 
   begin
-    if (rising_edge(hispi_clk)) then
-      if (hispi_reset = '1') then
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
         -- initialize with all 0's
-        hispi_shift_register <= (others => '0');
+        hclk_shift_register <= (others => '0');
       else
 
         src_lsb := 0;
@@ -77,8 +85,8 @@ begin
         dst_msb := HISPI_SHIFT_REGISTER_SIZE-1;
 
         -- Shift data to the left PHY_OUTPUT_WIDTH bits for each lane.
-        hispi_shift_register(input_data'range)       <= input_data;
-        hispi_shift_register(dst_msb downto dst_lsb) <= hispi_shift_register(src_msb downto src_lsb);
+        hclk_shift_register(hclk_data_lane'range)   <= hclk_data_lane;
+        hclk_shift_register(dst_msb downto dst_lsb) <= hclk_shift_register(src_msb downto src_lsb);
       end if;
     end if;
   end process;
@@ -88,15 +96,15 @@ begin
   -----------------------------------------------------------------------------
   -- Detect a sequence of 4 consecutives IDLE characters (4x12bits)
   -----------------------------------------------------------------------------
-  P_detect_idle_char : process (hispi_shift_register, idle_character) is
-    variable msb              : integer;
-    variable lsb              : integer;
-    variable idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
+  P_detect_idle_char : process (hclk_shift_register, rclk_idle_char) is
+    variable msb                   : integer;
+    variable lsb                   : integer;
+    variable hclk_idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
 
   begin
 
 
-    idle_quad_vector := idle_character & idle_character & idle_character & idle_character;
+    hclk_idle_quad_vector := rclk_idle_char & rclk_idle_char & rclk_idle_char & rclk_idle_char;
 
 
     ---------------------------------------------------------------------------
@@ -107,15 +115,15 @@ begin
       lsb := bit_index;
       msb := lsb + (4*PIXEL_SIZE) - 1;
 
-      -- If detected 4-IDLE character, assert the flag idle_detected 
-      if (hispi_shift_register(msb downto lsb) = idle_quad_vector) then
-        idle_detected <= '1';
-        hispi_lsb_ptr <= bit_index;
+      -- If detected 4-IDLE character, assert the flag hclk_idle_detected 
+      if (hclk_shift_register(msb downto lsb) = hclk_idle_quad_vector) then
+        hclk_idle_detected <= '1';
+        hclk_lsb_ptr       <= bit_index;
         exit;                           -- exit the bit_index forloop
 
       else
-        idle_detected <= '0';
-        hispi_lsb_ptr <= 0;
+        hclk_idle_detected <= '0';
+        hclk_lsb_ptr       <= 0;
       end if;
 
     end loop;
@@ -123,54 +131,54 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_lsb_ptr_reg
+  -- Process     : P_hclk_lsb_ptr_reg
   -- Description : Store the LSB alignment pointer value if the quad idle
   --               sequence detected
   -----------------------------------------------------------------------------
-  P_hispi_lsb_ptr_reg : process (hispi_clk) is
+  P_hclk_lsb_ptr_reg : process (hclk) is
   begin
-    if (rising_edge(hispi_clk)) then
-      if (hispi_reset = '1')then
-        hispi_lsb_ptr_reg <= 0;
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_lsb_ptr_reg <= 0;
       else
-        if (idle_detected = '1') then
-          hispi_lsb_ptr_reg <= hispi_lsb_ptr;
+        if (hclk_idle_detected = '1') then
+          hclk_lsb_ptr_reg <= hclk_lsb_ptr;
         end if;
       end if;
     end if;
-  end process P_hispi_lsb_ptr_reg;
+  end process P_hclk_lsb_ptr_reg;
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_aligned_pixel_mux
+  -- Process     : P_hclk_aligned_pixel_mux
   -- Description : Extracted the aligned pixel.
   -----------------------------------------------------------------------------
-  P_hispi_aligned_pixel_mux : process (hispi_lsb_ptr_reg, hispi_shift_register) is
+  P_hclk_aligned_pixel_mux : process (hclk_lsb_ptr_reg, hclk_shift_register) is
   begin
     for j in 0 to (PIXEL_SIZE -1) loop
-      hispi_aligned_pixel_mux(j) <= hispi_shift_register(j+hispi_lsb_ptr_reg);
+      hclk_aligned_pixel_mux(j) <= hclk_shift_register(j+hclk_lsb_ptr_reg);
     end loop;
-  end process P_hispi_aligned_pixel_mux;
+  end process P_hclk_aligned_pixel_mux;
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_clk_div2
-  -- Description : HiSPi clock divider. Divid by 2 click the HiSPi. Since we
-  --               concatenate 2 x input_data to form a full pixel, we provide
+  -- Process     : P_hclk_div2
+  -- Description : HiSPi clock divider. Divid by 2 the HiSPi clock. Since we
+  --               concatenate 2 x hclk_data_lane to form a full pixel, we provide
   --               a divide by 2 clock to simplify the design.
   -----------------------------------------------------------------------------
-  P_hispi_clk_div2 : process (hispi_clk) is
+  P_hclk_div2 : process (hclk) is
   begin
-    if (rising_edge(hispi_clk)) then
-      if (hispi_reset = '1')then
-        hispi_clk_div2 <= '0';
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_div2 <= '0';
       else
         -- If the idle sequence is detected,
         -- we realign the clock phase with the pixel boundaries
-        if (idle_detected = '1') then
-          hispi_clk_div2 <= '1';
+        if (hclk_idle_detected = '1') then
+          hclk_div2 <= '1';
         else
-          hispi_clk_div2 <= not hispi_clk_div2;
+          hclk_div2 <= not hclk_div2;
         end if;
       end if;
     end if;
@@ -178,14 +186,14 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_pix_data
+  -- Process     : P_pclk_data
   -- Description : Provide the correctly extracted pixel
   -----------------------------------------------------------------------------
-  P_pix_data : process (hispi_clk) is
+  P_pclk_data : process (hclk) is
   begin
-    if (rising_edge(hispi_clk)) then
-      if (idle_detected = '1' or hispi_clk_div2 = '0') then
-        pix_data <= hispi_aligned_pixel_mux;
+    if (rising_edge(hclk)) then
+      if (hclk_idle_detected = '1' or hclk_div2 = '0') then
+        pclk_data <= hclk_aligned_pixel_mux;
       end if;
     end if;
   end process;
@@ -194,7 +202,7 @@ begin
   -----------------------------------------------------------------------------
   -- Port remapping
   -----------------------------------------------------------------------------
-  pix_clk <= hispi_clk_div2;
+  pclk <= hclk_div2;
 
-  
+
 end architecture rtl;

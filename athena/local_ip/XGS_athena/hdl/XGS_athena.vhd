@@ -185,7 +185,7 @@ architecture struct of XGS_athena is
   end component;
 
 
-  component xgs_hispi is
+  component xgs_hispi_top is
     generic (
       NUMBER_OF_LANE  : integer := 6;
       MUX_RATIO       : integer := 4;
@@ -305,7 +305,7 @@ architecture struct of XGS_athena is
   signal regfile           : REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
   signal reg_read          : std_logic;
   signal reg_write         : std_logic;
-  signal reg_addr          : std_logic_vector(10 downto 2);
+  signal reg_addr          : std_logic_vector(10 downto 0);
   signal reg_beN           : std_logic_vector(3 downto 0);
   signal reg_writedata     : std_logic_vector(31 downto 0);
   signal reg_readdata      : std_logic_vector(31 downto 0);
@@ -380,7 +380,7 @@ begin
       reg_readdata  => reg_readdata
       );
 
-  x_xgs_hispi : xgs_hispi
+  x_xgs_hispi_top : xgs_hispi_top
     generic map(
       NUMBER_OF_LANE  => NUMBER_OF_LANE,
       MUX_RATIO       => MUX_RATIO,
@@ -467,7 +467,7 @@ begin
   G_ENABLE_IDELAYCTRL : if (ENABLE_IDELAYCTRL > 0) generate
     xIDELAYCTRL : IDELAYCTRL
       port map (
-        RDY    => regfile.HISPI.STATUS.PLL_LOCKED,
+        RDY    => regfile.HISPI.IDELAYCTRL_STATUS.PLL_LOCKED,
         REFCLK => idelay_clk,
         RST    => regfile.HISPI.CTRL.RESET_IDELAYCTRL
         );

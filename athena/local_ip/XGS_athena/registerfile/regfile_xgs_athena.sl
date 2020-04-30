@@ -697,10 +697,55 @@ Register("dpc_list_data_rd", 0x388, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
+		Field("reset_idelayctrl", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
+			FieldValue("No effect", 0);
+			FieldValue("Reset IDELAYCTRL", 1);
+		Field("calibrate_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
+			FieldValue("No effect", 0);
+			FieldValue("Initiate the calibration", 1);
 		Field("clr", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("reset_idelayctrl", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the xilinx macro IDELAYCTRL");
+		Field("enable", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("status", 0x404, 4, "null");
-		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+Register("idelayctrl_status", 0x404, 4, "null");
+		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "IDELAYCTRL PLL locked");
+			FieldValue("IDELAYCTRL PLL unlocked", 0);
+			FieldValue("IDELAYCTRL PLL locked", 1);
+
+variable lane_decoder_statusTags = UChar_Type[6];
+
+for(i = 0; i < 6; i++)
+{
+	lane_decoder_statusTags[i] = i;
+}
+
+Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
+
+for(i = 0; i < 6; i++)
+{
+
+	Register("lane_decoder_status", 0x408 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("calibrartion_error", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("calibration_active", 5, 5, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_tap_value", 4, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+}
+
+variable lane_packer_statusTags = UChar_Type[3];
+
+for(i = 0; i < 3; i++)
+{
+	lane_packer_statusTags[i] = i;
+}
+
+Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
+
+for(i = 0; i < 3; i++)
+{
+
+	Register("lane_packer_status", 0x420 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+}
 
 
