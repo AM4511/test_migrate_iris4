@@ -80,26 +80,6 @@ architecture rtl of lane_packer is
   end log2;
 
 
-  -- component dualPortRamVar is
-  --   generic
-  --     (
-  --       DATAWIDTH : integer := 32;
-  --       ADDRWIDTH : integer := 12
-  --       );
-  --   port
-  --     (
-  --       data      : in  std_logic_vector (DATAWIDTH-1 downto 0);
-  --       rdaddress : in  std_logic_vector (ADDRWIDTH-1 downto 0);
-  --       rdclock   : in  std_logic;
-  --       rden      : in  std_logic := '1';
-  --       wraddress : in  std_logic_vector (ADDRWIDTH-1 downto 0);
-  --       wrclock   : in  std_logic := '1';
-  --       wren      : in  std_logic := '0';
-  --       q         : out std_logic_vector (DATAWIDTH-1 downto 0)
-  --       );
-  -- end component;
-
-
   component mtxSCFIFO is
     generic
       (

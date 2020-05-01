@@ -1,9 +1,15 @@
 -------------------------------------------------------------------------------
--- MODULE      : lane_decoder
+-- MODULE        : lane_decoder
 --
--- DESCRIPTION : Decode the HiSPI stream for one lane from the SERDES output.
---               The results is stored in a dual clock FiFo (Clock domain crossing).
+-- DESCRIPTION   : Decode the HiSPI stream for one lane from the SERDES output.
+--                 The results is stored in a dual clock FiFo (Clock domain crossing).
 --
+-- CLOCK DOMAINS : hispi_clk
+--                 pclk
+--                 fifo_read_clk
+--
+-- TODO          : Implement CRC
+--                 Implement clock domain crossing for calibration signals!!!
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -17,16 +23,26 @@ entity lane_decoder is
     LANE_DATA_WIDTH  : integer := 32
     );
   port (
-    hispi_clk   : in std_logic;
-    hispi_reset : in std_logic;
+    ---------------------------------------------------------------------------
+    -- hispi_clk clock domain
+    ---------------------------------------------------------------------------
+    hclk           : in std_logic;
+    hclk_reset     : in std_logic;
+    hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
-    -- Register file interface
-    idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    hispi_phy_en   : in std_logic;
+    ---------------------------------------------------------------------------
+    -- Register file 
+    ---------------------------------------------------------------------------
+    rclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hispi_phy_en        : in std_logic;
 
+    -- calibration
+    cal_en        : in  std_logic;
+    cal_busy      : out std_logic;
+    cal_error     : out std_logic;
+    cal_load_tap  : out std_logic;
+    cal_tap_value : out std_logic_vector(4 downto 0);
 
-    -- Input stream (From XGS)
-    input_data     : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
     -- Read fifo interface
     fifo_read_clk        : in  std_logic;
@@ -50,19 +66,45 @@ architecture rtl of lane_decoder is
 
   component bit_split is
     generic (
-      PHY_OUTPUT_WIDTH : integer := 6;  -- Physical lane
+      PHY_OUTPUT_WIDTH : integer := 6;  -- SERDES parallel width in bits
       PIXEL_SIZE       : integer := 12  -- Pixel size in bits
       );
     port (
-      hispi_clk      : in std_logic;
-      hispi_reset    : in std_logic;
-      -- Register file interface
-      idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en   : in std_logic;
+      ---------------------------------------------------------------------------
+      -- HiSPi clock domain
+      ---------------------------------------------------------------------------
+      hclk           : in std_logic;
+      hclk_reset     : in std_logic;
+      hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
-      input_data : in  std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
-      pix_clk    : out std_logic;
-      pix_data   : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+      -------------------------------------------------------------------------
+      -- Register file interface
+      -------------------------------------------------------------------------
+      rclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- Pixel clock domain
+      ---------------------------------------------------------------------------
+      pclk      : out std_logic;
+      pclk_data : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+      );
+  end component;
+
+
+  component tap_controller is
+    generic (
+      PIXEL_SIZE : integer := 12
+      );
+    port (
+      pclk                : in  std_logic;
+      pclk_reset          : in  std_logic;
+      pclk_pixel          : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_idle_character : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_cal_en         : in  std_logic;
+      pclk_cal_busy       : out std_logic;
+      pclk_cal_error      : out std_logic;
+      pclk_cal_load_tap   : out std_logic;
+      pclk_cal_tap_value  : out std_logic_vector(4 downto 0)
       );
   end component;
 
@@ -90,27 +132,27 @@ architecture rtl of lane_decoder is
         );
   end component;
 
-  type HISPI_STATE_TYPE is (S_UNKNOWN, S_IDL, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
-
+  
+  type FSM_STATE_TYPE is (S_UNKNOWN, S_IDL, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
-  constant HISPI_SHIFT_REGISTER_SIZE : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
+  constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
   constant FIFO_ADDRESS_WIDTH        : integer := 6;
   constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
 
-  signal hispi_shift_register   : std_logic_vector(HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal pclk                   : std_logic;
+  signal pclk_reset             : std_logic;
+  signal pclk_reset_Meta1       : std_logic;
+  signal pclk_reset_Meta2       : std_logic;
+  signal pclk_shift_register    : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal pclk_data              : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal pclk_data_p1           : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal sync_code_detected     : std_logic;
   signal idle_sequence_detected : std_logic;
-  signal pix_clk                : std_logic;
-  signal pix_reset              : std_logic;
-  signal pix_reset_Meta1        : std_logic;
-  signal pix_reset_Meta2        : std_logic;
-  signal pix_data               : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal pix_data_p1            : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal hispi_fifo_full        : std_logic;
   signal hispi_fifo_wen         : std_logic;
-  signal hispi_state            : HISPI_STATE_TYPE := S_UNKNOWN;
-  signal dataCntr               : unsigned(2 downto 0); -- Modulo 8 counter
+  signal state                  : FSM_STATE_TYPE := S_UNKNOWN;
+  signal dataCntr               : unsigned(2 downto 0);  -- Modulo 8 counter
 
   signal packer_0_valid : std_logic;
   signal packer_1_valid : std_logic;
@@ -132,20 +174,20 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_pix_reset
+  -- Process     : P_pclk_reset
   -- Description : Resynchronize the reset on the pixel clock
   -----------------------------------------------------------------------------
-  P_pix_reset : process (hispi_reset, pix_clk) is
+  P_pclk_reset : process (hclk_reset, pclk) is
   begin
-    if (hispi_reset = '1') then
-      pix_reset_Meta1 <= '1';
-      pix_reset_Meta2 <= '1';
-      pix_reset       <= '1';
+    if (hclk_reset = '1') then
+      pclk_reset_Meta1 <= '1';
+      pclk_reset_Meta2 <= '1';
+      pclk_reset       <= '1';
 
-    elsif (rising_edge(pix_clk)) then
-      pix_reset_Meta1 <= '0';
-      pix_reset_Meta2 <= pix_reset_Meta1;
-      pix_reset       <= pix_reset_Meta2;
+    elsif (rising_edge(pclk)) then
+      pclk_reset_Meta1 <= '0';
+      pclk_reset_Meta2 <= pclk_reset_Meta1;
+      pclk_reset       <= pclk_reset_Meta2;
     end if;
   end process;
 
@@ -160,30 +202,52 @@ begin
       PIXEL_SIZE       => PIXEL_SIZE
       )
     port map(
-      hispi_clk      => hispi_clk,
-      hispi_reset    => hispi_reset,
-      idle_character => idle_character,
-      hispi_phy_en   => hispi_phy_en,
-      input_data     => input_data,
-      pix_clk        => pix_clk,
-      pix_data       => pix_data
+      hclk           => hclk,
+      hclk_reset     => hclk_reset,
+      hclk_data_lane => hclk_data_lane,
+      rclk_idle_char => rclk_idle_character,
+      pclk           => pclk,
+      pclk_data      => pclk_data
       );
 
+
+  -----------------------------------------------------------------------------
+  -- Module      : xbit_split
+  -- Description : Extract pixels from the serial stream
+  -----------------------------------------------------------------------------
+  xtap_controller : tap_controller
+    generic map(
+      PIXEL_SIZE => PIXEL_SIZE
+      )
+    port map(
+      pclk                => pclk,
+      pclk_reset          => pclk_reset,
+      pclk_pixel          => pclk_data,
+      pclk_idle_character => rclk_idle_character,
+      pclk_cal_en         => cal_en,
+      pclk_cal_busy       => cal_busy,
+      pclk_cal_error      => cal_error,
+      pclk_cal_load_tap   => cal_load_tap,
+      pclk_cal_tap_value  => cal_tap_value
+      );
+
+
+  
 
   -----------------------------------------------------------------------------
   -- Process     : P_packer
   -- Description : Generates the packar_x_valid flag one per lane
   -----------------------------------------------------------------------------
-  P_packer : process (pix_clk) is
+  P_packer : process (pclk) is
   begin
-    if (rising_edge(pix_clk)) then
-      if (pix_reset = '1') then
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
         packer_0_valid <= '0';
         packer_1_valid <= '0';
         packer_2_valid <= '0';
         packer_3_valid <= '0';
       else
-        if (hispi_state = S_AIL) then
+        if (state = S_AIL) then
           case dataCntr is
             -------------------------------------------------------------------
             -- Phase 0 : Packing pixel from lane 0 in packer_0
@@ -193,8 +257,8 @@ begin
               packer_1_valid        <= '0';
               packer_2_valid        <= '0';
               packer_3_valid        <= '0';
-              packer_0(11 downto 0) <= pix_data_p1;
-              
+              packer_0(11 downto 0) <= pclk_data_p1;
+
             -------------------------------------------------------------------
             -- Phase 1 : Packing pixel from lane 1 in packer_1
             -------------------------------------------------------------------
@@ -203,7 +267,7 @@ begin
               packer_1_valid        <= '0';
               packer_2_valid        <= '0';
               packer_3_valid        <= '0';
-              packer_1(11 downto 0) <= pix_data_p1;
+              packer_1(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
             -- Phase 2 : Packing pixel from lane 2 in packer_2 
@@ -213,17 +277,17 @@ begin
               packer_1_valid        <= '0';
               packer_2_valid        <= '0';
               packer_3_valid        <= '0';
-              packer_2(11 downto 0) <= pix_data_p1;
+              packer_2(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
             -- Phase 3 : Packing pixel from lane 3 in packer_3
             -------------------------------------------------------------------
-             when "011" =>
+            when "011" =>
               packer_0_valid        <= '0';
               packer_1_valid        <= '0';
               packer_2_valid        <= '0';
               packer_3_valid        <= '0';
-              packer_3(11 downto 0) <= pix_data_p1;
+              packer_3(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
             -- Phase 4 : Packing pixel from lane 0 in packer_0 and ready to flush
@@ -233,7 +297,7 @@ begin
               packer_1_valid         <= '0';
               packer_2_valid         <= '0';
               packer_3_valid         <= '0';
-              packer_0(27 downto 16) <= pix_data_p1;
+              packer_0(27 downto 16) <= pclk_data_p1;
 
             -------------------------------------------------------------------
             -- Phase 5 : Packing pixel from lane 1 in packer_1 and ready to flush
@@ -243,8 +307,8 @@ begin
               packer_1_valid         <= '1';
               packer_2_valid         <= '0';
               packer_3_valid         <= '0';
-              packer_1(27 downto 16) <= pix_data_p1;
-              
+              packer_1(27 downto 16) <= pclk_data_p1;
+
             -------------------------------------------------------------------
             -- Phase 6 : Packing pixel from lane 2 in packer_2 and ready to flush
             -------------------------------------------------------------------
@@ -253,8 +317,8 @@ begin
               packer_1_valid         <= '0';
               packer_2_valid         <= '1';
               packer_3_valid         <= '0';
-              packer_2(27 downto 16) <= pix_data_p1;
-              
+              packer_2(27 downto 16) <= pclk_data_p1;
+
             -------------------------------------------------------------------
             -- Phase 7 : Packing pixel from lane 3 in packer_3 and ready to flush
             -------------------------------------------------------------------
@@ -263,7 +327,7 @@ begin
               packer_1_valid         <= '0';
               packer_2_valid         <= '0';
               packer_3_valid         <= '1';
-              packer_3(27 downto 16) <= pix_data_p1;
+              packer_3(27 downto 16) <= pclk_data_p1;
             when others =>
               null;
           end case;
@@ -305,10 +369,10 @@ begin
   -- Description : Modulo 8 phase counter. Used to de-interlace data from
   --               4 lanes. 
   -----------------------------------------------------------------------------
-  P_dataCntr : process (pix_clk) is
+  P_dataCntr : process (pclk) is
   begin
-    if (rising_edge(pix_clk)) then
-      if (pix_reset = '1') then
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
         -- initialize with max count value
         dataCntr <= (others => '1');
       else
@@ -317,7 +381,7 @@ begin
           dataCntr <= (others => '1');
         -- As long as valid pixels are received, count modulo 8
         -- then wrap around.
-        elsif (hispi_phy_en = '1'and hispi_state /= S_IDL) then
+        elsif (hispi_phy_en = '1'and state /= S_IDL) then
           dataCntr <= dataCntr + 1;
         end if;
       end if;
@@ -326,55 +390,55 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_shift_register
+  -- Process     : P_pclk_shift_register
   -- Description : Generate shift register data. Shift left by one pixel on  
   --               every clock cycle
   -----------------------------------------------------------------------------
-  P_hispi_shift_register : process (pix_clk) is
+  P_pclk_shift_register : process (pclk) is
     variable dst_msb : integer;
     variable dst_lsb : integer;
     variable src_msb : integer;
     variable src_lsb : integer;
   begin
-    if (rising_edge(pix_clk)) then
-      if (pix_reset = '1') then
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
         -- initialize with all 0's
-        hispi_shift_register <= (others => '0');
+        pclk_shift_register <= (others => '0');
       else
 
         src_lsb := 0;
         src_msb := 3*PIXEL_SIZE-1;
 
         dst_lsb := PIXEL_SIZE;
-        dst_msb := HISPI_SHIFT_REGISTER_SIZE-1;
+        dst_msb := PIX_SHIFT_REGISTER_SIZE-1;
 
         -- Shift data left PHY_OUTPUT_WIDTH bits for each lane.
-        hispi_shift_register(pix_data'range)         <= pix_data;
-        hispi_shift_register(dst_msb downto dst_lsb) <= hispi_shift_register(src_msb downto src_lsb);
+        pclk_shift_register(pclk_data'range)        <= pclk_data;
+        pclk_shift_register(dst_msb downto dst_lsb) <= pclk_shift_register(src_msb downto src_lsb);
       end if;
     end if;
   end process;
 
 
-  pix_data_p1 <= hispi_shift_register(23 downto 12);
+  pclk_data_p1 <= pclk_shift_register(23 downto 12);
 
-  
+
   -----------------------------------------------------------------------------
   -- Detect sync_code codes, SOF, SOL, EOF, EOL alignment
   -- don't assume a hispi phase but check all possibilities
   -- that is, hispi word boundaries can be on any of PHY_OUTPUT_WIDTH boundaries
   -----------------------------------------------------------------------------
-  P_detect_sync_codes : process (hispi_shift_register) is
+  P_detect_sync_codes : process (pclk_shift_register) is
     variable msb : integer;
     variable lsb : integer;
 
   begin
 
     lsb := PIXEL_SIZE;
-    msb := HISPI_SHIFT_REGISTER_SIZE-1;
+    msb := PIX_SHIFT_REGISTER_SIZE-1;
 
     if (
-      (hispi_shift_register(msb downto lsb) = X"FFF000000")
+      (pclk_shift_register(msb downto lsb) = X"FFF000000")
       ) then
       sync_code_detected <= '1';
     else
@@ -387,12 +451,12 @@ begin
   -----------------------------------------------------------------------------
   -- Detect IDLE sequence (4 consecutive IDLE characters)
   -----------------------------------------------------------------------------
-  P_idle_sequence_detected : process (hispi_shift_register, idle_character) is
-    variable idle_quad_vector : std_logic_vector(hispi_shift_register'range);
+  P_idle_sequence_detected : process (pclk_shift_register, rclk_idle_character) is
+    variable rclk_idle_quad_vect : std_logic_vector(pclk_shift_register'range);
   begin
-    idle_quad_vector := idle_character & idle_character & idle_character & idle_character;
+    rclk_idle_quad_vect := rclk_idle_character & rclk_idle_character & rclk_idle_character & rclk_idle_character;
 
-    if (hispi_shift_register = idle_quad_vector) then
+    if (pclk_shift_register = rclk_idle_quad_vect) then
       idle_sequence_detected <= '1';
     else
       idle_sequence_detected <= '0';
@@ -401,37 +465,37 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_state
+  -- Process     : P_state
   -- Description : Decode the hispi protocol state
   -----------------------------------------------------------------------------
-  P_hispi_state : process (pix_clk) is
+  P_state : process (pclk) is
   begin
-    if (rising_edge(pix_clk)) then
-      if (pix_reset = '1' or hispi_phy_en = '0')then
-        hispi_state  <= S_UNKNOWN;
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1' or hispi_phy_en = '0')then
+        state        <= S_UNKNOWN;
         embeded_data <= '1';
       else
         if (idle_sequence_detected = '1') then
-          hispi_state  <= S_IDL;
+          state        <= S_IDL;
           embeded_data <= '1';
         else
-          case hispi_state is
+          case state is
             -------------------------------------------------------------------
             -- S_IDL : 
             -------------------------------------------------------------------
             when S_IDL =>
               if (sync_code_detected = '1') then
-                if (hispi_shift_register(11 downto 8) = "1100") then
-                  hispi_state  <= S_SOF;
-                  embeded_data <= hispi_shift_register(7);
-                elsif(hispi_shift_register(11 downto 8) = "1000") then
-                  hispi_state  <= S_SOL;
-                  embeded_data <= hispi_shift_register(7);
+                if (pclk_shift_register(11 downto 8) = "1100") then
+                  state        <= S_SOF;
+                  embeded_data <= pclk_shift_register(7);
+                elsif(pclk_shift_register(11 downto 8) = "1000") then
+                  state        <= S_SOL;
+                  embeded_data <= pclk_shift_register(7);
                 else
-                  hispi_state <= S_ERROR;
+                  state <= S_ERROR;
                 end if;
               else
-                hispi_state <= S_IDL;
+                state <= S_IDL;
               end if;
 
 
@@ -439,14 +503,14 @@ begin
             -- S_SOF : 
             -------------------------------------------------------------------
             when S_SOF =>
-              hispi_state <= S_AIL;
+              state <= S_AIL;
 
 
             -------------------------------------------------------------------
             -- S_SOL : 
             -------------------------------------------------------------------
             when S_SOL =>
-              hispi_state <= S_AIL;
+              state <= S_AIL;
 
 
             -------------------------------------------------------------------
@@ -454,9 +518,9 @@ begin
             -------------------------------------------------------------------
             when S_EOF =>
               if (crc_enable = '1') then
-                hispi_state <= S_CRC1;
+                state <= S_CRC1;
               else
-                hispi_state <= S_IDL;
+                state <= S_IDL;
               end if;
 
 
@@ -465,9 +529,9 @@ begin
             -------------------------------------------------------------------
             when S_EOL =>
               if (crc_enable = '1') then
-                hispi_state <= S_CRC1;
+                state <= S_CRC1;
               else
-                hispi_state <= S_IDL;
+                state <= S_IDL;
               end if;
 
 
@@ -476,15 +540,15 @@ begin
             -------------------------------------------------------------------
             when S_AIL =>
               if (sync_code_detected = '1') then
-                if(hispi_shift_register(11 downto 9) = "111") then
-                  hispi_state <= S_EOF;
-                elsif(hispi_shift_register(11 downto 9) = "101") then
-                  hispi_state <= S_EOL;
+                if(pclk_shift_register(11 downto 9) = "111") then
+                  state <= S_EOF;
+                elsif(pclk_shift_register(11 downto 9) = "101") then
+                  state <= S_EOL;
                 else
-                  hispi_state <= S_ERROR;
+                  state <= S_ERROR;
                 end if;
               else
-                hispi_state <= S_AIL;
+                state <= S_AIL;
               end if;
 
 
@@ -492,50 +556,50 @@ begin
             -- S_CRC1 : 
             -------------------------------------------------------------------
             when S_CRC1 =>
-              hispi_state <= S_CRC2;
+              state <= S_CRC2;
 
 
             -------------------------------------------------------------------
             -- S_CRC2 : 
             -------------------------------------------------------------------
             when S_CRC2 =>
-              hispi_state <= S_IDL;
+              state <= S_IDL;
 
 
             -------------------------------------------------------------------
             -- S_ERROR : 
             -------------------------------------------------------------------
             when S_ERROR =>
-              hispi_state <= S_UNKNOWN;
+              state <= S_UNKNOWN;
 
 
             -------------------------------------------------------------------
             -- 
             -------------------------------------------------------------------
             when others =>
-              hispi_state <= S_ERROR;
+              state <= S_ERROR;
 
           end case;
         end if;
       end if;
     end if;
-  end process P_hispi_state;
+  end process P_state;
 
 
-  sof_flag <= '1' when (hispi_state = S_SOF) else '0';
-  eof_flag <= '1' when (hispi_state = S_EOF) else '0';
-  sol_flag <= '1' when (hispi_state = S_SOL) else '0';
-  eol_flag <= '1' when (hispi_state = S_EOL) else '0';
+  sof_flag <= '1' when (state = S_SOF) else '0';
+  eof_flag <= '1' when (state = S_EOF) else '0';
+  sol_flag <= '1' when (state = S_SOL) else '0';
+  eol_flag <= '1' when (state = S_EOL) else '0';
 
 
-  hispi_fifo_wen <= '1' when (hispi_state = S_AIL and packer_valid = '1') else
+  hispi_fifo_wen <= '1' when (state = S_AIL and packer_valid = '1') else
                     '0';
 
 
-  P_fifo_overrun : process (pix_clk) is
+  P_fifo_overrun : process (pclk) is
   begin
-    if (rising_edge(pix_clk)) then
-      if (pix_reset = '1')then
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1')then
         fifo_overrun <= '0';
       else
         if (hispi_fifo_full = '1' and hispi_fifo_wen = '1') then
@@ -560,8 +624,8 @@ begin
       )
     port map
     (
-      aClr   => pix_reset,
-      wClk   => pix_clk,
+      aClr   => pclk_reset,
+      wClk   => pclk,
       wEn    => hispi_fifo_wen,
       wData  => packer_mux,
       wFull  => hispi_fifo_full,
@@ -583,5 +647,5 @@ begin
     end if;
   end process;
 
-  
+
 end architecture rtl;

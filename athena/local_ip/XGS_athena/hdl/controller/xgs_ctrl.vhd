@@ -2354,10 +2354,13 @@ BEGIN
   -- First  LSR of 15 bits because of decimal [4].[15] of the sensor period
   -- Second LSR of 4 bits with 62.5 Mhz sys clk (/16)   -> total is LSR 19
   -- Second LSR of 3 bits with  125 Mhz sys clk (/8)    -> total is LSR 18
-  INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
-                             '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
-                             
-    
+  -- INTERNAL_READOUT_LENGTH <= '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                             -- INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
+   
+	-- [AM]  fixed range
+   INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                              INTERNAL_READOUT_LENGTH_FLOAT(46 downto 18);                                 --125.0 Mhz
+   
   REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length; -- INTERNAL_READOUT_LENGTH;
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          

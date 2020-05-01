@@ -12,7 +12,7 @@ use work.mtx_types_pkg.all;
 use work.hispi_pack.all;
 
 
-entity xgs_hispi is
+entity xgs_hispi_top is
   generic (
     NUMBER_OF_LANE  : integer := 6;
     MUX_RATIO       : integer := 4;
@@ -53,10 +53,10 @@ entity xgs_hispi is
     m_axis_tlast  : out std_logic;
     m_axis_tdata  : out std_logic_vector(63 downto 0)
     );
-end entity xgs_hispi;
+end entity xgs_hispi_top;
 
 
-architecture rtl of xgs_hispi is
+architecture rtl of xgs_hispi_top is
 
 
   component hispi_phy is
@@ -68,19 +68,31 @@ architecture rtl of xgs_hispi is
       sysclk : in std_logic;
       sysrst : in std_logic;
 
-      -- Register file interface
+      -- Register file information
       idle_character       : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
       hispi_phy_en         : in  std_logic;
       hispi_soft_reset     : in  std_logic;
+
+      -- Calibration 
+      cal_en        : in  std_logic;
+      cal_busy      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      cal_load_tap  : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+
+      -- HiSPi IO
       hispi_serial_clk_p   : in  std_logic;
       hispi_serial_clk_n   : in  std_logic;
       hispi_serial_input_p : in  std_logic_vector(LANE_PER_PHY - 1 downto 0);
       hispi_serial_input_n : in  std_logic_vector(LANE_PER_PHY - 1 downto 0);
+
+      -- Read fifo interface
       fifo_read_clk        : in  std_logic;
       fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
       fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+
       -- Flags detected
       embeded_data         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       sof_flag             : out std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -265,13 +277,27 @@ architecture rtl of xgs_hispi is
   -- attribute IODELAY_GROUP of xIDELAYCTRL : label is "hispi_phy_xilinx_group";
 
 
-  type FSM_TYPE is (S_IDLE, S_INIT, S_DISABLED, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_INIT, S_DISABLED, S_CALIBRATE, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal idle_character           : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal new_line_pending         : std_logic;
   signal new_frame_pending        : std_logic;
+
+  signal cal_en       : std_logic;
+  signal cal_load_tap : std_logic;
+  signal cal_error    : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal cal_busy     : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal calibrate_en : std_logic;
+
+
+  signal top_cal_en        : std_logic;
+  signal top_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+
   signal top_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_embeded_data         : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -279,6 +305,17 @@ architecture rtl of xgs_hispi is
   signal top_eof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_sol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_eol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_read_en         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+
+
+  signal bottom_cal_en               : std_logic;
+  signal bottom_cal_busy             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_cal_load_tap         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
   signal bottom_lanes_p           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_embeded_data      : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -286,11 +323,6 @@ architecture rtl of xgs_hispi is
   signal bottom_eof_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_sol_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_eol_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_fifo_read_en         : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
-
   signal bottom_fifo_read_en         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -353,6 +385,36 @@ architecture rtl of xgs_hispi is
 
 begin
 
+  -- ToDo From register_file
+  calibrate_en <= '0';
+
+  top_cal_en <= '1' when (state = S_CALIBRATE) else
+                '0';
+
+  bottom_cal_en <= '1' when (state = S_CALIBRATE) else
+                   '0';
+
+
+  -- NO GOOD CLOCK DOMAIN CROSSING
+  cal_load_tap <= '1' when (top_cal_load_tap(0) = '1') else
+                  '0';
+
+  G_cal_error : for i in 0 to LANE_PER_PHY-1 generate
+    cal_error(2*i)   <= top_cal_error(i);
+    cal_error(2*i+1) <= bottom_cal_error(i);
+  end generate G_cal_error;
+
+
+  G_cal_busy : for i in 0 to LANE_PER_PHY-1 generate
+    cal_busy(2*i)   <= top_cal_busy(i);
+    cal_busy(2*i+1) <= bottom_cal_busy(i);
+  end generate G_cal_busy;
+
+
+
+
+
+
   -- TBD : will eventually come from a register?
   number_of_row <= std_logic_vector(to_unsigned(LINES_PER_FRAME, number_of_row'length));
 
@@ -401,7 +463,12 @@ begin
       sysrst               => axi_reset,
       idle_character       => idle_character,
       hispi_phy_en         => hispi_phy_en,
-      hispi_soft_reset     => '0',
+      hispi_soft_reset     => regfile.HISPI.CTRL.CLR,
+      cal_en               => top_cal_en,
+      cal_busy             => top_cal_busy,
+      cal_error            => top_cal_error,
+      cal_load_tap         => top_cal_load_tap,
+      cal_tap_value        => top_cal_tap_value,
       hispi_serial_clk_p   => hispi_io_clk_p(0),
       hispi_serial_clk_n   => hispi_io_clk_n(0),
       hispi_serial_input_p => top_lanes_p,
@@ -435,7 +502,12 @@ begin
       sysrst               => axi_reset,
       idle_character       => idle_character,
       hispi_phy_en         => hispi_phy_en,
-      hispi_soft_reset     => '0',
+      hispi_soft_reset     => regfile.HISPI.CTRL.CLR,
+      cal_en               => bottom_cal_en,
+      cal_busy             => bottom_cal_busy,
+      cal_error            => bottom_cal_error,
+      cal_load_tap         => bottom_cal_load_tap,
+      cal_tap_value        => bottom_cal_tap_value,
       hispi_serial_clk_p   => hispi_io_clk_p(1),
       hispi_serial_clk_n   => hispi_io_clk_n(1),
       hispi_serial_input_p => bottom_lanes_p,
@@ -515,7 +587,8 @@ begin
                      '0';
 
 
-  hispi_phy_en <= '1';
+  hispi_phy_en <= '1' when (regfile.HISPI.CTRL.ENABLE = '1') else
+                  '0';
 
 
   -----------------------------------------------------------------------------
@@ -562,13 +635,25 @@ begin
             -- S_DISABLED : Starting point
             ---------------------------------------------------------------------
             when S_DISABLED =>
+              state <= S_CALIBRATE;
+
+            ---------------------------------------------------------------------
+            -- S_CALIBRATE : 
+            ---------------------------------------------------------------------
+            when S_CALIBRATE =>
+              if (top_cal_load_tap(0) = '1') then
               state <= S_IDLE;
+              else
+                state <= S_CALIBRATE;
+              end if;
 
             ---------------------------------------------------------------------
             -- S_IDLE : Parking state
             ---------------------------------------------------------------------
             when S_IDLE =>
-              if (new_frame_pending = '1') then
+              if (calibrate_en = '1') then
+                state <= S_CALIBRATE;
+              elsif (new_frame_pending = '1') then
                 state <= S_SOF;
               elsif (new_line_pending = '1') then
                 state <= S_SOL;
@@ -884,6 +969,7 @@ begin
       m_axis_tlast        => m_axis_tlast,
       m_axis_tdata        => m_axis_tdata
       );
+
 
 
 end architecture rtl;
