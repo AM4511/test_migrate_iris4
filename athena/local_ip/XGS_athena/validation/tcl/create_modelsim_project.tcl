@@ -104,6 +104,7 @@ set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
 ${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/hispi_interface.sv \
+${TESTBENCH_SRC_PATH}/tlp_interface.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/regfile_pcie2AxiMaster.vhd 
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd \
