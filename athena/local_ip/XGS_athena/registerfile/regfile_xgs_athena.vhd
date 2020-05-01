@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/04/30 11:52:57
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0x5C4F3EA4
+-- Created on          : 2020/05/01 09:52:53
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x99823D16
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -18,81 +18,90 @@ package regfile_xgs_athena_pack is
    --------------------------------------------------------------------------------
    -- Address constants
    --------------------------------------------------------------------------------
-   constant K_SYSTEM_TAG_ADDR                : natural := 16#0#;
-   constant K_SYSTEM_VERSION_ADDR            : natural := 16#4#;
-   constant K_SYSTEM_CAPABILITY_ADDR         : natural := 16#8#;
-   constant K_SYSTEM_SCRATCHPAD_ADDR         : natural := 16#c#;
-   constant K_DMA_CTRL_ADDR                  : natural := 16#70#;
-   constant K_DMA_FSTART_ADDR                : natural := 16#74#;
-   constant K_DMA_FSTART_HIGH_ADDR           : natural := 16#78#;
-   constant K_DMA_FSTART_G_ADDR              : natural := 16#7c#;
-   constant K_DMA_FSTART_G_HIGH_ADDR         : natural := 16#80#;
-   constant K_DMA_FSTART_R_ADDR              : natural := 16#84#;
-   constant K_DMA_FSTART_R_HIGH_ADDR         : natural := 16#88#;
-   constant K_DMA_LINE_PITCH_ADDR            : natural := 16#8c#;
-   constant K_DMA_LINE_SIZE_ADDR             : natural := 16#90#;
-   constant K_DMA_CSC_ADDR                   : natural := 16#94#;
-   constant K_ACQ_GRAB_CTRL_ADDR             : natural := 16#100#;
-   constant K_ACQ_GRAB_STAT_ADDR             : natural := 16#108#;
-   constant K_ACQ_READOUT_CFG1_ADDR          : natural := 16#110#;
+   constant K_SYSTEM_TAG_ADDR                 : natural := 16#0#;
+   constant K_SYSTEM_VERSION_ADDR             : natural := 16#4#;
+   constant K_SYSTEM_CAPABILITY_ADDR          : natural := 16#8#;
+   constant K_SYSTEM_SCRATCHPAD_ADDR          : natural := 16#c#;
+   constant K_DMA_CTRL_ADDR                   : natural := 16#70#;
+   constant K_DMA_FSTART_ADDR                 : natural := 16#78#;
+   constant K_DMA_FSTART_HIGH_ADDR            : natural := 16#7c#;
+   constant K_DMA_FSTART_G_ADDR               : natural := 16#80#;
+   constant K_DMA_FSTART_G_HIGH_ADDR          : natural := 16#84#;
+   constant K_DMA_FSTART_R_ADDR               : natural := 16#88#;
+   constant K_DMA_FSTART_R_HIGH_ADDR          : natural := 16#8c#;
+   constant K_DMA_LINE_PITCH_ADDR             : natural := 16#90#;
+   constant K_DMA_LINE_SIZE_ADDR              : natural := 16#94#;
+   constant K_DMA_CSC_ADDR                    : natural := 16#98#;
+   constant K_ACQ_GRAB_CTRL_ADDR              : natural := 16#100#;
+   constant K_ACQ_GRAB_STAT_ADDR              : natural := 16#108#;
+   constant K_ACQ_READOUT_CFG1_ADDR           : natural := 16#110#;
    constant K_ACQ_READOUT_CFG_FRAME_LINE_ADDR : natural := 16#114#;
-   constant K_ACQ_READOUT_CFG2_ADDR          : natural := 16#118#;
-   constant K_ACQ_READOUT_CFG3_ADDR          : natural := 16#120#;
-   constant K_ACQ_READOUT_CFG4_ADDR          : natural := 16#124#;
-   constant K_ACQ_EXP_CTRL1_ADDR             : natural := 16#128#;
-   constant K_ACQ_EXP_CTRL2_ADDR             : natural := 16#130#;
-   constant K_ACQ_EXP_CTRL3_ADDR             : natural := 16#138#;
-   constant K_ACQ_TRIGGER_DELAY_ADDR         : natural := 16#140#;
-   constant K_ACQ_STROBE_CTRL1_ADDR          : natural := 16#148#;
-   constant K_ACQ_STROBE_CTRL2_ADDR          : natural := 16#150#;
-   constant K_ACQ_ACQ_SER_CTRL_ADDR          : natural := 16#158#;
-   constant K_ACQ_ACQ_SER_ADDATA_ADDR        : natural := 16#160#;
-   constant K_ACQ_ACQ_SER_STAT_ADDR          : natural := 16#168#;
-   constant K_ACQ_SENSOR_CTRL_ADDR           : natural := 16#190#;
-   constant K_ACQ_SENSOR_STAT_ADDR           : natural := 16#198#;
-   constant K_ACQ_SENSOR_SUBSAMPLING_ADDR    : natural := 16#19c#;
-   constant K_ACQ_SENSOR_GAIN_ANA_ADDR       : natural := 16#1a4#;
-   constant K_ACQ_SENSOR_ROI_Y_START_ADDR    : natural := 16#1a8#;
-   constant K_ACQ_SENSOR_ROI_Y_SIZE_ADDR     : natural := 16#1ac#;
-   constant K_ACQ_SENSOR_ROI2_Y_START_ADDR   : natural := 16#1b0#;
-   constant K_ACQ_SENSOR_ROI2_Y_SIZE_ADDR    : natural := 16#1b4#;
-   constant K_ACQ_SENSOR_M_LINES_ADDR        : natural := 16#1b8#;
-   constant K_ACQ_SENSOR_DP_GR_ADDR          : natural := 16#1bc#;
-   constant K_ACQ_SENSOR_DP_GB_ADDR          : natural := 16#1c0#;
-   constant K_ACQ_SENSOR_DP_R_ADDR           : natural := 16#1c4#;
-   constant K_ACQ_SENSOR_DP_B_ADDR           : natural := 16#1c8#;
-   constant K_ACQ_DEBUG_PINS_ADDR            : natural := 16#1e0#;
-   constant K_ACQ_TRIGGER_MISSED_ADDR        : natural := 16#1e8#;
-   constant K_ACQ_SENSOR_FPS_ADDR            : natural := 16#1f0#;
-   constant K_ACQ_DEBUG_ADDR                 : natural := 16#2a0#;
-   constant K_ACQ_DEBUG_CNTR1_ADDR           : natural := 16#2a8#;
-   constant K_ACQ_EXP_FOT_ADDR               : natural := 16#2b8#;
-   constant K_ACQ_ACQ_SFNC_ADDR              : natural := 16#2c0#;
-   constant K_DATA_LUT_CTRL_ADDR             : natural := 16#300#;
-   constant K_DATA_LUT_RB_ADDR               : natural := 16#308#;
-   constant K_DATA_WB_MULT1_ADDR             : natural := 16#310#;
-   constant K_DATA_WB_MULT2_ADDR             : natural := 16#318#;
-   constant K_DATA_WB_B_ACC_ADDR             : natural := 16#320#;
-   constant K_DATA_WB_G_ACC_ADDR             : natural := 16#328#;
-   constant K_DATA_WB_R_ACC_ADDR             : natural := 16#330#;
-   constant K_DATA_FPN_ADD_ADDR              : natural := 16#338#;
-   constant K_DATA_FPN_READ_REG_ADDR         : natural := 16#33c#;
-   constant K_DATA_FPN_DATA_0_ADDR           : natural := 16#340#;
-   constant K_DATA_FPN_DATA_1_ADDR           : natural := 16#344#;
-   constant K_DATA_FPN_DATA_2_ADDR           : natural := 16#348#;
-   constant K_DATA_FPN_DATA_3_ADDR           : natural := 16#34c#;
-   constant K_DATA_FPN_DATA_4_ADDR           : natural := 16#350#;
-   constant K_DATA_FPN_DATA_5_ADDR           : natural := 16#354#;
-   constant K_DATA_FPN_DATA_6_ADDR           : natural := 16#358#;
-   constant K_DATA_FPN_DATA_7_ADDR           : natural := 16#35c#;
-   constant K_DATA_FPN_CONTRAST_ADDR         : natural := 16#360#;
-   constant K_DATA_FPN_ACC_ADD_ADDR          : natural := 16#368#;
-   constant K_DATA_FPN_ACC_DATA_ADDR         : natural := 16#370#;
-   constant K_DATA_DPC_LIST_CTRL_ADDR        : natural := 16#380#;
-   constant K_DATA_DPC_LIST_DATA_ADDR        : natural := 16#384#;
-   constant K_DATA_DPC_LIST_DATA_RD_ADDR     : natural := 16#388#;
-   constant K_HISPI_CTRL_ADDR                : natural := 16#400#;
-   constant K_HISPI_STATUS_ADDR              : natural := 16#404#;
+   constant K_ACQ_READOUT_CFG2_ADDR           : natural := 16#118#;
+   constant K_ACQ_READOUT_CFG3_ADDR           : natural := 16#120#;
+   constant K_ACQ_READOUT_CFG4_ADDR           : natural := 16#124#;
+   constant K_ACQ_EXP_CTRL1_ADDR              : natural := 16#128#;
+   constant K_ACQ_EXP_CTRL2_ADDR              : natural := 16#130#;
+   constant K_ACQ_EXP_CTRL3_ADDR              : natural := 16#138#;
+   constant K_ACQ_TRIGGER_DELAY_ADDR          : natural := 16#140#;
+   constant K_ACQ_STROBE_CTRL1_ADDR           : natural := 16#148#;
+   constant K_ACQ_STROBE_CTRL2_ADDR           : natural := 16#150#;
+   constant K_ACQ_ACQ_SER_CTRL_ADDR           : natural := 16#158#;
+   constant K_ACQ_ACQ_SER_ADDATA_ADDR         : natural := 16#160#;
+   constant K_ACQ_ACQ_SER_STAT_ADDR           : natural := 16#168#;
+   constant K_ACQ_SENSOR_CTRL_ADDR            : natural := 16#190#;
+   constant K_ACQ_SENSOR_STAT_ADDR            : natural := 16#198#;
+   constant K_ACQ_SENSOR_SUBSAMPLING_ADDR     : natural := 16#19c#;
+   constant K_ACQ_SENSOR_GAIN_ANA_ADDR        : natural := 16#1a4#;
+   constant K_ACQ_SENSOR_ROI_Y_START_ADDR     : natural := 16#1a8#;
+   constant K_ACQ_SENSOR_ROI_Y_SIZE_ADDR      : natural := 16#1ac#;
+   constant K_ACQ_SENSOR_ROI2_Y_START_ADDR    : natural := 16#1b0#;
+   constant K_ACQ_SENSOR_ROI2_Y_SIZE_ADDR     : natural := 16#1b4#;
+   constant K_ACQ_SENSOR_M_LINES_ADDR         : natural := 16#1b8#;
+   constant K_ACQ_SENSOR_DP_GR_ADDR           : natural := 16#1bc#;
+   constant K_ACQ_SENSOR_DP_GB_ADDR           : natural := 16#1c0#;
+   constant K_ACQ_SENSOR_DP_R_ADDR            : natural := 16#1c4#;
+   constant K_ACQ_SENSOR_DP_B_ADDR            : natural := 16#1c8#;
+   constant K_ACQ_DEBUG_PINS_ADDR             : natural := 16#1e0#;
+   constant K_ACQ_TRIGGER_MISSED_ADDR         : natural := 16#1e8#;
+   constant K_ACQ_SENSOR_FPS_ADDR             : natural := 16#1f0#;
+   constant K_ACQ_DEBUG_ADDR                  : natural := 16#2a0#;
+   constant K_ACQ_DEBUG_CNTR1_ADDR            : natural := 16#2a8#;
+   constant K_ACQ_EXP_FOT_ADDR                : natural := 16#2b8#;
+   constant K_ACQ_ACQ_SFNC_ADDR               : natural := 16#2c0#;
+   constant K_DATA_LUT_CTRL_ADDR              : natural := 16#300#;
+   constant K_DATA_LUT_RB_ADDR                : natural := 16#308#;
+   constant K_DATA_WB_MULT1_ADDR              : natural := 16#310#;
+   constant K_DATA_WB_MULT2_ADDR              : natural := 16#318#;
+   constant K_DATA_WB_B_ACC_ADDR              : natural := 16#320#;
+   constant K_DATA_WB_G_ACC_ADDR              : natural := 16#328#;
+   constant K_DATA_WB_R_ACC_ADDR              : natural := 16#330#;
+   constant K_DATA_FPN_ADD_ADDR               : natural := 16#338#;
+   constant K_DATA_FPN_READ_REG_ADDR          : natural := 16#33c#;
+   constant K_DATA_FPN_DATA_0_ADDR            : natural := 16#340#;
+   constant K_DATA_FPN_DATA_1_ADDR            : natural := 16#344#;
+   constant K_DATA_FPN_DATA_2_ADDR            : natural := 16#348#;
+   constant K_DATA_FPN_DATA_3_ADDR            : natural := 16#34c#;
+   constant K_DATA_FPN_DATA_4_ADDR            : natural := 16#350#;
+   constant K_DATA_FPN_DATA_5_ADDR            : natural := 16#354#;
+   constant K_DATA_FPN_DATA_6_ADDR            : natural := 16#358#;
+   constant K_DATA_FPN_DATA_7_ADDR            : natural := 16#35c#;
+   constant K_DATA_FPN_CONTRAST_ADDR          : natural := 16#360#;
+   constant K_DATA_FPN_ACC_ADD_ADDR           : natural := 16#368#;
+   constant K_DATA_FPN_ACC_DATA_ADDR          : natural := 16#370#;
+   constant K_DATA_DPC_LIST_CTRL_ADDR         : natural := 16#380#;
+   constant K_DATA_DPC_LIST_DATA_ADDR         : natural := 16#384#;
+   constant K_DATA_DPC_LIST_DATA_RD_ADDR      : natural := 16#388#;
+   constant K_HISPI_CTRL_ADDR                 : natural := 16#400#;
+   constant K_HISPI_IDELAYCTRL_STATUS_ADDR    : natural := 16#404#;
+   constant K_HISPI_LANE_DECODER_STATUS_0_ADDR : natural := 16#408#;
+   constant K_HISPI_LANE_DECODER_STATUS_1_ADDR : natural := 16#40c#;
+   constant K_HISPI_LANE_DECODER_STATUS_2_ADDR : natural := 16#410#;
+   constant K_HISPI_LANE_DECODER_STATUS_3_ADDR : natural := 16#414#;
+   constant K_HISPI_LANE_DECODER_STATUS_4_ADDR : natural := 16#418#;
+   constant K_HISPI_LANE_DECODER_STATUS_5_ADDR : natural := 16#41c#;
+   constant K_HISPI_LANE_PACKER_STATUS_0_ADDR : natural := 16#420#;
+   constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#424#;
+   constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#428#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1317,13 +1326,17 @@ package regfile_xgs_athena_pack is
    -- Register Name: CTRL
    ------------------------------------------------------------------------------------------
    type HISPI_CTRL_TYPE is record
-      CLR            : std_logic;
       RESET_IDELAYCTRL: std_logic;
+      CALIBRATE_SERDES: std_logic;
+      CLR            : std_logic;
+      ENABLE         : std_logic;
    end record HISPI_CTRL_TYPE;
 
    constant INIT_HISPI_CTRL_TYPE : HISPI_CTRL_TYPE := (
+      RESET_IDELAYCTRL => 'Z',
+      CALIBRATE_SERDES => 'Z',
       CLR             => 'Z',
-      RESET_IDELAYCTRL => 'Z'
+      ENABLE          => 'Z'
    );
 
    -- Casting functions:
@@ -1331,19 +1344,69 @@ package regfile_xgs_athena_pack is
    function to_HISPI_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_CTRL_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: STATUS
+   -- Register Name: IDELAYCTRL_STATUS
    ------------------------------------------------------------------------------------------
-   type HISPI_STATUS_TYPE is record
+   type HISPI_IDELAYCTRL_STATUS_TYPE is record
       PLL_LOCKED     : std_logic;
-   end record HISPI_STATUS_TYPE;
+   end record HISPI_IDELAYCTRL_STATUS_TYPE;
 
-   constant INIT_HISPI_STATUS_TYPE : HISPI_STATUS_TYPE := (
+   constant INIT_HISPI_IDELAYCTRL_STATUS_TYPE : HISPI_IDELAYCTRL_STATUS_TYPE := (
       PLL_LOCKED      => 'Z'
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : HISPI_STATUS_TYPE) return std_logic_vector;
-   function to_HISPI_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_STATUS_TYPE;
+   function to_std_logic_vector(reg : HISPI_IDELAYCTRL_STATUS_TYPE) return std_logic_vector;
+   function to_HISPI_IDELAYCTRL_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_IDELAYCTRL_STATUS_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: LANE_DECODER_STATUS
+   ------------------------------------------------------------------------------------------
+   type HISPI_LANE_DECODER_STATUS_TYPE is record
+      FIFO_UNDERRUN  : std_logic;
+      FIFO_OVERRUN   : std_logic;
+      CALIBRARTION_ERROR: std_logic;
+      CALIBRATION_ACTIVE: std_logic;
+      CALIBRATION_TAP_VALUE: std_logic_vector(4 downto 0);
+   end record HISPI_LANE_DECODER_STATUS_TYPE;
+
+   constant INIT_HISPI_LANE_DECODER_STATUS_TYPE : HISPI_LANE_DECODER_STATUS_TYPE := (
+      FIFO_UNDERRUN   => 'Z',
+      FIFO_OVERRUN    => 'Z',
+      CALIBRARTION_ERROR => 'Z',
+      CALIBRATION_ACTIVE => 'Z',
+      CALIBRATION_TAP_VALUE => (others=> 'Z')
+   );
+
+   ------------------------------------------------------------------------------------------
+   -- Array type: HISPI_LANE_DECODER_STATUS_TYPE
+   ------------------------------------------------------------------------------------------
+   type HISPI_LANE_DECODER_STATUS_TYPE_ARRAY is array (5 downto 0) of HISPI_LANE_DECODER_STATUS_TYPE;
+   constant INIT_HISPI_LANE_DECODER_STATUS_TYPE_ARRAY : HISPI_LANE_DECODER_STATUS_TYPE_ARRAY := (others => INIT_HISPI_LANE_DECODER_STATUS_TYPE);
+   -- Casting functions:
+   function to_std_logic_vector(reg : HISPI_LANE_DECODER_STATUS_TYPE) return std_logic_vector;
+   function to_HISPI_LANE_DECODER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_DECODER_STATUS_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: LANE_PACKER_STATUS
+   ------------------------------------------------------------------------------------------
+   type HISPI_LANE_PACKER_STATUS_TYPE is record
+      FIFO_UNDERRUN  : std_logic;
+      FIFO_OVERRUN   : std_logic;
+   end record HISPI_LANE_PACKER_STATUS_TYPE;
+
+   constant INIT_HISPI_LANE_PACKER_STATUS_TYPE : HISPI_LANE_PACKER_STATUS_TYPE := (
+      FIFO_UNDERRUN   => 'Z',
+      FIFO_OVERRUN    => 'Z'
+   );
+
+   ------------------------------------------------------------------------------------------
+   -- Array type: HISPI_LANE_PACKER_STATUS_TYPE
+   ------------------------------------------------------------------------------------------
+   type HISPI_LANE_PACKER_STATUS_TYPE_ARRAY is array (2 downto 0) of HISPI_LANE_PACKER_STATUS_TYPE;
+   constant INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY : HISPI_LANE_PACKER_STATUS_TYPE_ARRAY := (others => INIT_HISPI_LANE_PACKER_STATUS_TYPE);
+   -- Casting functions:
+   function to_std_logic_vector(reg : HISPI_LANE_PACKER_STATUS_TYPE) return std_logic_vector;
+   function to_HISPI_LANE_PACKER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_PACKER_STATUS_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Section Name: SYSTEM
@@ -1518,12 +1581,16 @@ package regfile_xgs_athena_pack is
    ------------------------------------------------------------------------------------------
    type HISPI_TYPE is record
       CTRL           : HISPI_CTRL_TYPE;
-      STATUS         : HISPI_STATUS_TYPE;
+      IDELAYCTRL_STATUS: HISPI_IDELAYCTRL_STATUS_TYPE;
+      LANE_DECODER_STATUS: HISPI_LANE_DECODER_STATUS_TYPE_ARRAY;
+      LANE_PACKER_STATUS: HISPI_LANE_PACKER_STATUS_TYPE_ARRAY;
    end record HISPI_TYPE;
 
    constant INIT_HISPI_TYPE : HISPI_TYPE := (
       CTRL            => INIT_HISPI_CTRL_TYPE,
-      STATUS          => INIT_HISPI_STATUS_TYPE
+      IDELAYCTRL_STATUS => INIT_HISPI_IDELAYCTRL_STATUS_TYPE,
+      LANE_DECODER_STATUS => INIT_HISPI_LANE_DECODER_STATUS_TYPE_ARRAY,
+      LANE_PACKER_STATUS => INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY
    );
 
    ------------------------------------------------------------------------------------------
@@ -3299,8 +3366,10 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(3) := reg.RESET_IDELAYCTRL;
+      output(2) := reg.CALIBRATE_SERDES;
       output(1) := reg.CLR;
-      output(0) := reg.RESET_IDELAYCTRL;
+      output(0) := reg.ENABLE;
       return output;
    end to_std_logic_vector;
 
@@ -3311,16 +3380,18 @@ package body regfile_xgs_athena_pack is
    function to_HISPI_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_CTRL_TYPE is
    variable output : HISPI_CTRL_TYPE;
    begin
+      output.RESET_IDELAYCTRL := stdlv(3);
+      output.CALIBRATE_SERDES := stdlv(2);
       output.CLR := stdlv(1);
-      output.RESET_IDELAYCTRL := stdlv(0);
+      output.ENABLE := stdlv(0);
       return output;
    end to_HISPI_CTRL_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from HISPI_STATUS_TYPE to std_logic_vector
+   -- Description: Cast from HISPI_IDELAYCTRL_STATUS_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : HISPI_STATUS_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : HISPI_IDELAYCTRL_STATUS_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
@@ -3329,15 +3400,71 @@ package body regfile_xgs_athena_pack is
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_HISPI_STATUS_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_STATUS_TYPE
+   -- Function Name: to_HISPI_IDELAYCTRL_STATUS_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_IDELAYCTRL_STATUS_TYPE
    --------------------------------------------------------------------------------
-   function to_HISPI_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_STATUS_TYPE is
-   variable output : HISPI_STATUS_TYPE;
+   function to_HISPI_IDELAYCTRL_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_IDELAYCTRL_STATUS_TYPE is
+   variable output : HISPI_IDELAYCTRL_STATUS_TYPE;
    begin
       output.PLL_LOCKED := stdlv(0);
       return output;
-   end to_HISPI_STATUS_TYPE;
+   end to_HISPI_IDELAYCTRL_STATUS_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from HISPI_LANE_DECODER_STATUS_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : HISPI_LANE_DECODER_STATUS_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(8) := reg.FIFO_UNDERRUN;
+      output(7) := reg.FIFO_OVERRUN;
+      output(6) := reg.CALIBRARTION_ERROR;
+      output(5) := reg.CALIBRATION_ACTIVE;
+      output(4 downto 0) := reg.CALIBRATION_TAP_VALUE;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_HISPI_LANE_DECODER_STATUS_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_LANE_DECODER_STATUS_TYPE
+   --------------------------------------------------------------------------------
+   function to_HISPI_LANE_DECODER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_DECODER_STATUS_TYPE is
+   variable output : HISPI_LANE_DECODER_STATUS_TYPE;
+   begin
+      output.FIFO_UNDERRUN := stdlv(8);
+      output.FIFO_OVERRUN := stdlv(7);
+      output.CALIBRARTION_ERROR := stdlv(6);
+      output.CALIBRATION_ACTIVE := stdlv(5);
+      output.CALIBRATION_TAP_VALUE := stdlv(4 downto 0);
+      return output;
+   end to_HISPI_LANE_DECODER_STATUS_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from HISPI_LANE_PACKER_STATUS_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : HISPI_LANE_PACKER_STATUS_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(8) := reg.FIFO_UNDERRUN;
+      output(7) := reg.FIFO_OVERRUN;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_HISPI_LANE_PACKER_STATUS_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_LANE_PACKER_STATUS_TYPE
+   --------------------------------------------------------------------------------
+   function to_HISPI_LANE_PACKER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_PACKER_STATUS_TYPE is
+   variable output : HISPI_LANE_PACKER_STATUS_TYPE;
+   begin
+      output.FIFO_UNDERRUN := stdlv(8);
+      output.FIFO_OVERRUN := stdlv(7);
+      return output;
+   end to_HISPI_LANE_PACKER_STATUS_TYPE;
 
    
 end package body;
@@ -3347,11 +3474,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/04/30 11:52:57
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0x5C4F3EA4
+-- Created on          : 2020/05/01 09:52:53
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x99823D16
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3388,221 +3515,256 @@ architecture rtl of regfile_xgs_athena is
 ------------------------------------------------------------------------------------------
 -- Signals declaration
 ------------------------------------------------------------------------------------------
-signal readBackMux                                          : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                  : std_logic_vector(74 downto 0);                   -- Address decode hit
-signal wEn                                                  : std_logic_vector(74 downto 0);                   -- Write Enable
-signal fullAddr                                             : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
-signal fullAddrAsInt                                        : integer;                                        
-signal bitEnN                                               : std_logic_vector(31 downto 0);                   -- Bits enable
-signal ldData                                               : std_logic;                                      
-signal rb_SYSTEM_TAG                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_VERSION                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_CAPABILITY                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_SCRATCHPAD                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_CTRL                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_HIGH                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_G                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_G_HIGH                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_R                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_R_HIGH                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_LINE_PITCH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_LINE_SIZE                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_CSC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_GRAB_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_GRAB_STAT                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG1                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG_FRAME_LINE                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG2                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG3                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG4                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL3                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_TRIGGER_DELAY                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_STROBE_CTRL1                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_STROBE_CTRL2                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_CTRL                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_ADDATA                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_STAT                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_CTRL                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_STAT                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_SUBSAMPLING                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_GAIN_ANA                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI_Y_START                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI_Y_SIZE                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_START                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_SIZE                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_M_LINES                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_GR                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_GB                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_R                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_B                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG_PINS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_TRIGGER_MISSED                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_FPS                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG_CNTR1                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_FOT                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SFNC                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_LUT_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_LUT_RB                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_MULT1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_MULT2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_B_ACC                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_G_ACC                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_R_ACC                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ADD                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_READ_REG                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_0                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_1                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_2                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_3                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_4                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_5                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_6                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_7                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_CONTRAST                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ACC_ADD                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ACC_DATA                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_CTRL                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_DATA                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_DATA_RD                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_STATUS                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal field_rw_SYSTEM_SCRATCHPAD_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                      : std_logic;                                       -- Field: GRAB_QUEUE_EN
-signal field_rw_DMA_FSTART_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_HIGH_VALUE                       : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_G_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_G_HIGH_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_R_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_R_HIGH_VALUE                     : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_PITCH_VALUE                        : std_logic_vector(15 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_SIZE_VALUE                         : std_logic_vector(13 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_CSC_COLOR_SPACE                         : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
-signal field_rw_DMA_CSC_DUP_LAST_LINE                       : std_logic;                                       -- Field: DUP_LAST_LINE
-signal field_rw_DMA_CSC_REVERSE_Y                           : std_logic;                                       -- Field: REVERSE_Y
-signal field_rw_DMA_CSC_REVERSE_X                           : std_logic;                                       -- Field: REVERSE_X
-signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                    : std_logic;                                       -- Field: RESET_GRAB
-signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                  : std_logic;                                       -- Field: GRAB_ROI2_EN
-signal field_wautoclr_ACQ_GRAB_CTRL_ABORT_GRAB              : std_logic;                                       -- Field: ABORT_GRAB
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP_BUFFn         : std_logic;                                       -- Field: TRIGGER_OVERLAP_BUFFn
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP               : std_logic;                                       -- Field: TRIGGER_OVERLAP
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_ACT                   : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_ACT
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_SRC                   : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_SRC
-signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_SS                 : std_logic;                                       -- Field: GRAB_SS
-signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                     : std_logic;                                       -- Field: BUFFER_ID
-signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                : std_logic;                                       -- Field: GRAB_CMD
-signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE            : std_logic_vector(4 downto 0);                    -- Field: FOT_LENGTH_LINE
-signal field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL                 : std_logic;                                       -- Field: EO_FOT_SEL
-signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                 : std_logic_vector(15 downto 0);                   -- Field: FOT_LENGTH
-signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES      : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
-signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA          : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
-signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                  : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
-signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END          : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
-signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START        : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
-signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE             : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
-signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                   : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
-signal field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS                   : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_DS
-signal field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS                   : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_TS
-signal field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY             : std_logic_vector(27 downto 0);                   -- Field: TRIGGER_DELAY
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_E                   : std_logic;                                       -- Field: STROBE_E
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_POL                 : std_logic;                                       -- Field: STROBE_POL
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_START               : std_logic_vector(27 downto 0);                   -- Field: STROBE_START
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_MODE                : std_logic;                                       -- Field: STROBE_MODE
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN                : std_logic;                                       -- Field: STROBE_B_EN
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN                : std_logic;                                       -- Field: STROBE_A_EN
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_END                 : std_logic_vector(27 downto 0);                   -- Field: STROBE_END
-signal field_rw_ACQ_ACQ_SER_CTRL_SER_RWn                    : std_logic;                                       -- Field: SER_RWn
-signal field_rw_ACQ_ACQ_SER_CTRL_SER_CMD                    : std_logic_vector(1 downto 0);                    -- Field: SER_CMD
-signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS            : std_logic;                                       -- Field: SER_RF_SS
-signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS            : std_logic;                                       -- Field: SER_WF_SS
-signal field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT                  : std_logic_vector(15 downto 0);                   -- Field: SER_DAT
-signal field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD                  : std_logic_vector(14 downto 0);                   -- Field: SER_ADD
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP   : std_logic;                                       -- Field: SENSOR_REFRESH_TEMP
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN      : std_logic;                                       -- Field: SENSOR_POWERDOWN
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR                : std_logic;                                       -- Field: SENSOR_COLOR
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE           : std_logic;                                       -- Field: SENSOR_REG_UPTATE
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN               : std_logic;                                       -- Field: SENSOR_RESETN
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP        : std_logic;                                       -- Field: SENSOR_POWERUP
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y : std_logic;                                       -- Field: ACTIVE_SUBSAMPLING_Y
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y      : std_logic;                                       -- Field: M_SUBSAMPLING_Y
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X        : std_logic;                                       -- Field: SUBSAMPLING_X
-signal field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN             : std_logic_vector(2 downto 0);                    -- Field: ANALOG_GAIN
-signal field_rw_ACQ_SENSOR_ROI_Y_START_Y_START              : std_logic_vector(9 downto 0);                    -- Field: Y_START
-signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
-signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START             : std_logic_vector(9 downto 0);                    -- Field: Y_START
-signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE               : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
-signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED             : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
-signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR           : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
-signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR               : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GR
-signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB               : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
-signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
-signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
-signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug0_sel                   : std_logic_vector(4 downto 0);                    -- Field: Debug0_sel
-signal field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST : std_logic;                                       -- Field: TRIGGER_MISSED_RST
-signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                    : std_logic;                                       -- Field: DEBUG_RST_CNTR
-signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                    : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
-signal field_rw_ACQ_DEBUG_LED_TEST                          : std_logic;                                       -- Field: LED_TEST
-signal field_rw_ACQ_EXP_FOT_EXP_FOT                         : std_logic;                                       -- Field: EXP_FOT
-signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                    : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
-signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS             : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
-signal field_rw_DATA_LUT_CTRL_LUT_BYPASS                    : std_logic;                                       -- Field: LUT_BYPASS
-signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_USE               : std_logic;                                       -- Field: LUT_PALETTE_USE
-signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_W                 : std_logic;                                       -- Field: LUT_PALETTE_W
-signal field_rw_DATA_LUT_CTRL_LUT_DATA_W                    : std_logic_vector(9 downto 0);                    -- Field: LUT_DATA_W
-signal field_rw_DATA_LUT_CTRL_LUT_SEL                       : std_logic_vector(2 downto 0);                    -- Field: LUT_SEL
-signal field_rw_DATA_LUT_CTRL_LUT_WRN                       : std_logic;                                       -- Field: LUT_WRN
-signal field_wautoclr_DATA_LUT_CTRL_LUT_SS                  : std_logic;                                       -- Field: LUT_SS
-signal field_rw_DATA_LUT_CTRL_LUT_ADD                       : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
-signal field_rw_DATA_WB_MULT1_WB_MULT_G                     : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
-signal field_rw_DATA_WB_MULT1_WB_MULT_B                     : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
-signal field_rw_DATA_WB_MULT2_WB_MULT_R                     : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
-signal field_rw_DATA_FPN_ADD_FPN_73                         : std_logic;                                       -- Field: FPN_73
-signal field_rw_DATA_FPN_ADD_FPN_WE                         : std_logic;                                       -- Field: FPN_WE
-signal field_rw_DATA_FPN_ADD_FPN_EN                         : std_logic;                                       -- Field: FPN_EN
-signal field_wautoclr_DATA_FPN_ADD_FPN_SS                   : std_logic;                                       -- Field: FPN_SS
-signal field_rw_DATA_FPN_ADD_FPN_ADD                        : std_logic_vector(9 downto 0);                    -- Field: FPN_ADD
-signal field_rw_DATA_FPN_READ_REG_FPN_READ_PIX_SEL          : std_logic_vector(2 downto 0);                    -- Field: FPN_READ_PIX_SEL
-signal field_rw_DATA_FPN_DATA_0_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_0_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_1_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_1_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_2_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_2_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_3_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_3_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_4_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_4_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_5_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_5_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_6_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_6_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_7_FPN_DATA_PRNU               : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_7_FPN_DATA_FPN                : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_CONTRAST_CONTRAST_GAIN             : std_logic_vector(11 downto 0);                   -- Field: CONTRAST_GAIN
-signal field_rw_DATA_FPN_CONTRAST_CONTRAST_OFFSET           : std_logic_vector(7 downto 0);                    -- Field: CONTRAST_OFFSET
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_SEL           : std_logic;                                       -- Field: FPN_ACC_MODE_SEL
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_EN            : std_logic;                                       -- Field: FPN_ACC_MODE_EN
-signal field_wautoclr_DATA_FPN_ACC_ADD_FPN_ACC_R_SS         : std_logic;                                       -- Field: FPN_ACC_R_SS
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_ADD                : std_logic_vector(11 downto 0);                   -- Field: FPN_ACC_ADD
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_fifo_reset           : std_logic;                                       -- Field: dpc_fifo_reset
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_firstlast_line_rem   : std_logic;                                       -- Field: dpc_firstlast_line_rem
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_pattern0_cfg         : std_logic;                                       -- Field: dpc_pattern0_cfg
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_enable               : std_logic;                                       -- Field: dpc_enable
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_count           : std_logic_vector(5 downto 0);                    -- Field: dpc_list_count
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_WRn             : std_logic;                                       -- Field: dpc_list_WRn
-signal field_wautoclr_DATA_DPC_LIST_CTRL_dpc_list_ss        : std_logic;                                       -- Field: dpc_list_ss
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_add             : std_logic_vector(5 downto 0);                    -- Field: dpc_list_add
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_pattern    : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_y          : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_x          : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_x
-signal field_rw_HISPI_CTRL_CLR                              : std_logic;                                       -- Field: CLR
-signal field_rw_HISPI_CTRL_RESET_IDELAYCTRL                 : std_logic;                                       -- Field: RESET_IDELAYCTRL
+signal readBackMux                                             : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
+signal hit                                                     : std_logic_vector(83 downto 0);                   -- Address decode hit
+signal wEn                                                     : std_logic_vector(83 downto 0);                   -- Write Enable
+signal fullAddr                                                : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
+signal fullAddrAsInt                                           : integer;                                        
+signal bitEnN                                                  : std_logic_vector(31 downto 0);                   -- Bits enable
+signal ldData                                                  : std_logic;                                      
+signal rb_SYSTEM_TAG                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_VERSION                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_CAPABILITY                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_SCRATCHPAD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CTRL                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_HIGH                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G_HIGH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R_HIGH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_PITCH                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_SIZE                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CSC                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_GRAB_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_GRAB_STAT                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG_FRAME_LINE                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG3                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG4                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL1                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL2                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL3                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_TRIGGER_DELAY                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_STROBE_CTRL1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_STROBE_CTRL2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_ADDATA                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_STAT                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_CTRL                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_STAT                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_SUBSAMPLING                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_GAIN_ANA                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI_Y_START                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI_Y_SIZE                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI2_Y_START                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI2_Y_SIZE                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_M_LINES                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GR                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GB                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_R                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_B                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG_PINS                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_TRIGGER_MISSED                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_FPS                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG_CNTR1                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_FOT                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SFNC                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_LUT_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_LUT_RB                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_MULT1                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_MULT2                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_B_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_G_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_R_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ADD                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_READ_REG                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_0                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_1                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_2                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_3                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_4                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_5                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_6                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_7                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_CONTRAST                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ACC_ADD                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ACC_DATA                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_CTRL                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_DATA                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_DATA_RD                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_CTRL                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_IDELAYCTRL_STATUS                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_0                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_1                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_2                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_3                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_4                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_5                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_0                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_1                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_2                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal field_rw_SYSTEM_SCRATCHPAD_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                         : std_logic;                                       -- Field: GRAB_QUEUE_EN
+signal field_rw_DMA_FSTART_VALUE                               : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_HIGH_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_VALUE                             : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_HIGH_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_VALUE                             : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_HIGH_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_PITCH_VALUE                           : std_logic_vector(15 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_SIZE_VALUE                            : std_logic_vector(13 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CSC_COLOR_SPACE                            : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
+signal field_rw_DMA_CSC_DUP_LAST_LINE                          : std_logic;                                       -- Field: DUP_LAST_LINE
+signal field_rw_DMA_CSC_REVERSE_Y                              : std_logic;                                       -- Field: REVERSE_Y
+signal field_rw_DMA_CSC_REVERSE_X                              : std_logic;                                       -- Field: REVERSE_X
+signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                       : std_logic;                                       -- Field: RESET_GRAB
+signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                     : std_logic;                                       -- Field: GRAB_ROI2_EN
+signal field_wautoclr_ACQ_GRAB_CTRL_ABORT_GRAB                 : std_logic;                                       -- Field: ABORT_GRAB
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP_BUFFn            : std_logic;                                       -- Field: TRIGGER_OVERLAP_BUFFn
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP                  : std_logic;                                       -- Field: TRIGGER_OVERLAP
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_ACT                      : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_ACT
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_SRC                      : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_SRC
+signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_SS                    : std_logic;                                       -- Field: GRAB_SS
+signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                        : std_logic;                                       -- Field: BUFFER_ID
+signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                   : std_logic;                                       -- Field: GRAB_CMD
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE               : std_logic_vector(4 downto 0);                    -- Field: FOT_LENGTH_LINE
+signal field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL                    : std_logic;                                       -- Field: EO_FOT_SEL
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                    : std_logic_vector(15 downto 0);                   -- Field: FOT_LENGTH
+signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES         : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
+signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA             : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
+signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                     : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END             : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START           : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
+signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE                : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
+signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
+signal field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_DS
+signal field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_TS
+signal field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY                : std_logic_vector(27 downto 0);                   -- Field: TRIGGER_DELAY
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_E                      : std_logic;                                       -- Field: STROBE_E
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_POL                    : std_logic;                                       -- Field: STROBE_POL
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_START                  : std_logic_vector(27 downto 0);                   -- Field: STROBE_START
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_MODE                   : std_logic;                                       -- Field: STROBE_MODE
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN                   : std_logic;                                       -- Field: STROBE_B_EN
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN                   : std_logic;                                       -- Field: STROBE_A_EN
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_END                    : std_logic_vector(27 downto 0);                   -- Field: STROBE_END
+signal field_rw_ACQ_ACQ_SER_CTRL_SER_RWn                       : std_logic;                                       -- Field: SER_RWn
+signal field_rw_ACQ_ACQ_SER_CTRL_SER_CMD                       : std_logic_vector(1 downto 0);                    -- Field: SER_CMD
+signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS               : std_logic;                                       -- Field: SER_RF_SS
+signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS               : std_logic;                                       -- Field: SER_WF_SS
+signal field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT                     : std_logic_vector(15 downto 0);                   -- Field: SER_DAT
+signal field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD                     : std_logic_vector(14 downto 0);                   -- Field: SER_ADD
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP      : std_logic;                                       -- Field: SENSOR_REFRESH_TEMP
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN         : std_logic;                                       -- Field: SENSOR_POWERDOWN
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR                   : std_logic;                                       -- Field: SENSOR_COLOR
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE              : std_logic;                                       -- Field: SENSOR_REG_UPTATE
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN                  : std_logic;                                       -- Field: SENSOR_RESETN
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP           : std_logic;                                       -- Field: SENSOR_POWERUP
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y    : std_logic;                                       -- Field: ACTIVE_SUBSAMPLING_Y
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y         : std_logic;                                       -- Field: M_SUBSAMPLING_Y
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X           : std_logic;                                       -- Field: SUBSAMPLING_X
+signal field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN                : std_logic_vector(2 downto 0);                    -- Field: ANALOG_GAIN
+signal field_rw_ACQ_SENSOR_ROI_Y_START_Y_START                 : std_logic_vector(9 downto 0);                    -- Field: Y_START
+signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                   : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
+signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START                : std_logic_vector(9 downto 0);                    -- Field: Y_START
+signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE                  : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
+signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED                : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
+signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR              : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
+signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                  : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GR
+signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                  : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
+signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                    : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
+signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                    : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
+signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug0_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug0_sel
+signal field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST    : std_logic;                                       -- Field: TRIGGER_MISSED_RST
+signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                       : std_logic;                                       -- Field: DEBUG_RST_CNTR
+signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                       : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
+signal field_rw_ACQ_DEBUG_LED_TEST                             : std_logic;                                       -- Field: LED_TEST
+signal field_rw_ACQ_EXP_FOT_EXP_FOT                            : std_logic;                                       -- Field: EXP_FOT
+signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                       : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
+signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS                : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
+signal field_rw_DATA_LUT_CTRL_LUT_BYPASS                       : std_logic;                                       -- Field: LUT_BYPASS
+signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_USE                  : std_logic;                                       -- Field: LUT_PALETTE_USE
+signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_W                    : std_logic;                                       -- Field: LUT_PALETTE_W
+signal field_rw_DATA_LUT_CTRL_LUT_DATA_W                       : std_logic_vector(9 downto 0);                    -- Field: LUT_DATA_W
+signal field_rw_DATA_LUT_CTRL_LUT_SEL                          : std_logic_vector(2 downto 0);                    -- Field: LUT_SEL
+signal field_rw_DATA_LUT_CTRL_LUT_WRN                          : std_logic;                                       -- Field: LUT_WRN
+signal field_wautoclr_DATA_LUT_CTRL_LUT_SS                     : std_logic;                                       -- Field: LUT_SS
+signal field_rw_DATA_LUT_CTRL_LUT_ADD                          : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
+signal field_rw_DATA_WB_MULT1_WB_MULT_G                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
+signal field_rw_DATA_WB_MULT1_WB_MULT_B                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
+signal field_rw_DATA_WB_MULT2_WB_MULT_R                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
+signal field_rw_DATA_FPN_ADD_FPN_73                            : std_logic;                                       -- Field: FPN_73
+signal field_rw_DATA_FPN_ADD_FPN_WE                            : std_logic;                                       -- Field: FPN_WE
+signal field_rw_DATA_FPN_ADD_FPN_EN                            : std_logic;                                       -- Field: FPN_EN
+signal field_wautoclr_DATA_FPN_ADD_FPN_SS                      : std_logic;                                       -- Field: FPN_SS
+signal field_rw_DATA_FPN_ADD_FPN_ADD                           : std_logic_vector(9 downto 0);                    -- Field: FPN_ADD
+signal field_rw_DATA_FPN_READ_REG_FPN_READ_PIX_SEL             : std_logic_vector(2 downto 0);                    -- Field: FPN_READ_PIX_SEL
+signal field_rw_DATA_FPN_DATA_0_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_0_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_1_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_1_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_2_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_2_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_3_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_3_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_4_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_4_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_5_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_5_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_6_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_6_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_7_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_7_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_CONTRAST_CONTRAST_GAIN                : std_logic_vector(11 downto 0);                   -- Field: CONTRAST_GAIN
+signal field_rw_DATA_FPN_CONTRAST_CONTRAST_OFFSET              : std_logic_vector(7 downto 0);                    -- Field: CONTRAST_OFFSET
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_SEL              : std_logic;                                       -- Field: FPN_ACC_MODE_SEL
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_EN               : std_logic;                                       -- Field: FPN_ACC_MODE_EN
+signal field_wautoclr_DATA_FPN_ACC_ADD_FPN_ACC_R_SS            : std_logic;                                       -- Field: FPN_ACC_R_SS
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_ADD                   : std_logic_vector(11 downto 0);                   -- Field: FPN_ACC_ADD
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_fifo_reset              : std_logic;                                       -- Field: dpc_fifo_reset
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_firstlast_line_rem      : std_logic;                                       -- Field: dpc_firstlast_line_rem
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_pattern0_cfg            : std_logic;                                       -- Field: dpc_pattern0_cfg
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_enable                  : std_logic;                                       -- Field: dpc_enable
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_count              : std_logic_vector(5 downto 0);                    -- Field: dpc_list_count
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_WRn                : std_logic;                                       -- Field: dpc_list_WRn
+signal field_wautoclr_DATA_DPC_LIST_CTRL_dpc_list_ss           : std_logic;                                       -- Field: dpc_list_ss
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_add                : std_logic_vector(5 downto 0);                    -- Field: dpc_list_add
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_pattern       : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_y             : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_x             : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_x
+signal field_rw_HISPI_CTRL_RESET_IDELAYCTRL                    : std_logic;                                       -- Field: RESET_IDELAYCTRL
+signal field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES              : std_logic;                                       -- Field: CALIBRATE_SERDES
+signal field_rw_HISPI_CTRL_CLR                                 : std_logic;                                       -- Field: CLR
+signal field_rw_HISPI_CTRL_ENABLE                              : std_logic;                                       -- Field: ENABLE
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
+signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
 
 begin -- rtl
 
@@ -3628,15 +3790,15 @@ hit(1)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4#,12)))	else '0
 hit(2)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	CAPABILITY
 hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	SCRATCHPAD
 hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	CTRL
-hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#74#,12)))	else '0'; -- Addr:  0x0074	FSTART
-hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART_HIGH
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_G
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G_HIGH
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_R
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R_HIGH
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	LINE_PITCH
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_SIZE
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	CSC
+hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART
+hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_HIGH
+hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G
+hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_G_HIGH
+hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R
+hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	FSTART_R_HIGH
+hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_PITCH
+hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	LINE_SIZE
+hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98#,12)))	else '0'; -- Addr:  0x0098	CSC
 hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	GRAB_CTRL
 hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	GRAB_STAT
 hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
@@ -3697,7 +3859,16 @@ hit(70) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#380#,12)))	else 
 hit(71) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#384#,12)))	else '0'; -- Addr:  0x0384	DPC_LIST_DATA
 hit(72) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#388#,12)))	else '0'; -- Addr:  0x0388	DPC_LIST_DATA_RD
 hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
-hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
+hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	IDELAYCTRL_STATUS
+hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,12)))	else '0'; -- Addr:  0x0408	LANE_DECODER_STATUS[0]
+hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,12)))	else '0'; -- Addr:  0x040C	LANE_DECODER_STATUS[1]
+hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,12)))	else '0'; -- Addr:  0x0410	LANE_DECODER_STATUS[2]
+hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#414#,12)))	else '0'; -- Addr:  0x0414	LANE_DECODER_STATUS[3]
+hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else '0'; -- Addr:  0x0418	LANE_DECODER_STATUS[4]
+hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#41c#,12)))	else '0'; -- Addr:  0x041C	LANE_DECODER_STATUS[5]
+hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#420#,12)))	else '0'; -- Addr:  0x0420	LANE_PACKER_STATUS[0]
+hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_PACKER_STATUS[1]
+hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	LANE_PACKER_STATUS[2]
 
 
 
@@ -3782,7 +3953,16 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_DATA_DPC_LIST_DATA,
                             rb_DATA_DPC_LIST_DATA_RD,
                             rb_HISPI_CTRL,
-                            rb_HISPI_STATUS
+                            rb_HISPI_IDELAYCTRL_STATUS,
+                            rb_HISPI_LANE_DECODER_STATUS_0,
+                            rb_HISPI_LANE_DECODER_STATUS_1,
+                            rb_HISPI_LANE_DECODER_STATUS_2,
+                            rb_HISPI_LANE_DECODER_STATUS_3,
+                            rb_HISPI_LANE_DECODER_STATUS_4,
+                            rb_HISPI_LANE_DECODER_STATUS_5,
+                            rb_HISPI_LANE_PACKER_STATUS_0,
+                            rb_HISPI_LANE_PACKER_STATUS_1,
+                            rb_HISPI_LANE_PACKER_STATUS_2
                            )
 begin
    case fullAddrAsInt is
@@ -3806,40 +3986,40 @@ begin
       when 16#70# =>
          readBackMux <= rb_DMA_CTRL;
 
-      -- [0x074]: /DMA/FSTART
-      when 16#74# =>
+      -- [0x078]: /DMA/FSTART
+      when 16#78# =>
          readBackMux <= rb_DMA_FSTART;
 
-      -- [0x078]: /DMA/FSTART_HIGH
-      when 16#78# =>
+      -- [0x07c]: /DMA/FSTART_HIGH
+      when 16#7C# =>
          readBackMux <= rb_DMA_FSTART_HIGH;
 
-      -- [0x07c]: /DMA/FSTART_G
-      when 16#7C# =>
+      -- [0x080]: /DMA/FSTART_G
+      when 16#80# =>
          readBackMux <= rb_DMA_FSTART_G;
 
-      -- [0x080]: /DMA/FSTART_G_HIGH
-      when 16#80# =>
+      -- [0x084]: /DMA/FSTART_G_HIGH
+      when 16#84# =>
          readBackMux <= rb_DMA_FSTART_G_HIGH;
 
-      -- [0x084]: /DMA/FSTART_R
-      when 16#84# =>
+      -- [0x088]: /DMA/FSTART_R
+      when 16#88# =>
          readBackMux <= rb_DMA_FSTART_R;
 
-      -- [0x088]: /DMA/FSTART_R_HIGH
-      when 16#88# =>
+      -- [0x08c]: /DMA/FSTART_R_HIGH
+      when 16#8C# =>
          readBackMux <= rb_DMA_FSTART_R_HIGH;
 
-      -- [0x08c]: /DMA/LINE_PITCH
-      when 16#8C# =>
+      -- [0x090]: /DMA/LINE_PITCH
+      when 16#90# =>
          readBackMux <= rb_DMA_LINE_PITCH;
 
-      -- [0x090]: /DMA/LINE_SIZE
-      when 16#90# =>
+      -- [0x094]: /DMA/LINE_SIZE
+      when 16#94# =>
          readBackMux <= rb_DMA_LINE_SIZE;
 
-      -- [0x094]: /DMA/CSC
-      when 16#94# =>
+      -- [0x098]: /DMA/CSC
+      when 16#98# =>
          readBackMux <= rb_DMA_CSC;
 
       -- [0x100]: /ACQ/GRAB_CTRL
@@ -4082,9 +4262,45 @@ begin
       when 16#400# =>
          readBackMux <= rb_HISPI_CTRL;
 
-      -- [0x404]: /HISPI/STATUS
+      -- [0x404]: /HISPI/IDELAYCTRL_STATUS
       when 16#404# =>
-         readBackMux <= rb_HISPI_STATUS;
+         readBackMux <= rb_HISPI_IDELAYCTRL_STATUS;
+
+      -- [0x408]: /HISPI/LANE_DECODER_STATUS_0
+      when 16#408# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_0;
+
+      -- [0x40c]: /HISPI/LANE_DECODER_STATUS_1
+      when 16#40C# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_1;
+
+      -- [0x410]: /HISPI/LANE_DECODER_STATUS_2
+      when 16#410# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_2;
+
+      -- [0x414]: /HISPI/LANE_DECODER_STATUS_3
+      when 16#414# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_3;
+
+      -- [0x418]: /HISPI/LANE_DECODER_STATUS_4
+      when 16#418# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_4;
+
+      -- [0x41c]: /HISPI/LANE_DECODER_STATUS_5
+      when 16#41C# =>
+         readBackMux <= rb_HISPI_LANE_DECODER_STATUS_5;
+
+      -- [0x420]: /HISPI/LANE_PACKER_STATUS_0
+      when 16#420# =>
+         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_0;
+
+      -- [0x424]: /HISPI/LANE_PACKER_STATUS_1
+      when 16#424# =>
+         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_1;
+
+      -- [0x428]: /HISPI/LANE_PACKER_STATUS_2
+      when 16#428# =>
+         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_2;
 
       -- Default value
       when others =>
@@ -4141,7 +4357,7 @@ wEn(1) <= (hit(1)) and (reg_write);
 -- Field name: MAJOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 
 
@@ -4149,7 +4365,7 @@ regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 -- Field name: MINOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(5),8));
+rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
@@ -4235,8 +4451,12 @@ regfile.DMA.CTRL.GRAB_QUEUE_EN <= field_rw_DMA_CTRL_GRAB_QUEUE_EN;
 P_DMA_CTRL_GRAB_QUEUE_EN : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      if(wEn(4) = '1' and bitEnN(0) = '0') then
-         field_rw_DMA_CTRL_GRAB_QUEUE_EN <= reg_writedata(0);
+      if (resetN = '0') then
+         field_rw_DMA_CTRL_GRAB_QUEUE_EN <= '0';
+      else
+         if(wEn(4) = '1' and bitEnN(0) = '0') then
+            field_rw_DMA_CTRL_GRAB_QUEUE_EN <= reg_writedata(0);
+         end if;
       end if;
    end if;
 end process P_DMA_CTRL_GRAB_QUEUE_EN;
@@ -4264,11 +4484,15 @@ regfile.DMA.FSTART.VALUE <= field_rw_DMA_FSTART_VALUE(31 downto 0);
 P_DMA_FSTART_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(5) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(5) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_VALUE;
 
@@ -4295,11 +4519,15 @@ regfile.DMA.FSTART_HIGH.VALUE <= field_rw_DMA_FSTART_HIGH_VALUE(31 downto 0);
 P_DMA_FSTART_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(6) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(6) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_HIGH_VALUE;
 
@@ -4326,11 +4554,15 @@ regfile.DMA.FSTART_G.VALUE <= field_rw_DMA_FSTART_G_VALUE(31 downto 0);
 P_DMA_FSTART_G_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(7) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_G_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_G_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(7) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_G_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_G_VALUE;
 
@@ -4357,11 +4589,15 @@ regfile.DMA.FSTART_G_HIGH.VALUE <= field_rw_DMA_FSTART_G_HIGH_VALUE(31 downto 0)
 P_DMA_FSTART_G_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(8) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_G_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_G_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(8) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_G_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_G_HIGH_VALUE;
 
@@ -4388,11 +4624,15 @@ regfile.DMA.FSTART_R.VALUE <= field_rw_DMA_FSTART_R_VALUE(31 downto 0);
 P_DMA_FSTART_R_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(9) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_R_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_R_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(9) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_R_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_R_VALUE;
 
@@ -4419,11 +4659,15 @@ regfile.DMA.FSTART_R_HIGH.VALUE <= field_rw_DMA_FSTART_R_HIGH_VALUE(31 downto 0)
 P_DMA_FSTART_R_HIGH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  31 downto 0  loop
-         if(wEn(10) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_FSTART_R_HIGH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_FSTART_R_HIGH_VALUE <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(10) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_FSTART_R_HIGH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_FSTART_R_HIGH_VALUE;
 
@@ -4450,11 +4694,15 @@ regfile.DMA.LINE_PITCH.VALUE <= field_rw_DMA_LINE_PITCH_VALUE(15 downto 0);
 P_DMA_LINE_PITCH_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
-      for j in  15 downto 0  loop
-         if(wEn(11) = '1' and bitEnN(j) = '0') then
-            field_rw_DMA_LINE_PITCH_VALUE(j-0) <= reg_writedata(j);
-         end if;
-      end loop;
+      if (resetN = '0') then
+         field_rw_DMA_LINE_PITCH_VALUE <= std_logic_vector(to_unsigned(integer(0),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(11) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_LINE_PITCH_VALUE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
    end if;
 end process P_DMA_LINE_PITCH_VALUE;
 
@@ -8511,6 +8759,56 @@ rb_DATA_DPC_LIST_DATA_RD(11 downto 0) <= regfile.DATA.DPC_LIST_DATA_RD.dpc_list_
 wEn(73) <= (hit(73)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: RESET_IDELAYCTRL
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_CTRL(3) <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
+regfile.HISPI.CTRL.RESET_IDELAYCTRL <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_CTRL_RESET_IDELAYCTRL
+------------------------------------------------------------------------------------------
+P_HISPI_CTRL_RESET_IDELAYCTRL : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= '0';
+      else
+         if(wEn(73) = '1' and bitEnN(3) = '0') then
+            field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= reg_writedata(3);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_CTRL_RESET_IDELAYCTRL;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATE_SERDES
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_HISPI_CTRL(2) <= '0';
+regfile.HISPI.CTRL.CALIBRATE_SERDES <= field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_CTRL_CALIBRATE_SERDES
+------------------------------------------------------------------------------------------
+P_HISPI_CTRL_CALIBRATE_SERDES : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= '0';
+      else
+         if(wEn(73) = '1' and bitEnN(2) = '0') then
+            field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= reg_writedata(2);
+         else
+            field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= '0';
+         end if;
+      end if;
+   end if;
+end process P_HISPI_CTRL_CALIBRATE_SERDES;
+
+------------------------------------------------------------------------------------------
 -- Field name: CLR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
@@ -8535,34 +8833,34 @@ begin
 end process P_HISPI_CTRL_CLR;
 
 ------------------------------------------------------------------------------------------
--- Field name: RESET_IDELAYCTRL
+-- Field name: ENABLE
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_CTRL(0) <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
-regfile.HISPI.CTRL.RESET_IDELAYCTRL <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
+rb_HISPI_CTRL(0) <= field_rw_HISPI_CTRL_ENABLE;
+regfile.HISPI.CTRL.ENABLE <= field_rw_HISPI_CTRL_ENABLE;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_CTRL_RESET_IDELAYCTRL
+-- Process: P_HISPI_CTRL_ENABLE
 ------------------------------------------------------------------------------------------
-P_HISPI_CTRL_RESET_IDELAYCTRL : process(sysclk)
+P_HISPI_CTRL_ENABLE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= '0';
+         field_rw_HISPI_CTRL_ENABLE <= '0';
       else
          if(wEn(73) = '1' and bitEnN(0) = '0') then
-            field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= reg_writedata(0);
+            field_rw_HISPI_CTRL_ENABLE <= reg_writedata(0);
          end if;
       end if;
    end if;
-end process P_HISPI_CTRL_RESET_IDELAYCTRL;
+end process P_HISPI_CTRL_ENABLE;
 
 
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: HISPI_STATUS
+-- Register name: HISPI_IDELAYCTRL_STATUS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(74) <= (hit(74)) and (reg_write);
@@ -8571,8 +8869,749 @@ wEn(74) <= (hit(74)) and (reg_write);
 -- Field name: PLL_LOCKED
 -- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_HISPI_STATUS(0) <= regfile.HISPI.STATUS.PLL_LOCKED;
+rb_HISPI_IDELAYCTRL_STATUS(0) <= regfile.HISPI.IDELAYCTRL_STATUS.PLL_LOCKED;
 
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(75) <= (hit(75)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(8) <= field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(0).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(75) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(7) <= field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(0).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(75) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(6) <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(0).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(75) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(5) <= regfile.HISPI.LANE_DECODER_STATUS(0).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(0).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(76) <= (hit(76)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(8) <= field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(1).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(76) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(7) <= field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(1).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(76) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(6) <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(1).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(76) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(5) <= regfile.HISPI.LANE_DECODER_STATUS(1).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(1).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(77) <= (hit(77)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(8) <= field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(2).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(7) <= field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(2).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(6) <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(2).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(5) <= regfile.HISPI.LANE_DECODER_STATUS(2).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(2).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_3
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(78) <= (hit(78)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(8) <= field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(3).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(78) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(7) <= field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(3).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(78) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(6) <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(3).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(78) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(5) <= regfile.HISPI.LANE_DECODER_STATUS(3).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(3).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_4
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(79) <= (hit(79)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(8) <= field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(4).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(79) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(7) <= field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(4).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(79) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(6) <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(4).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(79) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(5) <= regfile.HISPI.LANE_DECODER_STATUS(4).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(4).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_DECODER_STATUS_5
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(80) <= (hit(80)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(8) <= field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(5).FIFO_UNDERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(80) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(7) <= field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
+regfile.HISPI.LANE_DECODER_STATUS(5).FIFO_OVERRUN <= field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(80) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRARTION_ERROR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(6) <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(5).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR <= '0';
+      else
+         if(wEn(80) = '1' and bitEnN(6) = '0') then
+            field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR <= reg_writedata(6);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_ACTIVE
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(5) <= regfile.HISPI.LANE_DECODER_STATUS(5).CALIBRATION_ACTIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: CALIBRATION_TAP_VALUE(4 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(4 downto 0) <= regfile.HISPI.LANE_DECODER_STATUS(5).CALIBRATION_TAP_VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_PACKER_STATUS_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(81) <= (hit(81)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_0(8) <= field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_UNDERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(81) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_0(7) <= field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_OVERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(81) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_PACKER_STATUS_1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(82) <= (hit(82)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_1(8) <= field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_UNDERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(82) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_1(7) <= field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_OVERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(82) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_PACKER_STATUS_2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(83) <= (hit(83)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_UNDERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_2(8) <= field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_UNDERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
+      else
+         if(wEn(83) = '1' and bitEnN(8) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
+
+------------------------------------------------------------------------------------------
+-- Field name: FIFO_OVERRUN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_PACKER_STATUS_2(7) <= field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
+regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_OVERRUN <= field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
+      else
+         if(wEn(83) = '1' and bitEnN(7) = '0') then
+            field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= reg_writedata(7);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
 
 ldData <= reg_read;
 

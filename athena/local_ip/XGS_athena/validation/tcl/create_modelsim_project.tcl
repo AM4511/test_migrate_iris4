@@ -61,6 +61,11 @@ ${XILINX_IP_PATH}/hispi_serdes.vhd
 
 set dut_fileset [join [list  [subst { 
 ${REGISTERFILE_PATH}/regfile_xgs_athena.vhd \
+${CTRL_SRC_PATH}/led_status.vhd \
+${CTRL_SRC_PATH}/xgs_power.vhd \
+${CTRL_SRC_PATH}/xgs_spi.vhd \
+${CTRL_SRC_PATH}/xgs_ctrl.vhd \
+${CTRL_SRC_PATH}/XGS_controller_top.vhd \
 ${DATA_SRC_PATH}/hispi_pack.vhd \
 ${DATA_SRC_PATH}/bit_split.vhd \
 ${DATA_SRC_PATH}/tap_controller.vhd \

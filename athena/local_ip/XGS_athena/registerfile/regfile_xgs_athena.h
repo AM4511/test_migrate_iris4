@@ -1,16 +1,16 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : jmansill
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version     : 4.7.0_beta3
-* Build ID            : I20191219-1127
-* Register file CRC32 : 0x5C4F3EA4
+* FDK IDE Version     : 4.7.0_beta4
+* Build ID            : I20191220-1537
+* Register file CRC32 : 0x99823D16
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -33,15 +33,15 @@
 #define FPGA_REGFILE_XGS_ATHENA_SYSTEM_CAPABILITY_ADDRESS              0x008
 #define FPGA_REGFILE_XGS_ATHENA_SYSTEM_SCRATCHPAD_ADDRESS              0x00C
 #define FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_ADDRESS                       0x070
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_ADDRESS                     0x074
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_ADDRESS                0x078
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_ADDRESS                   0x07C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_ADDRESS              0x080
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_ADDRESS                   0x084
-#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_ADDRESS              0x088
-#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS                 0x08C
-#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS                  0x090
-#define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                        0x094
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_ADDRESS                     0x078
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_ADDRESS                0x07C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_ADDRESS                   0x080
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_ADDRESS              0x084
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_ADDRESS                   0x088
+#define FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_ADDRESS              0x08C
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS                 0x090
+#define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS                  0x094
+#define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                        0x098
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS                  0x100
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS                  0x108
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS               0x110
@@ -95,7 +95,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_ADDRESS             0x384
 #define FPGA_REGFILE_XGS_ATHENA_DATA_DPC_LIST_DATA_RD_ADDRESS          0x388
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_ADDRESS                     0x400
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS                   0x404
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x404
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x408
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x420
 
 /**************************************************************************
 * Register name : TAG
@@ -181,8 +183,9 @@ typedef union
 
    struct
    {
-      M_UINT32 GRAB_QUEUE_EN : 1;   /* Bits(0:0), */
-      M_UINT32 RSVD0         : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 GRAB_QUEUE_EN          : 1;   /* Bits(0:0), */
+      M_UINT32 RSVD0                  : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE;
@@ -1474,16 +1477,18 @@ typedef union
 
    struct
    {
-      M_UINT32 RESET_IDELAYCTRL : 1;   /* Bits(0:0), Reset the xilinx macro IDELAYCTRL */
+      M_UINT32 ENABLE           : 1;   /* Bits(0:0), null */
       M_UINT32 CLR              : 1;   /* Bits(1:1), null */
-      M_UINT32 RSVD0            : 30;  /* Bits(31:2), Reserved */
+      M_UINT32 CALIBRATE_SERDES : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
+      M_UINT32 RESET_IDELAYCTRL : 1;   /* Bits(3:3), Reset the Xilinx macro IDELAYCTRL */
+      M_UINT32 RSVD0            : 28;  /* Bits(31:4), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
 
 
 /**************************************************************************
-* Register name : STATUS
+* Register name : IDELAYCTRL_STATUS
 ***************************************************************************/
 typedef union
 {
@@ -1493,11 +1498,53 @@ typedef union
 
    struct
    {
-      M_UINT32 PLL_LOCKED : 1;   /* Bits(0:0), null */
+      M_UINT32 PLL_LOCKED : 1;   /* Bits(0:0), IDELAYCTRL PLL locked */
       M_UINT32 RSVD0      : 31;  /* Bits(31:1), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE;
+
+
+/**************************************************************************
+* Register name : LANE_DECODER_STATUS
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 CALIBRATION_TAP_VALUE : 5;   /* Bits(4:0), null */
+      M_UINT32 CALIBRATION_ACTIVE    : 1;   /* Bits(5:5), null */
+      M_UINT32 CALIBRARTION_ERROR    : 1;   /* Bits(6:6), null */
+      M_UINT32 FIFO_OVERRUN          : 1;   /* Bits(7:7), null */
+      M_UINT32 FIFO_UNDERRUN         : 1;   /* Bits(8:8), null */
+      M_UINT32 RSVD0                 : 23;  /* Bits(31:9), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE;
+
+
+/**************************************************************************
+* Register name : LANE_PACKER_STATUS
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0         : 7;   /* Bits(6:0), Reserved */
+      M_UINT32 FIFO_OVERRUN  : 1;   /* Bits(7:7), null */
+      M_UINT32 FIFO_UNDERRUN : 1;   /* Bits(8:8), null */
+      M_UINT32 RSVD1         : 23;  /* Bits(31:9), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE;
 
 
 /**************************************************************************
@@ -1517,15 +1564,15 @@ typedef struct
 typedef struct
 {
    FPGA_REGFILE_XGS_ATHENA_DMA_CTRL_TYPE          CTRL;           /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE        FSTART;         /* Address offset: 0x4 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE   FSTART_HIGH;    /* Address offset: 0x8 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE      FSTART_G;       /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE FSTART_G_HIGH;  /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE      FSTART_R;       /* Address offset: 0x14 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE FSTART_R_HIGH;  /* Address offset: 0x18 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x1c */
-   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x20 */
-   FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_TYPE        FSTART;         /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_HIGH_TYPE   FSTART_HIGH;    /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_TYPE      FSTART_G;       /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_G_HIGH_TYPE FSTART_G_HIGH;  /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_TYPE      FSTART_R;       /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_FSTART_R_HIGH_TYPE FSTART_R_HIGH;  /* Address offset: 0x1c */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x28 */
 } FPGA_REGFILE_XGS_ATHENA_DMA_TYPE;
 
 /**************************************************************************
@@ -1599,8 +1646,10 @@ typedef struct
 ***************************************************************************/
 typedef struct
 {
-   FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE   CTRL;    /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE STATUS;  /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE                CTRL;                    /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE   IDELAYCTRL_STATUS;       /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x20 */
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************
@@ -1611,7 +1660,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE SYSTEM;     /* Section; Base address offset: 0x0 */
    M_UINT32                            RSVD0[24];  /* Padding; Size (96 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE    DMA;        /* Section; Base address offset: 0x70 */
-   M_UINT32                            RSVD1[23];  /* Padding; Size (92 Bytes) */
+   M_UINT32                            RSVD1[22];  /* Padding; Size (88 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE    ACQ;        /* Section; Base address offset: 0x100 */
    M_UINT32                            RSVD2[12];  /* Padding; Size (48 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DATA_TYPE   DATA;       /* Section; Base address offset: 0x300 */
