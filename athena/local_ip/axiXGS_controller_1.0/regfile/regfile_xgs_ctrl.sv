@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_ctrl.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_ctrl
- ** Created on          : 2020/04/21 14:33:46
+ ** Created on          : 2020/04/29 10:32:24
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0x4BE916FE
+ ** Register file CRC32 : 0x47E96102
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -34,32 +34,6 @@ typedef union packed
    } f;
 
 } fdk_regfile_xgs_ctrl_SYSTEM_ID_t;
-
-
-/**************************************************************************
-* Register name : ACQ_CAP
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [1:0]  LUT_PALETTE;  /* Bits(1:0), null */
-      logic [1:0]  rsvd0;        /* Bits(3:2), Reserved */
-      logic        LUT_WIDTH;    /* Bits(4:4), null */
-      logic [2:0]  rsvd1;        /* Bits(7:5), Reserved */
-      logic [3:0]  CH_LVDS;      /* Bits(11:8), null */
-      logic        COLOR;        /* Bits(12:12), null */
-      logic        FPN_73;       /* Bits(13:13), FPN 7.3 correction CAP */
-      logic        EXP_FOT;      /* Bits(14:14), null */
-      logic        DPC;          /* Bits(15:15), null */
-      logic [15:0] rsvd2;        /* Bits(31:16), Reserved */
-   } f;
-
-} fdk_regfile_xgs_ctrl_SYSTEM_ACQ_CAP_t;
 
 
 /**************************************************************************
@@ -610,25 +584,6 @@ typedef union packed
 
 
 /**************************************************************************
-* Register name : SENSOR_F_LINES
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [9:0]  F_LINES_SENSOR;  /* Bits(9:0), null */
-      logic [4:0]  F_SUPPRESSED;    /* Bits(14:10), null */
-      logic [16:0] rsvd0;           /* Bits(31:15), Reserved */
-   } f;
-
-} fdk_regfile_xgs_ctrl_ACQ_SENSOR_F_LINES_t;
-
-
-/**************************************************************************
 * Register name : SENSOR_DP_GR
 ***************************************************************************/
 typedef union packed
@@ -699,7 +654,7 @@ typedef union packed
       logic [11:0] DP_OFFSET_B;             /* Bits(11:0), null */
       logic [3:0]  reserved;                /* Bits(15:12), null */
       logic [15:0] rsvd0;                   /* Bits(31:16), Reserved */
-      logic        rsvd_register_space[4];  /* Reserved space below */
+      logic        rsvd_register_space[5];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_B_t;
@@ -781,19 +736,12 @@ typedef union packed
 
    struct packed
    {
-      logic       LED_TEST;                /* Bits(0:0), null */
-      logic [1:0] LED_TEST_COLOR;          /* Bits(2:1), null */
-      logic       rsvd0;                   /* Bits(3:3), Reserved */
-      logic [1:0] LED_STAT_CTRL;           /* Bits(5:4), null */
-      logic [1:0] LED_STAT_CLHS;           /* Bits(7:6), null */
-      logic       TEST_MODE;               /* Bits(8:8), null */
-      logic       TEST_MOVE;               /* Bits(9:9), null */
-      logic [5:0] rsvd1;                   /* Bits(15:10), Reserved */
-      logic [9:0] TEST_MODE_PIX_START;     /* Bits(25:16), null */
-      logic [1:0] rsvd2;                   /* Bits(27:26), Reserved */
-      logic       DEBUG_RST_CNTR;          /* Bits(28:28), null */
-      logic [2:0] rsvd3;                   /* Bits(31:29), Reserved */
-      logic       rsvd_register_space[1];  /* Reserved space below */
+      logic        LED_TEST;                /* Bits(0:0), null */
+      logic [1:0]  LED_TEST_COLOR;          /* Bits(2:1), null */
+      logic [24:0] rsvd0;                   /* Bits(27:3), Reserved */
+      logic        DEBUG_RST_CNTR;          /* Bits(28:28), null */
+      logic [2:0]  rsvd1;                   /* Bits(31:29), Reserved */
+      logic        rsvd_register_space[1];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_DEBUG_t;
@@ -810,47 +758,12 @@ typedef union packed
 
    struct packed
    {
-      logic [31:0] EOF_CNTR;                /* Bits(31:0), null */
-      logic        rsvd_register_space[1];  /* Reserved space below */
+      logic [27:0] SENSOR_FRAME_DURATION;   /* Bits(27:0), */
+      logic [3:0]  rsvd0;                   /* Bits(31:28), Reserved */
+      logic        rsvd_register_space[3];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR1_t;
-
-
-/**************************************************************************
-* Register name : DEBUG_CNTR2
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [11:0] EOL_CNTR;  /* Bits(11:0), null */
-      logic [19:0] rsvd0;     /* Bits(31:12), Reserved */
-   } f;
-
-} fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR2_t;
-
-
-/**************************************************************************
-* Register name : DEBUG_CNTR3
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [27:0] SENSOR_FRAME_DURATION;  /* Bits(27:0), */
-      logic [3:0]  rsvd0;                  /* Bits(31:28), Reserved */
-   } f;
-
-} fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR3_t;
 
 
 /**************************************************************************
@@ -898,8 +811,7 @@ typedef union packed
 ***************************************************************************/
 typedef struct packed
 {
-   fdk_regfile_xgs_ctrl_SYSTEM_ID_t      ID;       /* Address offset: 0x0 */
-   fdk_regfile_xgs_ctrl_SYSTEM_ACQ_CAP_t ACQ_CAP;  /* Address offset: 0x30 */
+   fdk_regfile_xgs_ctrl_SYSTEM_ID_t ID;  /* Address offset: 0x0 */
 } fdk_regfile_xgs_ctrl_SYSTEM_t;
 
 
@@ -933,18 +845,15 @@ typedef struct packed
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI2_Y_START_t    SENSOR_ROI2_Y_START;     /* Address offset: 0xb0 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_ROI2_Y_SIZE_t     SENSOR_ROI2_Y_SIZE;      /* Address offset: 0xb4 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_M_LINES_t         SENSOR_M_LINES;          /* Address offset: 0xb8 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_F_LINES_t         SENSOR_F_LINES;          /* Address offset: 0xbc */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GR_t           SENSOR_DP_GR;            /* Address offset: 0xc0 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GB_t           SENSOR_DP_GB;            /* Address offset: 0xc4 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_R_t            SENSOR_DP_R;             /* Address offset: 0xc8 */
-   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_B_t            SENSOR_DP_B;             /* Address offset: 0xcc */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GR_t           SENSOR_DP_GR;            /* Address offset: 0xbc */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_GB_t           SENSOR_DP_GB;            /* Address offset: 0xc0 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_R_t            SENSOR_DP_R;             /* Address offset: 0xc4 */
+   fdk_regfile_xgs_ctrl_ACQ_SENSOR_DP_B_t            SENSOR_DP_B;             /* Address offset: 0xc8 */
    fdk_regfile_xgs_ctrl_ACQ_DEBUG_PINS_t             DEBUG_PINS;              /* Address offset: 0xe0 */
    fdk_regfile_xgs_ctrl_ACQ_TRIGGER_MISSED_t         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    fdk_regfile_xgs_ctrl_ACQ_SENSOR_FPS_t             SENSOR_FPS;              /* Address offset: 0xf0 */
    fdk_regfile_xgs_ctrl_ACQ_DEBUG_t                  DEBUG;                   /* Address offset: 0x1a0 */
    fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR1_t            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
-   fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR2_t            DEBUG_CNTR2;             /* Address offset: 0x1b0 */
-   fdk_regfile_xgs_ctrl_ACQ_DEBUG_CNTR3_t            DEBUG_CNTR3;             /* Address offset: 0x1b4 */
    fdk_regfile_xgs_ctrl_ACQ_EXP_FOT_t                EXP_FOT;                 /* Address offset: 0x1b8 */
    fdk_regfile_xgs_ctrl_ACQ_ACQ_SFNC_t               ACQ_SFNC;                /* Address offset: 0x1c0 */
 } fdk_regfile_xgs_ctrl_ACQ_t;
@@ -956,7 +865,7 @@ typedef struct packed
 typedef struct packed
 {
    fdk_regfile_xgs_ctrl_SYSTEM_t SYSTEM;       /* Section; Base address offset: 0x0 */
-   uint32_t                      [50:0]rsvd0;  /* Padding; Size (204 Bytes) */
+   uint32_t                      [51:0]rsvd0;  /* Padding; Size (208 Bytes) */
    fdk_regfile_xgs_ctrl_ACQ_t    ACQ;          /* Section; Base address offset: 0x100 */
 } fdk_regfile_xgs_ctrl_t;
 

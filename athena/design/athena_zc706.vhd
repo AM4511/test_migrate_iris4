@@ -430,11 +430,11 @@ entity athena_zc706 is
     -- High Pin Count (HPC) Connector (J37)
     -- See UG954 (v1.8) August 6, 2019; HPC Connector J37 p67.
     ---------------------------------------------------------------------------
-    --FMC_HPC_CLK0_M2C_P : in std_logic;
-    --FMC_HPC_CLK0_M2C_N : in std_logic;
+    FMC_HPC_CLK0_M2C_P : in std_logic;
+    FMC_HPC_CLK0_M2C_N : in std_logic;
 
-    --FMC_HPC_CLK1_M2C_P : in std_logic;
-    --FMC_HPC_CLK1_M2C_N : in std_logic;
+    FMC_HPC_CLK1_M2C_P : in std_logic;  -- HiSPI clock Bottom P
+    FMC_HPC_CLK1_M2C_N : in std_logic;  -- HiSPI clock Bottom N
 
 
 
@@ -444,24 +444,24 @@ entity athena_zc706 is
     -- FMC_HPC_LA01_CC_N : in std_logic;
     -- FMC_HPC_LA02_P    : in std_logic;
     -- FMC_HPC_LA02_N    : in std_logic;
-    --FMC_HPC_LA03_P : in  std_logic;
-    --FMC_HPC_LA03_N : in  std_logic;
+    FMC_HPC_LA03_P : in  std_logic;     -- Lane16_p
+    FMC_HPC_LA03_N : in  std_logic;     -- Lane16_n
     -- FMC_HPC_LA04_P    : in std_logic;
     -- FMC_HPC_LA04_N    : in std_logic;
     -- FMC_HPC_LA05_P    : in std_logic;
     -- FMC_HPC_LA05_N    : in std_logic;
     -- FMC_HPC_LA06_P    : in std_logic;
     -- FMC_HPC_LA06_N    : in std_logic;
-    --FMC_HPC_LA07_P : in  std_logic;
-    --FMC_HPC_LA07_N : in  std_logic;
+    FMC_HPC_LA07_P : in  std_logic;     -- Lane8_p
+    FMC_HPC_LA07_N : in  std_logic;     -- Lane8_n
     -- FMC_HPC_LA08_P    : in std_logic;
     -- FMC_HPC_LA08_N    : in std_logic;
     -- FMC_HPC_LA09_P    : in std_logic;
     -- FMC_HPC_LA09_N    : in std_logic;
     -- FMC_HPC_LA10_P    : in std_logic;
     -- FMC_HPC_LA10_N    : in std_logic;
-    --FMC_HPC_LA11_P : in  std_logic;
-    --FMC_HPC_LA11_N : in  std_logic;
+    FMC_HPC_LA11_P : in  std_logic;     -- Lane0_p
+    FMC_HPC_LA11_N : in  std_logic;     -- Lane0_n
     -- FMC_HPC_LA12_P    : in std_logic;
     -- FMC_HPC_LA12_N    : in std_logic;
     FMC_HPC_LA13_P : out std_logic;
@@ -471,7 +471,7 @@ entity athena_zc706 is
     FMC_HPC_LA15_P : out std_logic;
     FMC_HPC_LA15_N : out std_logic;
     FMC_HPC_LA16_P : in  std_logic;
-    FMC_HPC_LA16_N : out std_logic
+    FMC_HPC_LA16_N : out std_logic;
     -- FMC_HPC_LA17_CC_P : in std_logic;
     -- FMC_HPC_LA17_CC_N : in std_logic;
     -- FMC_HPC_LA18_CC_P : in std_logic;
@@ -484,18 +484,19 @@ entity athena_zc706 is
     -- FMC_HPC_LA21_N    : in std_logic;
     -- FMC_HPC_LA22_P    : in std_logic;
     -- FMC_HPC_LA22_N    : in std_logic;
-    --FMC_HPC_LA23_P : in  std_logic;
-    --FMC_HPC_LA23_N : in  std_logic;
+    
+    FMC_HPC_LA23_P : in  std_logic;
+    FMC_HPC_LA23_N : in  std_logic;     -- Lane17_p
     --- FMC_HPC_LA24_P    : in std_logic;
     -- FMC_HPC_LA24_N    : in std_logic;
     -- FMC_HPC_LA25_P    : in std_logic;
     -- FMC_HPC_LA25_N    : in std_logic;
     -- FMC_HPC_LA26_P    : in std_logic;
     -- FMC_HPC_LA26_N    : in std_logic;
-    --FMC_HPC_LA27_P : in  std_logic;
-    --FMC_HPC_LA27_N : in  std_logic;
-    --FMC_HPC_LA28_P : in  std_logic;
-    --FMC_HPC_LA28_N : in  std_logic
+    FMC_HPC_LA27_P : in  std_logic;     -- Lane9_p
+    FMC_HPC_LA27_N : in  std_logic;     -- Lane9_n
+    FMC_HPC_LA28_P : in  std_logic;     -- Lane1_p
+    FMC_HPC_LA28_N : in  std_logic      -- Lane1_n
     -- FMC_HPC_LA29_P    : in std_logic;
     -- FMC_HPC_LA29_N    : in std_logic;
     -- FMC_HPC_LA30_P    : in std_logic;
@@ -692,6 +693,7 @@ architecture struct of athena_zc706 is
       pcie_rxp                : in    std_logic;
       pcie_txn                : out   std_logic;
       pcie_txp                : out   std_logic;
+      ref_clk                 : in    STD_LOGIC;  --silabs 200hmz
       xgs_ctrl_xgs_clk_pll_en : out   std_logic;
       xgs_ctrl_xgs_cs_n       : out   std_logic;
       xgs_ctrl_xgs_fwsi_en    : out   std_logic;
@@ -704,11 +706,11 @@ architecture struct of athena_zc706 is
       xgs_ctrl_xgs_sdin       : in    std_logic;
       xgs_ctrl_xgs_sdout      : out   std_logic;
       xgs_ctrl_xgs_trig_int   : out   std_logic;
-      xgs_ctrl_xgs_trig_rd    : out   std_logic
-      --xgs_hispi_clk_n         : in    std_logic_vector (1 downto 0);
-      --xgs_hispi_clk_p         : in    std_logic_vector (1 downto 0);
-      --xgs_hispi_data_n        : in    std_logic_vector (5 downto 0);
-      --xgs_hispi_data_p        : in    std_logic_vector (5 downto 0)
+      xgs_ctrl_xgs_trig_rd    : out   std_logic;
+      xgs_hispi_clk_n         : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      xgs_hispi_clk_p         : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      xgs_hispi_data_n        : in STD_LOGIC_VECTOR ( 5 downto 0 );
+      xgs_hispi_data_p        : in STD_LOGIC_VECTOR ( 5 downto 0 )
       );
   end component;
 
@@ -752,7 +754,6 @@ architecture struct of athena_zc706 is
   constant HEARTBEAT_PERIOD      : integer := 2*HEARTBEAT_HALF_PERIOD;
 
   signal heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1;
-
 
   attribute mark_debug of local_reset_n  : signal is "true";
   attribute mark_debug of heartbeat_cntr : signal is "true";
@@ -826,6 +827,7 @@ ibuf_200MHz : IBUFDS
       pcie_rxp                => pcie_rxp,
       pcie_txn                => pcie_txn,
       pcie_txp                => pcie_txp,
+      ref_clk                 => SYSCLK_200MHz,
       xgs_ctrl_xgs_clk_pll_en => xgs_ctrl_xgs_clk_pll_en,
       xgs_ctrl_xgs_cs_n       => xgs_ctrl_xgs_cs_n,
       xgs_ctrl_xgs_fwsi_en    => xgs_ctrl_xgs_fwsi_en,
@@ -838,11 +840,11 @@ ibuf_200MHz : IBUFDS
       xgs_ctrl_xgs_sdin       => xgs_ctrl_xgs_sdin,
       xgs_ctrl_xgs_sdout      => xgs_ctrl_xgs_sdout,
       xgs_ctrl_xgs_trig_int   => xgs_ctrl_xgs_trig_int,
-      xgs_ctrl_xgs_trig_rd    => xgs_ctrl_xgs_trig_rd
-      --xgs_hispi_clk_n         => xgs_hispi_clk_n,
-      --xgs_hispi_clk_p         => xgs_hispi_clk_p,
-      --xgs_hispi_data_n        => xgs_hispi_data_n,
-      --xgs_hispi_data_p        => xgs_hispi_data_p
+      xgs_ctrl_xgs_trig_rd    => xgs_ctrl_xgs_trig_rd,
+      xgs_hispi_clk_n         => xgs_hispi_clk_n,
+      xgs_hispi_clk_p         => xgs_hispi_clk_p,
+      xgs_hispi_data_n        => xgs_hispi_data_n,
+      xgs_hispi_data_p        => xgs_hispi_data_p
       );
 
 
@@ -953,7 +955,7 @@ ibuf_200MHz : IBUFDS
   end process;
 
 
-  GPIO_LED_LEFT  <= heartbeat_cntr(27) and not(PCIE_PERST_LS);
+  GPIO_LED_LEFT  <= heartbeat_led and not(PCIE_PERST_LS);
   GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
 
   P_heartbeat_cntr : process (pcie_clk100MHz) is
@@ -989,5 +991,34 @@ ibuf_200MHz : IBUFDS
 
   GPIO_LED_0 <= heartbeat_led;
 
+  
+  
+  -----------------------------------------------------------------------------
+  -- Top HiSPi
+  -----------------------------------------------------------------------------
+  xgs_hispi_clk_n(0) <= FMC_HPC_CLK0_M2C_N;
+  xgs_hispi_clk_p(0) <= FMC_HPC_CLK0_M2C_P;
+
+  xgs_hispi_data_n(0) <= FMC_HPC_LA11_N;
+  xgs_hispi_data_p(0) <= FMC_HPC_LA11_P;
+  xgs_hispi_data_n(2) <= FMC_HPC_LA07_N;
+  xgs_hispi_data_p(2) <= FMC_HPC_LA07_P;
+  xgs_hispi_data_n(4) <= FMC_HPC_LA03_N;
+  xgs_hispi_data_p(4) <= FMC_HPC_LA03_P;
+
+
+  -----------------------------------------------------------------------------
+  -- Bottom HiSPi
+  -----------------------------------------------------------------------------
+  xgs_hispi_clk_n(1) <= FMC_HPC_CLK1_M2C_N;
+  xgs_hispi_clk_p(1) <= FMC_HPC_CLK1_M2C_P;
+
+  xgs_hispi_data_n(1) <= FMC_HPC_LA28_N;
+  xgs_hispi_data_p(1) <= FMC_HPC_LA28_P;
+  xgs_hispi_data_n(3) <= FMC_HPC_LA27_N;
+  xgs_hispi_data_p(3) <= FMC_HPC_LA27_P;
+  xgs_hispi_data_n(5) <= FMC_HPC_LA23_N;
+  xgs_hispi_data_p(5) <= FMC_HPC_LA23_P;  
+  
 
 end struct;

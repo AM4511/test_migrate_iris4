@@ -91,12 +91,13 @@ entity xgs_ctrl is
            --   signals
            ---------------------------------------------------------------------------          
            --start_calibration               : out std_logic;
-
+           DEC_EOF_sys                     : in  std_logic;
+           
            abort_readout_datapath          : out std_logic;
            dma_idle                        : in  std_logic;
 
-           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers  
-           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers 
+           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers (5 sys_clk length) 
+           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers (5 sys_clk length)  
            
            curr_db_GRAB_ROI2_EN            : out std_logic;
                       
@@ -451,8 +452,8 @@ architecture functional of xgs_ctrl is
   signal  fps_cntr               : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
   signal  fps_cntr_db            : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
 
-  signal fast_fps_est     : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION'range);
-  signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION'range); 
+  signal fast_fps_est     : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range);
+  signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range); 
   
   -------------------------------------
   --  Signaux Chipscopables
@@ -1273,7 +1274,7 @@ BEGIN
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est  <= (others=>'0');
-      elsif(readout_cntr2_end='1' ) then
+      elsif(DEC_EOF_sys='1' ) then
         fast_fps_est  <= (others=>'0');
       elsif(fast_fps_est=X"FFFFFFF") then
         fast_fps_est  <= fast_fps_est;
@@ -1283,13 +1284,13 @@ BEGIN
     
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est_DB  <= (others=>'0');
-      elsif(readout_cntr2_end='1' ) then
+      elsif(DEC_EOF_sys='1' ) then
         fast_fps_est_DB  <= fast_fps_est;
       end if;
     end if;    
   end process;
     
-  REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION <= fast_fps_est_DB;
+  REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION <= fast_fps_est_DB;
   
   
   ------------------------------------------
@@ -2333,11 +2334,10 @@ BEGIN
   begin
     if(rising_edge(sys_clk)) then
       
-      --4 dummy lines after M_lines need to be confirmed by Onsemi      
+      --4 dummy lines after M_lines are skipped, confirmed by Onsemi      
       TOTAL_NB_LINES <= "11"                                                  -- 3 is first dummy lines after FOT
                         + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR           -- Black lines for calibration 
-                        - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED   
-                        + "100"                                               -- Dummy 2
+                        + '1'                                                 -- Embedded
                         + ('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00") -- Y_size is a 4 line multiplier              
                         + "111"                                               -- Dummy 3
                         + "111"                                               -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid

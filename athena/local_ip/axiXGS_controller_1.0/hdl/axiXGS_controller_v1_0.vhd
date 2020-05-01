@@ -57,8 +57,12 @@ entity axiXGS_controller_v1_0 is
 
         
         ---------------------------------------------------------------------------
-        --  Signals to Datapath/DMA
+        --  Signals to/from Datapath/DMA
         ---------------------------------------------------------------------------
+        HISPI_pix_clk                   : in    std_logic := '0'; 
+        
+        DEC_EOF                         : in    std_logic := '0';
+        
         abort_readout_datapath          : out   std_logic := '0';
         dma_idle                        : in    std_logic := '1';
 
@@ -77,6 +81,16 @@ entity axiXGS_controller_v1_0 is
         curr_db_subsampling_Y           : out   std_logic:='0';
         
         curr_db_BUFFER_ID               : out   std_logic:='0';
+        
+        
+        ---------------------------------------------------------------------------
+        --  IRQ to system
+        ---------------------------------------------------------------------------        
+        irq_eos                         : out   std_logic;
+        irq_sos                         : out   std_logic;  
+        irq_eoe                         : out   std_logic;  
+        irq_soe                         : out   std_logic;  
+        irq_abort                       : out   std_logic;
         
         
 		-- User ports ends
@@ -258,6 +272,7 @@ architecture arch_imp of axiXGS_controller_v1_0 is
            --   signals
            ---------------------------------------------------------------------------          
            --start_calibration               : out std_logic;
+           DEC_EOF_SYS                     : in    std_logic := '0';
 
            abort_readout_datapath          : out std_logic;
            dma_idle                        : in  std_logic;
@@ -290,6 +305,28 @@ architecture arch_imp of axiXGS_controller_v1_0 is
   end component;  
   
 
+  ------------------------------------------
+  --  LED STATUS
+  ------------------------------------------
+  component led_status is
+     generic( G_SYS_CLK_PERIOD : integer    := 16     -- Sysclock frequency
+          );
+     port (   
+       sys_reset_n         : in  std_logic;
+       sys_clk             : in  std_logic;
+
+       pix_clk             : in  std_logic;
+
+       led_out             : out std_logic_vector(1 downto 0);
+       reg_pixclk_error    : out std_logic;
+       
+       Green_Led_event_sys : in std_logic:='0';
+       
+       REG_LED_TEST        : in  std_logic                    := '0';
+       REG_LED_TEST_COLOR  : in  std_logic_vector(1 downto 0) := "00"
+
+    );
+  end component;
 
 
 
@@ -305,6 +342,12 @@ architecture arch_imp of axiXGS_controller_v1_0 is
   signal xgs_cs_n_int      : std_logic;
   signal xgs_sdout_int     : std_logic;                 
   signal xgs_power_goodN   : std_logic;  
+  
+  
+  signal xgs_monitor0_sysclk     : std_logic := '0';
+  signal xgs_monitor1_sysclk     : std_logic := '0';
+  signal xgs_monitor1_sysclk_P1  : std_logic := '0'; 
+  signal Green_Led_event_sys : std_logic := '0';
   
   
   -------------------------------------------
@@ -498,8 +541,8 @@ begin
            xgs_trig_rd                     => xgs_trig_rd, 
 
            xgs_monitor0                    => xgs_monitor0,  --EXP
-           xgs_monitor1                    => xgs_monitor1,  --ROT 
-           xgs_monitor2                    => xgs_monitor2,  -- A definir
+           xgs_monitor1                    => xgs_monitor1,  --FOT 
+           xgs_monitor2                    => xgs_monitor2,  --NEW LINE, a cause du bug
            
            ---------------------------------------------------------------------------
            --  OUTPUTS TO other fpga
@@ -510,8 +553,8 @@ begin
            exposure_out                    => anput_exposure_out,
            trig_rdy_out                    => anput_trig_rdy_out,
            
-           xgs_monitor0_sysclk             => open,
-           xgs_monitor1_sysclk             => open,
+           xgs_monitor0_sysclk             => xgs_monitor0_sysclk,
+           xgs_monitor1_sysclk             => xgs_monitor1_sysclk,
            
            ---------------------------------------------------------------------------
            --  INPUTS FROM other fpga
@@ -529,17 +572,19 @@ begin
            ---------------------------------------------------------------------------
            -- IRQ
            ---------------------------------------------------------------------------
-           irq_eos                         => open,  --Strobe
-           irq_sos                         => open,  --Strobe
-           irq_eoe                         => open,  --Exposure
-           irq_soe                         => open,  --Exposure
-           irq_abort                       => open,
+           irq_eos                         => irq_eos  ,  --End   Of Strobe
+           irq_sos                         => irq_sos  ,  --Start Of Strobe
+           irq_eoe                         => irq_eoe  ,  --End   Of Exposure
+           irq_soe                         => irq_soe  ,  --Start Of Exposure
+           irq_abort                       => irq_abort,  --End   Of Abort
            
            ---------------------------------------------------------------------------
            --  Signals to Datapath/DMA
            ---------------------------------------------------------------------------
            --start_calibration               => open,
 
+           DEC_EOF_sys                     => DEC_EOF,           -- A negotier avec Amarchan, ds quel domaine d'horloge il va arriver
+           
            abort_readout_datapath          => abort_readout_datapath,
            dma_idle                        => dma_idle,
 
@@ -566,7 +611,35 @@ begin
 
         );
  
+ 
+ 
+  ------------------------------------------
+  --  LED STATUS
+  ------------------------------------------
+  process (sys_clk)
+  begin  
+    if (sys_clk'event and sys_clk = '1') then  
+      xgs_monitor1_sysclk_P1     <= xgs_monitor1_sysclk;
+      Green_Led_event_sys        <= xgs_monitor1_sysclk and not(xgs_monitor1_sysclk_P1);
+    end if;
+  end process; 
+  
+  Xled_status :  led_status 
+   generic map(G_SYS_CLK_PERIOD => G_SYS_CLK_PERIOD)
+   port map(
+     sys_reset_n         => sys_reset_n,
+     sys_clk             => sys_clk,
 
+     pix_clk             => HISPI_pix_clk,
+
+     led_out             => led_out,
+     reg_pixclk_error    => open,
+     
+     Green_Led_event_sys => Green_Led_event_sys,
+     
+     REG_LED_TEST        => regfile.ACQ.DEBUG.LED_TEST,
+     REG_LED_TEST_COLOR  => regfile.ACQ.DEBUG.LED_TEST_COLOR
+  );
 
 
  

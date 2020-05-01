@@ -19,14 +19,15 @@
 ------------------------------------------------------------------------------
 
 library IEEE;                   
-use IEEE.std_logic_1164.all;
-use IEEE.std_logic_unsigned.all;
+  use IEEE.std_logic_1164.all;
+  use IEEE.std_logic_unsigned.all;
 
 Library xpm;
-use xpm.vcomponents.all;
+  use xpm.vcomponents.all;
 
-library  work;
-use work.regfile_xgs_ctrl_pack.all;
+library work;
+  use work.regfile_xgs_athena_pack.all;
+
 
 
 entity xgs_spi is
@@ -48,9 +49,12 @@ entity xgs_spi is
            abort_fifo_cmd        : in std_logic;
            abort_fifo_cmd_done   : out std_logic;
 
-           --register file of this head
            acquisition_start_SFNC : in std_logic:='0';
-           regfile                : inout REGFILE_XGS_CTRL_TYPE := INIT_REGFILE_XGS_CTRL_TYPE
+
+           ---------------------------------------------------------------------------
+           --  RegFile
+           ---------------------------------------------------------------------------         
+           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
         );
 end xgs_spi;

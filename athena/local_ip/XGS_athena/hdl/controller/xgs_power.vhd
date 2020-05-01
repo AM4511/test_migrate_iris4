@@ -17,7 +17,8 @@ library IEEE;
   use IEEE.std_logic_arith.all;
 
 library work;
-use work.regfile_xgs_ctrl_pack.all;
+  use work.regfile_xgs_athena_pack.all;
+
 
 library UNISIM;
   use UNISIM.VCOMPONENTS.all;
@@ -35,7 +36,10 @@ entity xgs_power is
            xgs_osc_en                      : out std_logic;
            xgs_reset_n                     : out std_logic;
 
-           regfile                         : inout REGFILE_XGS_CTRL_TYPE := INIT_REGFILE_XGS_CTRL_TYPE
+           ---------------------------------------------------------------------------
+           --  RegFile
+           ---------------------------------------------------------------------------         
+           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
         );
 end xgs_power;

@@ -159,20 +159,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Iris4_Camera.cpp" />
+    <ClCompile Include="source\I2C.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
+    <ClCompile Include="source\XGS12K.cpp" />
+    <ClCompile Include="source\XGS5K.cpp" />
+    <ClCompile Include="source\XGSxK.cpp" />
     <ClCompile Include="source\XGS_Ctrl.cpp" />
+    <ClCompile Include="source\XGS_Data.cpp" />
+    <ClCompile Include="tests\test_0000_Continu.cpp" />
+    <ClCompile Include="tests\test_0001_SWtrig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\hispi_registerfile.h" />
+    <ClInclude Include="include\I2C.h" />
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
-    <ClInclude Include="include\regfile_xgs_ctrl.h" />
+    <ClInclude Include="include\regfile_i2c.h" />
+    <ClInclude Include="include\regfile_xgs_ctrl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />
     <ClInclude Include="include\targetver.h" />
     <ClInclude Include="include\XGS_Ctrl.h" />
+    <ClInclude Include="include\XGS_Data.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

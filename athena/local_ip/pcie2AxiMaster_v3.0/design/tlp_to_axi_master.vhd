@@ -873,11 +873,12 @@ begin
   --                       '0';
 
   tlp_in_accept_data <= '1' when (axi_aw_ack = '1' and state = S_WRITE_ADDR) else
-                        '1' when (axi_w_ack = '1' and (state = S_WRITE_DATA or state = S_WRITE_LAST_DATA)) else
+                        --'1' when (axi_w_ack = '1' and (state = S_WRITE_DATA or state = S_WRITE_LAST_DATA)) else
+                        '1' when (axi_w_ack = '1' and (state = S_WRITE_DATA) ) else     --jmansill on genere pas au last car on a deja envoye un lors de l'acceptation du cycle d'adresse
                         '1' when (state = S_TRANSACTION_ID) else
                         '0';
 
-
+                        
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------

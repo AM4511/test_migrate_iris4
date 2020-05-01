@@ -2,11 +2,11 @@
 ** File                : Cregfile_xgs_ctrl.cpp
 ** Project             : FDK
 ** Module              : regfile_xgs_ctrl
-** Created on          : 2020/04/21 14:33:46
+** Created on          : 2020/04/29 10:32:24
 ** Created by          : jmansill
 ** FDK IDE Version     : 4.7.0_beta3
 ** Build ID            : I20191219-1127
-** Register file CRC32 : 0x4BE916FE
+** Register file CRC32 : 0x47E96102
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -36,23 +36,6 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    //Fields:
    pRegister->addField(createField(pRegister, "StaticID", 0, 32, CfdkField::RO, 0xcafe0ccd, 0x0, 0xffffffff)); // ID(31:0)
-
-   /******************************************************************
-   * Register: //SYSTEM/ACQ_CAP(31:0)
-   * Offset: 0x30
-   * Address: 0x30
-   *******************************************************************/
-   pRegister = createRegister(pSection, "ACQ_CAP", 0x30, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "DPC", 15, 1, CfdkField::STATIC, 0x1, 0x0, 0x1)); // ACQ_CAP(15)
-   pRegister->addField(createField(pRegister, "EXP_FOT", 14, 1, CfdkField::STATIC, 0x1, 0x0, 0x1)); // ACQ_CAP(14)
-   pRegister->addField(createField(pRegister, "FPN_73", 13, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // ACQ_CAP(13)
-   pRegister->addField(createField(pRegister, "COLOR", 12, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // ACQ_CAP(12)
-   pRegister->addField(createField(pRegister, "CH_LVDS", 8, 4, CfdkField::RO, 0x0, 0x0, 0xf)); // ACQ_CAP(11:8)
-   pRegister->addField(createField(pRegister, "LUT_WIDTH", 4, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // ACQ_CAP(4)
-   pRegister->addField(createField(pRegister, "LUT_PALETTE", 0, 2, CfdkField::RO, 0x0, 0x0, 0x3)); // ACQ_CAP(1:0)
 
 
    /******************************************************************
@@ -401,23 +384,11 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
    pRegister->addField(createField(pRegister, "M_LINES_SENSOR", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_M_LINES(9:0)
 
    /******************************************************************
-   * Register: //ACQ/SENSOR_F_LINES(31:0)
+   * Register: //ACQ/SENSOR_DP_GR(31:0)
    * Offset: 0xbc
    * Address: 0x1bc
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_F_LINES", 0xbc, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "F_SUPPRESSED", 10, 5, CfdkField::RW, 0x0, 0x1f, 0x1f)); // SENSOR_F_LINES(14:10)
-   pRegister->addField(createField(pRegister, "F_LINES_SENSOR", 0, 10, CfdkField::RW, 0x8, 0x3ff, 0x3ff)); // SENSOR_F_LINES(9:0)
-
-   /******************************************************************
-   * Register: //ACQ/SENSOR_DP_GR(31:0)
-   * Offset: 0xc0
-   * Address: 0x1c0
-   *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_DP_GR", 0xc0, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_DP_GR", 0xbc, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -426,10 +397,10 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_DP_GB(31:0)
-   * Offset: 0xc4
-   * Address: 0x1c4
+   * Offset: 0xc0
+   * Address: 0x1c0
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_DP_GB", 0xc4, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_DP_GB", 0xc0, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -438,10 +409,10 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_DP_R(31:0)
-   * Offset: 0xc8
-   * Address: 0x1c8
+   * Offset: 0xc4
+   * Address: 0x1c4
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_DP_R", 0xc8, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_DP_R", 0xc4, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -450,10 +421,10 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    /******************************************************************
    * Register: //ACQ/SENSOR_DP_B(31:0)
-   * Offset: 0xcc
-   * Address: 0x1cc
+   * Offset: 0xc8
+   * Address: 0x1c8
    *******************************************************************/
-   pRegister = createRegister(pSection, "SENSOR_DP_B", 0xcc, 4, true);
+   pRegister = createRegister(pSection, "SENSOR_DP_B", 0xc8, 4, true);
    pSection->addRegister(pRegister);
 
    //Fields:
@@ -507,11 +478,6 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
 
    //Fields:
    pRegister->addField(createField(pRegister, "DEBUG_RST_CNTR", 28, 1, CfdkField::RW, 0x1, 0x1, 0x1)); // DEBUG(28)
-   pRegister->addField(createField(pRegister, "TEST_MODE_PIX_START", 16, 10, CfdkField::RW, 0x0, 0x3ff, 0x3ff)); // DEBUG(25:16)
-   pRegister->addField(createField(pRegister, "TEST_MOVE", 9, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // DEBUG(9)
-   pRegister->addField(createField(pRegister, "TEST_MODE", 8, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // DEBUG(8)
-   pRegister->addField(createField(pRegister, "LED_STAT_CLHS", 6, 2, CfdkField::RO, 0x0, 0x0, 0x3)); // DEBUG(7:6)
-   pRegister->addField(createField(pRegister, "LED_STAT_CTRL", 4, 2, CfdkField::RO, 0x0, 0x0, 0x3)); // DEBUG(5:4)
    pRegister->addField(createField(pRegister, "LED_TEST_COLOR", 1, 2, CfdkField::RW, 0x0, 0x3, 0x3)); // DEBUG(2:1)
    pRegister->addField(createField(pRegister, "LED_TEST", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // DEBUG(0)
 
@@ -524,29 +490,7 @@ Cregfile_xgs_ctrl::Cregfile_xgs_ctrl() : CfdkRegisterFile("regfile_xgs_ctrl", 9,
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "EOF_CNTR", 0, 32, CfdkField::RO, 0x0, 0x0, 0xffffffff)); // DEBUG_CNTR1(31:0)
-
-   /******************************************************************
-   * Register: //ACQ/DEBUG_CNTR2(31:0)
-   * Offset: 0x1b0
-   * Address: 0x2b0
-   *******************************************************************/
-   pRegister = createRegister(pSection, "DEBUG_CNTR2", 0x1b0, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "EOL_CNTR", 0, 12, CfdkField::RO, 0x0, 0x0, 0xfff)); // DEBUG_CNTR2(11:0)
-
-   /******************************************************************
-   * Register: //ACQ/DEBUG_CNTR3(31:0)
-   * Offset: 0x1b4
-   * Address: 0x2b4
-   *******************************************************************/
-   pRegister = createRegister(pSection, "DEBUG_CNTR3", 0x1b4, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "SENSOR_FRAME_DURATION", 0, 28, CfdkField::RO, 0x0, 0x0, 0xfffffff)); // DEBUG_CNTR3(27:0)
+   pRegister->addField(createField(pRegister, "SENSOR_FRAME_DURATION", 0, 28, CfdkField::RO, 0x0, 0x0, 0xfffffff)); // DEBUG_CNTR1(27:0)
 
    /******************************************************************
    * Register: //ACQ/EXP_FOT(31:0)

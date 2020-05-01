@@ -61,6 +61,12 @@ port
   data_in_from_pins_n     : in    std_logic_vector(SYS_W-1 downto 0);
   data_in_to_device       : out   std_logic_vector(DEV_W-1 downto 0);
 
+-- Input, Output delay control signals
+  in_delay_reset          : in    std_logic;                    -- Active high synchronous reset for input delay
+  in_delay_data_ce        : in    std_logic_vector(SYS_W -1 downto 0);                    -- Enable signal for delay 
+  in_delay_data_inc       : in    std_logic_vector(SYS_W -1 downto 0);                    -- Delay increment (high), decrement (low) signal
+  in_delay_tap_in         : in    std_logic_vector(5*SYS_W -1 downto 0); -- Dynamically loadable delay tap value for input delay
+  in_delay_tap_out        : out   std_logic_vector(5*SYS_W -1 downto 0); -- Delay tap value for monitoring input delay
   bitslip                 : in    std_logic_vector(SYS_W-1 downto 0);                    -- Bitslip module is enabled in NETWORKING mode
                                                                 -- User should tie it to '0' if not needed
  
@@ -86,6 +92,11 @@ your_instance_name : hispi_phy_xilinx
    data_in_from_pins_p => data_in_from_pins_p,
    data_in_from_pins_n => data_in_from_pins_n,
    data_in_to_device => data_in_to_device,
+   in_delay_reset => in_delay_reset,                    
+   in_delay_data_ce => in_delay_data_ce,      
+   in_delay_data_inc => in_delay_data_inc,     
+   in_delay_tap_in => in_delay_tap_in,          
+   in_delay_tap_out => in_delay_tap_out,         
    bitslip => bitslip,                           
    clk_in_p => clk_in_p,                          
    clk_in_n => clk_in_n,
