@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/01 09:52:53
+-- Created on          : 2020/05/01 16:09:09
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x99823D16
+-- Register file CRC32 : 0xB4F5B47D
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1364,7 +1364,7 @@ package regfile_xgs_athena_pack is
    type HISPI_LANE_DECODER_STATUS_TYPE is record
       FIFO_UNDERRUN  : std_logic;
       FIFO_OVERRUN   : std_logic;
-      CALIBRARTION_ERROR: std_logic;
+      CALIBRATION_ERROR: std_logic;
       CALIBRATION_ACTIVE: std_logic;
       CALIBRATION_TAP_VALUE: std_logic_vector(4 downto 0);
    end record HISPI_LANE_DECODER_STATUS_TYPE;
@@ -1372,7 +1372,7 @@ package regfile_xgs_athena_pack is
    constant INIT_HISPI_LANE_DECODER_STATUS_TYPE : HISPI_LANE_DECODER_STATUS_TYPE := (
       FIFO_UNDERRUN   => 'Z',
       FIFO_OVERRUN    => 'Z',
-      CALIBRARTION_ERROR => 'Z',
+      CALIBRATION_ERROR => 'Z',
       CALIBRATION_ACTIVE => 'Z',
       CALIBRATION_TAP_VALUE => (others=> 'Z')
    );
@@ -3420,7 +3420,7 @@ package body regfile_xgs_athena_pack is
       output := (others=>'0'); -- Unassigned bits set to low
       output(8) := reg.FIFO_UNDERRUN;
       output(7) := reg.FIFO_OVERRUN;
-      output(6) := reg.CALIBRARTION_ERROR;
+      output(6) := reg.CALIBRATION_ERROR;
       output(5) := reg.CALIBRATION_ACTIVE;
       output(4 downto 0) := reg.CALIBRATION_TAP_VALUE;
       return output;
@@ -3435,7 +3435,7 @@ package body regfile_xgs_athena_pack is
    begin
       output.FIFO_UNDERRUN := stdlv(8);
       output.FIFO_OVERRUN := stdlv(7);
-      output.CALIBRARTION_ERROR := stdlv(6);
+      output.CALIBRATION_ERROR := stdlv(6);
       output.CALIBRATION_ACTIVE := stdlv(5);
       output.CALIBRATION_TAP_VALUE := stdlv(4 downto 0);
       return output;
@@ -3474,11 +3474,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/01 09:52:53
+-- Created on          : 2020/05/01 16:09:09
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x99823D16
+-- Register file CRC32 : 0xB4F5B47D
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3515,256 +3515,256 @@ architecture rtl of regfile_xgs_athena is
 ------------------------------------------------------------------------------------------
 -- Signals declaration
 ------------------------------------------------------------------------------------------
-signal readBackMux                                             : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                     : std_logic_vector(83 downto 0);                   -- Address decode hit
-signal wEn                                                     : std_logic_vector(83 downto 0);                   -- Write Enable
-signal fullAddr                                                : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
-signal fullAddrAsInt                                           : integer;                                        
-signal bitEnN                                                  : std_logic_vector(31 downto 0);                   -- Bits enable
-signal ldData                                                  : std_logic;                                      
-signal rb_SYSTEM_TAG                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_VERSION                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_CAPABILITY                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_SYSTEM_SCRATCHPAD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_CTRL                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_HIGH                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_G                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_G_HIGH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_R                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_FSTART_R_HIGH                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_LINE_PITCH                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_LINE_SIZE                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DMA_CSC                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_GRAB_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_GRAB_STAT                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG_FRAME_LINE                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG3                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_READOUT_CFG4                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL1                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL2                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_CTRL3                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_TRIGGER_DELAY                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_STROBE_CTRL1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_STROBE_CTRL2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_ADDATA                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SER_STAT                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_CTRL                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_STAT                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_SUBSAMPLING                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_GAIN_ANA                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI_Y_START                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI_Y_SIZE                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_START                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_SIZE                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_M_LINES                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_GR                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_GB                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_R                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_DP_B                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG_PINS                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_TRIGGER_MISSED                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_FPS                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_DEBUG_CNTR1                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_EXP_FOT                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_ACQ_SFNC                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_LUT_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_LUT_RB                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_MULT1                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_MULT2                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_B_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_G_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_WB_R_ACC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ADD                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_READ_REG                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_0                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_1                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_2                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_3                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_4                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_5                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_6                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_DATA_7                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_CONTRAST                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ACC_ADD                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_FPN_ACC_DATA                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_CTRL                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_DATA                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_DATA_DPC_LIST_DATA_RD                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_CTRL                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_IDELAYCTRL_STATUS                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_0                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_1                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_2                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_3                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_4                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_DECODER_STATUS_5                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_0                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_1                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_2                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal field_rw_SYSTEM_SCRATCHPAD_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                         : std_logic;                                       -- Field: GRAB_QUEUE_EN
-signal field_rw_DMA_FSTART_VALUE                               : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_HIGH_VALUE                          : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_G_VALUE                             : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_G_HIGH_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_R_VALUE                             : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_FSTART_R_HIGH_VALUE                        : std_logic_vector(31 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_PITCH_VALUE                           : std_logic_vector(15 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_SIZE_VALUE                            : std_logic_vector(13 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_CSC_COLOR_SPACE                            : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
-signal field_rw_DMA_CSC_DUP_LAST_LINE                          : std_logic;                                       -- Field: DUP_LAST_LINE
-signal field_rw_DMA_CSC_REVERSE_Y                              : std_logic;                                       -- Field: REVERSE_Y
-signal field_rw_DMA_CSC_REVERSE_X                              : std_logic;                                       -- Field: REVERSE_X
-signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                       : std_logic;                                       -- Field: RESET_GRAB
-signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                     : std_logic;                                       -- Field: GRAB_ROI2_EN
-signal field_wautoclr_ACQ_GRAB_CTRL_ABORT_GRAB                 : std_logic;                                       -- Field: ABORT_GRAB
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP_BUFFn            : std_logic;                                       -- Field: TRIGGER_OVERLAP_BUFFn
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP                  : std_logic;                                       -- Field: TRIGGER_OVERLAP
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_ACT                      : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_ACT
-signal field_rw_ACQ_GRAB_CTRL_TRIGGER_SRC                      : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_SRC
-signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_SS                    : std_logic;                                       -- Field: GRAB_SS
-signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                        : std_logic;                                       -- Field: BUFFER_ID
-signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                   : std_logic;                                       -- Field: GRAB_CMD
-signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE               : std_logic_vector(4 downto 0);                    -- Field: FOT_LENGTH_LINE
-signal field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL                    : std_logic;                                       -- Field: EO_FOT_SEL
-signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                    : std_logic_vector(15 downto 0);                   -- Field: FOT_LENGTH
-signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES         : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
-signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA             : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
-signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                     : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
-signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END             : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
-signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START           : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
-signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE                : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
-signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
-signal field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_DS
-signal field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS                      : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_TS
-signal field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY                : std_logic_vector(27 downto 0);                   -- Field: TRIGGER_DELAY
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_E                      : std_logic;                                       -- Field: STROBE_E
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_POL                    : std_logic;                                       -- Field: STROBE_POL
-signal field_rw_ACQ_STROBE_CTRL1_STROBE_START                  : std_logic_vector(27 downto 0);                   -- Field: STROBE_START
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_MODE                   : std_logic;                                       -- Field: STROBE_MODE
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN                   : std_logic;                                       -- Field: STROBE_B_EN
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN                   : std_logic;                                       -- Field: STROBE_A_EN
-signal field_rw_ACQ_STROBE_CTRL2_STROBE_END                    : std_logic_vector(27 downto 0);                   -- Field: STROBE_END
-signal field_rw_ACQ_ACQ_SER_CTRL_SER_RWn                       : std_logic;                                       -- Field: SER_RWn
-signal field_rw_ACQ_ACQ_SER_CTRL_SER_CMD                       : std_logic_vector(1 downto 0);                    -- Field: SER_CMD
-signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS               : std_logic;                                       -- Field: SER_RF_SS
-signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS               : std_logic;                                       -- Field: SER_WF_SS
-signal field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT                     : std_logic_vector(15 downto 0);                   -- Field: SER_DAT
-signal field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD                     : std_logic_vector(14 downto 0);                   -- Field: SER_ADD
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP      : std_logic;                                       -- Field: SENSOR_REFRESH_TEMP
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN         : std_logic;                                       -- Field: SENSOR_POWERDOWN
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR                   : std_logic;                                       -- Field: SENSOR_COLOR
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE              : std_logic;                                       -- Field: SENSOR_REG_UPTATE
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN                  : std_logic;                                       -- Field: SENSOR_RESETN
-signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP           : std_logic;                                       -- Field: SENSOR_POWERUP
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y    : std_logic;                                       -- Field: ACTIVE_SUBSAMPLING_Y
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y         : std_logic;                                       -- Field: M_SUBSAMPLING_Y
-signal field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X           : std_logic;                                       -- Field: SUBSAMPLING_X
-signal field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN                : std_logic_vector(2 downto 0);                    -- Field: ANALOG_GAIN
-signal field_rw_ACQ_SENSOR_ROI_Y_START_Y_START                 : std_logic_vector(9 downto 0);                    -- Field: Y_START
-signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                   : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
-signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START                : std_logic_vector(9 downto 0);                    -- Field: Y_START
-signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE                  : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
-signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED                : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
-signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR              : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
-signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                  : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GR
-signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                  : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
-signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                    : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
-signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                    : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
-signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
-signal field_rw_ACQ_DEBUG_PINS_Debug0_sel                      : std_logic_vector(4 downto 0);                    -- Field: Debug0_sel
-signal field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST    : std_logic;                                       -- Field: TRIGGER_MISSED_RST
-signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                       : std_logic;                                       -- Field: DEBUG_RST_CNTR
-signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                       : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
-signal field_rw_ACQ_DEBUG_LED_TEST                             : std_logic;                                       -- Field: LED_TEST
-signal field_rw_ACQ_EXP_FOT_EXP_FOT                            : std_logic;                                       -- Field: EXP_FOT
-signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                       : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
-signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS                : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
-signal field_rw_DATA_LUT_CTRL_LUT_BYPASS                       : std_logic;                                       -- Field: LUT_BYPASS
-signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_USE                  : std_logic;                                       -- Field: LUT_PALETTE_USE
-signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_W                    : std_logic;                                       -- Field: LUT_PALETTE_W
-signal field_rw_DATA_LUT_CTRL_LUT_DATA_W                       : std_logic_vector(9 downto 0);                    -- Field: LUT_DATA_W
-signal field_rw_DATA_LUT_CTRL_LUT_SEL                          : std_logic_vector(2 downto 0);                    -- Field: LUT_SEL
-signal field_rw_DATA_LUT_CTRL_LUT_WRN                          : std_logic;                                       -- Field: LUT_WRN
-signal field_wautoclr_DATA_LUT_CTRL_LUT_SS                     : std_logic;                                       -- Field: LUT_SS
-signal field_rw_DATA_LUT_CTRL_LUT_ADD                          : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
-signal field_rw_DATA_WB_MULT1_WB_MULT_G                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
-signal field_rw_DATA_WB_MULT1_WB_MULT_B                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
-signal field_rw_DATA_WB_MULT2_WB_MULT_R                        : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
-signal field_rw_DATA_FPN_ADD_FPN_73                            : std_logic;                                       -- Field: FPN_73
-signal field_rw_DATA_FPN_ADD_FPN_WE                            : std_logic;                                       -- Field: FPN_WE
-signal field_rw_DATA_FPN_ADD_FPN_EN                            : std_logic;                                       -- Field: FPN_EN
-signal field_wautoclr_DATA_FPN_ADD_FPN_SS                      : std_logic;                                       -- Field: FPN_SS
-signal field_rw_DATA_FPN_ADD_FPN_ADD                           : std_logic_vector(9 downto 0);                    -- Field: FPN_ADD
-signal field_rw_DATA_FPN_READ_REG_FPN_READ_PIX_SEL             : std_logic_vector(2 downto 0);                    -- Field: FPN_READ_PIX_SEL
-signal field_rw_DATA_FPN_DATA_0_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_0_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_1_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_1_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_2_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_2_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_3_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_3_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_4_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_4_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_5_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_5_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_6_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_6_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_DATA_7_FPN_DATA_PRNU                  : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
-signal field_rw_DATA_FPN_DATA_7_FPN_DATA_FPN                   : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
-signal field_rw_DATA_FPN_CONTRAST_CONTRAST_GAIN                : std_logic_vector(11 downto 0);                   -- Field: CONTRAST_GAIN
-signal field_rw_DATA_FPN_CONTRAST_CONTRAST_OFFSET              : std_logic_vector(7 downto 0);                    -- Field: CONTRAST_OFFSET
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_SEL              : std_logic;                                       -- Field: FPN_ACC_MODE_SEL
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_EN               : std_logic;                                       -- Field: FPN_ACC_MODE_EN
-signal field_wautoclr_DATA_FPN_ACC_ADD_FPN_ACC_R_SS            : std_logic;                                       -- Field: FPN_ACC_R_SS
-signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_ADD                   : std_logic_vector(11 downto 0);                   -- Field: FPN_ACC_ADD
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_fifo_reset              : std_logic;                                       -- Field: dpc_fifo_reset
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_firstlast_line_rem      : std_logic;                                       -- Field: dpc_firstlast_line_rem
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_pattern0_cfg            : std_logic;                                       -- Field: dpc_pattern0_cfg
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_enable                  : std_logic;                                       -- Field: dpc_enable
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_count              : std_logic_vector(5 downto 0);                    -- Field: dpc_list_count
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_WRn                : std_logic;                                       -- Field: dpc_list_WRn
-signal field_wautoclr_DATA_DPC_LIST_CTRL_dpc_list_ss           : std_logic;                                       -- Field: dpc_list_ss
-signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_add                : std_logic_vector(5 downto 0);                    -- Field: dpc_list_add
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_pattern       : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_y             : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
-signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_x             : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_x
-signal field_rw_HISPI_CTRL_RESET_IDELAYCTRL                    : std_logic;                                       -- Field: RESET_IDELAYCTRL
-signal field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES              : std_logic;                                       -- Field: CALIBRATE_SERDES
-signal field_rw_HISPI_CTRL_CLR                                 : std_logic;                                       -- Field: CLR
-signal field_rw_HISPI_CTRL_ENABLE                              : std_logic;                                       -- Field: ENABLE
-signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR : std_logic;                                       -- Field: CALIBRARTION_ERROR
-signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN       : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN        : std_logic;                                       -- Field: FIFO_OVERRUN
+signal readBackMux                                            : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
+signal hit                                                    : std_logic_vector(83 downto 0);                   -- Address decode hit
+signal wEn                                                    : std_logic_vector(83 downto 0);                   -- Write Enable
+signal fullAddr                                               : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
+signal fullAddrAsInt                                          : integer;                                        
+signal bitEnN                                                 : std_logic_vector(31 downto 0);                   -- Bits enable
+signal ldData                                                 : std_logic;                                      
+signal rb_SYSTEM_TAG                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_VERSION                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_CAPABILITY                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_SYSTEM_SCRATCHPAD                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CTRL                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_HIGH                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_G_HIGH                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_FSTART_R_HIGH                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_PITCH                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_LINE_SIZE                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DMA_CSC                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_GRAB_CTRL                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_GRAB_STAT                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG1                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG_FRAME_LINE                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG2                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG3                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_READOUT_CFG4                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL1                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL2                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_CTRL3                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_TRIGGER_DELAY                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_STROBE_CTRL1                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_STROBE_CTRL2                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_CTRL                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_ADDATA                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SER_STAT                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_CTRL                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_STAT                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_SUBSAMPLING                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_GAIN_ANA                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI_Y_START                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI_Y_SIZE                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI2_Y_START                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_ROI2_Y_SIZE                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_M_LINES                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GR                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_GB                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_R                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_DP_B                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG_PINS                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_TRIGGER_MISSED                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_FPS                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_DEBUG_CNTR1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_EXP_FOT                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_ACQ_SFNC                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_LUT_CTRL                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_LUT_RB                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_MULT1                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_MULT2                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_B_ACC                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_G_ACC                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_WB_R_ACC                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ADD                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_READ_REG                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_0                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_1                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_2                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_3                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_4                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_5                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_6                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_DATA_7                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_CONTRAST                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ACC_ADD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_FPN_ACC_DATA                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_CTRL                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_DATA                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DATA_DPC_LIST_DATA_RD                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_CTRL                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_IDELAYCTRL_STATUS                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_0                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_1                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_2                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_3                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_4                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_DECODER_STATUS_5                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_0                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_1                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_LANE_PACKER_STATUS_2                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal field_rw_SYSTEM_SCRATCHPAD_VALUE                       : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                        : std_logic;                                       -- Field: GRAB_QUEUE_EN
+signal field_rw_DMA_FSTART_VALUE                              : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_HIGH_VALUE                         : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_G_HIGH_VALUE                       : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_FSTART_R_HIGH_VALUE                       : std_logic_vector(31 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_PITCH_VALUE                          : std_logic_vector(15 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_SIZE_VALUE                           : std_logic_vector(13 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_CSC_COLOR_SPACE                           : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
+signal field_rw_DMA_CSC_DUP_LAST_LINE                         : std_logic;                                       -- Field: DUP_LAST_LINE
+signal field_rw_DMA_CSC_REVERSE_Y                             : std_logic;                                       -- Field: REVERSE_Y
+signal field_rw_DMA_CSC_REVERSE_X                             : std_logic;                                       -- Field: REVERSE_X
+signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                      : std_logic;                                       -- Field: RESET_GRAB
+signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                    : std_logic;                                       -- Field: GRAB_ROI2_EN
+signal field_wautoclr_ACQ_GRAB_CTRL_ABORT_GRAB                : std_logic;                                       -- Field: ABORT_GRAB
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP_BUFFn           : std_logic;                                       -- Field: TRIGGER_OVERLAP_BUFFn
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_OVERLAP                 : std_logic;                                       -- Field: TRIGGER_OVERLAP
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_ACT                     : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_ACT
+signal field_rw_ACQ_GRAB_CTRL_TRIGGER_SRC                     : std_logic_vector(2 downto 0);                    -- Field: TRIGGER_SRC
+signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_SS                   : std_logic;                                       -- Field: GRAB_SS
+signal field_rw_ACQ_GRAB_CTRL_BUFFER_ID                       : std_logic;                                       -- Field: BUFFER_ID
+signal field_wautoclr_ACQ_GRAB_CTRL_GRAB_CMD                  : std_logic;                                       -- Field: GRAB_CMD
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH_LINE              : std_logic_vector(4 downto 0);                    -- Field: FOT_LENGTH_LINE
+signal field_rw_ACQ_READOUT_CFG1_EO_FOT_SEL                   : std_logic;                                       -- Field: EO_FOT_SEL
+signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                   : std_logic_vector(15 downto 0);                   -- Field: FOT_LENGTH
+signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES        : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
+signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA            : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
+signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                    : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END            : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
+signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START          : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
+signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE               : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
+signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                     : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
+signal field_rw_ACQ_EXP_CTRL2_EXPOSURE_DS                     : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_DS
+signal field_rw_ACQ_EXP_CTRL3_EXPOSURE_TS                     : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_TS
+signal field_rw_ACQ_TRIGGER_DELAY_TRIGGER_DELAY               : std_logic_vector(27 downto 0);                   -- Field: TRIGGER_DELAY
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_E                     : std_logic;                                       -- Field: STROBE_E
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_POL                   : std_logic;                                       -- Field: STROBE_POL
+signal field_rw_ACQ_STROBE_CTRL1_STROBE_START                 : std_logic_vector(27 downto 0);                   -- Field: STROBE_START
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_MODE                  : std_logic;                                       -- Field: STROBE_MODE
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_B_EN                  : std_logic;                                       -- Field: STROBE_B_EN
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_A_EN                  : std_logic;                                       -- Field: STROBE_A_EN
+signal field_rw_ACQ_STROBE_CTRL2_STROBE_END                   : std_logic_vector(27 downto 0);                   -- Field: STROBE_END
+signal field_rw_ACQ_ACQ_SER_CTRL_SER_RWn                      : std_logic;                                       -- Field: SER_RWn
+signal field_rw_ACQ_ACQ_SER_CTRL_SER_CMD                      : std_logic_vector(1 downto 0);                    -- Field: SER_CMD
+signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_RF_SS              : std_logic;                                       -- Field: SER_RF_SS
+signal field_wautoclr_ACQ_ACQ_SER_CTRL_SER_WF_SS              : std_logic;                                       -- Field: SER_WF_SS
+signal field_rw_ACQ_ACQ_SER_ADDATA_SER_DAT                    : std_logic_vector(15 downto 0);                   -- Field: SER_DAT
+signal field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD                    : std_logic_vector(14 downto 0);                   -- Field: SER_ADD
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP     : std_logic;                                       -- Field: SENSOR_REFRESH_TEMP
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN        : std_logic;                                       -- Field: SENSOR_POWERDOWN
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR                  : std_logic;                                       -- Field: SENSOR_COLOR
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE             : std_logic;                                       -- Field: SENSOR_REG_UPTATE
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN                 : std_logic;                                       -- Field: SENSOR_RESETN
+signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP          : std_logic;                                       -- Field: SENSOR_POWERUP
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y   : std_logic;                                       -- Field: ACTIVE_SUBSAMPLING_Y
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_M_SUBSAMPLING_Y        : std_logic;                                       -- Field: M_SUBSAMPLING_Y
+signal field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X          : std_logic;                                       -- Field: SUBSAMPLING_X
+signal field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN               : std_logic_vector(2 downto 0);                    -- Field: ANALOG_GAIN
+signal field_rw_ACQ_SENSOR_ROI_Y_START_Y_START                : std_logic_vector(9 downto 0);                    -- Field: Y_START
+signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                  : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
+signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START               : std_logic_vector(9 downto 0);                    -- Field: Y_START
+signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE                 : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
+signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED               : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
+signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR             : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
+signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GR
+signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                 : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
+signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                   : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
+signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                   : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
+signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                     : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                     : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                     : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
+signal field_rw_ACQ_DEBUG_PINS_Debug0_sel                     : std_logic_vector(4 downto 0);                    -- Field: Debug0_sel
+signal field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST   : std_logic;                                       -- Field: TRIGGER_MISSED_RST
+signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                      : std_logic;                                       -- Field: DEBUG_RST_CNTR
+signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                      : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
+signal field_rw_ACQ_DEBUG_LED_TEST                            : std_logic;                                       -- Field: LED_TEST
+signal field_rw_ACQ_EXP_FOT_EXP_FOT                           : std_logic;                                       -- Field: EXP_FOT
+signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                      : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
+signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS               : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
+signal field_rw_DATA_LUT_CTRL_LUT_BYPASS                      : std_logic;                                       -- Field: LUT_BYPASS
+signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_USE                 : std_logic;                                       -- Field: LUT_PALETTE_USE
+signal field_rw_DATA_LUT_CTRL_LUT_PALETTE_W                   : std_logic;                                       -- Field: LUT_PALETTE_W
+signal field_rw_DATA_LUT_CTRL_LUT_DATA_W                      : std_logic_vector(9 downto 0);                    -- Field: LUT_DATA_W
+signal field_rw_DATA_LUT_CTRL_LUT_SEL                         : std_logic_vector(2 downto 0);                    -- Field: LUT_SEL
+signal field_rw_DATA_LUT_CTRL_LUT_WRN                         : std_logic;                                       -- Field: LUT_WRN
+signal field_wautoclr_DATA_LUT_CTRL_LUT_SS                    : std_logic;                                       -- Field: LUT_SS
+signal field_rw_DATA_LUT_CTRL_LUT_ADD                         : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
+signal field_rw_DATA_WB_MULT1_WB_MULT_G                       : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
+signal field_rw_DATA_WB_MULT1_WB_MULT_B                       : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
+signal field_rw_DATA_WB_MULT2_WB_MULT_R                       : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
+signal field_rw_DATA_FPN_ADD_FPN_73                           : std_logic;                                       -- Field: FPN_73
+signal field_rw_DATA_FPN_ADD_FPN_WE                           : std_logic;                                       -- Field: FPN_WE
+signal field_rw_DATA_FPN_ADD_FPN_EN                           : std_logic;                                       -- Field: FPN_EN
+signal field_wautoclr_DATA_FPN_ADD_FPN_SS                     : std_logic;                                       -- Field: FPN_SS
+signal field_rw_DATA_FPN_ADD_FPN_ADD                          : std_logic_vector(9 downto 0);                    -- Field: FPN_ADD
+signal field_rw_DATA_FPN_READ_REG_FPN_READ_PIX_SEL            : std_logic_vector(2 downto 0);                    -- Field: FPN_READ_PIX_SEL
+signal field_rw_DATA_FPN_DATA_0_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_0_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_1_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_1_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_2_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_2_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_3_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_3_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_4_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_4_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_5_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_5_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_6_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_6_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_DATA_7_FPN_DATA_PRNU                 : std_logic_vector(8 downto 0);                    -- Field: FPN_DATA_PRNU
+signal field_rw_DATA_FPN_DATA_7_FPN_DATA_FPN                  : std_logic_vector(10 downto 0);                   -- Field: FPN_DATA_FPN
+signal field_rw_DATA_FPN_CONTRAST_CONTRAST_GAIN               : std_logic_vector(11 downto 0);                   -- Field: CONTRAST_GAIN
+signal field_rw_DATA_FPN_CONTRAST_CONTRAST_OFFSET             : std_logic_vector(7 downto 0);                    -- Field: CONTRAST_OFFSET
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_SEL             : std_logic;                                       -- Field: FPN_ACC_MODE_SEL
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_MODE_EN              : std_logic;                                       -- Field: FPN_ACC_MODE_EN
+signal field_wautoclr_DATA_FPN_ACC_ADD_FPN_ACC_R_SS           : std_logic;                                       -- Field: FPN_ACC_R_SS
+signal field_rw_DATA_FPN_ACC_ADD_FPN_ACC_ADD                  : std_logic_vector(11 downto 0);                   -- Field: FPN_ACC_ADD
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_fifo_reset             : std_logic;                                       -- Field: dpc_fifo_reset
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_firstlast_line_rem     : std_logic;                                       -- Field: dpc_firstlast_line_rem
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_pattern0_cfg           : std_logic;                                       -- Field: dpc_pattern0_cfg
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_enable                 : std_logic;                                       -- Field: dpc_enable
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_count             : std_logic_vector(5 downto 0);                    -- Field: dpc_list_count
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_WRn               : std_logic;                                       -- Field: dpc_list_WRn
+signal field_wautoclr_DATA_DPC_LIST_CTRL_dpc_list_ss          : std_logic;                                       -- Field: dpc_list_ss
+signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_add               : std_logic_vector(5 downto 0);                    -- Field: dpc_list_add
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_pattern      : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_y            : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
+signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_x            : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_x
+signal field_rw_HISPI_CTRL_RESET_IDELAYCTRL                   : std_logic;                                       -- Field: RESET_IDELAYCTRL
+signal field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES             : std_logic;                                       -- Field: CALIBRATE_SERDES
+signal field_rw_HISPI_CTRL_CLR                                : std_logic;                                       -- Field: CLR
+signal field_rw_HISPI_CTRL_ENABLE                             : std_logic;                                       -- Field: ENABLE
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
+signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN      : std_logic;                                       -- Field: FIFO_UNDERRUN
+signal field_rw_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN       : std_logic;                                       -- Field: FIFO_OVERRUN
 
 begin -- rtl
 
@@ -8930,28 +8930,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_0(6) <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(0).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_0(6) <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(0).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR <= '0';
       else
          if(wEn(75) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_0_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE
@@ -9025,28 +9025,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_1(6) <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(1).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_1(6) <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(1).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR <= '0';
       else
          if(wEn(76) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_1_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE
@@ -9120,28 +9120,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_2(6) <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(2).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_2(6) <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(2).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR <= '0';
       else
          if(wEn(77) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_2_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE
@@ -9215,28 +9215,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_3(6) <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(3).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_3(6) <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(3).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR <= '0';
       else
          if(wEn(78) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_3_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE
@@ -9310,28 +9310,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_4(6) <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(4).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_4(6) <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(4).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR <= '0';
       else
          if(wEn(79) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_4_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE
@@ -9405,28 +9405,28 @@ begin
 end process P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRARTION_ERROR
+-- Field name: CALIBRATION_ERROR
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_LANE_DECODER_STATUS_5(6) <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
-regfile.HISPI.LANE_DECODER_STATUS(5).CALIBRARTION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
+rb_HISPI_LANE_DECODER_STATUS_5(6) <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(5).CALIBRATION_ERROR <= field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR
+-- Process: P_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR
 ------------------------------------------------------------------------------------------
-P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR : process(sysclk)
+P_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR <= '0';
+         field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR <= '0';
       else
          if(wEn(80) = '1' and bitEnN(6) = '0') then
-            field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR <= reg_writedata(6);
+            field_rw_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR <= reg_writedata(6);
          end if;
       end if;
    end if;
-end process P_HISPI_LANE_DECODER_STATUS_5_CALIBRARTION_ERROR;
+end process P_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: CALIBRATION_ACTIVE

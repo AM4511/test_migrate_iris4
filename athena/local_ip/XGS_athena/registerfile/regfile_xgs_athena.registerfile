@@ -757,7 +757,7 @@
     <registers name="LANE_DECODER_STATUS" offsetFromParent="8" useMultiples="true" numberOfMultiples="6">
       <fields name="FIFO_UNDERRUN" lsb="8"/>
       <fields name="FIFO_OVERRUN" lsb="7"/>
-      <fields name="CALIBRARTION_ERROR" lsb="6"/>
+      <fields name="CALIBRATION_ERROR" lsb="6"/>
       <fields name="CALIBRATION_ACTIVE" lsb="5" readWrite="false" readOnly="true"/>
       <fields name="CALIBRATION_TAP_VALUE" size="5" readWrite="false" readOnly="true"/>
     </registers>

@@ -12,6 +12,10 @@ module testbench();
 	parameter LINE_PER_FRAME=3102;
 	parameter PIXEL_SIZE = 12;
 	parameter NUMBER_ACTIVE_LINES = 8;
+        parameter SYS_CLK_PERIOD= 16;
+        parameter SENSOR_FREQ = 32400;
+        parameter SIMULATION = 1;
+        parameter KU706 = 0;
 
 	parameter AXIL_DATA_WIDTH=32;
 	parameter AXIL_ADDR_WIDTH=11;
@@ -27,7 +31,6 @@ module testbench();
 	parameter FSTART_OFFSET         = 'h078;
 	parameter FSTART_HIGH_OFFSET    = 'h07c;
 
-
 	parameter FSTART_G_OFFSET       = 'h080;
 	parameter FSTART_G_OFFSET_HIGH  = 'h084;
 
@@ -37,6 +40,12 @@ module testbench();
 	parameter LINE_PITCH_OFFSET     = 'h090;
 
 	parameter LINE_SIZE_OFFSET      = 'h094;
+
+	parameter SENSOR_CTRL_OFFSET    = 'h0190;
+	parameter SENSOR_STAT_OFFSET    = 'h0198;
+
+    parameter SPI_MODEL_ID_OFFSET   = 16'h000;
+
 
 	integer  address;
 	integer  data;
@@ -52,6 +61,42 @@ module testbench();
 	bit 	      cfg_bus_mast_en;
 	bit [2:0]  cfg_setmaxpld;
 	bit [7:0] 	   irq;
+
+	reg 	      XGS_MODEL_SCLK;
+	reg 	      XGS_MODEL_SDATA;
+	reg 	      XGS_MODEL_CS;
+	reg 	      XGS_MODEL_SDATAOUT;
+
+
+   logic 	      xgs_power_good;
+   logic 	      xgs_clk_pll_en;
+   logic 	      xgs_reset_n;
+
+   logic 	      xgs_fwsi_en;
+
+   logic 	      xgs_sclk;
+   logic 	      xgs_cs_n;
+   logic 	      xgs_sdout;
+   logic 	      xgs_sdin;
+
+   logic 	      xgs_trig_int;
+   logic 	      xgs_trig_rd;
+
+   wire 	      xgs_monitor0;
+   wire 	      xgs_monitor1;
+   wire 	      xgs_monitor2;
+
+
+   logic 	      anput_ext_trig;
+
+   logic 	      anput_strobe_out;
+   logic 	      anput_exposure_out;
+   logic 	      anput_trig_rdy_out;
+
+   // -- led_out(0) --> vert, led_out(1) --> rouge
+   logic [1:0] 	      led_out;
+
+
 
 
 
@@ -132,20 +177,20 @@ module testbench();
 			.DSPARE1 (),
 			.DSPARE2 (),
 
-			.TRIGGER_INT(trigger_int), //il va falloir les brancher a l'interne!!!
+			.TRIGGER_INT(xgs_trig_int),
 
-			.MONITOR0(),
-			.MONITOR1(),
-			.MONITOR2(),
+			.MONITOR0(xgs_monitor0),
+			.MONITOR1(xgs_monitor1),
+			.MONITOR2(xgs_monitor2),
 
-			.RESET_B(XGS_MODEL_RESET_B),
+			.RESET_B(xgs_reset_n),
 			.EXTCLK(if_hispi.refclk),
 			.FWSI_EN(Vcc),
 
-			.SCLK(XGS_MODEL_SCLK),
-			.SDATA(XGS_MODEL_SDATA),
-			.CS(XGS_MODEL_CS),
-			.SDATAOUT(XGS_MODEL_SDATAOUT),
+			.SCLK(xgs_sclk),
+			.SDATA(xgs_sdout),
+			.CS(xgs_cs_n),
+			.SDATAOUT(xgs_sdin),
 
 			.D_CLK_0_N(),
 			.D_CLK_0_P(),
@@ -221,11 +266,33 @@ module testbench();
 			.PIXELS_PER_LINE(PIXELS_PER_LINE),
 			.LINES_PER_FRAME(NUMBER_ACTIVE_LINES),
 			.PIXEL_SIZE(PIXEL_SIZE),
-			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE)
-		) DUT (
+			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
+		        .SYS_CLK_PERIOD(SYS_CLK_PERIOD),
+		        .SENSOR_FREQ(SENSOR_FREQ),
+		        .SIMULATION(SIMULATION),
+		        .KU706(KU706)
+		      ) DUT (
 			.axi_clk(axi_clk),
 			.axi_reset_n(axil.reset_n),
 			.irq(irq),
+			.xgs_power_good(xgs_power_good),
+			.xgs_clk_pll_en(xgs_clk_pll_en),
+			.xgs_reset_n(xgs_reset_n),
+			.xgs_fwsi_en(xgs_fwsi_en),
+			.xgs_sclk(xgs_sclk),
+			.xgs_cs_n(xgs_cs_n),
+			.xgs_sdout(xgs_sdout),
+			.xgs_sdin(xgs_sdin),
+			.xgs_trig_int(xgs_trig_int),
+			.xgs_trig_rd(xgs_trig_rd),
+			.xgs_monitor0(xgs_monitor0),
+			.xgs_monitor1(xgs_monitor1),
+			.xgs_monitor2(xgs_monitor2),
+			.anput_ext_trig(anput_ext_trig),
+			.anput_strobe_out(anput_strobe_out),
+			.anput_exposure_out(anput_exposure_out),
+			.anput_trig_rdy_out(anput_trig_rdy_out),
+			.led_out(led_out),
 			.s_axi_awaddr(axil.awaddr),
 			.s_axi_awprot(axil.awprot),
 			.s_axi_awvalid(axil.awvalid),
@@ -297,6 +364,9 @@ module testbench();
 			.tlp_out_lower_address(tlp.lower_address)
 		);
 
+	assign xgs_power_good = 1'b1;
+	assign anput_ext_trig = 1'b0;
+
 
 	assign cfg_bus_mast_en = 1'b1;
 	assign tx_axis.tready = 1'b1;
@@ -316,6 +386,12 @@ module testbench();
 		// Initialize classes
 		axil_driver = new(axil, if_gpio);
 
+/* -----\/----- EXCLUDED -----\/-----
+		XGS_MODEL_SCLK  <= 0;
+		XGS_MODEL_CS    <= 1 ;
+		XGS_MODEL_SDATA <= 0;
+ -----/\----- EXCLUDED -----/\----- */
+
 		fork
 			// Start the scorboard
 			begin
@@ -324,13 +400,15 @@ module testbench();
 
 			// Start the test
 			begin
-				int axi_address;
+				int axi_addr;
 				int axi_read_data;
 				int axi_write_data;
+				int axi_strb;
+				int axi_poll_mask;
+				int axi_expected_value;
 				longint data;
-				//				logic [AXIS_DATA_WIDTH-1:0] stream_data[$];
-				//				logic [AXIS_USER_WIDTH-1:0] stream_user[$];
-				//				logic [AXIS_USER_WIDTH-1:0] sync;
+				int data_rd;  // SPI read
+
 
 				// Parameters
 				longint fstart;
@@ -342,41 +420,47 @@ module testbench();
 				line_size = 'h1000;
 				line_pitch = 'h1000;
 
-				$display("Reset driver models");
+				///////////////////////////////////////////////////
+				// STARTING POINT : Reset the testbench
+				///////////////////////////////////////////////////
+				$display("1. Reset the testbench");
 				axil_driver.reset(10);
 				// MIn XGS model reset is 30 clk, set it to 50
 				axil_driver.wait_n(1000);
 
 
-				$display("Registerfile access");
+				///////////////////////////////////////////////////
+				// Start setting up registers
+				///////////////////////////////////////////////////
+				$display("2. Starting register file accesses");
 
 
 				///////////////////////////////////////////////////
 				// Read the Matrox info register
 				///////////////////////////////////////////////////
-				axi_address = TAG_OFFSET;
-				$display("Read the TAG register @0x%h", axi_address);
-				axil_driver.read(axi_address, axi_read_data);
-				assert (axi_read_data == 'h0058544d) else $error("Read error @0x%h", axi_address);
+				axi_addr = TAG_OFFSET;
+				$display("  2.1 Read the TAG register @0x%h", axi_addr);
+				axil_driver.read(axi_addr, axi_read_data);
+				assert (axi_read_data == 'h0058544d) else $error("Read error @0x%h", axi_addr);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// Write/Read the scratch pad
 				///////////////////////////////////////////////////
-				axi_address = SCRATCHPAD_OFFSET;
+				axi_addr = SCRATCHPAD_OFFSET;
 				axi_write_data = 'hcafefade;
-				$display("Write/Read back the SCRATCHPAD register @0x%h", axi_address);
-				axil_driver.write(axi_address, axi_write_data);
-				axil_driver.read(axi_address, axi_read_data);
-				assert (axi_read_data == axi_write_data) else $error("Write/Read error @0x%h", axi_address);
+				$display("  2.2 Write then Read back the SCRATCHPAD register @0x%h", axi_addr);
+				axil_driver.write(axi_addr, axi_write_data);
+				axil_driver.read(axi_addr, axi_read_data);
+				assert (axi_read_data == axi_write_data) else $error("Write/Read error @0x%h", axi_addr);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// DMA frame start register
 				///////////////////////////////////////////////////
-				$display("Write FSTART register @0x%h", FSTART_OFFSET);
+				$display("  2.3 Write FSTART register @0x%h", FSTART_OFFSET);
 				axil_driver.write(FSTART_OFFSET, fstart);
 				axil_driver.write(FSTART_HIGH_OFFSET, fstart>>32);
 				axil_driver.wait_n(10);
@@ -385,7 +469,7 @@ module testbench();
 				///////////////////////////////////////////////////
 				// DMA line size register
 				///////////////////////////////////////////////////
-				$display("Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
+				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
 				axil_driver.write(LINE_SIZE_OFFSET, line_size);
 				axil_driver.wait_n(10);
 
@@ -393,10 +477,55 @@ module testbench();
 				///////////////////////////////////////////////////
 				// DMA line pitch register
 				///////////////////////////////////////////////////
-				$display("Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
+				$display("  2.5 Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
 				axil_driver.write(LINE_PITCH_OFFSET, line_pitch);
 				axil_driver.wait_n(10);
 
+
+				///////////////////////////////////////////////////
+				// XGS Controller wakes up sensor
+				///////////////////////////////////////////////////
+				$display("3. XGS Controller wakes up sensor");
+				$display("  3.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
+				axi_addr = SENSOR_CTRL_OFFSET;
+				axi_write_data = 'h0003;
+				axi_strb = 'h1;
+				axil_driver.write(axi_addr, axi_write_data, axi_strb);
+
+
+				///////////////////////////////////////////////////
+				// Poll until clock enable and reset disable
+				///////////////////////////////////////////////////
+				$display("  3.2 Poll SENSOR_STAT register @0x%h", SENSOR_STAT_OFFSET);
+				axi_addr = SENSOR_STAT_OFFSET;
+				axi_poll_mask = 'h00000001;
+				axi_expected_value = 'h00000001;
+				axil_driver.poll(axi_addr, axi_expected_value, axi_poll_mask, .polling_period(1us));
+
+
+				///////////////////////////////////////////////////
+				// SPI configure the XGS sensor model
+				///////////////////////////////////////////////////
+				$display("4. SPI configure the XGS sensor model");
+
+
+				///////////////////////////////////////////////////
+				// SPI read XGS model id and revision
+				///////////////////////////////////////////////////
+				$display("  4.1 SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
+				XGS_ReadSPI(SPI_MODEL_ID_OFFSET, data_rd);
+
+
+				// Validate result
+				if(data_rd==16'h0058) begin
+					$display("XGS Model ID detected is 0x58, XGS12M");
+				end
+				else if(data_rd==16'h0358) begin
+					$display("XGS Model ID detected is 0x358, XGS5M");
+				end
+				else begin
+					$error("XGS Model ID detected is %d", data_rd);
+				end
 
 
 				///////////////////////////////////////////////////
@@ -407,12 +536,126 @@ module testbench();
 
 			end
 
-		join_any;
-			#1ms;
+		join;
+		#1ms;
 		$finish;
 	end
 
 
+	//----------------------------------------------
+	//
+	//----------------------------------------------
+	task automatic XGS_WriteSPI(input int add, input int data);
+
+		bit [14:0] model_addr;
+		bit [15:0] model_data;
+
+		model_addr = add;
+		model_data = data;
+
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0 ;
+		testbench.XGS_MODEL_SDATA = 0;
+		#10ns;
+
+			//SEND ADDRESS
+		for(int y = 15; y > 0; y -= 1)
+		begin
+			testbench.XGS_MODEL_SCLK  = 0;
+			testbench.XGS_MODEL_CS    = 0;
+			testbench.XGS_MODEL_SDATA = model_addr[(y-1)];
+			#10ns;
+			testbench.XGS_MODEL_SCLK  = 1;
+			#10ns;
+		end
+
+		//SEND WRITE TAG
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0;
+		testbench.XGS_MODEL_SDATA = 0;  //Write=0
+		#10ns;
+		testbench.XGS_MODEL_SCLK  = 1;
+		#10ns;
+
+			//DATA
+		for(int y = 16; y > 0; y -= 1)
+		begin
+			testbench.XGS_MODEL_SCLK  = 0;
+			testbench.XGS_MODEL_CS    = 0;
+			testbench.XGS_MODEL_SDATA = model_data[(y-1)];
+			#10ns;
+			testbench.XGS_MODEL_SCLK  = 1;
+			#10ns;
+		end
+
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0;
+		testbench.XGS_MODEL_SDATA = 0;
+		#10ns;
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 1;
+		testbench.XGS_MODEL_SDATA = 0;
+		#100ns;
+
+	endtask : XGS_WriteSPI
+
+
+	task automatic XGS_ReadSPI(input int add, output int data);
+
+		bit [14:0] model_addr;
+		bit [15:0] model_data;
+
+		model_addr = add;
+
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0;
+		testbench.XGS_MODEL_SDATA = 0;
+		#10ns;
+
+			//SEND ADDRESS
+		for(int y = 15; y > 0; y -= 1)
+		begin
+			testbench.XGS_MODEL_SCLK  = 0;
+			testbench.XGS_MODEL_CS    = 0;
+			testbench.XGS_MODEL_SDATA = model_addr[(y-1)];
+			#10ns;
+			testbench.XGS_MODEL_SCLK  = 1;
+			#10ns;
+		end
+
+		//SEND READ TAG
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0;
+		testbench.XGS_MODEL_SDATA = 1;  //Read=1
+		#10ns;
+		testbench.XGS_MODEL_SCLK  = 1;
+		#10ns;
+
+			//GET DATA
+		for(int y = 16; y > 0; y -= 1)
+		begin
+			testbench.XGS_MODEL_SCLK  = 0;
+			testbench.XGS_MODEL_CS    = 0;
+			testbench.XGS_MODEL_SDATA = 0;
+			#10ns;
+			testbench.XGS_MODEL_SCLK  = 1;
+			model_data[(y-1)]                  = testbench.XGS_MODEL_SDATAOUT ;
+			#10ns;
+		end
+
+		data = model_data ;
+
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 0;
+		testbench.XGS_MODEL_SDATA = 0;
+		#10ns;
+		testbench.XGS_MODEL_SCLK  = 0;
+		testbench.XGS_MODEL_CS    = 1;
+		testbench.XGS_MODEL_SDATA = 0;
+		#100ns;
+
+
+	endtask : XGS_ReadSPI
 
 endmodule
 

@@ -574,7 +574,7 @@ for(i = 0; i < 6; i++)
 	Register("lane_decoder_status", 0x408 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
 		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("calibrartion_error", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("calibration_error", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("calibration_active", 5, 5, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("calibration_tap_value", 4, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }

@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x99823D16
+* Register file CRC32 : 0xB4F5B47D
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1518,7 +1518,7 @@ typedef union
    {
       M_UINT32 CALIBRATION_TAP_VALUE : 5;   /* Bits(4:0), null */
       M_UINT32 CALIBRATION_ACTIVE    : 1;   /* Bits(5:5), null */
-      M_UINT32 CALIBRARTION_ERROR    : 1;   /* Bits(6:6), null */
+      M_UINT32 CALIBRATION_ERROR     : 1;   /* Bits(6:6), null */
       M_UINT32 FIFO_OVERRUN          : 1;   /* Bits(7:7), null */
       M_UINT32 FIFO_UNDERRUN         : 1;   /* Bits(8:8), null */
       M_UINT32 RSVD0                 : 23;  /* Bits(31:9), Reserved */
