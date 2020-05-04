@@ -32,8 +32,8 @@ entity hispi_phy is
     PIXEL_SIZE   : integer := 12        -- Pixel size in bits
     );
   port (
-    sysclk : in std_logic;
-    sysrst : in std_logic;
+    sclk : in std_logic;
+    srst : in std_logic;
 
     -- Register file information
     idle_character   : in std_logic_vector(PIXEL_SIZE-1 downto 0);
@@ -41,11 +41,11 @@ entity hispi_phy is
     hispi_soft_reset : in std_logic;
 
     -- Calibration 
-    cal_en        : in  std_logic;
-    cal_busy      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    cal_load_tap  : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+    sclk_cal_en        : in  std_logic;
+    sclk_cal_busy      : out std_logic;
+    sclk_cal_done      : out std_logic;
+    sclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
     -- HiSPi IO
     hispi_serial_clk_p   : in std_logic;
@@ -117,12 +117,11 @@ architecture rtl of hispi_phy is
       hispi_phy_en        : in std_logic;
 
       -- calibration
-      cal_en        : in  std_logic;
-      cal_busy      : out std_logic;
-      cal_error     : out std_logic;
-      cal_load_tap  : out std_logic;
-      cal_tap_value : out std_logic_vector(4 downto 0);
-
+      pclk_cal_en        : in  std_logic;
+      pclk_cal_busy      : out std_logic;
+      pclk_cal_error     : out std_logic;
+      pclk_cal_load_tap  : out std_logic;
+      pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
       -- Read fifo interface
       fifo_read_clk        : in  std_logic;
@@ -138,7 +137,22 @@ architecture rtl of hispi_phy is
       sol_flag     : out std_logic;
       eol_flag     : out std_logic
       );
-  end component lane_decoder;
+  end component;
+
+
+  component mtx_resync is
+    port
+      (
+        aClk  : in  std_logic;
+        aClr  : in  std_logic;
+        aDin  : in  std_logic;
+        bclk  : in  std_logic;
+        bclr  : in  std_logic;
+        bDout : out std_logic;
+        bRise : out std_logic;
+        bFall : out std_logic
+        );
+  end component;
 
 
   constant DESERIALIZATION_RATIO     : integer := 6;
@@ -157,78 +171,96 @@ architecture rtl of hispi_phy is
   constant FIFO_ADDRESS_WIDTH : integer := 4;
   constant MUX_RATIO          : integer := 4;
 
+  type FSM_STATE_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_LOAD_DELAY, S_DONE);
+
   type SHIFT_REG_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (HISPI_SHIFT_REGISTER_SIZE - 1 downto 0);
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
+  signal hclk_state : FSM_STATE_TYPE := S_IDLE;
 
+  signal hclk            : std_logic;
+  signal hclk_reset_Meta : std_logic := '1';
+  signal hclk_reset      : std_logic := '1';
 
-  signal hispi_reset                      : std_logic := '1';
-  signal hispi_reset_Meta                 : std_logic := '1';
-  signal hispi_clk                        : std_logic;
-  signal hispi_serdes_data                : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
-  signal hispi_data                       : REG_ALIGNED_ARRAY;
-  signal hispi_lane_data                  : LANE_DATA_ARRAY;
-  signal hispi_phy_areset                 : std_logic := '0';
-  signal hispi_reset_counter              : integer range 0 to PLL_RESET_DURATION;
-  signal hispi_fifo_full                  : std_logic;
-  signal hispi_fifo_wen                   : std_logic;
-  signal hispi_fifo_aggregated_write_data : std_logic_vector(15 downto 0);
-  signal hispi_data_valid                 : std_logic;
-  signal buffer_address                   : integer;
-  signal hispi_decoded_sync               : std_logic_vector(3 downto 0);
+  signal hclk_cal_en                     : std_logic;
+  signal hclk_serdes_data                : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
+  signal hclk_data                       : REG_ALIGNED_ARRAY;
+  signal hclk_lane_data                  : LANE_DATA_ARRAY;
+  signal hclk_phy_areset                 : std_logic := '0';
+  signal hclk_reset_counter              : integer range 0 to PLL_RESET_DURATION;
+  signal hclk_fifo_full                  : std_logic;
+  signal hclk_fifo_wen                   : std_logic;
+  signal hclk_fifo_aggregated_write_data : std_logic_vector(15 downto 0);
+  signal hclk_data_valid                 : std_logic;
+  signal buffer_address                  : integer;
+  signal hclk_decoded_sync               : std_logic_vector(3 downto 0);
+  signal hclk_cal_en_vect                : std_logic_vector(3 downto 0);
+  signal hclk_cal_busy                   : std_logic;
 
   signal delay_reset    : std_logic                                     := '0';
-  signal delay_data_ce  : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
-  signal delay_data_inc : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
   signal delay_tap_in   : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
   signal delay_tap_out  : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal delay_data_ce  : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
+  signal delay_data_inc : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
 
+  signal pclk_cal_en        : std_logic;
+  signal pclk_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal pclk_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal pclk_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal pclk_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+
+
+  signal sclk_latch_cal_status : std_logic;
 
 begin
 
 
   -----------------------------------------------------------------------------
-  -- Process      : P_hispi_phy_areset
-  -- Clock domain : sysclk
+  -- Process      : P_hclk_phy_areset
+  -- Clock domain : sclk
   -- Description  : This process generates the SERDES reset.
   -----------------------------------------------------------------------------
-  P_hispi_phy_areset : process (sysclk) is
+  P_hclk_phy_areset : process (sclk) is
   begin
 
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1'or hispi_soft_reset = '1') then
-        hispi_reset_counter <= 0;
-        hispi_phy_areset    <= '1';
+    if (rising_edge(sclk)) then
+      if (srst = '1'or hispi_soft_reset = '1') then
+        hclk_reset_counter <= 0;
+        hclk_phy_areset    <= '1';
       else
 
         -----------------------------------------------------------------------
         -- pll_reset
         -----------------------------------------------------------------------
-        if (hispi_reset_counter = PLL_RESET_DURATION) then
-          hispi_phy_areset <= '0';
+        if (hclk_reset_counter = PLL_RESET_DURATION) then
+          hclk_phy_areset <= '0';
         else
-          hispi_reset_counter <= hispi_reset_counter + 1;
+          hclk_reset_counter <= hclk_reset_counter + 1;
         end if;
       end if;
     end if;
   end process;
 
 
+
+
+
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
-  -- Reset re-synchronisation in the hispi_clk clock domain
+  -- Reset re-synchronisation in the hclk clock domain
   -----------------------------------------------------------------------------
-  P_phy_reset : process (hispi_phy_areset, hispi_clk) is
+  P_phy_reset : process (hclk_phy_areset, hclk) is
   begin
-    if (hispi_phy_areset = '1') then
-      hispi_reset_Meta <= '1';
-      hispi_reset      <= '1';
+    if (hclk_phy_areset = '1') then
+      hclk_reset_Meta <= '1';
+      hclk_reset      <= '1';
 
-    elsif (rising_edge(hispi_clk)) then
-      hispi_reset_Meta <= '0';
-      hispi_reset      <= hispi_reset_Meta;
+    elsif (rising_edge(hclk)) then
+      hclk_reset_Meta <= '0';
+      hclk_reset      <= hclk_reset_Meta;
     end if;
   end process;
+
 
 
   xhispi_serdes : hispi_serdes
@@ -237,7 +269,7 @@ begin
       PHY_PARALLEL_WIDTH => PHY_PARALLEL_WIDTH
       )
     port map(
-      async_pll_reset => hispi_phy_areset,
+      async_pll_reset => hclk_phy_areset,
       delay_reset     => delay_reset,
       delay_data_ce   => delay_data_ce,
       delay_data_inc  => delay_data_inc,
@@ -247,15 +279,15 @@ begin
       rx_in_clock_n   => hispi_serial_clk_n,
       rx_in_p         => hispi_serial_input_p,
       rx_in_n         => hispi_serial_input_n,
-      rx_out_clock    => hispi_clk,
-      rx_out          => hispi_serdes_data
+      rx_out_clock    => hclk,
+      rx_out          => hclk_serdes_data
       );
 
 
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
     G_parallel_data : for j in 0 to DESERIALIZATION_RATIO-1 generate
-      hispi_lane_data(i)(DESERIALIZATION_RATIO-1-j) <= hispi_serdes_data(j *LANE_PER_PHY + i);
+      hclk_lane_data(i)(DESERIALIZATION_RATIO-1-j) <= hclk_serdes_data(j *LANE_PER_PHY + i);
     end generate G_parallel_data;
 
     inst_lane_decoder : lane_decoder
@@ -264,16 +296,16 @@ begin
         PIXEL_SIZE       => PIXEL_SIZE
         )
       port map(
-        hclk                 => hispi_clk,
-        hclk_reset           => hispi_reset,
-        hclk_data_lane       => hispi_lane_data(i),
+        hclk                 => hclk,
+        hclk_reset           => hclk_reset,
+        hclk_data_lane       => hclk_lane_data(i),
         rclk_idle_character  => idle_character,
         hispi_phy_en         => hispi_phy_en,
-        cal_en               => cal_en,
-        cal_busy             => cal_busy(i),
-        cal_error            => cal_error(i),
-        cal_load_tap         => cal_load_tap(i),
-        cal_tap_value        => cal_tap_value((i*5) + 4 downto (i*5)),
+        pclk_cal_en          => pclk_cal_en,
+        pclk_cal_busy        => pclk_cal_busy(i),
+        pclk_cal_error       => pclk_cal_error(i),
+        pclk_cal_load_tap    => pclk_cal_load_tap(i),
+        pclk_cal_tap_value   => pclk_cal_tap_value((i*5) + 4 downto (i*5)),
         fifo_read_clk        => fifo_read_clk,
         fifo_read_en         => fifo_read_en(i),
         fifo_empty           => fifo_empty(i),
@@ -287,7 +319,182 @@ begin
         );
   end generate G_lane_decoder;
 
+  delay_reset <= '1' when (hclk_state = S_LOAD_DELAY) else
+                 '0';
 
+
+  -----------------------------------------------------------------------------
+  -- Process      : P_hclk_cal_en_vect
+  -- Clock domain : hclk
+  -- Description  : Pulse stretcher for the clock domain crossing
+  -----------------------------------------------------------------------------
+  P_hclk_cal_en_vect : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_cal_en_vect <= (others => '0');
+      else
+        if (hclk_state = S_INIT) then
+          hclk_cal_en_vect <= (others => '1');
+        else
+          hclk_cal_en_vect(0) <= '0';
+          for i in 1 to hclk_cal_en_vect'left loop
+            hclk_cal_en_vect(i) <= hclk_cal_en_vect(i-1);
+          end loop;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  pclk_cal_en <= hclk_cal_en_vect(hclk_cal_en_vect'left);
+  
+  -----------------------------------------------------------------------------
+  -- Process      : P_hclk_cal_busy
+  -- Clock domain : hclk
+  -- Description  : 
+  -----------------------------------------------------------------------------
+  P_hclk_cal_busy : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_cal_busy <= '0';
+      else
+        if (hclk_state = S_INIT) then
+          hclk_cal_busy <= '1';
+        elsif (hclk_state = S_DONE) then
+          hclk_cal_busy <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Module      : M_hclk_cal_en
+  -- Description : Resynchronize sclk_cal_en on hclk domain
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  M_hclk_cal_en : mtx_resync
+    port map (
+      aClk  => sclk,
+      aClr  => srst,
+      aDin  => sclk_cal_en,
+      bClk  => hclk,
+      bClr  => hclk_reset,
+      bDout => hclk_cal_en,
+      bRise => open,
+      bFall => open
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- Module      : M_sclk_cal_busy
+  -- Description : Resynchronize hclk_cal_busy on sclk domain
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  M_sclk_cal_busy : mtx_resync
+    port map (
+      aClk  => hclk,
+      aClr  => hclk_reset,
+      aDin  => hclk_cal_busy,
+      bClk  => sclk,
+      bClr  => srst,
+      bDout => sclk_cal_busy,
+      bRise => open,
+      bFall => sclk_latch_cal_status
+      );
+
+  sclk_cal_done<= sclk_latch_cal_status;
+
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_state
+  -- Description : Resynchronize pclk_cal_error and pclk_cal_tap_value on sclk
+  -- Src clock   : hclk
+  -- Dest clock  : sclk
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  P_sclk_latch_cal_status : process (sclk) is
+  begin 
+    if (rising_edge(sclk)) then
+      if (srst = '1') then
+          sclk_cal_error     <= (others=>'0');
+          sclk_cal_tap_value <= (others=>'0');
+      else
+        if (sclk_latch_cal_status = '1') then
+          sclk_cal_error     <=pclk_cal_error;
+          sclk_cal_tap_value <=pclk_cal_tap_value;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_state
+  -- Description : Calibration FSM
+  -----------------------------------------------------------------------------
+  P_hclk_state : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_state <= S_IDLE;
+      else
+        case hclk_state is
+          -------------------------------------------------------------------
+          -- S_IDLE : 
+          -------------------------------------------------------------------
+          when S_IDLE =>
+            if (hclk_cal_en = '1') then
+              hclk_state <= S_INIT;
+            else
+              hclk_state <= S_IDLE;
+            end if;
+
+
+          -------------------------------------------------------------------
+          -- S_INIT : 
+          -------------------------------------------------------------------
+          when S_INIT =>
+            hclk_state <= S_CALIBRATE;
+
+          -------------------------------------------------------------------
+          -- S_CALIBRATE : 
+          -------------------------------------------------------------------
+          when S_CALIBRATE =>
+            if (pclk_cal_busy = (pclk_cal_busy'range => '0')) then
+              hclk_state <= S_LOAD_DELAY;
+
+            else
+              hclk_state <= S_CALIBRATE;
+            end if;
+
+          -------------------------------------------------------------------
+          -- S_LOAD_DELAY : 
+          -------------------------------------------------------------------
+          when S_LOAD_DELAY =>
+            hclk_state <= S_DONE;
+
+          -------------------------------------------------------------------
+          -- S_DONE : 
+          -------------------------------------------------------------------
+          when S_DONE =>
+            hclk_state <= S_IDLE;
+
+          -------------------------------------------------------------------
+          -- 
+          -------------------------------------------------------------------
+          when others =>
+            null;
+        end case;
+      end if;
+    end if;
+  end process;
 
 
 end architecture rtl;

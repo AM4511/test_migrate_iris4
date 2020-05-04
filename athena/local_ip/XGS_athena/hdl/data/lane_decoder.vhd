@@ -37,11 +37,11 @@ entity lane_decoder is
     hispi_phy_en        : in std_logic;
 
     -- calibration
-    cal_en        : in  std_logic;
-    cal_busy      : out std_logic;
-    cal_error     : out std_logic;
-    cal_load_tap  : out std_logic;
-    cal_tap_value : out std_logic_vector(4 downto 0);
+    pclk_cal_en        : in std_logic;
+    pclk_cal_busy      : out std_logic;
+    pclk_cal_error     : out std_logic;
+    pclk_cal_load_tap  : out std_logic;
+    pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
 
     -- Read fifo interface
@@ -132,27 +132,31 @@ architecture rtl of lane_decoder is
         );
   end component;
 
-  
-  type FSM_STATE_TYPE is (S_UNKNOWN, S_IDL, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
+
+  type FSM_STATE_TYPE is (S_UNKNOWN, S_IDLE, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
   constant FIFO_ADDRESS_WIDTH        : integer := 6;
   constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
 
-  signal pclk                   : std_logic;
-  signal pclk_reset             : std_logic;
-  signal pclk_reset_Meta1       : std_logic;
-  signal pclk_reset_Meta2       : std_logic;
-  signal pclk_shift_register    : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
-  signal pclk_data              : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal pclk_data_p1           : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal sync_code_detected     : std_logic;
-  signal idle_sequence_detected : std_logic;
-  signal hispi_fifo_full        : std_logic;
-  signal hispi_fifo_wen         : std_logic;
-  signal state                  : FSM_STATE_TYPE := S_UNKNOWN;
-  signal dataCntr               : unsigned(2 downto 0);  -- Modulo 8 counter
+  signal pclk                : std_logic;
+  signal pclk_reset          : std_logic;
+  signal pclk_reset_Meta1    : std_logic;
+  signal pclk_reset_Meta2    : std_logic;
+  signal pclk_shift_register : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal pclk_data           : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal pclk_data_p1        : std_logic_vector(PIXEL_SIZE-1 downto 0);
+
+  signal pclk_hispi_phy_en_Meta : std_logic;
+  signal pclk_hispi_phy_en      : std_logic;
+
+  signal sync_code_detected : std_logic;
+  --signal idle_sequence_detected : std_logic;
+  signal hispi_fifo_full    : std_logic;
+  signal hispi_fifo_wen     : std_logic;
+  signal state              : FSM_STATE_TYPE := S_UNKNOWN;
+  signal dataCntr           : unsigned(2 downto 0);  -- Modulo 8 counter
 
   signal packer_0_valid : std_logic;
   signal packer_1_valid : std_logic;
@@ -210,10 +214,29 @@ begin
       pclk_data      => pclk_data
       );
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_hispi_phy_en
+  -- Description : Resynchronisation
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  P_pclk_hispi_phy_en : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        pclk_hispi_phy_en_Meta <= '0';
+        pclk_hispi_phy_en      <= '0';
+      else
+        pclk_hispi_phy_en_Meta <= hispi_phy_en;
+        pclk_hispi_phy_en      <= pclk_hispi_phy_en_Meta;
+      end if;
+    end if;
+  end process;
+
 
   -----------------------------------------------------------------------------
-  -- Module      : xbit_split
-  -- Description : Extract pixels from the serial stream
+  -- Module      : xtap_controller
+  -- Description : Calculate the tap delay for the serdes
   -----------------------------------------------------------------------------
   xtap_controller : tap_controller
     generic map(
@@ -224,15 +247,13 @@ begin
       pclk_reset          => pclk_reset,
       pclk_pixel          => pclk_data,
       pclk_idle_character => rclk_idle_character,
-      pclk_cal_en         => cal_en,
-      pclk_cal_busy       => cal_busy,
-      pclk_cal_error      => cal_error,
-      pclk_cal_load_tap   => cal_load_tap,
-      pclk_cal_tap_value  => cal_tap_value
+      pclk_cal_en         => pclk_cal_en,
+      pclk_cal_busy       => pclk_cal_busy,
+      pclk_cal_error      => pclk_cal_error,
+      pclk_cal_load_tap   => pclk_cal_load_tap,
+      pclk_cal_tap_value  => pclk_cal_tap_value
       );
 
-
-  
 
   -----------------------------------------------------------------------------
   -- Process     : P_packer
@@ -381,7 +402,7 @@ begin
           dataCntr <= (others => '1');
         -- As long as valid pixels are received, count modulo 8
         -- then wrap around.
-        elsif (hispi_phy_en = '1'and state /= S_IDL) then
+        elsif (pclk_hispi_phy_en = '1'and state /= S_IDLE) then
           dataCntr <= dataCntr + 1;
         end if;
       end if;
@@ -451,17 +472,17 @@ begin
   -----------------------------------------------------------------------------
   -- Detect IDLE sequence (4 consecutive IDLE characters)
   -----------------------------------------------------------------------------
-  P_idle_sequence_detected : process (pclk_shift_register, rclk_idle_character) is
-    variable rclk_idle_quad_vect : std_logic_vector(pclk_shift_register'range);
-  begin
-    rclk_idle_quad_vect := rclk_idle_character & rclk_idle_character & rclk_idle_character & rclk_idle_character;
+  -- P_idle_sequence_detected : process (pclk_shift_register, rclk_idle_character) is
+  --   variable rclk_idle_quad_vect : std_logic_vector(pclk_shift_register'range);
+  -- begin
+  --   rclk_idle_quad_vect := rclk_idle_character & rclk_idle_character & rclk_idle_character & rclk_idle_character;
 
-    if (pclk_shift_register = rclk_idle_quad_vect) then
-      idle_sequence_detected <= '1';
-    else
-      idle_sequence_detected <= '0';
-    end if;
-  end process;
+  --   if (pclk_shift_register = rclk_idle_quad_vect) then
+  --     idle_sequence_detected <= '1';
+  --   else
+  --     idle_sequence_detected <= '0';
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -471,116 +492,116 @@ begin
   P_state : process (pclk) is
   begin
     if (rising_edge(pclk)) then
-      if (pclk_reset = '1' or hispi_phy_en = '0')then
+      if (pclk_reset = '1' or pclk_hispi_phy_en = '0')then
         state        <= S_UNKNOWN;
         embeded_data <= '1';
       else
-        if (idle_sequence_detected = '1') then
-          state        <= S_IDL;
-          embeded_data <= '1';
-        else
-          case state is
-            -------------------------------------------------------------------
-            -- S_IDL : 
-            -------------------------------------------------------------------
-            when S_IDL =>
-              if (sync_code_detected = '1') then
-                if (pclk_shift_register(11 downto 8) = "1100") then
-                  state        <= S_SOF;
-                  embeded_data <= pclk_shift_register(7);
-                elsif(pclk_shift_register(11 downto 8) = "1000") then
-                  state        <= S_SOL;
-                  embeded_data <= pclk_shift_register(7);
-                else
-                  state <= S_ERROR;
-                end if;
+        -- if (idle_sequence_detected = '1') then
+        --   state        <= S_IDLE;
+        --   embeded_data <= '1';
+        -- else
+        case state is
+          -------------------------------------------------------------------
+          -- S_IDLE : 
+          -------------------------------------------------------------------
+          when S_IDLE =>
+            if (sync_code_detected = '1') then
+              if (pclk_shift_register(11 downto 8) = "1100") then
+                state        <= S_SOF;
+                embeded_data <= pclk_shift_register(7);
+              elsif(pclk_shift_register(11 downto 8) = "1000") then
+                state        <= S_SOL;
+                embeded_data <= pclk_shift_register(7);
               else
-                state <= S_IDL;
+                state <= S_ERROR;
               end if;
+            else
+              state <= S_IDLE;
+            end if;
 
 
-            -------------------------------------------------------------------
-            -- S_SOF : 
-            -------------------------------------------------------------------
-            when S_SOF =>
+          -------------------------------------------------------------------
+          -- S_SOF : 
+          -------------------------------------------------------------------
+          when S_SOF =>
+            state <= S_AIL;
+
+
+          -------------------------------------------------------------------
+          -- S_SOL : 
+          -------------------------------------------------------------------
+          when S_SOL =>
+            state <= S_AIL;
+
+
+          -------------------------------------------------------------------
+          -- S_EOF : 
+          -------------------------------------------------------------------
+          when S_EOF =>
+            if (crc_enable = '1') then
+              state <= S_CRC1;
+            else
+              state <= S_IDLE;
+            end if;
+
+
+          -------------------------------------------------------------------
+          -- S_EOL : 
+          -------------------------------------------------------------------
+          when S_EOL =>
+            if (crc_enable = '1') then
+              state <= S_CRC1;
+            else
+              state <= S_IDLE;
+            end if;
+
+
+          -------------------------------------------------------------------
+          -- S_AIL : 
+          -------------------------------------------------------------------
+          when S_AIL =>
+            if (sync_code_detected = '1') then
+              if(pclk_shift_register(11 downto 9) = "111") then
+                state <= S_EOF;
+              elsif(pclk_shift_register(11 downto 9) = "101") then
+                state <= S_EOL;
+              else
+                state <= S_ERROR;
+              end if;
+            else
               state <= S_AIL;
+            end if;
 
 
-            -------------------------------------------------------------------
-            -- S_SOL : 
-            -------------------------------------------------------------------
-            when S_SOL =>
-              state <= S_AIL;
+          -------------------------------------------------------------------
+          -- S_CRC1 : 
+          -------------------------------------------------------------------
+          when S_CRC1 =>
+            state <= S_CRC2;
 
 
-            -------------------------------------------------------------------
-            -- S_EOF : 
-            -------------------------------------------------------------------
-            when S_EOF =>
-              if (crc_enable = '1') then
-                state <= S_CRC1;
-              else
-                state <= S_IDL;
-              end if;
+          -------------------------------------------------------------------
+          -- S_CRC2 : 
+          -------------------------------------------------------------------
+          when S_CRC2 =>
+            state <= S_IDLE;
 
 
-            -------------------------------------------------------------------
-            -- S_EOL : 
-            -------------------------------------------------------------------
-            when S_EOL =>
-              if (crc_enable = '1') then
-                state <= S_CRC1;
-              else
-                state <= S_IDL;
-              end if;
+          -------------------------------------------------------------------
+          -- S_ERROR : 
+          -------------------------------------------------------------------
+          when S_ERROR =>
+            state <= S_UNKNOWN;
 
 
-            -------------------------------------------------------------------
-            -- S_AIL : 
-            -------------------------------------------------------------------
-            when S_AIL =>
-              if (sync_code_detected = '1') then
-                if(pclk_shift_register(11 downto 9) = "111") then
-                  state <= S_EOF;
-                elsif(pclk_shift_register(11 downto 9) = "101") then
-                  state <= S_EOL;
-                else
-                  state <= S_ERROR;
-                end if;
-              else
-                state <= S_AIL;
-              end if;
+          -------------------------------------------------------------------
+          -- 
+          -------------------------------------------------------------------
+          when others =>
+            state <= S_IDLE;
 
-
-            -------------------------------------------------------------------
-            -- S_CRC1 : 
-            -------------------------------------------------------------------
-            when S_CRC1 =>
-              state <= S_CRC2;
-
-
-            -------------------------------------------------------------------
-            -- S_CRC2 : 
-            -------------------------------------------------------------------
-            when S_CRC2 =>
-              state <= S_IDL;
-
-
-            -------------------------------------------------------------------
-            -- S_ERROR : 
-            -------------------------------------------------------------------
-            when S_ERROR =>
-              state <= S_UNKNOWN;
-
-
-            -------------------------------------------------------------------
-            -- 
-            -------------------------------------------------------------------
-            when others =>
-              state <= S_ERROR;
-
-          end case;
-        end if;
+        end case;
+      --end if;
       end if;
     end if;
   end process P_state;

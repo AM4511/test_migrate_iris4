@@ -629,7 +629,7 @@ begin
       port map (
         RDY    => regfile.HISPI.IDELAYCTRL_STATUS.PLL_LOCKED,
         REFCLK => idelay_clk,
-        RST    => regfile.HISPI.CTRL.RESET_IDELAYCTRL
+        RST    => regfile.HISPI.CTRL.SW_CLR_IDELAYCTRL
         );
   end generate G_ENABLE_IDELAYCTRL;
 
