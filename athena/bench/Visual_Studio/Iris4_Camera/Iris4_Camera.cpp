@@ -29,9 +29,8 @@
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
-#define regfile_XGS_CTRL_ADD 0x00000000  //
-#define regfile_XGS_DATA_ADD 0x00000000  // A changer
-#define regfile_I2C_ADD      0x00010000  //
+#define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
+#define regfile_I2C_ADD_OFFSET        0x00010000  //
 
 void InitXcelerator(CXGS_Ctrl* XGS_Ctrl, CI2C* I2C);
 void Test7c706Eprom(CI2C* I2C);
@@ -121,35 +120,49 @@ int main(void)
 	*(RegPtr_bar1 + (0x100 / 4)) = 0x1;         //pci_bar0_enable
 
 	
+	//------------------------------
+	// Init Global XGS Athena REGISTER FILE
+	//------------------------------
+	volatile unsigned char* XGS_Athena_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + regfile_XGS_ATHENA_ADD_OFFSET);   // Lets put a pointer to the FPGA XGS ctrl
+	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGS_Athena_ptr = (*(volatile FPGA_REGFILE_XGS_ATHENA_TYPE*)(XGS_Athena_regptr));
+
+
+	//------------------------------
+	// Init I2C REGISTER FILE
+	//------------------------------
+	volatile unsigned char* I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + regfile_I2C_ADD_OFFSET);       // Lets put a pointer to the FPGA I2C
+	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 
 
 	//------------------------------
 	// Init class XGS CONTROLLER
 	//------------------------------
-	volatile unsigned char * XGS_Ctrl_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + regfile_XGS_CTRL_ADD);   // Lets put a pointer to the FPGA XGS ctrl
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGS_Ctrl_ptr = (*(volatile FPGA_REGFILE_XGS_CTRL_TYPE*)(XGS_Ctrl_regptr));
 	CXGS_Ctrl *XGS_Ctrl;
 	//XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099); //32.4Mhz
-	XGS_Ctrl = new CXGS_Ctrl(rXGS_Ctrl_ptr, 16.000000, 15.625);    //32Mhz
-	printf("\nXGS Controller Static_ID : 0x%X\n", XGS_Ctrl->rXGSptr.SYSTEM.ID.f.STATICID);
+	XGS_Ctrl = new CXGS_Ctrl(rXGS_Athena_ptr, 16.000000, 15.625);    //32Mhz
 
 	//------------------------------
     // Init class XGS DATAPATH
     //------------------------------
-	volatile unsigned char* XGS_Data_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + regfile_XGS_DATA_ADD);   // Lets put a pointer to the FPGA XGS Data  <-------- Setter la nouvelle adresse ici, aulieu de 0x00000  !!!
-	volatile FPGA_HISPI_REGISTERFILE_TYPE& rXGS_Data_ptr = (*(volatile FPGA_HISPI_REGISTERFILE_TYPE*)(XGS_Data_regptr));
 	CXGS_Data* XGS_Data;
-	XGS_Data = new CXGS_Data(rXGS_Data_ptr);
-	printf("\nXGS DataPath Static_ID   : 0x%X\n", XGS_Data->rXGSptr.info.tag.u32);
-
+	XGS_Data = new CXGS_Data(rXGS_Athena_ptr);
+	
 	//------------------------------
 	// Init class I2C CONTROLLER
 	//------------------------------
-	volatile unsigned char * I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + regfile_I2C_ADD);       // Lets put a pointer to the FPGA I2C
-	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
-	printf("\nI2C Controller Static_ID : 0x%X\n\n", I2C->rI2Cptr.I2C.I2C_ID.f.ID);
+
+
+
+	//------------------------------
+    // Print TAGs of regfile
+    //------------------------------
+	printf("\n");
+	printf("XGS ATHENA Static_ID : 0x%X\n", rXGS_Athena_ptr.SYSTEM.TAG.f.VALUE);
+	printf("XGS I2C Static_ID    : 0x%X\n", rI2Cptr.I2C.I2C_ID.f.ID);
+	printf("\n");
+
 
 
 

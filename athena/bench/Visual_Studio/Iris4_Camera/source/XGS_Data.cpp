@@ -25,7 +25,7 @@ using namespace std;
 
 
 
-CXGS_Data::CXGS_Data(volatile FPGA_HISPI_REGISTERFILE_TYPE& i_rXGSptr):
+CXGS_Data::CXGS_Data(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr):
 	rXGSptr(i_rXGSptr)
 {
 	memset(&sXGSptr, 0, sizeof(sXGSptr));
@@ -42,6 +42,6 @@ CXGS_Data::~CXGS_Data()
 
 void CXGS_Data::Test(void)
 {
-	printf("DataPath info Tag is 0x%X\n", rXGSptr.info.tag.u32);
+	printf("DataPath info Tag is 0x%X\n", rXGSptr.SYSTEM.TAG.u32);
 
 }

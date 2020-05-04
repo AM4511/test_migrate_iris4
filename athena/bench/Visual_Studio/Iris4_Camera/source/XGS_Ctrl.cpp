@@ -25,7 +25,7 @@ using namespace std;
 
 
 
-CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setSysPerFs, double setSensorPerFs):
+CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPerFs, double setSensorPerFs):
 	rXGSptr(i_rXGSptr)
 {
 
