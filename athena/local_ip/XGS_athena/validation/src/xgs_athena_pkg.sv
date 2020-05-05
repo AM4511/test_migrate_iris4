@@ -1,21 +1,21 @@
 /****************************************************************************
- * dmawr2tlp_pkg.sv
+ * xgs_athena_pkg.sv
  ****************************************************************************/
 
 /**
- * Package: dmawr2tlp_pkg
+ * Package: xgs_athena_pkg
  *
  * TODO: Add package documentation
  */
 
-package dmawr2tlp_pkg;
+package xgs_athena_pkg;
 	import core_pkg::*;
 	import driver_pkg::*;
 
-	typedef class Cscoreboard_dmawr2tlp;
-	`include "Cscoreboard_dmawr2tlp.svh"
+	typedef class Cscoreboard;
+	`include "Cscoreboard.svh"
 
-endpackage : dmawr2tlp_pkg
+endpackage : xgs_athena_pkg
 
 
 

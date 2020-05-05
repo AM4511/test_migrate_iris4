@@ -227,9 +227,6 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
-   CONFIG.G_KU706 {1} \
-   CONFIG.G_SENSOR_FREQ {32000} \
-   CONFIG.G_SIMULATION {0} \
  ] $XGS_athena_0
 
   # Create instance: axi_i2c_0, and set properties

@@ -230,7 +230,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
-   CONFIG.G_SIMULATION {0} \
+   CONFIG.KU706 {0} \
  ] $XGS_athena_0
 
   # Create instance: axi_interconnect_0, and set properties

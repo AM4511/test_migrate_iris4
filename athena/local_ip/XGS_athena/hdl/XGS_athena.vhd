@@ -18,11 +18,10 @@ entity XGS_athena is
     LINES_PER_FRAME       : integer              := 3102;
     PIXEL_SIZE            : integer              := 12;
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
-    
-    G_SYS_CLK_PERIOD      : integer              := 16;
-    G_SENSOR_FREQ         : integer              := 32400; 
-	G_SIMULATION          : integer              := 0;
-    G_KU706               : integer              := 0
+    SYS_CLK_PERIOD        : integer              := 16;
+    SENSOR_FREQ           : integer              := 32400;
+    SIMULATION            : integer              := 0;
+    KU706                 : integer              := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -227,7 +226,7 @@ architecture struct of XGS_athena is
   end component;
 
 
-  component xgs_hispi is
+  component xgs_hispi_top is
     generic (
       NUMBER_OF_LANE  : integer := 6;
       MUX_RATIO       : integer := 4;
@@ -437,10 +436,16 @@ architecture struct of XGS_athena is
 
 
 	);
+
   end component;
-  
-  
-  
+
+  -----------------------------------------------------------------------------
+  -- HW_VERSION :
+  --
+  -- 00000000 :  TBD
+  -----------------------------------------------------------------------------
+  constant HW_VERSION  : std_logic_vector(7 downto 0) := "00000000";
+
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
 
@@ -460,17 +465,22 @@ architecture struct of XGS_athena is
   signal tlast  : std_logic;
 
   signal context_strb : std_logic_vector(1 downto 0);  -- TBD from controller
-  
-  signal irq_eos    : std_logic;
-  signal irq_sos    : std_logic;
-  signal irq_eoe    : std_logic;
-  signal irq_soe    : std_logic;
-  signal irq_abort  : std_logic;
-  
+
+  signal irq_eos   : std_logic;
+  signal irq_sos   : std_logic;
+  signal irq_eoe   : std_logic;
+  signal irq_soe   : std_logic;
+  signal irq_abort : std_logic;
+
 
 begin
 
+  -----------------------------------------------------------------------------
+  -- Hardware version
+  -----------------------------------------------------------------------------
+  regfile.SYSTEM.VERSION.HW <= HW_VERSION;
 
+  
   -----------------------------------------------------------------------------
   -- AXI Slave Interface
   -----------------------------------------------------------------------------
@@ -529,7 +539,19 @@ begin
       reg_readdata  => reg_readdata
       );
 
-  x_xgs_hispi : xgs_hispi
+  
+-- Alain,
+
+-- Voici les signaux dont je te parlais tantot :
+
+-- start_calibration  : Signal qui sort du controlleur vers le HiSpi (1 clk axi @ 62.5mhz). Il n’est pas la encore dans mon top.
+-- HISPI_pix_clk       : Signal qui entre dans le controlleur, pixclk (peu importe top ou bottom)
+-- DEC_EOF             : Signal qui entre dans le controlleur dans le domaine pixclk (allonge-le a 5 clk pour que le changement de domaine d’horloge soit un simple 2 ff de resynch)
+
+
+-- Laisse les signaux dans le top, je vais les connecter la semaine prochaine.
+
+  x_xgs_hispi_top : xgs_hispi_top
     generic map(
       NUMBER_OF_LANE  => NUMBER_OF_LANE,
       MUX_RATIO       => MUX_RATIO,
@@ -616,7 +638,7 @@ begin
   G_ENABLE_IDELAYCTRL : if (ENABLE_IDELAYCTRL > 0) generate
     xIDELAYCTRL : IDELAYCTRL
       port map (
-        RDY    => regfile.HISPI.STATUS.PLL_LOCKED,
+        RDY    => regfile.HISPI.IDELAYCTRL_STATUS.PLL_LOCKED,
         REFCLK => idelay_clk,
         RST    => regfile.HISPI.CTRL.RESET_IDELAYCTRL
         );
@@ -625,15 +647,15 @@ begin
 
   
   -----------------------------------------------------------------------------
-  -- IDELAYCTRL is needed for SERDES calibration. 
+  -- XGS CONTROLLER TOP 
   -----------------------------------------------------------------------------
   Inst_XGS_controller_top : XGS_controller_top
 	generic map(
 		-- Users to add parameters here
-        G_SYS_CLK_PERIOD    => G_SYS_CLK_PERIOD,
-        G_SENSOR_FREQ       => G_SENSOR_FREQ,    
-		G_SIMULATION        => G_SIMULATION,    
-        G_KU706             => G_KU706         
+        G_SYS_CLK_PERIOD    => SYS_CLK_PERIOD,
+        G_SENSOR_FREQ       => SENSOR_FREQ,    
+		G_SIMULATION        => SIMULATION,    
+        G_KU706             => KU706         
 	)
 	port map(
 
@@ -723,14 +745,16 @@ begin
 
 	);  
     
+
+
   --irq(0) : assigned by DMA
-  irq(1) <= irq_soe;  
-  irq(2) <= irq_eoe;  
-  irq(3) <= irq_sos;   
-  irq(4) <= irq_eos;  
+  irq(1) <= irq_soe;
+  irq(2) <= irq_eoe;
+  irq(3) <= irq_sos;
+  irq(4) <= irq_eos;
   irq(5) <= '0';
   irq(6) <= '0';
   irq(7) <= '0';
-  
-  
+
+
 end struct;

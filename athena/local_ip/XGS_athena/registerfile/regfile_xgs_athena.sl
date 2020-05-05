@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
-%  FDK IDE Version: 4.7.0_beta3
-%  Build ID: I20191219-1127
+%  FDK IDE Version: 4.7.0_beta4
+%  Build ID: I20191220-1537
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -31,8 +31,8 @@ Register("tag", 0x0, 4, "null");
 			FieldValue("MTX ASCII string ", 5788749);
 
 Register("version", 0x4, 4, "Register file version");
-		Field("major", 23, 16, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("minor", 15, 8, "rd", 0x0, 0x5, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("major", 23, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("minor", 15, 8, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("hw", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("capability", 0x8, 4, "Register file version");
@@ -51,32 +51,32 @@ Register("ctrl", 0x70, 4, "Initial Grab Address Register ");
 			FieldValue("", 0);
 			FieldValue("", 1);
 
-Register("fstart", 0x74, 4, "Initial Grab Address Register ");
+Register("fstart", 0x78, 4, "Initial Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register");
 
-Register("fstart_high", 0x78, 4, "Initial Grab Address Register HI 32 bits");
+Register("fstart_high", 0x7c, 4, "Initial Grab Address Register HI 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "INitial GRAb ADDRess Register High");
 
-Register("fstart_g", 0x7c, 4, "Green Grab Address Register ");
+Register("fstart_g", 0x80, 4, "Green Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("fstart_g_high", 0x80, 4, "Green Grab Address Register HIGH 32 bits");
+Register("fstart_g_high", 0x84, 4, "Green Grab Address Register HIGH 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("fstart_r", 0x84, 4, "Red Grab Address Register ");
+Register("fstart_r", 0x88, 4, "Red Grab Address Register ");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register");
 
-Register("fstart_r_high", 0x88, 4, "Red Grab Address Register HIGH 32 bits");
+Register("fstart_r_high", 0x8c, 4, "Red Grab Address Register HIGH 32 bits");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "GRAb ADDRess Register High");
 
-Register("line_pitch", 0x8c, 4, "Grab Line Pitch Register");
+Register("line_pitch", 0x90, 4, "Grab Line Pitch Register");
 		Field("value", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
 
-Register("line_size", 0x90, 4, "Host Line Size Register");
+Register("line_size", 0x94, 4, "Host Line Size Register");
 		Field("value", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
 			FieldValue("Auto-compute line size from sensor data.", 0);
 
-Register("csc", 0x94, 4, "null");
+Register("csc", 0x98, 4, "null");
 		Field("color_space", 26, 24, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Reserved for Mono sensor operation", 0);
 			FieldValue("BGR32", 1);
@@ -545,10 +545,55 @@ Register("dpc_list_data_rd", 0x388, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
+		Field("reset_idelayctrl", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
+			FieldValue("No effect", 0);
+			FieldValue("Reset IDELAYCTRL", 1);
+		Field("calibrate_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
+			FieldValue("No effect", 0);
+			FieldValue("Initiate the calibration", 1);
 		Field("clr", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("reset_idelayctrl", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the xilinx macro IDELAYCTRL");
+		Field("enable", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("status", 0x404, 4, "null");
-		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+Register("idelayctrl_status", 0x404, 4, "null");
+		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "IDELAYCTRL PLL locked");
+			FieldValue("IDELAYCTRL PLL unlocked", 0);
+			FieldValue("IDELAYCTRL PLL locked", 1);
+
+variable lane_decoder_statusTags = UChar_Type[6];
+
+for(i = 0; i < 6; i++)
+{
+	lane_decoder_statusTags[i] = i;
+}
+
+Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
+
+for(i = 0; i < 6; i++)
+{
+
+	Register("lane_decoder_status", 0x408 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("calibration_error", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("calibration_active", 5, 5, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_tap_value", 4, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+}
+
+variable lane_packer_statusTags = UChar_Type[3];
+
+for(i = 0; i < 3; i++)
+{
+	lane_packer_statusTags[i] = i;
+}
+
+Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
+
+for(i = 0; i < 3; i++)
+{
+
+	Register("lane_packer_status", 0x420 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+}
 
 

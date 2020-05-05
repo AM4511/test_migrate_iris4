@@ -35,10 +35,19 @@ entity hispi_phy is
     sysclk : in std_logic;
     sysrst : in std_logic;
 
-    -- Register file interface
-    idle_character       : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    hispi_phy_en         : in std_logic;
-    hispi_soft_reset     : in std_logic;
+    -- Register file information
+    idle_character   : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hispi_phy_en     : in std_logic;
+    hispi_soft_reset : in std_logic;
+
+    -- Calibration 
+    cal_en        : in  std_logic;
+    cal_busy      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    cal_load_tap  : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+
+    -- HiSPi IO
     hispi_serial_clk_p   : in std_logic;
     hispi_serial_clk_n   : in std_logic;
     hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
@@ -94,24 +103,40 @@ architecture rtl of hispi_phy is
       LANE_DATA_WIDTH  : integer := 32
       );
     port (
-      hispi_clk      : in std_logic;
-      hispi_reset    : in std_logic;
-      -- Register file interface
-      idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en   : in std_logic;
-      input_data     : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+      ---------------------------------------------------------------------------
+      -- hispi_clk clock domain
+      ---------------------------------------------------------------------------
+      hclk           : in std_logic;
+      hclk_reset     : in std_logic;
+      hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
+      ---------------------------------------------------------------------------
+      -- Register file 
+      ---------------------------------------------------------------------------
+      rclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hispi_phy_en        : in std_logic;
+
+      -- calibration
+      cal_en        : in  std_logic;
+      cal_busy      : out std_logic;
+      cal_error     : out std_logic;
+      cal_load_tap  : out std_logic;
+      cal_tap_value : out std_logic_vector(4 downto 0);
+
+
+      -- Read fifo interface
       fifo_read_clk        : in  std_logic;
       fifo_read_en         : in  std_logic;
       fifo_empty           : out std_logic;
       fifo_read_data_valid : out std_logic;
       fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+
       -- Flags detected
-      embeded_data         : out std_logic;
-      sof_flag             : out std_logic;
-      eof_flag             : out std_logic;
-      sol_flag             : out std_logic;
-      eol_flag             : out std_logic
+      embeded_data : out std_logic;
+      sof_flag     : out std_logic;
+      eof_flag     : out std_logic;
+      sol_flag     : out std_logic;
+      eol_flag     : out std_logic
       );
   end component lane_decoder;
 
@@ -157,6 +182,7 @@ architecture rtl of hispi_phy is
   signal delay_data_inc : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
   signal delay_tap_in   : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
   signal delay_tap_out  : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+
 
 begin
 
@@ -238,11 +264,16 @@ begin
         PIXEL_SIZE       => PIXEL_SIZE
         )
       port map(
-        hispi_clk            => hispi_clk,
-        hispi_reset          => hispi_reset,
-        idle_character       => idle_character,
+        hclk                 => hispi_clk,
+        hclk_reset           => hispi_reset,
+        hclk_data_lane       => hispi_lane_data(i),
+        rclk_idle_character  => idle_character,
         hispi_phy_en         => hispi_phy_en,
-        input_data           => hispi_lane_data(i),
+        cal_en               => cal_en,
+        cal_busy             => cal_busy(i),
+        cal_error            => cal_error(i),
+        cal_load_tap         => cal_load_tap(i),
+        cal_tap_value        => cal_tap_value((i*5) + 4 downto (i*5)),
         fifo_read_clk        => fifo_read_clk,
         fifo_read_en         => fifo_read_en(i),
         fifo_empty           => fifo_empty(i),
@@ -254,7 +285,6 @@ begin
         sol_flag             => sol_flag(i),
         eol_flag             => eol_flag(i)
         );
-
   end generate G_lane_decoder;
 
 

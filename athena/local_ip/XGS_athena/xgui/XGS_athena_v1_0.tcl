@@ -8,10 +8,10 @@ proc init_gui { IPINST } {
   #Adding Page
   set Controller [ipgui::add_page $IPINST -name "Controller" -display_name {XGS_Controller}]
   set_property tooltip {Controller} ${Controller}
-  ipgui::add_param $IPINST -name "G_SYS_CLK_PERIOD" -parent ${Controller} -widget comboBox
-  ipgui::add_param $IPINST -name "G_SENSOR_FREQ" -parent ${Controller} -widget comboBox
-  ipgui::add_param $IPINST -name "G_SIMULATION" -parent ${Controller} -widget comboBox
-  ipgui::add_param $IPINST -name "G_KU706" -parent ${Controller} -widget comboBox
+  ipgui::add_param $IPINST -name "SYS_CLK_PERIOD" -parent ${Controller}
+  ipgui::add_param $IPINST -name "SENSOR_FREQ" -parent ${Controller}
+  ipgui::add_param $IPINST -name "KU706" -parent ${Controller}
+  ipgui::add_param $IPINST -name "SIMULATION" -parent ${Controller}
 
   #Adding Page
   set DMA [ipgui::add_page $IPINST -name "DMA"]
@@ -54,39 +54,12 @@ proc validate_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELA
 	return true
 }
 
-proc update_PARAM_VALUE.G_KU706 { PARAM_VALUE.G_KU706 } {
-	# Procedure called to update G_KU706 when any of the dependent parameters in the arguments change
+proc update_PARAM_VALUE.KU706 { PARAM_VALUE.KU706 } {
+	# Procedure called to update KU706 when any of the dependent parameters in the arguments change
 }
 
-proc validate_PARAM_VALUE.G_KU706 { PARAM_VALUE.G_KU706 } {
-	# Procedure called to validate G_KU706
-	return true
-}
-
-proc update_PARAM_VALUE.G_SENSOR_FREQ { PARAM_VALUE.G_SENSOR_FREQ } {
-	# Procedure called to update G_SENSOR_FREQ when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.G_SENSOR_FREQ { PARAM_VALUE.G_SENSOR_FREQ } {
-	# Procedure called to validate G_SENSOR_FREQ
-	return true
-}
-
-proc update_PARAM_VALUE.G_SIMULATION { PARAM_VALUE.G_SIMULATION } {
-	# Procedure called to update G_SIMULATION when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.G_SIMULATION { PARAM_VALUE.G_SIMULATION } {
-	# Procedure called to validate G_SIMULATION
-	return true
-}
-
-proc update_PARAM_VALUE.G_SYS_CLK_PERIOD { PARAM_VALUE.G_SYS_CLK_PERIOD } {
-	# Procedure called to update G_SYS_CLK_PERIOD when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.G_SYS_CLK_PERIOD { PARAM_VALUE.G_SYS_CLK_PERIOD } {
-	# Procedure called to validate G_SYS_CLK_PERIOD
+proc validate_PARAM_VALUE.KU706 { PARAM_VALUE.KU706 } {
+	# Procedure called to validate KU706
 	return true
 }
 
@@ -144,6 +117,33 @@ proc validate_PARAM_VALUE.PIXEL_SIZE { PARAM_VALUE.PIXEL_SIZE } {
 	return true
 }
 
+proc update_PARAM_VALUE.SENSOR_FREQ { PARAM_VALUE.SENSOR_FREQ } {
+	# Procedure called to update SENSOR_FREQ when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.SENSOR_FREQ { PARAM_VALUE.SENSOR_FREQ } {
+	# Procedure called to validate SENSOR_FREQ
+	return true
+}
+
+proc update_PARAM_VALUE.SIMULATION { PARAM_VALUE.SIMULATION } {
+	# Procedure called to update SIMULATION when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.SIMULATION { PARAM_VALUE.SIMULATION } {
+	# Procedure called to validate SIMULATION
+	return true
+}
+
+proc update_PARAM_VALUE.SYS_CLK_PERIOD { PARAM_VALUE.SYS_CLK_PERIOD } {
+	# Procedure called to update SYS_CLK_PERIOD when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.SYS_CLK_PERIOD { PARAM_VALUE.SYS_CLK_PERIOD } {
+	# Procedure called to validate SYS_CLK_PERIOD
+	return true
+}
+
 
 proc update_MODELPARAM_VALUE.ENABLE_IDELAYCTRL { MODELPARAM_VALUE.ENABLE_IDELAYCTRL PARAM_VALUE.ENABLE_IDELAYCTRL } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
@@ -180,23 +180,23 @@ proc update_MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE { MODELPARAM_VALUE.MAX_PCIE_P
 	set_property value [get_property value ${PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE}] ${MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE}
 }
 
-proc update_MODELPARAM_VALUE.G_SYS_CLK_PERIOD { MODELPARAM_VALUE.G_SYS_CLK_PERIOD PARAM_VALUE.G_SYS_CLK_PERIOD } {
+proc update_MODELPARAM_VALUE.SYS_CLK_PERIOD { MODELPARAM_VALUE.SYS_CLK_PERIOD PARAM_VALUE.SYS_CLK_PERIOD } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.G_SYS_CLK_PERIOD}] ${MODELPARAM_VALUE.G_SYS_CLK_PERIOD}
+	set_property value [get_property value ${PARAM_VALUE.SYS_CLK_PERIOD}] ${MODELPARAM_VALUE.SYS_CLK_PERIOD}
 }
 
-proc update_MODELPARAM_VALUE.G_SENSOR_FREQ { MODELPARAM_VALUE.G_SENSOR_FREQ PARAM_VALUE.G_SENSOR_FREQ } {
+proc update_MODELPARAM_VALUE.SENSOR_FREQ { MODELPARAM_VALUE.SENSOR_FREQ PARAM_VALUE.SENSOR_FREQ } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.G_SENSOR_FREQ}] ${MODELPARAM_VALUE.G_SENSOR_FREQ}
+	set_property value [get_property value ${PARAM_VALUE.SENSOR_FREQ}] ${MODELPARAM_VALUE.SENSOR_FREQ}
 }
 
-proc update_MODELPARAM_VALUE.G_SIMULATION { MODELPARAM_VALUE.G_SIMULATION PARAM_VALUE.G_SIMULATION } {
+proc update_MODELPARAM_VALUE.SIMULATION { MODELPARAM_VALUE.SIMULATION PARAM_VALUE.SIMULATION } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.G_SIMULATION}] ${MODELPARAM_VALUE.G_SIMULATION}
+	set_property value [get_property value ${PARAM_VALUE.SIMULATION}] ${MODELPARAM_VALUE.SIMULATION}
 }
 
-proc update_MODELPARAM_VALUE.G_KU706 { MODELPARAM_VALUE.G_KU706 PARAM_VALUE.G_KU706 } {
+proc update_MODELPARAM_VALUE.KU706 { MODELPARAM_VALUE.KU706 PARAM_VALUE.KU706 } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.G_KU706}] ${MODELPARAM_VALUE.G_KU706}
+	set_property value [get_property value ${PARAM_VALUE.KU706}] ${MODELPARAM_VALUE.KU706}
 }
 

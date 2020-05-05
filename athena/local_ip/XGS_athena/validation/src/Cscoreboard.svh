@@ -1,4 +1,4 @@
-class Cscoreboard_dmawr2tlp #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
+class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	int number_of_errors;
 
 	//used to count the number of transactions
