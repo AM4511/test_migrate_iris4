@@ -58,14 +58,14 @@ add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {FiFo read I/
 add wave -noupdate -expand -group xgs_mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_state
 add wave -noupdate -expand -group xgs_mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_read_data_valid
 add wave -noupdate -expand -group xgs_mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid_int
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tready
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} -color Pink /testbench/DUT/xgs_mono_pipeline_inst/aclk_acknowledge
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} -expand /testbench/DUT/xgs_mono_pipeline_inst/aclk_tuser
-add wave -noupdate -expand -group xgs_mono_pipeline -expand -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tdata
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tready
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tuser
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} -color Pink /testbench/DUT/xgs_mono_pipeline_inst/aclk_acknowledge
+add wave -noupdate -expand -group xgs_mono_pipeline -group {AXI Stream Output I/F} /testbench/DUT/xgs_mono_pipeline_inst/aclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {1072665443 ps} 0}
+WaveRestoreCursors {{Cursor 3} {1154929533 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 185
 configure wave -valuecolwidth 148
@@ -81,4 +81,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits us
 update
-WaveRestoreZoom {1066616890 ps} {1086802959 ps}
+WaveRestoreZoom {1018189625 ps} {1244962775 ps}
