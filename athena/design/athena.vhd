@@ -41,10 +41,10 @@ entity athena is
     pcie_clk_n : in std_logic;
     pcie_clk_p : in std_logic;
 
-    pcie_rx_n : in  std_logic_vector(1 downto 0);
-    pcie_rx_p : in  std_logic_vector(1 downto 0);
-    pcie_tx_n : out std_logic_vector(1 downto 0);
-    pcie_tx_p : out std_logic_vector(1 downto 0);
+    pcie_rx_n : in  std_logic_vector(0 downto 0);
+    pcie_rx_p : in  std_logic_vector(0 downto 0);
+    pcie_tx_n : out std_logic_vector(0 downto 0);
+    pcie_tx_p : out std_logic_vector(0 downto 0);
 
     ---------------------------------------------------------------------------
     -- XGS sensor control interface
@@ -121,42 +121,59 @@ end athena;
 architecture struct of athena is
 
 
-  component system_pb_wrapper is
-    port (
-      cfg_qspi_io0_io        : inout std_logic;
-      cfg_qspi_io1_io        : inout std_logic;
-      cfg_qspi_io2_io        : inout std_logic;
-      cfg_qspi_io3_io        : inout std_logic;
-      cfg_qspi_ss_io         : inout std_logic_vector (0 to 0);
-      cfg_startup_io_cfgclk  : out   std_logic;
-      cfg_startup_io_cfgmclk : out   std_logic;
-      cfg_startup_io_eos     : out   std_logic;
-      cfg_startup_io_preq    : out   std_logic;
-      ext_reset_n            : in    std_logic;
-      pcie_clk_100MHz        : in    std_logic;
-      pcie_rxn               : in    std_logic_vector (1 downto 0);
-      pcie_rxp               : in    std_logic_vector (1 downto 0);
-      pcie_txn               : out   std_logic_vector (1 downto 0);
-      pcie_txp               : out   std_logic_vector (1 downto 0);
-      ref_clk                : in    std_logic;
-      xgs_hispi_clk_n        : in    std_logic_vector (1 downto 0);
-      xgs_hispi_clk_p        : in    std_logic_vector (1 downto 0);
-      xgs_hispi_data_n       : in    std_logic_vector (5 downto 0);
-      xgs_hispi_data_p       : in    std_logic_vector (5 downto 0)
-      );
+
+component system_pb_wrapper
+  port (
+    Anput_exposure : out STD_LOGIC;
+    Anput_ext_trig : in STD_LOGIC;
+    Anput_strobe : out STD_LOGIC;
+    Anput_trig_rdy : out STD_LOGIC;
+    I2C_if_i2c_sdata : inout STD_LOGIC;
+    I2C_if_i2c_slk : inout STD_LOGIC;
+    SPI_spi_csn : out STD_LOGIC;
+    SPI_spi_sdin : in STD_LOGIC;
+    SPI_spi_sdout : out STD_LOGIC;
+    info_board_info : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    info_fpga_build_id : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    info_fpga_device_id : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    info_fpga_firmware_type : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    info_fpga_major_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    info_fpga_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    info_fpga_sub_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    led_out : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_rxn : in STD_LOGIC;
+    pcie_rxp : in STD_LOGIC;
+    pcie_sys_clk : in STD_LOGIC;
+    pcie_sys_rst_n : in STD_LOGIC;
+    pcie_txn : out STD_LOGIC;
+    pcie_txp : out STD_LOGIC;
+    ref_clk : in STD_LOGIC;
+    hispi_hispi_data_p : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    hispi_hispi_clk_p : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    hispi_hispi_data_n : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    hispi_hispi_clk_n : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    xgs_ctrl_xgs_clk_pll_en : out STD_LOGIC;
+    xgs_ctrl_xgs_cs_n : out STD_LOGIC;
+    xgs_ctrl_xgs_fwsi_en : out STD_LOGIC;
+    xgs_ctrl_xgs_monitor0 : in STD_LOGIC;
+    xgs_ctrl_xgs_monitor1 : in STD_LOGIC;
+    xgs_ctrl_xgs_monitor2 : in STD_LOGIC;
+    xgs_ctrl_xgs_power_good : in STD_LOGIC;
+    xgs_ctrl_xgs_reset_n : out STD_LOGIC;
+    xgs_ctrl_xgs_sclk : out STD_LOGIC;
+    xgs_ctrl_xgs_sdin : in STD_LOGIC;
+    xgs_ctrl_xgs_sdout : out STD_LOGIC;
+    xgs_ctrl_xgs_trig_int : out STD_LOGIC;
+    xgs_ctrl_xgs_trig_rd : out STD_LOGIC;
+    debug_out            : out STD_LOGIC_VECTOR(3 downto 0)  
+  );
   end component;
 
-
   signal pcie_clk_100MHz : std_logic;
-  signal spi_in          : std_logic_vector (3 downto 0);
-  signal spi_out         : std_logic_vector (3 downto 0);
-  signal spi_out_en      : std_logic_vector (3 downto 0);
-  signal spi_cs_in       : std_logic_vector (0 to 0);
-  signal spi_cs_out      : std_logic_vector (0 to 0);
-  signal spi_cs_en       : std_logic;
-
-
+  
+  
 begin
+
 
   -- Pour avoir access a la pin dedie du core PCIe, il faut instantier le IBUFDS_GTE2
   ibuf_pcie_clk_100MHz : IBUFDS_GTE2
@@ -169,36 +186,80 @@ begin
       );
 
 
+     
+      
+      
   xsystem_pb_wrapper : system_pb_wrapper
-    port map(
-      cfg_qspi_io0_io        => cfg_spi_sd(0),
-      cfg_qspi_io1_io        => cfg_spi_sd(1),
-      cfg_qspi_io2_io        => cfg_spi_sd(2),
-      cfg_qspi_io3_io        => cfg_spi_sd(3),
-      cfg_qspi_ss_io(0)      => cfg_spi_cs_n,
-      cfg_startup_io_cfgclk  => open,
-      cfg_startup_io_cfgmclk => open,
-      cfg_startup_io_eos     => open,
-      cfg_startup_io_preq    => open,
-      ext_reset_n            => sys_rst_n,
-      pcie_clk_100MHz        => pcie_clk_100MHz,
-      -- bug dans vivado il faut exploser sinon ca bug!
-      pcie_rxn(0)            => pcie_rx_n(0),
-      pcie_rxn(1)            => pcie_rx_n(1),
-      pcie_rxp(0)            => pcie_rx_p(0),
-      pcie_rxp(1)            => pcie_rx_p(1),
-      pcie_txn(0)            => pcie_tx_n(0),
-      pcie_txn(1)            => pcie_tx_n(1),
-      pcie_txp(0)            => pcie_tx_p(0),
-      pcie_txp(1)            => pcie_tx_p(1),
-      ref_clk                => ref_clk,
-      xgs_hispi_data_n       => xgs_hispi_sdata_n,
-      xgs_hispi_data_p       => xgs_hispi_sdata_p,
-      xgs_hispi_clk_n(0)    => xgs_hispi_sclk_n(0),
-      xgs_hispi_clk_n(1)    => xgs_hispi_sclk_n(1),
-      xgs_hispi_clk_p(0)    => xgs_hispi_sclk_p(0),
-      xgs_hispi_clk_p(1)    => xgs_hispi_sclk_p(1)
-      );
+  port map(
+    Anput_exposure          => exposure_out,
+    Anput_ext_trig          => ext_trig,
+    Anput_strobe            => strobe_out,
+    Anput_trig_rdy          => trig_rdy_out,
+    
+    I2C_if_i2c_sdata        => smbdata,
+    I2C_if_i2c_slk          => smbclk,
+    
+    SPI_spi_csn             => cfg_spi_cs_n,
+    SPI_spi_sdin            => cfg_spi_sd(0),
+    SPI_spi_sdout           => cfg_spi_sd(1),
+
+     
+    --info_board_info         : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    --info_fpga_build_id      => FPGA_BUILD_DATE
+    --info_fpga_device_id     => FPGA_DEVICE_ID
+    --info_fpga_firmware_type : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    --info_fpga_major_ver     => FPGA_MAJOR_VERSION
+    --info_fpga_minor_ver     => FPGA_MINOR_VERSION
+    --info_fpga_sub_minor_ver => FPGA_SUB_MINOR_VERSION
+   
+    info_board_info         => "0000",
+    info_fpga_build_id      => "00000000000000000000000000000000",
+    info_fpga_device_id     => "00000000",
+    info_fpga_firmware_type => "00000000",
+    info_fpga_major_ver     => "00000000",
+    info_fpga_minor_ver     => "00000000",
+    info_fpga_sub_minor_ver => "00000000",
+
+   
+    led_out                 => led_out,
+    
+    pcie_rxn             => pcie_rx_n(0),
+    --pcie_rxn(1)             => pcie_rx_n(1),
+    pcie_rxp             => pcie_rx_p(0),
+    --pcie_rxp(1)             => pcie_rx_p(1),
+    pcie_txn             => pcie_tx_n(0),
+    --pcie_txn(1)             => pcie_tx_n(1),
+    pcie_txp             => pcie_tx_p(0),
+    --pcie_txp(1)             => pcie_tx_p(1),
+
+    pcie_sys_clk            => pcie_clk_100MHz,
+    pcie_sys_rst_n          => sys_rst_n,
+    ref_clk                 => ref_clk,
+    
+    hispi_hispi_data_p      => xgs_hispi_sdata_p,
+    hispi_hispi_clk_p       => xgs_hispi_sclk_p,
+    hispi_hispi_data_n      => xgs_hispi_sdata_n,
+    hispi_hispi_clk_n       => xgs_hispi_sclk_n,
+    
+    xgs_ctrl_xgs_clk_pll_en => xgs_clk_pll_en,
+    xgs_ctrl_xgs_cs_n       => xgs_cs_n,
+    xgs_ctrl_xgs_fwsi_en    => xgs_fwsi_en,
+    xgs_ctrl_xgs_monitor0   => xgs_monitor(0),
+    xgs_ctrl_xgs_monitor1   => xgs_monitor(1),
+    xgs_ctrl_xgs_monitor2   => xgs_monitor(2),
+    xgs_ctrl_xgs_power_good => xgs_power_good,
+    xgs_ctrl_xgs_reset_n    => xgs_reset_n,
+    xgs_ctrl_xgs_sclk       => xgs_sclk,
+    xgs_ctrl_xgs_sdin       => xgs_sdin,
+    xgs_ctrl_xgs_sdout      => xgs_sdout,
+    xgs_ctrl_xgs_trig_int   => xgs_trig_int,
+    xgs_ctrl_xgs_trig_rd    => xgs_trig_rd,
+    debug_out               => debug_data  
+
+  );
+
+
+  
 
 
 
