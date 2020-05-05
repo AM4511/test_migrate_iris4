@@ -710,7 +710,10 @@ architecture struct of athena_zc706 is
       xgs_hispi_clk_n         : in STD_LOGIC_VECTOR ( 1 downto 0 );
       xgs_hispi_clk_p         : in STD_LOGIC_VECTOR ( 1 downto 0 );
       xgs_hispi_data_n        : in STD_LOGIC_VECTOR ( 5 downto 0 );
-      xgs_hispi_data_p        : in STD_LOGIC_VECTOR ( 5 downto 0 )
+      xgs_hispi_data_p        : in STD_LOGIC_VECTOR ( 5 downto 0 );
+      
+      debug_out               : out STD_LOGIC_VECTOR ( 3 downto 0 )
+
       );
   end component;
 
@@ -754,7 +757,9 @@ architecture struct of athena_zc706 is
   constant HEARTBEAT_PERIOD      : integer := 2*HEARTBEAT_HALF_PERIOD;
 
   signal heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1;
-
+  
+  signal debug_out      : std_logic_vector (3 downto 0);    
+  
   attribute mark_debug of local_reset_n  : signal is "true";
   attribute mark_debug of heartbeat_cntr : signal is "true";
   attribute mark_debug of heartbeat_led  : signal is "true";
@@ -844,7 +849,10 @@ ibuf_200MHz : IBUFDS
       xgs_hispi_clk_n         => xgs_hispi_clk_n,
       xgs_hispi_clk_p         => xgs_hispi_clk_p,
       xgs_hispi_data_n        => xgs_hispi_data_n,
-      xgs_hispi_data_p        => xgs_hispi_data_p
+      xgs_hispi_data_p        => xgs_hispi_data_p,
+      
+      debug_out                => debug_out
+
       );
 
 
@@ -909,7 +917,7 @@ ibuf_200MHz : IBUFDS
   FMC_HPC_LA15_N <= xgs_ctrl_xgs_trig_int;
 
   USER_SMA_CLOCK_P        <= xgs_ctrl_xgs_trig_int;
-  USER_SMA_CLOCK_N        <= anput_if_exposure;
+  USER_SMA_CLOCK_N        <= debug_out(0); --anput_if_exposure;
   
   -- TRigger read line. Not used on the zynq 
   FMC_HPC_LA16_N <= xgs_ctrl_xgs_trig_rd;

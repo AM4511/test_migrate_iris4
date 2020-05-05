@@ -86,8 +86,12 @@ set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
 
+
+
 set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
 update_ip_catalog
+
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 
 

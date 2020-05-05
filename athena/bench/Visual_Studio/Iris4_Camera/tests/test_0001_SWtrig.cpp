@@ -117,6 +117,9 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	// debug_pin(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	// debug_pin(14) <= grab_pending;
 	// debug_pin(15) <= grab_active;
+
+	// In Xcelerator(7c706) USERCLK_P connected to TRING_INT
+	// In Xcelerator(7c706) USERCLK_N connected to DEBUG_OUT(0)
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 8;
 
 	//---------------------

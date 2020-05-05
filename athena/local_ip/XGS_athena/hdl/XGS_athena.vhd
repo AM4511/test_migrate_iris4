@@ -41,36 +41,40 @@ entity XGS_athena is
     ------------------------------------------
     -- CMOS INTERFACE TO SENSOR
     ------------------------------------------
-    xgs_power_good : in  std_logic;
-    xgs_clk_pll_en : out std_logic;
-    xgs_reset_n    : out std_logic;
-
-    xgs_fwsi_en : out std_logic;
-
-    xgs_sclk  : out std_logic;
-    xgs_cs_n  : out std_logic;
-    xgs_sdout : out std_logic;
-    xgs_sdin  : in  std_logic;
-
-    xgs_trig_int : out std_logic;
-    xgs_trig_rd  : out std_logic;
-
-    xgs_monitor0 : in std_logic;
-    xgs_monitor1 : in std_logic;
-    xgs_monitor2 : in std_logic;
-
+    xgs_power_good          : in  std_logic;
+    xgs_clk_pll_en          : out std_logic;
+    xgs_reset_n             : out std_logic;
+    
+    xgs_fwsi_en             : out std_logic;
+    
+    xgs_sclk                : out std_logic;
+    xgs_cs_n                : out std_logic;
+    xgs_sdout               : out std_logic;
+    xgs_sdin                : in  std_logic;
+    
+    xgs_trig_int            : out std_logic;
+    xgs_trig_rd             : out std_logic;
+    
+    xgs_monitor0            : in std_logic;
+    xgs_monitor1            : in std_logic;
+    xgs_monitor2            : in std_logic;
+    
     ---------------------------------------------------------------------------
     --  OUTPUTS 
     ---------------------------------------------------------------------------
-    anput_ext_trig : in std_logic;
-
-    anput_strobe_out   : out std_logic;  --
-    anput_exposure_out : out std_logic;  --
-    anput_trig_rdy_out : out std_logic;  --
-
-    led_out : out std_logic_vector(1 downto 0);  -- led_out(0) --> vert, led_out(1) --> rouge
-
-
+    anput_ext_trig          : in    std_logic;    
+                            
+    anput_strobe_out        : out   std_logic;                       --
+    anput_exposure_out      : out   std_logic;                       --
+    anput_trig_rdy_out      : out   std_logic;                       --
+                            
+    led_out                 : out   std_logic_vector(1 downto 0);    -- led_out(0) --> vert, led_out(1) --> rouge
+ 
+    ---------------------------------------------------------------------------
+    --  DEBUG OUTPUTS 
+    ---------------------------------------------------------------------------
+    debug_out               : out   std_logic_vector(3 downto 0);    -- To debug pins jmansill
+    
     ---------------------------------------------------------------------------
     -- AXI Slave interface (Registerfile)
     ---------------------------------------------------------------------------
@@ -382,96 +386,103 @@ architecture struct of XGS_athena is
       );
   end component;
 
-
+  
   component XGS_controller_top
-    generic (
-      -- Users to add parameters here
-      G_SYS_CLK_PERIOD : integer := 16;
-      G_SENSOR_FREQ    : integer := 32400;
-      G_SIMULATION     : integer := 0;
-      G_KU706          : integer := 0
-      );
-    port (
-      -- Users to add ports here
-      sys_clk     : in std_logic;
-      sys_reset_n : in std_logic;
+	generic (
+		-- Users to add parameters here
+        G_SYS_CLK_PERIOD    : integer  := 16;
+        G_SENSOR_FREQ       : integer  := 32400; 
+		G_SIMULATION        : integer  := 0;
+        G_KU706             : integer  := 0
+	);
+	port (
+		-- Users to add ports here
+        sys_clk      : in  std_logic;
+        sys_reset_n  : in  std_logic;
+        
+        ------------------------------------------
+        -- CMOS INTERFACE TO SENSOR
+        ------------------------------------------
+        xgs_power_good          : in  std_logic;
+        xgs_clk_pll_en          : out std_logic;
+        xgs_reset_n             : out std_logic;
+        
+        xgs_fwsi_en             : out std_logic;
+        
+        xgs_sclk                : out std_logic;
+        xgs_cs_n                : out std_logic;
+        xgs_sdout               : out std_logic;
+        xgs_sdin                : in  std_logic;
+        
+        xgs_trig_int            : out std_logic;
+        xgs_trig_rd             : out std_logic;
+        
+        xgs_monitor0            : in std_logic;
+        xgs_monitor1            : in std_logic;
+        xgs_monitor2            : in std_logic;
+        
+        ---------------------------------------------------------------------------
+        --  OUTPUTS 
+        ---------------------------------------------------------------------------
+        anput_ext_trig         : in    std_logic;    
+        
+        anput_strobe_out       : out   std_logic;                       --
+        anput_exposure_out     : out   std_logic;                       --
+        anput_trig_rdy_out     : out   std_logic;                       --
+        
+        led_out                : out   std_logic_vector(1 downto 0);     -- led_out(0) --> vert, led_out(1) --> rouge
 
-      ------------------------------------------
-      -- CMOS INTERFACE TO SENSOR
-      ------------------------------------------
-      xgs_power_good : in  std_logic;
-      xgs_clk_pll_en : out std_logic;
-      xgs_reset_n    : out std_logic;
+        ---------------------------------------------------------------------------
+        --  DEBUG OUTPUTS 
+        ---------------------------------------------------------------------------
+        debug_out              : out   std_logic_vector(3 downto 0);    -- To debug pins
 
-      xgs_fwsi_en : out std_logic;
+        ---------------------------------------------------------------------------
+        --  Signals to/from Datapath/DMA
+        ---------------------------------------------------------------------------
+        start_calibration               : out   std_logic;  
 
-      xgs_sclk  : out std_logic;
-      xgs_cs_n  : out std_logic;
-      xgs_sdout : out std_logic;
-      xgs_sdin  : in  std_logic;
+        HISPI_pix_clk                   : in    std_logic := '0'; 
+        
+        DEC_EOF                         : in    std_logic := '0';
+        
+        abort_readout_datapath          : out   std_logic := '0';
+        dma_idle                        : in    std_logic := '1';
 
-      xgs_trig_int : out std_logic;
-      xgs_trig_rd  : out std_logic;
+        strobe_DMA_P1                   : out   std_logic := '0';            -- Load DMA 1st stage registers  
+        strobe_DMA_P2                   : out   std_logic := '0';            -- Load DMA 2nd stage registers 
+        
+        curr_db_GRAB_ROI2_EN            : out   std_logic := '0';
+        
+        curr_db_y_start_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+        curr_db_nblines_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+                 
+        curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+        curr_db_nblines_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
 
-      xgs_monitor0 : in std_logic;
-      xgs_monitor1 : in std_logic;
-      xgs_monitor2 : in std_logic;
-
-      ---------------------------------------------------------------------------
-      --  OUTPUTS 
-      ---------------------------------------------------------------------------
-      anput_ext_trig : in std_logic;
-
-      anput_strobe_out   : out std_logic;  --
-      anput_exposure_out : out std_logic;  --
-      anput_trig_rdy_out : out std_logic;  --
-
-      led_out : out std_logic_vector(1 downto 0);  -- led_out(0) --> vert, led_out(1) --> rouge
-
-
-      ---------------------------------------------------------------------------
-      --  Signals to/from Datapath/DMA
-      ---------------------------------------------------------------------------
-      HISPI_pix_clk : in std_logic := '0';
-
-      DEC_EOF : in std_logic := '0';
-
-      abort_readout_datapath : out std_logic := '0';
-      dma_idle               : in  std_logic := '1';
-
-      strobe_DMA_P1 : out std_logic := '0';  -- Load DMA 1st stage registers  
-      strobe_DMA_P2 : out std_logic := '0';  -- Load DMA 2nd stage registers 
-
-      curr_db_GRAB_ROI2_EN : out std_logic := '0';
-
-      curr_db_y_start_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
-      curr_db_nblines_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-
-      curr_db_y_start_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-      curr_db_nblines_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
-
-      curr_db_subsampling_X : out std_logic := '0';
-      curr_db_subsampling_Y : out std_logic := '0';
-
-      curr_db_BUFFER_ID : out std_logic := '0';
+        curr_db_subsampling_X           : out   std_logic:='0';
+        curr_db_subsampling_Y           : out   std_logic:='0';
+        
+        curr_db_BUFFER_ID               : out   std_logic:='0';
+        
+        
+        ---------------------------------------------------------------------------
+        --  IRQ to system
+        ---------------------------------------------------------------------------        
+        irq_eos                         : out   std_logic;
+        irq_sos                         : out   std_logic;  
+        irq_eoe                         : out   std_logic;  
+        irq_soe                         : out   std_logic;  
+        irq_abort                       : out   std_logic;
+        
+        ---------------------------------------------------------------------------
+        --  Register file
+        ---------------------------------------------------------------------------   
+        regfile       : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
 
-      ---------------------------------------------------------------------------
-      --  IRQ to system
-      ---------------------------------------------------------------------------        
-      irq_eos   : out std_logic;
-      irq_sos   : out std_logic;
-      irq_eoe   : out std_logic;
-      irq_soe   : out std_logic;
-      irq_abort : out std_logic;
+	);
 
-      ---------------------------------------------------------------------------
-      --  Register file
-      ---------------------------------------------------------------------------   
-      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE  -- Register file
-
-
-      );
   end component;
 
   -----------------------------------------------------------------------------
@@ -707,99 +718,107 @@ begin
   end generate G_ENABLE_IDELAYCTRL;
 
 
-
+  
   -----------------------------------------------------------------------------
-  -- IDELAYCTRL is needed for SERDES calibration. 
+  -- XGS CONTROLLER TOP 
   -----------------------------------------------------------------------------
   Inst_XGS_controller_top : XGS_controller_top
-    generic map(
-      -- Users to add parameters here
-      G_SYS_CLK_PERIOD => SYS_CLK_PERIOD,
-      G_SENSOR_FREQ    => SENSOR_FREQ,
-      G_SIMULATION     => SIMULATION,
-      G_KU706          => KU706
-      )
-    port map(
+	generic map(
+		-- Users to add parameters here
+        G_SYS_CLK_PERIOD    => SYS_CLK_PERIOD,
+        G_SENSOR_FREQ       => SENSOR_FREQ,    
+		G_SIMULATION        => SIMULATION,    
+        G_KU706             => KU706         
+	)
+	port map(
 
-      sys_clk     => axi_clk,
-      sys_reset_n => axi_reset_n,
+        sys_clk              =>  axi_clk,
+        sys_reset_n          =>  axi_reset_n,
 
-      ------------------------------------------
-      -- CMOS INTERFACE TO SENSOR
-      ------------------------------------------
-      xgs_power_good => xgs_power_good,
-      xgs_clk_pll_en => xgs_clk_pll_en,
-      xgs_reset_n    => xgs_reset_n,
+        ------------------------------------------
+        -- CMOS INTERFACE TO SENSOR
+        ------------------------------------------
+        xgs_power_good          => xgs_power_good,
+        xgs_clk_pll_en          => xgs_clk_pll_en,
+        xgs_reset_n             => xgs_reset_n,   
 
-      xgs_fwsi_en => xgs_fwsi_en,
+        xgs_fwsi_en             => xgs_fwsi_en,   
 
-      xgs_sclk  => xgs_sclk,
-      xgs_cs_n  => xgs_cs_n,
-      xgs_sdout => xgs_sdout,
-      xgs_sdin  => xgs_sdin,
+        xgs_sclk                => xgs_sclk,      
+        xgs_cs_n                => xgs_cs_n,      
+        xgs_sdout               => xgs_sdout,     
+        xgs_sdin                => xgs_sdin,      
 
-      xgs_trig_int => xgs_trig_int,
-      xgs_trig_rd  => xgs_trig_rd,
+        xgs_trig_int            => xgs_trig_int,  
+        xgs_trig_rd             => xgs_trig_rd,   
 
-      xgs_monitor0 => xgs_monitor0,
-      xgs_monitor1 => xgs_monitor1,
-      xgs_monitor2 => xgs_monitor2,
+        xgs_monitor0            => xgs_monitor0,  
+        xgs_monitor1            => xgs_monitor1,  
+        xgs_monitor2            => xgs_monitor2,  
+        
+        ---------------------------------------------------------------------------
+        --  OUTPUTS 
+        ---------------------------------------------------------------------------
+        anput_ext_trig          => anput_ext_trig,     
 
-      ---------------------------------------------------------------------------
-      --  OUTPUTS 
-      ---------------------------------------------------------------------------
-      anput_ext_trig => anput_ext_trig,
+        anput_strobe_out        => anput_strobe_out,      --
+        anput_exposure_out      => anput_exposure_out,    --
+        anput_trig_rdy_out      => anput_trig_rdy_out,    --
 
-      anput_strobe_out   => anput_strobe_out,    --
-      anput_exposure_out => anput_exposure_out,  --
-      anput_trig_rdy_out => anput_trig_rdy_out,  --
+        led_out                 => led_out,               -- led_out(0) --> vert, led_out(1) --> rouge
 
-      led_out => led_out,  -- led_out(0) --> vert, led_out(1) --> rouge
+        ---------------------------------------------------------------------------
+        --  DEBUG OUTPUTS 
+        ---------------------------------------------------------------------------
+        debug_out               => debug_out,
+        
+        ---------------------------------------------------------------------------
+        --  Signals to/from Datapath/DMA
+        ---------------------------------------------------------------------------
+        start_calibration       => open,  
+
+        HISPI_pix_clk           => '0', 
+        
+        DEC_EOF                 => '0',
+        
+        abort_readout_datapath  => open, 
+        dma_idle                => '1',
+
+        strobe_DMA_P1           => open,
+        strobe_DMA_P2           => open,
+        
+        curr_db_GRAB_ROI2_EN    => open,
+        
+        curr_db_y_start_ROI1    => open,
+        curr_db_nblines_ROI1    => open,
+                 
+        curr_db_y_start_ROI2    => open,
+        curr_db_nblines_ROI2    => open,
+
+        curr_db_subsampling_X   => open,
+        curr_db_subsampling_Y   => open,
+        
+        curr_db_BUFFER_ID       => open,
+        
+        
+        ---------------------------------------------------------------------------
+        --  IRQ to system
+        ---------------------------------------------------------------------------        
+        irq_eos                 => irq_eos,
+        irq_sos                 => irq_sos,    
+        irq_eoe                 => irq_eoe,    
+        irq_soe                 => irq_soe,    
+        irq_abort               => irq_abort,
+        
+        ---------------------------------------------------------------------------
+        --  Register file
+        ---------------------------------------------------------------------------   
+        regfile                 => regfile
 
 
-      ---------------------------------------------------------------------------
-      --  Signals to/from Datapath/DMA
-      ---------------------------------------------------------------------------
-      HISPI_pix_clk => '0',
+	);  
+    
 
-      DEC_EOF => '0',
-
-      abort_readout_datapath => open,
-      dma_idle               => '1',
-
-      strobe_DMA_P1 => open,
-      strobe_DMA_P2 => open,
-
-      curr_db_GRAB_ROI2_EN => open,
-
-      curr_db_y_start_ROI1 => open,
-      curr_db_nblines_ROI1 => open,
-
-      curr_db_y_start_ROI2 => open,
-      curr_db_nblines_ROI2 => open,
-
-      curr_db_subsampling_X => open,
-      curr_db_subsampling_Y => open,
-
-      curr_db_BUFFER_ID => open,
-
-
-      ---------------------------------------------------------------------------
-      --  IRQ to system
-      ---------------------------------------------------------------------------        
-      irq_eos   => irq_eos,
-      irq_sos   => irq_sos,
-      irq_eoe   => irq_eoe,
-      irq_soe   => irq_soe,
-      irq_abort => irq_abort,
-
-      ---------------------------------------------------------------------------
-      --  Register file
-      ---------------------------------------------------------------------------   
-      regfile => regfile
-
-
-      );
 
   --irq(0) : assigned by DMA
   irq(1) <= irq_soe;

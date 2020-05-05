@@ -172,15 +172,12 @@
     <ClCompile Include="tests\test_0001_SWtrig.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\hispi_registerfile.h" />
     <ClInclude Include="include\I2C.h" />
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
     <ClInclude Include="include\regfile_i2c.h" />
-    <ClInclude Include="include\regfile_xgs_ctrl.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="include\regfile_xgs_athena.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />
     <ClInclude Include="include\targetver.h" />
