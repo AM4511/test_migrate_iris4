@@ -33,6 +33,13 @@ entity xgs_hispi_top is
     ---------------------------------------------------------------------------
     regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
+    ---------------------------------------------------------------------------
+    -- XGS Controller I/F
+    ---------------------------------------------------------------------------
+    hispi_start_calibration  : in  std_logic;
+    hispi_calibration_active : out std_logic;
+    hispi_pix_clk            : out std_logic;
+    hispi_eof                : out std_logic;
 
     ---------------------------------------------------------------------------
     -- Top HiSPI I/F
@@ -69,9 +76,10 @@ architecture rtl of xgs_hispi_top is
       srst : in std_logic;
 
       -- Register file information
-      idle_character   : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en     : in std_logic;
-      hispi_soft_reset : in std_logic;
+      idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hispi_phy_en     : in  std_logic;
+      hispi_soft_reset : in  std_logic;
+      hispi_pix_clk    : out std_logic;
 
       -- Calibration 
       sclk_cal_en        : in  std_logic;
@@ -285,12 +293,13 @@ architecture rtl of xgs_hispi_top is
   signal new_line_pending  : std_logic;
   signal new_frame_pending : std_logic;
 
-  signal sclk_cal_en    : std_logic;
+  signal sclk_cal_en       : std_logic;
   --signal cal_load_tap : std_logic;
-  signal sclk_cal_error : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal sclk_cal_error    : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
   --signal cal_busy     : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  signal cal_done       : std_logic_vector(1 downto 0);
-  signal calibrate_en   : std_logic;
+  signal cal_done          : std_logic_vector(1 downto 0);
+  signal calibrate_en_Meta : std_logic;
+  signal calibrate_en      : std_logic;
 
 --  signal top_cal_en        : std_logic;
   signal top_cal_busy      : std_logic;
@@ -387,8 +396,46 @@ architecture rtl of xgs_hispi_top is
 
 begin
 
-  -- ToDo : Implement auto calibration (XGS_controller???)
-  calibrate_en <= '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_calibrate_en
+  -- Description : 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING??
+  -----------------------------------------------------------------------------
+  P_calibrate_en : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0') then
+        calibrate_en_Meta <= '0';
+        calibrate_en      <= '0';
+      else
+        calibrate_en_Meta <= hispi_start_calibration;
+        calibrate_en      <= calibrate_en_Meta;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hispi_calibration_active
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_hispi_calibration_active : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0') then
+        hispi_calibration_active <= '0';
+      else
+        if (state = S_CALIBRATE) then
+          hispi_calibration_active <= '1';
+        else
+          hispi_calibration_active <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
 
@@ -396,8 +443,6 @@ begin
     sclk_cal_error(2*i)   <= top_cal_error(i);
     sclk_cal_error(2*i+1) <= bottom_cal_error(i);
   end generate G_sclk_cal_error;
-
-
 
 
 
@@ -453,6 +498,7 @@ begin
       idle_character       => idle_character,
       hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
       hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
+      hispi_pix_clk        => hispi_pix_clk,
       sclk_cal_en          => sclk_cal_en,
       sclk_cal_busy        => top_cal_busy,
       sclk_cal_done        => top_cal_done,
@@ -492,6 +538,7 @@ begin
       idle_character       => idle_character,
       hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
       hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
+      hispi_pix_clk        => open,
       sclk_cal_en          => sclk_cal_en,
       sclk_cal_busy        => bottom_cal_busy,
       sclk_cal_done        => bottom_cal_done,

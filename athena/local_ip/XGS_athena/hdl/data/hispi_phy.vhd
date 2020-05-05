@@ -36,9 +36,10 @@ entity hispi_phy is
     srst : in std_logic;
 
     -- Register file information
-    idle_character   : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    hispi_phy_en     : in std_logic;
-    hispi_soft_reset : in std_logic;
+    idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hispi_phy_en     : in  std_logic;
+    hispi_soft_reset : in  std_logic;
+    hispi_pix_clk    : out std_logic;
 
     -- Calibration 
     sclk_cal_en        : in  std_logic;
@@ -117,6 +118,7 @@ architecture rtl of hispi_phy is
       hispi_phy_en        : in std_logic;
 
       -- calibration
+      pix_clk            : out std_logic;
       pclk_cal_en        : in  std_logic;
       pclk_cal_busy      : out std_logic;
       pclk_cal_error     : out std_logic;
@@ -178,6 +180,7 @@ architecture rtl of hispi_phy is
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
   signal hclk_state : FSM_STATE_TYPE := S_IDLE;
 
+
   signal hclk            : std_logic;
   signal hclk_reset_Meta : std_logic := '1';
   signal hclk_reset      : std_logic := '1';
@@ -208,6 +211,7 @@ architecture rtl of hispi_phy is
   signal pclk_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal pix_clk            : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
   signal sclk_latch_cal_status : std_logic;
@@ -301,6 +305,7 @@ begin
         hclk_data_lane       => hclk_lane_data(i),
         rclk_idle_character  => idle_character,
         hispi_phy_en         => hispi_phy_en,
+        pix_clk              => pix_clk(i),
         pclk_cal_en          => pclk_cal_en,
         pclk_cal_busy        => pclk_cal_busy(i),
         pclk_cal_error       => pclk_cal_error(i),
@@ -348,7 +353,7 @@ begin
 
 
   pclk_cal_en <= hclk_cal_en_vect(hclk_cal_en_vect'left);
-  
+
   -----------------------------------------------------------------------------
   -- Process      : P_hclk_cal_busy
   -- Clock domain : hclk
@@ -407,9 +412,9 @@ begin
       bFall => sclk_latch_cal_status
       );
 
-  sclk_cal_done<= sclk_latch_cal_status;
+  sclk_cal_done <= sclk_latch_cal_status;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_state
   -- Description : Resynchronize pclk_cal_error and pclk_cal_tap_value on sclk
@@ -419,15 +424,15 @@ begin
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
   P_sclk_latch_cal_status : process (sclk) is
-  begin 
+  begin
     if (rising_edge(sclk)) then
       if (srst = '1') then
-          sclk_cal_error     <= (others=>'0');
-          sclk_cal_tap_value <= (others=>'0');
+        sclk_cal_error     <= (others => '0');
+        sclk_cal_tap_value <= (others => '0');
       else
         if (sclk_latch_cal_status = '1') then
-          sclk_cal_error     <=pclk_cal_error;
-          sclk_cal_tap_value <=pclk_cal_tap_value;
+          sclk_cal_error     <= pclk_cal_error;
+          sclk_cal_tap_value <= pclk_cal_tap_value;
         end if;
       end if;
     end if;
@@ -496,5 +501,7 @@ begin
     end if;
   end process;
 
+
+  hispi_pix_clk <= pix_clk(0);
 
 end architecture rtl;

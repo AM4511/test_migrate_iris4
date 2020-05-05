@@ -37,7 +37,8 @@ entity lane_decoder is
     hispi_phy_en        : in std_logic;
 
     -- calibration
-    pclk_cal_en        : in std_logic;
+    pix_clk            : out std_logic;
+    pclk_cal_en        : in  std_logic;
     pclk_cal_busy      : out std_logic;
     pclk_cal_error     : out std_logic;
     pclk_cal_load_tap  : out std_logic;
@@ -668,5 +669,10 @@ begin
     end if;
   end process;
 
+
+  -----------------------------------------------------------------------------
+  -- Send the pixel clock to the higher level of hierarchy 
+  -----------------------------------------------------------------------------
+  pix_clk <= pclk;
 
 end architecture rtl;
