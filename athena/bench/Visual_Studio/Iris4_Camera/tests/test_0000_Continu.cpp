@@ -118,6 +118,9 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
+	
+	// In Xcelerator(7c706) USERCLK_P connected to TRING_INT
+	// In Xcelerator(7c706) USERCLK_N connected to DEBUG_OUT(0)
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; // sort sur XCELERATOR : USER_CLK_N
 
 

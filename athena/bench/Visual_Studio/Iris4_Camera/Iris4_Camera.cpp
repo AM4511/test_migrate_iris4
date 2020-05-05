@@ -239,6 +239,18 @@ int main(void)
 				break;
 
 
+			case 'h':
+				printf("HiSPI calibration\n");
+				rXGS_Athena_ptr.HISPI.CTRL.f.CALIBRATE_SERDES = 1;
+				Sleep(1000);
+				printf("IDELAYCTRL_STATUS",   rXGS_Athena_ptr.HISPI.IDELAYCTRL_STATUS.u32);
+				printf("LANE_DECODER_STATUS_0 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				printf("LANE_DECODER_STATUS_1 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				printf("LANE_DECODER_STATUS_2 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				printf("LANE_DECODER_STATUS_3 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				printf("LANE_DECODER_STATUS_4 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				break;
+
 			}
 		}//KBhit
 	}//while
