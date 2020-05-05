@@ -4,7 +4,10 @@
 create_clock -period 10.000 -name ref_clk -waveform {0.000 5.000} [get_ports ref_clk]
 create_clock -period 10.000 -name pcie_clk_p -waveform {0.000 5.000} [get_ports pcie_clk_p]
 
-
+#create_clock -period 16.000 -name axi_clk -waveform {0.000 8.000} [get_pins xsystem_pb_wrapper/system_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/INT_USERCLK2_OUT]
+#
+#create_clock -period 16.000 -name userclk1  -waveform {0.000 8.000} get_pins xsystem_pb_wrapper/system_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/userclk1_i1.usrclk1_i1/O
+#xsystem_pb_wrapper/system_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/INT_USERCLK2_OUT
 ####################################################################################################################
 # Create HiSPi input clock
 ####################################################################################################################
@@ -129,4 +132,70 @@ create_generated_clock -name qspi_clk -source [get_pins xsystem_pb_wrapper/syste
 # Timing exceptions
 set_false_path -from [get_ports sys_rst_n]
 set_clock_groups -asynchronous -group [get_clocks {xgs_hispi_sclk_p[1]}] -group [get_clocks {xgs_hispi_sclk_p[0]}]
+
+
+#------------------------------------------------------------
+#  SMBus TIMING CONTRAINTS
+#------------------------------------------------------------
+create_generated_clock -name i2c_clk_div_384 -source [get_pins */*/*/*/Xi2c_if/Gen_i2c_clk_from_625.i2c_clk_div_384_reg/C] -divide_by 384 [get_pins */*/*/*/Xi2c_if/Gen_i2c_clk_from_625.i2c_clk_div_384_reg/Q]
+#par design, les path des registres vers la clock I2C ne sont pas critiques (ni en setup, ni en hold) car la valeur est ecrite dans le registre plusieurs centaines de clocks avant d'etre utilise.
+set_false_path -from [get_pins */*/*/*/Xregfile_i2c/*I2C*/C] -to [get_clocks i2c_clk_div_384]
+
+# ff in the IOB
+# clk cannot be placed in REG IOB becase it is used internally!
+#set_property IOB TRUE [get_cells {xi2c_if/GEN_X1_ser_data_out.clk_outx_reg[0]}]
+set_property IOB TRUE [get_cells {*/*/*/*/Xi2c_if/GEN_X1_ser_data_out.data_outx_reg[0]}]
+
+#je rajoute le datapath_only pour enlever le check de hold.  Le check de setup etait mauvais de toute facon!
+set_max_delay -datapath_only -from [get_ports smbdata] -to [get_clocks i2c_clk_div_384] 16.500
+set_min_delay -from [get_ports smbdata] -to [get_clocks i2c_clk_div_384] 0.000
+
+set_max_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbclk] 16.500
+set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbclk] 0.000
+
+set_max_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 16.000
+set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 0.000
+
+set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D]
+set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D]
+
+
+#------------------------------------------------------------
+#  XGS CONTROLLER TIMING CONTRAINTS
+#------------------------------------------------------------
+
+# INPUTS
+set_false_path -from [get_ports {xgs_monitor[?]}]
+set_false_path -from [get_ports {xgs_power_good}]
+
+set_max_delay -from [get_ports {xgs_sdin}] -to [get_clocks userclk1] 15.000
+set_min_delay -from [get_ports {xgs_sdin}] -to [get_clocks userclk1] 0.000
+
+
+# OUTPUTS
+set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 15.000
+set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 0.000
+
+set_property IOB TRUE [get_cells {*/*/*/*/Inst_XGS_controller_top/Inst_xgs_ctrl/xgs_trig_int_reg}]
+
+set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_trig_int xgs_trig_rd}] 15.000
+set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_trig_int xgs_trig_rd}] 0.000
+
+set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 15.000
+set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 0.000
+
+set_false_path -to [get_ports {led_out[?]}]
+set_false_path -to [get_ports {debug_data[?]}]  
+
+
+# TO/FROM ANPUT
+set_false_path -to [get_ports {exposure_out}]
+set_false_path -to [get_ports {strobe_out}]
+set_false_path -to [get_ports {trig_rdy_out}]
+set_false_path -from [get_ports {ext_trig}]
+ 
+
+
+
+
 

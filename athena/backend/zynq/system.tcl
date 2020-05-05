@@ -210,6 +210,7 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
+  set debug_out [ create_bd_port -dir O -from 3 -to 0 debug_out ]
   set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
   set pcie_clk100MHz [ create_bd_port -dir I -type clk pcie_clk100MHz ]
   set_property -dict [ list \
@@ -227,6 +228,7 @@ proc create_root_design { parentCell } {
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
    CONFIG.G_KU706 {1} \
+   CONFIG.G_SENSOR_FREQ {32000} \
    CONFIG.G_SIMULATION {0} \
  ] $XGS_athena_0
 
@@ -691,6 +693,7 @@ proc create_root_design { parentCell } {
 
   # Create port connections
   connect_bd_net -net ACLK_1 [get_bd_pins XGS_athena_0/axi_clk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net XGS_athena_0_debug_out [get_bd_ports debug_out] [get_bd_pins XGS_athena_0/debug_out]
   connect_bd_net -net XGS_athena_0_led_out [get_bd_ports led_out] [get_bd_pins XGS_athena_0/led_out]
   connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins XGS_athena_0/axi_reset_n] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
@@ -708,6 +711,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -719,6 +723,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

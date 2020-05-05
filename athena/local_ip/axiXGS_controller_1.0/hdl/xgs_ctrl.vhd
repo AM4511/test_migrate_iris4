@@ -76,7 +76,7 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            -- Debug out
            ---------------------------------------------------------------------------
-           debug_ctrl16                    : out std_logic_vector(15 downto 0);
+           debug_out                       : out std_logic_vector(3 downto 0);
 
            ---------------------------------------------------------------------------
            -- IRQ
@@ -90,7 +90,7 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            --   signals
            ---------------------------------------------------------------------------          
-           --start_calibration               : out std_logic;
+           start_calibration               : out std_logic;
            DEC_EOF_sys                     : in  std_logic;
            
            abort_readout_datapath          : out std_logic;
@@ -1961,16 +1961,16 @@ BEGIN
   ----  SIGNALS TO OTHER MODULES
   ----
   --------------------------------------------
-  --process(sys_clk)
-  --begin
-  --  if(rising_edge(sys_clk)) then
-  --    if(sys_reset_n='0') then
-  --      start_calibration <= '0';
-  --    else
-  --      start_calibration <= curr_readout_en and SO_FOT;
-  --    end if;
-  --  end if;
-  --end process;
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        start_calibration <= '0';
+      else
+        start_calibration <= curr_readout_en and SO_FOT;
+      end if;
+    end if;
+  end process;
 
   abort_readout_datapath <= abort_now;
 
@@ -2013,12 +2013,37 @@ BEGIN
   
   xgs_trig_rd       <= '0'; --XGS pour le moment on ne fait rien avec le readout sequencer! 
   
-  -- Pour valider la longueur du readout du FPGA temporairement on change ce signal :
-  exposure_out <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
-  --exposure_out      <= exposure_outpin;
-  
+  exposure_out      <= exposure_outpin;
   strobe_out        <= strobe_outpin;
   trig_rdy_out      <= trig_rdy_outpin;
+  
+  -------------------------------------------------------------------------------
+  --
+  -- DEBUG PINS
+  --
+  -------------------------------------------------------------------------------
+  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
+  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
+  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
+  debug_ctrl16_int(5)  <=  curr_trig0;
+  debug_ctrl16_int(6)  <=  strobe;
+  debug_ctrl16_int(7)  <=  FOT;
+  debug_ctrl16_int(8)  <=  readout;
+  debug_ctrl16_int(9)  <=  readout_stateD;
+  debug_ctrl16_int(10) <=  readout_cntr2_armed;
+  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+  debug_ctrl16_int(14) <=  grab_pending;
+  debug_ctrl16_int(15) <=  grab_active;
+
+  debug_out(0) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
+  debug_out(1) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(3 downto 0) ));
+  debug_out(2) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(3 downto 0) ));
+  debug_out(3) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(3 downto 0) ));
+
   
   -------------------------------------------------------------------------------
   --
@@ -2045,30 +2070,8 @@ BEGIN
        );
 
 
-  -------------------------------------------------------------------------------
-  --
-  -- DEBUG PINS
-  --
-  -------------------------------------------------------------------------------
-  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
-  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
-  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
-  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
-  debug_ctrl16_int(5)  <=  curr_trig0;
-  debug_ctrl16_int(6)  <=  strobe;
-  debug_ctrl16_int(7)  <=  FOT;
-  debug_ctrl16_int(8)  <=  readout;
-  debug_ctrl16_int(9)  <=  readout_stateD;
-  debug_ctrl16_int(10) <=  readout_cntr2_armed;
-  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
-  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
-  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
-  debug_ctrl16_int(14) <=  grab_pending;
-  debug_ctrl16_int(15) <=  grab_active;
 
   
-  debug_ctrl16 <= debug_ctrl16_int;
 
 
 

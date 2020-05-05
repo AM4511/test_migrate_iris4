@@ -52,10 +52,16 @@ entity XGS_controller_top is
         
         led_out                : out   std_logic_vector(1 downto 0);     -- led_out(0) --> vert, led_out(1) --> rouge
 
+        ---------------------------------------------------------------------------
+        --  DEBUG OUTPUTS 
+        ---------------------------------------------------------------------------
+        debug_out              : out   std_logic_vector(3 downto 0);
         
         ---------------------------------------------------------------------------
         --  Signals to/from Datapath/DMA
         ---------------------------------------------------------------------------
+        start_calibration               : out   std_logic;  
+
         HISPI_pix_clk                   : in    std_logic := '0'; 
         
         DEC_EOF                         : in    std_logic := '0';
@@ -159,7 +165,7 @@ architecture arch_imp of XGS_controller_top is
            ---------------------------------------------------------------------------
            -- Debug out
            ---------------------------------------------------------------------------
-           debug_ctrl16                    : out std_logic_vector(15 downto 0);
+           debug_out                       : out std_logic_vector(3 downto 0);
 
            ---------------------------------------------------------------------------
            -- IRQ
@@ -173,7 +179,8 @@ architecture arch_imp of XGS_controller_top is
            ---------------------------------------------------------------------------
            --   signals
            ---------------------------------------------------------------------------          
-           --start_calibration               : out std_logic;
+           start_calibration               : out std_logic;
+           
            DEC_EOF_SYS                     : in    std_logic := '0';
 
            abort_readout_datapath          : out std_logic;
@@ -362,7 +369,7 @@ begin
            ---------------------------------------------------------------------------
            -- Debug out
            ---------------------------------------------------------------------------
-           debug_ctrl16                    => open,
+           debug_out                       => debug_out,
 
            ---------------------------------------------------------------------------
            -- IRQ
@@ -376,7 +383,7 @@ begin
            ---------------------------------------------------------------------------
            --  Signals to Datapath/DMA
            ---------------------------------------------------------------------------
-           --start_calibration               => open,
+           start_calibration               => start_calibration,
 
            DEC_EOF_sys                     => DEC_EOF,           -- A negotier avec Amarchan, ds quel domaine d'horloge il va arriver
            

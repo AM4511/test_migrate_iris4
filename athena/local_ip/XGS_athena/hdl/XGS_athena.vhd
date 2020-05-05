@@ -68,6 +68,10 @@ entity XGS_athena is
                             
     led_out                 : out   std_logic_vector(1 downto 0);    -- led_out(0) --> vert, led_out(1) --> rouge
  
+    ---------------------------------------------------------------------------
+    --  DEBUG OUTPUTS 
+    ---------------------------------------------------------------------------
+    debug_out               : out   std_logic_vector(3 downto 0);    -- To debug pins jmansill
     
     ---------------------------------------------------------------------------
     -- AXI Slave interface (Registerfile)
@@ -383,10 +387,16 @@ architecture struct of XGS_athena is
         
         led_out                : out   std_logic_vector(1 downto 0);     -- led_out(0) --> vert, led_out(1) --> rouge
 
-        
+        ---------------------------------------------------------------------------
+        --  DEBUG OUTPUTS 
+        ---------------------------------------------------------------------------
+        debug_out              : out   std_logic_vector(3 downto 0);    -- To debug pins
+
         ---------------------------------------------------------------------------
         --  Signals to/from Datapath/DMA
         ---------------------------------------------------------------------------
+        start_calibration               : out   std_logic;  
+
         HISPI_pix_clk                   : in    std_logic := '0'; 
         
         DEC_EOF                         : in    std_logic := '0';
@@ -662,10 +672,16 @@ begin
 
         led_out                 => led_out,               -- led_out(0) --> vert, led_out(1) --> rouge
 
+        ---------------------------------------------------------------------------
+        --  DEBUG OUTPUTS 
+        ---------------------------------------------------------------------------
+        debug_out               => debug_out,
         
         ---------------------------------------------------------------------------
         --  Signals to/from Datapath/DMA
         ---------------------------------------------------------------------------
+        start_calibration       => open,  
+
         HISPI_pix_clk           => '0', 
         
         DEC_EOF                 => '0',
