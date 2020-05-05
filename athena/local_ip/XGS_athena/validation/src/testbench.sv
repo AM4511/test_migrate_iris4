@@ -508,7 +508,7 @@ module testbench();
 				// DMA line size register
 				///////////////////////////////////////////////////
 				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				axil_driver.write(LINE_SIZE_OFFSET, line_size);
+				axil_driver.write(LINE_SIZE_OFFSET, line_size/2);
 				axil_driver.wait_n(10);
 
 

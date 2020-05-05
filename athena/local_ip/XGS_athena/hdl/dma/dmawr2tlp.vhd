@@ -237,6 +237,7 @@ begin
   dma_context_mapping.line_pitch     <= regfile.DMA.LINE_PITCH.VALUE;
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
+  
   dma_context_mapping.numb_plane     <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
                                     3;
 

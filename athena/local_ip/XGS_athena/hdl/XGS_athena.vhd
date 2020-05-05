@@ -25,10 +25,13 @@ entity XGS_athena is
     );
   port (
     ---------------------------------------------------------------------------
-    -- AXI Slave interface
+    -- 
     ---------------------------------------------------------------------------
     axi_clk     : in std_logic;
     axi_reset_n : in std_logic;
+
+    sclk         : in std_logic;
+    sclk_reset_n : in std_logic;
 
     ---------------------------------------------------------------------------
     -- Interrupts
@@ -266,6 +269,49 @@ architecture struct of XGS_athena is
   end component;
 
 
+  component xgs_mono_pipeline is
+    generic (
+      SIMULATION : integer := 0
+      );
+    port (
+      ---------------------------------------------------------------------------
+      -- Register file
+      ---------------------------------------------------------------------------
+      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      sclk         : in std_logic;
+      sclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      sclk_tready : out std_logic;
+      sclk_tvalid : in  std_logic;
+      sclk_tuser  : in  std_logic_vector(3 downto 0);
+      sclk_tlast  : in  std_logic;
+      sclk_tdata  : in  std_logic_vector(63 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk         : in std_logic;
+      aclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI master stream output interface
+      ---------------------------------------------------------------------------
+      aclk_tready : in  std_logic;
+      aclk_tvalid : out std_logic;
+      aclk_tuser  : out std_logic_vector(3 downto 0);
+      aclk_tlast  : out std_logic;
+      aclk_tdata  : out std_logic_vector(63 downto 0)
+      );
+  end component;
+
+
   component dmawr2tlp is
     generic (
       MAX_PCIE_PAYLOAD_SIZE : integer := 128
@@ -447,11 +493,17 @@ architecture struct of XGS_athena is
   signal reg_readdata      : std_logic_vector(31 downto 0);
   signal reg_readdatavalid : std_logic;
 
-  signal tready : std_logic;
-  signal tvalid : std_logic;
-  signal tdata  : std_logic_vector(63 downto 0);
-  signal tuser  : std_logic_vector(3 downto 0);
-  signal tlast  : std_logic;
+  signal aclk_tready : std_logic;
+  signal aclk_tvalid : std_logic;
+  signal aclk_tdata  : std_logic_vector(63 downto 0);
+  signal aclk_tuser  : std_logic_vector(3 downto 0);
+  signal aclk_tlast  : std_logic;
+
+  signal sclk_tready : std_logic;
+  signal sclk_tvalid : std_logic;
+  signal sclk_tlast  : std_logic;
+  signal sclk_tuser  : std_logic_vector(3 downto 0);
+  signal sclk_tdata  : std_logic_vector(63 downto 0);
 
   signal context_strb : std_logic_vector(1 downto 0);  -- TBD from controller
 
@@ -549,19 +601,42 @@ begin
       PIXEL_SIZE      => PIXEL_SIZE
       )
     port map(
-      axi_clk         => axi_clk,
-      axi_reset_n     => axi_reset_n,
+      axi_clk         => axi_clk,      -- TBD change to SCLK if required
+      axi_reset_n     => axi_reset_n,  -- TBD change to SCLK_RESET_N if required
       regfile         => regfile,
       idelay_clk      => idelay_clk,
       hispi_io_clk_p  => hispi_io_clk_p,
       hispi_io_clk_n  => hispi_io_clk_n,
       hispi_io_data_p => hispi_io_data_p,
       hispi_io_data_n => hispi_io_data_n,
-      m_axis_tready   => tready,
-      m_axis_tvalid   => tvalid,
-      m_axis_tuser    => tuser,
-      m_axis_tlast    => tlast,
-      m_axis_tdata    => tdata
+      m_axis_tready   => sclk_tready,
+      m_axis_tvalid   => sclk_tvalid,
+      m_axis_tuser    => sclk_tuser,
+      m_axis_tlast    => sclk_tlast,
+      m_axis_tdata    => sclk_tdata
+      );
+
+
+  xgs_mono_pipeline_inst : xgs_mono_pipeline
+    generic map(
+      SIMULATION => SIMULATION
+      )
+    port map(
+      regfile      => regfile,
+      sclk         => axi_clk,      -- TBD change to SCLK if required
+      sclk_reset_n => axi_reset_n,  -- TBD change to SCLK_RESET_N if required
+      sclk_tready  => sclk_tready,
+      sclk_tvalid  => sclk_tvalid,
+      sclk_tuser   => sclk_tuser,
+      sclk_tlast   => sclk_tlast,
+      sclk_tdata   => sclk_tdata,
+      aclk         => axi_clk,
+      aclk_reset_n => axi_reset_n,
+      aclk_tready  => aclk_tready,
+      aclk_tvalid  => aclk_tvalid,
+      aclk_tuser   => aclk_tuser,
+      aclk_tlast   => aclk_tlast,
+      aclk_tdata   => aclk_tdata
       );
 
 
@@ -575,11 +650,11 @@ begin
       intevent           => irq(0),
       context_strb       => context_strb,
       regfile            => regfile,
-      tready             => tready,
-      tvalid             => tvalid,
-      tdata              => tdata,
-      tuser              => tuser,
-      tlast              => tlast,
+      tready             => aclk_tready,
+      tvalid             => aclk_tvalid,
+      tdata              => aclk_tdata,
+      tuser              => aclk_tuser,
+      tlast              => aclk_tlast,
       cfg_bus_mast_en    => cfg_bus_mast_en,
       cfg_setmaxpld      => cfg_setmaxpld,
       tlp_req_to_send    => tlp_req_to_send,
