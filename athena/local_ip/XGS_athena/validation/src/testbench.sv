@@ -77,6 +77,7 @@ module testbench();
 	//clock and reset signal declaration
 	bit 	    idelay_clk=1'b0;
 	bit 	    axi_clk=1'b0;
+	bit 	    pcie_clk=1'b0;
 	bit [5:0] user_data_in;
 	bit [1:0] user_data_out;
 	bit 	      intevent;
@@ -86,10 +87,10 @@ module testbench();
 	bit [7:0] 	   irq;
 	bit 	      XGS_MODEL_EXTCLK  = 0;
 
-	reg 	      XGS_MODEL_SCLK;
-	reg 	      XGS_MODEL_SDATA;
-	reg 	      XGS_MODEL_CS;
-	reg 	      XGS_MODEL_SDATAOUT;
+//	reg 	      XGS_MODEL_SCLK;
+//	reg 	      XGS_MODEL_SDATA;
+//	reg 	      XGS_MODEL_CS;
+//	reg 	      XGS_MODEL_SDATAOUT;
 
 
 	logic 	      xgs_power_good;
@@ -120,7 +121,7 @@ module testbench();
 	// -- led_out(0) --> vert, led_out(1) --> rouge
 	logic [1:0] 	      led_out;
 
-
+    logic pcie_reset_n = 0;
 
 
 
@@ -129,7 +130,7 @@ module testbench();
 
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) axil(axi_clk);
-	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(axi_clk, axil_reset_n);
+	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(pcie_clk, pcie_reset_n);
 	io_interface #(GPIO_NUMB_INPUT,GPIO_NUMB_OUTPUT) if_gpio();
 	hispi_interface #(.NUMB_LANE(NUMBER_OF_LANE)) if_hispi(XGS_MODEL_EXTCLK);
 	tlp_interface tlp();
@@ -403,6 +404,7 @@ module testbench();
 
 	// Clock and Reset generation
 	always #5 axi_clk = ~axi_clk;
+	always #8 pcie_clk = ~pcie_clk;
 	always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;      //refclk XGS @ 32.4Mhz
 
 
@@ -462,6 +464,8 @@ module testbench();
 				// MIn XGS model reset is 30 clk, set it to 50
 				axil_driver.wait_n(1000);
 
+                #160ns
+                pcie_reset_n = 1'b1;
 
 				///////////////////////////////////////////////////
 				// Start setting up registers

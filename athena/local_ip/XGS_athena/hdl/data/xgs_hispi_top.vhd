@@ -124,7 +124,7 @@ architecture rtl of xgs_hispi_top is
       packer_fifo_underrun : out std_logic;
 
       enable         : in  std_logic;
-      init_frame     : in  std_logic;
+      init_packer    : in  std_logic;
       odd_line       : in  std_logic;
       line_valid     : in  std_logic;
       busy           : out std_logic;
@@ -858,7 +858,7 @@ begin
         packer_fifo_overrun         => packer_fifo_overrun(i),
         packer_fifo_underrun        => packer_fifo_underrun(i),
         enable                      => packer_enable,
-        init_frame                  => init_lane_packer,
+        init_packer                 => init_lane_packer,
         odd_line                    => row_id(0),
         line_valid                  => line_valid,
         busy                        => packer_busy(i),

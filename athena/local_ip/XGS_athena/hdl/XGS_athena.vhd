@@ -274,8 +274,8 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------
       -- PCIe user domain reset and clock signals
       ---------------------------------------------------------------------
-      axi_clk     : in std_logic;
-      axi_reset_n : in std_logic;
+      sclk   : in std_logic;
+      srst_n : in std_logic;
 
       ---------------------------------------------------------------------
       -- IRQ I/F
@@ -433,7 +433,7 @@ architecture struct of XGS_athena is
   --
   -- 00000000 :  TBD
   -----------------------------------------------------------------------------
-  constant HW_VERSION  : std_logic_vector(7 downto 0) := "00000000";
+  constant HW_VERSION : std_logic_vector(7 downto 0) := "00000000";
 
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
@@ -469,7 +469,7 @@ begin
   -----------------------------------------------------------------------------
   regfile.SYSTEM.VERSION.HW <= HW_VERSION;
 
-  
+
   -----------------------------------------------------------------------------
   -- AXI Slave Interface
   -----------------------------------------------------------------------------
@@ -528,7 +528,7 @@ begin
       reg_readdata  => reg_readdata
       );
 
-  
+
 -- Alain,
 
 -- Voici les signaux dont je te parlais tantot :
@@ -565,15 +565,13 @@ begin
       );
 
 
-
-
   xdmawr2tlp : dmawr2tlp
     generic map(
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
-      axi_clk            => axi_clk,
-      axi_reset_n        => axi_reset_n,
+      sclk               => axi_clk,
+      srst_n             => axi_reset_n,
       intevent           => irq(0),
       context_strb       => context_strb,
       regfile            => regfile,

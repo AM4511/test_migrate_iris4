@@ -19,8 +19,8 @@ entity axi_stream_in is
     ---------------------------------------------------------------------
     -- PCIe user domain reset and clock signals
     ---------------------------------------------------------------------
-    axi_clk     : in std_logic;
-    axi_reset_n : in std_logic;
+    sclk   : in std_logic;
+    srst_n : in std_logic;
 
     ----------------------------------------------------
     -- Control I/F
@@ -96,15 +96,15 @@ architecture rtl of axi_stream_in is
 
 begin
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_s_axis_tready
   -- Description : AXI Stream input tready. 
   -----------------------------------------------------------------------------
-  P_s_axis_tready : process (axi_clk) is
+  P_s_axis_tready : process (sclk) is
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
         s_axis_tready <= '0';
       else
         if (state = S_IDLE) then
@@ -124,10 +124,10 @@ begin
   -- Process     : P_hispi_state
   -- Description : Decode the hispi protocol state
   -----------------------------------------------------------------------------
-  P_state : process (axi_clk) is
+  P_state : process (sclk) is
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
         state <= S_IDLE;
       else
 
@@ -153,7 +153,7 @@ begin
           when S_SOF =>
             state <= S_INIT;
 
-            
+
           -------------------------------------------------------------------
           -- S_INIT : 
           -------------------------------------------------------------------
@@ -223,10 +223,10 @@ begin
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
-  P_buffer_write_address : process (axi_clk) is
+  P_buffer_write_address : process (sclk) is
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
         buffer_write_address <= (others => '0');
       else
         if (state = S_INIT) then
@@ -252,10 +252,10 @@ begin
     port map(
       data      => buffer_write_data,
       rdaddress => buffer_read_address,
-      rdclock   => axi_clk,
+      rdclock   => sclk,
       rden      => buffer_read_en,
       wraddress => buffer_write_address,
-      wrclock   => axi_clk,
+      wrclock   => sclk,
       wren      => buffer_write_en,
       q         => buffer_read_data
       );
@@ -268,10 +268,10 @@ begin
 -----------------------------------------------------------------------------
 -- line_ready
 -----------------------------------------------------------------------------
-  P_line_ready : process (axi_clk) is
+  P_line_ready : process (sclk) is
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
         line_ready <= '0';
       else
         if (state = S_INIT_HOST_TRANSFER) then
