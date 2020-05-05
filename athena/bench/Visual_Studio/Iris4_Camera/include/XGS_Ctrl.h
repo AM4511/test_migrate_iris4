@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <vector>
-#include "regfile_xgs_ctrl.h"
+#include "regfile_xgs_athena.h"
 using namespace std;
 
 
@@ -89,7 +89,7 @@ class CXGS_Ctrl
 
 public:
 	
-	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_CTRL_TYPE& i_rXGSptr, double setSysPer, double setSensorPer);
+	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPer, double setSensorPer);
 	~CXGS_Ctrl();
 
 	SensorParamStruct* getSensorParams(void);
@@ -105,9 +105,9 @@ public:
 	void PrintTime(void);
 
 	//Pointeur aux registres dans fpga 
-	volatile FPGA_REGFILE_XGS_CTRL_TYPE& rXGSptr;
+	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGSptr;
 	//Shadow registres  
-	FPGA_REGFILE_XGS_CTRL_TYPE sXGSptr;
+	FPGA_REGFILE_XGS_ATHENA_TYPE sXGSptr;
 
 	// SPI interface 
 	void WriteSPI(M_UINT32 address, M_UINT32 data);

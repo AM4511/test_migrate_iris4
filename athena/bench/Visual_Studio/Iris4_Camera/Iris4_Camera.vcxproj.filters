@@ -65,9 +65,6 @@
     <ClInclude Include="include\mtxservmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\regfile_xgs_ctrl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -89,7 +86,7 @@
     <ClInclude Include="include\XGS_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\hispi_registerfile.h">
+    <ClInclude Include="include\regfile_xgs_athena.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
