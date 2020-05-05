@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xB4F5B47D
+* Register file CRC32 : 0xE42E028F
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1477,11 +1477,12 @@ typedef union
 
    struct
    {
-      M_UINT32 ENABLE           : 1;   /* Bits(0:0), null */
-      M_UINT32 CLR              : 1;   /* Bits(1:1), null */
-      M_UINT32 CALIBRATE_SERDES : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
-      M_UINT32 RESET_IDELAYCTRL : 1;   /* Bits(3:3), Reset the Xilinx macro IDELAYCTRL */
-      M_UINT32 RSVD0            : 28;  /* Bits(31:4), Reserved */
+      M_UINT32 ENABLE_HISPI      : 1;   /* Bits(0:0), null */
+      M_UINT32 ENABLE_AUTO_CALIB : 1;   /* Bits(1:1), null */
+      M_UINT32 SW_CALIB_SERDES   : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
+      M_UINT32 SW_CLR_HISPI      : 1;   /* Bits(3:3), null */
+      M_UINT32 SW_CLR_IDELAYCTRL : 1;   /* Bits(4:4), Reset the Xilinx macro IDELAYCTRL */
+      M_UINT32 RSVD0             : 27;  /* Bits(31:5), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;

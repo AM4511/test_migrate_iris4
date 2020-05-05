@@ -5,3 +5,4 @@ dmawr2tlp/validation/mti/dmawr2tlp.mpf
 XGS_athena/validation/mti/XGS_athena.cr.mti
 XGS_athena/validation/mti/XGS_athena.lib/**
 XGS_athena/validation/mti/XGS_athena.mpf
+XGS_athena/validation/mti/vsim.wlf

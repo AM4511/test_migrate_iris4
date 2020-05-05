@@ -513,3 +513,4 @@ set_property PACKAGE_PIN A18 [get_ports xgs_power_good]
 set_property IOSTANDARD LVCMOS33 [get_ports xgs_power_good]
 
 
+

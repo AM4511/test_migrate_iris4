@@ -33,7 +33,7 @@ entity lane_packer is
     packer_fifo_underrun : out std_logic;
 
     enable         : in  std_logic;
-    init_frame     : in  std_logic;
+    init_packer    : in  std_logic;
     odd_line       : in  std_logic;
     line_valid     : in  std_logic;
     busy           : out std_logic;
@@ -182,7 +182,7 @@ begin
       if (sysrst = '1') then
         state <= S_IDLE;
       else
-        if (init_frame = '1') then
+        if (init_packer = '1') then
           state <= S_IDLE;
         else
           case state is
@@ -207,7 +207,8 @@ begin
             --          flush request occures from the hispi_top module.
             ---------------------------------------------------------------------
             when S_PACK =>
-              if (top_sync(3) = '1') then
+              -- If EOL or EOF
+              if (top_sync(1) = '1' or top_sync(3) = '1') then
                 state <= S_FLUSH;
               end if;
 
@@ -430,7 +431,7 @@ begin
       if (sysrst = '1') then
         output_state <= S_IDLE;
       else
-        if (init_frame = '1') then
+        if (init_packer = '1') then
           output_state <= S_IDLE;
         else
           case output_state is

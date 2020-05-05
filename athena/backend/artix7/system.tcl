@@ -124,7 +124,7 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 matrox.com:user:AXI_i2c_Matrox:1.0\
-matrox.com:user:XGS_athena:1.0\
+matrox.com:Imaging:XGS_athena:1.0.0\
 xilinx.com:ip:clk_wiz:6.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:xlconstant:1.1\
@@ -226,7 +226,7 @@ proc create_root_design { parentCell } {
  ] $AXI_i2c_Matrox_0
 
   # Create instance: XGS_athena_0, and set properties
-  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:user:XGS_athena:1.0 XGS_athena_0 ]
+  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:XGS_athena:1.0.0 XGS_athena_0 ]
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
@@ -290,8 +290,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs AXI_i2c_Matrox_0/S_AXI/S_AXI_reg] SEG_AXI_i2c_Matrox_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs XGS_athena_0/s_axi/reg0] SEG_XGS_athena_0_reg0
+  create_bd_addr_seg -range 0x00001000 -offset 0x40010000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs AXI_i2c_Matrox_0/S_AXI/S_AXI_reg] SEG_AXI_i2c_Matrox_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00001000 -offset 0x40000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs XGS_athena_0/s_axi/reg0] SEG_XGS_athena_0_reg0
 
 
   # Restore current instance

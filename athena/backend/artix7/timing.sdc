@@ -96,14 +96,13 @@ set_false_path -fall_from $input_clock -fall_to $input_clock
 
 
 
-
 ####################################################################################################################
 # Top pixel clock (Generated clock)
 ####################################################################################################################
-set TOP_SRC_CLK_PIN     [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/top_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
-set TOP_PIX_CLK_PIN_0   [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/top_hispi_phy/G_lane_decoder[0].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
-set TOP_PIX_CLK_PIN_1   [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/top_hispi_phy/G_lane_decoder[1].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
-set TOP_PIX_CLK_PIN_2   [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/top_hispi_phy/G_lane_decoder[2].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
+set TOP_SRC_CLK_PIN     [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
+set TOP_PIX_CLK_PIN_0   [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/G_lane_decoder[0].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
+set TOP_PIX_CLK_PIN_1   [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/G_lane_decoder[1].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
+set TOP_PIX_CLK_PIN_2   [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/G_lane_decoder[2].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
 
 create_generated_clock -name pixClk_0 -divide_by 2  -source $TOP_SRC_CLK_PIN  $TOP_PIX_CLK_PIN_0
 create_generated_clock -name pixClk_2 -divide_by 2  -source $TOP_SRC_CLK_PIN  $TOP_PIX_CLK_PIN_1
@@ -112,10 +111,10 @@ create_generated_clock -name pixClk_4 -divide_by 2  -source $TOP_SRC_CLK_PIN  $T
 ####################################################################################################################
 # Bottom pixel clock (Generated clock)
 ####################################################################################################################
-set BOTTOM_SRC_CLK_PIN   [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/bottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
-set BOTTOM_PIX_CLK_PIN_0 [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/bottom_hispi_phy/G_lane_decoder[0].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
-set BOTTOM_PIX_CLK_PIN_1 [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/bottom_hispi_phy/G_lane_decoder[1].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
-set BOTTOM_PIX_CLK_PIN_2 [get_pins  -hier -filter {NAME =~"*axiHiSPi_0/U0/bottom_hispi_phy/G_lane_decoder[2].inst_lane_decoder/xbit_split/hispi_clk_div2_reg/Q"}]
+set BOTTOM_SRC_CLK_PIN   [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
+set BOTTOM_PIX_CLK_PIN_0 [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/G_lane_decoder[0].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
+set BOTTOM_PIX_CLK_PIN_1 [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/G_lane_decoder[1].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
+set BOTTOM_PIX_CLK_PIN_2 [get_pins  -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/G_lane_decoder[2].inst_lane_decoder/xbit_split/hclk_div2_reg/Q"}]
 
 create_generated_clock -name pixClk_1 -divide_by 2  -source $BOTTOM_SRC_CLK_PIN  $BOTTOM_PIX_CLK_PIN_0
 create_generated_clock -name pixClk_3 -divide_by 2  -source $BOTTOM_SRC_CLK_PIN  $BOTTOM_PIX_CLK_PIN_1
@@ -125,8 +124,8 @@ create_generated_clock -name pixClk_5 -divide_by 2  -source $BOTTOM_SRC_CLK_PIN 
 ####################################################################################################################
 # Rename generated clock
 ####################################################################################################################
-create_generated_clock -name idly_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT0]
-create_generated_clock -name qspi_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT1]
+#create_generated_clock -name idly_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT0]
+#create_generated_clock -name qspi_clk -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/plle2_adv_inst/CLKOUT1]
 
 
 # Timing exceptions

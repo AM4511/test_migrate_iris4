@@ -21,8 +21,8 @@ entity dmawr2tlp is
     ---------------------------------------------------------------------
     -- PCIe user domain reset and clock signals
     ---------------------------------------------------------------------
-    axi_clk     : in std_logic;
-    axi_reset_n : in std_logic;
+    sclk   : in std_logic;
+    srst_n : in std_logic;
 
     ---------------------------------------------------------------------
     -- IRQ I/F
@@ -50,7 +50,7 @@ entity dmawr2tlp is
 
 
     ---------------------------------------------------------------------
-    -- PCIe Configuration space info (axi_clk)
+    -- PCIe Configuration space info (sclk)
     ---------------------------------------------------------------------
     cfg_bus_mast_en : in std_logic;
     cfg_setmaxpld   : in std_logic_vector(2 downto 0);
@@ -95,8 +95,8 @@ architecture rtl of dmawr2tlp is
       ---------------------------------------------------------------------
       -- PCIe user domain reset and clock signals
       ---------------------------------------------------------------------
-      axi_clk     : in std_logic;
-      axi_reset_n : in std_logic;
+      sclk   : in std_logic;
+      srst_n : in std_logic;
 
       ----------------------------------------------------
       -- Control I/F
@@ -203,13 +203,6 @@ architecture rtl of dmawr2tlp is
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
-  signal reg_read          : std_logic;
-  signal reg_write         : std_logic;
-  signal reg_addr          : std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0) := (others => '0');
-  signal reg_beN           : std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
-  signal reg_writedata     : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-  signal reg_readdatavalid : std_logic;
-  signal reg_readdata      : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 
   signal dma_idle                 : std_logic;
   signal dma_pcie_state           : std_logic_vector(2 downto 0);
@@ -234,20 +227,6 @@ architecture rtl of dmawr2tlp is
 
 begin
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_reg_readdataValid : process(axi_clk)
-  begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
-        reg_readdataValid <= '0';
-      else
-        reg_readdataValid <= reg_read;
-      end if;
-    end if;
-  end process;
-
 
   -----------------------------------------------------------------------------
   -- Registerfile remapping
@@ -258,17 +237,18 @@ begin
   dma_context_mapping.line_pitch     <= regfile.DMA.LINE_PITCH.VALUE;
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
+  
   dma_context_mapping.numb_plane     <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
-                                        3;
+                                    3;
 
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline
   -----------------------------------------------------------------------------
-  P_dma_context : process(axi_clk)
+  P_dma_context : process(sclk)
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
         dma_context_p0 <= INIT_DMA_CONTEXT_TYPE;
         dma_context_p1 <= INIT_DMA_CONTEXT_TYPE;
       else
@@ -297,8 +277,8 @@ begin
       BUFFER_ADDR_WIDTH => BUFFER_ADDR_WIDTH
       )
     port map(
-      axi_clk                  => axi_clk,
-      axi_reset_n              => axi_reset_n,
+      sclk                     => sclk,
+      srst_n                   => srst_n,
       s_axis_tready            => tready,
       s_axis_tvalid            => tvalid,
       s_axis_tdata             => tdata,
@@ -321,8 +301,8 @@ begin
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
-      sys_clk              => axi_clk,
-      sys_reset_n          => axi_reset_n,
+      sys_clk              => sclk,
+      sys_reset_n          => srst_n,
       cfg_bus_mast_en      => cfg_bus_mast_en,
       cfg_setmaxpld        => cfg_setmaxpld,
       tlp_req_to_send      => tlp_req_to_send,

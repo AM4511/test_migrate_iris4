@@ -20,11 +20,11 @@ entity tap_controller is
     pclk_reset          : in  std_logic;
     pclk_pixel          : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
     pclk_idle_character : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-    pclk_cal_en              : in  std_logic;
-    pclk_cal_busy            : out std_logic;
-    pclk_cal_error           : out std_logic;
-    pclk_cal_load_tap        : out std_logic;
-    pclk_cal_tap_value       : out std_logic_vector(4 downto 0)
+    pclk_cal_en         : in  std_logic;
+    pclk_cal_busy       : out std_logic;
+    pclk_cal_error      : out std_logic;
+    pclk_cal_load_tap   : out std_logic;
+    pclk_cal_tap_value  : out std_logic_vector(4 downto 0)
     );
 end entity tap_controller;
 

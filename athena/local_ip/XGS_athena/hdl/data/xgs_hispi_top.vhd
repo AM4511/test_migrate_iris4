@@ -33,6 +33,13 @@ entity xgs_hispi_top is
     ---------------------------------------------------------------------------
     regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
+    ---------------------------------------------------------------------------
+    -- XGS Controller I/F
+    ---------------------------------------------------------------------------
+    hispi_start_calibration  : in  std_logic;
+    hispi_calibration_active : out std_logic;
+    hispi_pix_clk            : out std_logic;
+    hispi_eof                : out std_logic;
 
     ---------------------------------------------------------------------------
     -- Top HiSPI I/F
@@ -65,26 +72,27 @@ architecture rtl of xgs_hispi_top is
       PIXEL_SIZE   : integer := 12      -- Pixel size in bits
       );
     port (
-      sysclk : in std_logic;
-      sysrst : in std_logic;
+      sclk : in std_logic;
+      srst : in std_logic;
 
       -- Register file information
-      idle_character       : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en         : in  std_logic;
-      hispi_soft_reset     : in  std_logic;
+      idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hispi_phy_en     : in  std_logic;
+      hispi_soft_reset : in  std_logic;
+      hispi_pix_clk    : out std_logic;
 
       -- Calibration 
-      cal_en        : in  std_logic;
-      cal_busy      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      cal_load_tap  : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+      sclk_cal_en        : in  std_logic;
+      sclk_cal_busy      : out std_logic;
+      sclk_cal_done      : out std_logic;
+      sclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      sclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
       -- HiSPi IO
-      hispi_serial_clk_p   : in  std_logic;
-      hispi_serial_clk_n   : in  std_logic;
-      hispi_serial_input_p : in  std_logic_vector(LANE_PER_PHY - 1 downto 0);
-      hispi_serial_input_n : in  std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      hispi_serial_clk_p   : in std_logic;
+      hispi_serial_clk_n   : in std_logic;
+      hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      hispi_serial_input_n : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
 
       -- Read fifo interface
       fifo_read_clk        : in  std_logic;
@@ -94,11 +102,11 @@ architecture rtl of xgs_hispi_top is
       fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
       -- Flags detected
-      embeded_data         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sof_flag             : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      eof_flag             : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sol_flag             : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      eol_flag             : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+      embeded_data : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      sof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      eof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      sol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      eol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0)
       );
   end component;
 
@@ -124,7 +132,7 @@ architecture rtl of xgs_hispi_top is
       packer_fifo_underrun : out std_logic;
 
       enable         : in  std_logic;
-      init_frame     : in  std_logic;
+      init_packer    : in  std_logic;
       odd_line       : in  std_logic;
       line_valid     : in  std_logic;
       busy           : out std_logic;
@@ -281,21 +289,23 @@ architecture rtl of xgs_hispi_top is
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal idle_character           : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal new_line_pending         : std_logic;
-  signal new_frame_pending        : std_logic;
+  signal idle_character    : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal new_line_pending  : std_logic;
+  signal new_frame_pending : std_logic;
 
-  signal cal_en       : std_logic;
-  signal cal_load_tap : std_logic;
-  signal cal_error    : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  signal cal_busy     : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  signal calibrate_en : std_logic;
+  signal sclk_cal_en       : std_logic;
+  --signal cal_load_tap : std_logic;
+  signal sclk_cal_error    : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  --signal cal_busy     : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal cal_done          : std_logic_vector(1 downto 0);
+  signal calibrate_en_Meta : std_logic;
+  signal calibrate_en      : std_logic;
 
-
-  signal top_cal_en        : std_logic;
-  signal top_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
+--  signal top_cal_en        : std_logic;
+  signal top_cal_busy      : std_logic;
+  signal top_cal_done      : std_logic;
   signal top_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+--  signal top_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
   signal top_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -311,23 +321,23 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  signal bottom_cal_en               : std_logic;
-  signal bottom_cal_busy             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  --signal bottom_cal_en               : std_logic;
+  signal bottom_cal_busy             : std_logic;
+  signal bottom_cal_done             : std_logic;
   signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_cal_load_tap         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+--  signal bottom_cal_load_tap         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
-  signal bottom_lanes_p           : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_lanes_n           : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_embeded_data      : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_sof_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_eof_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_sol_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_eol_flag          : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_embeded_data         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_sof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_eof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_sol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_eol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_en         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal hispi_phy_en                : std_logic;
 
   signal state : FSM_TYPE;
 
@@ -381,37 +391,58 @@ architecture rtl of xgs_hispi_top is
   signal line_buffer_count   : std_logic_vector(11 downto 0);
   signal line_buffer_line_id : std_logic_vector(11 downto 0);
   signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-  signal capture_enable      : std_logic := '1'; -- TMP should be register
+  signal capture_enable      : std_logic := '1';  -- TMP should be register
+
 
 begin
 
-  -- ToDo From register_file
-  calibrate_en <= '0';
-
-  top_cal_en <= '1' when (state = S_CALIBRATE) else
-                '0';
-
-  bottom_cal_en <= '1' when (state = S_CALIBRATE) else
-                   '0';
 
 
-  -- NO GOOD CLOCK DOMAIN CROSSING
-  cal_load_tap <= '1' when (top_cal_load_tap(0) = '1') else
-                  '0';
+  -----------------------------------------------------------------------------
+  -- Process     : P_calibrate_en
+  -- Description : 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING??
+  -----------------------------------------------------------------------------
+  P_calibrate_en : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0') then
+        calibrate_en_Meta <= '0';
+        calibrate_en      <= '0';
+      else
+        calibrate_en_Meta <= hispi_start_calibration;
+        calibrate_en      <= calibrate_en_Meta;
+      end if;
+    end if;
+  end process;
 
-  G_cal_error : for i in 0 to LANE_PER_PHY-1 generate
-    cal_error(2*i)   <= top_cal_error(i);
-    cal_error(2*i+1) <= bottom_cal_error(i);
-  end generate G_cal_error;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hispi_calibration_active
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_hispi_calibration_active : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0') then
+        hispi_calibration_active <= '0';
+      else
+        if (state = S_CALIBRATE) then
+          hispi_calibration_active <= '1';
+        else
+          hispi_calibration_active <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
-  G_cal_busy : for i in 0 to LANE_PER_PHY-1 generate
-    cal_busy(2*i)   <= top_cal_busy(i);
-    cal_busy(2*i+1) <= bottom_cal_busy(i);
-  end generate G_cal_busy;
 
-
-
+  G_sclk_cal_error : for i in 0 to LANE_PER_PHY-1 generate
+    sclk_cal_error(2*i)   <= top_cal_error(i);
+    sclk_cal_error(2*i+1) <= bottom_cal_error(i);
+  end generate G_sclk_cal_error;
 
 
 
@@ -447,28 +478,32 @@ begin
     bottom_lanes_n(i) <= hispi_io_data_n(2*i+1);
   end generate G_lanes;
 
+  sclk_cal_en <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
+                 '1' when (calibrate_en = '1') else
+                 '0';
 
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : TOP lanes hispi phy. Provides one serdes for interfacing
   --               all the XGS sensor top lanes.
   -----------------------------------------------------------------------------
-  top_hispi_phy : hispi_phy
+  xtop_hispi_phy : hispi_phy
     generic map(
       LANE_PER_PHY => LANE_PER_PHY,
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sysclk               => axi_clk,
-      sysrst               => axi_reset,
+      sclk                 => axi_clk,
+      srst                 => axi_reset,
       idle_character       => idle_character,
-      hispi_phy_en         => hispi_phy_en,
-      hispi_soft_reset     => regfile.HISPI.CTRL.CLR,
-      cal_en               => top_cal_en,
-      cal_busy             => top_cal_busy,
-      cal_error            => top_cal_error,
-      cal_load_tap         => top_cal_load_tap,
-      cal_tap_value        => top_cal_tap_value,
+      hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
+      hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
+      hispi_pix_clk        => hispi_pix_clk,
+      sclk_cal_en          => sclk_cal_en,
+      sclk_cal_busy        => top_cal_busy,
+      sclk_cal_done        => top_cal_done,
+      sclk_cal_error       => top_cal_error,
+      sclk_cal_tap_value   => top_cal_tap_value,
       hispi_serial_clk_p   => hispi_io_clk_p(0),
       hispi_serial_clk_n   => hispi_io_clk_n(0),
       hispi_serial_input_p => top_lanes_p,
@@ -492,22 +527,23 @@ begin
   -- Description : Bottom lanes hispi phy. Provides one serdes for interfacing
   --               all the XGS sensor bottom lanes.
   -----------------------------------------------------------------------------
-  bottom_hispi_phy : hispi_phy
+  xbottom_hispi_phy : hispi_phy
     generic map(
       LANE_PER_PHY => LANE_PER_PHY,
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sysclk               => axi_clk,
-      sysrst               => axi_reset,
+      sclk                 => axi_clk,
+      srst                 => axi_reset,
       idle_character       => idle_character,
-      hispi_phy_en         => hispi_phy_en,
-      hispi_soft_reset     => regfile.HISPI.CTRL.CLR,
-      cal_en               => bottom_cal_en,
-      cal_busy             => bottom_cal_busy,
-      cal_error            => bottom_cal_error,
-      cal_load_tap         => bottom_cal_load_tap,
-      cal_tap_value        => bottom_cal_tap_value,
+      hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
+      hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
+      hispi_pix_clk        => open,
+      sclk_cal_en          => sclk_cal_en,
+      sclk_cal_busy        => bottom_cal_busy,
+      sclk_cal_done        => bottom_cal_done,
+      sclk_cal_error       => bottom_cal_error,
+      sclk_cal_tap_value   => bottom_cal_tap_value,
       hispi_serial_clk_p   => hispi_io_clk_p(1),
       hispi_serial_clk_n   => hispi_io_clk_n(1),
       hispi_serial_input_p => bottom_lanes_p,
@@ -587,10 +623,6 @@ begin
                      '0';
 
 
-  hispi_phy_en <= '1' when (regfile.HISPI.CTRL.ENABLE = '1') else
-                  '0';
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_line_buffer_id
   -- Description : 
@@ -610,6 +642,30 @@ begin
 
         elsif (state = S_DONE) then
           line_buffer_id <= std_logic_vector(unsigned(line_buffer_id)+1);
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_cal_done
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_cal_done : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0')then
+        cal_done <= "00";
+      else
+        if (state = S_IDLE and sclk_cal_en = '1') then
+          cal_done <= "00";
+        elsif (state = S_CALIBRATE) then
+          if (top_cal_done = '1') then
+            cal_done(0) <= '1';
+          end if;
+          if (bottom_cal_done = '1') then
+            cal_done(1) <= '1';
+          end if;
         end if;
       end if;
     end if;
@@ -641,8 +697,8 @@ begin
             -- S_CALIBRATE : 
             ---------------------------------------------------------------------
             when S_CALIBRATE =>
-              if (top_cal_load_tap(0) = '1') then
-              state <= S_IDLE;
+              if (cal_done = "11") then
+                state <= S_IDLE;
               else
                 state <= S_CALIBRATE;
               end if;
@@ -651,7 +707,7 @@ begin
             -- S_IDLE : Parking state
             ---------------------------------------------------------------------
             when S_IDLE =>
-              if (calibrate_en = '1') then
+              if (sclk_cal_en = '1') then
                 state <= S_CALIBRATE;
               elsif (new_frame_pending = '1') then
                 state <= S_SOF;
@@ -849,7 +905,7 @@ begin
         packer_fifo_overrun         => packer_fifo_overrun(i),
         packer_fifo_underrun        => packer_fifo_underrun(i),
         enable                      => packer_enable,
-        init_frame                  => init_lane_packer,
+        init_packer                 => init_lane_packer,
         odd_line                    => row_id(0),
         line_valid                  => line_valid,
         busy                        => packer_busy(i),

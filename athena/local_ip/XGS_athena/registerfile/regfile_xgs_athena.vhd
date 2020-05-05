@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/01 16:09:09
+-- Created on          : 2020/05/05 16:05:15
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xB4F5B47D
+-- Register file CRC32 : 0xE42E028F
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1326,17 +1326,19 @@ package regfile_xgs_athena_pack is
    -- Register Name: CTRL
    ------------------------------------------------------------------------------------------
    type HISPI_CTRL_TYPE is record
-      RESET_IDELAYCTRL: std_logic;
-      CALIBRATE_SERDES: std_logic;
-      CLR            : std_logic;
-      ENABLE         : std_logic;
+      SW_CLR_IDELAYCTRL: std_logic;
+      SW_CLR_HISPI   : std_logic;
+      SW_CALIB_SERDES: std_logic;
+      ENABLE_AUTO_CALIB: std_logic;
+      ENABLE_HISPI   : std_logic;
    end record HISPI_CTRL_TYPE;
 
    constant INIT_HISPI_CTRL_TYPE : HISPI_CTRL_TYPE := (
-      RESET_IDELAYCTRL => 'Z',
-      CALIBRATE_SERDES => 'Z',
-      CLR             => 'Z',
-      ENABLE          => 'Z'
+      SW_CLR_IDELAYCTRL => 'Z',
+      SW_CLR_HISPI    => 'Z',
+      SW_CALIB_SERDES => 'Z',
+      ENABLE_AUTO_CALIB => 'Z',
+      ENABLE_HISPI    => 'Z'
    );
 
    -- Casting functions:
@@ -3366,10 +3368,11 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(3) := reg.RESET_IDELAYCTRL;
-      output(2) := reg.CALIBRATE_SERDES;
-      output(1) := reg.CLR;
-      output(0) := reg.ENABLE;
+      output(4) := reg.SW_CLR_IDELAYCTRL;
+      output(3) := reg.SW_CLR_HISPI;
+      output(2) := reg.SW_CALIB_SERDES;
+      output(1) := reg.ENABLE_AUTO_CALIB;
+      output(0) := reg.ENABLE_HISPI;
       return output;
    end to_std_logic_vector;
 
@@ -3380,10 +3383,11 @@ package body regfile_xgs_athena_pack is
    function to_HISPI_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_CTRL_TYPE is
    variable output : HISPI_CTRL_TYPE;
    begin
-      output.RESET_IDELAYCTRL := stdlv(3);
-      output.CALIBRATE_SERDES := stdlv(2);
-      output.CLR := stdlv(1);
-      output.ENABLE := stdlv(0);
+      output.SW_CLR_IDELAYCTRL := stdlv(4);
+      output.SW_CLR_HISPI := stdlv(3);
+      output.SW_CALIB_SERDES := stdlv(2);
+      output.ENABLE_AUTO_CALIB := stdlv(1);
+      output.ENABLE_HISPI := stdlv(0);
       return output;
    end to_HISPI_CTRL_TYPE;
 
@@ -3474,11 +3478,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/01 16:09:09
+-- Created on          : 2020/05/05 16:05:15
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xB4F5B47D
+-- Register file CRC32 : 0xE42E028F
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3737,10 +3741,11 @@ signal field_rw_DATA_DPC_LIST_CTRL_dpc_list_add               : std_logic_vector
 signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_pattern      : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
 signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_y            : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
 signal field_rw_DATA_DPC_LIST_DATA_dpc_list_corr_x            : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_x
-signal field_rw_HISPI_CTRL_RESET_IDELAYCTRL                   : std_logic;                                       -- Field: RESET_IDELAYCTRL
-signal field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES             : std_logic;                                       -- Field: CALIBRATE_SERDES
-signal field_rw_HISPI_CTRL_CLR                                : std_logic;                                       -- Field: CLR
-signal field_rw_HISPI_CTRL_ENABLE                             : std_logic;                                       -- Field: ENABLE
+signal field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL                  : std_logic;                                       -- Field: SW_CLR_IDELAYCTRL
+signal field_rw_HISPI_CTRL_SW_CLR_HISPI                       : std_logic;                                       -- Field: SW_CLR_HISPI
+signal field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES              : std_logic;                                       -- Field: SW_CALIB_SERDES
+signal field_rw_HISPI_CTRL_ENABLE_AUTO_CALIB                  : std_logic;                                       -- Field: ENABLE_AUTO_CALIB
+signal field_rw_HISPI_CTRL_ENABLE_HISPI                       : std_logic;                                       -- Field: ENABLE_HISPI
 signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN     : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN      : std_logic;                                       -- Field: FIFO_OVERRUN
 signal field_rw_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR : std_logic;                                       -- Field: CALIBRATION_ERROR
@@ -4365,7 +4370,7 @@ regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 -- Field name: MINOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(0),8));
+rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(1),8));
 regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
@@ -8759,102 +8764,126 @@ rb_DATA_DPC_LIST_DATA_RD(11 downto 0) <= regfile.DATA.DPC_LIST_DATA_RD.dpc_list_
 wEn(73) <= (hit(73)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: RESET_IDELAYCTRL
+-- Field name: SW_CLR_IDELAYCTRL
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_CTRL(3) <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
-regfile.HISPI.CTRL.RESET_IDELAYCTRL <= field_rw_HISPI_CTRL_RESET_IDELAYCTRL;
+rb_HISPI_CTRL(4) <= field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL;
+regfile.HISPI.CTRL.SW_CLR_IDELAYCTRL <= field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_CTRL_RESET_IDELAYCTRL
+-- Process: P_HISPI_CTRL_SW_CLR_IDELAYCTRL
 ------------------------------------------------------------------------------------------
-P_HISPI_CTRL_RESET_IDELAYCTRL : process(sysclk)
+P_HISPI_CTRL_SW_CLR_IDELAYCTRL : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= '0';
+         field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= '0';
       else
-         if(wEn(73) = '1' and bitEnN(3) = '0') then
-            field_rw_HISPI_CTRL_RESET_IDELAYCTRL <= reg_writedata(3);
+         if(wEn(73) = '1' and bitEnN(4) = '0') then
+            field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= reg_writedata(4);
          end if;
       end if;
    end if;
-end process P_HISPI_CTRL_RESET_IDELAYCTRL;
+end process P_HISPI_CTRL_SW_CLR_IDELAYCTRL;
 
 ------------------------------------------------------------------------------------------
--- Field name: CALIBRATE_SERDES
+-- Field name: SW_CLR_HISPI
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_CTRL(3) <= field_rw_HISPI_CTRL_SW_CLR_HISPI;
+regfile.HISPI.CTRL.SW_CLR_HISPI <= field_rw_HISPI_CTRL_SW_CLR_HISPI;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_CTRL_SW_CLR_HISPI
+------------------------------------------------------------------------------------------
+P_HISPI_CTRL_SW_CLR_HISPI : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_CTRL_SW_CLR_HISPI <= '0';
+      else
+         if(wEn(73) = '1' and bitEnN(3) = '0') then
+            field_rw_HISPI_CTRL_SW_CLR_HISPI <= reg_writedata(3);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_CTRL_SW_CLR_HISPI;
+
+------------------------------------------------------------------------------------------
+-- Field name: SW_CALIB_SERDES
 -- Field type: WAUTOCLR
 ------------------------------------------------------------------------------------------
 rb_HISPI_CTRL(2) <= '0';
-regfile.HISPI.CTRL.CALIBRATE_SERDES <= field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES;
+regfile.HISPI.CTRL.SW_CALIB_SERDES <= field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_CTRL_CALIBRATE_SERDES
+-- Process: P_HISPI_CTRL_SW_CALIB_SERDES
 ------------------------------------------------------------------------------------------
-P_HISPI_CTRL_CALIBRATE_SERDES : process(sysclk)
+P_HISPI_CTRL_SW_CALIB_SERDES : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= '0';
+         field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= '0';
       else
          if(wEn(73) = '1' and bitEnN(2) = '0') then
-            field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= reg_writedata(2);
+            field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= reg_writedata(2);
          else
-            field_wautoclr_HISPI_CTRL_CALIBRATE_SERDES <= '0';
+            field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= '0';
          end if;
       end if;
    end if;
-end process P_HISPI_CTRL_CALIBRATE_SERDES;
+end process P_HISPI_CTRL_SW_CALIB_SERDES;
 
 ------------------------------------------------------------------------------------------
--- Field name: CLR
+-- Field name: ENABLE_AUTO_CALIB
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_CTRL(1) <= field_rw_HISPI_CTRL_CLR;
-regfile.HISPI.CTRL.CLR <= field_rw_HISPI_CTRL_CLR;
+rb_HISPI_CTRL(1) <= field_rw_HISPI_CTRL_ENABLE_AUTO_CALIB;
+regfile.HISPI.CTRL.ENABLE_AUTO_CALIB <= field_rw_HISPI_CTRL_ENABLE_AUTO_CALIB;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_CTRL_CLR
+-- Process: P_HISPI_CTRL_ENABLE_AUTO_CALIB
 ------------------------------------------------------------------------------------------
-P_HISPI_CTRL_CLR : process(sysclk)
+P_HISPI_CTRL_ENABLE_AUTO_CALIB : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_CTRL_CLR <= '0';
+         field_rw_HISPI_CTRL_ENABLE_AUTO_CALIB <= '0';
       else
          if(wEn(73) = '1' and bitEnN(1) = '0') then
-            field_rw_HISPI_CTRL_CLR <= reg_writedata(1);
+            field_rw_HISPI_CTRL_ENABLE_AUTO_CALIB <= reg_writedata(1);
          end if;
       end if;
    end if;
-end process P_HISPI_CTRL_CLR;
+end process P_HISPI_CTRL_ENABLE_AUTO_CALIB;
 
 ------------------------------------------------------------------------------------------
--- Field name: ENABLE
+-- Field name: ENABLE_HISPI
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_HISPI_CTRL(0) <= field_rw_HISPI_CTRL_ENABLE;
-regfile.HISPI.CTRL.ENABLE <= field_rw_HISPI_CTRL_ENABLE;
+rb_HISPI_CTRL(0) <= field_rw_HISPI_CTRL_ENABLE_HISPI;
+regfile.HISPI.CTRL.ENABLE_HISPI <= field_rw_HISPI_CTRL_ENABLE_HISPI;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_HISPI_CTRL_ENABLE
+-- Process: P_HISPI_CTRL_ENABLE_HISPI
 ------------------------------------------------------------------------------------------
-P_HISPI_CTRL_ENABLE : process(sysclk)
+P_HISPI_CTRL_ENABLE_HISPI : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_CTRL_ENABLE <= '0';
+         field_rw_HISPI_CTRL_ENABLE_HISPI <= '0';
       else
          if(wEn(73) = '1' and bitEnN(0) = '0') then
-            field_rw_HISPI_CTRL_ENABLE <= reg_writedata(0);
+            field_rw_HISPI_CTRL_ENABLE_HISPI <= reg_writedata(0);
          end if;
       end if;
    end if;
-end process P_HISPI_CTRL_ENABLE;
+end process P_HISPI_CTRL_ENABLE_HISPI;
 
 
 
