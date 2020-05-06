@@ -241,14 +241,15 @@ int main(void)
 
 			case 'h':
 				printf("HiSPI calibration\n");
-				rXGS_Athena_ptr.HISPI.CTRL.f.CALIBRATE_SERDES = 1;
-				Sleep(1000);
-				printf("IDELAYCTRL_STATUS",   rXGS_Athena_ptr.HISPI.IDELAYCTRL_STATUS.u32);
+				rXGS_Athena_ptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
+				Sleep(500);
+				printf("IDELAYCTRL_STATUS     : 0x%X\n", rXGS_Athena_ptr.HISPI.IDELAYCTRL_STATUS.u32);
 				printf("LANE_DECODER_STATUS_0 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_1 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_2 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_3 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_4 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				printf("LANE_DECODER_STATUS_1 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[1].u32);
+				printf("LANE_DECODER_STATUS_2 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[2].u32);
+				printf("LANE_DECODER_STATUS_3 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[3].u32);
+				printf("LANE_DECODER_STATUS_4 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[4].u32);
+				printf("LANE_DECODER_STATUS_5 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[5].u32);
 				break;
 
 			}
