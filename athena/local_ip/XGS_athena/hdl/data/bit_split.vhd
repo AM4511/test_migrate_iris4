@@ -45,6 +45,9 @@ end entity bit_split;
 
 architecture rtl of bit_split is
 
+  attribute mark_debug : string;
+  attribute keep       : string;
+
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant HISPI_SHIFT_REGISTER_SIZE : integer := HISPI_WORDS_PER_SYNC_CODE * PIXEL_SIZE + PHY_OUTPUT_WIDTH;
 
@@ -56,6 +59,18 @@ architecture rtl of bit_split is
   signal load_data              : std_logic := '0';
   signal hclk_div2              : std_logic := '0';
 
+  
+  -----------------------------------------------------------------------------
+  -- Debug attributes
+  -----------------------------------------------------------------------------
+  attribute mark_debug of hclk_reset          : signal is "true";
+  attribute mark_debug of hclk_data_lane      : signal is "true";
+  attribute mark_debug of rclk_idle_char      : signal is "true";
+  attribute mark_debug of hclk_shift_register : signal is "true";
+  attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
+  attribute mark_debug of load_data           : signal is "true";
+  attribute mark_debug of hclk_div2           : signal is "true";
+  attribute mark_debug of hclk_idle_detected  : signal is "true";
 
 begin
 

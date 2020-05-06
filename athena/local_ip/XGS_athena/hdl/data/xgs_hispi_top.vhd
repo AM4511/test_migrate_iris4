@@ -96,7 +96,6 @@ architecture rtl of xgs_hispi_top is
 
       -- Calibration 
       sclk_cal_en        : in  std_logic;
-      sclk_cal_busy      : out std_logic;
       sclk_cal_done      : out std_logic;
       sclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       sclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -319,7 +318,7 @@ architecture rtl of xgs_hispi_top is
   signal xgs_ctrl_calib_req_Meta : std_logic;
   signal xgs_ctrl_calib_req      : std_logic;
   signal calibration_pending     : std_logic;
-  signal top_cal_busy            : std_logic;
+  --signal top_cal_busy            : std_logic;
   signal top_cal_done            : std_logic;
   signal top_cal_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_cal_tap_value       : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -339,7 +338,7 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  signal bottom_cal_busy             : std_logic;
+  --signal bottom_cal_busy             : std_logic;
   signal bottom_cal_done             : std_logic;
   signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -439,7 +438,7 @@ begin
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN_set      <= top_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN_set     <= top_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR_set <= top_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE    <= top_cal_busy;
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE    <= cal_done(0);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_TAP_VALUE <= top_cal_tap_value(5*i+4 downto 5*i);
 
     sldec_fifo_overrun(2*i)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN;
@@ -450,7 +449,7 @@ begin
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN_set      <= bottom_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN_set     <= bottom_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR_set <= bottom_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE    <= bottom_cal_busy;
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE    <= cal_done(1);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_TAP_VALUE <= bottom_cal_tap_value(5*i+4 downto 5*i);
 
     sldec_fifo_overrun(2*i+1)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN;
@@ -478,7 +477,7 @@ begin
                        '0';
 
 
-  calibration_done <= '1' when (top_cal_busy = '0' and bottom_cal_busy = '0') else
+  calibration_done <= '1' when (cal_done = "00") else
                       '0';
 
 
@@ -604,7 +603,6 @@ begin
       hispi_soft_reset          => hispi_soft_reset,
       hispi_pix_clk             => hispi_pix_clk,
       sclk_cal_en               => sclk_cal_en,
-      sclk_cal_busy             => top_cal_busy,
       sclk_cal_done             => top_cal_done,
       sclk_cal_error            => top_cal_error,
       sclk_cal_tap_value        => top_cal_tap_value,
@@ -647,7 +645,6 @@ begin
       hispi_soft_reset          => hispi_soft_reset,
       hispi_pix_clk             => open,
       sclk_cal_en               => sclk_cal_en,
-      sclk_cal_busy             => bottom_cal_busy,
       sclk_cal_done             => bottom_cal_done,
       sclk_cal_error            => bottom_cal_error,
       sclk_cal_tap_value        => bottom_cal_tap_value,

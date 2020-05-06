@@ -155,6 +155,9 @@ architecture rtl of lane_decoder is
         );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
+
   type FSM_STATE_TYPE is (S_UNKNOWN, S_IDLE, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
@@ -199,6 +202,35 @@ architecture rtl of lane_decoder is
   signal pclk_crc_enable : std_logic := '1';  --TBD should be register field
 
   signal aclk_fifo_empty_int : std_logic;
+
+  -----------------------------------------------------------------------------
+  -- Debug attributes on pclk clock domain
+  -----------------------------------------------------------------------------
+  attribute mark_debug of pclk_data           : signal is "true";
+  attribute mark_debug of pclk_data_p1        : signal is "true";
+  attribute mark_debug of pclk_state          : signal is "true";
+  attribute mark_debug of pclk_sync_detected  : signal is "true";
+  attribute mark_debug of pclk_shift_register : signal is "true";
+  attribute mark_debug of pclk_embeded_data   : signal is "true";
+  attribute mark_debug of pclk_crc_enable     : signal is "true";
+  attribute mark_debug of pclk_packer_0       : signal is "true";
+  attribute mark_debug of pclk_packer_1       : signal is "true";
+  attribute mark_debug of pclk_packer_2       : signal is "true";
+  attribute mark_debug of pclk_packer_3       : signal is "true";
+  attribute mark_debug of pclk_packer_0_valid : signal is "true";
+  attribute mark_debug of pclk_packer_1_valid : signal is "true";
+  attribute mark_debug of pclk_packer_2_valid : signal is "true";
+  attribute mark_debug of pclk_packer_3_valid : signal is "true";
+  attribute mark_debug of pclk_dataCntr       : signal is "true";
+  attribute mark_debug of pclk_packer_mux     : signal is "true";
+  attribute mark_debug of pclk_packer_valid   : signal is "true";
+  attribute mark_debug of pclk_sof_flag       : signal is "true";
+  attribute mark_debug of pclk_eof_flag       : signal is "true";
+  attribute mark_debug of pclk_sol_flag       : signal is "true";
+  attribute mark_debug of pclk_eol_flag       : signal is "true";
+  attribute mark_debug of pclk_fifo_wen       : signal is "true";
+  attribute mark_debug of pclk_fifo_overrun   : signal is "true";
+  attribute mark_debug of pclk_fifo_full      : signal is "true";
 
 begin
 
@@ -493,22 +525,6 @@ begin
     end if;
 
   end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Detect IDLE sequence (4 consecutive IDLE characters)
-  -----------------------------------------------------------------------------
-  -- P_idle_sequence_detected : process (pclk_shift_register, rclk_idle_character) is
-  --   variable rclk_idle_quad_vect : std_logic_vector(pclk_shift_register'range);
-  -- begin
-  --   rclk_idle_quad_vect := rclk_idle_character & rclk_idle_character & rclk_idle_character & rclk_idle_character;
-
-  --   if (pclk_shift_register = rclk_idle_quad_vect) then
-  --     idle_sequence_detected <= '1';
-  --   else
-  --     idle_sequence_detected <= '0';
-  --   end if;
-  -- end process;
 
 
   -----------------------------------------------------------------------------

@@ -2,7 +2,7 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/axi_clk
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/axi_reset_n
-add wave -noupdate -expand -group xgs_hispi_top -expand -subitemconfig {/testbench/DUT/x_xgs_hispi_top/regfile.HISPI -expand /testbench/DUT/x_xgs_hispi_top/regfile.HISPI.CTRL -expand} /testbench/DUT/x_xgs_hispi_top/regfile
+add wave -noupdate -expand -group xgs_hispi_top -subitemconfig {/testbench/DUT/x_xgs_hispi_top/regfile.HISPI -expand /testbench/DUT/x_xgs_hispi_top/regfile.HISPI.CTRL -expand /testbench/DUT/x_xgs_hispi_top/regfile.HISPI.STATUS -expand} /testbench/DUT/x_xgs_hispi_top/regfile
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_start_calibration
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_calibration_active
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_pix_clk
@@ -108,7 +108,7 @@ add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI Stream outpu
 add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI Stream output I/F} /testbench/DUT/x_xgs_hispi_top/m_axis_tlast
 add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI Stream output I/F} /testbench/DUT/x_xgs_hispi_top/m_axis_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1242131041 ps} 0}
+WaveRestoreCursors {{Cursor 1} {847142112 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 272
 configure wave -valuecolwidth 100
@@ -124,4 +124,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits us
 update
-WaveRestoreZoom {2011958928 ps} {2961965320 ps}
+WaveRestoreZoom {0 ps} {6966498077 ps}
