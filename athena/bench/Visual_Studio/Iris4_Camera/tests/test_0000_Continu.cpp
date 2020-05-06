@@ -15,9 +15,9 @@
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
+#include "XGS_Data.h"
 
-
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
+void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
@@ -41,6 +41,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
+	DMAParamStruct*    DMAParams    = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
 
@@ -64,10 +65,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	// Init Display with correct X-Y parameters 
 	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-
-	GrabParams->FrameStart = ImageBufferAddr; //Adresse pour DMA
-
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
+
+
+
 
 
 
@@ -85,14 +86,21 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
-	GrabParams->COLOR_SPACE = 0x0;
-
 	XGS_Ctrl->setBlackRef(0);
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
 	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
+
+
+	//---------------------
+    // DMA PARAMETERS
+    //---------------------
+	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
+	DMAParams->LINE_PITCH = SensorParams->Xsize_Full; // Full window MIL display
+	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
+
 
 
 	printf("\n\nTest started at : ");
@@ -159,6 +167,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl)
 		if (XGS_Ctrl->sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP == 0)
 			XGS_Ctrl->WaitEndExpReadout();
 
+		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 
 

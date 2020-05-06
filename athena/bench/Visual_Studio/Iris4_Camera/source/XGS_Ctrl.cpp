@@ -57,12 +57,6 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		0x0,           //STROBE_START;
 		0xfffffff,     //STROBE_END;
 
-		0x00000000,    //FrameStart
-		0x00000000,    //FrameStartG
-		0x00000000,    //FrameStartB
-		0x500,         //LinePitch, 1280pix
-		0x0,           //COLOR_SPACE;
-
 		0,             //Y_START
 		480,           //Y_END	
 

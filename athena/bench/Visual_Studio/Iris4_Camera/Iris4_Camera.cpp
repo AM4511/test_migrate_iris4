@@ -37,8 +37,8 @@ void Test7c706Eprom(CI2C* I2C);
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
 void Help(CXGS_Ctrl* Camera);
-void test_0000_Continu(CXGS_Ctrl* Camera);
-void test_0001_SWtrig(CXGS_Ctrl* Camera);
+void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 
 
@@ -217,13 +217,13 @@ int main(void)
 				break;
 
 			case '0':
-				test_0000_Continu(XGS_Ctrl);
+				test_0000_Continu(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '1':
-				test_0001_SWtrig(XGS_Ctrl);
+				test_0001_SWtrig(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;

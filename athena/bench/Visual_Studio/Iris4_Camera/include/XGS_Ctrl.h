@@ -33,12 +33,6 @@ struct GrabParamStruct
 	M_UINT32 STROBE_START;
 	M_UINT32 STROBE_END;
 
-	M_UINT64 FrameStart;
-	M_UINT64 FrameStartG;
-	M_UINT64 FrameStartR;
-	M_UINT32 LinePitch;
-	M_UINT32 COLOR_SPACE;
-
 	M_UINT32 Y_START;
 	M_UINT32 Y_END;
 

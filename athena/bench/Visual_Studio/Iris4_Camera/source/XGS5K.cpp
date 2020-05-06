@@ -53,7 +53,6 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
 
    GrabParams.FOT = 0; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-   GrabParams.LinePitch           = SensorParams.Xsize_Full; //pour linstant 8bpp
    GrabParams.Y_START             = 0;
    GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
    GrabParams.REVERSE_Y           = 0;
