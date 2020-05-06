@@ -498,7 +498,6 @@ architecture struct of XGS_athena is
   --
   -- 00000000 :  TBD
   -----------------------------------------------------------------------------
-  constant HW_VERSION : std_logic_vector(7 downto 0) := "00000000";
 
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
@@ -538,7 +537,8 @@ architecture struct of XGS_athena is
   signal hispi_eof                : std_logic;
   
   signal dma_idle                 : std_logic := '1'; 
-
+  signal HW_VERSION               : std_logic_vector(7 downto 0) := "00000011";
+  
 begin
 
   -----------------------------------------------------------------------------

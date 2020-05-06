@@ -31,6 +31,9 @@ end entity tap_controller;
 
 architecture rtl of tap_controller is
 
+  attribute mark_debug : string;
+  attribute keep       : string;
+
 
   type FSM_TYPE is (S_IDLE, S_RESET_TAP_CNTR, S_RESET_PIX_CNTR, S_MONITOR, S_EVALUATE, S_EXTRACT_WINDOW, S_CALIBRATION_ERROR, S_INCR_TAP, S_LOAD_TAP, S_DONE);
 
@@ -47,6 +50,23 @@ architecture rtl of tap_controller is
   signal window_high   : unsigned(4 downto 0);
   signal window_center : unsigned(5 downto 0);
 
+
+  -----------------------------------------------------------------------------
+  -- Debug attributes
+  -----------------------------------------------------------------------------
+  attribute mark_debug of state               : signal is "true";
+  attribute mark_debug of tap_cntr            : signal is "true";
+  attribute mark_debug of pixel_cntr          : signal is "true";
+  attribute mark_debug of valid_pixel_cntr    : signal is "true";
+  attribute mark_debug of window_low          : signal is "true";
+  attribute mark_debug of window_high         : signal is "true";
+  attribute mark_debug of pclk_reset          : signal is "true";
+  attribute mark_debug of pclk_cal_tap_value  : signal is "true";
+  attribute mark_debug of pclk_cal_load_tap   : signal is "true";
+  attribute mark_debug of pclk_cal_error      : signal is "true";
+  attribute mark_debug of pclk_cal_busy       : signal is "true";
+  attribute mark_debug of pclk_idle_character : signal is "true";
+  attribute mark_debug of pclk_pixel          : signal is "true";
 
 begin
 

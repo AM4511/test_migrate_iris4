@@ -552,10 +552,14 @@ Register("ctrl", 0x400, 4, "null");
 		Field("sw_calib_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
 			FieldValue("No effect", 0);
 			FieldValue("Initiate the calibration", 1);
-		Field("enable_auto_calib", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("enable_hispi", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("idelayctrl_status", 0x404, 4, "null");
+Register("status", 0x404, 4, "Global status register");
+		Field("fifo_error", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
+		Field("calibration_error", 1, 1, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
+		Field("calibration_done", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
+
+Register("idelayctrl_status", 0x408, 4, "null");
 		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "IDELAYCTRL PLL locked");
 			FieldValue("IDELAYCTRL PLL unlocked", 0);
 			FieldValue("IDELAYCTRL PLL locked", 1);
@@ -572,12 +576,12 @@ Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("lane_decoder_status", 0x408 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
-		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("calibration_error", 6, 6, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("calibration_active", 5, 5, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("calibration_tap_value", 4, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+	Register("lane_decoder_status", 0x40c + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("calibration_tap_value", 8, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_error", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("calibration_active", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
 variable lane_packer_statusTags = UChar_Type[3];
@@ -592,9 +596,9 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x420 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
-		Field("fifo_underrun", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("fifo_overrun", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+	Register("lane_packer_status", 0x424 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
 

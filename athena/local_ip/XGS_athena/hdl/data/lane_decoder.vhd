@@ -45,19 +45,26 @@ entity lane_decoder is
     pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
 
+    ---------------------------------------------------------------------------
+    -- axi_clk clock domain
+    ---------------------------------------------------------------------------
+    aclk       : in std_logic;
+    aclk_reset : in std_logic;
+
     -- Read fifo interface
-    fifo_read_clk        : in  std_logic;
-    fifo_read_en         : in  std_logic;
-    fifo_empty           : out std_logic;
-    fifo_read_data_valid : out std_logic;
-    fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+    aclk_fifo_read_en         : in  std_logic;
+    aclk_fifo_empty           : out std_logic;
+    aclk_fifo_read_data_valid : out std_logic;
+    aclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+    aclk_fifo_overrun         : out std_logic;
+    aclk_fifo_underrun        : out std_logic;
 
     -- Flags detected
-    embeded_data : out std_logic;
-    sof_flag     : out std_logic;
-    eof_flag     : out std_logic;
-    sol_flag     : out std_logic;
-    eol_flag     : out std_logic
+    aclk_embeded_data : out std_logic;
+    aclk_sof_flag     : out std_logic;
+    aclk_eof_flag     : out std_logic;
+    aclk_sol_flag     : out std_logic;
+    aclk_eol_flag     : out std_logic
     );
 end entity lane_decoder;
 
@@ -134,6 +141,23 @@ architecture rtl of lane_decoder is
   end component;
 
 
+  component mtx_resync is
+    port
+      (
+        aClk  : in  std_logic;
+        aClr  : in  std_logic;
+        aDin  : in  std_logic;
+        bclk  : in  std_logic;
+        bclr  : in  std_logic;
+        bDout : out std_logic;
+        bRise : out std_logic;
+        bFall : out std_logic
+        );
+  end component;
+
+  attribute mark_debug : string;
+  attribute keep       : string;
+
   type FSM_STATE_TYPE is (S_UNKNOWN, S_IDLE, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
@@ -151,29 +175,62 @@ architecture rtl of lane_decoder is
 
   signal pclk_hispi_phy_en_Meta : std_logic;
   signal pclk_hispi_phy_en      : std_logic;
+  signal pclk_embeded_data      : std_logic;
+  signal pclk_sof_flag          : std_logic;
+  signal pclk_eof_flag          : std_logic;
+  signal pclk_sol_flag          : std_logic;
+  signal pclk_eol_flag          : std_logic;
+  signal pclk_fifo_overrun      : std_logic;
+  signal pclk_fifo_wen          : std_logic;
+  signal pclk_fifo_full         : std_logic;
+  signal pclk_packer_mux        : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
+  signal pclk_state             : FSM_STATE_TYPE := S_UNKNOWN;
+  signal pclk_dataCntr          : unsigned(2 downto 0);  -- Modulo 8 counter
 
-  signal sync_code_detected : std_logic;
-  --signal idle_sequence_detected : std_logic;
-  signal hispi_fifo_full    : std_logic;
-  signal hispi_fifo_wen     : std_logic;
-  signal state              : FSM_STATE_TYPE := S_UNKNOWN;
-  signal dataCntr           : unsigned(2 downto 0);  -- Modulo 8 counter
+  signal pclk_sync_detected : std_logic;
+  signal pclk_packer_valid  : std_logic;
 
-  signal packer_0_valid : std_logic;
-  signal packer_1_valid : std_logic;
-  signal packer_2_valid : std_logic;
-  signal packer_3_valid : std_logic;
-  signal packer_0       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"00000000";
-  signal packer_1       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"10000000";
-  signal packer_2       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
-  signal packer_3       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
-  signal packer_mux     : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
+  signal pclk_packer_0_valid : std_logic;
+  signal pclk_packer_1_valid : std_logic;
+  signal pclk_packer_2_valid : std_logic;
+  signal pclk_packer_3_valid : std_logic;
+  signal pclk_packer_0       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"00000000";
+  signal pclk_packer_1       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"10000000";
+  signal pclk_packer_2       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
+  signal pclk_packer_3       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
 
-  signal packer_valid : std_logic;
-  signal fifo_overrun : std_logic;
-  signal crc_enable   : std_logic := '1';  --TBD should be register field
-  signal flr_enable   : std_logic := '1';  --TBD should be register field
+  signal pclk_crc_enable : std_logic := '1';  --TBD should be register field
 
+  signal aclk_fifo_empty_int : std_logic;
+
+  -----------------------------------------------------------------------------
+  -- Debug attributes on pclk clock domain
+  -----------------------------------------------------------------------------
+  attribute mark_debug of pclk_data           : signal is "true";
+  attribute mark_debug of pclk_data_p1        : signal is "true";
+  attribute mark_debug of pclk_state          : signal is "true";
+  attribute mark_debug of pclk_sync_detected  : signal is "true";
+  attribute mark_debug of pclk_shift_register : signal is "true";
+  attribute mark_debug of pclk_embeded_data   : signal is "true";
+  attribute mark_debug of pclk_crc_enable     : signal is "true";
+  attribute mark_debug of pclk_packer_0       : signal is "true";
+  attribute mark_debug of pclk_packer_1       : signal is "true";
+  attribute mark_debug of pclk_packer_2       : signal is "true";
+  attribute mark_debug of pclk_packer_3       : signal is "true";
+  attribute mark_debug of pclk_packer_0_valid : signal is "true";
+  attribute mark_debug of pclk_packer_1_valid : signal is "true";
+  attribute mark_debug of pclk_packer_2_valid : signal is "true";
+  attribute mark_debug of pclk_packer_3_valid : signal is "true";
+  attribute mark_debug of pclk_dataCntr       : signal is "true";
+  attribute mark_debug of pclk_packer_mux     : signal is "true";
+  attribute mark_debug of pclk_packer_valid   : signal is "true";
+  attribute mark_debug of pclk_sof_flag       : signal is "true";
+  attribute mark_debug of pclk_eof_flag       : signal is "true";
+  attribute mark_debug of pclk_sol_flag       : signal is "true";
+  attribute mark_debug of pclk_eol_flag       : signal is "true";
+  attribute mark_debug of pclk_fifo_wen       : signal is "true";
+  attribute mark_debug of pclk_fifo_overrun   : signal is "true";
+  attribute mark_debug of pclk_fifo_full      : signal is "true";
 
 begin
 
@@ -264,92 +321,92 @@ begin
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
-        packer_0_valid <= '0';
-        packer_1_valid <= '0';
-        packer_2_valid <= '0';
-        packer_3_valid <= '0';
+        pclk_packer_0_valid <= '0';
+        pclk_packer_1_valid <= '0';
+        pclk_packer_2_valid <= '0';
+        pclk_packer_3_valid <= '0';
       else
-        if (state = S_AIL) then
-          case dataCntr is
+        if (pclk_state = S_AIL) then
+          case pclk_dataCntr is
             -------------------------------------------------------------------
-            -- Phase 0 : Packing pixel from lane 0 in packer_0
+            -- Phase 0 : Packing pixel from lane 0 in pclk_packer_0
             -------------------------------------------------------------------
             when "000" =>
-              packer_0_valid        <= '0';
-              packer_1_valid        <= '0';
-              packer_2_valid        <= '0';
-              packer_3_valid        <= '0';
-              packer_0(11 downto 0) <= pclk_data_p1;
+              pclk_packer_0_valid        <= '0';
+              pclk_packer_1_valid        <= '0';
+              pclk_packer_2_valid        <= '0';
+              pclk_packer_3_valid        <= '0';
+              pclk_packer_0(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 1 : Packing pixel from lane 1 in packer_1
+            -- Phase 1 : Packing pixel from lane 1 in pclk_packer_1
             -------------------------------------------------------------------
             when "001" =>
-              packer_0_valid        <= '0';
-              packer_1_valid        <= '0';
-              packer_2_valid        <= '0';
-              packer_3_valid        <= '0';
-              packer_1(11 downto 0) <= pclk_data_p1;
+              pclk_packer_0_valid        <= '0';
+              pclk_packer_1_valid        <= '0';
+              pclk_packer_2_valid        <= '0';
+              pclk_packer_3_valid        <= '0';
+              pclk_packer_1(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 2 : Packing pixel from lane 2 in packer_2 
+            -- Phase 2 : Packing pixel from lane 2 in pclk_packer_2 
             -------------------------------------------------------------------
             when "010" =>
-              packer_0_valid        <= '0';
-              packer_1_valid        <= '0';
-              packer_2_valid        <= '0';
-              packer_3_valid        <= '0';
-              packer_2(11 downto 0) <= pclk_data_p1;
+              pclk_packer_0_valid        <= '0';
+              pclk_packer_1_valid        <= '0';
+              pclk_packer_2_valid        <= '0';
+              pclk_packer_3_valid        <= '0';
+              pclk_packer_2(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 3 : Packing pixel from lane 3 in packer_3
+            -- Phase 3 : Packing pixel from lane 3 in pclk_packer_3
             -------------------------------------------------------------------
             when "011" =>
-              packer_0_valid        <= '0';
-              packer_1_valid        <= '0';
-              packer_2_valid        <= '0';
-              packer_3_valid        <= '0';
-              packer_3(11 downto 0) <= pclk_data_p1;
+              pclk_packer_0_valid        <= '0';
+              pclk_packer_1_valid        <= '0';
+              pclk_packer_2_valid        <= '0';
+              pclk_packer_3_valid        <= '0';
+              pclk_packer_3(11 downto 0) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 4 : Packing pixel from lane 0 in packer_0 and ready to flush
+            -- Phase 4 : Packing pixel from lane 0 in pclk_packer_0 and ready to flush
             -------------------------------------------------------------------
             when "100" =>
-              packer_0_valid         <= '1';
-              packer_1_valid         <= '0';
-              packer_2_valid         <= '0';
-              packer_3_valid         <= '0';
-              packer_0(27 downto 16) <= pclk_data_p1;
+              pclk_packer_0_valid         <= '1';
+              pclk_packer_1_valid         <= '0';
+              pclk_packer_2_valid         <= '0';
+              pclk_packer_3_valid         <= '0';
+              pclk_packer_0(27 downto 16) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 5 : Packing pixel from lane 1 in packer_1 and ready to flush
+            -- Phase 5 : Packing pixel from lane 1 in pclk_packer_1 and ready to flush
             -------------------------------------------------------------------
             when "101" =>
-              packer_0_valid         <= '0';
-              packer_1_valid         <= '1';
-              packer_2_valid         <= '0';
-              packer_3_valid         <= '0';
-              packer_1(27 downto 16) <= pclk_data_p1;
+              pclk_packer_0_valid         <= '0';
+              pclk_packer_1_valid         <= '1';
+              pclk_packer_2_valid         <= '0';
+              pclk_packer_3_valid         <= '0';
+              pclk_packer_1(27 downto 16) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 6 : Packing pixel from lane 2 in packer_2 and ready to flush
+            -- Phase 6 : Packing pixel from lane 2 in pclk_packer_2 and ready to flush
             -------------------------------------------------------------------
             when "110" =>
-              packer_0_valid         <= '0';
-              packer_1_valid         <= '0';
-              packer_2_valid         <= '1';
-              packer_3_valid         <= '0';
-              packer_2(27 downto 16) <= pclk_data_p1;
+              pclk_packer_0_valid         <= '0';
+              pclk_packer_1_valid         <= '0';
+              pclk_packer_2_valid         <= '1';
+              pclk_packer_3_valid         <= '0';
+              pclk_packer_2(27 downto 16) <= pclk_data_p1;
 
             -------------------------------------------------------------------
-            -- Phase 7 : Packing pixel from lane 3 in packer_3 and ready to flush
+            -- Phase 7 : Packing pixel from lane 3 in pclk_packer_3 and ready to flush
             -------------------------------------------------------------------
             when "111" =>
-              packer_0_valid         <= '0';
-              packer_1_valid         <= '0';
-              packer_2_valid         <= '0';
-              packer_3_valid         <= '1';
-              packer_3(27 downto 16) <= pclk_data_p1;
+              pclk_packer_0_valid         <= '0';
+              pclk_packer_1_valid         <= '0';
+              pclk_packer_2_valid         <= '0';
+              pclk_packer_3_valid         <= '1';
+              pclk_packer_3(27 downto 16) <= pclk_data_p1;
             when others =>
               null;
           end case;
@@ -358,10 +415,10 @@ begin
         -- Any other states, no data valid (No packing)
         -----------------------------------------------------------------------
         else
-          packer_0_valid <= '0';
-          packer_1_valid <= '0';
-          packer_2_valid <= '0';
-          packer_3_valid <= '0';
+          pclk_packer_0_valid <= '0';
+          pclk_packer_1_valid <= '0';
+          pclk_packer_2_valid <= '0';
+          pclk_packer_3_valid <= '0';
         end if;
       end if;
     end if;
@@ -369,42 +426,42 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : packer_mux 
+  -- Process     : pclk_pclk_packer_mux 
   -- Description : 4-to-1 Multiplexer
   -----------------------------------------------------------------------------
-  packer_mux <= packer_0 when (dataCntr = "101") else
-                packer_1 when (dataCntr = "110") else
-                packer_2 when (dataCntr = "111") else
-                packer_3 when (dataCntr = "000") else
-                (others => '0');
+  pclk_packer_mux <= pclk_packer_0 when (pclk_dataCntr = "101") else
+                     pclk_packer_1 when (pclk_dataCntr = "110") else
+                     pclk_packer_2 when (pclk_dataCntr = "111") else
+                     pclk_packer_3 when (pclk_dataCntr = "000") else
+                     (others => '0');
 
 
-  packer_valid <= '1' when (dataCntr = "101" and packer_0_valid = '1') else
-                  '1' when (dataCntr = "110" and packer_1_valid = '1') else
-                  '1' when (dataCntr = "111" and packer_2_valid = '1') else
-                  '1' when (dataCntr = "000" and packer_3_valid = '1') else
-                  '0';
+  pclk_packer_valid <= '1' when (pclk_dataCntr = "101" and pclk_packer_0_valid = '1') else
+                       '1' when (pclk_dataCntr = "110" and pclk_packer_1_valid = '1') else
+                       '1' when (pclk_dataCntr = "111" and pclk_packer_2_valid = '1') else
+                       '1' when (pclk_dataCntr = "000" and pclk_packer_3_valid = '1') else
+                       '0';
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_dataCntr
+  -- Process     : P_pclk_dataCntr
   -- Description : Modulo 8 phase counter. Used to de-interlace data from
   --               4 lanes. 
   -----------------------------------------------------------------------------
-  P_dataCntr : process (pclk) is
+  P_pclk_dataCntr : process (pclk) is
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
         -- initialize with max count value
-        dataCntr <= (others => '1');
+        pclk_dataCntr <= (others => '1');
       else
         -- Align the counter phase with the line sync
-        if (sync_code_detected = '1') then
-          dataCntr <= (others => '1');
+        if (pclk_sync_detected = '1') then
+          pclk_dataCntr <= (others => '1');
         -- As long as valid pixels are received, count modulo 8
         -- then wrap around.
-        elsif (pclk_hispi_phy_en = '1'and state /= S_IDLE) then
-          dataCntr <= dataCntr + 1;
+        elsif (pclk_hispi_phy_en = '1'and pclk_state /= S_IDLE) then
+          pclk_dataCntr <= pclk_dataCntr + 1;
         end if;
       end if;
     end if;
@@ -462,62 +519,42 @@ begin
     if (
       (pclk_shift_register(msb downto lsb) = X"FFF000000")
       ) then
-      sync_code_detected <= '1';
+      pclk_sync_detected <= '1';
     else
-      sync_code_detected <= '0';
+      pclk_sync_detected <= '0';
     end if;
 
   end process;
 
 
   -----------------------------------------------------------------------------
-  -- Detect IDLE sequence (4 consecutive IDLE characters)
-  -----------------------------------------------------------------------------
-  -- P_idle_sequence_detected : process (pclk_shift_register, rclk_idle_character) is
-  --   variable rclk_idle_quad_vect : std_logic_vector(pclk_shift_register'range);
-  -- begin
-  --   rclk_idle_quad_vect := rclk_idle_character & rclk_idle_character & rclk_idle_character & rclk_idle_character;
-
-  --   if (pclk_shift_register = rclk_idle_quad_vect) then
-  --     idle_sequence_detected <= '1';
-  --   else
-  --     idle_sequence_detected <= '0';
-  --   end if;
-  -- end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_state
+  -- Process     : P_pclk_state
   -- Description : Decode the hispi protocol state
   -----------------------------------------------------------------------------
-  P_state : process (pclk) is
+  P_pclk_state : process (pclk) is
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1' or pclk_hispi_phy_en = '0')then
-        state        <= S_UNKNOWN;
-        embeded_data <= '1';
+        pclk_state        <= S_UNKNOWN;
+        pclk_embeded_data <= '1';
       else
-        -- if (idle_sequence_detected = '1') then
-        --   state        <= S_IDLE;
-        --   embeded_data <= '1';
-        -- else
-        case state is
+        case pclk_state is
           -------------------------------------------------------------------
           -- S_IDLE : 
           -------------------------------------------------------------------
           when S_IDLE =>
-            if (sync_code_detected = '1') then
+            if (pclk_sync_detected = '1') then
               if (pclk_shift_register(11 downto 8) = "1100") then
-                state        <= S_SOF;
-                embeded_data <= pclk_shift_register(7);
+                pclk_state        <= S_SOF;
+                pclk_embeded_data <= pclk_shift_register(7);
               elsif(pclk_shift_register(11 downto 8) = "1000") then
-                state        <= S_SOL;
-                embeded_data <= pclk_shift_register(7);
+                pclk_state        <= S_SOL;
+                pclk_embeded_data <= pclk_shift_register(7);
               else
-                state <= S_ERROR;
+                pclk_state <= S_ERROR;
               end if;
             else
-              state <= S_IDLE;
+              pclk_state <= S_IDLE;
             end if;
 
 
@@ -525,24 +562,24 @@ begin
           -- S_SOF : 
           -------------------------------------------------------------------
           when S_SOF =>
-            state <= S_AIL;
+            pclk_state <= S_AIL;
 
 
           -------------------------------------------------------------------
           -- S_SOL : 
           -------------------------------------------------------------------
           when S_SOL =>
-            state <= S_AIL;
+            pclk_state <= S_AIL;
 
 
           -------------------------------------------------------------------
           -- S_EOF : 
           -------------------------------------------------------------------
           when S_EOF =>
-            if (crc_enable = '1') then
-              state <= S_CRC1;
+            if (pclk_crc_enable = '1') then
+              pclk_state <= S_CRC1;
             else
-              state <= S_IDLE;
+              pclk_state <= S_IDLE;
             end if;
 
 
@@ -550,10 +587,10 @@ begin
           -- S_EOL : 
           -------------------------------------------------------------------
           when S_EOL =>
-            if (crc_enable = '1') then
-              state <= S_CRC1;
+            if (pclk_crc_enable = '1') then
+              pclk_state <= S_CRC1;
             else
-              state <= S_IDLE;
+              pclk_state <= S_IDLE;
             end if;
 
 
@@ -561,16 +598,16 @@ begin
           -- S_AIL : 
           -------------------------------------------------------------------
           when S_AIL =>
-            if (sync_code_detected = '1') then
+            if (pclk_sync_detected = '1') then
               if(pclk_shift_register(11 downto 9) = "111") then
-                state <= S_EOF;
+                pclk_state <= S_EOF;
               elsif(pclk_shift_register(11 downto 9) = "101") then
-                state <= S_EOL;
+                pclk_state <= S_EOL;
               else
-                state <= S_ERROR;
+                pclk_state <= S_ERROR;
               end if;
             else
-              state <= S_AIL;
+              pclk_state <= S_AIL;
             end if;
 
 
@@ -578,56 +615,55 @@ begin
           -- S_CRC1 : 
           -------------------------------------------------------------------
           when S_CRC1 =>
-            state <= S_CRC2;
+            pclk_state <= S_CRC2;
 
 
           -------------------------------------------------------------------
           -- S_CRC2 : 
           -------------------------------------------------------------------
           when S_CRC2 =>
-            state <= S_IDLE;
+            pclk_state <= S_IDLE;
 
 
           -------------------------------------------------------------------
           -- S_ERROR : 
           -------------------------------------------------------------------
           when S_ERROR =>
-            state <= S_UNKNOWN;
+            pclk_state <= S_UNKNOWN;
 
 
           -------------------------------------------------------------------
           -- 
           -------------------------------------------------------------------
           when others =>
-            state <= S_IDLE;
+            pclk_state <= S_IDLE;
 
         end case;
-      --end if;
       end if;
     end if;
-  end process P_state;
+  end process P_pclk_state;
 
 
-  sof_flag <= '1' when (state = S_SOF) else '0';
-  eof_flag <= '1' when (state = S_EOF) else '0';
-  sol_flag <= '1' when (state = S_SOL) else '0';
-  eol_flag <= '1' when (state = S_EOL) else '0';
+  pclk_sof_flag <= '1' when (pclk_state = S_SOF) else '0';
+  pclk_eof_flag <= '1' when (pclk_state = S_EOF) else '0';
+  pclk_sol_flag <= '1' when (pclk_state = S_SOL) else '0';
+  pclk_eol_flag <= '1' when (pclk_state = S_EOL) else '0';
 
 
-  hispi_fifo_wen <= '1' when (state = S_AIL and packer_valid = '1') else
-                    '0';
+  pclk_fifo_wen <= '1' when (pclk_state = S_AIL and pclk_packer_valid = '1') else
+                   '0';
 
 
-  P_fifo_overrun : process (pclk) is
+  P_pclk_fifo_overrun : process (pclk) is
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1')then
-        fifo_overrun <= '0';
+        pclk_fifo_overrun <= '0';
       else
-        if (hispi_fifo_full = '1' and hispi_fifo_wen = '1') then
-          fifo_overrun <= '1';
+        if (pclk_fifo_full = '1' and pclk_fifo_wen = '1') then
+          pclk_fifo_overrun <= '1';
         else
-          fifo_overrun <= '0';
+          pclk_fifo_overrun <= '0';
         end if;
       end if;
     end if;
@@ -648,24 +684,148 @@ begin
     (
       aClr   => pclk_reset,
       wClk   => pclk,
-      wEn    => hispi_fifo_wen,
-      wData  => packer_mux,
-      wFull  => hispi_fifo_full,
-      rClk   => fifo_read_clk,
-      rEn    => fifo_read_en,
-      rData  => fifo_read_data,
-      rEmpty => fifo_empty
+      wEn    => pclk_fifo_wen,
+      wData  => pclk_packer_mux,
+      wFull  => pclk_fifo_full,
+      rClk   => aclk,
+      rEn    => aclk_fifo_read_en,
+      rData  => aclk_fifo_read_data,
+      rEmpty => aclk_fifo_empty_int
+      );
+
+
+
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_embeded_data
+  -----------------------------------------------------------------------------
+  M_aclk_embeded_data : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_embeded_data,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_embeded_data,
+      bRise => open,
+      bFall => open
+      );
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_sof_flag
+  -----------------------------------------------------------------------------
+  M_aclk_sof_flag : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_sof_flag,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_sof_flag,
+      bRise => open,
+      bFall => open
+      );
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_eof_flag
+  -----------------------------------------------------------------------------
+  M_aclk_eof_flag : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_eof_flag,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_eof_flag,
+      bRise => open,
+      bFall => open
+      );
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_sol_flag
+  -----------------------------------------------------------------------------
+  M_aclk_sol_flag : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_sol_flag,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_sol_flag,
+      bRise => open,
+      bFall => open
+      );
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_eof_flag
+  -----------------------------------------------------------------------------
+  M_aclk_eol_flag : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_eol_flag,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_eol_flag,
+      bRise => open,
+      bFall => open
       );
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_fifo_read_data_valid
-  -- Description : Data valid flag.
+  -- Resync aclk_eof_flag
   -----------------------------------------------------------------------------
-  P_fifo_read_data_valid : process (fifo_read_clk) is
+  M_aclk_fifo_overrun : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_fifo_overrun,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_fifo_overrun,
+      bRise => open,
+      bFall => open
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_fifo_read_data_valid
+  -- Description : Indicates presence of read data on the FiFo read data bus.
+  -----------------------------------------------------------------------------
+  P_aclk_fifo_read_data_valid : process (aclk) is
   begin
-    if (rising_edge(fifo_read_clk)) then
-      fifo_read_data_valid <= fifo_read_en;
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1') then
+        aclk_fifo_read_data_valid <= '0';
+      else
+        aclk_fifo_read_data_valid <= aclk_fifo_read_en;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_fifo_underrun
+  -- Description : Flag a FiFo underrun error condition
+  -----------------------------------------------------------------------------
+  P_aclk_fifo_underrun : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1') then
+        aclk_fifo_underrun <= '0';
+      else
+        if (aclk_fifo_read_en = '1' and aclk_fifo_empty_int = '1') then
+          aclk_fifo_underrun <= '1';
+        else
+          aclk_fifo_underrun <= '0';
+        end if;
+      end if;
     end if;
   end process;
 
@@ -673,6 +833,8 @@ begin
   -----------------------------------------------------------------------------
   -- Send the pixel clock to the higher level of hierarchy 
   -----------------------------------------------------------------------------
-  pix_clk <= pclk;
+  pix_clk         <= pclk;
+  aclk_fifo_empty <= aclk_fifo_empty_int;
+
 
 end architecture rtl;
