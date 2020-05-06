@@ -732,7 +732,7 @@
       <fields name="dpc_list_corr_x" description="This is X location of the pixel read from the DPC list." size="12" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="428">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="42C">
     <registers name="CTRL">
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
@@ -745,26 +745,30 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initiate the calibration&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="ENABLE_AUTO_CALIB" lsb="1"/>
       <fields name="ENABLE_HISPI"/>
     </registers>
-    <registers name="IDELAYCTRL_STATUS" offsetFromParent="4">
+    <registers name="STATUS" alias="Global status register" offsetFromParent="4">
+      <fields name="FIFO_ERROR" alias="Calibration active " lsb="2" readWrite="false" readOnly="true"/>
+      <fields name="CALIBRATION_ERROR" alias="Calibration active " lsb="1" readWrite="false" readOnly="true"/>
+      <fields name="CALIBRATION_DONE" alias="Calibration active " readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="IDELAYCTRL_STATUS" offsetFromParent="8">
       <fields name="PLL_LOCKED" alias="IDELAYCTRL PLL locked" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IDELAYCTRL PLL unlocked&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>IDELAYCTRL PLL locked&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="LANE_DECODER_STATUS" offsetFromParent="8" useMultiples="true" numberOfMultiples="6">
-      <fields name="FIFO_UNDERRUN" lsb="8"/>
-      <fields name="FIFO_OVERRUN" lsb="7"/>
-      <fields name="CALIBRATION_ERROR" lsb="6"/>
-      <fields name="CALIBRATION_ACTIVE" lsb="5" readWrite="false" readOnly="true"/>
-      <fields name="CALIBRATION_TAP_VALUE" size="5" readWrite="false" readOnly="true"/>
+    <registers name="LANE_DECODER_STATUS" offsetFromParent="C" useMultiples="true" numberOfMultiples="6">
+      <fields name="CALIBRATION_TAP_VALUE" lsb="4" size="5" readWrite="false" readOnly="true"/>
+      <fields name="CALIBRATION_ERROR" lsb="3" readWrite="false" readWriteToClear="true"/>
+      <fields name="CALIBRATION_ACTIVE" lsb="2" readWrite="false" readOnly="true"/>
+      <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
+      <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="20" useMultiples="true" numberOfMultiples="3">
-      <fields name="FIFO_UNDERRUN" lsb="8"/>
-      <fields name="FIFO_OVERRUN" lsb="7"/>
+    <registers name="LANE_PACKER_STATUS" offsetFromParent="24" useMultiples="true" numberOfMultiples="3">
+      <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
+      <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
   </registerFileAbstractNodes>
   <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>

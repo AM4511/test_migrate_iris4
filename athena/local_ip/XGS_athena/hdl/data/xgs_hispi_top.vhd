@@ -1,3 +1,16 @@
+-------------------------------------------------------------------------------
+-- MODULE        : xgs_hispi_top
+--
+-- DESCRIPTION   : 
+--
+-- CLOCK DOMAINS : 
+--                 
+--                 
+--
+-- TODO          : Clarify clock domain crossing
+--                 Add more explicit comments
+--
+-------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -94,19 +107,26 @@ architecture rtl of xgs_hispi_top is
       hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
       hispi_serial_input_n : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
 
+      ---------------------------------------------------------------------------
+      -- axi_clk clock domain
+      ---------------------------------------------------------------------------
+      aclk       : in std_logic;
+      aclk_reset : in std_logic;
+
       -- Read fifo interface
-      fifo_read_clk        : in  std_logic;
-      fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
-      fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_overrun         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_fifo_underrun        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
 
       -- Flags detected
-      embeded_data : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      eof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      eol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+      aclk_embeded_data : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_sof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_eof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_sol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_eol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0)
       );
   end component;
 
@@ -285,7 +305,7 @@ architecture rtl of xgs_hispi_top is
   -- attribute IODELAY_GROUP of xIDELAYCTRL : label is "hispi_phy_xilinx_group";
 
 
-  type FSM_TYPE is (S_IDLE, S_INIT, S_DISABLED, S_CALIBRATE, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
@@ -293,20 +313,16 @@ architecture rtl of xgs_hispi_top is
   signal new_line_pending  : std_logic;
   signal new_frame_pending : std_logic;
 
-  signal sclk_cal_en       : std_logic;
-  --signal cal_load_tap : std_logic;
-  signal sclk_cal_error    : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  --signal cal_busy     : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  signal cal_done          : std_logic_vector(1 downto 0);
-  signal calibrate_en_Meta : std_logic;
-  signal calibrate_en      : std_logic;
-
---  signal top_cal_en        : std_logic;
-  signal top_cal_busy      : std_logic;
-  signal top_cal_done      : std_logic;
-  signal top_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
---  signal top_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal sclk_cal_en             : std_logic;
+  signal sclk_cal_error          : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal cal_done                : std_logic_vector(1 downto 0);
+  signal xgs_ctrl_calib_req_Meta : std_logic;
+  signal xgs_ctrl_calib_req      : std_logic;
+  signal calibration_pending     : std_logic;
+  signal top_cal_busy            : std_logic;
+  signal top_cal_done            : std_logic;
+  signal top_cal_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_cal_tap_value       : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
   signal top_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -319,13 +335,13 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_overrun         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  --signal bottom_cal_en               : std_logic;
   signal bottom_cal_busy             : std_logic;
   signal bottom_cal_done             : std_logic;
   signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
---  signal bottom_cal_load_tap         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
   signal bottom_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -338,8 +354,10 @@ architecture rtl of xgs_hispi_top is
   signal bottom_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_fifo_overrun         : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
-  signal state : FSM_TYPE;
+  signal state : FSM_TYPE := S_IDLE;
 
   signal row_id           : std_logic_vector(11 downto 0);
   signal packer_busy      : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
@@ -373,17 +391,10 @@ architecture rtl of xgs_hispi_top is
   signal buff_addr  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buff_data  : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
-  signal sync : std_logic_vector(1 downto 0);
-
-  signal strm_packer_sel       : std_logic_vector(1 downto 0);
-  signal strm_buffer_sel       : std_logic_vector(1 downto 0);
-  signal strm_sbuff_clr        : std_logic;
-  signal strm_sbuff_rden       : std_logic;
-  signal strm_sbuff_data_valid : std_logic;
-  signal strm_sbuff_rddata     : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-  signal strm_sbuff_count      : std_logic_vector(11 downto 0);
-  signal buffer_enable         : std_logic;
-  signal number_of_row         : std_logic_vector(11 downto 0);
+  signal sync            : std_logic_vector(1 downto 0);
+  signal hispi_eof_pulse : std_logic_vector(3 downto 0);
+  signal buffer_enable   : std_logic;
+  signal number_of_row   : std_logic_vector(11 downto 0);
 
   signal line_buffer_read    : std_logic;
   signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -391,28 +402,106 @@ architecture rtl of xgs_hispi_top is
   signal line_buffer_count   : std_logic_vector(11 downto 0);
   signal line_buffer_line_id : std_logic_vector(11 downto 0);
   signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-  signal capture_enable      : std_logic := '1';  -- TMP should be register
 
+  -- register mapping signals
+  signal hispi_soft_reset : std_logic;
+  signal enable_hispi     : std_logic;
+
+  -- Status lane decoder (sldec)
+  signal sldec_fifo_overrun  : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal sldec_fifo_underrun : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal sldec_cal_error     : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+
+  -- Status lane packer (slpack)
+  signal slpack_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal slpack_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal fifo_error           : std_logic;
+  signal calibration_error    : std_logic;
+  signal calibration_done     : std_logic;
 
 begin
 
 
+  -----------------------------------------------------------------------------
+  -- Registerfile mapping
+  -----------------------------------------------------------------------------
+  enable_hispi     <= regfile.HISPI.CTRL.ENABLE_HISPI;
+  hispi_soft_reset <= regfile.HISPI.CTRL.SW_CLR_HISPI;
+
+
+  sclk_cal_en <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
+                 '1' when (xgs_ctrl_calib_req = '1') else
+                 '0';
+
+
+  G_lane_decoder_status : for i in 0 to LANE_PER_PHY-1 generate
+    -- Even lanes (Top lanes)
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN_set      <= top_fifo_overrun(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN_set     <= top_fifo_underrun(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR_set <= top_cal_error(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE    <= top_cal_busy;
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_TAP_VALUE <= top_cal_tap_value(5*i+4 downto 5*i);
+
+    sldec_fifo_overrun(2*i)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN;
+    sldec_fifo_underrun(2*i) <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN;
+    sldec_cal_error(2*i)     <= regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR;
+
+    -- Odd lanes (Bottom lanes)
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN_set      <= bottom_fifo_overrun(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN_set     <= bottom_fifo_underrun(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR_set <= bottom_cal_error(i);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE    <= bottom_cal_busy;
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_TAP_VALUE <= bottom_cal_tap_value(5*i+4 downto 5*i);
+
+    sldec_fifo_overrun(2*i+1)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN;
+    sldec_fifo_underrun(2*i+1) <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN;
+    sldec_cal_error(2*i+1)     <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR;
+  end generate G_lane_decoder_status;
+
+
+  G_lane_packer_status : for i in 0 to NUMB_LANE_PACKER-1 generate
+    regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_OVERRUN_set  <= packer_fifo_overrun(i);
+    regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_UNDERRUN_set <= packer_fifo_underrun(i);
+    slpack_fifo_overrun(i)                                <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_OVERRUN;
+    slpack_fifo_underrun(i)                               <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_UNDERRUN;
+  end generate G_lane_packer_status;
+
+
+  fifo_error <= '1' when (sldec_fifo_overrun /= (sldec_fifo_overrun'range => '0')) else
+                '1' when (sldec_fifo_underrun /= (sldec_fifo_underrun'range   => '0')) else
+                '1' when (slpack_fifo_overrun /= (slpack_fifo_overrun'range   => '0')) else
+                '1' when (slpack_fifo_underrun /= (slpack_fifo_underrun'range => '0')) else
+                '0';
+
+
+  calibration_error <= '1' when (sldec_cal_error /= (sldec_cal_error'range => '0')) else
+                       '0';
+
+
+  calibration_done <= '1' when (top_cal_busy = '0' and bottom_cal_busy = '0') else
+                      '0';
+
+
+  regfile.HISPI.STATUS.FIFO_ERROR        <= fifo_error;
+  regfile.HISPI.STATUS.CALIBRATION_ERROR <= calibration_error;
+  regfile.HISPI.STATUS.CALIBRATION_DONE  <= calibration_done;
 
   -----------------------------------------------------------------------------
-  -- Process     : P_calibrate_en
-  -- Description : 
+  -- Process     : P_xgs_ctrl_calib_req
+  -- Description : Flag sent by the XGS_controller to initiate a calibrartion
+  --               sequence
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING??
   -----------------------------------------------------------------------------
-  P_calibrate_en : process (axi_clk) is
+  P_xgs_ctrl_calib_req : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
-        calibrate_en_Meta <= '0';
-        calibrate_en      <= '0';
+      if (axi_reset = '1') then
+        xgs_ctrl_calib_req_Meta <= '0';
+        xgs_ctrl_calib_req      <= '0';
       else
-        calibrate_en_Meta <= hispi_start_calibration;
-        calibrate_en      <= calibrate_en_Meta;
+        xgs_ctrl_calib_req_Meta <= hispi_start_calibration;
+        xgs_ctrl_calib_req      <= xgs_ctrl_calib_req_Meta;
       end if;
     end if;
   end process;
@@ -425,13 +514,32 @@ begin
   P_hispi_calibration_active : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         hispi_calibration_active <= '0';
       else
         if (state = S_CALIBRATE) then
           hispi_calibration_active <= '1';
         else
           hispi_calibration_active <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_calibration_pending
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_calibration_pending : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset = '1') then
+        calibration_pending <= '0';
+      else
+        if (state = S_CALIBRATE) then
+          calibration_pending <= '0';
+        elsif (sclk_cal_en = '1') then
+          calibration_pending <= '1';
         end if;
       end if;
     end if;
@@ -478,10 +586,6 @@ begin
     bottom_lanes_n(i) <= hispi_io_data_n(2*i+1);
   end generate G_lanes;
 
-  sclk_cal_en <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
-                 '1' when (calibrate_en = '1') else
-                 '0';
-
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : TOP lanes hispi phy. Provides one serdes for interfacing
@@ -493,31 +597,34 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                 => axi_clk,
-      srst                 => axi_reset,
-      idle_character       => idle_character,
-      hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
-      hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
-      hispi_pix_clk        => hispi_pix_clk,
-      sclk_cal_en          => sclk_cal_en,
-      sclk_cal_busy        => top_cal_busy,
-      sclk_cal_done        => top_cal_done,
-      sclk_cal_error       => top_cal_error,
-      sclk_cal_tap_value   => top_cal_tap_value,
-      hispi_serial_clk_p   => hispi_io_clk_p(0),
-      hispi_serial_clk_n   => hispi_io_clk_n(0),
-      hispi_serial_input_p => top_lanes_p,
-      hispi_serial_input_n => top_lanes_n,
-      fifo_read_clk        => axi_clk,
-      fifo_read_en         => top_fifo_read_en,
-      fifo_empty           => top_fifo_empty,
-      fifo_read_data_valid => top_fifo_read_data_valid,
-      fifo_read_data       => top_fifo_read_data,
-      embeded_data         => top_embeded_data,
-      sof_flag             => top_sof_flag,
-      eof_flag             => top_eof_flag,
-      sol_flag             => top_sol_flag,
-      eol_flag             => top_eol_flag
+      sclk                      => axi_clk,
+      srst                      => axi_reset,
+      idle_character            => idle_character,
+      hispi_phy_en              => enable_hispi,
+      hispi_soft_reset          => hispi_soft_reset,
+      hispi_pix_clk             => hispi_pix_clk,
+      sclk_cal_en               => sclk_cal_en,
+      sclk_cal_busy             => top_cal_busy,
+      sclk_cal_done             => top_cal_done,
+      sclk_cal_error            => top_cal_error,
+      sclk_cal_tap_value        => top_cal_tap_value,
+      hispi_serial_clk_p        => hispi_io_clk_p(0),
+      hispi_serial_clk_n        => hispi_io_clk_n(0),
+      hispi_serial_input_p      => top_lanes_p,
+      hispi_serial_input_n      => top_lanes_n,
+      aclk                      => axi_clk,
+      aclk_reset                => axi_reset,
+      aclk_fifo_read_en         => top_fifo_read_en,
+      aclk_fifo_empty           => top_fifo_empty,
+      aclk_fifo_read_data_valid => top_fifo_read_data_valid,
+      aclk_fifo_read_data       => top_fifo_read_data,
+      aclk_fifo_overrun         => top_fifo_overrun,
+      aclk_fifo_underrun        => top_fifo_underrun,
+      aclk_embeded_data         => top_embeded_data,
+      aclk_sof_flag             => top_sof_flag,
+      aclk_eof_flag             => top_eof_flag,
+      aclk_sol_flag             => top_sol_flag,
+      aclk_eol_flag             => top_eol_flag
       );
 
 
@@ -533,31 +640,34 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                 => axi_clk,
-      srst                 => axi_reset,
-      idle_character       => idle_character,
-      hispi_phy_en         => regfile.HISPI.CTRL.ENABLE_HISPI,
-      hispi_soft_reset     => regfile.HISPI.CTRL.SW_CLR_HISPI,
-      hispi_pix_clk        => open,
-      sclk_cal_en          => sclk_cal_en,
-      sclk_cal_busy        => bottom_cal_busy,
-      sclk_cal_done        => bottom_cal_done,
-      sclk_cal_error       => bottom_cal_error,
-      sclk_cal_tap_value   => bottom_cal_tap_value,
-      hispi_serial_clk_p   => hispi_io_clk_p(1),
-      hispi_serial_clk_n   => hispi_io_clk_n(1),
-      hispi_serial_input_p => bottom_lanes_p,
-      hispi_serial_input_n => bottom_lanes_n,
-      fifo_read_clk        => axi_clk,
-      fifo_read_en         => bottom_fifo_read_en,
-      fifo_empty           => bottom_fifo_empty,
-      fifo_read_data_valid => bottom_fifo_read_data_valid,
-      fifo_read_data       => bottom_fifo_read_data,
-      embeded_data         => bottom_embeded_data,
-      sof_flag             => bottom_sof_flag,
-      eof_flag             => bottom_eof_flag,
-      sol_flag             => bottom_sol_flag,
-      eol_flag             => bottom_eol_flag
+      sclk                      => axi_clk,
+      srst                      => axi_reset,
+      idle_character            => idle_character,
+      hispi_phy_en              => enable_hispi,
+      hispi_soft_reset          => hispi_soft_reset,
+      hispi_pix_clk             => open,
+      sclk_cal_en               => sclk_cal_en,
+      sclk_cal_busy             => bottom_cal_busy,
+      sclk_cal_done             => bottom_cal_done,
+      sclk_cal_error            => bottom_cal_error,
+      sclk_cal_tap_value        => bottom_cal_tap_value,
+      hispi_serial_clk_p        => hispi_io_clk_p(1),
+      hispi_serial_clk_n        => hispi_io_clk_n(1),
+      hispi_serial_input_p      => bottom_lanes_p,
+      hispi_serial_input_n      => bottom_lanes_n,
+      aclk                      => axi_clk,
+      aclk_reset                => axi_reset,
+      aclk_fifo_read_en         => bottom_fifo_read_en,
+      aclk_fifo_empty           => bottom_fifo_empty,
+      aclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
+      aclk_fifo_read_data       => bottom_fifo_read_data,
+      aclk_fifo_overrun         => bottom_fifo_overrun,
+      aclk_fifo_underrun        => bottom_fifo_underrun,
+      aclk_embeded_data         => bottom_embeded_data,
+      aclk_sof_flag             => bottom_sof_flag,
+      aclk_eof_flag             => bottom_eof_flag,
+      aclk_sol_flag             => bottom_sol_flag,
+      aclk_eol_flag             => bottom_eol_flag
       );
 
 
@@ -571,7 +681,7 @@ begin
   P_new_frame_pending : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         new_frame_pending <= '0';
       else
         -- A SOF is detected on any top lane
@@ -598,7 +708,7 @@ begin
   P_new_line_pending : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         new_line_pending <= '0';
       else
         -- A SOL is detected on any top lane
@@ -631,7 +741,7 @@ begin
 
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+      if (axi_reset = '1')then
         line_buffer_id <= (others => '0');
       else
         -----------------------------------------------------------------------
@@ -654,7 +764,7 @@ begin
   P_cal_done : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0')then
+      if (axi_reset = '1')then
         cal_done <= "00";
       else
         if (state = S_IDLE and sclk_cal_en = '1') then
@@ -679,113 +789,105 @@ begin
   P_state : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
-        state <= S_DISABLED;
+      if (axi_reset = '1') then
+        state <= S_IDLE;
       else
-        if (capture_enable = '0') then
-          state <= S_DISABLED;
-        else
-
-          case state is
-            ---------------------------------------------------------------------
-            -- S_DISABLED : Starting point
-            ---------------------------------------------------------------------
-            when S_DISABLED =>
-              state <= S_CALIBRATE;
-
-            ---------------------------------------------------------------------
-            -- S_CALIBRATE : 
-            ---------------------------------------------------------------------
-            when S_CALIBRATE =>
-              if (cal_done = "11") then
-                state <= S_IDLE;
-              else
-                state <= S_CALIBRATE;
-              end if;
-
-            ---------------------------------------------------------------------
-            -- S_IDLE : Parking state
-            ---------------------------------------------------------------------
-            when S_IDLE =>
-              if (sclk_cal_en = '1') then
+        case state is
+          ---------------------------------------------------------------------
+          -- S_IDLE : Parking state
+          ---------------------------------------------------------------------
+          when S_IDLE =>
+            if (enable_hispi = '1') then
+              if (calibration_pending = '1') then
                 state <= S_CALIBRATE;
               elsif (new_frame_pending = '1') then
                 state <= S_SOF;
               elsif (new_line_pending = '1') then
                 state <= S_SOL;
               end if;
+            end if;
 
-            ---------------------------------------------------------------------
-            -- S_SOL : Start of line detected
-            ---------------------------------------------------------------------
-            when S_SOL =>
-              state <= S_INIT;
+          ---------------------------------------------------------------------
+          -- S_CALIBRATE : 
+          ---------------------------------------------------------------------
+          when S_CALIBRATE =>
+            if (cal_done = "11") then
+              state <= S_IDLE;
+            else
+              state <= S_CALIBRATE;
+            end if;
 
-            ---------------------------------------------------------------------
-            -- S_SOF : Start of frame detected
-            ---------------------------------------------------------------------
-            when S_SOF =>
-              state <= S_INIT;
+          ---------------------------------------------------------------------
+          -- S_SOL : Start of line detected
+          ---------------------------------------------------------------------
+          when S_SOL =>
+            state <= S_INIT;
 
-            ---------------------------------------------------------------------
-            -- S_INIT : Initialize the IP state
-            ---------------------------------------------------------------------
-            when S_INIT =>
+          ---------------------------------------------------------------------
+          -- S_SOF : Start of frame detected
+          ---------------------------------------------------------------------
+          when S_SOF =>
+            state <= S_INIT;
+
+                                        ---------------------------------------------------------------------
+                                        -- S_INIT : Initialize the IP state
+                                        ---------------------------------------------------------------------
+          when S_INIT =>
+            state <= S_PACK;
+
+                                        ---------------------------------------------------------------------
+                                        -- S_PACK : Pack incomming data from the XGS sensor to form lines
+                                        --          in the line buffer.
+                                        ---------------------------------------------------------------------
+          when S_PACK =>
+            if (bottom_eof_flag(0) = '1') then
+              state <= S_EOF;
+
+            elsif (bottom_eol_flag(0) = '1') then
+              state <= S_EOL;
+            else
               state <= S_PACK;
 
-            ---------------------------------------------------------------------
-            -- S_PACK : Pack incomming data from the XGS sensor to form lines
-            --          in the line buffer.
-            ---------------------------------------------------------------------
-            when S_PACK =>
-              if (bottom_eof_flag(0) = '1') then
-                state <= S_EOF;
+            end if;
 
-              elsif (bottom_eol_flag(0) = '1') then
-                state <= S_EOL;
-              else
-                state <= S_PACK;
+                                        ---------------------------------------------------------------------
+                                        -- S_EOL : End of line detected 
+                                        ---------------------------------------------------------------------
+          when S_EOL =>
+            state <= S_FLUSH_PACKER;
 
-              end if;
 
-            ---------------------------------------------------------------------
-            -- S_EOL : End of line detected 
-            ---------------------------------------------------------------------
-            when S_EOL =>
+                                        ---------------------------------------------------------------------
+                                        -- S_EOF : End of frame detected
+                                        ---------------------------------------------------------------------
+          when S_EOF =>
+            state <= S_FLUSH_PACKER;
+
+                                        ---------------------------------------------------------------------
+                                        -- 
+                                        ---------------------------------------------------------------------
+          when S_FLUSH_PACKER =>
+            if (all_packer_idle = '1') then
+              state <= S_DONE;
+            else
               state <= S_FLUSH_PACKER;
-
-
-            ---------------------------------------------------------------------
-            -- S_EOF : End of frame detected
-            ---------------------------------------------------------------------
-            when S_EOF =>
-              state <= S_FLUSH_PACKER;
-
-            ---------------------------------------------------------------------
-            -- 
-            ---------------------------------------------------------------------
-            when S_FLUSH_PACKER =>
-              if (all_packer_idle = '1') then
-                state <= S_DONE;
-              else
-                state <= S_FLUSH_PACKER;
-              end if;
+            end if;
 
 
 
-            ---------------------------------------------------------------------
-            -- 
-            ---------------------------------------------------------------------
-            when S_DONE =>
-              state <= S_IDLE;
+                                        ---------------------------------------------------------------------
+                                        -- 
+                                        ---------------------------------------------------------------------
+          when S_DONE =>
+            state <= S_IDLE;
 
-            ---------------------------------------------------------------------
-            -- 
-            ---------------------------------------------------------------------
-            when others =>
-              null;
-          end case;
-        end if;
+                                        ---------------------------------------------------------------------
+                                        -- 
+                                        ---------------------------------------------------------------------
+          when others =>
+            null;
+        end case;
+      --  end if;
       end if;
     end if;
   end process P_state;
@@ -798,7 +900,7 @@ begin
   P_packer_enable : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         packer_enable <= '0';
       else
         if (state = S_INIT) then
@@ -820,7 +922,7 @@ begin
   P_sync : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         sync <= "10";
       else
         case state is
@@ -841,7 +943,7 @@ begin
   P_frame_cntr : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         frame_cntr <= 0;
       else
         if (state = S_EOF and all_packer_idle = '0') then
@@ -853,6 +955,30 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- Process     : P_hispi_eof_pulse
+  -- Description : Generate a pulse with a predefined width
+  --               (hispi_eof_pulse'length)
+  -----------------------------------------------------------------------------
+  P_hispi_eof_pulse : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset = '1') then
+        hispi_eof_pulse <= (others => '0');
+      else
+        if (state = S_EOF and all_packer_idle = '0') then
+          hispi_eof_pulse <= (others => '1');
+        else
+          -- Shift 0 left
+          hispi_eof_pulse(0)                             <= '0';
+          hispi_eof_pulse(hispi_eof_pulse'left downto 1) <= hispi_eof_pulse(hispi_eof_pulse'left-1 downto 0);
+        end if;
+      end if;
+    end if;
+  end process;
+  hispi_eof <= hispi_eof_pulse(hispi_eof_pulse'left);
+
+
+  -----------------------------------------------------------------------------
   -- Process     : P_line_cntr
   -- Description : Count the complete number of lines received in the current
   --               frame
@@ -860,7 +986,7 @@ begin
   P_line_cntr : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+      if (axi_reset = '1') then
         line_cntr <= (others => '0');
       else
         if (state = S_SOF) then

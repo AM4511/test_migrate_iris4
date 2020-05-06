@@ -54,19 +54,26 @@ entity hispi_phy is
     hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
     hispi_serial_input_n : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
 
+    ---------------------------------------------------------------------------
+    -- axi_clk clock domain
+    ---------------------------------------------------------------------------
+    aclk       : in std_logic;
+    aclk_reset : in std_logic;
+
     -- Read fifo interface
-    fifo_read_clk        : in  std_logic;
-    fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
-    fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_overrun         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_fifo_underrun        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
 
     -- Flags detected
-    embeded_data : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    eof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    eol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+    aclk_embeded_data : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_sof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_eof_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_sol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_eol_flag     : out std_logic_vector(LANE_PER_PHY-1 downto 0)
     );
 
 end entity hispi_phy;
@@ -125,19 +132,27 @@ architecture rtl of hispi_phy is
       pclk_cal_load_tap  : out std_logic;
       pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
+
+      ---------------------------------------------------------------------------
+      -- axi_clk clock domain
+      ---------------------------------------------------------------------------
+      aclk       : in std_logic;
+      aclk_reset : in std_logic;
+
       -- Read fifo interface
-      fifo_read_clk        : in  std_logic;
-      fifo_read_en         : in  std_logic;
-      fifo_empty           : out std_logic;
-      fifo_read_data_valid : out std_logic;
-      fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+      aclk_fifo_read_en         : in  std_logic;
+      aclk_fifo_empty           : out std_logic;
+      aclk_fifo_read_data_valid : out std_logic;
+      aclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+      aclk_fifo_overrun         : out std_logic;
+      aclk_fifo_underrun        : out std_logic;
 
       -- Flags detected
-      embeded_data : out std_logic;
-      sof_flag     : out std_logic;
-      eof_flag     : out std_logic;
-      sol_flag     : out std_logic;
-      eol_flag     : out std_logic
+      aclk_embeded_data : out std_logic;
+      aclk_sof_flag     : out std_logic;
+      aclk_eof_flag     : out std_logic;
+      aclk_sol_flag     : out std_logic;
+      aclk_eol_flag     : out std_logic
       );
   end component;
 
@@ -300,27 +315,30 @@ begin
         PIXEL_SIZE       => PIXEL_SIZE
         )
       port map(
-        hclk                 => hclk,
-        hclk_reset           => hclk_reset,
-        hclk_data_lane       => hclk_lane_data(i),
-        rclk_idle_character  => idle_character,
-        hispi_phy_en         => hispi_phy_en,
-        pix_clk              => pix_clk(i),
-        pclk_cal_en          => pclk_cal_en,
-        pclk_cal_busy        => pclk_cal_busy(i),
-        pclk_cal_error       => pclk_cal_error(i),
-        pclk_cal_load_tap    => pclk_cal_load_tap(i),
-        pclk_cal_tap_value   => pclk_cal_tap_value((i*5) + 4 downto (i*5)),
-        fifo_read_clk        => fifo_read_clk,
-        fifo_read_en         => fifo_read_en(i),
-        fifo_empty           => fifo_empty(i),
-        fifo_read_data_valid => fifo_read_data_valid(i),
-        fifo_read_data       => fifo_read_data(i),
-        embeded_data         => embeded_data(i),
-        sof_flag             => sof_flag(i),
-        eof_flag             => eof_flag(i),
-        sol_flag             => sol_flag(i),
-        eol_flag             => eol_flag(i)
+        hclk                      => hclk,
+        hclk_reset                => hclk_reset,
+        hclk_data_lane            => hclk_lane_data(i),
+        rclk_idle_character       => idle_character,
+        hispi_phy_en              => hispi_phy_en,
+        pix_clk                   => pix_clk(i),
+        pclk_cal_en               => pclk_cal_en,
+        pclk_cal_busy             => pclk_cal_busy(i),
+        pclk_cal_error            => pclk_cal_error(i),
+        pclk_cal_load_tap         => pclk_cal_load_tap(i),
+        pclk_cal_tap_value        => pclk_cal_tap_value((i*5) + 4 downto (i*5)),
+        aclk                      => aclk,
+        aclk_reset                => aclk_reset,
+        aclk_fifo_read_en         => aclk_fifo_read_en(i),
+        aclk_fifo_empty           => aclk_fifo_empty(i),
+        aclk_fifo_read_data_valid => aclk_fifo_read_data_valid(i),
+        aclk_fifo_read_data       => aclk_fifo_read_data(i),
+        aclk_fifo_overrun         => aclk_fifo_overrun(i),
+        aclk_fifo_underrun        => aclk_fifo_underrun(i),
+        aclk_embeded_data         => aclk_embeded_data(i),
+        aclk_sof_flag             => aclk_sof_flag(i),
+        aclk_eof_flag             => aclk_eof_flag(i),
+        aclk_sol_flag             => aclk_sol_flag(i),
+        aclk_eol_flag             => aclk_eol_flag(i)
         );
   end generate G_lane_decoder;
 
