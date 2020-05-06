@@ -524,7 +524,7 @@ architecture struct of XGS_athena is
   signal sclk_tuser  : std_logic_vector(3 downto 0);
   signal sclk_tdata  : std_logic_vector(63 downto 0);
 
-  signal context_strb : std_logic_vector(1 downto 0);  -- TBD from controller
+  signal load_dma_context : std_logic_vector(1 downto 0);
 
   signal irq_eos   : std_logic;
   signal irq_sos   : std_logic;
@@ -536,6 +536,8 @@ architecture struct of XGS_athena is
   signal hispi_calibration_active : std_logic;
   signal hispi_pix_clk            : std_logic;
   signal hispi_eof                : std_logic;
+  
+  signal dma_idle                 : std_logic := '1'; 
 
 begin
 
@@ -675,7 +677,7 @@ begin
       sclk               => axi_clk,
       srst_n             => axi_reset_n,
       intevent           => irq(0),
-      context_strb       => context_strb,
+      context_strb       => load_dma_context,
       regfile            => regfile,
       tready             => aclk_tready,
       tvalid             => aclk_tvalid,
@@ -791,31 +793,31 @@ begin
       ---------------------------------------------------------------------------
       --  Signals to/from Datapath/DMA
       ---------------------------------------------------------------------------
-      start_calibration => hispi_start_calibration,
+      start_calibration      => hispi_start_calibration,
       -- calibration_active => hispi_calibration_active, TBD
 
-      HISPI_pix_clk => hispi_pix_clk,
+      HISPI_pix_clk          => hispi_pix_clk,
 
-      DEC_EOF => hispi_eof,
+      DEC_EOF                => hispi_eof,
 
       abort_readout_datapath => open,
-      dma_idle               => '1',
+      dma_idle               => dma_idle,
 
-      strobe_DMA_P1 => open,
-      strobe_DMA_P2 => open,
+      strobe_DMA_P1          => load_dma_context(0),
+      strobe_DMA_P2          => load_dma_context(1),
 
-      curr_db_GRAB_ROI2_EN => open,
+      curr_db_GRAB_ROI2_EN   => open,
 
-      curr_db_y_start_ROI1 => open,
-      curr_db_nblines_ROI1 => open,
+      curr_db_y_start_ROI1   => open,
+      curr_db_nblines_ROI1   => open,
 
-      curr_db_y_start_ROI2 => open,
-      curr_db_nblines_ROI2 => open,
+      curr_db_y_start_ROI2   => open,
+      curr_db_nblines_ROI2   => open,
 
-      curr_db_subsampling_X => open,
-      curr_db_subsampling_Y => open,
+      curr_db_subsampling_X  => open,
+      curr_db_subsampling_Y  => open,
 
-      curr_db_BUFFER_ID => open,
+      curr_db_BUFFER_ID      => open,
 
 
       ---------------------------------------------------------------------------
