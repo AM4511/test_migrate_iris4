@@ -537,7 +537,8 @@ architecture struct of XGS_athena is
   signal hispi_eof                : std_logic;
   
   signal dma_idle                 : std_logic := '1'; 
-
+  signal HW_VERSION               : std_logic_vector(7 downto 0) := "00000011";
+  
 begin
 
   -----------------------------------------------------------------------------
