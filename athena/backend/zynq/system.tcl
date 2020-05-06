@@ -124,7 +124,7 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-matrox.com:user:XGS_athena:1.0\
+matrox.com:Imaging:XGS_athena:1.0.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
@@ -223,10 +223,11 @@ proc create_root_design { parentCell } {
  ] $ref_clk
 
   # Create instance: XGS_athena_0, and set properties
-  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:user:XGS_athena:1.0 XGS_athena_0 ]
+  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:XGS_athena:1.0.0 XGS_athena_0 ]
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
+   CONFIG.KU706 {0} \
  ] $XGS_athena_0
 
   # Create instance: axi_i2c_0, and set properties
