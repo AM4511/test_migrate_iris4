@@ -124,7 +124,7 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-matrox.com:user:XGS_athena:1.0\
+matrox.com:Imaging:XGS_athena:1.0.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
@@ -223,10 +223,12 @@ proc create_root_design { parentCell } {
  ] $ref_clk
 
   # Create instance: XGS_athena_0, and set properties
-  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:user:XGS_athena:1.0 XGS_athena_0 ]
+  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:XGS_athena:1.0.0 XGS_athena_0 ]
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
+   CONFIG.KU706 {1} \
+   CONFIG.SENSOR_FREQ {32000} \
  ] $XGS_athena_0
 
   # Create instance: axi_i2c_0, and set properties
@@ -708,7 +710,6 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -720,4 +721,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
