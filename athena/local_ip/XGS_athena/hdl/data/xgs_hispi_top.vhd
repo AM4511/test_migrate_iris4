@@ -27,11 +27,12 @@ use work.hispi_pack.all;
 
 entity xgs_hispi_top is
   generic (
-    NUMBER_OF_LANE  : integer := 6;
-    MUX_RATIO       : integer := 4;
-    PIXELS_PER_LINE : integer := 4176;
-    LINES_PER_FRAME : integer := 3102;
-    PIXEL_SIZE      : integer := 12
+    HW_VERSION      : integer range 0 to 255 := 0;
+    NUMBER_OF_LANE  : integer                := 6;
+    MUX_RATIO       : integer                := 4;
+    PIXELS_PER_LINE : integer                := 4176;
+    LINES_PER_FRAME : integer                := 3102;
+    PIXEL_SIZE      : integer                := 12
     );
   port (
     ---------------------------------------------------------------------------
@@ -85,22 +86,9 @@ architecture rtl of xgs_hispi_top is
       PIXEL_SIZE   : integer := 12      -- Pixel size in bits
       );
     port (
-      sclk : in std_logic;
-      srst : in std_logic;
-
-      -- Register file information
-      idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en     : in  std_logic;
-      hispi_soft_reset : in  std_logic;
-      hispi_pix_clk    : out std_logic;
-
-      -- Calibration 
-      sclk_cal_en        : in  std_logic;
-      sclk_cal_done      : out std_logic;
-      sclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
-
+      ---------------------------------------------------------------------------
       -- HiSPi IO
+      ---------------------------------------------------------------------------
       hispi_serial_clk_p   : in std_logic;
       hispi_serial_clk_n   : in std_logic;
       hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
@@ -111,6 +99,20 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       aclk       : in std_logic;
       aclk_reset : in std_logic;
+
+      -- Register file information
+      aclk_idle_character   : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      aclk_hispi_phy_en     : in std_logic;
+      aclk_hispi_soft_reset : in std_logic;
+
+      -- To XGS_controller
+      hispi_pix_clk : out std_logic;
+
+      -- Calibration 
+      aclk_start_calibration : in  std_logic;
+      aclk_cal_done          : out std_logic;
+      aclk_cal_error         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_cal_tap_value     : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
       -- Read fifo interface
       aclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -304,7 +306,7 @@ architecture rtl of xgs_hispi_top is
   -- attribute IODELAY_GROUP of xIDELAYCTRL : label is "hispi_phy_xilinx_group";
 
 
-  type FSM_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_INIT, S_START_CALIBRATION, S_CALIBRATE, S_PACK, S_SOF, S_EOF, S_SOL, S_EOL, S_FLUSH_PACKER, S_DONE);
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
@@ -312,16 +314,16 @@ architecture rtl of xgs_hispi_top is
   signal new_line_pending  : std_logic;
   signal new_frame_pending : std_logic;
 
-  signal sclk_cal_en             : std_logic;
-  signal sclk_cal_error          : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
-  signal cal_done                : std_logic_vector(1 downto 0);
-  signal xgs_ctrl_calib_req_Meta : std_logic;
-  signal xgs_ctrl_calib_req      : std_logic;
-  signal calibration_pending     : std_logic;
-  --signal top_cal_busy            : std_logic;
-  signal top_cal_done            : std_logic;
-  signal top_cal_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_cal_tap_value       : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal aclk_calibration_req         : std_logic;
+  signal aclk_calibration_pending     : std_logic;
+  signal aclk_start_calibration       : std_logic;
+  signal aclk_cal_error               : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
+  signal aclk_xgs_ctrl_calib_req_Meta : std_logic;
+  signal aclk_xgs_ctrl_calib_req      : std_logic;
+  signal aclk_calibration_done        : std_logic_vector(1 downto 0);
+  signal top_cal_done                 : std_logic;
+  signal top_cal_error                : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_cal_tap_value            : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
   signal top_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -338,7 +340,6 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  --signal bottom_cal_busy             : std_logic;
   signal bottom_cal_done             : std_logic;
   signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -415,8 +416,7 @@ architecture rtl of xgs_hispi_top is
   signal slpack_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal slpack_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal fifo_error           : std_logic;
-  signal calibration_error    : std_logic;
-  signal calibration_done     : std_logic;
+
 
 begin
 
@@ -424,13 +424,17 @@ begin
   -----------------------------------------------------------------------------
   -- Registerfile mapping
   -----------------------------------------------------------------------------
+  regfile.SYSTEM.VERSION.HW <= std_logic_vector(to_unsigned(HW_VERSION, 8));
+
+
+
   enable_hispi     <= regfile.HISPI.CTRL.ENABLE_HISPI;
   hispi_soft_reset <= regfile.HISPI.CTRL.SW_CLR_HISPI;
 
 
-  sclk_cal_en <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
-                 '1' when (xgs_ctrl_calib_req = '1') else
-                 '0';
+  aclk_calibration_req <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
+                          '1' when (aclk_xgs_ctrl_calib_req = '1') else
+                          '0';
 
 
   G_lane_decoder_status : for i in 0 to LANE_PER_PHY-1 generate
@@ -438,7 +442,7 @@ begin
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN_set      <= top_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN_set     <= top_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR_set <= top_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE    <= cal_done(0);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE    <= aclk_calibration_done(0);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_TAP_VALUE <= top_cal_tap_value(5*i+4 downto 5*i);
 
     sldec_fifo_overrun(2*i)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN;
@@ -449,7 +453,7 @@ begin
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN_set      <= bottom_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN_set     <= bottom_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR_set <= bottom_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE    <= cal_done(1);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE    <= aclk_calibration_done(1);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_TAP_VALUE <= bottom_cal_tap_value(5*i+4 downto 5*i);
 
     sldec_fifo_overrun(2*i+1)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN;
@@ -472,39 +476,41 @@ begin
                 '1' when (slpack_fifo_underrun /= (slpack_fifo_underrun'range => '0')) else
                 '0';
 
-
-  calibration_error <= '1' when (sldec_cal_error /= (sldec_cal_error'range => '0')) else
-                       '0';
+  regfile.HISPI.STATUS.FIFO_ERROR <= fifo_error;
 
 
-  calibration_done <= '1' when (cal_done = "00") else
-                      '0';
+  regfile.HISPI.STATUS.CALIBRATION_ERROR <= '1' when (sldec_cal_error /= (sldec_cal_error'range => '0')) else
+                                            '0';
 
 
-  regfile.HISPI.STATUS.FIFO_ERROR        <= fifo_error;
-  regfile.HISPI.STATUS.CALIBRATION_ERROR <= calibration_error;
-  regfile.HISPI.STATUS.CALIBRATION_DONE  <= calibration_done;
+  regfile.HISPI.STATUS.CALIBRATION_DONE <= '1' when (aclk_calibration_done = "11") else
+                                           '0';
+
+
 
   -----------------------------------------------------------------------------
-  -- Process     : P_xgs_ctrl_calib_req
+  -- Process     : P_aclk_xgs_ctrl_calib_req
   -- Description : Flag sent by the XGS_controller to initiate a calibrartion
   --               sequence
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING??
   -----------------------------------------------------------------------------
-  P_xgs_ctrl_calib_req : process (axi_clk) is
+  P_aclk_xgs_ctrl_calib_req : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
       if (axi_reset = '1') then
-        xgs_ctrl_calib_req_Meta <= '0';
-        xgs_ctrl_calib_req      <= '0';
+        aclk_xgs_ctrl_calib_req_Meta <= '0';
+        aclk_xgs_ctrl_calib_req      <= '0';
       else
-        xgs_ctrl_calib_req_Meta <= hispi_start_calibration;
-        xgs_ctrl_calib_req      <= xgs_ctrl_calib_req_Meta;
+        aclk_xgs_ctrl_calib_req_Meta <= hispi_start_calibration;
+        aclk_xgs_ctrl_calib_req      <= aclk_xgs_ctrl_calib_req_Meta;
       end if;
     end if;
   end process;
 
+
+  aclk_start_calibration <= '1' when (state = S_START_CALIBRATION) else
+                            '0';
 
   -----------------------------------------------------------------------------
   -- Process     : P_hispi_calibration_active
@@ -525,20 +531,21 @@ begin
     end if;
   end process;
 
+
   -----------------------------------------------------------------------------
-  -- Process     : P_calibration_pending
+  -- Process     : P_aclk_calibration_pending
   -- Description : 
   -----------------------------------------------------------------------------
-  P_calibration_pending : process (axi_clk) is
+  P_aclk_calibration_pending : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
       if (axi_reset = '1') then
-        calibration_pending <= '0';
+        aclk_calibration_pending <= '0';
       else
         if (state = S_CALIBRATE) then
-          calibration_pending <= '0';
-        elsif (sclk_cal_en = '1') then
-          calibration_pending <= '1';
+          aclk_calibration_pending <= '0';
+        elsif (aclk_calibration_req = '1') then
+          aclk_calibration_pending <= '1';
         end if;
       end if;
     end if;
@@ -546,10 +553,10 @@ begin
 
 
 
-  G_sclk_cal_error : for i in 0 to LANE_PER_PHY-1 generate
-    sclk_cal_error(2*i)   <= top_cal_error(i);
-    sclk_cal_error(2*i+1) <= bottom_cal_error(i);
-  end generate G_sclk_cal_error;
+  G_aclk_cal_error : for i in 0 to LANE_PER_PHY-1 generate
+    aclk_cal_error(2*i)   <= top_cal_error(i);
+    aclk_cal_error(2*i+1) <= bottom_cal_error(i);
+  end generate G_aclk_cal_error;
 
 
 
@@ -585,6 +592,7 @@ begin
     bottom_lanes_n(i) <= hispi_io_data_n(2*i+1);
   end generate G_lanes;
 
+
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : TOP lanes hispi phy. Provides one serdes for interfacing
@@ -596,22 +604,20 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                      => axi_clk,
-      srst                      => axi_reset,
-      idle_character            => idle_character,
-      hispi_phy_en              => enable_hispi,
-      hispi_soft_reset          => hispi_soft_reset,
-      hispi_pix_clk             => hispi_pix_clk,
-      sclk_cal_en               => sclk_cal_en,
-      sclk_cal_done             => top_cal_done,
-      sclk_cal_error            => top_cal_error,
-      sclk_cal_tap_value        => top_cal_tap_value,
       hispi_serial_clk_p        => hispi_io_clk_p(0),
       hispi_serial_clk_n        => hispi_io_clk_n(0),
       hispi_serial_input_p      => top_lanes_p,
       hispi_serial_input_n      => top_lanes_n,
       aclk                      => axi_clk,
       aclk_reset                => axi_reset,
+      aclk_idle_character       => idle_character,
+      aclk_hispi_phy_en         => enable_hispi,
+      aclk_hispi_soft_reset     => hispi_soft_reset,
+      hispi_pix_clk             => hispi_pix_clk,
+      aclk_start_calibration    => aclk_start_calibration,
+      aclk_cal_done             => top_cal_done,
+      aclk_cal_error            => top_cal_error,
+      aclk_cal_tap_value        => top_cal_tap_value,
       aclk_fifo_read_en         => top_fifo_read_en,
       aclk_fifo_empty           => top_fifo_empty,
       aclk_fifo_read_data_valid => top_fifo_read_data_valid,
@@ -626,7 +632,6 @@ begin
       );
 
 
-
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : Bottom lanes hispi phy. Provides one serdes for interfacing
@@ -638,22 +643,20 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                      => axi_clk,
-      srst                      => axi_reset,
-      idle_character            => idle_character,
-      hispi_phy_en              => enable_hispi,
-      hispi_soft_reset          => hispi_soft_reset,
-      hispi_pix_clk             => open,
-      sclk_cal_en               => sclk_cal_en,
-      sclk_cal_done             => bottom_cal_done,
-      sclk_cal_error            => bottom_cal_error,
-      sclk_cal_tap_value        => bottom_cal_tap_value,
       hispi_serial_clk_p        => hispi_io_clk_p(1),
       hispi_serial_clk_n        => hispi_io_clk_n(1),
       hispi_serial_input_p      => bottom_lanes_p,
       hispi_serial_input_n      => bottom_lanes_n,
       aclk                      => axi_clk,
       aclk_reset                => axi_reset,
+      aclk_idle_character       => idle_character,
+      aclk_hispi_phy_en         => enable_hispi,
+      aclk_hispi_soft_reset     => hispi_soft_reset,
+      hispi_pix_clk             => open,
+      aclk_start_calibration    => aclk_start_calibration,
+      aclk_cal_done             => bottom_cal_done,
+      aclk_cal_error            => bottom_cal_error,
+      aclk_cal_tap_value        => bottom_cal_tap_value,
       aclk_fifo_read_en         => bottom_fifo_read_en,
       aclk_fifo_empty           => bottom_fifo_empty,
       aclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
@@ -755,23 +758,23 @@ begin
   end process;
 
   -----------------------------------------------------------------------------
-  -- Process     : P_cal_done
+  -- Process     : P_aclk_calibration_done
   -- Description : 
   -----------------------------------------------------------------------------
-  P_cal_done : process (axi_clk) is
+  P_aclk_calibration_done : process (axi_clk) is
   begin
     if (rising_edge(axi_clk)) then
       if (axi_reset = '1')then
-        cal_done <= "00";
+        aclk_calibration_done <= "00";
       else
-        if (state = S_IDLE and sclk_cal_en = '1') then
-          cal_done <= "00";
+        if (state = S_IDLE and aclk_calibration_req = '1') then
+          aclk_calibration_done <= "00";
         elsif (state = S_CALIBRATE) then
           if (top_cal_done = '1') then
-            cal_done(0) <= '1';
+            aclk_calibration_done(0) <= '1';
           end if;
           if (bottom_cal_done = '1') then
-            cal_done(1) <= '1';
+            aclk_calibration_done(1) <= '1';
           end if;
         end if;
       end if;
@@ -795,8 +798,8 @@ begin
           ---------------------------------------------------------------------
           when S_IDLE =>
             if (enable_hispi = '1') then
-              if (calibration_pending = '1') then
-                state <= S_CALIBRATE;
+              if (aclk_calibration_pending = '1') then
+                state <= S_START_CALIBRATION;
               elsif (new_frame_pending = '1') then
                 state <= S_SOF;
               elsif (new_line_pending = '1') then
@@ -805,10 +808,16 @@ begin
             end if;
 
           ---------------------------------------------------------------------
+          -- S_START_CALIBRATION : 
+          ---------------------------------------------------------------------
+          when S_START_CALIBRATION =>
+            state <= S_CALIBRATE;
+
+          ---------------------------------------------------------------------
           -- S_CALIBRATE : 
           ---------------------------------------------------------------------
           when S_CALIBRATE =>
-            if (cal_done = "11") then
+            if (aclk_calibration_done = "11") then
               state <= S_IDLE;
             else
               state <= S_CALIBRATE;

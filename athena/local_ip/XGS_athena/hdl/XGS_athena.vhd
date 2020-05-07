@@ -231,11 +231,12 @@ architecture struct of XGS_athena is
 
   component xgs_hispi_top is
     generic (
-      NUMBER_OF_LANE  : integer := 6;
-      MUX_RATIO       : integer := 4;
-      PIXELS_PER_LINE : integer := 4176;
-      LINES_PER_FRAME : integer := 3102;
-      PIXEL_SIZE      : integer := 12
+      HW_VERSION      : integer range 0 to 255 := 0;
+      NUMBER_OF_LANE  : integer                := 6;
+      MUX_RATIO       : integer                := 4;
+      PIXELS_PER_LINE : integer                := 4176;
+      LINES_PER_FRAME : integer                := 3102;
+      PIXEL_SIZE      : integer                := 12
       );
     port (
       ---------------------------------------------------------------------------
@@ -493,11 +494,13 @@ architecture struct of XGS_athena is
 
   end component;
 
+  
   -----------------------------------------------------------------------------
   -- HW_VERSION :
   --
   -- 00000000 :  TBD
   -----------------------------------------------------------------------------
+  constant HW_VERSION : integer := 0;
 
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
@@ -525,6 +528,7 @@ architecture struct of XGS_athena is
 
   signal load_dma_context : std_logic_vector(1 downto 0);
 
+  signal irq_dma   : std_logic;
   signal irq_eos   : std_logic;
   signal irq_sos   : std_logic;
   signal irq_eoe   : std_logic;
@@ -535,16 +539,15 @@ architecture struct of XGS_athena is
   signal hispi_calibration_active : std_logic;
   signal hispi_pix_clk            : std_logic;
   signal hispi_eof                : std_logic;
-  
-  signal dma_idle                 : std_logic := '1'; 
-  signal HW_VERSION               : std_logic_vector(7 downto 0) := "00000011";
-  
+
+  signal dma_idle : std_logic := '1';
+
 begin
 
   -----------------------------------------------------------------------------
   -- Hardware version
   -----------------------------------------------------------------------------
-  regfile.SYSTEM.VERSION.HW <= HW_VERSION;
+  -- regfile.SYSTEM.VERSION.HW <= HW_VERSION; Assigned under xgs_hispi_top.vhd
 
 
   -----------------------------------------------------------------------------
@@ -619,6 +622,7 @@ begin
 
   x_xgs_hispi_top : xgs_hispi_top
     generic map(
+      HW_VERSION      => HW_VERSION,
       NUMBER_OF_LANE  => NUMBER_OF_LANE,
       MUX_RATIO       => MUX_RATIO,
       PIXELS_PER_LINE => PIXELS_PER_LINE,
@@ -676,7 +680,7 @@ begin
     port map(
       sclk               => axi_clk,
       srst_n             => axi_reset_n,
-      intevent           => irq(0),
+      intevent           => irq_dma,
       context_strb       => load_dma_context,
       regfile            => regfile,
       tready             => aclk_tready,
@@ -793,31 +797,31 @@ begin
       ---------------------------------------------------------------------------
       --  Signals to/from Datapath/DMA
       ---------------------------------------------------------------------------
-      start_calibration      => hispi_start_calibration,
+      start_calibration => hispi_start_calibration,
       -- calibration_active => hispi_calibration_active, TBD
 
-      HISPI_pix_clk          => hispi_pix_clk,
+      HISPI_pix_clk => hispi_pix_clk,
 
-      DEC_EOF                => hispi_eof,
+      DEC_EOF => hispi_eof,
 
       abort_readout_datapath => open,
       dma_idle               => dma_idle,
 
-      strobe_DMA_P1          => load_dma_context(0),
-      strobe_DMA_P2          => load_dma_context(1),
+      strobe_DMA_P1 => load_dma_context(0),
+      strobe_DMA_P2 => load_dma_context(1),
 
-      curr_db_GRAB_ROI2_EN   => open,
+      curr_db_GRAB_ROI2_EN => open,
 
-      curr_db_y_start_ROI1   => open,
-      curr_db_nblines_ROI1   => open,
+      curr_db_y_start_ROI1 => open,
+      curr_db_nblines_ROI1 => open,
 
-      curr_db_y_start_ROI2   => open,
-      curr_db_nblines_ROI2   => open,
+      curr_db_y_start_ROI2 => open,
+      curr_db_nblines_ROI2 => open,
 
-      curr_db_subsampling_X  => open,
-      curr_db_subsampling_Y  => open,
+      curr_db_subsampling_X => open,
+      curr_db_subsampling_Y => open,
 
-      curr_db_BUFFER_ID      => open,
+      curr_db_BUFFER_ID => open,
 
 
       ---------------------------------------------------------------------------
@@ -839,7 +843,7 @@ begin
 
 
 
-  --irq(0) : assigned by DMA
+  irq(0) <= irq_dma;
   irq(1) <= irq_soe;
   irq(2) <= irq_eoe;
   irq(3) <= irq_sos;
