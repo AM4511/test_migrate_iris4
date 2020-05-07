@@ -113,9 +113,11 @@ set_property PACKAGE_PIN W21 [get_ports GPIO_LED_RIGHT]
 set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_RIGHT]
 set_property IOSTANDARD LVCMOS25 [get_ports GPIO_LED_LEFT]
 
-set_property PACKAGE_PIN G2 [get_ports heart_beat]
-set_property IOSTANDARD LVCMOS18 [get_ports heart_beat]
+set_property PACKAGE_PIN G2 [get_ports GPIO_LED_CENTER]
+set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_CENTER]
 
+set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
+set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_0]
 
 ################################################################
 # PCIe Interface
@@ -321,13 +323,13 @@ set_property IOSTANDARD LVCMOS18 [get_ports USER_SMA_CLOCK_N]
 
 
 
-set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
+#set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
 # set_property PACKAGE_PIN AB17 [get_ports GPIO_DIP_SW0]
 # set_property PACKAGE_PIN AC16 [get_ports GPIO_DIP_SW1]
 # set_property PACKAGE_PIN AC17 [get_ports GPIO_DIP_SW2]
 # set_property PACKAGE_PIN AJ13 [get_ports GPIO_DIP_SW3]
 
-# set_property PACKAGE_PIN G2   [get_ports GPIO_LED_CENTER]
+#set_property PACKAGE_PIN G2   [get_ports GPIO_LED_CENTER]
 
 # set_property PACKAGE_PIN AK25 [get_ports GPIO_SW_LEFT]
 # set_property PACKAGE_PIN K15  [get_ports GPIO_SW_CENTER]
@@ -929,7 +931,7 @@ set_property IOSTANDARD LVDS [get_ports SYSCLK_N]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D52]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D53]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D55]
-set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_0]
+#set_property IOSTANDARD LVCMOS15 [get_ports GPIO_LED_0]
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D62]
 #NET  VTTVREF_SODIMM            LOC = C13  | IOSTANDARD=SSTL15;   # Bank  35 VCCO - VCC1V5_PL - IO_L19N_T3_VREF_35
 # set_property IOSTANDARD SSTL15 [get_ports PL_DDR3_D57]
