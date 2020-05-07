@@ -27,11 +27,12 @@ use work.hispi_pack.all;
 
 entity xgs_hispi_top is
   generic (
-    NUMBER_OF_LANE  : integer := 6;
-    MUX_RATIO       : integer := 4;
-    PIXELS_PER_LINE : integer := 4176;
-    LINES_PER_FRAME : integer := 3102;
-    PIXEL_SIZE      : integer := 12
+    HW_VERSION      : integer range 0 to 255 := 0;
+    NUMBER_OF_LANE  : integer                := 6;
+    MUX_RATIO       : integer                := 4;
+    PIXELS_PER_LINE : integer                := 4176;
+    LINES_PER_FRAME : integer                := 3102;
+    PIXEL_SIZE      : integer                := 12
     );
   port (
     ---------------------------------------------------------------------------
@@ -85,22 +86,9 @@ architecture rtl of xgs_hispi_top is
       PIXEL_SIZE   : integer := 12      -- Pixel size in bits
       );
     port (
-      sclk : in std_logic;
-      srst : in std_logic;
-
-      -- Register file information
-      idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      hispi_phy_en     : in  std_logic;
-      hispi_soft_reset : in  std_logic;
-      hispi_pix_clk    : out std_logic;
-
-      -- Calibration 
-      sclk_cal_en        : in  std_logic;
-      sclk_cal_done      : out std_logic;
-      sclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
-
+      ---------------------------------------------------------------------------
       -- HiSPi IO
+      ---------------------------------------------------------------------------
       hispi_serial_clk_p   : in std_logic;
       hispi_serial_clk_n   : in std_logic;
       hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
@@ -111,6 +99,18 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       aclk       : in std_logic;
       aclk_reset : in std_logic;
+
+      -- Register file information
+      idle_character   : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hispi_phy_en     : in  std_logic;
+      hispi_soft_reset : in  std_logic;
+      hispi_pix_clk    : out std_logic;
+
+      -- Calibration 
+      aclk_cal_en        : in  std_logic;
+      aclk_cal_done      : out std_logic;
+      aclk_cal_error     : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_cal_tap_value : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
       -- Read fifo interface
       aclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -318,7 +318,6 @@ architecture rtl of xgs_hispi_top is
   signal xgs_ctrl_calib_req_Meta : std_logic;
   signal xgs_ctrl_calib_req      : std_logic;
   signal calibration_pending     : std_logic;
-  --signal top_cal_busy            : std_logic;
   signal top_cal_done            : std_logic;
   signal top_cal_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_cal_tap_value       : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -338,7 +337,6 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  --signal bottom_cal_busy             : std_logic;
   signal bottom_cal_done             : std_logic;
   signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
@@ -424,6 +422,10 @@ begin
   -----------------------------------------------------------------------------
   -- Registerfile mapping
   -----------------------------------------------------------------------------
+  regfile.SYSTEM.VERSION.HW <= std_logic_vector(to_unsigned(HW_VERSION, 8));
+
+
+
   enable_hispi     <= regfile.HISPI.CTRL.ENABLE_HISPI;
   hispi_soft_reset <= regfile.HISPI.CTRL.SW_CLR_HISPI;
 
@@ -585,6 +587,7 @@ begin
     bottom_lanes_n(i) <= hispi_io_data_n(2*i+1);
   end generate G_lanes;
 
+
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : TOP lanes hispi phy. Provides one serdes for interfacing
@@ -596,22 +599,20 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                      => axi_clk,
-      srst                      => axi_reset,
-      idle_character            => idle_character,
-      hispi_phy_en              => enable_hispi,
-      hispi_soft_reset          => hispi_soft_reset,
-      hispi_pix_clk             => hispi_pix_clk,
-      sclk_cal_en               => sclk_cal_en,
-      sclk_cal_done             => top_cal_done,
-      sclk_cal_error            => top_cal_error,
-      sclk_cal_tap_value        => top_cal_tap_value,
       hispi_serial_clk_p        => hispi_io_clk_p(0),
       hispi_serial_clk_n        => hispi_io_clk_n(0),
       hispi_serial_input_p      => top_lanes_p,
       hispi_serial_input_n      => top_lanes_n,
       aclk                      => axi_clk,
       aclk_reset                => axi_reset,
+      idle_character            => idle_character,
+      hispi_phy_en              => enable_hispi,
+      hispi_soft_reset          => hispi_soft_reset,
+      hispi_pix_clk             => hispi_pix_clk,
+      aclk_cal_en               => sclk_cal_en,
+      aclk_cal_done             => top_cal_done,
+      aclk_cal_error            => top_cal_error,
+      aclk_cal_tap_value        => top_cal_tap_value,
       aclk_fifo_read_en         => top_fifo_read_en,
       aclk_fifo_empty           => top_fifo_empty,
       aclk_fifo_read_data_valid => top_fifo_read_data_valid,
@@ -626,7 +627,6 @@ begin
       );
 
 
-
   -----------------------------------------------------------------------------
   -- Module      : hispi_phy
   -- Description : Bottom lanes hispi phy. Provides one serdes for interfacing
@@ -638,22 +638,20 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      sclk                      => axi_clk,
-      srst                      => axi_reset,
-      idle_character            => idle_character,
-      hispi_phy_en              => enable_hispi,
-      hispi_soft_reset          => hispi_soft_reset,
-      hispi_pix_clk             => open,
-      sclk_cal_en               => sclk_cal_en,
-      sclk_cal_done             => bottom_cal_done,
-      sclk_cal_error            => bottom_cal_error,
-      sclk_cal_tap_value        => bottom_cal_tap_value,
       hispi_serial_clk_p        => hispi_io_clk_p(1),
       hispi_serial_clk_n        => hispi_io_clk_n(1),
       hispi_serial_input_p      => bottom_lanes_p,
       hispi_serial_input_n      => bottom_lanes_n,
       aclk                      => axi_clk,
       aclk_reset                => axi_reset,
+      idle_character            => idle_character,
+      hispi_phy_en              => enable_hispi,
+      hispi_soft_reset          => hispi_soft_reset,
+      hispi_pix_clk             => open,
+      aclk_cal_en               => sclk_cal_en,
+      aclk_cal_done             => bottom_cal_done,
+      aclk_cal_error            => bottom_cal_error,
+      aclk_cal_tap_value        => bottom_cal_tap_value,
       aclk_fifo_read_en         => bottom_fifo_read_en,
       aclk_fifo_empty           => bottom_fifo_empty,
       aclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
