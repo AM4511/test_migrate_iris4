@@ -213,11 +213,11 @@ entity athena_zc706 is
     -- See UG954 (v1.8) August 6, 2019; User LEDs page 60.
     ---------------------------------------------------------------------------
     GPIO_LED_LEFT  : out std_logic;     -- DS8
-    -- GPIO_LED_CENTER : out std_logic;    -- DS9
+    GPIO_LED_CENTER: out std_logic;    -- DS9
     GPIO_LED_RIGHT : out std_logic;     -- DS10
     GPIO_LED_0     : out std_logic;     -- DS35
 
-    heart_beat     : out std_logic;  
+    --heart_beat     : out std_logic;  
     ---------------------------------------------------------------------------
     -- User Pushbuttons
     -- See UG954 (v1.8) August 6, 2019; User Pushbuttons page 61.
@@ -751,18 +751,18 @@ architecture struct of athena_zc706 is
   
   signal local_reset_n_Meta : std_logic;
   signal local_reset_n      : std_logic;
-  signal heartbeat_led      : std_logic;
 
+  signal pcie_heartbeat_led : std_logic;
+  signal ref_heartbeat_led  : std_logic;
+  
   constant HEARTBEAT_HALF_PERIOD : integer := 100000000;
   constant HEARTBEAT_PERIOD      : integer := 2*HEARTBEAT_HALF_PERIOD;
 
-  signal heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1;
+  signal pcie_heartbeat_cntr : integer range 0 to HEARTBEAT_PERIOD-1 := 0 ;
+  signal ref_heartbeat_cntr  : integer range 0 to HEARTBEAT_PERIOD-1 := 0 ;
   
   signal debug_out      : std_logic_vector (3 downto 0);    
   
-  attribute mark_debug of local_reset_n  : signal is "true";
-  attribute mark_debug of heartbeat_cntr : signal is "true";
-  attribute mark_debug of heartbeat_led  : signal is "true";
 
 begin
 
@@ -962,42 +962,70 @@ ibuf_200MHz : IBUFDS
     end if;
   end process;
 
+  
+  GPIO_LED_LEFT   <= led_out(0);
+  GPIO_LED_CENTER <= led_out(1);
+  GPIO_LED_RIGHT  <= ref_heartbeat_led;
+  GPIO_LED_0      <= pcie_heartbeat_led;
 
-  GPIO_LED_LEFT  <= heartbeat_led and not(PCIE_PERST_LS);
-  GPIO_LED_RIGHT <=  xgs_ctrl_xgs_reset_n;
-
-  P_heartbeat_cntr : process (pcie_clk100MHz) is
+  
+  procPcie_heartbeat_cntr : process (pcie_clk100MHz) is
   begin
     if (rising_edge(pcie_clk100MHz)) then
       if (local_reset_n = '0')then
-        heartbeat_cntr <= 0;
+        pcie_heartbeat_cntr <= 0;
       else
-        if (heartbeat_cntr = HEARTBEAT_PERIOD-1) then
-          heartbeat_cntr <= 0;
+        if (pcie_heartbeat_cntr = HEARTBEAT_PERIOD-1) then
+          pcie_heartbeat_cntr <= 0;
         else
-          heartbeat_cntr <= heartbeat_cntr+1;
+          pcie_heartbeat_cntr <= pcie_heartbeat_cntr+1;
         end if;
       end if;
     end if;
   end process;
 
 
-  P_heartbeat_led : process (pcie_clk100MHz) is
+  procPcie_heartbeat_led : process (pcie_clk100MHz) is
   begin
     if (rising_edge(pcie_clk100MHz)) then
       if (local_reset_n = '0')then
-        heartbeat_led <= '0';
+        pcie_heartbeat_led <= '0';
       else
-        if (heartbeat_cntr > HEARTBEAT_HALF_PERIOD) then
-          heartbeat_led <= '1';
+        if (pcie_heartbeat_cntr > HEARTBEAT_HALF_PERIOD) then
+          pcie_heartbeat_led <= '1';
         else
-          heartbeat_led <= '0';
+          pcie_heartbeat_led <= '0';
         end if;
       end if;
     end if;
   end process;
 
-  GPIO_LED_0 <= heartbeat_led;
+  
+  procRef_heartbeat_cntr : process (SYSCLK_200MHz) is
+  begin
+    if (rising_edge(SYSCLK_200MHz)) then
+      if (ref_heartbeat_cntr = HEARTBEAT_PERIOD-1) then
+        ref_heartbeat_cntr <= 0;
+      else
+        ref_heartbeat_cntr <= ref_heartbeat_cntr+1;
+      end if;
+    end if;
+  end process;
+
+
+  procRef_heartbeat_led : process (SYSCLK_200MHz) is
+  begin
+    if (rising_edge(SYSCLK_200MHz)) then
+      if (ref_heartbeat_cntr > HEARTBEAT_HALF_PERIOD) then
+        ref_heartbeat_led <= '1';
+      else
+        ref_heartbeat_led <= '0';
+      end if;
+    end if;
+  end process;  
+  
+  
+  
 
   
   
