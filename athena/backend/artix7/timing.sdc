@@ -220,21 +220,21 @@ set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_
 set_false_path -from [get_ports {xgs_monitor[?]}]
 set_false_path -from [get_ports xgs_power_good]
 
-set_max_delay -from [get_ports xgs_sdin] -to [get_clocks userclk1] 15.000
-set_min_delay -from [get_ports xgs_sdin] -to [get_clocks userclk1] 0.000
+set_max_delay -from [get_ports xgs_sdin] -to [get_clocks axiClk62MHz] 15.000
+set_min_delay -from [get_ports xgs_sdin] -to [get_clocks axiClk62MHz] 0.000
 
 
 # OUTPUTS
-set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 15.000
-set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 0.000
+set_max_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 15.000
+set_min_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_clk_pll_en xgs_reset_n xgs_fwsi_en}] 0.000
 
 set_property IOB TRUE [get_cells */*/*/*/Inst_XGS_controller_top/Inst_xgs_ctrl/xgs_trig_int_reg]
 
-set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_trig_int xgs_trig_rd}] 15.000
-set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_trig_int xgs_trig_rd}] 0.000
+set_max_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_trig_int xgs_trig_rd}] 15.000
+set_min_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_trig_int xgs_trig_rd}] 0.000
 
-set_max_delay -from [get_clocks userclk1] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 15.000
-set_min_delay -from [get_clocks userclk1] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 0.000
+set_max_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 15.000
+set_min_delay -from [get_clocks axiClk62MHz] -to [get_ports {xgs_sclk xgs_cs_n xgs_sdout}] 0.000
 
 set_false_path -to [get_ports {led_out[?]}]
 set_false_path -to [get_ports {debug_data[?]}]
