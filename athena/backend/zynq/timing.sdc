@@ -112,6 +112,12 @@ set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_de
 
 
 
+set_false_path -rise_from [get_clocks io_hispi_clk_top] -rise_to [get_clocks io_hispi_clk_top]
+set_false_path -fall_from [get_clocks io_hispi_clk_top] -fall_to [get_clocks io_hispi_clk_top]
+set_false_path -rise_from [get_clocks io_hispi_clk_bottom] -rise_to [get_clocks io_hispi_clk_bottom]
+set_false_path -fall_from [get_clocks io_hispi_clk_bottom] -fall_to [get_clocks io_hispi_clk_bottom]
+
+
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_rise  -file src_sync_cntr_ddr_in_rise.txt;
 # report_timing -fall_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_fall  -file src_sync_cntr_ddr_in_fall.txt;
