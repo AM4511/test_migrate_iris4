@@ -321,7 +321,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports USER_SMA_CLOCK_N]
 
 
 
-set_property PACKAGE_PIN A17  [get_ports GPIO_LED_0]
+set_property PACKAGE_PIN A17 [get_ports GPIO_LED_0]
 # set_property PACKAGE_PIN AB17 [get_ports GPIO_DIP_SW0]
 # set_property PACKAGE_PIN AC16 [get_ports GPIO_DIP_SW1]
 # set_property PACKAGE_PIN AC17 [get_ports GPIO_DIP_SW2]
@@ -960,5 +960,6 @@ set_property PACKAGE_PIN AJ18 [get_ports smbdata]
 set_property IOSTANDARD LVCMOS25 [get_ports smbdata]
 set_property DRIVE 8 [get_ports smbdata]
 set_property SLEW SLOW [get_ports smbdata]
+
 
 
