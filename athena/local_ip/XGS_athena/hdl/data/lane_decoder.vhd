@@ -10,6 +10,7 @@
 --
 -- TODO          : Implement CRC
 --                 Implement clock domain crossing for calibration signals!!!
+--                 Implement Lane lock mechanism (watchdog counter)
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -30,11 +31,6 @@ entity lane_decoder is
     hclk_reset     : in std_logic;
     hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
-    ---------------------------------------------------------------------------
-    -- Register file 
-    ---------------------------------------------------------------------------
-    rclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    hispi_phy_en        : in std_logic;
 
     -- calibration
     pix_clk            : out std_logic;
@@ -50,6 +46,10 @@ entity lane_decoder is
     ---------------------------------------------------------------------------
     aclk       : in std_logic;
     aclk_reset : in std_logic;
+
+    -- Register file 
+    aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    aclk_hispi_phy_en   : in std_logic;
 
     -- Read fifo interface
     aclk_fifo_read_en         : in  std_logic;
@@ -173,19 +173,19 @@ architecture rtl of lane_decoder is
   signal pclk_data           : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal pclk_data_p1        : std_logic_vector(PIXEL_SIZE-1 downto 0);
 
-  signal pclk_hispi_phy_en_Meta : std_logic;
-  signal pclk_hispi_phy_en      : std_logic;
-  signal pclk_embeded_data      : std_logic;
-  signal pclk_sof_flag          : std_logic;
-  signal pclk_eof_flag          : std_logic;
-  signal pclk_sol_flag          : std_logic;
-  signal pclk_eol_flag          : std_logic;
-  signal pclk_fifo_overrun      : std_logic;
-  signal pclk_fifo_wen          : std_logic;
-  signal pclk_fifo_full         : std_logic;
-  signal pclk_packer_mux        : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
-  signal pclk_state             : FSM_STATE_TYPE := S_UNKNOWN;
-  signal pclk_dataCntr          : unsigned(2 downto 0);  -- Modulo 8 counter
+  --signal pclk_hispi_phy_en_Meta : std_logic;
+  signal pclk_hispi_phy_en : std_logic;
+  signal pclk_embeded_data : std_logic;
+  signal pclk_sof_flag     : std_logic;
+  signal pclk_eof_flag     : std_logic;
+  signal pclk_sol_flag     : std_logic;
+  signal pclk_eol_flag     : std_logic;
+  signal pclk_fifo_overrun : std_logic;
+  signal pclk_fifo_wen     : std_logic;
+  signal pclk_fifo_full    : std_logic;
+  signal pclk_packer_mux   : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
+  signal pclk_state        : FSM_STATE_TYPE := S_UNKNOWN;
+  signal pclk_dataCntr     : unsigned(2 downto 0);  -- Modulo 8 counter
 
   signal pclk_sync_detected : std_logic;
   signal pclk_packer_valid  : std_logic;
@@ -202,6 +202,7 @@ architecture rtl of lane_decoder is
   signal pclk_crc_enable : std_logic := '1';  --TBD should be register field
 
   signal aclk_fifo_empty_int : std_logic;
+  signal  aclk_fifo_overrun_int         :  std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes on pclk clock domain
@@ -267,7 +268,7 @@ begin
       hclk           => hclk,
       hclk_reset     => hclk_reset,
       hclk_data_lane => hclk_data_lane,
-      rclk_idle_char => rclk_idle_character,
+      rclk_idle_char => aclk_idle_character,
       pclk           => pclk,
       pclk_data      => pclk_data
       );
@@ -278,18 +279,36 @@ begin
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
-  P_pclk_hispi_phy_en : process (pclk) is
-  begin
-    if (rising_edge(pclk)) then
-      if (pclk_reset = '1') then
-        pclk_hispi_phy_en_Meta <= '0';
-        pclk_hispi_phy_en      <= '0';
-      else
-        pclk_hispi_phy_en_Meta <= hispi_phy_en;
-        pclk_hispi_phy_en      <= pclk_hispi_phy_en_Meta;
-      end if;
-    end if;
-  end process;
+  -- P_pclk_hispi_phy_en : process (pclk) is
+  -- begin
+  --   if (rising_edge(pclk)) then
+  --     if (pclk_reset = '1') then
+  --       pclk_hispi_phy_en_Meta <= '0';
+  --       pclk_hispi_phy_en      <= '0';
+  --     else
+  --       pclk_hispi_phy_en_Meta <= hispi_phy_en;
+  --       pclk_hispi_phy_en      <= pclk_hispi_phy_en_Meta;
+  --     end if;
+  --   end if;
+  -- end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Resync aclk_eof_flag
+  -----------------------------------------------------------------------------
+  M_pclk_hispi_phy_en : mtx_resync
+    port map
+    (
+      aClk  => aclk,
+      aClr  => aclk_reset,
+      aDin  => aclk_hispi_phy_en,
+      bclk  => pclk,
+      bclr  => pclk_reset,
+      bDout => pclk_hispi_phy_en,
+      bRise => open,
+      bFall => open
+      );
+
 
 
   -----------------------------------------------------------------------------
@@ -304,7 +323,7 @@ begin
       pclk                => pclk,
       pclk_reset          => pclk_reset,
       pclk_pixel          => pclk_data,
-      pclk_idle_character => rclk_idle_character,
+      pclk_idle_character => aclk_idle_character,
       pclk_cal_en         => pclk_cal_en,
       pclk_cal_busy       => pclk_cal_busy,
       pclk_cal_error      => pclk_cal_error,
@@ -788,7 +807,7 @@ begin
       aDin  => pclk_fifo_overrun,
       bclk  => aclk,
       bclr  => aclk_reset,
-      bDout => aclk_fifo_overrun,
+      bDout => aclk_fifo_overrun_int,
       bRise => open,
       bFall => open
       );
@@ -808,6 +827,29 @@ begin
       end if;
     end if;
   end process;
+
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_fifo_overrun
+  -- Description : We gate aclk_fifo_overrun_int with aclk_hispi_phy_en
+  --               otherwise can generate an overflow error in th register file
+  --               when there is no pixclk available
+  -----------------------------------------------------------------------------
+  P_aclk_fifo_overrun : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1') then
+        aclk_fifo_overrun <= '0';
+      else
+        if (aclk_hispi_phy_en = '1') then
+          aclk_fifo_overrun <= aclk_fifo_overrun_int;
+        else
+          aclk_fifo_overrun <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
