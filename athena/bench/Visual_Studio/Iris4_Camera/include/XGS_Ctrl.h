@@ -109,7 +109,7 @@ public:
 	void WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write,  M_UINT32 data);
 	M_UINT32 ReadSPI(M_UINT32 address);
 	void PollRegSPI(M_UINT32 address, M_UINT32 maskN, M_UINT32 Data2Poll, M_UINT32 Delay, M_UINT32 TimeOut);
-	void DumpRegSPI(M_UINT32 SPI_START, M_UINT32 SPI_END);
+	void DumpRegSPI(M_UINT32 SPI_START, M_UINT32 SPI_RANGE);
 	void ReadSPI_DumpFile(void);
 
 	void InitXGS(void);

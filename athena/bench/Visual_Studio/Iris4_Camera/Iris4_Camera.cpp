@@ -51,7 +51,7 @@ int main(void)
 	//int answer;
 
 	M_UINT32 SPI_START;
-	M_UINT32 SPI_END;
+	M_UINT32 SPI_RANGE;
 
 	M_UINT32 address;
 	M_UINT32 data;
@@ -188,6 +188,8 @@ int main(void)
 			switch (ch)
 			{
 			case 'q':
+				XGS_Ctrl->DisableXGS();
+				XGS_Data->HiSpiClr();
 				sortie = 1;
 				printf("\n\n");
 				break;
@@ -195,10 +197,10 @@ int main(void)
 			case 'r':
 				printf("\nEnter Sensor starting address to Dump in hex : 0x");
 				scanf_s("%x", &SPI_START);
-				printf("\nEnter Sensor ending address to Dump in hex : 0x");
-				scanf_s("%d", &SPI_END);
+				printf("\nEnter the number of register to read in DEC : ");
+				scanf_s("%d", &SPI_RANGE);
 				printf("\n\n");
-				XGS_Ctrl->DumpRegSPI(SPI_START, SPI_END);
+				XGS_Ctrl->DumpRegSPI(SPI_START, SPI_RANGE);
 				printf("\n\n");
 				break;
 
@@ -209,10 +211,11 @@ int main(void)
 			case 'w':
 				printf("\nEnter Sensor address to Write in hex : 0x");
 				scanf_s("%x", &address);
-				printf("\nEnter Sensor data to Write in hex : 0x");
+				printf("\nCurrent data in this register is : 0x%X\n", XGS_Ctrl->ReadSPI(address) );
+				printf("\nEnter data to Write in hex : 0x");
 				scanf_s("%x", &data);
-				printf("\n\n");
 				XGS_Ctrl->WriteSPI(address, data);		
+				printf("\nCurrent data in this register is now : 0x%X (Readback of XGS after Write operation)\n", XGS_Ctrl->ReadSPI(address));
 				printf("\n\n");
 				break;
 
@@ -235,21 +238,13 @@ int main(void)
 
 			case 'd':
 				XGS_Ctrl->DisableXGS();   //reset and disable clk
+				XGS_Data->HiSpiClr();
 				printf("\n\n");
 				break;
 
 
 			case 'h':
-				printf("HiSPI calibration\n");
-				rXGS_Athena_ptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
-				Sleep(500);
-				printf("IDELAYCTRL_STATUS     : 0x%X\n", rXGS_Athena_ptr.HISPI.IDELAYCTRL_STATUS.u32);
-				printf("LANE_DECODER_STATUS_0 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_1 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[1].u32);
-				printf("LANE_DECODER_STATUS_2 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[2].u32);
-				printf("LANE_DECODER_STATUS_3 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[3].u32);
-				printf("LANE_DECODER_STATUS_4 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[4].u32);
-				printf("LANE_DECODER_STATUS_5 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[5].u32);
+				XGS_Data->HiSpiCalibrate();
 				break;
 
 			}
@@ -293,6 +288,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n");
 	printf("\n  (e) Enable XGS sensor (Enable clk + unreset + Load DCF)");
 	printf("\n  (d) Disable XGS sensor (Disable clk + Reset)");
+	printf("\n  (h) Calibrate HiSPI XGS sensor interafce");
 	printf("\n");
 	printf("\n  (D) Dump XGS sensor registers");
 	printf("\n  (r) Dump XGS sensor registers range");

@@ -56,6 +56,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //------------------------------
 	XGS_Ctrl->InitXGS();
 
+	//---------------------------------
+	// Calibrate FPGA HiSPI interface
+	//---------------------------------
+	XGS_Data->HiSpiCalibrate();
 
 	//---------------------
     //
@@ -184,10 +188,11 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
 			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
-				                                                             1.0 / (0.0000114 + 0.000023+(0.0000114375*(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 ))),  
+				                                                             1.0 / (0.0000114 + 0.000023+( (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) *(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 ))),
 				                                                            ((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES +1 ) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond/1000.0)
 			                                                                 );
 		}
+
 
 
 		if (DisplayOn)
@@ -209,6 +214,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
+				XGS_Ctrl->DisableXGS();
+				XGS_Data->HiSpiClr();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;

@@ -62,6 +62,64 @@ DMAParamStruct* CXGS_Data::getDMAParams(void)
 }
 
 
+
+//--------------------------------------------------------------------
+// Cette fonction Reset l'interface HiSPI
+//--------------------------------------------------------------------
+void CXGS_Data::HiSpiClr(void)
+{
+	printf("HiSPI logic reseted\n");
+	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI      = 0;
+	sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
+	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 1;
+	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
+	Sleep(100);
+	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
+    rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
+	Sleep(100);
+}
+
+//--------------------------------------------------------------------
+// Cette fonction Calibre l'interface HiSPI
+//--------------------------------------------------------------------
+void CXGS_Data::HiSpiCalibrate(void)
+{
+	int count = 0;
+	
+	printf("HiSPI calibration...  ");
+	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI    = 1;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
+	rXGSptr.HISPI.CTRL.u32               = sXGSptr.HISPI.CTRL.u32;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
+	
+	do 
+	{
+		Sleep(1);
+		count++;
+		if (count == 100) break;
+
+	} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
+
+	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0)
+	{
+		printf("Calibration ERROR\n");
+		printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
+		printf("  IDELAYCTRL_STATUS     : 0x%X\n", rXGSptr.HISPI.IDELAYCTRL_STATUS.u32);
+		printf("  LANE_DECODER_STATUS_0 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32);
+		printf("  LANE_DECODER_STATUS_1 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32);
+		printf("  LANE_DECODER_STATUS_2 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32);
+		printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
+		printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
+		printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
+	}
+
+	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1)
+		printf("Calibration OK\n");
+
+}
+
+
+
 //--------------------------------------------------------------------
 // Cette fonction Programme les registres DMA
 //--------------------------------------------------------------------
@@ -93,5 +151,4 @@ void CXGS_Data::SetDMA(void)
 	sXGSptr.DMA.LINE_SIZE.u32      = DMAParams.LINE_SIZE;
 	rXGSptr.DMA.LINE_SIZE.u32      = sXGSptr.DMA.LINE_SIZE.u32;
 }
-
 
