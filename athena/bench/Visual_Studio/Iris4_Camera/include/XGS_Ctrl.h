@@ -53,6 +53,8 @@ struct GrabParamStruct
 
 	M_UINT32 XSM_DELAY;
 
+	M_UINT32 XGS_LINE_SIZE_FACTOR;
+
 };
 
 struct SensorParamStruct

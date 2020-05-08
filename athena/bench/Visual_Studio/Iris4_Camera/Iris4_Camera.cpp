@@ -69,6 +69,7 @@ int main(void)
 	// IRISx
 	int nbFPGA = FindMultiFpga(0x102b, DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
 	
+
 	if (nbFPGA == 0)
 	{
 		printf("Impossible to find Athena!!!\n");
@@ -153,7 +154,28 @@ int main(void)
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 
+	//-----------------------------------------------------
+    // If PCIe x1 detected, reduce Framerate of the sensor
+    //-----------------------------------------------------
+	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x110000)
+	{   
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+		printf("\n");
+		printf("--------------------------------------------------------------------------\n");
+		printf(" REDUCING XGS LINERATE(FPS) BY A FACTOR %d, SINCE FPGA IS IN PCIe Gen1 x1 \n", XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR);
+		printf("--------------------------------------------------------------------------\n");
+		printf("\n");
+	}
 
+	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x210000)
+	{
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+		printf("\n");
+		printf("------------------------------------------------------------------\n");
+		printf(" XGS FRAMERATE IS AT NOMINAL SPEED, SINCE FPGA IS IN PCIe Gen1 x2 \n");
+		printf("------------------------------------------------------------------\n");
+		printf("\n");
+	}
 
 	//------------------------------
     // Print TAGs of regfile

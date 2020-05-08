@@ -302,8 +302,8 @@ void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 	WriteSPI(0x3E28, 0x2537);
 	WriteSPI(0x3E80, 0x000D);
 
-	WriteSPI(0x3810, 0x02DC);   // minimum line time
-	WriteSPI(0x3810, 0x02DC*4); // To reduce framerate in PCIe x1
+	//WriteSPI(0x3810, 0x02DC);                                     // minimum line time
+	WriteSPI(0x3810, 0x02DC*GrabParams.XGS_LINE_SIZE_FACTOR); // To reduce framerate in PCIe x1, temporairement
 
 	// Not used in slave mode:
 	//LOG = Setting framerate to 28FPS

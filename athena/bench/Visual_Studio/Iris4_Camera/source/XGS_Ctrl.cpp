@@ -77,6 +77,8 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 
 	    0,             //XSM_DELAY;
 
+		0,             //XGS_LINE_SIZE_FACTOR;
+
 	};
 
 	//------------------------------------
