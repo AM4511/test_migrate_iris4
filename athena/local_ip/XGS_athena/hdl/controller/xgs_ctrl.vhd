@@ -17,7 +17,7 @@ library IEEE;
   use IEEE.std_logic_arith.all;
 
 library work;
-use work.regfile_xgs_ctrl_pack.all;
+  use work.regfile_xgs_athena_pack.all;
 
 library UNISIM;
   use UNISIM.VCOMPONENTS.all;
@@ -76,7 +76,7 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            -- Debug out
            ---------------------------------------------------------------------------
-           debug_ctrl16                    : out std_logic_vector(15 downto 0);
+           debug_out                       : out std_logic_vector(3 downto 0);
 
            ---------------------------------------------------------------------------
            -- IRQ
@@ -90,13 +90,14 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            --   signals
            ---------------------------------------------------------------------------          
-           --start_calibration               : out std_logic;
-
+           start_calibration               : out std_logic;
+           DEC_EOF_sys                     : in  std_logic;
+           
            abort_readout_datapath          : out std_logic;
            dma_idle                        : in  std_logic;
 
-           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers  
-           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers 
+           strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers (5 sys_clk length) 
+           strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers (5 sys_clk length)  
            
            curr_db_GRAB_ROI2_EN            : out std_logic;
                       
@@ -114,7 +115,7 @@ entity xgs_ctrl is
            ---------------------------------------------------------------------------
            --  RegFile
            ---------------------------------------------------------------------------         
-           regfile                         : inout REGFILE_XGS_CTRL_TYPE-- := INIT_REGFILE_TYPE
+           regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
 
         );
 end xgs_ctrl;
@@ -135,23 +136,24 @@ architecture functional of xgs_ctrl is
    generic( G_SYS_CLK_PERIOD : integer :=16
           );
   port (  
-    sys_reset_n     : in  std_logic;      --SYSTEME
-    sys_clk         : in  std_logic;
-
-    cmos_spi_clk    : out std_logic;
-    cmos_spi_en     : out std_logic;
-    cmos_spi_mosi   : out std_logic;
-    cmos_spi_miso   : in  std_logic;
+    sys_reset_n                  : in  std_logic;      --SYSTEME
+    sys_clk                      : in  std_logic;
+                                 
+    cmos_spi_clk                 : out std_logic;
+    cmos_spi_en                  : out std_logic;
+    cmos_spi_mosi                : out std_logic;
+    cmos_spi_miso                : in  std_logic;
     
     grab_mngr_sensor_reconf      : in  std_logic;
     sensor_reconf_busy           : out std_logic;
     
-    abort_now             : in std_logic;
-    abort_fifo_cmd        : in std_logic;
-    abort_fifo_cmd_done   : out std_logic;
+    abort_now                    : in std_logic;
+    abort_fifo_cmd               : in std_logic;
+    abort_fifo_cmd_done          : out std_logic;
     
-    acquisition_start_SFNC   : in std_logic:='0';
-    regfile                  : inout REGFILE_XGS_CTRL_TYPE := INIT_REGFILE_XGS_CTRL_TYPE
+    acquisition_start_SFNC       : in std_logic:='0';
+    
+    regfile                      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
   );
   end component;
 
@@ -173,7 +175,7 @@ architecture functional of xgs_ctrl is
             xgs_osc_en                      : out std_logic;
             xgs_reset_n                     : out std_logic;
 
-            regfile                         : inout REGFILE_XGS_CTRL_TYPE := INIT_REGFILE_XGS_CTRL_TYPE
+            regfile                         : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE -- Register file
          );
   end component;
 
@@ -250,7 +252,6 @@ architecture functional of xgs_ctrl is
   signal  curr_trigger_src       : std_logic_vector(REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC'range);
   signal  curr_trigger_act       : std_logic_vector(REGFILE.ACQ.GRAB_CTRL.TRIGGER_ACT'range);
   signal  curr_readout_length    : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
-  --signal  curr_readout_en        : std_logic;
   signal  curr_exposure_lev_mode : std_logic;
   signal  curr_exposure_ss       : std_logic_vector(REGFILE.ACQ.EXP_CTRL1.EXPOSURE_SS'range);
   signal  curr_exposure_ds       : std_logic_vector(REGFILE.ACQ.EXP_CTRL2.EXPOSURE_DS'range);
@@ -451,8 +452,10 @@ architecture functional of xgs_ctrl is
   signal  fps_cntr               : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
   signal  fps_cntr_db            : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
 
-  signal fast_fps_est     : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION'range);
-  signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION'range); 
+  signal fast_fps_est     : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range);
+  signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range); 
+  
+  signal debug_int        : std_logic_vector(debug_out'range);
   
   -------------------------------------
   --  Signaux Chipscopables
@@ -554,7 +557,7 @@ signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 
 
-signal debug_ctrl16_int : std_logic_vector(debug_ctrl16'range);
+signal debug_ctrl16_int : std_logic_vector(15 downto 0);
 
 BEGIN
 
@@ -829,7 +832,6 @@ BEGIN
         
         curr_trigger_src        <= REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC;
         curr_trigger_act        <= REGFILE.ACQ.GRAB_CTRL.TRIGGER_ACT;
-        --curr_readout_en         <= REGFILE.ACQ.READOUT_CFG2.READOUT_EN;
         curr_exposure_lev_mode  <= REGFILE.ACQ.EXP_CTRL1.EXPOSURE_LEV_MODE;
         
         ------------------------------------------------------------------
@@ -1273,7 +1275,7 @@ BEGIN
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est  <= (others=>'0');
-      elsif(readout_cntr2_end='1' ) then
+      elsif(DEC_EOF_sys='1' ) then
         fast_fps_est  <= (others=>'0');
       elsif(fast_fps_est=X"FFFFFFF") then
         fast_fps_est  <= fast_fps_est;
@@ -1283,13 +1285,13 @@ BEGIN
     
       if(sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
         fast_fps_est_DB  <= (others=>'0');
-      elsif(readout_cntr2_end='1' ) then
+      elsif(DEC_EOF_sys='1' ) then
         fast_fps_est_DB  <= fast_fps_est;
       end if;
     end if;    
   end process;
     
-  REGFILE.ACQ.DEBUG_CNTR3.SENSOR_FRAME_DURATION <= fast_fps_est_DB;
+  REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION <= fast_fps_est_DB;
   
   
   ------------------------------------------
@@ -1960,16 +1962,16 @@ BEGIN
   ----  SIGNALS TO OTHER MODULES
   ----
   --------------------------------------------
-  --process(sys_clk)
-  --begin
-  --  if(rising_edge(sys_clk)) then
-  --    if(sys_reset_n='0') then
-  --      start_calibration <= '0';
-  --    else
-  --      start_calibration <= curr_readout_en and SO_FOT;
-  --    end if;
-  --  end if;
-  --end process;
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        start_calibration <= '0';
+      else
+        start_calibration <= SO_FOT;
+      end if;
+    end if;
+  end process;
 
   abort_readout_datapath <= abort_now;
 
@@ -2012,12 +2014,46 @@ BEGIN
   
   xgs_trig_rd       <= '0'; --XGS pour le moment on ne fait rien avec le readout sequencer! 
   
-  -- Pour valider la longueur du readout du FPGA temporairement on change ce signal :
-  exposure_out <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
-  --exposure_out      <= exposure_outpin;
-  
+  exposure_out      <= exposure_outpin;
   strobe_out        <= strobe_outpin;
   trig_rdy_out      <= trig_rdy_outpin;
+  
+  -------------------------------------------------------------------------------
+  --
+  -- DEBUG PINS
+  --
+  -------------------------------------------------------------------------------
+  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
+  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
+  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
+  debug_ctrl16_int(5)  <=  curr_trig0;
+  debug_ctrl16_int(6)  <=  strobe;
+  debug_ctrl16_int(7)  <=  FOT;
+  debug_ctrl16_int(8)  <=  readout;
+  debug_ctrl16_int(9)  <=  readout_stateD;
+  debug_ctrl16_int(10) <=  readout_cntr2_armed;
+  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+  debug_ctrl16_int(14) <=  grab_pending;
+  debug_ctrl16_int(15) <=  grab_active;
+
+  debug_int(0) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
+  debug_int(1) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(3 downto 0) ));
+  debug_int(2) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(3 downto 0) ));
+  debug_int(3) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(3 downto 0) ));
+      
+  
+  -- output ff
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+       debug_out <= debug_int;
+    end if;
+  end process;
+
   
   -------------------------------------------------------------------------------
   --
@@ -2044,30 +2080,8 @@ BEGIN
        );
 
 
-  -------------------------------------------------------------------------------
-  --
-  -- DEBUG PINS
-  --
-  -------------------------------------------------------------------------------
-  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
-  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
-  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
-  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
-  debug_ctrl16_int(5)  <=  curr_trig0;
-  debug_ctrl16_int(6)  <=  strobe;
-  debug_ctrl16_int(7)  <=  FOT;
-  debug_ctrl16_int(8)  <=  readout;
-  debug_ctrl16_int(9)  <=  readout_stateD;
-  debug_ctrl16_int(10) <=  readout_cntr2_armed;
-  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
-  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
-  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
-  debug_ctrl16_int(14) <=  grab_pending;
-  debug_ctrl16_int(15) <=  grab_active;
 
   
-  debug_ctrl16 <= debug_ctrl16_int;
 
 
 
@@ -2333,11 +2347,10 @@ BEGIN
   begin
     if(rising_edge(sys_clk)) then
       
-      --4 dummy lines after M_lines need to be confirmed by Onsemi      
+      --4 dummy lines after M_lines are skipped, confirmed by Onsemi      
       TOTAL_NB_LINES <= "11"                                                  -- 3 is first dummy lines after FOT
                         + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR           -- Black lines for calibration 
-                        - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED   
-                        + "100"                                               -- Dummy 2
+                        + '1'                                                 -- Embedded
                         + ('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00") -- Y_size is a 4 line multiplier              
                         + "111"                                               -- Dummy 3
                         + "111"                                               -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid
@@ -2353,10 +2366,13 @@ BEGIN
   -- First  LSR of 15 bits because of decimal [4].[15] of the sensor period
   -- Second LSR of 4 bits with 62.5 Mhz sys clk (/16)   -> total is LSR 19
   -- Second LSR of 3 bits with  125 Mhz sys clk (/8)    -> total is LSR 18
-  INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
-                             '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
-                             
-    
+  -- INTERNAL_READOUT_LENGTH <= '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                             -- INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
+   
+	-- [AM]  fixed range
+   INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                              INTERNAL_READOUT_LENGTH_FLOAT(46 downto 18);                                 --125.0 Mhz
+   
   REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length; -- INTERNAL_READOUT_LENGTH;
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          

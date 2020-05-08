@@ -2,26 +2,73 @@
 
 import core_pkg::*;
 import driver_pkg::*;
-import dmawr2tlp_pkg::*;
+import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
-module testbench_dmawr2tlp();
-	parameter DATA_WIDTH=32;
-	parameter AXIS_DATA_WIDTH=64;
-	parameter AXIS_USER_WIDTH=4;
-	parameter ADDR_WIDTH=8;
-	parameter GPIO_NUMB_INPUT=8;
-	parameter GPIO_NUMB_OUTPUT=8;
+module testbench();
+	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
+	parameter MUX_RATIO = 4;
+	parameter PIXELS_PER_LINE=4176;
+	parameter LINE_PER_FRAME=3102;
+	parameter PIXEL_SIZE = 12;
+	parameter NUMBER_ACTIVE_LINES = 8;
+	parameter SYS_CLK_PERIOD= 16;
+	parameter SENSOR_FREQ = 32400;
+	parameter SIMULATION = 1;
+	parameter KU706 = 0;
+
+	parameter AXIL_DATA_WIDTH=32;
+	parameter AXIL_ADDR_WIDTH=11;
+
+	parameter GPIO_NUMB_INPUT=1;
+	parameter GPIO_NUMB_OUTPUT=1;
+	parameter MAX_PCIE_PAYLOAD_SIZE=128;
+
+	parameter BAR_XGS_ATHENA        = 32'h00000000;
+
+	// XGS_athena system
+	parameter TAG_OFFSET            = 'h0000;
+	parameter SCRATCHPAD_OFFSET     = 'h000c;
+
+	// XGS_athena DMA
+	parameter FSTART_OFFSET         = 'h078;
+	parameter FSTART_HIGH_OFFSET    = 'h07c;
+	parameter FSTART_G_OFFSET       = 'h080;
+	parameter FSTART_G_OFFSET_HIGH  = 'h084;
+	parameter FSTART_R_OFFSET       = 'h088;
+	parameter FSTART_R_OFFSET_HIGH  = 'h08C;
+	parameter LINE_PITCH_OFFSET     = 'h090;
+	parameter LINE_SIZE_OFFSET      = 'h094;
+
+	// XGS_athena controller
+	parameter GRAB_CTRL_OFFSET          = 'h0100;
+	parameter READOUT_CFG3_OFFSET       = 'h0120;
+	parameter READOUT_CFG4_OFFSET       = 'h0124;
+	parameter EXP_CTRL1_OFFSET          = 'h0128;
+	parameter SENSOR_CTRL_OFFSET        = 'h0190;
+	parameter SENSOR_STAT_OFFSET        = 'h0198;
+	parameter SENSOR_SUBSAMPLING_OFFSET = 'h019c;
+	parameter SENSOR_GAIN_ANA_OFFSET    = 'h01a4;
+	parameter SENSOR_ROI_Y_START_OFFSET = 'h01a8;
+	parameter SENSOR_ROI_Y_SIZE_OFFSET  = 'h01ac;
+	parameter SENSOR_M_LINES_OFFSET     = 'h01b8;
+	parameter EXP_FOT_OFFSET            = 'h02b8;
 
 
-	parameter FSTART_OFFSET_LOW     = 'h050;
-	parameter FSTART_OFFSET_HIGH    = 'h054;
-	parameter FSTART_R_OFFSET_LOW   = 'h058;
-	parameter FSTART_R_OFFSET_HIGH  = 'h05C;
-	parameter FSTART_G_OFFSET_LOW   = 'h060;
-	parameter FSTART_G_OFFSET_HIGH  = 'h064;
-	parameter LINE_SIZE_OFFSET      = 'h068;
-	parameter LINE_PITCH_OFFSET     = 'h06C;
+	// XGS_athena HiSPi
+	parameter HISPI_CTRL_OFFSET         = 'h0400;
+
+	// XGS sensor SPI Parameters
+	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
+	parameter SPI_REVISION_NUMB_OFFSET     = 16'h31FE;
+	parameter SPI_RESET_REGISTER_REG       = 16'h3700;
+	parameter SPI_UNKNOWN_REGISTER_REG     = 16'h3e3e;
+	parameter SPI_HISPI_CONTROL_COMMON_REG = 16'h3e28;
+	parameter SPI_TEST_PATTERN_MODE_REG    = 16'h3e0e;
+	parameter SPI_LINE_TIME_REG            = 16'h3810;
+	parameter SPI_GENERAL_CONFIG0_REG      = 16'h3800;
+	parameter SPI_MONITOR_REG              = 16'h3806;
+
 
 	integer  address;
 	integer  data;
@@ -30,34 +77,247 @@ module testbench_dmawr2tlp();
 	//clock and reset signal declaration
 	bit 	    idelay_clk=1'b0;
 	bit 	    axi_clk=1'b0;
+	bit 	    pcie_clk=1'b0;
 	bit [5:0] user_data_in;
 	bit [1:0] user_data_out;
-	bit [63:0] irq;
 	bit 	      intevent;
 	bit [1:0]  context_strb;
 	bit 	      cfg_bus_mast_en;
 	bit [2:0]  cfg_setmaxpld;
+	bit [7:0] 	   irq;
+	bit 	      XGS_MODEL_EXTCLK  = 0;
+
+//	reg 	      XGS_MODEL_SCLK;
+//	reg 	      XGS_MODEL_SDATA;
+//	reg 	      XGS_MODEL_CS;
+//	reg 	      XGS_MODEL_SDATAOUT;
 
 
-	Cdriver_axil #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) axil_driver;
-	Cdriver_axis #(.DATA_WIDTH(AXIS_DATA_WIDTH), .USER_WIDTH(AXIS_USER_WIDTH)) axis_driver;
-	//Cscoreboard_dmawr2tlp scoreboard;
-	//Ctest0000 test0000;
+	logic 	      xgs_power_good;
+	logic 	      xgs_clk_pll_en;
+	logic 	      xgs_reset_n;
+
+	logic 	      xgs_fwsi_en;
+
+	logic 	      xgs_sclk;
+	logic 	      xgs_cs_n;
+	logic 	      xgs_sdout;
+	logic 	      xgs_sdin;
+
+	logic 	      xgs_trig_int;
+	logic 	      xgs_trig_rd;
+
+	wire 	      xgs_monitor0;
+	wire 	      xgs_monitor1;
+	wire 	      xgs_monitor2;
+
+
+	logic 	      anput_ext_trig;
+
+	logic 	      anput_strobe_out;
+	logic 	      anput_exposure_out;
+	logic 	      anput_trig_rdy_out;
+
+	// -- led_out(0) --> vert, led_out(1) --> rouge
+	logic [1:0] 	      led_out;
+
+    logic pcie_reset_n = 0;
+
+
+
+	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) axil_driver;
+	Cscoreboard scoreboard;
 
 	// Define the interfaces
-	axi_lite_interface #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH)) axil(axi_clk);
-	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(AXIS_USER_WIDTH)) axis(axi_clk, axil_reset_n);
-	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(axi_clk, axil_reset_n);
+	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) axil(axi_clk);
+	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(pcie_clk, pcie_reset_n);
 	io_interface #(GPIO_NUMB_INPUT,GPIO_NUMB_OUTPUT) if_gpio();
+	hispi_interface #(.NUMB_LANE(NUMBER_OF_LANE)) if_hispi(XGS_MODEL_EXTCLK);
 	tlp_interface tlp();
 
 
-	dmawr2tlp #(.MAX_PCIE_PAYLOAD_SIZE(128)) DUT
+
+	xgs12m_chip
+		#(
+			//----------------------------------------------
+			// Configuration for XGS12M with 24 HiSPI LANES
+			//----------------------------------------------
+			.G_MODEL_ID         (16'h0058),     // XGS12M
+			.G_REV_ID           (16'h0002),     // XGS12M
+			.G_NUM_PHY          (6),            // XGS12M
+			.G_PXL_PER_COLRAM   (174),          // XGS12M
+			.G_PXL_ARRAY_ROWS   (3100)          // XGS12M
+
+			//----------------------------------------------
+			// Configuration for XGS5M with 16 HiSPI LANES
+			//----------------------------------------------
+			//.G_MODEL_ID         (16'h0358),     // XGS5M
+			//.G_REV_ID           (16'h0000),     // XGS5M
+			//.G_NUM_PHY          (4),            // XGS5M
+			//.G_PXL_PER_COLRAM   (174),          // XGS5M
+			//.G_PXL_ARRAY_ROWS   (2056)          // XGS5M  only active (2048+8=2056)
+		)
+		XGS_MODEL
 		(
+			.VAAHV_NPIX(),
+			.VREF1_BOT_0(),
+			.VREF1_BOT_1(),
+			.VREF1_TOP_0(),
+			.VREF1_TOP_1(),
+			.ATEST_BTM(),
+			.ATEST_TOP(),
+			.ASPARE_TOP(),
+			.ASPARE_BTM(),
+
+			.VRESPD_HI_0(),
+			.VRESPD_HI_1(),
+			.VRESFD_HI_0(),
+			.VRESFD_HI_1(),
+			.VSG_HI_0(),
+			.VSG_HI_1(),
+			.VRS_HI_0(),
+			.VRS_HI_1(),
+			.VTX1_HI_0(),
+			.VTX1_HI_1(),
+			.VTX0_HI_0(),
+			.VTX0_HI_1(),
+			.VRESFD_LO1_0(),
+			.VRESFD_LO1_1(),
+			.VRESFD_LO2_0(),
+			.VRESFD_LO2_1(),
+			.VRESPD_LO1_0(),
+			.VRESPD_LO1_1(),
+			.VSG_LO1_0(),
+			.VSG_LO1_1(),
+			.VTX1_LO1_0(),
+			.VTX1_LO1_1(),
+			.VTX1_LO2_0(),
+			.VTX1_LO2_1(),
+			.VTX0_LO1_0(),
+			.VTX0_LO1_1(),
+			.VPSUB_LO_0(),
+			.VPSUB_LO_1(),
+			.TEST(1'b1),
+			.DSPARE0 (),
+			.DSPARE1 (),
+			.DSPARE2 (),
+
+			.TRIGGER_INT(xgs_trig_int),
+
+			.MONITOR0(xgs_monitor0),
+			.MONITOR1(xgs_monitor1),
+			.MONITOR2(xgs_monitor2),
+
+			.RESET_B(xgs_reset_n),
+			.EXTCLK(if_hispi.refclk),
+			.FWSI_EN(1'b1),
+
+			.SCLK(xgs_sclk),
+			.SDATA(xgs_sdout),
+			.CS(xgs_cs_n),
+			.SDATAOUT(xgs_sdin),
+
+			.D_CLK_0_N(),
+			.D_CLK_0_P(),
+			.D_CLK_1_N(),
+			.D_CLK_1_P(),
+
+			.D_CLK_2_N(if_hispi.hclk_n[0]),
+			.D_CLK_2_P(if_hispi.hclk_p[0]),
+			.D_CLK_3_N(if_hispi.hclk_n[1]),
+			.D_CLK_3_P(if_hispi.hclk_p[1]),
+			.D_CLK_4_N(),
+			.D_CLK_4_P(),
+			.D_CLK_5_N(),
+			.D_CLK_5_P(),
+
+			.DATA_0_N (if_hispi.data_n[0]),
+			.DATA_0_P (if_hispi.data_p[0]),
+			.DATA_1_P (if_hispi.data_p[1]),
+			.DATA_1_N (if_hispi.data_n[1]),
+			.DATA_2_P (),
+			.DATA_2_N (),
+			.DATA_3_P (),
+			.DATA_3_N (),
+			.DATA_4_N (),
+			.DATA_4_P (),
+			.DATA_5_N (),
+			.DATA_5_P (),
+			.DATA_6_N (),
+			.DATA_6_P (),
+			.DATA_7_N (),
+			.DATA_7_P (),
+			.DATA_8_N (if_hispi.data_n[2]),
+			.DATA_8_P (if_hispi.data_p[2]),
+			.DATA_9_N (if_hispi.data_n[3]),
+			.DATA_9_P (if_hispi.data_p[3]),
+			.DATA_10_N(),
+			.DATA_10_P(),
+			.DATA_11_N(),
+			.DATA_11_P(),
+			.DATA_12_N(),
+			.DATA_12_P(),
+			.DATA_13_N(),
+			.DATA_13_P(),
+			.DATA_14_N(),
+			.DATA_14_P(),
+			.DATA_15_N(),
+			.DATA_15_P(),
+			.DATA_16_N(if_hispi.data_n[4]),
+			.DATA_16_P(if_hispi.data_p[4]),
+			.DATA_17_N(if_hispi.data_n[5]),
+			.DATA_17_P(if_hispi.data_p[5]),
+			.DATA_18_N(),
+			.DATA_18_P(),
+			.DATA_19_N(),
+			.DATA_19_P(),
+			.DATA_20_N(),
+			.DATA_20_P(),
+			.DATA_21_N(),
+			.DATA_21_P(),
+			.DATA_22_N(),
+			.DATA_22_P(),
+			.DATA_23_N(),
+			.DATA_23_P()
+		);
+
+
+
+
+	XGS_athena  #(
+			.ENABLE_IDELAYCTRL(),
+			.NUMBER_OF_LANE(NUMBER_OF_LANE),
+			.MUX_RATIO(MUX_RATIO),
+			.PIXELS_PER_LINE(PIXELS_PER_LINE),
+			.LINES_PER_FRAME(NUMBER_ACTIVE_LINES),
+			.PIXEL_SIZE(PIXEL_SIZE),
+			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
+			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
+			.SENSOR_FREQ(SENSOR_FREQ),
+			.SIMULATION(SIMULATION),
+			.KU706(KU706)
+		) DUT (
 			.axi_clk(axi_clk),
 			.axi_reset_n(axil.reset_n),
-			.intevent(intevent),
-			.context_strb(context_strb),
+			.irq(irq),
+			.xgs_power_good(xgs_power_good),
+			.xgs_clk_pll_en(xgs_clk_pll_en),
+			.xgs_reset_n(xgs_reset_n),
+			.xgs_fwsi_en(xgs_fwsi_en),
+			.xgs_sclk(xgs_sclk),
+			.xgs_cs_n(xgs_cs_n),
+			.xgs_sdout(xgs_sdout),
+			.xgs_sdin(xgs_sdin),
+			.xgs_trig_int(xgs_trig_int),
+			.xgs_trig_rd(xgs_trig_rd),
+			.xgs_monitor0(xgs_monitor0),
+			.xgs_monitor1(xgs_monitor1),
+			.xgs_monitor2(xgs_monitor2),
+			.anput_ext_trig(anput_ext_trig),
+			.anput_strobe_out(anput_strobe_out),
+			.anput_exposure_out(anput_exposure_out),
+			.anput_trig_rdy_out(anput_trig_rdy_out),
+			.led_out(led_out),
 			.s_axi_awaddr(axil.awaddr),
 			.s_axi_awprot(axil.awprot),
 			.s_axi_awvalid(axil.awvalid),
@@ -77,11 +337,11 @@ module testbench_dmawr2tlp();
 			.s_axi_rresp(axil.rresp),
 			.s_axi_rvalid(axil.rvalid),
 			.s_axi_rready(axil.rready),
-			.s_axis_tready(axis.tready),
-			.s_axis_tvalid(axis.tvalid),
-			.s_axis_tdata(axis.tdata),
-			.s_axis_tuser(axis.tuser),
-			.s_axis_tlast(axis.tlast),
+			.idelay_clk(idelay_clk),
+			.hispi_io_clk_p(if_hispi.hclk_p),
+			.hispi_io_clk_n(if_hispi.hclk_n),
+			.hispi_io_data_p(if_hispi.data_p),
+			.hispi_io_data_n(if_hispi.data_n),
 			.cfg_bus_mast_en(cfg_bus_mast_en),
 			.cfg_setmaxpld(cfg_setmaxpld),
 			.tlp_req_to_send(tlp.req_to_send),
@@ -129,18 +389,23 @@ module testbench_dmawr2tlp();
 			.tlp_out_lower_address(tlp.lower_address)
 		);
 
+	assign xgs_power_good = 1'b1;
+	assign anput_ext_trig = 1'b0;
+
 
 	assign cfg_bus_mast_en = 1'b1;
 	assign tx_axis.tready = 1'b1;
 
 	//Connect the GPIO
-	assign if_gpio.input_io[0] = irq[22];
+	assign if_gpio.input_io[0] = irq[0];
 	assign user_data_in = if_gpio.output_io;
 
 	assign tlp.clk = axi_clk;
 
 	// Clock and Reset generation
 	always #5 axi_clk = ~axi_clk;
+	always #8 pcie_clk = ~pcie_clk;
+	always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;      //refclk XGS @ 32.4Mhz
 
 
 	initial begin
@@ -148,8 +413,6 @@ module testbench_dmawr2tlp();
 		// Initialize classes
 		axil_driver = new(axil, if_gpio);
 
-		axis_driver = new(axis);
-		//scoreboard  = new(tlp);
 
 		fork
 			// Start the scorboard
@@ -159,122 +422,406 @@ module testbench_dmawr2tlp();
 
 			// Start the test
 			begin
-				int axi_address;
+				int axi_addr;
 				int axi_read_data;
 				int axi_write_data;
+				int axi_strb;
+				int axi_poll_mask;
+				int axi_expected_value;
 				longint data;
-				logic [AXIS_DATA_WIDTH-1:0] stream_data[$];
-				logic [AXIS_USER_WIDTH-1:0] stream_user[$];
-				logic [AXIS_USER_WIDTH-1:0] sync;
+				int data_rd;  // SPI read
+				real xgs_ctrl_period;
+				real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
+				int EXP_FOT_TIME;
+				int ROI_YSTART;
+				int ROI_YSIZE;
+				int EXPOSURE;
+				int KEEP_OUT_TRIG_START_sysclk;
+				int KEEP_OUT_TRIG_END_sysclk;
+				int MLines;
+				int MLines_supressed;
+
 
 				// Parameters
 				longint fstart;
 				int line_size;
 				int line_pitch;
 
+				int line_time;
+				int monitor_0_reg;
+				int monitor_1_reg;
+				int monitor_2_reg;
 
 				fstart = 'hA0000000;
 				line_size = 'h1000;
 				line_pitch = 'h1000;
 
-				$display("Reset driver models");
-				axis_driver.reset(10);
+				///////////////////////////////////////////////////
+				// STARTING POINT : Reset the testbench
+				///////////////////////////////////////////////////
+				$display("1. Reset the testbench");
 				axil_driver.reset(10);
 				// MIn XGS model reset is 30 clk, set it to 50
 				axil_driver.wait_n(1000);
 
+                #160ns
+                pcie_reset_n = 1'b1;
 
-				$display("Registerfile access");
+				///////////////////////////////////////////////////
+				// Start setting up registers
+				///////////////////////////////////////////////////
+				$display("2. Starting XGS_athena register file accesses");
 
 
 				///////////////////////////////////////////////////
 				// Read the Matrox info register
 				///////////////////////////////////////////////////
-				axi_address = 'h00000000;
-				$display("Read the info register @0x%h", axi_address);
-				axil_driver.read(axi_address, axi_read_data);
-				assert (axi_read_data == 'h0058544d) else $error("Read error @0x%h", axi_address);
+				axi_addr = TAG_OFFSET;
+				$display("  2.1 Read the TAG register @0x%h", axi_addr);
+				axil_driver.read(axi_addr, axi_read_data);
+				assert (axi_read_data == 'h0058544d) else $error("Read error @0x%h", axi_addr);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// Write/Read the scratch pad
 				///////////////////////////////////////////////////
-				axi_address = 'h00000010;
+				axi_addr = SCRATCHPAD_OFFSET;
 				axi_write_data = 'hcafefade;
-				$display("Write/Read back the scratch register @0x%h", axi_address);
-				axil_driver.write(axi_address, axi_write_data);
-				axil_driver.read(axi_address, axi_read_data);
-				assert (axi_read_data == axi_write_data) else $error("Write/Read error @0x%h", axi_address);
+				$display("  2.2 Write then Read back the SCRATCHPAD register @0x%h", axi_addr);
+				axil_driver.write(axi_addr, axi_write_data);
+				axil_driver.read(axi_addr, axi_read_data);
+				assert (axi_read_data == axi_write_data) else $error("Write/Read error @0x%h", axi_addr);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// DMA frame start register
 				///////////////////////////////////////////////////
-				$display("Write FSTART register @0x%h", FSTART_OFFSET_LOW);
-				axil_driver.write(FSTART_OFFSET_LOW, fstart);
-				axil_driver.write(FSTART_OFFSET_HIGH, fstart>>32);
+				$display("  2.3 Write FSTART register @0x%h", FSTART_OFFSET);
+				axil_driver.write(FSTART_OFFSET, fstart);
+				axil_driver.write(FSTART_HIGH_OFFSET, fstart>>32);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// DMA line size register
 				///////////////////////////////////////////////////
-				$display("Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				axil_driver.write(LINE_SIZE_OFFSET, line_size);
+				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
+				axil_driver.write(LINE_SIZE_OFFSET, line_size/2);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
 				// DMA line pitch register
 				///////////////////////////////////////////////////
-				$display("Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
+				$display("  2.5 Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
 				axil_driver.write(LINE_PITCH_OFFSET, line_pitch);
 				axil_driver.wait_n(10);
 
 
 				///////////////////////////////////////////////////
-				// Construct the video stream
+				// XGS Controller wakes up sensor
 				///////////////////////////////////////////////////
-				stream_data = {};
-				stream_user = {};
-				for (int counter=0; counter<line_size/8; counter++) begin
+				$display("3. XGS Controller wakes up sensor");
+				$display("  3.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
+				axi_addr = SENSOR_CTRL_OFFSET;
+				axi_write_data = 'h0003;
+				axi_strb = 'h1;
+				axil_driver.write(axi_addr, axi_write_data, axi_strb);
 
-					data =64'hAA00000000000000 | counter;
-					stream_data.push_back(data);
 
-                    // Calculate sync
-					if (counter == 0) begin
-                        sync = 4'b0001;
-					end else if (counter == (line_size/8) - 1) begin
-						sync = 4'b1000;
-					end else begin
-						sync = 4'b0000;
-					end
-					stream_user.push_back(sync);
+				///////////////////////////////////////////////////
+				// Poll until clock enable and reset disable
+				///////////////////////////////////////////////////
+				$display("  3.2 Poll SENSOR_STAT register @0x%h", SENSOR_STAT_OFFSET);
+				axi_addr = SENSOR_STAT_OFFSET;
+				axi_poll_mask = 'h00000001;
+				axi_expected_value = 'h00000001;
+				axil_driver.poll(axi_addr, axi_expected_value, axi_poll_mask, .polling_period(1us));
+
+
+				///////////////////////////////////////////////////
+				// SPI configure the XGS sensor model
+				///////////////////////////////////////////////////
+				$display("4. SPI configure the XGS sensor model");
+
+				// A minimum delay is required before we can start
+				// SPI transactions
+				#200us;
+
+
+					///////////////////////////////////////////////////
+					// SPI read XGS model id
+					///////////////////////////////////////////////////
+				$display("  4.1 SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
+				XGS_ReadSPI(SPI_MODEL_ID_OFFSET, data_rd);
+
+
+				// Validate result
+				if(data_rd==16'h0058) begin
+					$display("XGS Model ID detected is 0x58, XGS12M");
+				end
+				else if(data_rd==16'h0358) begin
+					$display("XGS Model ID detected is 0x358, XGS5M");
+				end
+				else begin
+					$error("XGS Model ID detected is %d", data_rd);
 				end
 
 
+				///////////////////////////////////////////////////
+				// SPI read revision
+				///////////////////////////////////////////////////
+				$display("  4.2 SPI read XGS revision number @0x%h", SPI_REVISION_NUMB_OFFSET);
+				XGS_ReadSPI(SPI_REVISION_NUMB_OFFSET, data_rd);
+				$display("Addres 0x31FE : XGS Revision ID detected is %x", data_rd);
+
 
 				///////////////////////////////////////////////////
-				// Send the video stream
+				// SPI reset
 				///////////////////////////////////////////////////
-				axis_driver.write(stream_data, stream_user);
+				$display("  4.3 SPI write XGS register reset @0x%h", SPI_RESET_REGISTER_REG);
+				XGS_WriteSPI(SPI_RESET_REGISTER_REG, 16'h001c);
+
+				//- Wait at least 500us for the PLL to start and all clocks to be stable.
+				#500us;
+					//- REG Write = 0x3E3E, 0x0001
+				$display("  4.4 SPI write XGS UNKNOWN register @0x%h", SPI_UNKNOWN_REGISTER_REG);
+				XGS_WriteSPI(SPI_UNKNOWN_REGISTER_REG, 16'h0001);
+
+
+				///////////////////////////////////////////////////
+				// XGS model : setting mux output ratio to 4:1
+				///////////////////////////////////////////////////
+				// HISPI control common register
+				// XGS_WriteSPI(16'h3e28,16'h2507);                     //mux 4:4
+				// XGS_WriteSPI(16'h3e28,16'h2517);                     //mux 4:3
+				// XGS_WriteSPI(16'h3e28,16'h2527);                     //mux 4:2
+				$display("  4.5 SPI write XGS HiSPI control common register @0x%h", SPI_HISPI_CONTROL_COMMON_REG);
+				XGS_WriteSPI(SPI_HISPI_CONTROL_COMMON_REG,16'h2537);    //mux 4:1
+
+
+				///////////////////////////////////////////////////
+				// XGS model : Set image Diagonal ramp
+				//             line0 start=0, line1 start=1, line2 start=2..
+				///////////////////////////////////////////////////
+				$display("  4.6 SPI write XGS set test pattern @0x%h", SPI_TEST_PATTERN_MODE_REG);
+				XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG,16'h0000);
+
+
+				///////////////////////////////////////////////////
+				// XGS model : Set line time (for 6 lanes)
+				///////////////////////////////////////////////////
+				$display("  4.7 SPI write XGS set line time @0x%h", SPI_LINE_TIME_REG);
+				line_time             = 'h02dc;                  // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+				XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+
+
+				///////////////////////////////////////////////////
+				// XGS model : Set line time (for 6 lanes)
+				///////////////////////////////////////////////////
+				$display("  4.8 SPI write XGS set general config @0x%h", SPI_GENERAL_CONFIG0_REG);
+				XGS_WriteSPI(SPI_GENERAL_CONFIG0_REG,16'h0030);                 // Slave + trigger mode
+				XGS_WriteSPI(SPI_GENERAL_CONFIG0_REG,16'h0031);                 // Enable sequencer
+
+
+				///////////////////////////////////////////////////
+				// XGS model : Set line time (for 6 lanes)
+				///////////////////////////////////////////////////
+				$display("  4.9 SPI write XGS set monitor pins @0x%h", SPI_MONITOR_REG);
+				monitor_0_reg = 16'h6;    // 0x6 : Real Integration  , 0x2 : Integrate
+				monitor_1_reg = 16'h10;   // EFOT indication
+				monitor_2_reg = 16'h1;    // New_line
+				XGS_WriteSPI(SPI_MONITOR_REG, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
+
+
+				///////////////////////////////////////////////////
+				// PROGRAM XGS CONTROLLER
+				///////////////////////////////////////////////////
+				$display("5. SPI configure the XGS_athena IP-Core controller section");
+
+				// A minimum delay is required before we can start
+				// SPI transactions
+				#50us;
+
+
+					///////////////////////////////////////////////////
+					// XGS Controller : SENSOR REG_UPDATE =1
+					///////////////////////////////////////////////////
+					// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+				$display("  5.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
+				axil_driver.write(SENSOR_CTRL_OFFSET, 16'h0012);
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : set the line time (in pixel clock)
+				///////////////////////////////////////////////////
+				// LINE_TIME
+				// default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+				// default              in devware is 0xf4  (18 lanes)
+				// default              in devware is 0x16e (12 lanes)
+				// default              in devware is 0x2dc (6 lanes)
+				$display("  5.2 Write READOUT_CFG3 (line time) register @0x%h", READOUT_CFG3_OFFSET);
+				axil_driver.write(READOUT_CFG3_OFFSET, line_time);
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : exposure time during FOT
+				///////////////////////////////////////////////////
+				$display("  5.3 Write EXP_FOT (exposure time during FOT) register @0x%h", EXP_FOT_OFFSET);
+				xgs_ctrl_period     = 16.0; // Ref clock preiod
+				xgs_bitrate_period  = (1000.0/32.4)/(2.0);  // 30.864197ns /2
+
+				EXP_FOT_TIME        = 5360;  //5.36us calculated from start of FOT to end of real exposure
+				axil_driver.write(EXP_FOT_OFFSET, (1<<16) + (EXP_FOT_TIME/xgs_ctrl_period ));      //Enable EXP during FOT
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : Keepout trigger zone
+				///////////////////////////////////////////////////
+				$display("  5.4 Write READOUT_CFG4 (Keepout trigger zone) register @0x%h", READOUT_CFG4_OFFSET);
+
+				KEEP_OUT_TRIG_START_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //START Keepout trigger zone (100ns)
+				KEEP_OUT_TRIG_END_sysclk   = (line_time*xgs_bitrate_period)/xgs_ctrl_period;             //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter
+				axil_driver.write(READOUT_CFG4_OFFSET, (KEEP_OUT_TRIG_END_sysclk<<16) + KEEP_OUT_TRIG_START_sysclk);
+				axil_driver.write(READOUT_CFG3_OFFSET, (0<<16) + line_time);      //Enable KEEP_OUT ZONE[bit 16]
+
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : M_lines
+				///////////////////////////////////////////////////
+				$display("  5.5 Write SENSOR_M_LINES register @0x%h", SENSOR_M_LINES_OFFSET);
+				MLines           = 0;
+				MLines_supressed = 0;
+				axil_driver.write(SENSOR_M_LINES_OFFSET, (MLines_supressed<<10)+ MLines);    //M_LINE REGISTER
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : Subsampling
+				///////////////////////////////////////////////////
+				$display("  5.6 Write SENSOR_SUBSAMPLING register @0x%h", SENSOR_SUBSAMPLING_OFFSET);
+				axil_driver.write(SENSOR_SUBSAMPLING_OFFSET, 0);
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : Analog gain
+				///////////////////////////////////////////////////
+				$display("  5.7 Write SENSOR_GAIN_ANA register @0x%h", SENSOR_GAIN_ANA_OFFSET);
+				axil_driver.write(SENSOR_GAIN_ANA_OFFSET, 2<<8);
+
+
+
+				///////////////////////////////////////////////////
+				// PROGRAM XGS HiSPi interface
+				///////////////////////////////////////////////////
+				$display("6. Configure the XGS_athena IP-Core HiSPi section");
+
+
+				///////////////////////////////////////////////////
+				// XGS HiSPi : Control
+				///////////////////////////////////////////////////
+				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				axil_driver.write(HISPI_CTRL_OFFSET, 'h0007);
+
+
+
+				///////////////////////////////////////////////////
+				// Trigger ROI
+				///////////////////////////////////////////////////
+				$display("7. Trigger ROI #1");
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : Set ROI Y start offset
+				///////////////////////////////////////////////////
+				ROI_YSTART = 0;
+				EXPOSURE   = 50;  //in us
+				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
+				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : set ROI Y size
+				///////////////////////////////////////////////////
+				$display("  7.2 set ROI Y size @0x%h", SENSOR_ROI_Y_SIZE_OFFSET);
+				ROI_YSIZE  = 16;
+				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
+				///////////////////////////////////////////////////
+				// XGS Controller : set exposure time
+				///////////////////////////////////////////////////
+				$display("  7.3 set exposure time @0x%h", EXP_CTRL1_OFFSET);
+				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
+
+
+				///////////////////////////////////////////////////
+				// XGS Controller : set exposure time
+				///////////////////////////////////////////////////
+				$display("  7.4 set trigger @0x%h", GRAB_CTRL_OFFSET);
+				axil_driver.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+
+
+
+				///////////////////////////////////////////////////
+				// Trigger ROI #2
+				///////////////////////////////////////////////////
+				$display("8. Trigger ROI #2");
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 8;
+				EXPOSURE   = 50;  //in us
+				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
+				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
+				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
+				axil_driver.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+
+				#1ms;
 
 
 				///////////////////////////////////////////////////
 				// Terminate the simulation
 				///////////////////////////////////////////////////
 				axil_driver.wait_n(1000);
-				//axil_driver.terminate();
 
 			end
 
-		join_any;
+		join;
 			#1ms;
 		$finish;
 	end
+
+
+	////////////////////////////////////////////////////////////////
+	// Task : XGS_WriteSPI
+	////////////////////////////////////////////////////////////////
+	task automatic XGS_WriteSPI(input int add, input int data);
+		axil_driver.write(BAR_XGS_ATHENA+16'h0160,(data<<16) + add);
+		axil_driver.write(BAR_XGS_ATHENA+16'h0158,(0<<16) + 1);               // write cmd "WRITE SERIAL" into fifo
+		axil_driver.write(BAR_XGS_ATHENA+16'h0158, 1<<4);                     // read from fifo
+	endtask : XGS_WriteSPI
+
+
+	////////////////////////////////////////////////////////////////
+	// Task : XGS_ReadSPI
+	////////////////////////////////////////////////////////////////
+	task automatic XGS_ReadSPI(input int add, output int data);
+		int data_rd;
+		int axi_addr;
+		int axi_poll_mask;
+		int axi_expected_value;
+
+		axil_driver.write(BAR_XGS_ATHENA+16'h0160, add);
+		axil_driver.write(BAR_XGS_ATHENA+16'h0158, (1<<16) + 1);               // write cmd "READ SERIAL" into fifo
+		axil_driver.write(BAR_XGS_ATHENA+16'h0158, 1<<4);                      // read from fifo
+
+		axi_addr = BAR_XGS_ATHENA + 'h00000168;
+		axi_poll_mask = (1<<16);
+		axi_expected_value = 0;
+		axil_driver.poll(axi_addr, axi_expected_value, axi_poll_mask, .polling_period(1us));
+
+		axil_driver.read(axi_addr, data_rd);
+		data= data_rd & 'h0000ffff;
+	endtask : XGS_ReadSPI
 
 
 

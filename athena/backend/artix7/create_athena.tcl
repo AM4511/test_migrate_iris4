@@ -12,9 +12,10 @@ puts "Running ${myself}"
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : New axiHiSPi
+# 0.0.3 : New XGS_athena ip-core
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 2
+set FPGA_SUB_MINOR_VERSION 3
 
 
 set BASE_NAME athena
@@ -86,8 +87,12 @@ set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
 
+
+
 set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
 update_ip_catalog
+
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 
 

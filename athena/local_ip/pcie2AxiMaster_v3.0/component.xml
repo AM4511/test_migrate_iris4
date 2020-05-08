@@ -755,7 +755,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>5728e3ab</spirit:value>
+            <spirit:value>69e28247</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -795,7 +795,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>5728e3ab</spirit:value>
+            <spirit:value>69e28247</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -2427,13 +2427,13 @@
       </xilinx:xpmLibraries>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>http://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>24</xilinx:coreRevision>
+      <xilinx:coreRevision>26</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3.0:3.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3_0:3.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-04-02T22:28:00Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-05-04T17:58:02Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="matrox.com:ConcordG2:pcie2AxiMaster:1.0_ARCHIVE_LOCATION">d:/git/gitlab/ipcores/pcie2AxiMaster</xilinx:tag>
@@ -2982,13 +2982,23 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@4ada254c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@725afdd3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@773f4c2f_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12e18fdd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38f5d9cf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d64ac6c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1862351e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12e460f1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@32455bed_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70b7e387_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@166fe5b4_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24470a0a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@98fb41b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="0dd274c7"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="dab0a384"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="2390c7d5"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="7f06ca47"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="2bbbf631"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="4e126f27"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="ed72e4c4"/>

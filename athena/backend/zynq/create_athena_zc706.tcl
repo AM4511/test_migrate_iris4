@@ -12,9 +12,10 @@ puts "Running ${myself}"
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : New axiHiSPi
+# 0.0.3 : New XGS_athena
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 2
+set FPGA_SUB_MINOR_VERSION 3
 
 
 set BASE_NAME athena_zc706

@@ -124,9 +124,9 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-matrox.com:user:axiXGS_controller:1.0\
+matrox.com:Imaging:XGS_athena:1.0.0\
 matrox.com:user:AXI_i2c_Matrox:1.0\
-matrox.com:Imaging:pcie2AxiMaster:2.0\
+matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:xlconstant:1.1\
 "
@@ -204,23 +204,32 @@ proc create_root_design { parentCell } {
 
   set pcie [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie ]
 
+  set xgs [ create_bd_intf_port -mode Slave -vlnv matrox.com:user:hispi_if_rtl:1.0 xgs ]
+
   set xgs_ctrl [ create_bd_intf_port -mode Master -vlnv matrox.com:user:XGS_controller_if_rtl:1.0 xgs_ctrl ]
 
 
   # Create ports
+  set debug_out [ create_bd_port -dir O -from 3 -to 0 debug_out ]
   set led_out [ create_bd_port -dir O -from 1 -to 0 led_out ]
   set pcie_clk100MHz [ create_bd_port -dir I -type clk pcie_clk100MHz ]
   set_property -dict [ list \
    CONFIG.FREQ_HZ {100000000} \
  ] $pcie_clk100MHz
   set pcie_reset_n [ create_bd_port -dir I -type rst pcie_reset_n ]
-
-  # Create instance: axiXGS_controller_0, and set properties
-  set axiXGS_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:user:axiXGS_controller:1.0 axiXGS_controller_0 ]
+  set ref_clk [ create_bd_port -dir I -type clk ref_clk ]
   set_property -dict [ list \
-   CONFIG.G_KU706 {1} \
-   CONFIG.G_SENSOR_FREQ {32000} \
- ] $axiXGS_controller_0
+   CONFIG.FREQ_HZ {200000000} \
+ ] $ref_clk
+
+  # Create instance: XGS_athena_0, and set properties
+  set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:XGS_athena:1.0.0 XGS_athena_0 ]
+  set_property -dict [ list \
+   CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
+   CONFIG.ENABLE_IDELAYCTRL {1} \
+   CONFIG.KU706 {1} \
+   CONFIG.SENSOR_FREQ {32000} \
+ ] $XGS_athena_0
 
   # Create instance: axi_i2c_0, and set properties
   set axi_i2c_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 axi_i2c_0 ]
@@ -242,11 +251,13 @@ proc create_root_design { parentCell } {
  ] $axi_interconnect_0
 
   # Create instance: pcie2AxiMaster_0, and set properties
-  set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:2.0 pcie2AxiMaster_0 ]
+  set pcie2AxiMaster_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:pcie2AxiMaster:3.0 pcie2AxiMaster_0 ]
   set_property -dict [ list \
    CONFIG.AXI_ID_WIDTH {6} \
+   CONFIG.BOOL_ENABLE_DMA {true} \
+   CONFIG.ENABLE_DMA {1} \
    CONFIG.NUMB_IRQ {0} \
-   CONFIG.PCIE_DEVICE_ID {5396} \
+   CONFIG.PCIE_DEVICE_ID {20564} \
    CONFIG.PCIE_SUBSYS_ID {0} \
  ] $pcie2AxiMaster_0
 
@@ -657,27 +668,22 @@ proc create_root_design { parentCell } {
    CONFIG.preset {ZC706} \
  ] $processing_system7_0
 
-  # Create instance: xlconstant_0, and set properties
-  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
+  # Create instance: xlconstant_2, and set properties
+  set xlconstant_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_2 ]
   set_property -dict [ list \
    CONFIG.CONST_VAL {0} \
    CONFIG.CONST_WIDTH {8} \
- ] $xlconstant_0
-
-  # Create instance: xlconstant_1, and set properties
-  set xlconstant_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_1 ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
-   CONFIG.CONST_WIDTH {1} \
- ] $xlconstant_1
+ ] $xlconstant_2
 
   # Create interface connections
   connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_Anput_if [get_bd_intf_ports anput_if] [get_bd_intf_pins axiXGS_controller_0/Anput_if]
-  connect_bd_intf_net -intf_net axiXGS_controller_0_XGS_controller_if [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins axiXGS_controller_0/XGS_controller_if]
+  connect_bd_intf_net -intf_net XGS_athena_0_Athena2Anput [get_bd_intf_ports anput_if] [get_bd_intf_pins XGS_athena_0/Athena2Anput]
+  connect_bd_intf_net -intf_net XGS_athena_0_XGS_Controller_IF [get_bd_intf_ports xgs_ctrl] [get_bd_intf_pins XGS_athena_0/XGS_Controller_IF]
+  connect_bd_intf_net -intf_net XGS_athena_0_tlp [get_bd_intf_pins XGS_athena_0/tlp] [get_bd_intf_pins pcie2AxiMaster_0/dma_tlp]
   connect_bd_intf_net -intf_net axi_i2c_0_I2C_interface [get_bd_intf_ports I2C_if] [get_bd_intf_pins axi_i2c_0/I2C_interface]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axiXGS_controller_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins XGS_athena_0/s_axi] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_i2c_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
+  connect_bd_intf_net -intf_net hispi_0_1 [get_bd_intf_ports xgs] [get_bd_intf_pins XGS_athena_0/hispi]
   connect_bd_intf_net -intf_net pcie2AxiMaster_0_M_AXI [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins pcie2AxiMaster_0/M_AXI]
   connect_bd_intf_net -intf_net pcie2AxiMaster_0_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports PS_DDR] [get_bd_intf_pins processing_system7_0/DDR]
@@ -685,18 +691,19 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S01_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
 
   # Create port connections
-  connect_bd_net -net ACLK_1 [get_bd_pins axiXGS_controller_0/s_axi_aclk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
-  connect_bd_net -net axiXGS_controller_0_led_out [get_bd_ports led_out] [get_bd_pins axiXGS_controller_0/led_out]
-  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axiXGS_controller_0/s_axi_aresetn] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net ACLK_1 [get_bd_pins XGS_athena_0/axi_clk] [get_bd_pins axi_i2c_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/S01_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net XGS_athena_0_debug_out [get_bd_ports debug_out] [get_bd_pins XGS_athena_0/debug_out]
+  connect_bd_net -net XGS_athena_0_led_out [get_bd_ports led_out] [get_bd_pins XGS_athena_0/led_out]
+  connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins XGS_athena_0/axi_reset_n] [get_bd_pins axi_i2c_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/S01_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net pcie_clk100MHz_1 [get_bd_ports pcie_clk100MHz] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net pcie_reset_n_1 [get_bd_ports pcie_reset_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
-  connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
-  connect_bd_net -net xlconstant_1_dout [get_bd_pins pcie2AxiMaster_0/spi_sdin] [get_bd_pins xlconstant_1/dout]
+  connect_bd_net -net ref_clk_1 [get_bd_ports ref_clk] [get_bd_pins XGS_athena_0/idelay_clk]
+  connect_bd_net -net xlconstant_2_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_2/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x00001000 -offset 0x40000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs XGS_athena_0/s_axi/reg0] SEG_XGS_athena_0_reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
-  create_bd_addr_seg -range 0x00001000 -offset 0x40000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axiXGS_controller_0/S_AXI/S_AXI_reg] SEG_axiXGS_controller_0_S_AXI_reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x40000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs XGS_athena_0/s_axi/reg0] SEG_XGS_athena_0_reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x40010000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_i2c_0/S_AXI/S_AXI_reg] SEG_axi_i2c_0_S_AXI_reg
 
 
