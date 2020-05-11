@@ -231,6 +231,7 @@ proc create_root_design { parentCell } {
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
    CONFIG.KU706 {0} \
+   CONFIG.SENSOR_FREQ {32000} \
  ] $XGS_athena_0
 
   # Create instance: axi_interconnect_0, and set properties
