@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/11 15:25:05
+-- Created on          : 2020/05/11 15:52:17
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x87077B44
+-- Register file CRC32 : 0x9E3C121
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3596,11 +3596,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/11 15:25:05
+-- Created on          : 2020/05/11 15:52:17
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x87077B44
+-- Register file CRC32 : 0x9E3C121
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3865,7 +3865,6 @@ signal field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL                       : std_logic; 
 signal field_rw_HISPI_CTRL_SW_CLR_HISPI                            : std_logic;                                       -- Field: SW_CLR_HISPI
 signal field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES                   : std_logic;                                       -- Field: SW_CALIB_SERDES
 signal field_rw_HISPI_CTRL_ENABLE_HISPI                            : std_logic;                                       -- Field: ENABLE_HISPI
-signal field_rw_HISPI_STATUS_PHY_BIT_LOCKED_ERROR                  : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw_HISPI_IDLE_CHARACTER_VALUE                         : std_logic_vector(11 downto 0);                   -- Field: VALUE
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
@@ -9025,27 +9024,10 @@ rb_HISPI_STATUS(31 downto 28) <= regfile.HISPI.STATUS.FSM;
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_BIT_LOCKED_ERROR
--- Field type: RW
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_HISPI_STATUS(3) <= field_rw_HISPI_STATUS_PHY_BIT_LOCKED_ERROR;
-regfile.HISPI.STATUS.PHY_BIT_LOCKED_ERROR <= field_rw_HISPI_STATUS_PHY_BIT_LOCKED_ERROR;
+rb_HISPI_STATUS(3) <= regfile.HISPI.STATUS.PHY_BIT_LOCKED_ERROR;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_STATUS_PHY_BIT_LOCKED_ERROR
-------------------------------------------------------------------------------------------
-P_HISPI_STATUS_PHY_BIT_LOCKED_ERROR : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_HISPI_STATUS_PHY_BIT_LOCKED_ERROR <= '0';
-      else
-         if(wEn(74) = '1' and bitEnN(3) = '0') then
-            field_rw_HISPI_STATUS_PHY_BIT_LOCKED_ERROR <= reg_writedata(3);
-         end if;
-      end if;
-   end if;
-end process P_HISPI_STATUS_PHY_BIT_LOCKED_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_ERROR

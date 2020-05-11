@@ -420,7 +420,6 @@ architecture rtl of xgs_hispi_top is
   signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
   -- register mapping signals
-  --signal hispi_soft_reset : std_logic;
   signal enable_hispi : std_logic;
 
   -- Status lane decoder (sldec)
