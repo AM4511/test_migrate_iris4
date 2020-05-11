@@ -3,46 +3,46 @@
 	<section name="VHDLFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.vhd"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="MilSDKFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.h"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="PdfFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.pdf"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="CppFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/Cregfile_xgs_athena.cpp"/>
 		<item key="generator_enabled" value="false"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="HeaderFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/Cregfile_xgs_athena.h"/>
 		<item key="generator_enabled" value="false"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="SVFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.sv"/>
 		<item key="generator_enabled" value="false"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="SlangFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.sl"/>
 		<item key="generator_enabled" value="true"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="GenICamFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.xml"/>
 		<item key="generator_enabled" value="false"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 	<section name="JavaFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/Cregfile_xgs_athena.java"/>
 		<item key="generator_enabled" value="false"/>
-		<item key="last_generation_date" value="2020/05/06 15:08:55"/>
+		<item key="last_generation_date" value="2020/05/11 09:25:27"/>
 	</section>
 </section>
