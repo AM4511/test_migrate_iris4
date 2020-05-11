@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xF256AA40
+* Register file CRC32 : 0x499D8958
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -97,8 +97,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_ADDRESS                     0x400
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS                   0x404
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x408
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x40C
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x424
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_ADDRESS           0x40C
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x410
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x428
 
 /**************************************************************************
 * Register name : TAG
@@ -1500,10 +1501,12 @@ typedef union
 
    struct
    {
-      M_UINT32 CALIBRATION_DONE  : 1;   /* Bits(0:0), Calibration active */
-      M_UINT32 CALIBRATION_ERROR : 1;   /* Bits(1:1), Calibration active */
-      M_UINT32 FIFO_ERROR        : 1;   /* Bits(2:2), Calibration active */
-      M_UINT32 RSVD0             : 29;  /* Bits(31:3), Reserved */
+      M_UINT32 CALIBRATION_DONE     : 1;   /* Bits(0:0), Calibration active */
+      M_UINT32 CALIBRATION_ERROR    : 1;   /* Bits(1:1), Calibration active */
+      M_UINT32 FIFO_ERROR           : 1;   /* Bits(2:2), Calibration active */
+      M_UINT32 PHY_BIT_LOCKED_ERROR : 1;   /* Bits(3:3), null */
+      M_UINT32 RSVD0                : 24;  /* Bits(27:4), Reserved */
+      M_UINT32 FSM                  : 4;   /* Bits(31:28), HISPI  finite state machine status */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE;
@@ -1528,6 +1531,24 @@ typedef union
 
 
 /**************************************************************************
+* Register name : IDLE_CHARACTER
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 VALUE : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 20;  /* Bits(31:12), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE;
+
+
+/**************************************************************************
 * Register name : LANE_DECODER_STATUS
 ***************************************************************************/
 typedef union
@@ -1543,7 +1564,10 @@ typedef union
       M_UINT32 CALIBRATION_ACTIVE    : 1;   /* Bits(2:2), null */
       M_UINT32 CALIBRATION_ERROR     : 1;   /* Bits(3:3), null */
       M_UINT32 CALIBRATION_TAP_VALUE : 5;   /* Bits(8:4), null */
-      M_UINT32 RSVD0                 : 23;  /* Bits(31:9), Reserved */
+      M_UINT32 RSVD0                 : 3;   /* Bits(11:9), Reserved */
+      M_UINT32 PHY_BIT_LOCKED        : 1;   /* Bits(12:12), null */
+      M_UINT32 PHY_BIT_LOCKED_ERROR  : 1;   /* Bits(13:13), null */
+      M_UINT32 RSVD1                 : 18;  /* Bits(31:14), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE;
@@ -1670,8 +1694,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE                CTRL;                    /* Address offset: 0x0 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE              STATUS;                  /* Address offset: 0x4 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE   IDELAYCTRL_STATUS;       /* Address offset: 0x8 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE      IDLE_CHARACTER;          /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x28 */
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************

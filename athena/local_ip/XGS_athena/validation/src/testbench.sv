@@ -17,12 +17,13 @@ module testbench();
 	parameter SIMULATION = 1;
 	parameter KU706 = 0;
 
-	parameter AXIL_DATA_WIDTH=32;
-	parameter AXIL_ADDR_WIDTH=11;
+	parameter AXIL_DATA_WIDTH = 32;
+	parameter AXIL_ADDR_WIDTH = 11;
 
-	parameter GPIO_NUMB_INPUT=1;
-	parameter GPIO_NUMB_OUTPUT=1;
-	parameter MAX_PCIE_PAYLOAD_SIZE=128;
+	parameter GPIO_NUMB_INPUT = 1;
+	parameter GPIO_NUMB_OUTPUT = 1;
+	parameter MAX_PCIE_PAYLOAD_SIZE = 128;
+	parameter HISPI_IDLE_CHARACTER = 12'h3A6;
 
 	parameter BAR_XGS_ATHENA        = 32'h00000000;
 
@@ -56,7 +57,8 @@ module testbench();
 
 
 	// XGS_athena HiSPi
-	parameter HISPI_CTRL_OFFSET         = 'h0400;
+	parameter HISPI_CTRL_OFFSET                = 'h0400;
+	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -318,6 +320,7 @@ module testbench();
 			.anput_exposure_out(anput_exposure_out),
 			.anput_trig_rdy_out(anput_trig_rdy_out),
 			.led_out(led_out),
+			.debug_out(),
 			.s_axi_awaddr(axil.awaddr),
 			.s_axi_awprot(axil.awprot),
 			.s_axi_awvalid(axil.awvalid),
@@ -551,9 +554,9 @@ module testbench();
 				#200us;
 
 
-					///////////////////////////////////////////////////
-					// SPI read XGS model id
-					///////////////////////////////////////////////////
+				///////////////////////////////////////////////////
+				// SPI read XGS model id
+				///////////////////////////////////////////////////
 				$display("  4.1 SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
 				XGS_ReadSPI(SPI_MODEL_ID_OFFSET, data_rd);
 
@@ -646,10 +649,10 @@ module testbench();
 				#50us;
 
 
-					///////////////////////////////////////////////////
-					// XGS Controller : SENSOR REG_UPDATE =1
-					///////////////////////////////////////////////////
-					// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// XGS Controller : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
 				$display("  5.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
 				axil_driver.write(SENSOR_CTRL_OFFSET, 16'h0012);
 
@@ -718,6 +721,12 @@ module testbench();
 				///////////////////////////////////////////////////
 				$display("6. Configure the XGS_athena IP-Core HiSPi section");
 
+
+				///////////////////////////////////////////////////
+				// XGS HiSPi : Control
+				///////////////////////////////////////////////////
+				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_CTRL_IDLE_CHARACTER_OFFSET);
+				axil_driver.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control

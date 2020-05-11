@@ -59,12 +59,15 @@ entity lane_decoder is
     aclk_fifo_overrun         : out std_logic;
     aclk_fifo_underrun        : out std_logic;
 
-    -- Flags detected
-    aclk_embeded_data : out std_logic;
-    aclk_sof_flag     : out std_logic;
-    aclk_eof_flag     : out std_logic;
-    aclk_sol_flag     : out std_logic;
-    aclk_eol_flag     : out std_logic
+    -- Flags
+    aclk_bit_locked      : out std_logic;
+    aclk_bit_locked_rise : out std_logic;
+    aclk_bit_locked_fall : out std_logic;
+    aclk_embeded_data    : out std_logic;
+    aclk_sof_flag        : out std_logic;
+    aclk_eof_flag        : out std_logic;
+    aclk_sol_flag        : out std_logic;
+    aclk_eol_flag        : out std_logic
     );
 end entity lane_decoder;
 
@@ -88,13 +91,14 @@ architecture rtl of lane_decoder is
       -------------------------------------------------------------------------
       -- Register file interface
       -------------------------------------------------------------------------
-      rclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      aclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
 
       ---------------------------------------------------------------------------
       -- Pixel clock domain
       ---------------------------------------------------------------------------
-      pclk      : out std_logic;
-      pclk_data : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+      pclk            : out std_logic;
+      pclk_bit_locked : out std_logic;
+      pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
       );
   end component;
 
@@ -172,8 +176,8 @@ architecture rtl of lane_decoder is
   signal pclk_shift_register : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
   signal pclk_data           : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal pclk_data_p1        : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal pclk_bit_locked     : std_logic;
 
-  --signal pclk_hispi_phy_en_Meta : std_logic;
   signal pclk_hispi_phy_en : std_logic;
   signal pclk_embeded_data : std_logic;
   signal pclk_sof_flag     : std_logic;
@@ -201,9 +205,13 @@ architecture rtl of lane_decoder is
 
   signal pclk_crc_enable : std_logic := '1';  --TBD should be register field
 
-  signal aclk_fifo_empty_int : std_logic;
-  signal  aclk_fifo_overrun_int         :  std_logic;
+  signal aclk_fifo_empty_int      : std_logic;
+  signal aclk_fifo_overrun_int    : std_logic;
+  signal aclk_bit_locked_int      : std_logic;
+  signal aclk_bit_locked_rise_int : std_logic;
+  signal aclk_bit_locked_fall_int : std_logic;
 
+  
   -----------------------------------------------------------------------------
   -- Debug attributes on pclk clock domain
   -----------------------------------------------------------------------------
@@ -265,32 +273,14 @@ begin
       PIXEL_SIZE       => PIXEL_SIZE
       )
     port map(
-      hclk           => hclk,
-      hclk_reset     => hclk_reset,
-      hclk_data_lane => hclk_data_lane,
-      rclk_idle_char => aclk_idle_character,
-      pclk           => pclk,
-      pclk_data      => pclk_data
+      hclk            => hclk,
+      hclk_reset      => hclk_reset,
+      hclk_data_lane  => hclk_data_lane,
+      aclk_idle_char  => aclk_idle_character,
+      pclk            => pclk,
+      pclk_bit_locked => pclk_bit_locked,
+      pclk_data       => pclk_data
       );
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_pclk_hispi_phy_en
-  -- Description : Resynchronisation
-  -----------------------------------------------------------------------------
-  -- WARNING CLOCK DOMAIN CROSSING!!!
-  -----------------------------------------------------------------------------
-  -- P_pclk_hispi_phy_en : process (pclk) is
-  -- begin
-  --   if (rising_edge(pclk)) then
-  --     if (pclk_reset = '1') then
-  --       pclk_hispi_phy_en_Meta <= '0';
-  --       pclk_hispi_phy_en      <= '0';
-  --     else
-  --       pclk_hispi_phy_en_Meta <= hispi_phy_en;
-  --       pclk_hispi_phy_en      <= pclk_hispi_phy_en_Meta;
-  --     end if;
-  --   end if;
-  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -814,6 +804,23 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- Resync aclk_bit_locked
+  -----------------------------------------------------------------------------
+  M_aclk_bit_locked : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_bit_locked,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => aclk_bit_locked_int,
+      bRise => aclk_bit_locked_rise_int,
+      bFall => aclk_bit_locked_fall_int
+      );
+
+
+  -----------------------------------------------------------------------------
   -- Process     : P_aclk_fifo_read_data_valid
   -- Description : Indicates presence of read data on the FiFo read data bus.
   -----------------------------------------------------------------------------
@@ -828,7 +835,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_fifo_overrun
   -- Description : We gate aclk_fifo_overrun_int with aclk_hispi_phy_en
@@ -845,6 +852,31 @@ begin
           aclk_fifo_overrun <= aclk_fifo_overrun_int;
         else
           aclk_fifo_overrun <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_bit_locked
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_aclk_bit_locked : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1') then
+        aclk_bit_locked      <= '0';
+        aclk_bit_locked_rise <= '0';
+        aclk_bit_locked_fall <= '0';
+      else
+        if (aclk_hispi_phy_en = '1') then
+          aclk_bit_locked      <= aclk_bit_locked_int;
+          aclk_bit_locked_rise <= aclk_bit_locked_rise_int;
+          aclk_bit_locked_fall <= aclk_bit_locked_fall_int;
+        else
+          aclk_bit_locked      <= '0';
+          aclk_bit_locked_rise <= '0';
+          aclk_bit_locked_fall <= '0';
         end if;
       end if;
     end if;

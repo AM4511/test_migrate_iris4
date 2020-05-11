@@ -732,7 +732,7 @@
       <fields name="dpc_list_corr_x" description="This is X location of the pixel read from the DPC list." size="12" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="42C">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="430">
     <registers name="CTRL">
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
@@ -748,6 +748,26 @@
       <fields name="ENABLE_HISPI"/>
     </registers>
     <registers name="STATUS" alias="Global status register" offsetFromParent="4">
+      <fields name="FSM" alias="HISPI  finite state machine status" lsb="28" size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_DISABLED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_IDLE&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_RESET_PHY&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_INIT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_START_CALIBRATION&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_CALIBRATE&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_PACK&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_FLUSH_PACKER&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_SOF&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_EOF&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_SOL&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=11&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_EOL&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=13&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_DONE&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PHY_BIT_LOCKED_ERROR" lsb="3"/>
       <fields name="FIFO_ERROR" alias="Calibration active " lsb="2" readWrite="false" readOnly="true"/>
       <fields name="CALIBRATION_ERROR" alias="Calibration active " lsb="1" readWrite="false" readOnly="true"/>
       <fields name="CALIBRATION_DONE" alias="Calibration active " readWrite="false" readOnly="true"/>
@@ -759,14 +779,30 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="LANE_DECODER_STATUS" offsetFromParent="C" useMultiples="true" numberOfMultiples="6">
+    <registers name="IDLE_CHARACTER" offsetFromParent="C">
+      <fields name="VALUE" size="12" valueAtReset="3A6">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="LANE_DECODER_STATUS" offsetFromParent="10" useMultiples="true" numberOfMultiples="6">
+      <fields name="PHY_BIT_LOCKED_ERROR" lsb="13" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries unlocked&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries locked&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PHY_BIT_LOCKED" lsb="12" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries unlocked&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries locked&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="CALIBRATION_TAP_VALUE" lsb="4" size="5" readWrite="false" readOnly="true"/>
       <fields name="CALIBRATION_ERROR" lsb="3" readWrite="false" readWriteToClear="true"/>
       <fields name="CALIBRATION_ACTIVE" lsb="2" readWrite="false" readOnly="true"/>
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="24" useMultiples="true" numberOfMultiples="3">
+    <registers name="LANE_PACKER_STATUS" offsetFromParent="28" useMultiples="true" numberOfMultiples="3">
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
