@@ -415,12 +415,12 @@ module testbench();
 
 		// Initialize classes
 		axil_driver = new(axil, if_gpio);
-
+	    scoreboard = new(tlp);
 
 		fork
 			// Start the scorboard
 			begin
-				//scoreboard.run();
+				scoreboard.run();
 			end
 
 			// Start the test
