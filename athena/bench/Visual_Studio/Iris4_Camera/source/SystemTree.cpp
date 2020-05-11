@@ -100,15 +100,14 @@ M_UINT8 FindMultiFpga(M_UINT32 vendorID, M_UINT32 devID, Struck_FPGAs FPGAs[])
 			FPGAs[i].DevID       = (FPGAs[i].DevID & 0xffff0000) >> 16;
 			FPGAs[i].SubsystemID = (FPGAs[i].SubsystemID & 0xffff0000) >> 16;
 
-			MSMReadConfig(MSMHandle, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, 0x50, 1, &FPGAs[i].LinkStatusReg);  // [Link status register]
-			MSMReadConfig(MSMHandle, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, 0x18, 1, &FPGAs[i].BusNum);  // [Link Bus numbers]
+			MSMReadConfig(MSMHandle, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, 0x70, 1, &FPGAs[i].LinkStatusReg);  // [Link status register]
 
 
 			if(FPGAs[i].DevID == devID)
 			     { //fpga founded
 			       fpga_founded++;
 				   if(FPGAs[i].DevID == devID)
-				     printf("Found GTR ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
+				     printf("Found GTX ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
 				   //if(FPGAs[i].DevID == 0x5300)
 				   // printf("(%d) Found N3 ANPUT FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x,  BAR1=0x%08x \n",i+1, vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0, FPGAs[i].PhyRefReg_BAR1);
 				   if(FPGAs[i].DevID == 0x806A || FPGAs[i].DevID == 0x808c)

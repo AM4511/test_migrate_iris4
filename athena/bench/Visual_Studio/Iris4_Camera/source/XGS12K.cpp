@@ -60,7 +60,6 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-   GrabParams.LinePitch           = SensorParams.Xsize_Full; //pour linstant 8bpp
    GrabParams.Y_START             = 0;
    GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
    GrabParams.REVERSE_Y           = 0;
@@ -105,7 +104,6 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 
 	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-	GrabParams.LinePitch    = SensorParams.Xsize_Full; //pour linstant 8bpp
 	GrabParams.Y_START      = 0;
 	GrabParams.Y_END        = SensorParams.Ysize_Full - 1;
 	GrabParams.REVERSE_Y    = 0;
@@ -151,7 +149,6 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 
 	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-	GrabParams.LinePitch = SensorParams.Xsize_Full; //pour linstant 8bpp
 	GrabParams.Y_START = 0;
 	GrabParams.Y_END = SensorParams.Ysize_Full - 1;
 	GrabParams.REVERSE_Y = 0;
@@ -305,7 +302,8 @@ void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 	WriteSPI(0x3E28, 0x2537);
 	WriteSPI(0x3E80, 0x000D);
 
-	WriteSPI(0x3810, 0x02DC); // minimum line time
+	//WriteSPI(0x3810, 0x02DC);                                     // minimum line time
+	WriteSPI(0x3810, 0x02DC*GrabParams.XGS_LINE_SIZE_FACTOR); // To reduce framerate in PCIe x1, temporairement
 
 	// Not used in slave mode:
 	//LOG = Setting framerate to 28FPS
