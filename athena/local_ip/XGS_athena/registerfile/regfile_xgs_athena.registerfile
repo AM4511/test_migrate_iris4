@@ -507,6 +507,11 @@
       <fields name="SENSOR_FPS" alias="SENSOR Frame Per Second" description="This is the number of frames received in 1 second interval. This register can count up to 64k frame/s. This counter counts on SO_FOT event." size="16" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="DEBUG" offsetFromParent="1A0" useReservedSpaceBelow="true">
+      <fields name="FPGA_7c706" description="This field indicates that the FPGA is compiled for a Xilinx 7C706 Evaluation Board for use with Xcelerator sensor board." lsb="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix fpga&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Zynq fpga&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="DEBUG_RST_CNTR" description="This register clears the debug cntrs" lsb="28" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset counters&lt;/matrox_column_delimiter></possibleValues>

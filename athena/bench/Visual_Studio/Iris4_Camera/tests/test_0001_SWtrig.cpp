@@ -15,8 +15,9 @@
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
+#include "XGS_Data.h"
 
-void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
+void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
@@ -41,6 +42,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	M_UINT32 XGSSize_Y = 0;
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
+	DMAParamStruct* DMAParams = XGS_Data->getDMAParams();                // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
 
@@ -55,6 +57,10 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
     //------------------------------
 	XGS_Ctrl->InitXGS();
 
+	//-------------------------------------------
+	// Calibrate and enable FPGA HiSPI interface
+	//-------------------------------------------
+	XGS_Data->HiSpiCalibrate();
 
 	//---------------------
     //
@@ -64,11 +70,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	// Init Display with correct X-Y parameters 
 	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-
-	GrabParams->FrameStart = ImageBufferAddr;
-
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
-
 
 
 	//---------------------
@@ -85,14 +87,20 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
-	GrabParams->COLOR_SPACE = 0x0;
-
 	XGS_Ctrl->setBlackRef(0);
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
 	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
+
+
+	//---------------------
+	// DMA PARAMETERS
+	//---------------------
+	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
+	DMAParams->LINE_PITCH = SensorParams->Xsize_Full; // Full window MIL display
+	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
 
 
 	printf("\n\nTest started at : ");
@@ -180,6 +188,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
+				XGS_Ctrl->DisableXGS();
+				XGS_Data->HiSpiClr();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -245,7 +255,6 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 
 			case 'y':
 				XGS_Ctrl->WaitEndExpReadout();
-
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = XGSSize_Y;
@@ -254,6 +263,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl)
 			case 's':
 				Sortie = 0;
 
+				XGS_Data->SetDMA();
 				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 				XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
 				XGS_Ctrl->WaitEndExpReadout();

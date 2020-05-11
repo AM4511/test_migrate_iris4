@@ -205,3 +205,31 @@ set_min_delay -from [get_clocks i2c_clk_div_384] -to [get_ports smbdata] 0.000
 set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/dst_cycle_int_reg/D]
 set_false_path -to [get_pins */*/*/*/Xi2c_if/triggerresync/domain_dst_change_p1_reg/D]
 
+#------------------------------------------------------------
+#  XGS CONTROLLER TIMING CONTRAINTS
+#------------------------------------------------------------
+
+# INPUTS
+set_false_path -from [get_ports {FMC_HPC_LA16_P}]
+
+set_max_delay -from [get_ports FMC_HPC_LA14_N] -to [get_clocks axiClk62MHz] 15.000
+set_min_delay -from [get_ports FMC_HPC_LA14_N] -to [get_clocks axiClk62MHz] 0.000
+
+# OUTPUTS
+set_max_delay -from [get_clocks axiClk62MHz] -to [get_ports {FMC_HPC_LA15_P}] 15.000
+set_min_delay -from [get_clocks axiClk62MHz] -to [get_ports {FMC_HPC_LA15_P}] 0.000
+
+set_max_delay -from [get_clocks axiClk62MHz] -to [get_ports {FMC_HPC_LA13_P FMC_HPC_LA14_P FMC_HPC_LA13_N}] 15.000
+set_min_delay -from [get_clocks axiClk62MHz] -to [get_ports {FMC_HPC_LA13_P FMC_HPC_LA14_P FMC_HPC_LA13_N}] 0.000
+
+set_false_path -to [get_ports {USER_SMA_CLOCK_P}]
+set_false_path -to [get_ports {USER_SMA_CLOCK_P}]
+
+set_false_path -to [get_ports {GPIO_LED_LEFT}]
+set_false_path -to [get_ports {GPIO_LED_CENTER}]
+set_false_path -to [get_ports {GPIO_LED_RIGHT}]
+set_false_path -to [get_ports {GPIO_LED_0}]
+
+
+
+

@@ -165,6 +165,13 @@ write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
 write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
 report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
+
+
+# temporairement on genere toujours le .bit et .mcs (meme s'il y a des erreurs de timing)
+# .bit + .MCS : Version SINGLE boot
+write_bitstream -force ./${PROJECT_NAME}.bit
+write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up 0x0 ./${PROJECT_NAME}.bit" ./${PROJECT_NAME}.mcs
+
 close_design
 
 

@@ -37,8 +37,8 @@ void Test7c706Eprom(CI2C* I2C);
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
 void Help(CXGS_Ctrl* Camera);
-void test_0000_Continu(CXGS_Ctrl* Camera);
-void test_0001_SWtrig(CXGS_Ctrl* Camera);
+void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 
 
@@ -51,7 +51,7 @@ int main(void)
 	//int answer;
 
 	M_UINT32 SPI_START;
-	M_UINT32 SPI_END;
+	M_UINT32 SPI_RANGE;
 
 	M_UINT32 address;
 	M_UINT32 data;
@@ -69,6 +69,7 @@ int main(void)
 	// IRISx
 	int nbFPGA = FindMultiFpga(0x102b, DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
 	
+
 	if (nbFPGA == 0)
 	{
 		printf("Impossible to find Athena!!!\n");
@@ -153,7 +154,28 @@ int main(void)
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 
+	//-----------------------------------------------------
+    // If PCIe x1 detected, reduce Framerate of the sensor
+    //-----------------------------------------------------
+	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x110000)
+	{   
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+		printf("\n");
+		printf("--------------------------------------------------------------------------\n");
+		printf(" REDUCING XGS LINERATE(FPS) BY A FACTOR %d, SINCE FPGA IS IN PCIe Gen1 x1 \n", XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR);
+		printf("--------------------------------------------------------------------------\n");
+		printf("\n");
+	}
 
+	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x210000)
+	{
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+		printf("\n");
+		printf("------------------------------------------------------------------\n");
+		printf(" XGS FRAMERATE IS AT NOMINAL SPEED, SINCE FPGA IS IN PCIe Gen1 x2 \n");
+		printf("------------------------------------------------------------------\n");
+		printf("\n");
+	}
 
 	//------------------------------
     // Print TAGs of regfile
@@ -188,6 +210,8 @@ int main(void)
 			switch (ch)
 			{
 			case 'q':
+				XGS_Ctrl->DisableXGS();
+				XGS_Data->HiSpiClr();
 				sortie = 1;
 				printf("\n\n");
 				break;
@@ -195,10 +219,10 @@ int main(void)
 			case 'r':
 				printf("\nEnter Sensor starting address to Dump in hex : 0x");
 				scanf_s("%x", &SPI_START);
-				printf("\nEnter Sensor ending address to Dump in hex : 0x");
-				scanf_s("%d", &SPI_END);
+				printf("\nEnter the number of register to read in DEC : ");
+				scanf_s("%d", &SPI_RANGE);
 				printf("\n\n");
-				XGS_Ctrl->DumpRegSPI(SPI_START, SPI_END);
+				XGS_Ctrl->DumpRegSPI(SPI_START, SPI_RANGE);
 				printf("\n\n");
 				break;
 
@@ -209,21 +233,22 @@ int main(void)
 			case 'w':
 				printf("\nEnter Sensor address to Write in hex : 0x");
 				scanf_s("%x", &address);
-				printf("\nEnter Sensor data to Write in hex : 0x");
+				printf("\nCurrent data in this register is : 0x%X\n", XGS_Ctrl->ReadSPI(address) );
+				printf("\nEnter data to Write in hex : 0x");
 				scanf_s("%x", &data);
-				printf("\n\n");
 				XGS_Ctrl->WriteSPI(address, data);		
+				printf("\nCurrent data in this register is now : 0x%X (Readback of XGS after Write operation)\n", XGS_Ctrl->ReadSPI(address));
 				printf("\n\n");
 				break;
 
 			case '0':
-				test_0000_Continu(XGS_Ctrl);
+				test_0000_Continu(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '1':
-				test_0001_SWtrig(XGS_Ctrl);
+				test_0001_SWtrig(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;
@@ -235,20 +260,13 @@ int main(void)
 
 			case 'd':
 				XGS_Ctrl->DisableXGS();   //reset and disable clk
+				XGS_Data->HiSpiClr();
 				printf("\n\n");
 				break;
 
 
 			case 'h':
-				printf("HiSPI calibration\n");
-				rXGS_Athena_ptr.HISPI.CTRL.f.CALIBRATE_SERDES = 1;
-				Sleep(1000);
-				printf("IDELAYCTRL_STATUS",   rXGS_Athena_ptr.HISPI.IDELAYCTRL_STATUS.u32);
-				printf("LANE_DECODER_STATUS_0 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_1 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_2 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_3 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
-				printf("LANE_DECODER_STATUS_4 : 0x%X\n", rXGS_Athena_ptr.HISPI.LANE_DECODER_STATUS[0].u32);
+				XGS_Data->HiSpiCalibrate();
 				break;
 
 			}
@@ -292,6 +310,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n");
 	printf("\n  (e) Enable XGS sensor (Enable clk + unreset + Load DCF)");
 	printf("\n  (d) Disable XGS sensor (Disable clk + Reset)");
+	printf("\n  (h) Calibrate HiSPI XGS sensor interafce");
 	printf("\n");
 	printf("\n  (D) Dump XGS sensor registers");
 	printf("\n  (r) Dump XGS sensor registers range");

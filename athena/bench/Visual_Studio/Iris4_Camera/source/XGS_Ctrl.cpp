@@ -57,12 +57,6 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		0x0,           //STROBE_START;
 		0xfffffff,     //STROBE_END;
 
-		0x00000000,    //FrameStart
-		0x00000000,    //FrameStartG
-		0x00000000,    //FrameStartB
-		0x500,         //LinePitch, 1280pix
-		0x0,           //COLOR_SPACE;
-
 		0,             //Y_START
 		480,           //Y_END	
 
@@ -82,6 +76,8 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 	    0,             //FOT;
 
 	    0,             //XSM_DELAY;
+
+		0,             //XGS_LINE_SIZE_FACTOR;
 
 	};
 
@@ -326,22 +322,17 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 //----------------------------------------------------------
 // This function dumps one section of the XGS regfile
 //----------------------------------------------------
-void CXGS_Ctrl::DumpRegSPI(M_UINT32 SPI_START, M_UINT32 SPI_END)
+void CXGS_Ctrl::DumpRegSPI(M_UINT32 SPI_START, M_UINT32 NB_REG)
 {
 	M_UINT32 address;
 	M_UINT32 dataread;
 
-	if (SPI_END >= SPI_START && SPI_END < 512)
+	for (int nb_reg2read = 0; nb_reg2read < NB_REG ; nb_reg2read++)
 	{
-		for (address = SPI_START; address < SPI_END + 1; address++)
-		{
-			dataread = ReadSPI(address);
-			printf("Add=%d, Data=0x%X \n", address, dataread);
-		}
-		printf("Done.\n");
+	  address = SPI_START + (nb_reg2read * 2);
+	  dataread = ReadSPI(address);
+	  printf("Add=0x%X \tData=0x%X \n", address, dataread);
 	}
-	else
-		printf("Bad Address range to read from sensor! \n");
 
 }
 
@@ -528,7 +519,7 @@ void CXGS_Ctrl::DisableXGS()
 
 	// Sensor already POWERED, POWERDOWN!
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE == 1 && rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT == 1) {
-		printf("Disabling XGS (disable clk and reset)... ");
+		printf("\n\nDisabling XGS (disable clk and reset)... ");
 		sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_POWERDOWN = 1;
 		rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 		sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_POWERDOWN = 0;  //wo
@@ -540,11 +531,11 @@ void CXGS_Ctrl::DisableXGS()
 			DataRead = rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERDOWN;
 			iter++;
 			if (iter == 1000) {
-				printf("fail!\n\n");
+				printf("fail!\n");
 				exit(1);
 			}
 		}
-		printf("done!\n\n");
+		printf("done!\n");
 	}
 	Sleep(100);
 }

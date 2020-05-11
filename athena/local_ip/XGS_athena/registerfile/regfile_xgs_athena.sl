@@ -368,6 +368,9 @@ Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
 Register("debug", 0x2a0, 4, "null");
+		Field("fpga_7c706", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Artix fpga", 0);
+			FieldValue("Zynq fpga", 1);
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
