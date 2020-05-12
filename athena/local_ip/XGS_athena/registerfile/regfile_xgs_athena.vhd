@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/11 15:52:17
+-- Created on          : 2020/05/12 09:37:08
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9E3C121
+-- Register file CRC32 : 0x1074C5A1
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -104,6 +104,7 @@ package regfile_xgs_athena_pack is
    constant K_HISPI_LANE_PACKER_STATUS_0_ADDR : natural := 16#428#;
    constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#42c#;
    constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#430#;
+   constant K_HISPI_DEBUG_ADDR                : natural := 16#434#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1467,6 +1468,35 @@ package regfile_xgs_athena_pack is
    function to_HISPI_LANE_PACKER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_PACKER_STATUS_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: DEBUG
+   ------------------------------------------------------------------------------------------
+   type HISPI_DEBUG_TYPE is record
+      MANUAL_CALIB_EN: std_logic;
+      LOAD_TAPS      : std_logic;
+      TAP_LANE_5     : std_logic_vector(4 downto 0);
+      TAP_LANE_4     : std_logic_vector(4 downto 0);
+      TAP_LANE_3     : std_logic_vector(4 downto 0);
+      TAP_LANE_2     : std_logic_vector(4 downto 0);
+      TAP_LANE_1     : std_logic_vector(4 downto 0);
+      TAP_LANE_0     : std_logic_vector(4 downto 0);
+   end record HISPI_DEBUG_TYPE;
+
+   constant INIT_HISPI_DEBUG_TYPE : HISPI_DEBUG_TYPE := (
+      MANUAL_CALIB_EN => 'Z',
+      LOAD_TAPS       => 'Z',
+      TAP_LANE_5      => (others=> 'Z'),
+      TAP_LANE_4      => (others=> 'Z'),
+      TAP_LANE_3      => (others=> 'Z'),
+      TAP_LANE_2      => (others=> 'Z'),
+      TAP_LANE_1      => (others=> 'Z'),
+      TAP_LANE_0      => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : HISPI_DEBUG_TYPE) return std_logic_vector;
+   function to_HISPI_DEBUG_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_DEBUG_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Section Name: SYSTEM
    ------------------------------------------------------------------------------------------
    type SYSTEM_TYPE is record
@@ -1644,6 +1674,7 @@ package regfile_xgs_athena_pack is
       IDLE_CHARACTER : HISPI_IDLE_CHARACTER_TYPE;
       LANE_DECODER_STATUS: HISPI_LANE_DECODER_STATUS_TYPE_ARRAY;
       LANE_PACKER_STATUS: HISPI_LANE_PACKER_STATUS_TYPE_ARRAY;
+      DEBUG          : HISPI_DEBUG_TYPE;
    end record HISPI_TYPE;
 
    constant INIT_HISPI_TYPE : HISPI_TYPE := (
@@ -1652,7 +1683,8 @@ package regfile_xgs_athena_pack is
       IDELAYCTRL_STATUS => INIT_HISPI_IDELAYCTRL_STATUS_TYPE,
       IDLE_CHARACTER  => INIT_HISPI_IDLE_CHARACTER_TYPE,
       LANE_DECODER_STATUS => INIT_HISPI_LANE_DECODER_STATUS_TYPE_ARRAY,
-      LANE_PACKER_STATUS => INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY
+      LANE_PACKER_STATUS => INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY,
+      DEBUG           => INIT_HISPI_DEBUG_TYPE
    );
 
    ------------------------------------------------------------------------------------------
@@ -3588,6 +3620,43 @@ package body regfile_xgs_athena_pack is
       return output;
    end to_HISPI_LANE_PACKER_STATUS_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from HISPI_DEBUG_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : HISPI_DEBUG_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.MANUAL_CALIB_EN;
+      output(30) := reg.LOAD_TAPS;
+      output(29 downto 25) := reg.TAP_LANE_5;
+      output(24 downto 20) := reg.TAP_LANE_4;
+      output(19 downto 15) := reg.TAP_LANE_3;
+      output(14 downto 10) := reg.TAP_LANE_2;
+      output(9 downto 5) := reg.TAP_LANE_1;
+      output(4 downto 0) := reg.TAP_LANE_0;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_HISPI_DEBUG_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_DEBUG_TYPE
+   --------------------------------------------------------------------------------
+   function to_HISPI_DEBUG_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_DEBUG_TYPE is
+   variable output : HISPI_DEBUG_TYPE;
+   begin
+      output.MANUAL_CALIB_EN := stdlv(31);
+      output.LOAD_TAPS := stdlv(30);
+      output.TAP_LANE_5 := stdlv(29 downto 25);
+      output.TAP_LANE_4 := stdlv(24 downto 20);
+      output.TAP_LANE_3 := stdlv(19 downto 15);
+      output.TAP_LANE_2 := stdlv(14 downto 10);
+      output.TAP_LANE_1 := stdlv(9 downto 5);
+      output.TAP_LANE_0 := stdlv(4 downto 0);
+      return output;
+   end to_HISPI_DEBUG_TYPE;
+
    
 end package body;
 
@@ -3596,11 +3665,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/11 15:52:17
+-- Created on          : 2020/05/12 09:37:08
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9E3C121
+-- Register file CRC32 : 0x1074C5A1
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3638,8 +3707,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(85 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(85 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(86 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(86 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3730,6 +3799,7 @@ signal rb_HISPI_LANE_DECODER_STATUS_5                              : std_logic_v
 signal rb_HISPI_LANE_PACKER_STATUS_0                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_1                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_2                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_DEBUG                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_SYSTEM_SCRATCHPAD_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                             : std_logic;                                       -- Field: GRAB_QUEUE_EN
 signal field_rw_DMA_FSTART_VALUE                                   : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -3896,6 +3966,14 @@ signal field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN         : std_logic; 
 signal field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN          : std_logic;                                       -- Field: FIFO_OVERRUN
 signal field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN         : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN          : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw_HISPI_DEBUG_MANUAL_CALIB_EN                        : std_logic;                                       -- Field: MANUAL_CALIB_EN
+signal field_wautoclr_HISPI_DEBUG_LOAD_TAPS                        : std_logic;                                       -- Field: LOAD_TAPS
+signal field_rw_HISPI_DEBUG_TAP_LANE_5                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_5
+signal field_rw_HISPI_DEBUG_TAP_LANE_4                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_4
+signal field_rw_HISPI_DEBUG_TAP_LANE_3                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_3
+signal field_rw_HISPI_DEBUG_TAP_LANE_2                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_2
+signal field_rw_HISPI_DEBUG_TAP_LANE_1                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_1
+signal field_rw_HISPI_DEBUG_TAP_LANE_0                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_0
 
 begin -- rtl
 
@@ -4002,6 +4080,7 @@ hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else 
 hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	LANE_PACKER_STATUS[0]
 hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	LANE_PACKER_STATUS[1]
 hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	LANE_PACKER_STATUS[2]
+hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	DEBUG
 
 
 
@@ -4097,7 +4176,8 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_LANE_DECODER_STATUS_5,
                             rb_HISPI_LANE_PACKER_STATUS_0,
                             rb_HISPI_LANE_PACKER_STATUS_1,
-                            rb_HISPI_LANE_PACKER_STATUS_2
+                            rb_HISPI_LANE_PACKER_STATUS_2,
+                            rb_HISPI_DEBUG
                            )
 begin
    case fullAddrAsInt is
@@ -4444,6 +4524,10 @@ begin
       -- [0x430]: /HISPI/LANE_PACKER_STATUS_2
       when 16#430# =>
          readBackMux <= rb_HISPI_LANE_PACKER_STATUS_2;
+
+      -- [0x434]: /HISPI/DEBUG
+      when 16#434# =>
+         readBackMux <= rb_HISPI_DEBUG;
 
       -- Default value
       when others =>
@@ -10147,6 +10231,221 @@ begin
       end if;
    end if;
 end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_DEBUG
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(86) <= (hit(86)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: MANUAL_CALIB_EN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(31) <= field_rw_HISPI_DEBUG_MANUAL_CALIB_EN;
+regfile.HISPI.DEBUG.MANUAL_CALIB_EN <= field_rw_HISPI_DEBUG_MANUAL_CALIB_EN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_MANUAL_CALIB_EN
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_MANUAL_CALIB_EN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= '0';
+      else
+         if(wEn(86) = '1' and bitEnN(31) = '0') then
+            field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= reg_writedata(31);
+         end if;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_MANUAL_CALIB_EN;
+
+------------------------------------------------------------------------------------------
+-- Field name: LOAD_TAPS
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(30) <= '0';
+regfile.HISPI.DEBUG.LOAD_TAPS <= field_wautoclr_HISPI_DEBUG_LOAD_TAPS;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_LOAD_TAPS
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_LOAD_TAPS : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
+      else
+         if(wEn(86) = '1' and bitEnN(30) = '0') then
+            field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= reg_writedata(30);
+         else
+            field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
+         end if;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_LOAD_TAPS;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_5(29 downto 25)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(29 downto 25) <= field_rw_HISPI_DEBUG_TAP_LANE_5(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_5 <= field_rw_HISPI_DEBUG_TAP_LANE_5(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_5
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_5 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_5 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  29 downto 25  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_5(j-25) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_5;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_4(24 downto 20)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(24 downto 20) <= field_rw_HISPI_DEBUG_TAP_LANE_4(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_4 <= field_rw_HISPI_DEBUG_TAP_LANE_4(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_4
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_4 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_4 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  24 downto 20  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_4(j-20) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_4;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_3(19 downto 15)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(19 downto 15) <= field_rw_HISPI_DEBUG_TAP_LANE_3(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_3 <= field_rw_HISPI_DEBUG_TAP_LANE_3(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_3
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_3 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_3 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  19 downto 15  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_3(j-15) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_3;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_2(14 downto 10)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(14 downto 10) <= field_rw_HISPI_DEBUG_TAP_LANE_2(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_2 <= field_rw_HISPI_DEBUG_TAP_LANE_2(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_2
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_2 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_2 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  14 downto 10  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_2(j-10) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_2;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_1(9 downto 5)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(9 downto 5) <= field_rw_HISPI_DEBUG_TAP_LANE_1(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_1 <= field_rw_HISPI_DEBUG_TAP_LANE_1(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_1
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_1 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_1 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  9 downto 5  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_1(j-5) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_1;
+
+------------------------------------------------------------------------------------------
+-- Field name: TAP_LANE_0(4 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_HISPI_DEBUG(4 downto 0) <= field_rw_HISPI_DEBUG_TAP_LANE_0(4 downto 0);
+regfile.HISPI.DEBUG.TAP_LANE_0 <= field_rw_HISPI_DEBUG_TAP_LANE_0(4 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_DEBUG_TAP_LANE_0
+------------------------------------------------------------------------------------------
+P_HISPI_DEBUG_TAP_LANE_0 : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_HISPI_DEBUG_TAP_LANE_0 <= std_logic_vector(to_unsigned(integer(0),5));
+      else
+         for j in  4 downto 0  loop
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
+               field_rw_HISPI_DEBUG_TAP_LANE_0(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_HISPI_DEBUG_TAP_LANE_0;
 
 ldData <= reg_read;
 

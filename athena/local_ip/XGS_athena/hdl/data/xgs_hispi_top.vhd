@@ -108,6 +108,10 @@ architecture rtl of xgs_hispi_top is
       hispi_pix_clk : out std_logic;
 
       -- Calibration 
+      aclk_manual_calibration_en   : in std_logic;
+      aclk_manual_calibration_load : in std_logic;
+      aclk_manual_calibration_tap  : in std_logic_vector(14 downto 0);
+
       aclk_reset_phy         : in  std_logic;
       aclk_start_calibration : in  std_logic;
       aclk_cal_done          : out std_logic;
@@ -323,6 +327,7 @@ architecture rtl of xgs_hispi_top is
 
   signal aclk_pll_locked_Meta         : std_logic;
   signal aclk_pll_locked              : std_logic;
+  signal aclk_manual_calibration      : std_logic_vector(31 downto 0);
   signal aclk_calibration_req         : std_logic;
   signal aclk_calibration_pending     : std_logic;
   signal aclk_start_calibration       : std_logic;
@@ -512,6 +517,8 @@ begin
 
   regfile.HISPI.STATUS.FSM <= state_mapping;
 
+  aclk_manual_calibration <= to_std_logic_vector(regfile.HISPI.DEBUG);
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_xgs_ctrl_calib_req
@@ -646,34 +653,39 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      hispi_serial_clk_p        => hispi_io_clk_p(0),
-      hispi_serial_clk_n        => hispi_io_clk_n(0),
-      hispi_serial_input_p      => top_lanes_p,
-      hispi_serial_input_n      => top_lanes_n,
-      aclk                      => axi_clk,
-      aclk_reset                => axi_reset,
-      aclk_idle_character       => aclk_idle_character,
-      aclk_hispi_phy_en         => enable_hispi,
-      hispi_pix_clk             => hispi_pix_clk,
-      aclk_reset_phy            => aclk_reset_phy,
-      aclk_start_calibration    => aclk_start_calibration,
-      aclk_cal_done             => top_cal_done,
-      aclk_cal_error            => top_cal_error,
-      aclk_cal_tap_value        => top_cal_tap_value,
-      aclk_fifo_read_en         => top_fifo_read_en,
-      aclk_fifo_empty           => top_fifo_empty,
-      aclk_fifo_read_data_valid => top_fifo_read_data_valid,
-      aclk_fifo_read_data       => top_fifo_read_data,
-      aclk_fifo_overrun         => top_fifo_overrun,
-      aclk_fifo_underrun        => top_fifo_underrun,
-      aclk_bit_locked           => top_bit_locked,
-      aclk_bit_locked_rise      => top_bit_locked_rise,
-      aclk_bit_locked_fall      => top_bit_locked_fall,
-      aclk_embeded_data         => top_embeded_data,
-      aclk_sof_flag             => top_sof_flag,
-      aclk_eof_flag             => top_eof_flag,
-      aclk_sol_flag             => top_sol_flag,
-      aclk_eol_flag             => top_eol_flag
+      hispi_serial_clk_p                        => hispi_io_clk_p(0),
+      hispi_serial_clk_n                        => hispi_io_clk_n(0),
+      hispi_serial_input_p                      => top_lanes_p,
+      hispi_serial_input_n                      => top_lanes_n,
+      aclk                                      => axi_clk,
+      aclk_reset                                => axi_reset,
+      aclk_idle_character                       => aclk_idle_character,
+      aclk_hispi_phy_en                         => enable_hispi,
+      hispi_pix_clk                             => hispi_pix_clk,
+      aclk_reset_phy                            => aclk_reset_phy,
+      aclk_manual_calibration_en                => aclk_manual_calibration(31),
+      aclk_manual_calibration_load              => aclk_manual_calibration(30),
+      aclk_manual_calibration_tap(4 downto 0)   => aclk_manual_calibration(4 downto 0),
+      aclk_manual_calibration_tap(9 downto 5)   => aclk_manual_calibration(14 downto 10),
+      aclk_manual_calibration_tap(14 downto 10) => aclk_manual_calibration(24 downto 20),
+      aclk_start_calibration                    => aclk_start_calibration,
+      aclk_cal_done                             => top_cal_done,
+      aclk_cal_error                            => top_cal_error,
+      aclk_cal_tap_value                        => top_cal_tap_value,
+      aclk_fifo_read_en                         => top_fifo_read_en,
+      aclk_fifo_empty                           => top_fifo_empty,
+      aclk_fifo_read_data_valid                 => top_fifo_read_data_valid,
+      aclk_fifo_read_data                       => top_fifo_read_data,
+      aclk_fifo_overrun                         => top_fifo_overrun,
+      aclk_fifo_underrun                        => top_fifo_underrun,
+      aclk_bit_locked                           => top_bit_locked,
+      aclk_bit_locked_rise                      => top_bit_locked_rise,
+      aclk_bit_locked_fall                      => top_bit_locked_fall,
+      aclk_embeded_data                         => top_embeded_data,
+      aclk_sof_flag                             => top_sof_flag,
+      aclk_eof_flag                             => top_eof_flag,
+      aclk_sol_flag                             => top_sol_flag,
+      aclk_eol_flag                             => top_eol_flag
       );
 
 
@@ -688,34 +700,39 @@ begin
       PIXEL_SIZE   => PIXEL_SIZE
       )
     port map(
-      hispi_serial_clk_p        => hispi_io_clk_p(1),
-      hispi_serial_clk_n        => hispi_io_clk_n(1),
-      hispi_serial_input_p      => bottom_lanes_p,
-      hispi_serial_input_n      => bottom_lanes_n,
-      aclk                      => axi_clk,
-      aclk_reset                => axi_reset,
-      aclk_idle_character       => aclk_idle_character,
-      aclk_hispi_phy_en         => enable_hispi,
-      hispi_pix_clk             => open,
-      aclk_reset_phy            => aclk_reset_phy,
-      aclk_start_calibration    => aclk_start_calibration,
-      aclk_cal_done             => bottom_cal_done,
-      aclk_cal_error            => bottom_cal_error,
-      aclk_cal_tap_value        => bottom_cal_tap_value,
-      aclk_fifo_read_en         => bottom_fifo_read_en,
-      aclk_fifo_empty           => bottom_fifo_empty,
-      aclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
-      aclk_fifo_read_data       => bottom_fifo_read_data,
-      aclk_fifo_overrun         => bottom_fifo_overrun,
-      aclk_fifo_underrun        => bottom_fifo_underrun,
-      aclk_bit_locked           => bottom_bit_locked,
-      aclk_bit_locked_rise      => bottom_bit_locked_rise,
-      aclk_bit_locked_fall      => bottom_bit_locked_fall,
-      aclk_embeded_data         => bottom_embeded_data,
-      aclk_sof_flag             => bottom_sof_flag,
-      aclk_eof_flag             => bottom_eof_flag,
-      aclk_sol_flag             => bottom_sol_flag,
-      aclk_eol_flag             => bottom_eol_flag
+      hispi_serial_clk_p                        => hispi_io_clk_p(1),
+      hispi_serial_clk_n                        => hispi_io_clk_n(1),
+      hispi_serial_input_p                      => bottom_lanes_p,
+      hispi_serial_input_n                      => bottom_lanes_n,
+      aclk                                      => axi_clk,
+      aclk_reset                                => axi_reset,
+      aclk_idle_character                       => aclk_idle_character,
+      aclk_hispi_phy_en                         => enable_hispi,
+      hispi_pix_clk                             => open,
+      aclk_manual_calibration_en                => aclk_manual_calibration(31),
+      aclk_manual_calibration_load              => aclk_manual_calibration(30),
+      aclk_manual_calibration_tap(4 downto 0)   => aclk_manual_calibration(9 downto 5),
+      aclk_manual_calibration_tap(9 downto 5)   => aclk_manual_calibration(19 downto 15),
+      aclk_manual_calibration_tap(14 downto 10) => aclk_manual_calibration(29 downto 25),
+      aclk_reset_phy                            => aclk_reset_phy,
+      aclk_start_calibration                    => aclk_start_calibration,
+      aclk_cal_done                             => bottom_cal_done,
+      aclk_cal_error                            => bottom_cal_error,
+      aclk_cal_tap_value                        => bottom_cal_tap_value,
+      aclk_fifo_read_en                         => bottom_fifo_read_en,
+      aclk_fifo_empty                           => bottom_fifo_empty,
+      aclk_fifo_read_data_valid                 => bottom_fifo_read_data_valid,
+      aclk_fifo_read_data                       => bottom_fifo_read_data,
+      aclk_fifo_overrun                         => bottom_fifo_overrun,
+      aclk_fifo_underrun                        => bottom_fifo_underrun,
+      aclk_bit_locked                           => bottom_bit_locked,
+      aclk_bit_locked_rise                      => bottom_bit_locked_rise,
+      aclk_bit_locked_fall                      => bottom_bit_locked_fall,
+      aclk_embeded_data                         => bottom_embeded_data,
+      aclk_sof_flag                             => bottom_sof_flag,
+      aclk_eof_flag                             => bottom_eof_flag,
+      aclk_sol_flag                             => bottom_sol_flag,
+      aclk_eol_flag                             => bottom_eol_flag
       );
 
 
