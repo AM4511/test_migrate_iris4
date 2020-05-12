@@ -12,7 +12,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
-
+use ieee.std_logic_arith.all;
+  
 library unisim;
 use unisim.vcomponents.all;
 
@@ -170,7 +171,7 @@ component system_pb_wrapper
   end component;
 
   signal pcie_clk_100MHz : std_logic;
-  
+  signal info_board_info : std_logic_vector(3 downto 0);
   
 begin
 
@@ -187,7 +188,7 @@ begin
 
 
      
-      
+  info_board_info <= "00" & fpga_var_type;    
       
   xsystem_pb_wrapper : system_pb_wrapper
   port map(
@@ -202,23 +203,22 @@ begin
     SPI_spi_csn             => cfg_spi_cs_n,
     SPI_spi_sdin            => cfg_spi_sd(0),
     SPI_spi_sdout           => cfg_spi_sd(1),
-
-     
-    --info_board_info         : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    --info_fpga_build_id      => FPGA_BUILD_DATE
-    --info_fpga_device_id     => FPGA_DEVICE_ID
-    --info_fpga_firmware_type : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    --info_fpga_major_ver     => FPGA_MAJOR_VERSION
-    --info_fpga_minor_ver     => FPGA_MINOR_VERSION
-    --info_fpga_sub_minor_ver => FPGA_SUB_MINOR_VERSION
    
-    info_board_info         => "0000",
-    info_fpga_build_id      => "00000000000000000000000000000000",
-    info_fpga_device_id     => "00000000",
+    info_board_info         => info_board_info,
+    info_fpga_build_id      => std_logic_vector(conv_unsigned(FPGA_BUILD_DATE), 32),
+    info_fpga_device_id     => std_logic_vector(conv_unsigned(FPGA_DEVICE_ID),   8),
     info_fpga_firmware_type => "00000000",
-    info_fpga_major_ver     => "00000000",
-    info_fpga_minor_ver     => "00000000",
-    info_fpga_sub_minor_ver => "00000000",
+    info_fpga_major_ver     => std_logic_vector(conv_unsigned(FPGA_MAJOR_VERSION),     8),
+    info_fpga_minor_ver     => std_logic_vector(conv_unsigned(FPGA_MINOR_VERSION),     8),
+    info_fpga_sub_minor_ver => std_logic_vector(conv_unsigned(FPGA_SUB_MINOR_VERSION), 8),
+   
+    --info_board_info         => "0000",
+    --info_fpga_build_id      => "00000000000000000000000000000000",
+    --info_fpga_device_id     => "00000000",
+    --info_fpga_firmware_type => "00000000",
+    --info_fpga_major_ver     => "00000000",
+    --info_fpga_minor_ver     => "00000000",
+    --info_fpga_sub_minor_ver => "00000000",
 
    
     led_out                 => led_out,
