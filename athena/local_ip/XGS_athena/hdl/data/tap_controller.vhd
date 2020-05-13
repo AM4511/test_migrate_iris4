@@ -24,7 +24,8 @@ entity tap_controller is
     pclk_cal_busy       : out std_logic;
     pclk_cal_error      : out std_logic;
     pclk_cal_load_tap   : out std_logic;
-    pclk_cal_tap_value  : out std_logic_vector(4 downto 0)
+    pclk_cal_tap_value  : out std_logic_vector(4 downto 0);
+    pclk_tap_histogram  : out std_logic_vector(31 downto 0)
     );
 end entity tap_controller;
 
@@ -49,6 +50,7 @@ architecture rtl of tap_controller is
   signal window_low    : unsigned(4 downto 0);
   signal window_high   : unsigned(4 downto 0);
   signal window_center : unsigned(5 downto 0);
+  signal tap_histogram : std_logic_vector(31 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -67,6 +69,7 @@ architecture rtl of tap_controller is
   attribute mark_debug of pclk_cal_busy       : signal is "true";
   attribute mark_debug of pclk_idle_character : signal is "true";
   attribute mark_debug of pclk_pixel          : signal is "true";
+  attribute mark_debug of tap_histogram       : signal is "true";
 
 begin
 
@@ -167,7 +170,7 @@ begin
         end case;
       end if;
     end if;
-  end process P_state;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -187,7 +190,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_tap_cntr;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -207,7 +210,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_pixel_cntr;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -231,7 +234,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_valid_pixel_cntr;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -260,7 +263,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_window_low;
+  end process;
 
 
   valid_idle_sequence <= '1' when (valid_pixel_cntr = "111111") else
@@ -290,7 +293,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_window_high;
+  end process;
 
 
 
@@ -311,7 +314,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_pclk_cal_busy;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -331,7 +334,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_pclk_cal_load_tap;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -355,7 +358,7 @@ begin
         end if;
       end if;
     end if;
-  end process P_pclk_cal_tap_value;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -375,7 +378,29 @@ begin
         end if;
       end if;
     end if;
-  end process P_pclk_cal_error;
+  end process;
 
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_tap_histogram
+  -- Description : Create an histogram of all valid tap value.
+  -----------------------------------------------------------------------------
+  P_tap_histogram : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        tap_histogram <= (others => '0');
+      else
+        if (state = S_RESET_TAP_CNTR) then
+          tap_histogram <= (others => '0');
+        elsif (state = S_EVALUATE) then
+          tap_histogram(31)          <= valid_idle_sequence;
+          tap_histogram(30 downto 0) <= tap_histogram(31 downto 1);
+        end if;
+      end if;
+    end if;
+  end process;
+
+  pclk_tap_histogram <= tap_histogram;
 
 end architecture rtl;

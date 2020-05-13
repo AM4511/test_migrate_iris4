@@ -46,7 +46,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 		bit [7:0] pcie_tag;
 		bit [15:0] requester_id;
 		longint pcie_address;
-
+	    int tlp_id;
 
 		/////////////////////////////////////////////////////////////////////////
 		// Initialization
@@ -67,6 +67,8 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 				// DW0 : Header
 				/////////////////////////////////////////////////////////////////
 				if (tlp_cntr == 0) begin
+				    $display("New TLP : %d", tlp_id);
+
 					pcie_type = this.axis.tdata[28:24];
 
 					// PCIE format
@@ -102,6 +104,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 					end else if (header_dw==4) begin
 						pcie_address = this.axis.tdata[63:0];
 					end
+					tlp_cntr++;
 				end
 				/////////////////////////////////////////////////////////////////
 				// DW4 > : payload
@@ -109,9 +112,18 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 				else if (tlp_cntr > 1 && has_data > 0) begin
 					data_array.push_back(this.axis.tdata[31:0]);
 					data_array.push_back(this.axis.tdata[63:32]);
+					tlp_cntr++;
 				end
 
 
+				/////////////////////////////////////////////////////////////////
+				// Last Data beat of the transaction
+				/////////////////////////////////////////////////////////////////
+				if (this.axis.tlast == 1'b1) begin
+					tlp_cntr = 0;
+					$display("TLP %d done!", tlp_id);
+
+				end
 			end
 		end while (1);
 

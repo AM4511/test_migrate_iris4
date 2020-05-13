@@ -48,6 +48,7 @@ entity hispi_phy is
     hispi_pix_clk : out std_logic;
 
     -- Calibration
+    aclk_tap_histogram           : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
     aclk_manual_calibration_en   : in std_logic;
     aclk_manual_calibration_load : in std_logic;
     aclk_manual_calibration_tap  : in std_logic_vector(14 downto 0);
@@ -137,6 +138,7 @@ architecture rtl of hispi_phy is
       -- Register file 
       aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
       aclk_hispi_phy_en   : in std_logic;
+      aclk_tap_histogram  : out std_logic_vector(31 downto 0);
 
       -- Read fifo interface
       aclk_fifo_read_en         : in  std_logic;
@@ -342,6 +344,7 @@ begin
         aclk_reset                => aclk_reset,
         aclk_idle_character       => aclk_idle_character,
         aclk_hispi_phy_en         => aclk_hispi_phy_en,
+        aclk_tap_histogram        => aclk_tap_histogram(i),
         aclk_fifo_read_en         => aclk_fifo_read_en(i),
         aclk_fifo_empty           => aclk_fifo_empty(i),
         aclk_fifo_read_data_valid => aclk_fifo_read_data_valid(i),

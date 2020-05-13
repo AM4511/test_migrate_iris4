@@ -48,8 +48,9 @@ entity lane_decoder is
     aclk_reset : in std_logic;
 
     -- Register file 
-    aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    aclk_hispi_phy_en   : in std_logic;
+    aclk_idle_character : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+    aclk_hispi_phy_en   : in  std_logic;
+    aclk_tap_histogram  : out std_logic_vector(31 downto 0);
 
     -- Read fifo interface
     aclk_fifo_read_en         : in  std_logic;
@@ -116,7 +117,8 @@ architecture rtl of lane_decoder is
       pclk_cal_busy       : out std_logic;
       pclk_cal_error      : out std_logic;
       pclk_cal_load_tap   : out std_logic;
-      pclk_cal_tap_value  : out std_logic_vector(4 downto 0)
+      pclk_cal_tap_value  : out std_logic_vector(4 downto 0);
+      pclk_tap_histogram  : out std_logic_vector(31 downto 0)
       );
   end component;
 
@@ -177,6 +179,7 @@ architecture rtl of lane_decoder is
   signal pclk_data           : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal pclk_data_p1        : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal pclk_bit_locked     : std_logic;
+  signal pclk_cal_busy_int   : std_logic;
 
   signal pclk_hispi_phy_en : std_logic;
   signal pclk_embeded_data : std_logic;
@@ -203,43 +206,44 @@ architecture rtl of lane_decoder is
   signal pclk_packer_2       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
   signal pclk_packer_3       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
 
-  signal pclk_crc_enable : std_logic := '1';  --TBD should be register field
-
+  signal pclk_crc_enable          : std_logic := '1';
+  signal pclk_tap_histogram       : std_logic_vector (31 downto 0);
   signal aclk_fifo_empty_int      : std_logic;
   signal aclk_fifo_overrun_int    : std_logic;
   signal aclk_bit_locked_int      : std_logic;
   signal aclk_bit_locked_rise_int : std_logic;
   signal aclk_bit_locked_fall_int : std_logic;
+  signal aclk_latch_tap_histogram : std_logic;
 
-  
   -----------------------------------------------------------------------------
   -- Debug attributes on pclk clock domain
   -----------------------------------------------------------------------------
-  attribute mark_debug of pclk_data           : signal is "true";
-  attribute mark_debug of pclk_data_p1        : signal is "true";
-  attribute mark_debug of pclk_state          : signal is "true";
-  attribute mark_debug of pclk_sync_detected  : signal is "true";
-  attribute mark_debug of pclk_shift_register : signal is "true";
-  attribute mark_debug of pclk_embeded_data   : signal is "true";
-  attribute mark_debug of pclk_crc_enable     : signal is "true";
-  attribute mark_debug of pclk_packer_0       : signal is "true";
-  attribute mark_debug of pclk_packer_1       : signal is "true";
-  attribute mark_debug of pclk_packer_2       : signal is "true";
-  attribute mark_debug of pclk_packer_3       : signal is "true";
-  attribute mark_debug of pclk_packer_0_valid : signal is "true";
-  attribute mark_debug of pclk_packer_1_valid : signal is "true";
-  attribute mark_debug of pclk_packer_2_valid : signal is "true";
-  attribute mark_debug of pclk_packer_3_valid : signal is "true";
-  attribute mark_debug of pclk_dataCntr       : signal is "true";
-  attribute mark_debug of pclk_packer_mux     : signal is "true";
-  attribute mark_debug of pclk_packer_valid   : signal is "true";
-  attribute mark_debug of pclk_sof_flag       : signal is "true";
-  attribute mark_debug of pclk_eof_flag       : signal is "true";
-  attribute mark_debug of pclk_sol_flag       : signal is "true";
-  attribute mark_debug of pclk_eol_flag       : signal is "true";
-  attribute mark_debug of pclk_fifo_wen       : signal is "true";
-  attribute mark_debug of pclk_fifo_overrun   : signal is "true";
-  attribute mark_debug of pclk_fifo_full      : signal is "true";
+  attribute mark_debug of pclk_data                : signal is "true";
+  attribute mark_debug of pclk_data_p1             : signal is "true";
+  attribute mark_debug of pclk_state               : signal is "true";
+  attribute mark_debug of pclk_sync_detected       : signal is "true";
+  attribute mark_debug of pclk_shift_register      : signal is "true";
+  attribute mark_debug of pclk_embeded_data        : signal is "true";
+  attribute mark_debug of pclk_crc_enable          : signal is "true";
+  attribute mark_debug of pclk_packer_0            : signal is "true";
+  attribute mark_debug of pclk_packer_1            : signal is "true";
+  attribute mark_debug of pclk_packer_2            : signal is "true";
+  attribute mark_debug of pclk_packer_3            : signal is "true";
+  attribute mark_debug of pclk_packer_0_valid      : signal is "true";
+  attribute mark_debug of pclk_packer_1_valid      : signal is "true";
+  attribute mark_debug of pclk_packer_2_valid      : signal is "true";
+  attribute mark_debug of pclk_packer_3_valid      : signal is "true";
+  attribute mark_debug of pclk_dataCntr            : signal is "true";
+  attribute mark_debug of pclk_packer_mux          : signal is "true";
+  attribute mark_debug of pclk_packer_valid        : signal is "true";
+  attribute mark_debug of pclk_sof_flag            : signal is "true";
+  attribute mark_debug of pclk_eof_flag            : signal is "true";
+  attribute mark_debug of pclk_sol_flag            : signal is "true";
+  attribute mark_debug of pclk_eol_flag            : signal is "true";
+  attribute mark_debug of pclk_fifo_wen            : signal is "true";
+  attribute mark_debug of pclk_fifo_overrun        : signal is "true";
+  attribute mark_debug of pclk_fifo_full           : signal is "true";
+  attribute mark_debug of aclk_latch_tap_histogram : signal is "true";
 
 begin
 
@@ -315,11 +319,14 @@ begin
       pclk_pixel          => pclk_data,
       pclk_idle_character => aclk_idle_character,
       pclk_cal_en         => pclk_cal_en,
-      pclk_cal_busy       => pclk_cal_busy,
+      pclk_cal_busy       => pclk_cal_busy_int,
       pclk_cal_error      => pclk_cal_error,
       pclk_cal_load_tap   => pclk_cal_load_tap,
-      pclk_cal_tap_value  => pclk_cal_tap_value
+      pclk_cal_tap_value  => pclk_cal_tap_value,
+      pclk_tap_histogram  => pclk_tap_histogram
       );
+
+  pclk_cal_busy <= pclk_cal_busy_int;
 
 
   -----------------------------------------------------------------------------
@@ -819,6 +826,21 @@ begin
       bFall => aclk_bit_locked_fall_int
       );
 
+  -----------------------------------------------------------------------------
+  -- Resync aclk_bit_locked
+  -----------------------------------------------------------------------------
+  M_aclk_latch_tap_histogram : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_cal_busy_int,
+      bclk  => aclk,
+      bclr  => aclk_reset,
+      bDout => open,
+      bRise => open,
+      bFall => aclk_latch_tap_histogram
+      );
 
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_fifo_read_data_valid
@@ -898,6 +920,23 @@ begin
           aclk_fifo_underrun <= '1';
         else
           aclk_fifo_underrun <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_tap_histogram
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_aclk_tap_histogram : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1') then
+        aclk_tap_histogram <= (others => '0');
+      else
+        if (aclk_latch_tap_histogram = '1') then
+          aclk_tap_histogram <= pclk_tap_histogram;
         end if;
       end if;
     end if;

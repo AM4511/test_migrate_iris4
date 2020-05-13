@@ -614,6 +614,22 @@ for(i = 0; i < 6; i++)
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
+variable tap_histogramTags = UChar_Type[6];
+
+for(i = 0; i < 6; i++)
+{
+	tap_histogramTags[i] = i;
+}
+
+Group("tap_histogram", "DECTAG", tap_histogramTags);
+
+for(i = 0; i < 6; i++)
+{
+
+	Register("tap_histogram", 0x428 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
+		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+}
+
 variable lane_packer_statusTags = UChar_Type[3];
 
 for(i = 0; i < 3; i++)
@@ -626,12 +642,12 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x428 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+	Register("lane_packer_status", 0x440 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
-Register("debug", 0x434, 4, "null");
+Register("debug", 0x44c, 4, "null");
 		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/12 09:37:08
+-- Created on          : 2020/05/13 11:25:20
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1074C5A1
+-- Register file CRC32 : 0x414F0151
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -101,10 +101,16 @@ package regfile_xgs_athena_pack is
    constant K_HISPI_LANE_DECODER_STATUS_3_ADDR : natural := 16#41c#;
    constant K_HISPI_LANE_DECODER_STATUS_4_ADDR : natural := 16#420#;
    constant K_HISPI_LANE_DECODER_STATUS_5_ADDR : natural := 16#424#;
-   constant K_HISPI_LANE_PACKER_STATUS_0_ADDR : natural := 16#428#;
-   constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#42c#;
-   constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#430#;
-   constant K_HISPI_DEBUG_ADDR                : natural := 16#434#;
+   constant K_HISPI_TAP_HISTOGRAM_0_ADDR      : natural := 16#428#;
+   constant K_HISPI_TAP_HISTOGRAM_1_ADDR      : natural := 16#42c#;
+   constant K_HISPI_TAP_HISTOGRAM_2_ADDR      : natural := 16#430#;
+   constant K_HISPI_TAP_HISTOGRAM_3_ADDR      : natural := 16#434#;
+   constant K_HISPI_TAP_HISTOGRAM_4_ADDR      : natural := 16#438#;
+   constant K_HISPI_TAP_HISTOGRAM_5_ADDR      : natural := 16#43c#;
+   constant K_HISPI_LANE_PACKER_STATUS_0_ADDR : natural := 16#440#;
+   constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#444#;
+   constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#448#;
+   constant K_HISPI_DEBUG_ADDR                : natural := 16#44c#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1442,6 +1448,26 @@ package regfile_xgs_athena_pack is
    function to_HISPI_LANE_DECODER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_DECODER_STATUS_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: TAP_HISTOGRAM
+   ------------------------------------------------------------------------------------------
+   type HISPI_TAP_HISTOGRAM_TYPE is record
+      VALUE          : std_logic_vector(31 downto 0);
+   end record HISPI_TAP_HISTOGRAM_TYPE;
+
+   constant INIT_HISPI_TAP_HISTOGRAM_TYPE : HISPI_TAP_HISTOGRAM_TYPE := (
+      VALUE           => (others=> 'Z')
+   );
+
+   ------------------------------------------------------------------------------------------
+   -- Array type: HISPI_TAP_HISTOGRAM_TYPE
+   ------------------------------------------------------------------------------------------
+   type HISPI_TAP_HISTOGRAM_TYPE_ARRAY is array (5 downto 0) of HISPI_TAP_HISTOGRAM_TYPE;
+   constant INIT_HISPI_TAP_HISTOGRAM_TYPE_ARRAY : HISPI_TAP_HISTOGRAM_TYPE_ARRAY := (others => INIT_HISPI_TAP_HISTOGRAM_TYPE);
+   -- Casting functions:
+   function to_std_logic_vector(reg : HISPI_TAP_HISTOGRAM_TYPE) return std_logic_vector;
+   function to_HISPI_TAP_HISTOGRAM_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_TAP_HISTOGRAM_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: LANE_PACKER_STATUS
    ------------------------------------------------------------------------------------------
    type HISPI_LANE_PACKER_STATUS_TYPE is record
@@ -1673,6 +1699,7 @@ package regfile_xgs_athena_pack is
       IDELAYCTRL_STATUS: HISPI_IDELAYCTRL_STATUS_TYPE;
       IDLE_CHARACTER : HISPI_IDLE_CHARACTER_TYPE;
       LANE_DECODER_STATUS: HISPI_LANE_DECODER_STATUS_TYPE_ARRAY;
+      TAP_HISTOGRAM  : HISPI_TAP_HISTOGRAM_TYPE_ARRAY;
       LANE_PACKER_STATUS: HISPI_LANE_PACKER_STATUS_TYPE_ARRAY;
       DEBUG          : HISPI_DEBUG_TYPE;
    end record HISPI_TYPE;
@@ -1683,6 +1710,7 @@ package regfile_xgs_athena_pack is
       IDELAYCTRL_STATUS => INIT_HISPI_IDELAYCTRL_STATUS_TYPE,
       IDLE_CHARACTER  => INIT_HISPI_IDLE_CHARACTER_TYPE,
       LANE_DECODER_STATUS => INIT_HISPI_LANE_DECODER_STATUS_TYPE_ARRAY,
+      TAP_HISTOGRAM   => INIT_HISPI_TAP_HISTOGRAM_TYPE_ARRAY,
       LANE_PACKER_STATUS => INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY,
       DEBUG           => INIT_HISPI_DEBUG_TYPE
    );
@@ -3597,6 +3625,29 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from HISPI_TAP_HISTOGRAM_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : HISPI_TAP_HISTOGRAM_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 0) := reg.VALUE;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_HISPI_TAP_HISTOGRAM_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_TAP_HISTOGRAM_TYPE
+   --------------------------------------------------------------------------------
+   function to_HISPI_TAP_HISTOGRAM_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_TAP_HISTOGRAM_TYPE is
+   variable output : HISPI_TAP_HISTOGRAM_TYPE;
+   begin
+      output.VALUE := stdlv(31 downto 0);
+      return output;
+   end to_HISPI_TAP_HISTOGRAM_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from HISPI_LANE_PACKER_STATUS_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : HISPI_LANE_PACKER_STATUS_TYPE) return std_logic_vector is
@@ -3665,11 +3716,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/12 09:37:08
+-- Created on          : 2020/05/13 11:25:20
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1074C5A1
+-- Register file CRC32 : 0x414F0151
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3707,8 +3758,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(86 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(86 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(92 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(92 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3796,6 +3847,12 @@ signal rb_HISPI_LANE_DECODER_STATUS_2                              : std_logic_v
 signal rb_HISPI_LANE_DECODER_STATUS_3                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_DECODER_STATUS_4                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_DECODER_STATUS_5                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_0                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_1                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_2                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_3                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_4                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_HISPI_TAP_HISTOGRAM_5                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_0                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_1                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_2                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -4077,10 +4134,16 @@ hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else 
 hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#41c#,12)))	else '0'; -- Addr:  0x041C	LANE_DECODER_STATUS[3]
 hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#420#,12)))	else '0'; -- Addr:  0x0420	LANE_DECODER_STATUS[4]
 hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_DECODER_STATUS[5]
-hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	LANE_PACKER_STATUS[0]
-hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	LANE_PACKER_STATUS[1]
-hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	LANE_PACKER_STATUS[2]
-hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	DEBUG
+hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	TAP_HISTOGRAM[0]
+hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	TAP_HISTOGRAM[1]
+hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	TAP_HISTOGRAM[2]
+hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	TAP_HISTOGRAM[3]
+hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#438#,12)))	else '0'; -- Addr:  0x0438	TAP_HISTOGRAM[4]
+hit(88) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#43c#,12)))	else '0'; -- Addr:  0x043C	TAP_HISTOGRAM[5]
+hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#440#,12)))	else '0'; -- Addr:  0x0440	LANE_PACKER_STATUS[0]
+hit(90) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else '0'; -- Addr:  0x0444	LANE_PACKER_STATUS[1]
+hit(91) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	LANE_PACKER_STATUS[2]
+hit(92) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	DEBUG
 
 
 
@@ -4174,6 +4237,12 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_LANE_DECODER_STATUS_3,
                             rb_HISPI_LANE_DECODER_STATUS_4,
                             rb_HISPI_LANE_DECODER_STATUS_5,
+                            rb_HISPI_TAP_HISTOGRAM_0,
+                            rb_HISPI_TAP_HISTOGRAM_1,
+                            rb_HISPI_TAP_HISTOGRAM_2,
+                            rb_HISPI_TAP_HISTOGRAM_3,
+                            rb_HISPI_TAP_HISTOGRAM_4,
+                            rb_HISPI_TAP_HISTOGRAM_5,
                             rb_HISPI_LANE_PACKER_STATUS_0,
                             rb_HISPI_LANE_PACKER_STATUS_1,
                             rb_HISPI_LANE_PACKER_STATUS_2,
@@ -4513,20 +4582,44 @@ begin
       when 16#424# =>
          readBackMux <= rb_HISPI_LANE_DECODER_STATUS_5;
 
-      -- [0x428]: /HISPI/LANE_PACKER_STATUS_0
+      -- [0x428]: /HISPI/TAP_HISTOGRAM_0
       when 16#428# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_0;
+
+      -- [0x42c]: /HISPI/TAP_HISTOGRAM_1
+      when 16#42C# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_1;
+
+      -- [0x430]: /HISPI/TAP_HISTOGRAM_2
+      when 16#430# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_2;
+
+      -- [0x434]: /HISPI/TAP_HISTOGRAM_3
+      when 16#434# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_3;
+
+      -- [0x438]: /HISPI/TAP_HISTOGRAM_4
+      when 16#438# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_4;
+
+      -- [0x43c]: /HISPI/TAP_HISTOGRAM_5
+      when 16#43C# =>
+         readBackMux <= rb_HISPI_TAP_HISTOGRAM_5;
+
+      -- [0x440]: /HISPI/LANE_PACKER_STATUS_0
+      when 16#440# =>
          readBackMux <= rb_HISPI_LANE_PACKER_STATUS_0;
 
-      -- [0x42c]: /HISPI/LANE_PACKER_STATUS_1
-      when 16#42C# =>
+      -- [0x444]: /HISPI/LANE_PACKER_STATUS_1
+      when 16#444# =>
          readBackMux <= rb_HISPI_LANE_PACKER_STATUS_1;
 
-      -- [0x430]: /HISPI/LANE_PACKER_STATUS_2
-      when 16#430# =>
+      -- [0x448]: /HISPI/LANE_PACKER_STATUS_2
+      when 16#448# =>
          readBackMux <= rb_HISPI_LANE_PACKER_STATUS_2;
 
-      -- [0x434]: /HISPI/DEBUG
-      when 16#434# =>
+      -- [0x44c]: /HISPI/DEBUG
+      when 16#44C# =>
          readBackMux <= rb_HISPI_DEBUG;
 
       -- Default value
@@ -10041,10 +10134,106 @@ end process P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: HISPI_LANE_PACKER_STATUS_0
+-- Register name: HISPI_TAP_HISTOGRAM_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(83) <= (hit(83)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_0(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(0).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_TAP_HISTOGRAM_1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(84) <= (hit(84)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_1(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(1).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_TAP_HISTOGRAM_2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(85) <= (hit(85)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_2(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(2).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_TAP_HISTOGRAM_3
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(86) <= (hit(86)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_3(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(3).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_TAP_HISTOGRAM_4
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(87) <= (hit(87)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_4(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(4).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_TAP_HISTOGRAM_5
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(88) <= (hit(88)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: VALUE(31 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_TAP_HISTOGRAM_5(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(5).VALUE;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: HISPI_LANE_PACKER_STATUS_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(89) <= (hit(89)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -10063,7 +10252,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(83) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(89) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
          else
@@ -10091,7 +10280,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
       else
-         if(wEn(83) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(89) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
          else
@@ -10109,7 +10298,7 @@ end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_PACKER_STATUS_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(84) <= (hit(84)) and (reg_write);
+wEn(90) <= (hit(90)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -10128,7 +10317,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(84) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(90) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
          else
@@ -10156,7 +10345,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
       else
-         if(wEn(84) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(90) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
          else
@@ -10174,7 +10363,7 @@ end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_PACKER_STATUS_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(85) <= (hit(85)) and (reg_write);
+wEn(91) <= (hit(91)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -10193,7 +10382,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(85) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(91) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
          else
@@ -10221,7 +10410,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
       else
-         if(wEn(85) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(91) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
          else
@@ -10239,7 +10428,7 @@ end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
 -- Register name: HISPI_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(86) <= (hit(86)) and (reg_write);
+wEn(92) <= (hit(92)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MANUAL_CALIB_EN
@@ -10258,7 +10447,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= '0';
       else
-         if(wEn(86) = '1' and bitEnN(31) = '0') then
+         if(wEn(92) = '1' and bitEnN(31) = '0') then
             field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= reg_writedata(31);
          end if;
       end if;
@@ -10282,7 +10471,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
       else
-         if(wEn(86) = '1' and bitEnN(30) = '0') then
+         if(wEn(92) = '1' and bitEnN(30) = '0') then
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= reg_writedata(30);
          else
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
@@ -10309,7 +10498,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_5 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  29 downto 25  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_5(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -10335,7 +10524,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_4 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  24 downto 20  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_4(j-20) <= reg_writedata(j);
             end if;
          end loop;
@@ -10361,7 +10550,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_3 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  19 downto 15  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_3(j-15) <= reg_writedata(j);
             end if;
          end loop;
@@ -10387,7 +10576,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_2 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  14 downto 10  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_2(j-10) <= reg_writedata(j);
             end if;
          end loop;
@@ -10413,7 +10602,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_1 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  9 downto 5  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_1(j-5) <= reg_writedata(j);
             end if;
          end loop;
@@ -10439,7 +10628,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_0 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_0(j-0) <= reg_writedata(j);
             end if;
          end loop;

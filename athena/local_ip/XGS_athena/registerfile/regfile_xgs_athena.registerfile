@@ -737,7 +737,7 @@
       <fields name="dpc_list_corr_x" description="This is X location of the pixel read from the DPC list." size="12" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="434">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="44C">
     <registers name="CTRL">
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
@@ -807,11 +807,14 @@
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="28" useMultiples="true" numberOfMultiples="3">
+    <registers name="TAP_HISTOGRAM" offsetFromParent="28" useMultiples="true" numberOfMultiples="6">
+      <fields name="VALUE" size="32" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="LANE_PACKER_STATUS" offsetFromParent="40" useMultiples="true" numberOfMultiples="3">
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="DEBUG" offsetFromParent="34">
+    <registers name="DEBUG" offsetFromParent="4C">
       <fields name="MANUAL_CALIB_EN" lsb="31"/>
       <fields name="LOAD_TAPS" lsb="30" readWrite="false" writeOnly="true"/>
       <fields name="TAP_LANE_5" lsb="25" size="5"/>
