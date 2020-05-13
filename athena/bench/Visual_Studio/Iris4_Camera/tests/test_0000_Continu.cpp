@@ -79,7 +79,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(8000);
+	XGS_Ctrl->setExposure(1500);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4
@@ -178,7 +178,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		if (FPS_On)
 		{
 
-			// Le max FPS est facile a calculer : Treadout2trigfall (~1ligne) + Ttrigfall2FOTstart + Tfot + Treadout
+			// Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
 			// Tfot fixe en nmbre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
 			//
 			// Le exp_max pour fps max est un peu plus tricky a calculer.
@@ -187,9 +187,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			// width minimum sur le signal trig0 du senseur.
 
 			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
+
 			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
-				                                                             1.0 / (0.0000114 + 0.000023+( (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) *(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 ))),
-				                                                            ((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES +1 ) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond/1000.0)
+				                                                                  1.0 / ( double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN/1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + ((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7))),
+				                                                                  ((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES +1 ) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond/1000.0)
 			                                                                 );
 		}
 

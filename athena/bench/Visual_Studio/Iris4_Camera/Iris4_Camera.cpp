@@ -113,7 +113,7 @@ int main(void)
 
 	RegPtr_bar1 = (M_UINT32*)MbufInquire(MilRegBuf1, M_HOST_ADDRESS, M_NULL);
 
-	printf("\n\nMaio ID is 0x%X, programming PCIe Window0 \n", *RegPtr_bar1 + (0x000 / 4));
+	printf("\n\nMaio ID is 0x%X, programming PCIe Window0 \n", *(RegPtr_bar1 + (0x000 / 4)) );
 	*(RegPtr_bar1 + (0x100 / 4)) = 0x0;         //pci_bar0_disable 
 	*(RegPtr_bar1 + (0x104 / 4)) = 0x0;         //pci_bar0_start
 	*(RegPtr_bar1 + (0x108 / 4)) = 0x20000;     //pci_bar0_End (8k)
@@ -121,6 +121,8 @@ int main(void)
 	*(RegPtr_bar1 + (0x100 / 4)) = 0x1;         //pci_bar0_enable
 
 	
+
+
 	//------------------------------
 	// Init Global XGS Athena REGISTER FILE
 	//------------------------------
@@ -159,12 +161,25 @@ int main(void)
     //-----------------------------------------------------
 	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x110000)
 	{   
-		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
-		printf("\n");
-		printf("--------------------------------------------------------------------------\n");
-		printf(" REDUCING XGS LINERATE(FPS) BY A FACTOR %d, SINCE FPGA IS IN PCIe Gen1 x1 \n", XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR);
-		printf("--------------------------------------------------------------------------\n");
-		printf("\n");
+
+		printf("\nPCIe is in Gen1 x1, do you want to reduce Linerate by a factor x4 ? (y/n) : ");
+		ch = _getch();
+		if (ch == 'y') {
+			XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+			printf("\n");
+			printf("--------------------------------------------------------------------------\n");
+			printf(" REDUCING XGS LINERATE(FPS) BY A FACTOR %d, SINCE FPGA IS IN PCIe Gen1 x1 \n", XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR);
+			printf("--------------------------------------------------------------------------\n");
+			printf("\n");
+
+		}
+		else
+		  XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+		  printf("\n");
+		  printf("-----------------------------------\n");
+		  printf(" XGS FRAMERATE IS AT NOMINAL SPEED \n");
+		  printf("-----------------------------------\n");
+		  printf("\n");
 	}
 
 	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x210000)
@@ -189,8 +204,20 @@ int main(void)
 
 
 	// Pour le dev Board de ONsemi Xcelerator, no need with our board
-	InitXcelerator(XGS_Ctrl, I2C);
-	
+	if (rXGS_Athena_ptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
+	{
+		printf("Zynq FPGA detected, with Xcelerator board, Enable XGS power by I2C\n");
+		InitXcelerator(XGS_Ctrl, I2C);
+	}
+	else
+	{ 
+		printf("Artix7 FPGA detected, Matrox XGS Sensor board\n");
+	}
+
+	//Print build ID
+	printf("\n\nFPGA Build is ID is %d (0x%X) \n", *(RegPtr_bar1 + (0x024 / 4)), *(RegPtr_bar1 + (0x024 / 4)));
+
+
 	// pour tester que le fix du bug TLP_2_AXI est repare
 	TestTLP2AXI(XGS_Ctrl);
 

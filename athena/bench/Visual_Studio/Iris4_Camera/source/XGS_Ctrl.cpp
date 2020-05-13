@@ -96,6 +96,9 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		0,             //BL_LINES;
 		0,             //EXP_DUMMY_LINES;
 
+        0,             //ReadOutN_2_TrigN, in ns
+        0,             //TrigN_2_FOT, in ns
+
 
 
 	};
