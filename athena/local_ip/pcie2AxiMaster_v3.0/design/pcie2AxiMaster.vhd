@@ -986,9 +986,14 @@ begin
 
   -- Derived from pcie_sys_rst_n
   sys_reset_n <= not sys_reset;
-
+  
+  -- Connecting DMA requester   
   cfg_no_snoop_en  <= cfg_dcommand(11);
   cfg_relax_ord_en <= cfg_dcommand(4);
+
+  cfg_bus_mast_en  <= cfg_command(2);
+  cfg_setmaxpld    <= cfg_dcommand(7 downto 5);
+
 
   -- cfg_no_snoop_en  <= '0';
   -- cfg_relax_ord_en <= '0';
