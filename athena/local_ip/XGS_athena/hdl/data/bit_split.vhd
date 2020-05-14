@@ -6,6 +6,8 @@
 --               character to determine this alignment. The extraction is based
 --               on the detection of 4 consecutives idle_character. This module
 --               Also provide the associated pixel clock.
+--
+--  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)     
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -240,9 +242,16 @@ begin
     end if;
   end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- Flag        : hclk_bit_locked
+  -- Description : If the hclk_lock_cntr > 0 we consider the lane is in
+  --               lock mode (we detect correctly the idle character).  
+  -----------------------------------------------------------------------------
   hclk_bit_locked <= '1' when (hclk_lock_cntr > (hclk_lock_cntr'range => '0')) else
                      '0';
 
+  
   P_pclk_bit_locked : process (hclk) is
   begin
     if (rising_edge(hclk)) then
@@ -255,11 +264,6 @@ begin
       end if;
     end if;
   end process;
-
-
-
-
-
 
 
   -----------------------------------------------------------------------------

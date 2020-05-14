@@ -555,6 +555,7 @@ Register("ctrl", 0x400, 4, "null");
 		Field("sw_calib_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
 			FieldValue("No effect", 0);
 			FieldValue("Initiate the calibration", 1);
+		Field("enable_data_path", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("enable_hispi", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("status", 0x404, 4, "Global status register");
@@ -601,6 +602,9 @@ for(i = 0; i < 6; i++)
 {
 
 	Register("lane_decoder_status", 0x410 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+			FieldValue("Pixel bit boundaries unlocked", 0);
+			FieldValue("Pixel bit boundaries locked", 1);
 		Field("phy_bit_locked_error", 13, 13, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 			FieldValue("Pixel bit boundaries unlocked", 0);
 			FieldValue("Pixel bit boundaries locked", 1);
@@ -609,7 +613,7 @@ for(i = 0; i < 6; i++)
 			FieldValue("Pixel bit boundaries locked", 1);
 		Field("calibration_tap_value", 8, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("calibration_error", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("calibration_active", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_done", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }

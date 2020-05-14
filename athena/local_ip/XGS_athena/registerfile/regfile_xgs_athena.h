@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x414F0151
+* Register file CRC32 : 0xA0166BE
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1483,11 +1483,11 @@ typedef union
    struct
    {
       M_UINT32 ENABLE_HISPI      : 1;   /* Bits(0:0), null */
-      M_UINT32 RSVD0             : 1;   /* Bits(1:1), Reserved */
+      M_UINT32 ENABLE_DATA_PATH  : 1;   /* Bits(1:1), null */
       M_UINT32 SW_CALIB_SERDES   : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
       M_UINT32 SW_CLR_HISPI      : 1;   /* Bits(3:3), null */
       M_UINT32 SW_CLR_IDELAYCTRL : 1;   /* Bits(4:4), Reset the Xilinx macro IDELAYCTRL */
-      M_UINT32 RSVD1             : 27;  /* Bits(31:5), Reserved */
+      M_UINT32 RSVD0             : 27;  /* Bits(31:5), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
@@ -1564,13 +1564,14 @@ typedef union
    {
       M_UINT32 FIFO_OVERRUN          : 1;   /* Bits(0:0), null */
       M_UINT32 FIFO_UNDERRUN         : 1;   /* Bits(1:1), null */
-      M_UINT32 CALIBRATION_ACTIVE    : 1;   /* Bits(2:2), null */
+      M_UINT32 CALIBRATION_DONE      : 1;   /* Bits(2:2), null */
       M_UINT32 CALIBRATION_ERROR     : 1;   /* Bits(3:3), null */
       M_UINT32 CALIBRATION_TAP_VALUE : 5;   /* Bits(8:4), null */
       M_UINT32 RSVD0                 : 3;   /* Bits(11:9), Reserved */
       M_UINT32 PHY_BIT_LOCKED        : 1;   /* Bits(12:12), null */
       M_UINT32 PHY_BIT_LOCKED_ERROR  : 1;   /* Bits(13:13), null */
-      M_UINT32 RSVD1                 : 18;  /* Bits(31:14), Reserved */
+      M_UINT32 PHY_SYNC_ERROR        : 1;   /* Bits(14:14), null */
+      M_UINT32 RSVD1                 : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE;

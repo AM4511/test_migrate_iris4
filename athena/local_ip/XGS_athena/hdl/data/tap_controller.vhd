@@ -36,7 +36,7 @@ architecture rtl of tap_controller is
   attribute keep       : string;
 
 
-  type FSM_TYPE is (S_IDLE, S_RESET_TAP_CNTR, S_RESET_PIX_CNTR, S_MONITOR, S_EVALUATE, S_EXTRACT_WINDOW, S_CALIBRATION_ERROR, S_INCR_TAP, S_LOAD_TAP, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_RESET_TAP_CNTR, S_RESET_PIX_CNTR, S_MONITOR, S_EVALUATE, S_EXTRACT_WINDOW, S_CALIBRATION_ERROR, S_INCR_TAP, S_LOAD_TAP, S_LOAD_BEST_TAP, S_DONE);
 
   constant CNTR_WIDTH : integer                         := 6;
   constant MAX_COUNT  : unsigned(CNTR_WIDTH-1 downto 0) := "111110";
@@ -46,11 +46,14 @@ architecture rtl of tap_controller is
   signal valid_pixel_cntr    : unsigned(CNTR_WIDTH-1 downto 0) := (others => '0');
   signal pixel_cntr          : unsigned(CNTR_WIDTH-1 downto 0) := (others => '0');
   signal valid_idle_sequence : std_logic;
+  signal valid_window        : std_logic;
 
-  signal window_low    : unsigned(4 downto 0);
-  signal window_high   : unsigned(4 downto 0);
-  signal window_center : unsigned(5 downto 0);
-  signal tap_histogram : std_logic_vector(31 downto 0);
+  signal window_low         : unsigned(4 downto 0);
+  signal window_size        : unsigned(4 downto 0);
+  signal best_window_low    : unsigned(4 downto 0);
+  signal best_window_size   : unsigned(4 downto 0);
+  signal best_window_center : unsigned(4 downto 0);
+  signal tap_histogram      : std_logic_vector(31 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -58,10 +61,15 @@ architecture rtl of tap_controller is
   -----------------------------------------------------------------------------
   attribute mark_debug of state               : signal is "true";
   attribute mark_debug of tap_cntr            : signal is "true";
-  attribute mark_debug of pixel_cntr          : signal is "true";
   attribute mark_debug of valid_pixel_cntr    : signal is "true";
+  attribute mark_debug of pixel_cntr          : signal is "true";
+  attribute mark_debug of valid_idle_sequence : signal is "true";  
+  attribute mark_debug of valid_window        : signal is "true";  
   attribute mark_debug of window_low          : signal is "true";
-  attribute mark_debug of window_high         : signal is "true";
+  attribute mark_debug of window_size         : signal is "true";
+  attribute mark_debug of best_window_low     : signal is "true";
+  attribute mark_debug of best_window_size    : signal is "true";
+  attribute mark_debug of best_window_center  : signal is "true";
   attribute mark_debug of pclk_reset          : signal is "true";
   attribute mark_debug of pclk_cal_tap_value  : signal is "true";
   attribute mark_debug of pclk_cal_load_tap   : signal is "true";
@@ -135,6 +143,13 @@ begin
           -- S_INCR_TAP : 
           -------------------------------------------------------------------
           when S_INCR_TAP =>
+            state <= S_LOAD_TAP;
+
+
+          -------------------------------------------------------------------
+          -- S_LOAD_TAP : 
+          -------------------------------------------------------------------
+          when S_LOAD_TAP =>
             state <= S_RESET_PIX_CNTR;
 
 
@@ -142,8 +157,8 @@ begin
           -- S_EXTRACT_WINDOW : 
           -------------------------------------------------------------------
           when S_EXTRACT_WINDOW =>
-            if (window_high > window_low) then
-              state <= S_LOAD_TAP;
+            if (best_window_size > 0) then
+              state <= S_LOAD_BEST_TAP;
             else
               state <= S_CALIBRATION_ERROR;
             end if;
@@ -152,7 +167,13 @@ begin
           -------------------------------------------------------------------
           -- S_LOAD_TAP : 
           -------------------------------------------------------------------
-          when S_LOAD_TAP =>
+          when S_LOAD_BEST_TAP =>
+            state <= S_DONE;
+
+          -------------------------------------------------------------------
+          -- S_CALIBRATION_ERROR : 
+          -------------------------------------------------------------------
+          when S_CALIBRATION_ERROR =>
             state <= S_DONE;
 
           -------------------------------------------------------------------
@@ -172,6 +193,26 @@ begin
     end if;
   end process;
 
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_valid_window
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_valid_window : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        valid_window <= '0';
+      else
+        if (state = S_IDLE) then
+          valid_window <= '0';
+        elsif (state = S_EVALUATE) then
+          valid_window <= valid_idle_sequence;
+        end if;
+      end if;
+    end if;
+  end process;
 
   -----------------------------------------------------------------------------
   -- Process     : P_tap_cntr
@@ -245,20 +286,16 @@ begin
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
-        window_low <= (others => '1');
+        window_low <= (others => '0');
       else
         if (state = S_RESET_TAP_CNTR) then
-          window_low <= (others => '1');
-        elsif (state = S_EVALUATE) then
+          window_low <= (others => '0');
+        elsif (state = S_EVALUATE and valid_window = '0') then
           ---------------------------------------------------------------------
           -- If reliable pixels (we counted 64 valid consecutives IDLE characters)
           ---------------------------------------------------------------------
           if (valid_idle_sequence = '1') then
-            if (tap_cntr < window_low) then
-              window_low <= tap_cntr;
-            else
-              window_low <= window_low;
-            end if;
+            window_low <= tap_cntr;
           end if;
         end if;
       end if;
@@ -271,30 +308,54 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_window_high
+  -- Process     : P_window_size
   -- Description : 
   -----------------------------------------------------------------------------
-  P_window_high : process (pclk) is
+  P_window_size : process (pclk) is
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
-        window_high <= (others => '0');
+        window_size <= (others => '0');
       else
         if (state = S_RESET_TAP_CNTR) then
-          window_high <= (others => '0');
-        elsif (state = S_EVALUATE) then
+          window_size <= (others => '0');
+        elsif (state = S_EVALUATE and valid_window = '1') then
           if (valid_idle_sequence = '1') then
-            if (tap_cntr > window_high) then
-              window_high <= tap_cntr;
-            else
-              window_high <= window_high;
-            end if;
+            window_size <= (tap_cntr - window_low) + 1;
           end if;
         end if;
       end if;
     end if;
   end process;
 
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_best_window
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_best_window : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        best_window_low    <= (others => '0');
+        best_window_size   <= (others => '0');
+        best_window_center <= (others => '0');
+      else
+        if (state = S_RESET_TAP_CNTR) then
+          best_window_low    <= (others => '0');
+          best_window_size   <= (others => '0');
+          best_window_center <= (others => '0');
+        elsif (state = S_INCR_TAP and valid_window = '0') then
+          if (window_size > best_window_size) then
+            best_window_low    <= window_low;
+            best_window_size   <= window_size;
+            best_window_center <= window_low + (window_size/2);
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -327,7 +388,7 @@ begin
       if (pclk_reset = '1') then
         pclk_cal_load_tap <= '0';
       else
-        if (state = S_LOAD_TAP) then
+        if (state = S_LOAD_TAP or state = S_LOAD_BEST_TAP) then
           pclk_cal_load_tap <= '1';
         else
           pclk_cal_load_tap <= '0';
@@ -335,12 +396,6 @@ begin
       end if;
     end if;
   end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Determine center point of the valid window
-  -----------------------------------------------------------------------------
-  window_center <= (('0' & window_low) + ('0' & window_high))/2;
 
 
   -----------------------------------------------------------------------------
@@ -353,8 +408,10 @@ begin
       if (pclk_reset = '1') then
         pclk_cal_tap_value <= (others => '0');
       else
-        if (state = S_LOAD_TAP) then
-          pclk_cal_tap_value <= std_logic_vector(window_center(4 downto 0));
+        if (state = S_LOAD_BEST_TAP) then
+          pclk_cal_tap_value <= std_logic_vector(best_window_center);
+        elsif (state = S_EVALUATE) then
+          pclk_cal_tap_value <= std_logic_vector(tap_cntr);
         end if;
       end if;
     end if;

@@ -734,7 +734,7 @@ module testbench();
 				// XGS HiSPi : Control
 				///////////////////////////////////////////////////
 				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-				axil_driver.write(HISPI_CTRL_OFFSET, 'h0001);
+				axil_driver.write(HISPI_CTRL_OFFSET, 'h0003);
 
 
 				///////////////////////////////////////////////////
@@ -771,7 +771,7 @@ module testbench();
 				// XGS HiSPi : Control Start a calibration
 				///////////////////////////////////////////////////
 				$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-				axil_driver.write(HISPI_CTRL_OFFSET, 'h0005);
+				axil_driver.write(HISPI_CTRL_OFFSET, 'h0007);
 
 
 				///////////////////////////////////////////////////
