@@ -41,16 +41,18 @@ entity hispi_phy is
     aclk_reset : in std_logic;
 
     -- Register file information
-    aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    aclk_hispi_phy_en   : in std_logic;
+    aclk_idle_character     : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    aclk_hispi_phy_en       : in std_logic;
+    aclk_hispi_data_path_en : in std_logic;
 
     -- To XGS_controller
     hispi_pix_clk : out std_logic;
 
     -- Calibration
-    aclk_manual_calibration_en   : in std_logic;
-    aclk_manual_calibration_load : in std_logic;
-    aclk_manual_calibration_tap  : in std_logic_vector(14 downto 0);
+    aclk_tap_histogram           : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+    aclk_manual_calibration_en   : in  std_logic;
+    aclk_manual_calibration_load : in  std_logic;
+    aclk_manual_calibration_tap  : in  std_logic_vector(14 downto 0);
 
     aclk_reset_phy         : in  std_logic;
     aclk_start_calibration : in  std_logic;
@@ -67,6 +69,7 @@ entity hispi_phy is
     aclk_fifo_underrun        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
 
     -- Flags 
+    aclk_sync_error      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
     aclk_bit_locked      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
     aclk_bit_locked_rise : out std_logic_vector(LANE_PER_PHY-1 downto 0);
     aclk_bit_locked_fall : out std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -135,8 +138,11 @@ architecture rtl of hispi_phy is
       aclk_reset : in std_logic;
 
       -- Register file 
-      aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-      aclk_hispi_phy_en   : in std_logic;
+      aclk_idle_character     : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      aclk_hispi_phy_en       : in  std_logic;
+      aclk_hispi_data_path_en : in  std_logic;
+      aclk_sync_error         : out std_logic;
+      aclk_tap_histogram      : out std_logic_vector(31 downto 0);
 
       -- Read fifo interface
       aclk_fifo_read_en         : in  std_logic;
@@ -342,6 +348,9 @@ begin
         aclk_reset                => aclk_reset,
         aclk_idle_character       => aclk_idle_character,
         aclk_hispi_phy_en         => aclk_hispi_phy_en,
+        aclk_sync_error           => aclk_sync_error(i),
+        aclk_hispi_data_path_en   => aclk_hispi_data_path_en,
+        aclk_tap_histogram        => aclk_tap_histogram(i),
         aclk_fifo_read_en         => aclk_fifo_read_en(i),
         aclk_fifo_empty           => aclk_fifo_empty(i),
         aclk_fifo_read_data_valid => aclk_fifo_read_data_valid(i),
@@ -382,7 +391,7 @@ begin
   delay_tap_in <= aclk_manual_calibration_tap when (aclk_manual_calibration_en = '1') else
                   pclk_cal_tap_value;
 
-  delay_reset <= '1' when (aclk_manual_calibration_en = '0' and hclk_state = S_LOAD_DELAY) else
+  delay_reset <= '1' when (aclk_manual_calibration_en = '0' and pclk_cal_load_tap(0) = '1') else
                  '1' when (aclk_manual_calibration_en = '1' and hclk_manual_calibration_load = '1') else
                  '0';
 

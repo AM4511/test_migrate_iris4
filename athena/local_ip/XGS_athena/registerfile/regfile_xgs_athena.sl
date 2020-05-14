@@ -555,6 +555,7 @@ Register("ctrl", 0x400, 4, "null");
 		Field("sw_calib_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
 			FieldValue("No effect", 0);
 			FieldValue("Initiate the calibration", 1);
+		Field("enable_data_path", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("enable_hispi", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("status", 0x404, 4, "Global status register");
@@ -601,6 +602,9 @@ for(i = 0; i < 6; i++)
 {
 
 	Register("lane_decoder_status", 0x410 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+			FieldValue("Pixel bit boundaries unlocked", 0);
+			FieldValue("Pixel bit boundaries locked", 1);
 		Field("phy_bit_locked_error", 13, 13, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 			FieldValue("Pixel bit boundaries unlocked", 0);
 			FieldValue("Pixel bit boundaries locked", 1);
@@ -609,9 +613,25 @@ for(i = 0; i < 6; i++)
 			FieldValue("Pixel bit boundaries locked", 1);
 		Field("calibration_tap_value", 8, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("calibration_error", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("calibration_active", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_done", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+}
+
+variable tap_histogramTags = UChar_Type[6];
+
+for(i = 0; i < 6; i++)
+{
+	tap_histogramTags[i] = i;
+}
+
+Group("tap_histogram", "DECTAG", tap_histogramTags);
+
+for(i = 0; i < 6; i++)
+{
+
+	Register("tap_histogram", 0x428 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
+		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }
 
 variable lane_packer_statusTags = UChar_Type[3];
@@ -626,12 +646,12 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x428 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+	Register("lane_packer_status", 0x440 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
-Register("debug", 0x434, 4, "null");
+Register("debug", 0x44c, 4, "null");
 		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

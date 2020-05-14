@@ -101,16 +101,18 @@ architecture rtl of xgs_hispi_top is
       aclk_reset : in std_logic;
 
       -- Register file information
-      aclk_idle_character : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-      aclk_hispi_phy_en   : in std_logic;
+      aclk_idle_character     : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      aclk_hispi_phy_en       : in std_logic;
+      aclk_hispi_data_path_en : in std_logic;
 
       -- To XGS_controller
       hispi_pix_clk : out std_logic;
 
       -- Calibration 
-      aclk_manual_calibration_en   : in std_logic;
-      aclk_manual_calibration_load : in std_logic;
-      aclk_manual_calibration_tap  : in std_logic_vector(14 downto 0);
+      aclk_tap_histogram           : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+      aclk_manual_calibration_en   : in  std_logic;
+      aclk_manual_calibration_load : in  std_logic;
+      aclk_manual_calibration_tap  : in  std_logic_vector(14 downto 0);
 
       aclk_reset_phy         : in  std_logic;
       aclk_start_calibration : in  std_logic;
@@ -127,6 +129,7 @@ architecture rtl of xgs_hispi_top is
       aclk_fifo_underrun        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
 
       -- Flags detected
+      aclk_sync_error      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       aclk_bit_locked      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       aclk_bit_locked_rise : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       aclk_bit_locked_fall : out std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -316,17 +319,18 @@ architecture rtl of xgs_hispi_top is
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+
+
   signal new_line_pending  : std_logic;
   signal new_frame_pending : std_logic;
 
-  signal aclk_idle_character  : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal aclk_reset_phy       : std_logic;
-  signal aclk_bit_locked      : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  signal aclk_bit_locked_FF   : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  signal aclk_bit_locked_FALL : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal aclk_idle_character : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal aclk_reset_phy      : std_logic;
 
-  signal aclk_pll_locked_Meta         : std_logic;
-  signal aclk_pll_locked              : std_logic;
+  signal aclk_pll_locked_Meta    : std_logic;
+  signal aclk_pll_locked         : std_logic;
+  signal aclk_hispi_data_path_en : std_logic;
+
   signal aclk_manual_calibration      : std_logic_vector(31 downto 0);
   signal aclk_calibration_req         : std_logic;
   signal aclk_calibration_pending     : std_logic;
@@ -355,6 +359,8 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_overrun         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_tap_histogram        : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_sync_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
   signal bottom_cal_done             : std_logic;
@@ -376,6 +382,8 @@ architecture rtl of xgs_hispi_top is
   signal bottom_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_overrun         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_underrun        : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_tap_histogram        : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_sync_error           : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal state         : FSM_TYPE := S_IDLE;
   signal state_mapping : std_logic_vector(3 downto 0);
@@ -431,7 +439,8 @@ architecture rtl of xgs_hispi_top is
   signal sldec_fifo_overrun  : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal sldec_fifo_underrun : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal sldec_cal_error     : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-
+  signal sldec_sync_error    : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  
   -- Status lane packer (slpack)
   signal slpack_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal slpack_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
@@ -451,36 +460,49 @@ begin
 
   enable_hispi <= regfile.HISPI.CTRL.ENABLE_HISPI;
 
+  aclk_hispi_data_path_en <= regfile.HISPI.CTRL.ENABLE_DATA_PATH;
 
   aclk_calibration_req <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
                           '1' when (aclk_xgs_ctrl_calib_req = '1') else
                           '0';
 
   G_lane_decoder_status : for i in 0 to LANE_PER_PHY-1 generate
+    ---------------------------------------------------------------------------
     -- Even lanes (Top lanes)
+    ---------------------------------------------------------------------------
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_SYNC_ERROR_set       <= top_sync_error(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN_set         <= top_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN_set        <= top_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR_set    <= top_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ACTIVE       <= aclk_calibration_done(0);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_DONE         <= aclk_calibration_done(0);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_TAP_VALUE    <= top_cal_tap_value(5*i+4 downto 5*i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_BIT_LOCKED           <= top_bit_locked(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_BIT_LOCKED_ERROR_set <= top_bit_locked_fall(i);
+    regfile.HISPI.TAP_HISTOGRAM(2*i).VALUE                          <= top_tap_histogram(i);
 
+    -- Flag bits aggregation
+    sldec_sync_error(2*i)     <= regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_SYNC_ERROR;
     sldec_fifo_overrun(2*i)   <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_OVERRUN;
     sldec_fifo_underrun(2*i)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i).FIFO_UNDERRUN;
     sldec_cal_error(2*i)      <= regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR;
     sldec_bit_lock_error(2*i) <= regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_BIT_LOCKED_ERROR;
 
+    
+    ---------------------------------------------------------------------------
     -- Odd lanes (Bottom lanes)
+    ---------------------------------------------------------------------------
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).PHY_SYNC_ERROR_set       <= bottom_sync_error(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN_set         <= bottom_fifo_overrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN_set        <= bottom_fifo_underrun(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR_set    <= bottom_cal_error(i);
-    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ACTIVE       <= aclk_calibration_done(1);
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_DONE         <= aclk_calibration_done(1);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_TAP_VALUE    <= bottom_cal_tap_value(5*i+4 downto 5*i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).PHY_BIT_LOCKED           <= bottom_bit_locked(i);
     regfile.HISPI.LANE_DECODER_STATUS(2*i+1).PHY_BIT_LOCKED_ERROR_set <= bottom_bit_locked_fall(i);
+    regfile.HISPI.TAP_HISTOGRAM(2*i+1).VALUE                          <= bottom_tap_histogram(i);
 
     -- Flag bits aggregation
+    sldec_sync_error(2*i+1)     <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).PHY_SYNC_ERROR;
     sldec_fifo_overrun(2*i+1)   <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_OVERRUN;
     sldec_fifo_underrun(2*i+1)  <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).FIFO_UNDERRUN;
     sldec_cal_error(2*i+1)      <= regfile.HISPI.LANE_DECODER_STATUS(2*i+1).CALIBRATION_ERROR;
@@ -661,8 +683,10 @@ begin
       aclk_reset                                => axi_reset,
       aclk_idle_character                       => aclk_idle_character,
       aclk_hispi_phy_en                         => enable_hispi,
+      aclk_hispi_data_path_en                   => aclk_hispi_data_path_en,
       hispi_pix_clk                             => hispi_pix_clk,
       aclk_reset_phy                            => aclk_reset_phy,
+      aclk_tap_histogram                        => top_tap_histogram,
       aclk_manual_calibration_en                => aclk_manual_calibration(31),
       aclk_manual_calibration_load              => aclk_manual_calibration(30),
       aclk_manual_calibration_tap(4 downto 0)   => aclk_manual_calibration(4 downto 0),
@@ -678,6 +702,7 @@ begin
       aclk_fifo_read_data                       => top_fifo_read_data,
       aclk_fifo_overrun                         => top_fifo_overrun,
       aclk_fifo_underrun                        => top_fifo_underrun,
+      aclk_sync_error                           => top_sync_error,
       aclk_bit_locked                           => top_bit_locked,
       aclk_bit_locked_rise                      => top_bit_locked_rise,
       aclk_bit_locked_fall                      => top_bit_locked_fall,
@@ -708,7 +733,9 @@ begin
       aclk_reset                                => axi_reset,
       aclk_idle_character                       => aclk_idle_character,
       aclk_hispi_phy_en                         => enable_hispi,
+      aclk_hispi_data_path_en                   => aclk_hispi_data_path_en,
       hispi_pix_clk                             => open,
+      aclk_tap_histogram                        => bottom_tap_histogram,
       aclk_manual_calibration_en                => aclk_manual_calibration(31),
       aclk_manual_calibration_load              => aclk_manual_calibration(30),
       aclk_manual_calibration_tap(4 downto 0)   => aclk_manual_calibration(9 downto 5),
@@ -725,6 +752,7 @@ begin
       aclk_fifo_read_data                       => bottom_fifo_read_data,
       aclk_fifo_overrun                         => bottom_fifo_overrun,
       aclk_fifo_underrun                        => bottom_fifo_underrun,
+      aclk_sync_error                           => bottom_sync_error,
       aclk_bit_locked                           => bottom_bit_locked,
       aclk_bit_locked_rise                      => bottom_bit_locked_rise,
       aclk_bit_locked_fall                      => bottom_bit_locked_fall,
