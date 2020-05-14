@@ -280,7 +280,9 @@ architecture functional of xgs_ctrl is
   signal  curr_y_size            : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
   signal  curr_y_start_ROI2      : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
   signal  curr_y_size_ROI2       : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
-
+ 
+  signal  Y_SIZE_SUB             : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'range ); 
+  
   --signal  curr_reverse_y         : std_logic;
   signal  curr_subsampling_X       : std_logic;
   signal  curr_subsampling_Y       : std_logic;
@@ -540,6 +542,7 @@ signal next_abort_done               :  std_logic;
 signal  acquisition_start_SFNC          :  std_logic := '0';
 
 signal TOTAL_NB_LINES                : std_logic_vector(12 downto 0);
+signal INTERNAL_READOUT_LENGTH_INT   : std_logic_vector(28 downto 0);
 signal INTERNAL_READOUT_LENGTH_FLOAT : std_logic_vector(47 downto 0);
 signal INTERNAL_READOUT_LENGTH       : std_logic_vector(REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH'range);
   
@@ -914,11 +917,19 @@ BEGIN
       if (acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" ) then
               
         curr_y_start               <= REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
-        curr_y_size                <= REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE   & "00";
-        
-        curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
-        curr_y_size_ROI2           <= REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE   & "00";
+        if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then
+          curr_y_size              <= REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE   & "00";
+        else
+          curr_y_size              <= '0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) & "00";       
+        end if;   
 
+        curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
+        if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then              
+          curr_y_size_ROI2         <= REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE   & "00";
+        else
+          curr_y_size_ROI2         <= '0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00";       
+        end if;   
+    
         curr_GRAB_ROI2_EN          <= REGFILE.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
 
         curr_subsampling_X         <= REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;
@@ -2343,6 +2354,10 @@ BEGIN
   ------------------------------------------------------------
   -- For XGS we will calculate the readout length internally
   ------------------------------------------------------------
+  
+  -- Divide Y size by 2, if image is SubSampled
+  Y_SIZE_SUB <= ('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) ) when (REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='1' ) else REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE;
+  
   process(sys_clk)
   begin
     if(rising_edge(sys_clk)) then
@@ -2351,12 +2366,13 @@ BEGIN
       TOTAL_NB_LINES <= "11"                                                  -- 3 is first dummy lines after FOT
                         + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR           -- Black lines for calibration 
                         + '1'                                                 -- Embedded
-                        + ('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00") -- Y_size is a 4 line multiplier              
+                        + ('0' & Y_SIZE_SUB & "00")                           -- Y_size is a 4 line multiplier              
                         + "111"                                               -- Dummy 3
                         + "111"                                               -- Start of Exposure in readout: when Exposure Coarse offset = 0,1,2 measured with line_valid
                         + REGFILE.ACQ.READOUT_CFG_FRAME_LINE.DUMMY_LINES;     -- Pour allonger readout (Debug)
      
-      INTERNAL_READOUT_LENGTH_FLOAT <=   (TOTAL_NB_LINES * REGFILE.ACQ.READOUT_CFG3.LINE_TIME) * SENSOR_PERIOD;   
+      INTERNAL_READOUT_LENGTH_INT   <=   TOTAL_NB_LINES * REGFILE.ACQ.READOUT_CFG3.LINE_TIME;  --[12:0]x[15:0] = [28:0] 
+      INTERNAL_READOUT_LENGTH_FLOAT <=   INTERNAL_READOUT_LENGTH_INT * SENSOR_PERIOD;          --[28:0]x[18:0] = [47:0]  : ca match un DSP48
     end if;
   end process;  
   
@@ -2369,11 +2385,11 @@ BEGIN
   -- INTERNAL_READOUT_LENGTH <= '0' & INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
                              -- INTERNAL_READOUT_LENGTH_FLOAT(47 downto 18);                                 --125.0 Mhz
    
-	-- [AM]  fixed range
-   INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
-                              INTERNAL_READOUT_LENGTH_FLOAT(46 downto 18);                                 --125.0 Mhz
+  -- [AM]  fixed range
+  INTERNAL_READOUT_LENGTH <= INTERNAL_READOUT_LENGTH_FLOAT(47 downto 19) when G_SYS_CLK_PERIOD=16 else          -- 62.5 Mhz
+                             INTERNAL_READOUT_LENGTH_FLOAT(46 downto 18);                                 --125.0 Mhz
    
-  REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length; -- INTERNAL_READOUT_LENGTH;
+  REGFILE.ACQ.READOUT_CFG2.READOUT_LENGTH <= curr_readout_length;
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          
       
