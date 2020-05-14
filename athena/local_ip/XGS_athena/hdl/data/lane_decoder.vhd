@@ -33,7 +33,7 @@ entity lane_decoder is
 
 
     -- calibration
-    pix_clk            : out std_logic;
+    pclk               : in  std_logic;
     pclk_cal_en        : in  std_logic;
     pclk_cal_busy      : out std_logic;
     pclk_cal_error     : out std_logic;
@@ -99,7 +99,7 @@ architecture rtl of lane_decoder is
       ---------------------------------------------------------------------------
       -- Pixel clock domain
       ---------------------------------------------------------------------------
-      pclk            : out std_logic;
+      pclk            : in std_logic;
       pclk_bit_locked : out std_logic;
       pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
       );
@@ -173,7 +173,6 @@ architecture rtl of lane_decoder is
   constant FIFO_ADDRESS_WIDTH        : integer := 6;
   constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
 
-  signal pclk                : std_logic;
   signal pclk_reset          : std_logic;
   signal pclk_reset_Meta1    : std_logic;
   signal pclk_reset_Meta2    : std_logic;
@@ -994,7 +993,7 @@ begin
   -----------------------------------------------------------------------------
   -- Send the pixel clock to the higher level of hierarchy 
   -----------------------------------------------------------------------------
-  pix_clk         <= pclk;
+  --pix_clk         <= pclk;
   aclk_fifo_empty <= aclk_fifo_empty_int;
 
 
