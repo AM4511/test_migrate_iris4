@@ -16,6 +16,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library unisim;
+use unisim.vcomponents.all;
+
 library work;
 use work.mtx_types_pkg.all;
 use work.hispi_pack.all;
@@ -123,7 +126,7 @@ architecture rtl of hispi_phy is
       hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
       -- calibration
-      pix_clk            : out std_logic;
+      pclk               : in  std_logic;
       pclk_cal_en        : in  std_logic;
       pclk_cal_busy      : out std_logic;
       pclk_cal_error     : out std_logic;
@@ -220,13 +223,12 @@ architecture rtl of hispi_phy is
   signal delay_data_ce  : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
   signal delay_data_inc : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
 
-  signal pclk_cal_en   : std_logic;
-  signal pclk_cal_busy : std_logic_vector(LANE_PER_PHY-1 downto 0);
-
+  signal pclk               : std_logic;
+  signal pclk_cal_en        : std_logic;
+  signal pclk_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
-  signal pix_clk            : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal aclk_latch_cal_status  : std_logic;
   signal aclk_hispi_phy_en_ff   : std_logic;
@@ -245,7 +247,6 @@ architecture rtl of hispi_phy is
   attribute mark_debug of pclk_cal_error     : signal is "true";
   attribute mark_debug of pclk_cal_load_tap  : signal is "true";
   attribute mark_debug of pclk_cal_tap_value : signal is "true";
-  attribute mark_debug of pix_clk            : signal is "true";
 
   attribute mark_debug of aclk_latch_cal_status  : signal is "true";
   attribute mark_debug of aclk_hispi_phy_en_ff   : signal is "true";
@@ -301,7 +302,6 @@ begin
   end process;
 
 
-
   xhispi_serdes : hispi_serdes
     generic map(
       PHY_SERIAL_WIDTH   => LANE_PER_PHY,
@@ -323,6 +323,19 @@ begin
       );
 
 
+  xpclk_buffer : BUFR
+    generic map (
+      SIM_DEVICE  => "7SERIES",
+      BUFR_DIVIDE => "2"
+      )
+    port map (
+      O   => pclk,
+      CE  => '1',
+      CLR => aclk_reset_phy,
+      I   => hclk
+      );
+
+
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
     G_parallel_data : for j in 0 to DESERIALIZATION_RATIO-1 generate
@@ -338,7 +351,7 @@ begin
         hclk                      => hclk,
         hclk_reset                => hclk_reset,
         hclk_data_lane            => hclk_lane_data(i),
-        pix_clk                   => pix_clk(i),
+        pclk                      => pclk,
         pclk_cal_en               => pclk_cal_en,
         pclk_cal_busy             => pclk_cal_busy(i),
         pclk_cal_error            => pclk_cal_error(i),
@@ -534,6 +547,6 @@ begin
   end process;
 
 
-  hispi_pix_clk <= pix_clk(0);
+  hispi_pix_clk <= pclk;
 
 end architecture rtl;
