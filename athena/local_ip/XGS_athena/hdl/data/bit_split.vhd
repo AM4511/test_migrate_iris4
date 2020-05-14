@@ -60,7 +60,6 @@ architecture rtl of bit_split is
   signal hclk_aligned_pixel_mux   : std_logic_vector (PIXEL_SIZE- 1 downto 0);
   signal hclk_data                : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal hclk_idle_detected       : std_logic;
-  signal load_data                : std_logic             := '0';
   signal hclk_div2                : std_logic             := '0';
   signal hclk_lock_cntr_max_value : unsigned(12 downto 0) := (others => '1');
   signal hclk_lock_cntr           : unsigned(12 downto 0);
@@ -75,7 +74,6 @@ architecture rtl of bit_split is
   attribute mark_debug of aclk_idle_char      : signal is "true";
   attribute mark_debug of hclk_shift_register : signal is "true";
   attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
-  attribute mark_debug of load_data           : signal is "true";
   attribute mark_debug of hclk_idle_detected  : signal is "true";
   attribute mark_debug of hclk_lock_cntr      : signal is "true";
   attribute mark_debug of hclk_bit_locked     : signal is "true";
