@@ -1302,7 +1302,7 @@ begin
       when S_SOL               => state_mapping <= "1010";
       when S_EOL               => state_mapping <= "1011";
       when S_DONE              => state_mapping <= "1111";
-      when others              => null;
+      when others              => state_mapping <= "1110"; --Reserved
     end case;
   end process;
 

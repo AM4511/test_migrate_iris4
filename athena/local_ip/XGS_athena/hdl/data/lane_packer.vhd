@@ -357,7 +357,7 @@ begin
   pix_offset_mux <= pix_offset_stripe_0 when (lane_id = 0) else
                     pix_offset_stripe_1 when (lane_id = 1) else
                     pix_offset_stripe_2 when (lane_id = 2) else
-                    pix_offset_stripe_3 when (lane_id = 3);
+                    pix_offset_stripe_3;
 
 
   -----------------------------------------------------------------------------
