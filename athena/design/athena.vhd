@@ -205,12 +205,12 @@ begin
     SPI_spi_sdout           => cfg_spi_sd(1),
    
     info_board_info         => info_board_info,
-    info_fpga_build_id      => std_logic_vector(conv_unsigned(FPGA_BUILD_DATE), 32),
-    info_fpga_device_id     => std_logic_vector(conv_unsigned(FPGA_DEVICE_ID),   8),
+    info_fpga_build_id      => conv_std_logic_vector(FPGA_BUILD_DATE, 32),
+    info_fpga_device_id     => conv_std_logic_vector(FPGA_DEVICE_ID,   8),
     info_fpga_firmware_type => "00000000",
-    info_fpga_major_ver     => std_logic_vector(conv_unsigned(FPGA_MAJOR_VERSION),     8),
-    info_fpga_minor_ver     => std_logic_vector(conv_unsigned(FPGA_MINOR_VERSION),     8),
-    info_fpga_sub_minor_ver => std_logic_vector(conv_unsigned(FPGA_SUB_MINOR_VERSION), 8),
+    info_fpga_major_ver     => conv_std_logic_vector(FPGA_MAJOR_VERSION,     8),
+    info_fpga_minor_ver     => conv_std_logic_vector(FPGA_MINOR_VERSION,     8),
+    info_fpga_sub_minor_ver => conv_std_logic_vector(FPGA_SUB_MINOR_VERSION, 8),
    
     --info_board_info         => "0000",
     --info_fpga_build_id      => "00000000000000000000000000000000",
