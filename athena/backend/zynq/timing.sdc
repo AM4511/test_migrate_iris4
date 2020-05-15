@@ -153,7 +153,7 @@ create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks
 # ###################################################################################################################
 set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I] 
 set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O]
-create_generated_clock -name pclk_top -source $src_pin -master_clock [get_clocks hclk_top] $clk_pin
+create_generated_clock -name pclk_top -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_top] -add $clk_pin
 
 
 # ###################################################################################################################
@@ -161,7 +161,7 @@ create_generated_clock -name pclk_top -source $src_pin -master_clock [get_clocks
 # ###################################################################################################################
 set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I] 
 set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O]
-create_generated_clock -name pclk_bottom -source $src_pin -master_clock [get_clocks hclk_bottom] $clk_pin
+create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
 
 # ###################################################################################################################
 # Clock domain crossing false path
