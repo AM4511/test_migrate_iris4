@@ -209,6 +209,7 @@ architecture rtl of hispi_phy is
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
 
   signal hclk                         : std_logic;
+  signal hclk_div2                    : std_logic      := '0';
   signal hclk_reset_vect              : std_logic_vector(2 downto 0);
   signal hclk_reset                   : std_logic      := '1';
   signal hclk_state                   : FSM_STATE_TYPE := S_IDLE;
@@ -280,6 +281,7 @@ begin
   end process;
 
 
+
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_hispi_phy_en_ff
   -- Description : 
@@ -323,16 +325,25 @@ begin
       );
 
 
-  xpclk_buffer : BUFR
-    generic map (
-      SIM_DEVICE  => "7SERIES",
-      BUFR_DIVIDE => "2"
-      )
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_hclk_div2 : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_div2 <= '0';
+      else
+        hclk_div2 <= not hclk_div2;
+      end if;
+    end if;
+  end process;
+
+
+  xpclk_buffer : BUFG
     port map (
-      O   => pclk,
-      CE  => '1',
-      CLR => aclk_reset_phy,
-      I   => hclk
+      O => pclk,
+      I => hclk_div2
       );
 
 
