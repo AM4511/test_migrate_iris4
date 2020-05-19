@@ -64,51 +64,60 @@ set min_delay_fall_edge $dv_afe
 # #####################################################################################
 # IO LANES HiSPi Top interface
 # #####################################################################################
-create_clock -period ${clock_period}  -name io_hispi_clk_top    -waveform {0.000 1.285} [get_ports FMC_HPC_CLK0_M2C_P]
+set PORT_NAME [get_ports FMC_HPC_CLK0_M2C_P]
+create_clock -period ${clock_period}  -name io_hispi_clk_top    -waveform {0.000 1.285} ${PORT_NAME}
 
 # HiSPi Lane 0
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA11_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA11_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA11_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA11_P]
+set PORT_NAME [get_ports FMC_HPC_LA11_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
 
 # HiSPi Lane 8
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA07_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA07_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA07_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA07_P]
+set PORT_NAME [get_ports FMC_HPC_LA07_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
 
 # HiSPi Lane 16
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA03_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA03_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA03_P]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA03_P]
+set PORT_NAME [get_ports FMC_HPC_LA03_P]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+
 
 # #####################################################################################
 # IO LANES HiSPi Bottom interface
 # #####################################################################################
-create_clock -period ${clock_period}  -name io_hispi_clk_bottom -waveform {0.000 1.285} [get_ports FMC_HPC_CLK1_M2C_P]
+set PORT_NAME [get_ports FMC_HPC_CLK1_M2C_P]
+create_clock -period ${clock_period}  -name io_hispi_clk_bottom -waveform {0.000 1.285} ${PORT_NAME}
 
 
 # HiSPi Lane 1
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA28_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA28_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA28_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA28_P]
+set PORT_NAME [get_ports FMC_HPC_LA28_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
 
 
 # HiSPi Lane 9
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA27_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA27_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA27_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA27_P]
+set PORT_NAME [get_ports FMC_HPC_LA27_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
 
 
 # HiSPi Lane 17
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} [get_ports FMC_HPC_LA23_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} [get_ports FMC_HPC_LA23_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} [get_ports FMC_HPC_LA23_P]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} [get_ports FMC_HPC_LA23_P]
+set PORT_NAME [get_ports FMC_HPC_LA23_P]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
 
 
 
@@ -135,16 +144,16 @@ create_generated_clock -name axiClk62MHz -source $src_pin -master_clock [get_clo
 # ###################################################################################################################
 # Rename generated clock : hclk
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/I]
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 create_generated_clock -name hclk_bottom -source $src_pin -master_clock [get_clocks io_hispi_clk_bottom] $clk_pin
 
 
 # ###################################################################################################################
 # Rename generated clock : hclk_1
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/I]
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks io_hispi_clk_top] $clk_pin
 
 
@@ -170,14 +179,6 @@ set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clock
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_top] 
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_top] 
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_bottom] 
-
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_0] 
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_1] 
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_2] 
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_3] 
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_4] 
-# set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pixClk_5] 
-
 
 
 # ###################################################################################################################
