@@ -136,8 +136,8 @@ set_false_path -fall_from [get_clocks io_hispi_clk_bottom] -fall_to [get_clocks 
 # ###################################################################################################################
 # Rename generated clock : userclk1
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1] 
-set clk_pin [get_pins xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2]
+set src_pin [get_pins -hier -filter {NAME =~"*/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2"}]
 create_generated_clock -name axiClk62MHz -source $src_pin -master_clock [get_clocks txoutclk_x0y0] $clk_pin
 
 
@@ -160,16 +160,16 @@ create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks
 # ###################################################################################################################
 # Top pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I] 
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O"}]
 create_generated_clock -name pclk_top -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_top] -add $clk_pin
 
 
 # ###################################################################################################################
 # Bottom pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I] 
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O"}]
 create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
 
 # ###################################################################################################################

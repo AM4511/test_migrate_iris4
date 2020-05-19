@@ -1,6 +1,6 @@
-####################################################################################################################
-# Create Athena IO Clocks
-####################################################################################################################
+######################################################################################
+#   IO clocks
+######################################################################################
 create_clock -period 10.000 -name ref_clk -waveform {0.000 5.000} [get_ports ref_clk]
 create_clock -period 10.000 -name pcie_clk_p -waveform {0.000 5.000} [get_ports pcie_clk_p]
 
@@ -91,7 +91,7 @@ set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay
 # #####################################################################################
 # IO LANES HiSPi Bottom interface
 # #####################################################################################
-set PORT_NAME [get_ports FMC_HPC_CLK1_M2C_P]
+set PORT_NAME [get_ports xgs_hispi_sclk_p[1]]
 create_clock -period ${clock_period}  -name io_hispi_clk_bottom -waveform {0.000 1.285} ${PORT_NAME}
 
 
@@ -135,8 +135,8 @@ set_false_path -fall_from [get_clocks io_hispi_clk_bottom] -fall_to [get_clocks 
 ####################################################################################################################
 # Rename generated clock : userclk1
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1] 
-set clk_pin [get_pins xsystem_wrapper/system_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2]
+set src_pin [get_pins -hier -filter {NAME =~"*/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2"}]
 create_generated_clock -name axiClk62MHz -source $src_pin -master_clock [get_clocks txoutclk_x0y0] $clk_pin
 
 
@@ -159,16 +159,16 @@ create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks
 # ###################################################################################################################
 # Top pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I] 
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O"}]
 create_generated_clock -name pclk_top -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_top] -add $clk_pin
 
 
 # ###################################################################################################################
 # Bottom pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I] 
-set clk_pin [get_pins xsystem_wrapper/system_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O"}]
 create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
 
 # ###################################################################################################################
