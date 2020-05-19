@@ -43,6 +43,7 @@ ${COMMON_SRC_PATH}/dualPortRamVar.vhd \
 ${COMMON_SRC_PATH}/mtxDCFIFO.vhd \
 ${COMMON_SRC_PATH}/mtxSCFIFO.vhd \
 ${COMMON_SRC_PATH}/round_robin.vhd \
+${COMMON_SRC_PATH}/mtx_resync.vhd \
 ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 }
 ]

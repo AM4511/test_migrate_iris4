@@ -94,6 +94,12 @@ architecture rtl of axi_stream_in is
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
 
+  attribute mark_debug : string;
+  attribute mark_debug of state      : signal is "true";
+  attribute mark_debug of last_row   : signal is "true";
+
+
+
 begin
 
 
