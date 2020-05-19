@@ -795,6 +795,7 @@ module testbench();
 				$display("  7.2 set ROI Y size @0x%h", SENSOR_ROI_Y_SIZE_OFFSET);
 				ROI_YSIZE  = 16;
 				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
+
 				///////////////////////////////////////////////////
 				// XGS Controller : set exposure time
 				///////////////////////////////////////////////////

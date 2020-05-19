@@ -22,6 +22,12 @@ set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/implementation_timin
 
 # Target constraints file
 set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
+if {![file exists $TARGET_CONSTRAIN_FILE]} {
+  puts "Creating : ${TARGET_CONSTRAIN_FILE}"
+  set FILEID [open ${TARGET_CONSTRAIN_FILE} w+]
+  close $FILEID
+}
+
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
 
