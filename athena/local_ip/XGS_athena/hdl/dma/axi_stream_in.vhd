@@ -72,7 +72,7 @@ architecture rtl of axi_stream_in is
         );
   end component;
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_INIT_HOST_TRANSFER, S_WAIT_COMPLETION, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_INIT_HOST_TRANSFER, S_WAIT_COMPLETION, S_END_OF_DMA, S_DONE);
 
   constant C_S_AXI_ADDR_WIDTH : integer := 8;
   constant C_S_AXI_DATA_WIDTH : integer := 32;
@@ -92,7 +92,7 @@ architecture rtl of axi_stream_in is
   signal buffer_read_en      : std_logic;
   signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-
+  signal last_row            : std_logic;
 
 begin
 
@@ -113,6 +113,26 @@ begin
           s_axis_tready <= '1';
         elsif (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1') then
           s_axis_tready <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_last_row
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_last_row : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+       last_row <= '0';
+      else
+        if (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1' and s_axis_tuser(1) = '1') then
+          last_row <= '1';
+        elsif (state = S_END_OF_DMA) then
+          last_row <= '0';
         end if;
       end if;
     end if;
@@ -184,10 +204,21 @@ begin
           -------------------------------------------------------------------
           when S_WAIT_COMPLETION =>
             if (line_transfered = '1') then
-              state <= S_DONE;
+              if (last_row = '1') then
+                  state <= S_END_OF_DMA;
+                else
+                  state <= S_DONE;
+              end if;
             else
               state <= S_WAIT_COMPLETION;
             end if;
+
+            
+          -------------------------------------------------------------------
+          -- S_END_OF_DMA : 
+          -------------------------------------------------------------------
+          when S_END_OF_DMA =>
+            state <= S_DONE;
 
 
           -------------------------------------------------------------------
@@ -288,7 +319,9 @@ begin
                     '0';
 
   line_buffer_read_data <= buffer_read_data;
-  end_of_dma            <= '0';         -- TBD
+  
+  end_of_dma            <= '1' when (state = S_END_OF_DMA) else
+                           '0';
 
 end rtl;
 
