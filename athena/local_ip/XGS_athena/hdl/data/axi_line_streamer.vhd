@@ -66,6 +66,8 @@ end axi_line_streamer;
 
 architecture rtl of axi_line_streamer is
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   type FSM_TYPE is (S_IDLE,
                     S_SOF,
@@ -92,6 +94,40 @@ architecture rtl of axi_line_streamer is
   signal start_transfer    : std_logic;
   signal m_axis_tvalid_int : std_logic;
 
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of m_wait            : signal is "true";
+  attribute mark_debug of state             : signal is "true";
+  attribute mark_debug of burst_length      : signal is "true";
+  attribute mark_debug of burst_cntr        : signal is "true";
+  attribute mark_debug of read_en           : signal is "true";
+  attribute mark_debug of read_data_valid   : signal is "true";
+  attribute mark_debug of first_row         : signal is "true";
+  attribute mark_debug of last_row          : signal is "true";
+  attribute mark_debug of buffer_ptr        : signal is "true";
+  attribute mark_debug of start_transfer    : signal is "true";
+  attribute mark_debug of m_axis_tvalid_int : signal is "true";
+
+  attribute mark_debug of streamer_en         : signal is "true";
+  attribute mark_debug of streamer_busy       : signal is "true";
+  attribute mark_debug of transfert_done      : signal is "true";
+  attribute mark_debug of init_frame          : signal is "true";
+  attribute mark_debug of number_of_row       : signal is "true";
+  attribute mark_debug of clrBuffer           : signal is "true";
+  attribute mark_debug of line_buffer_ready   : signal is "true";
+  attribute mark_debug of line_buffer_read    : signal is "true";
+  attribute mark_debug of line_buffer_ptr     : signal is "true";
+  attribute mark_debug of line_buffer_address : signal is "true";
+  attribute mark_debug of line_buffer_count   : signal is "true";
+  attribute mark_debug of line_buffer_line_id : signal is "true";
+  attribute mark_debug of line_buffer_data    : signal is "true";
+  attribute mark_debug of m_axis_tready       : signal is "true";
+  attribute mark_debug of m_axis_tvalid       : signal is "true";
+  attribute mark_debug of m_axis_tuser        : signal is "true";
+  attribute mark_debug of m_axis_tlast        : signal is "true";
+  attribute mark_debug of m_axis_tdata        : signal is "true";
+  
 
 begin
 
