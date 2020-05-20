@@ -68,7 +68,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 10* SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2* SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
@@ -76,7 +76,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(15000);
+	XGS_Ctrl->setExposure(8000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                               //1-base Here - Dois etre multiple de 4
