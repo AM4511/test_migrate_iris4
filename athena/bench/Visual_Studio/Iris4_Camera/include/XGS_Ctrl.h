@@ -69,10 +69,12 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
+	M_UINT32 Trig_2_EXP;        // in ns
 	M_UINT32 ReadOutN_2_TrigN;  // in ns
 	M_UINT32 TrigN_2_FOT;       // in ns
-	M_UINT32 EXP_FOT_TIME;      // in ns
-
+	M_UINT32 EXP_FOT;           // in ns
+	M_UINT32 EXP_FOT_TIME;      // in ns (Total)
+	
 };
 
 
@@ -99,6 +101,8 @@ public:
 	double SystemPeriodNanoSecond = 16.000000;
 	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
 	double SensorPeriodNanoSecond = 15.625000; //32Mhz
+	
+	M_UINT32 CurrExposure;
 
 	void PrintTime(void);
 
@@ -148,7 +152,6 @@ private:
 	void XGS16M_LoadDCF(int lanes);
 	void XGS16M_Check_otpm_depended_uploads(void);
 	void XGS16M_Enable6lanes(void);
-
 
 	//XGS 12/9.6/8
 	void XGS12M_SetGrabParamsInit12000(int lanes);

@@ -113,9 +113,10 @@ void CXGS_Data::HiSpiCalibrate(void)
 		printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
 	}
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1)
+	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
 		printf("Calibration OK\n");
-
+		rXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
+	}
 }
 
 
@@ -127,28 +128,31 @@ void CXGS_Data::SetDMA(void)
 {
 	//printf("Set DMA parameters\n");
 
-    sXGSptr.DMA.FSTART.u32         = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64
-	rXGSptr.DMA.FSTART.u32         = sXGSptr.DMA.FSTART.u32;
+	sXGSptr.DMA.CTRL.f.GRAB_QUEUE_EN = 1;
+	rXGSptr.DMA.CTRL.u32             = sXGSptr.DMA.CTRL.u32;
 
-	sXGSptr.DMA.FSTART_HIGH.u32    = (DMAParams.FSTART & 0xffffffff00000000) >> 32;
-	rXGSptr.DMA.FSTART_HIGH.u32    = sXGSptr.DMA.FSTART_HIGH.u32;
-
-	sXGSptr.DMA.FSTART_G.u32       = DMAParams.FSTART_G & 0xffffffff;                    // Lo DW ADD64
-	rXGSptr.DMA.FSTART_G.u32       = sXGSptr.DMA.FSTART_G.u32;
-
-	sXGSptr.DMA.FSTART_G_HIGH.u32  = (DMAParams.FSTART_G & 0xffffffff00000000) >> 32;
-	rXGSptr.DMA.FSTART_G_HIGH.u32  = sXGSptr.DMA.FSTART_G_HIGH.u32;
-
-	sXGSptr.DMA.FSTART_R.u32       = DMAParams.FSTART_R & 0xffffffff;                    // Lo DW ADD64
-	rXGSptr.DMA.FSTART_R.u32       = sXGSptr.DMA.FSTART_R.u32;
-
-	sXGSptr.DMA.FSTART_R_HIGH.u32  = (DMAParams.FSTART_R & 0xffffffff00000000) >> 32;
-	rXGSptr.DMA.FSTART_R_HIGH.u32  = sXGSptr.DMA.FSTART_R_HIGH.u32;
-
-	sXGSptr.DMA.LINE_PITCH.u32     = DMAParams.LINE_PITCH;
-	rXGSptr.DMA.LINE_PITCH.u32     = sXGSptr.DMA.LINE_PITCH.u32;
-
-	sXGSptr.DMA.LINE_SIZE.u32      = DMAParams.LINE_SIZE;
-	rXGSptr.DMA.LINE_SIZE.u32      = sXGSptr.DMA.LINE_SIZE.u32;
+    sXGSptr.DMA.FSTART.u32           = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64
+	rXGSptr.DMA.FSTART.u32           = sXGSptr.DMA.FSTART.u32;
+								     
+	sXGSptr.DMA.FSTART_HIGH.u32      = (DMAParams.FSTART & 0xffffffff00000000) >> 32;
+	rXGSptr.DMA.FSTART_HIGH.u32      = sXGSptr.DMA.FSTART_HIGH.u32;
+								     
+	sXGSptr.DMA.FSTART_G.u32         = DMAParams.FSTART_G & 0xffffffff;                    // Lo DW ADD64
+	rXGSptr.DMA.FSTART_G.u32         = sXGSptr.DMA.FSTART_G.u32;
+								     
+	sXGSptr.DMA.FSTART_G_HIGH.u32    = (DMAParams.FSTART_G & 0xffffffff00000000) >> 32;
+	rXGSptr.DMA.FSTART_G_HIGH.u32    = sXGSptr.DMA.FSTART_G_HIGH.u32;
+								     
+	sXGSptr.DMA.FSTART_R.u32         = DMAParams.FSTART_R & 0xffffffff;                    // Lo DW ADD64
+	rXGSptr.DMA.FSTART_R.u32         = sXGSptr.DMA.FSTART_R.u32;
+								     
+	sXGSptr.DMA.FSTART_R_HIGH.u32    = (DMAParams.FSTART_R & 0xffffffff00000000) >> 32;
+	rXGSptr.DMA.FSTART_R_HIGH.u32    = sXGSptr.DMA.FSTART_R_HIGH.u32;
+								     
+	sXGSptr.DMA.LINE_PITCH.u32       = DMAParams.LINE_PITCH;
+	rXGSptr.DMA.LINE_PITCH.u32       = sXGSptr.DMA.LINE_PITCH.u32;
+								     
+	sXGSptr.DMA.LINE_SIZE.u32        = DMAParams.LINE_SIZE;
+	rXGSptr.DMA.LINE_SIZE.u32        = sXGSptr.DMA.LINE_SIZE.u32;
 }
 

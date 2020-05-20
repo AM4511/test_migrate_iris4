@@ -51,8 +51,8 @@ void CXGS_Ctrl::XGS_Config_Monitor() {
 		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);           // Monitor_ctrl
 
 		//Monitor 0 is Line valid
-		WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
-		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);           // Monitor_ctrl
+		//WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
+		//WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);           // Monitor_ctrl
 	}
 }
 

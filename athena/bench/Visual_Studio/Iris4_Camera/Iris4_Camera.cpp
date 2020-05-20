@@ -162,9 +162,9 @@ int main(void)
 	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x110000)
 	{   
 
-		printf("\nPCIe is in Gen1 x1, do you want to reduce Linerate by a factor x4 ? (y/n) : ");
+		printf("\nPCIe is in Gen1 x1, do you want to reduce Linerate by a factor x4 ? (0=No, 1=Yes) : ");
 		ch = _getch();
-		if (ch == 'y') {
+		if (ch == '1') {
 			XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
 			printf("\n");
 			printf("--------------------------------------------------------------------------\n");
@@ -559,7 +559,7 @@ void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl)
 
 	for (int j = 0; j < 10; j++) {
 		//Test pour W/R PCIe ultra rapides
-		for (M_UINT32 i = j * 100; i < ((j * 100) + 100); i++)
+		for (int i = j * 100; i < ((j * 100) + 100); i++)
 		{
 			XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32 = i;
 			M_UINT32 readback = XGS_Ctrl->rXGSptr.ACQ.EXP_CTRL1.u32;

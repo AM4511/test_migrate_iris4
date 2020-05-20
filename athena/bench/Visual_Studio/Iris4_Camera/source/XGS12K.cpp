@@ -32,7 +32,10 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
    SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED
  
-	// This may depend on the configuration (Lanes+LineSize) 
+
+   SensorParams.Trig_2_EXP             = 76800;
+
+   // This may depend on the configuration (Lanes+LineSize) 
    if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
 	   SensorParams.ReadOutN_2_TrigN = 11400; //
    else
@@ -40,7 +43,9 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.EXP_FOT_TIME           = SensorParams.TrigN_2_FOT + 5360;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+   SensorParams.EXP_FOT              = 5360;
+
+   SensorParams.EXP_FOT_TIME         = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 
    //---------------------------------
@@ -333,7 +338,7 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 	}
 
 	if (otpmversion > 2) {
-		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 16907)\n", otpmversion);
+		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17021)\n", otpmversion);
 		exit(1);
 	}
 

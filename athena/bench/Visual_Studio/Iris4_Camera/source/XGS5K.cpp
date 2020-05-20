@@ -51,7 +51,9 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
 
    SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
+   SensorParams.EXP_FOT     = 0;
+
+   SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 
    if (lanes == 16)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
