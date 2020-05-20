@@ -35,6 +35,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 	memset(&sXGSptr, 0, sizeof(sXGSptr));
 	memcpy(&sXGSptr, (const void*)& rXGSptr, sizeof(sXGSptr));
 
+	CurrExposure = 8000;
 
 	//------------------------------------
     // GrabParams
@@ -95,6 +96,12 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		0,             //FOT;
 		0,             //BL_LINES;
 		0,             //EXP_DUMMY_LINES;
+
+		0,             //Trig_2_EXP
+        0,             //ReadOutN_2_TrigN, in ns
+        0,             //TrigN_2_FOT, in ns
+		0,             //EXP_FOT;
+		0,	           //EXP_FOT_TIME;      // in ns (Total)
 
 
 
@@ -327,7 +334,7 @@ void CXGS_Ctrl::DumpRegSPI(M_UINT32 SPI_START, M_UINT32 NB_REG)
 	M_UINT32 address;
 	M_UINT32 dataread;
 
-	for (int nb_reg2read = 0; nb_reg2read < NB_REG ; nb_reg2read++)
+	for (M_UINT32 nb_reg2read = 0; nb_reg2read < NB_REG ; nb_reg2read++)
 	{
 	  address = SPI_START + (nb_reg2read * 2);
 	  dataread = ReadSPI(address);
@@ -546,19 +553,22 @@ void CXGS_Ctrl::DisableXGS()
 //----------------------------------------------------
 M_UINT32 CXGS_Ctrl::getExposure(void)
 {
-	return((M_UINT32)(sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS * SystemPeriodNanoSecond / 1000));
+	//return((M_UINT32)(sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS * SystemPeriodNanoSecond / 1000.0));
+	return(CurrExposure);
 }
 
 
 //----------------------------------------------------
-//  setExposure : in us  
+//  setExposure : in ns  
 //----------------------------------------------------
 void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 {
+	
 
 	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
-		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in us	
+		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
 		printf("Exposure set to %dus\n", exposure_ss_us);
+		CurrExposure = exposure_ss_us;
 	}
 	else {
 		printf("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");

@@ -43,9 +43,17 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.Xsize_Full             = 2592; //+8; //8 Interpolation
    SensorParams.Ysize_Full             = 2048; //+8;
 
-   // This may depend on the configuration (Lanes+SensorArea)
-   SensorParams.EXP_FOT_TIME = 0 + 0;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+   // This may depend on the configuration (Lanes+LineSize) 
+   if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
+	   SensorParams.ReadOutN_2_TrigN = 0; //
+   else
+	   SensorParams.ReadOutN_2_TrigN = 0; //
 
+   SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+   SensorParams.EXP_FOT     = 0;
+
+   SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 
    if (lanes == 16)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);

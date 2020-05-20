@@ -19,25 +19,41 @@
 //-----------------------------------------
 void CXGS_Ctrl::XGS_Config_Monitor() {
 	
-	// Program monitor pins in XGS
-	//M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
-	//M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 0)
+	{
+		// Program monitor pins in XGS
+		M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+		M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+		M_UINT32 monitor_2_reg = 0x1;    // New_line
+		         monitor_2_reg = 0x13;   // Mline
+				 monitor_2_reg = 0xe;
 
-	M_UINT32 monitor_0_reg = 0x6;    // Real EXP
-	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication : Do not change
-	//M_UINT32 monitor_2_reg = 0x1;  // New_line
-	//M_UINT32 monitor_2_reg = 0x6;  // real int
-	M_UINT32 monitor_2_reg = 0x13;   // Mline
+	    //Monitor is normal debug
+		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
-	//Monitor 0 is normal debug
-	WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+		//Monitor is debug monitor3 from MDH
+		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+		WriteSPI(0x3e40, (0x4 << 10) + (0x0 << 5) + 0x0);    // Monitor Lines in mode MDH - Line valid
+		WriteSPI(0x3602, (3 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
-	//Monitor 0 is Line valid
-	WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
-	WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);    // Monitor_ctrl
+	}
+	else // ZYNQ
+	{
+		M_UINT32 monitor_0_reg = 0x6;    // Real EXP
+		M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication : Do not change
+		//M_UINT32 monitor_2_reg = 0x1;  // New_line
+		//M_UINT32 monitor_2_reg = 0x6;  // real int
+		M_UINT32 monitor_2_reg = 0x13;   // Mline
 
+		//Monitor 0 is normal debug
+		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);           // Monitor_ctrl
+
+		//Monitor 0 is Line valid
+		//WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
+		//WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);           // Monitor_ctrl
+	}
 }
 
 
@@ -126,5 +142,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
 	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;
 	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
+
+
 
 }
