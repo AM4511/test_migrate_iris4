@@ -54,11 +54,13 @@ entity lane_packer is
     bottom_fifo_read_data       : in  std_logic_vector(31 downto 0);
 
     -- Line buffer interface
-    lane_packer_ack   : in  std_logic;
-    lane_packer_req   : out std_logic;
-    lane_packer_write : out std_logic;
-    lane_packer_addr  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    lane_packer_data  : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+    lane_packer_info_en : out std_logic;
+    lane_packer_info    : out std_logic_vector(3 downto 0);
+    lane_packer_ack     : in  std_logic;
+    lane_packer_req     : out std_logic;
+    lane_packer_write   : out std_logic;
+    lane_packer_addr    : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+    lane_packer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
     );
 
 end entity lane_packer;
@@ -149,7 +151,41 @@ architecture rtl of lane_packer is
 
 begin
 
-
+  -----------------------------------------------------------------------------
+  -- Process     : P_lane_packer_info_en
+  -- Description :  
+  -----------------------------------------------------------------------------
+  -- P_lane_packer_info_en : process (sysclk) is
+  -- begin
+  --   if (rising_edge(sysclk)) then
+  --     if (sysrst = '1') then
+  --       lane_packer_info_en <= '0';
+  --     else
+  --       if (LANE_PACKER_ID = 0 and  top_sync(0) = '1') then
+          
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_lane_packer_info
+  -- Description :  
+  -----------------------------------------------------------------------------
+  -- P_lane_packer_info : process (sysclk) is
+  -- begin
+  --   if (rising_edge(sysclk)) then
+  --     if (sysrst = '1') then
+  --       lane_packer_info <= (others =>'0');
+  --     else
+  --       if (LANE_PACKER_ID = 0 and  top_sync(0) = '1') then
+          
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
+  lane_packer_info <= (others =>'0');
+  lane_packer_info_en <= '0';
   -----------------------------------------------------------------------------
   -- TBD
   -----------------------------------------------------------------------------

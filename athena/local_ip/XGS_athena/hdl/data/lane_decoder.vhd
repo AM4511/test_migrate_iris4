@@ -99,7 +99,7 @@ architecture rtl of lane_decoder is
       ---------------------------------------------------------------------------
       -- Pixel clock domain
       ---------------------------------------------------------------------------
-      pclk            : in std_logic;
+      pclk            : in  std_logic;
       pclk_bit_locked : out std_logic;
       pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
       );
@@ -166,7 +166,7 @@ architecture rtl of lane_decoder is
   attribute mark_debug : string;
   attribute keep       : string;
 
-  type FSM_STATE_TYPE is (S_DISABLED, S_IDLE, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
+  type FSM_STATE_TYPE is (S_DISABLED, S_IDLE, S_EMBEDED, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
@@ -572,23 +572,30 @@ begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1' or pclk_hispi_phy_en = '0' or pclk_hispi_data_path_en = '0')then
         pclk_state        <= S_DISABLED;
-        pclk_embeded_data <= '1';
+        pclk_embeded_data <= '0';
       else
         case pclk_state is
           -------------------------------------------------------------------
           -- S_DISABLED : 
           -------------------------------------------------------------------
           when S_DISABLED =>
-            pclk_state <= S_IDLE;
+            pclk_state        <= S_IDLE;
+            pclk_embeded_data <= '0';
 
+            
           -------------------------------------------------------------------
           -- S_IDLE : 
           -------------------------------------------------------------------
           when S_IDLE =>
             if (pclk_sync_detected = '1') then
               if (pclk_shift_register(11 downto 8) = "1100") then
-                pclk_state        <= S_SOF;
-                pclk_embeded_data <= pclk_shift_register(7);
+                if (pclk_shift_register(7) = '1') then
+                  pclk_state        <= S_EMBEDED;
+                  pclk_embeded_data <= '1';
+                else
+                  pclk_state        <= S_SOF;
+                  pclk_embeded_data <= '0';
+                end if;
               elsif(pclk_shift_register(11 downto 8) = "1000") then
                 pclk_state        <= S_SOL;
                 pclk_embeded_data <= pclk_shift_register(7);
@@ -598,6 +605,26 @@ begin
             else
               pclk_state <= S_IDLE;
             end if;
+
+            
+          -------------------------------------------------------------------
+          -- S_EMBEDED : Detected the embeded line (line 0)
+          -------------------------------------------------------------------
+          when S_EMBEDED =>
+            if (pclk_sync_detected = '1') then
+              -----------------------------------------------------------------
+              -- At the second start of line this is the real start of frame
+              -----------------------------------------------------------------
+              if(pclk_shift_register(11 downto 8) = "1000") then
+                pclk_state        <= S_SOF;
+                pclk_embeded_data <= '0';
+              else
+                pclk_state <= S_EMBEDED;
+              end if;
+            else
+              pclk_state <= S_EMBEDED;
+            end if;
+           
 
 
           -------------------------------------------------------------------

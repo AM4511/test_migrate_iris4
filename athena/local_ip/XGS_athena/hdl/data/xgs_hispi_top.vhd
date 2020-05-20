@@ -184,11 +184,13 @@ architecture rtl of xgs_hispi_top is
       bottom_fifo_read_data       : in  std_logic_vector(31 downto 0);
 
       -- Line buffer interface
-      lane_packer_ack   : in  std_logic;
-      lane_packer_req   : out std_logic;
-      lane_packer_write : out std_logic;
-      lane_packer_addr  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      lane_packer_data  : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+      lane_packer_info_en : out std_logic;
+      lane_packer_info    : out std_logic_vector(3 downto 0);
+      lane_packer_ack     : in  std_logic;
+      lane_packer_req     : out std_logic;
+      lane_packer_write   : out std_logic;
+      lane_packer_addr    : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+      lane_packer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
       );
   end component;
 
@@ -228,6 +230,8 @@ architecture rtl of xgs_hispi_top is
       ------------------------------------------------------------------------------------
       lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
       lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+      buff_info_en    : in  std_logic;
+      buff_info       : in  std_logic_vector(3 downto 0);
       buff_write      : in  std_logic;
       buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
       buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
@@ -236,13 +240,13 @@ architecture rtl of xgs_hispi_top is
       -- Interface name: registerFileIF
       -- Description: 
       ------------------------------------------------------------------------------------
-      line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_read    : in  std_logic;
-      line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-      line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count   : out std_logic_vector(11 downto 0);
-      line_buffer_line_id : out std_logic_vector(11 downto 0);
-      line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+      line_buffer_ready    : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_read     : in  std_logic;
+      line_buffer_ptr      : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+      line_buffer_address  : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+      line_buffer_count    : out std_logic_vector(11 downto 0);
+      line_buffer_row_id   : out std_logic_vector(11 downto 0);
+      line_buffer_data     : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
       );
   end component;
 
@@ -277,14 +281,14 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Line buffer I/F
       ---------------------------------------------------------------------------
-      clrBuffer           : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_read    : out std_logic;
-      line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-      line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count   : in  std_logic_vector(11 downto 0);
-      line_buffer_line_id : in  std_logic_vector(11 downto 0);
-      line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+      clrBuffer            : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_ready    : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_read     : out std_logic;
+      line_buffer_ptr      : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+      line_buffer_address  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+      line_buffer_count    : in  std_logic_vector(11 downto 0);
+      line_buffer_row_id   : in  std_logic_vector(11 downto 0);
+      line_buffer_data     : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Master stream interface
@@ -296,7 +300,6 @@ architecture rtl of xgs_hispi_top is
       m_axis_tdata  : out std_logic_vector(63 downto 0)
       );
   end component;
-
 
 
   constant C_S_AXI_ADDR_WIDTH : integer              := 8;
@@ -319,6 +322,8 @@ architecture rtl of xgs_hispi_top is
 
   type PACKER_DATA_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
   type PACKER_ADDR_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+
+  type PACKER_INFO_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(3 downto 0);
 
 
   signal new_line_pending  : std_logic;
@@ -389,6 +394,7 @@ architecture rtl of xgs_hispi_top is
   signal state_mapping : std_logic_vector(3 downto 0);
 
   signal row_id           : std_logic_vector(11 downto 0);
+  signal row_last         : std_logic;
   signal packer_busy      : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal all_packer_idle  : std_logic;
   signal init_lane_packer : std_logic;
@@ -405,32 +411,37 @@ architecture rtl of xgs_hispi_top is
   signal transfert_done : std_logic;
   signal init_frame     : std_logic;
 
-  signal lane_packer_ack   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_req   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_write : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_addr  : PACKER_ADDR_ARRAY_TYPE;
-  signal lane_packer_data  : PACKER_DATA_ARRAY_TYPE;
-  signal packer_enable     : std_logic;
+  signal lane_packer_ack     : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_req     : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_info_en : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_info    : PACKER_INFO_ARRAY_TYPE;
+  signal lane_packer_write   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_addr    : PACKER_ADDR_ARRAY_TYPE;
+  signal lane_packer_data    : PACKER_DATA_ARRAY_TYPE;
+  signal packer_enable       : std_logic;
 
   signal nxtBuffer         : std_logic;
   signal clrBuffer         : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
   signal line_buffer_ready : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
 
-  signal buff_write : std_logic;
-  signal buff_addr  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal buff_data  : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+  signal buff_info_en : std_logic;
+  signal buff_info    : std_logic_vector(3 downto 0);
+  signal buff_write   : std_logic;
+  signal buff_addr    : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal buff_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
   signal sync            : std_logic_vector(1 downto 0);
   signal hispi_eof_pulse : std_logic_vector(3 downto 0);
   signal buffer_enable   : std_logic;
   signal number_of_row   : std_logic_vector(11 downto 0);
 
-  signal line_buffer_read    : std_logic;
-  signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal line_buffer_address : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal line_buffer_count   : std_logic_vector(11 downto 0);
-  signal line_buffer_line_id : std_logic_vector(11 downto 0);
-  signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+  signal line_buffer_read     : std_logic;
+  signal line_buffer_ptr      : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+  signal line_buffer_address  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal line_buffer_count    : std_logic_vector(11 downto 0);
+  signal line_buffer_row_id   : std_logic_vector(11 downto 0);
+  --signal line_buffer_row_info : std_logic_vector(1 downto 0);
+  signal line_buffer_data     : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
   -- register mapping signals
   signal enable_hispi : std_logic;
@@ -440,7 +451,7 @@ architecture rtl of xgs_hispi_top is
   signal sldec_fifo_underrun : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal sldec_cal_error     : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal sldec_sync_error    : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  
+
   -- Status lane packer (slpack)
   signal slpack_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal slpack_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
@@ -449,6 +460,8 @@ architecture rtl of xgs_hispi_top is
   signal sldec_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
 
 begin
+
+
   -----------------------------------------------------------------------------
   -- Registerfile mapping
   -----------------------------------------------------------------------------
@@ -487,7 +500,7 @@ begin
     sldec_cal_error(2*i)      <= regfile.HISPI.LANE_DECODER_STATUS(2*i).CALIBRATION_ERROR;
     sldec_bit_lock_error(2*i) <= regfile.HISPI.LANE_DECODER_STATUS(2*i).PHY_BIT_LOCKED_ERROR;
 
-    
+
     ---------------------------------------------------------------------------
     -- Odd lanes (Bottom lanes)
     ---------------------------------------------------------------------------
@@ -540,6 +553,8 @@ begin
   regfile.HISPI.STATUS.FSM <= state_mapping;
 
   aclk_manual_calibration <= to_std_logic_vector(regfile.HISPI.DEBUG);
+
+  number_of_row <= regfile.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00";
 
 
   -----------------------------------------------------------------------------
@@ -634,11 +649,7 @@ begin
 
 
   -- TBD : will eventually come from a register?
-  number_of_row <= std_logic_vector(to_unsigned(LINES_PER_FRAME, number_of_row'length));
-
-
-
-  -- TBD : will eventually come from a register
+  --number_of_row <= std_logic_vector(to_unsigned(LINES_PER_FRAME, number_of_row'length));
 
 
   -- TBD : manage line valid, RoI, embeded data
@@ -1047,6 +1058,25 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_row_last : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset = '1') then
+        row_last <= '0';
+      else
+        if (state = S_IDLE) then
+          row_last <= '0';
+        elsif (state = S_EOF) then
+          row_last <= '1';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
   -- 00 : SOF
   -- 01 : EOL
   -- 10 : CONT
@@ -1185,6 +1215,8 @@ begin
         bottom_fifo_empty           => bottom_fifo_empty(i),
         bottom_fifo_read_data_valid => bottom_fifo_read_data_valid(i),
         bottom_fifo_read_data       => bottom_fifo_read_data(i),
+        lane_packer_info_en         => lane_packer_info_en(i),
+        lane_packer_info            => lane_packer_info(i),
         lane_packer_ack             => lane_packer_ack(i),
         lane_packer_req             => lane_packer_req(i),
         lane_packer_write           => lane_packer_write(i),
@@ -1197,18 +1229,22 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_buff_write_mux : process (lane_packer_ack, lane_packer_write, lane_packer_addr, lane_packer_data) is
-  begin  -- process
+  P_buff_write_mux : process (lane_packer_ack, lane_packer_info_en, lane_packer_info, lane_packer_write, lane_packer_addr, lane_packer_data) is
+  begin
     for i in 0 to NUMB_LANE_PACKER-1 loop
       if (lane_packer_ack(i) = '1') then
-        buff_write <= lane_packer_write(i);
-        buff_addr  <= lane_packer_addr(i);
-        buff_data  <= lane_packer_data(i);
+        buff_info_en <= lane_packer_info_en(i);
+        buff_info    <= lane_packer_info(i);
+        buff_write   <= lane_packer_write(i);
+        buff_addr    <= lane_packer_addr(i);
+        buff_data    <= lane_packer_data(i);
         exit;
       else
-        buff_write <= '0';
-        buff_addr  <= (others => '0');
-        buff_data  <= (others => '0');
+        buff_info_en <= '0';
+        buff_info    <= (others => '0');
+        buff_write   <= '0';
+        buff_addr    <= (others => '0');
+        buff_data    <= (others => '0');
       end if;
     end loop;
   end process;
@@ -1228,29 +1264,33 @@ begin
       LINES_PER_FRAME           => LINES_PER_FRAME
       )
     port map(
-      sysclk              => axi_clk,
-      sysrst              => axi_reset,
-      row_id              => row_id,
-      buffer_enable       => buffer_enable,
-      init_frame          => init_frame,
-      nxtBuffer           => nxtBuffer,
-      clrBuffer           => clrBuffer,
-      lane_packer_req     => lane_packer_req,
-      lane_packer_ack     => lane_packer_ack,
-      buff_write          => buff_write,
-      buff_addr           => buff_addr,
-      buff_data           => buff_data,
-      line_buffer_ready   => line_buffer_ready,
-      line_buffer_read    => line_buffer_read,
-      line_buffer_ptr     => line_buffer_ptr,
-      line_buffer_address => line_buffer_address,
-      line_buffer_count   => line_buffer_count,
-      line_buffer_line_id => line_buffer_line_id,
-      line_buffer_data    => line_buffer_data
+      sysclk               => axi_clk,
+      sysrst               => axi_reset,
+      row_id               => row_id,
+      buffer_enable        => buffer_enable,
+      init_frame           => init_frame,
+      nxtBuffer            => nxtBuffer,
+      clrBuffer            => clrBuffer,
+      lane_packer_req      => lane_packer_req,
+      lane_packer_ack      => lane_packer_ack,
+      buff_info_en         => buff_info_en,
+      buff_info            => buff_info,
+      buff_write           => buff_write,
+      buff_addr            => buff_addr,
+      buff_data            => buff_data,
+      line_buffer_ready    => line_buffer_ready,
+      line_buffer_read     => line_buffer_read,
+      line_buffer_ptr      => line_buffer_ptr,
+      line_buffer_address  => line_buffer_address,
+      line_buffer_count    => line_buffer_count,
+      line_buffer_row_id   => line_buffer_row_id,
+      line_buffer_data     => line_buffer_data
       );
+
 
   nxtBuffer <= '1' when (state = S_DONE) else
                '0';
+
 
   -----------------------------------------------------------------------------
   -- 
@@ -1263,26 +1303,26 @@ begin
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
       )
     port map (
-      sysclk              => axi_clk,
-      sysrst              => axi_reset,
-      streamer_en         => '1',
-      streamer_busy       => open,
-      transfert_done      => transfert_done,
-      init_frame          => init_frame,
-      clrBuffer           => clrBuffer,
-      line_buffer_ready   => line_buffer_ready,
-      number_of_row       => number_of_row,
-      line_buffer_read    => line_buffer_read,
-      line_buffer_ptr     => line_buffer_ptr,
-      line_buffer_address => line_buffer_address,
-      line_buffer_count   => line_buffer_count,
-      line_buffer_line_id => line_buffer_line_id,
-      line_buffer_data    => line_buffer_data,
-      m_axis_tready       => m_axis_tready,
-      m_axis_tvalid       => m_axis_tvalid,
-      m_axis_tuser        => m_axis_tuser,
-      m_axis_tlast        => m_axis_tlast,
-      m_axis_tdata        => m_axis_tdata
+      sysclk               => axi_clk,
+      sysrst               => axi_reset,
+      streamer_en          => '1',
+      streamer_busy        => open,
+      transfert_done       => transfert_done,
+      init_frame           => init_frame,
+      clrBuffer            => clrBuffer,
+      line_buffer_ready    => line_buffer_ready,
+      number_of_row        => number_of_row,
+      line_buffer_read     => line_buffer_read,
+      line_buffer_ptr      => line_buffer_ptr,
+      line_buffer_address  => line_buffer_address,
+      line_buffer_count    => line_buffer_count,
+      line_buffer_row_id   => line_buffer_row_id,
+      line_buffer_data     => line_buffer_data,
+      m_axis_tready        => m_axis_tready,
+      m_axis_tvalid        => m_axis_tvalid,
+      m_axis_tuser         => m_axis_tuser,
+      m_axis_tlast         => m_axis_tlast,
+      m_axis_tdata         => m_axis_tdata
       );
 
 
@@ -1302,7 +1342,7 @@ begin
       when S_SOL               => state_mapping <= "1010";
       when S_EOL               => state_mapping <= "1011";
       when S_DONE              => state_mapping <= "1111";
-      when others              => state_mapping <= "1110"; --Reserved
+      when others              => state_mapping <= "1110";  --Reserved
     end case;
   end process;
 

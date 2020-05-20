@@ -1,1 +1,1 @@
-validation/src/testbench_athena.sv
+validation/src/testbench.sv

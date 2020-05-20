@@ -34,6 +34,7 @@ entity line_buffer is
     -- Description: 
     ------------------------------------------------------------------------------------
     row_id        : in std_logic_vector(11 downto 0);
+--    row_last      : in std_logic;
     buffer_enable : in std_logic;
     init_frame    : in std_logic;
 
@@ -41,8 +42,8 @@ entity line_buffer is
     -- Interface name: Buffer control
     -- Description: 
     ------------------------------------------------------------------------------------
-    nxtBuffer  : in  std_logic;
-    clrBuffer  : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    nxtBuffer : in std_logic;
+    clrBuffer : in std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
 
     ------------------------------------------------------------------------------------
     -- Interface name: registerFileIF
@@ -50,6 +51,8 @@ entity line_buffer is
     ------------------------------------------------------------------------------------
     lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
     lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+    buff_info_en    : in  std_logic;
+    buff_info       : in  std_logic_vector(3 downto 0);
     buff_write      : in  std_logic;
     buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
     buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
@@ -58,13 +61,14 @@ entity line_buffer is
     -- Interface name: registerFileIF
     -- Description: 
     ------------------------------------------------------------------------------------
-    line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-    line_buffer_read    : in  std_logic;
-    line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-    line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    line_buffer_count   : out std_logic_vector(11 downto 0);
-    line_buffer_line_id : out std_logic_vector(11 downto 0);
-    line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+    line_buffer_ready    : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    line_buffer_read     : in  std_logic;
+    line_buffer_ptr      : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+    line_buffer_address  : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+    line_buffer_count    : out std_logic_vector(11 downto 0);
+    line_buffer_row_id  : out std_logic_vector(11 downto 0);
+    --line_buffer_row_info : out std_logic_vector(1 downto 0);
+    line_buffer_data     : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
     );
 end entity line_buffer;
 
@@ -104,19 +108,8 @@ architecture rtl of line_buffer is
 
   constant BUFFER_ADDRESS_WIDTH : integer := LINE_BUFFER_PTR_WIDTH+LINE_BUFFER_ADDRESS_WIDTH;
 
-  -- synthesis translate_off
-  constant VERBOSE_DEBUG : boolean := true;
-  constant BUFFER_LENGTH : integer := 2**BUFFER_ADDRESS_WIDTH;
-
-  type MEM_ADDR_CHECK_ARRAY is array (0 to BUFFER_LENGTH -1) of boolean;
-
-  signal check_read_access  : MEM_ADDR_CHECK_ARRAY := (others => false);
-  signal check_write_access : MEM_ADDR_CHECK_ARRAY := (others => false);
-  signal pix_in_cntr        : natural              := 0;
-  signal pix_out_cntr       : natural              := 0;
-  -- synthesis translate_on
-
-  type ROW_ID_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(line_buffer_line_id'range);
+  type ROW_ID_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(line_buffer_row_id'range);
+  type ROW_INFO_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(1 downto 0);
 
   signal sysrst_n         : std_logic;
   signal lane_grant       : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
@@ -124,122 +117,16 @@ architecture rtl of line_buffer is
   signal word_cntr        : natural := 0;
   signal pixel_id         : natural := 0;
   signal buffer_row_id    : ROW_ID_ARRAY;
+  signal buffer_row_info  : ROW_INFO_ARRAY;
 
   signal buffer_write_en      : std_logic;
   signal buffer_write_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
-  --signal buffer_read_en       : std_logic;
   signal buffer_read_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
-  --signal buffer_read_data     : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-  signal nxtBuffer_ff         : std_logic;
-  
+  signal nxtBuffer_ff        : std_logic;
+
 begin
-
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- synthesis translate_off
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- P_pix_in_cntr : process (sysclk) is
-  --   variable address : integer;
-  --   variable message : line;
-
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1')then
-  --       pix_in_cntr <= 0;
-  --     else
-  --       if (init_frame = '1') then
-  --         check_write_access <= (others => false);
-  --         pix_in_cntr        <= 0;
-  --       elsif (nxtBuffer = '1') then
-  --         ---------------------------------------------------------------------
-  --         -- Check for missing pixels
-  --         ---------------------------------------------------------------------
-  --         assert (pix_in_cntr = PIXELS_PER_LINE) report " Missing pixel on current line" severity error;
-  --         pix_in_cntr <= 0;
-
-  --       elsif (buffer_write_en = '1') then
-  --         address := to_integer(unsigned(buffer_write_address));
-
-
-  --         ---------------------------------------------------------------------
-  --         -- Assert buffer data write
-  --         ---------------------------------------------------------------------
-  --         if (VERBOSE_DEBUG = true) then
-  --           deallocate(message);
-  --           write(message, string'("PIXEL_ID: "));
-  --           write(message, pixel_id);
-  --           write(message, string'(", WR @0x"));
-  --           hwrite(message, buffer_write_address);
-  --           write(message, string'(", Data: 0x"));
-  --           hwrite(message, buffer_write_data);
-  --           report message(message'range);
-  --         end if;
-
-
-  --         ---------------------------------------------------------------------
-  --         -- Chect address overwrite
-  --         ---------------------------------------------------------------------
-  --         assert (check_write_access(address) = false) report "Address overwrite" severity error;
-  --         check_write_access(address) <= true;
-  --         assert (pix_in_cntr < PIXELS_PER_LINE+1) report "LINE_BUFFER : WROTE TOO MANY PIXEL" severity error;
-
-  --         pix_in_cntr <= pix_in_cntr+4;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -- P_pix_out_cntr : process (sysclk) is
-  --   variable address : integer;
-  --   variable message : line;
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1')then
-  --       pix_out_cntr <= 0;
-  --     else
-  --       if (init_frame = '1') then
-  --         check_read_access <= (others => false);
-
-  --         pix_out_cntr <= 0;
-  --       elsif (line_buffer_read = '1') then
-  --         address := to_integer(unsigned(line_buffer_address));
-
-
-  --         ---------------------------------------------------------------------
-  --         -- Assert buffer data read
-  --         ---------------------------------------------------------------------
-  --         if (VERBOSE_DEBUG = true) then
-  --           deallocate(message);
-  --           write(message, string'("LINE_BUFFER["));
-  --           write(message, string'("], RD @0x"));
-  --           hwrite(message, line_buffer_address);
-  --           report message(message'range);
-  --         end if;
-
-  --         ---------------------------------------------------------------------
-  --         -- Chect address overread
-  --         ---------------------------------------------------------------------
-  --         assert (check_read_access(address) = false) report "Address overread" severity failure;
-  --         check_read_access(address) <= true;
-
-  --         pix_out_cntr <= pix_out_cntr+4;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-  -- assert (pix_out_cntr < PIXELS_PER_LINE+1) report "LINE_BUFFER : READ TOO MANY PIXEL" severity error;
-
-
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- synthesis translate_on
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
 
   sysrst_n <= not sysrst;
 
@@ -318,7 +205,7 @@ begin
       if (sysrst = '1')then
         nxtBuffer_ff <= '0';
       else
-        nxtBuffer_ff<= nxtBuffer;
+        nxtBuffer_ff <= nxtBuffer;
       end if;
     end if;
   end process;
@@ -364,6 +251,33 @@ begin
   end process;
 
 
+  -- P_buffer_row_last : process (sysclk) is
+  -- begin
+  --   if (rising_edge(sysclk)) then
+  --     if (sysrst = '1') then
+  --       buffer_row_info <= (others => (others => '0'));
+  --     else
+  --       if (init_frame = '1') then
+  --         -- Set the first_row flag
+  --         buffer_row_info(0)(0) <= '1';
+         
+  --       elsif (nxtBuffer_ff = '1') then
+  --         for i in 0 to NUMB_LINE_BUFFER-1 loop
+           
+  --           if (i = to_integer(write_buffer_ptr)) then
+  --             -- Clear the last_row flag
+  --             buffer_row_info(i)(0) <= '0';
+              
+  --             -- Set the last_row flag
+  --             buffer_row_info(i)(1) <= row_last;
+  --           end if;
+  --         end loop;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
+
+
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => LINE_BUFFER_DATA_WIDTH,
@@ -383,20 +297,38 @@ begin
   buffer_read_address <= line_buffer_ptr & line_buffer_address;
   line_buffer_count   <= std_logic_vector(unsigned(to_unsigned(word_cntr, line_buffer_count'length)));
 
-  P_line_buffer_line_id : process (sysclk) is
+  P_line_buffer_row_id : process (sysclk) is
   begin
     if (rising_edge(sysclk)) then
       if (sysrst = '1')then
-        line_buffer_line_id <= (others => '0');
+        line_buffer_row_id <= (others => '0');
       else
-          for i in 0 to NUMB_LINE_BUFFER-1 loop
-            if (i = to_integer(unsigned(line_buffer_ptr))) then
-              line_buffer_line_id <= buffer_row_id(i);
-            end if;
-          end loop;
+        for i in 0 to NUMB_LINE_BUFFER-1 loop
+          if (i = to_integer(unsigned(line_buffer_ptr))) then
+            line_buffer_row_id <= buffer_row_id(i);
+          end if;
+        end loop;
       end if;
     end if;
   end process;
 
+
+
+
+  -- P_line_buffer_row_info : process (sysclk) is
+  -- begin
+  --   if (rising_edge(sysclk)) then
+  --     if (sysrst = '1')then
+  --       line_buffer_row_info <= (others => '0');
+  --     else
+  --       for i in 0 to NUMB_LINE_BUFFER-1 loop
+  --         if (i = to_integer(unsigned(line_buffer_ptr))) then
+  --           line_buffer_row_info <= buffer_row_info(i);
+  --         end if;
+  --       end loop;
+
+  --     end if;
+  --   end if;
+  -- end process;
 
 end architecture rtl;
