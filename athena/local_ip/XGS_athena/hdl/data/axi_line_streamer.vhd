@@ -42,14 +42,14 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Line buffer I/F
     ---------------------------------------------------------------------------
-    clrBuffer           : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-    line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-    line_buffer_read    : out std_logic;
-    line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-    line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    line_buffer_count   : in  std_logic_vector(11 downto 0);
-    line_buffer_line_id : in  std_logic_vector(11 downto 0);
-    line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+    clrBuffer            : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    line_buffer_ready    : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    line_buffer_read     : out std_logic;
+    line_buffer_ptr      : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+    line_buffer_address  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+    line_buffer_count    : in  std_logic_vector(11 downto 0);
+    line_buffer_row_id   : in  std_logic_vector(11 downto 0);
+    line_buffer_data     : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- AXI Master stream interface
@@ -61,7 +61,6 @@ entity axi_line_streamer is
     m_axis_tdata  : out std_logic_vector(63 downto 0)
     );
 end axi_line_streamer;
-
 
 
 architecture rtl of axi_line_streamer is
@@ -113,21 +112,21 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of streamer_busy       : signal is "true";
   attribute mark_debug of transfert_done      : signal is "true";
   attribute mark_debug of init_frame          : signal is "true";
-  attribute mark_debug of number_of_row       : signal is "true";
+  --attribute mark_debug of number_of_row       : signal is "true";
   attribute mark_debug of clrBuffer           : signal is "true";
   attribute mark_debug of line_buffer_ready   : signal is "true";
   attribute mark_debug of line_buffer_read    : signal is "true";
   attribute mark_debug of line_buffer_ptr     : signal is "true";
   attribute mark_debug of line_buffer_address : signal is "true";
   attribute mark_debug of line_buffer_count   : signal is "true";
-  attribute mark_debug of line_buffer_line_id : signal is "true";
+  attribute mark_debug of line_buffer_row_id  : signal is "true";
   attribute mark_debug of line_buffer_data    : signal is "true";
   attribute mark_debug of m_axis_tready       : signal is "true";
   attribute mark_debug of m_axis_tvalid       : signal is "true";
   attribute mark_debug of m_axis_tuser        : signal is "true";
   attribute mark_debug of m_axis_tlast        : signal is "true";
   attribute mark_debug of m_axis_tdata        : signal is "true";
-  
+
 
 begin
 
@@ -197,7 +196,7 @@ begin
       else
         if (init_frame = '1') then
           last_row <= '0';
-        elsif (state = S_SOL and (std_logic_vector(unsigned(number_of_row)-1) = line_buffer_line_id)) then
+        elsif (state = S_SOL and line_buffer_row_id = number_of_row) then
           last_row <= '1';
         end if;
       end if;
