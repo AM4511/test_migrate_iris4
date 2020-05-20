@@ -32,8 +32,20 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
    SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED
  
-   // This may depend on the configuration (Lanes+SensorArea)
-   SensorParams.EXP_FOT_TIME           = 23000 + 5360;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+   SensorParams.Trig_2_EXP             = 76800;
+
+   // This may depend on the configuration (Lanes+LineSize) 
+   if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
+	   SensorParams.ReadOutN_2_TrigN = 11400; //
+   else
+	   SensorParams.ReadOutN_2_TrigN = 51200; //
+
+   SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+   SensorParams.EXP_FOT              = 5360;
+
+   SensorParams.EXP_FOT_TIME         = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 
    //---------------------------------
@@ -77,8 +89,15 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 	SensorParams.Xsize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
   
-    // This may depend on the configuration (Lanes+SensorArea)
-	SensorParams.EXP_FOT_TIME = 0;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+	// This may depend on the configuration (Lanes+LineSize) 
+	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
+		SensorParams.ReadOutN_2_TrigN = 0; //
+	else
+		SensorParams.ReadOutN_2_TrigN = 0; //
+
+	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 	//---------------------------------
 	// Constants for XGS 9.4M FOT
@@ -122,7 +141,18 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
 
     // This may depend on the configuration (Lanes+SensorArea)
-	SensorParams.EXP_FOT_TIME = 0;  //23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+	SensorParams.ReadOutN_2_TrigN = 0;  // in ns
+	SensorParams.TrigN_2_FOT      = 0;  // in ns
+	
+    // This may depend on the configuration (Lanes+LineSize) 
+	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
+		SensorParams.ReadOutN_2_TrigN = 0; //
+	else
+		SensorParams.ReadOutN_2_TrigN = 0; //
+
+	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
 
 
 	//---------------------------------
@@ -270,15 +300,45 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 		WriteSPI(0x38EA, 0x003E);
 		WriteSPI(0x38EC, 0x003E);
 		WriteSPI(0x38EE, 0x003E);
-
 		WriteSPI(0x38CA, 0x0707);
 		WriteSPI(0x38CC, 0x0007);
 		WriteSPI(0x389A, 0x0C03); //M-lines 3-3
-
 	}
 
-	if (otpmversion > 1) {
-		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 16907)\n", otpmversion);
+	if (otpmversion == 2) {
+		printf("No timing uploads necessary for OTPM version: 0x%X (WIP Last Changed Rev: 17021)\n", otpmversion);
+		printf("Loading required register uploads\n");
+
+		WriteSPI(0x389a, 0x0802); //M-lines 2-2
+		WriteSPI(0x38ca, 0x0707);
+		WriteSPI(0x38ea, 0x003E);
+		WriteSPI(0x38ec, 0x003E);
+		WriteSPI(0x38cc, 0x0007);
+		WriteSPI(0x38ee, 0x003E);
+		WriteSPI(0x3944, 0x0108);
+		WriteSPI(0x3936, 0x0108);
+		WriteSPI(0x393a, 0x0108);
+		WriteSPI(0x393e, 0x0108);
+		WriteSPI(0x3946, 0x0108);
+		WriteSPI(0x3948, 0x0108);
+		WriteSPI(0x394c, 0x0108);
+		WriteSPI(0x3950, 0x0108);
+		WriteSPI(0x3958, 0x0108);
+		WriteSPI(0x394a, 0x0108);
+		WriteSPI(0x394e, 0x0108);
+		WriteSPI(0x3952, 0x0108);
+		WriteSPI(0x395a, 0x0108);
+		WriteSPI(0x3928, 0x0108);
+		WriteSPI(0x3930, 0x0108);
+		WriteSPI(0x392a, 0x0108);
+		WriteSPI(0x3932, 0x0108);
+		WriteSPI(0x3954, 0x0095);
+		WriteSPI(0x3956, 0x0095);
+		//WriteSPI(0x383a, 0x0C20); // not used in slave mode (Frame length)
+	}
+
+	if (otpmversion > 2) {
+		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17021)\n", otpmversion);
 		exit(1);
 	}
 
@@ -303,7 +363,7 @@ void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 	WriteSPI(0x3E80, 0x000D);
 
 	//WriteSPI(0x3810, 0x02DC);                                     // minimum line time
-	WriteSPI(0x3810, 0x02DC*GrabParams.XGS_LINE_SIZE_FACTOR); // To reduce framerate in PCIe x1, temporairement
+	WriteSPI(0x3810, (0x02DC)*GrabParams.XGS_LINE_SIZE_FACTOR); // To reduce framerate in PCIe x1, temporairement
 
 	// Not used in slave mode:
 	//LOG = Setting framerate to 28FPS

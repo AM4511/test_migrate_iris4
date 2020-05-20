@@ -32,6 +32,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	bool DisplayOn  = true;
 	int PolldoSleep =0;
 	bool FPS_On     = true;
+
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
 	M_UINT32 XGSSize_Y = 0;
@@ -67,13 +68,19 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
+	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
+	//ch = _getch();
+	ch = '1';
 
-
-
+	if (ch == '0')
+		DisplayOn = false;
+	else
+		DisplayOn = true;
+	printf("\n");
 
 
 	//---------------------
@@ -178,7 +185,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		if (FPS_On)
 		{
 
-			// Le max FPS est facile a calculer : Treadout2trigfall (~1ligne) + Ttrigfall2FOTstart + Tfot + Treadout
+			// Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
 			// Tfot fixe en nmbre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
 			//
 			// Le exp_max pour fps max est un peu plus tricky a calculer.
@@ -187,14 +194,17 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			// width minimum sur le signal trig0 du senseur.
 
 			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
-				                                                             1.0 / (0.0000114 + 0.000023+( (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) *(XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR - XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_SUPPRESSED + 4 + (4*XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) + 7 + 7 ))),
-				                                                            ((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES +1 ) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond/1000.0)
-			                                                                 );
+
+			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
+				1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + ((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7))),
+				((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES + 1) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
+				- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0)
+				//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+			);
 		}
 
-
-
+		
+	
 		if (DisplayOn)
 		//{
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
@@ -304,7 +314,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf("Subsampling Y (0=NO, 1=YES) ? : ");
 				scanf_s("%d", &SubY);
 
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X = SubX;
+				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
 				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
 
 				printf("\n");
