@@ -31,7 +31,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch           = 24;
    SensorParams.XGS_Xorigin            = 32;   // Location of first valid x pixel(including Interpolation)
    SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
-   SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED 
  
 
    SensorParams.Trig_2_EXP             = 76800;
