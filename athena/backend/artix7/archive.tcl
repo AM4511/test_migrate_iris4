@@ -126,11 +126,10 @@ close $OUTFILE
 #--------------------------------------------
 set VIVADO_PROJECT_DIR        [get_property DIRECTORY ${design_name}]
 set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
-set tmp_dir                   ${OUTPUT_DIR}/tmp
-file mkdir $tmp_dir
-
-set ARCHIVE_FILE  ${OUTPUT_DIR}/${VIVADO_PROJECT_DIR_NAME}.xpr.zip
-archive_project ${ARCHIVE_FILE} -temp_dir  $tmp_dir -force -include_local_ip_cache -include_config_settings
+# set tmp_dir                   ${OUTPUT_DIR}/tmp
+# file mkdir $tmp_dir
+# set ARCHIVE_FILE  ${OUTPUT_DIR}/${VIVADO_PROJECT_DIR_NAME}.xpr.zip
+# archive_project ${ARCHIVE_FILE} -temp_dir  $tmp_dir -force -include_local_ip_cache -include_config_settings
 
 
 #--------------------------------------------
@@ -147,7 +146,6 @@ file mkdir $pre_release_registerfile_dir
 file mkdir $pre_release_vivado_dir
 
 file copy   -force  $OUTPUT_DIR $pre_release_dir
-file rename -force  ${ARCHIVE_FILE} $pre_release_vivado_dir
 
 # Copie du fichier de probe 
 set probe_file "$project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx"
