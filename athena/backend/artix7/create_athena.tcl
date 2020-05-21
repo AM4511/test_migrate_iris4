@@ -175,21 +175,20 @@ write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up
 close_design
 
 
-# A faire plus tard	
-#  	
-#  ################################################
-#  # Run Backend script
-#  ################################################
-#  set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-#  if [string match "route_design Complete, Failed Timing!" $route_status] {
-#       puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
-#  } elseif [string match "write_bitstream Complete!" $route_status] {
-#  	 puts "** Write_bitstream Complete. Generating image"
-#  	 source  $SDK_SCRIPT
-#   	 source  $ARCHIVE_SCRIPT
-#  } else {
-#  	 puts "** Run status: $route_status. Unknown status"
-#   }
+ 	
+################################################
+# Run archive script
+################################################
+set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
+if [string match "route_design Complete, Failed Timing!" $route_status] {
+	 puts "** Compilation contains timing errors. You have to source $ARCHIVE_SCRIPT manually"
+	 
+} elseif [string match "write_bitstream Complete!" $route_status] {
+	 puts "** Write_bitstream Completed. Releasing project in the pre-release folder"
+ 	 source  $ARCHIVE_SCRIPT
+} else {
+	 puts "** Run status: $route_status. Unknown status"
+ }
 
 puts "** Done."
 

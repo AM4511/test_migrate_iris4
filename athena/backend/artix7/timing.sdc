@@ -126,13 +126,27 @@ set_false_path -rise_from [get_clocks io_hispi_clk_bottom] -rise_to [get_clocks 
 set_false_path -fall_from [get_clocks io_hispi_clk_bottom] -fall_to [get_clocks io_hispi_clk_bottom]
 
 
+
+
+# ###################################################################################################################
+# Timing exception
+# ###################################################################################################################
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[1]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[3]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[5]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
+
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[0]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[2]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[4]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_serdes/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
+
+
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_rise  -file src_sync_cntr_ddr_in_rise.txt;
 # report_timing -fall_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_fall  -file src_sync_cntr_ddr_in_fall.txt;
           
 
 
-####################################################################################################################
+# ###################################################################################################################
 # Rename generated clock : userclk1
 # ###################################################################################################################
 set src_pin [get_pins -hier -filter {NAME =~"*/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1"}] 
