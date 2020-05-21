@@ -44,7 +44,7 @@ set SUB_MINOR [regsub -nocase "FPGA_SUB_MINOR_VERSION=" $generic "" ]
 set FPGA_VERSION "${MAJOR}.${MINOR}.${SUB_MINOR}"
 
 
-set FPGA_DESCRIPTION "ConcordG2 4 ports ToE FPGA"
+set FPGA_DESCRIPTION "IrisGTX Athena FPGA"
 set YEAR [clock format [clock seconds] -format {%Y}]
 set BUILD_DATE [clock format ${buildid} -format "%Y-%m-%d  %H:%M:%S"]
 set VIVADO_SHORT_VERSION [version -short]
@@ -122,23 +122,38 @@ close $OUTFILE
 
 
 #--------------------------------------------
+# Create vivado archive project 
+#--------------------------------------------
+set VIVADO_PROJECT_DIR        [get_property DIRECTORY ${design_name}]
+set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
+
+set ARCHIVE_FILE  ${OUTPUT_DIR}/${VIVADO_PROJECT_DIR_NAME}.xpr.zip
+set TEMP_DIR C:/temp
+archive_project ${ARCHIVE_FILE} -temp_dir ${TEMP_DIR} -force -include_local_ip_cache -include_config_settings
+
+
+#--------------------------------------------
 # On cree les repertoires du nouveau build   
 #--------------------------------------------
 set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${VIVADO_PROJECT_DIR_NAME}"
 set pre_release_rpt_dir          $pre_release_dir/rpt
 set pre_release_registerfile_dir $pre_release_dir/registerfile
+set pre_release_vivado_dir       $pre_release_dir/vivado
 
 file mkdir $pre_release_dir
 file mkdir $pre_release_rpt_dir
 file mkdir $pre_release_registerfile_dir
+file mkdir $pre_release_vivado_dir
 
-file copy -force  $OUTPUT_DIR $pre_release_dir
+file copy   -force  $OUTPUT_DIR $pre_release_dir
+file rename -force  ${ARCHIVE_FILE} $pre_release_vivado_dir
 
 # Copie du fichier de probe 
 set probe_file "$project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx"
 if [file exist $probe_file] {
 	file copy -force $project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx  $pre_release_dir
 }
+
 # Copie de qques rapports importants
 file copy -force $project_directory/${design_name}.runs/${SYNTH_RUN}/${top_entity_name}_utilization_synth.rpt        $pre_release_rpt_dir
 file copy -force $project_directory/${design_name}.runs/${IMPL_RUN}/${top_entity_name}_utilization_placed.rpt        $pre_release_rpt_dir

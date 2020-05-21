@@ -179,18 +179,19 @@ close_design
 ################################################
 # Run archive script
 ################################################
-set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-if [string match "route_design Complete, Failed Timing!" $route_status] {
+set TOTAL_SETUP_NEGATIVE_SLACK [get_property  STATS.TNS [get_runs $IMPL_RUN]]
+set TOTAL_HOLD_NEGATIVE_SLACK  [get_property  STATS.THS [get_runs $IMPL_RUN]]
+set TOTAL_FAILED_NETS          [get_property  STATS.FAILED_NETS [get_runs $IMPL_RUN]]
+set ROUTE_STATUS               [get_property  STATUS [get_runs $IMPL_RUN]]
+
+if {$TOTAL_FAILED_NETS > 0} {
 	 puts "** Compilation contains timing errors. You have to source $ARCHIVE_SCRIPT manually"
 	 
-} elseif [string match "write_bitstream Complete!" $route_status] {
+} elseif [string match "route_design Complete!" $ROUTE_STATUS] {
 	 puts "** Write_bitstream Completed. Releasing project in the pre-release folder"
  	 source  $ARCHIVE_SCRIPT
 } else {
-	 puts "** Run status: $route_status. Unknown status"
- }
+	 puts "** Route status: $ROUTE_STATUS  Unknown route status"
+}
 
 puts "** Done."
-
-
-
