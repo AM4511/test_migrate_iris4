@@ -767,7 +767,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>8a4f1668</spirit:value>
+            <spirit:value>9649625b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -807,7 +807,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>8a4f1668</spirit:value>
+            <spirit:value>9649625b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -2122,80 +2122,96 @@
       <spirit:file>
         <spirit:name>cores/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>cores/pcie_7x_0/pcie_7x_0.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/regfile_pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/int_queue_pak.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/mtxSCFIFO.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pciepack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_int_queue.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_irq_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_reg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_rx_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_tx_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/spi_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/tlp_completion.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/tlp_to_axi_master.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>CHECKSUM_2eb7639e</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -2232,79 +2248,95 @@
       <spirit:file>
         <spirit:name>cores/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>cores/pcie_7x_0/pcie_7x_0.xci</spirit:name>
         <spirit:userFileType>xci</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/regfile_pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/int_queue_pak.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/mtxSCFIFO.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pciepack.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_int_queue.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_irq_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_reg.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_rx_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie_tx_axi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/spi_if.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/tlp_completion.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/tlp_to_axi_master.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
         <spirit:name>design/pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -2444,13 +2476,13 @@
       </xilinx:xpmLibraries>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>http://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>31</xilinx:coreRevision>
+      <xilinx:coreRevision>33</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3.0:3.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3_0:3.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-05-20T17:30:06Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-05-21T17:18:06Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="matrox.com:ConcordG2:pcie2AxiMaster:1.0_ARCHIVE_LOCATION">d:/git/gitlab/ipcores/pcie2AxiMaster</xilinx:tag>
@@ -3064,13 +3096,49 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5c3b1b23_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@87d6db6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@54c770ae_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5fa1992d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2236a1b6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b28c5a8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@62288465_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4028a8d7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@575cec1c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@16f60660_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@39f6ff83_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@93526ac_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4b696bee_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6a17607c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ea592ba_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11049367_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e1fd15d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4e6a367f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@79c03bce_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@46b93347_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@583c201a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@632630e9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68c81c71_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45f5ecff_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7bd76f39_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@13e49b2d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11877230_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3301045e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45b67d17_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4dd9236e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ed387b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40dd40f1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@20a17448_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c4cdf84_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e8e45b7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@42cdd030_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@985c062_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@50b9bc9d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2cd73f39_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="9c8c3f99"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="dab0a384"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="7f85c68f"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6af71406"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="2bbbf631"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="4e126f27"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="ed72e4c4"/>
