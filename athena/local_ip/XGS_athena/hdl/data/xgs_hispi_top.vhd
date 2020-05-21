@@ -685,11 +685,6 @@ begin
   end generate G_aclk_cal_error;
 
 
-
-  -- TBD : will eventually come from a register?
-  --number_of_row <= std_logic_vector(to_unsigned(LINES_PER_FRAME, number_of_row'length));
-
-
   -- TBD : manage line valid, RoI, embeded data
   line_valid <= '1';
 
