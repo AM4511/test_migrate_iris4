@@ -40,6 +40,7 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
 
    SensorParams.SENSOR_TYPE            = 5000;
    SensorParams.XGS_HiSPI_Ch           = 16;
+   SensorParams.XGS_Xorigin            = 88;   // Location of first valid x pixel(including Interpolation)
    SensorParams.Xsize_Full             = 2592; //+8; //8 Interpolation
    SensorParams.Ysize_Full             = 2048; //+8;
 
