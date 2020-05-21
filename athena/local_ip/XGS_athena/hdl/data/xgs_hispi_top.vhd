@@ -240,13 +240,13 @@ architecture rtl of xgs_hispi_top is
       -- Interface name: registerFileIF
       -- Description: 
       ------------------------------------------------------------------------------------
-      line_buffer_ready    : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_read     : in  std_logic;
-      line_buffer_ptr      : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-      line_buffer_address  : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count    : out std_logic_vector(11 downto 0);
-      line_buffer_row_id   : out std_logic_vector(11 downto 0);
-      line_buffer_data     : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+      line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_read    : in  std_logic;
+      line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+      line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+      line_buffer_count   : out std_logic_vector(11 downto 0);
+      line_buffer_row_id  : out std_logic_vector(11 downto 0);
+      line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
       );
   end component;
 
@@ -276,19 +276,20 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Register interface
       ---------------------------------------------------------------------------
-      number_of_row : in std_logic_vector(11 downto 0);
+      y_row_start : in std_logic_vector(11 downto 0);
+      y_row_stop  : in std_logic_vector(11 downto 0);
 
       ---------------------------------------------------------------------------
       -- Line buffer I/F
       ---------------------------------------------------------------------------
-      clrBuffer            : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_ready    : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_read     : out std_logic;
-      line_buffer_ptr      : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-      line_buffer_address  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count    : in  std_logic_vector(11 downto 0);
-      line_buffer_row_id   : in  std_logic_vector(11 downto 0);
-      line_buffer_data     : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+      clrBuffer           : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_read    : out std_logic;
+      line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+      line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+      line_buffer_count   : in  std_logic_vector(11 downto 0);
+      line_buffer_row_id  : in  std_logic_vector(11 downto 0);
+      line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Master stream interface
@@ -430,18 +431,20 @@ architecture rtl of xgs_hispi_top is
   signal buff_addr    : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buff_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
-  signal sync            : std_logic_vector(1 downto 0);
-  signal hispi_eof_pulse : std_logic_vector(3 downto 0);
-  signal buffer_enable   : std_logic;
-  signal number_of_row   : std_logic_vector(11 downto 0);
+  signal sync            :    std_logic_vector(1 downto 0);
+  signal hispi_eof_pulse :    std_logic_vector(3 downto 0);
+  signal buffer_enable   :    std_logic;
+  --signal number_of_row   : std_logic_vector(11 downto 0);
+  signal y_row_start     :  std_logic_vector(11 downto 0);
+  signal y_row_stop      :  std_logic_vector(11 downto 0);
 
-  signal line_buffer_read     : std_logic;
-  signal line_buffer_ptr      : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal line_buffer_address  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal line_buffer_count    : std_logic_vector(11 downto 0);
-  signal line_buffer_row_id   : std_logic_vector(11 downto 0);
+  signal line_buffer_read    : std_logic;
+  signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+  signal line_buffer_address : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal line_buffer_count   : std_logic_vector(11 downto 0);
+  signal line_buffer_row_id  : std_logic_vector(11 downto 0);
   --signal line_buffer_row_info : std_logic_vector(1 downto 0);
-  signal line_buffer_data     : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+  signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
   -- register mapping signals
   signal enable_hispi : std_logic;
@@ -458,6 +461,7 @@ architecture rtl of xgs_hispi_top is
   signal fifo_error           : std_logic;
 
   signal sldec_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+
 
 begin
 
@@ -554,9 +558,43 @@ begin
 
   aclk_manual_calibration <= to_std_logic_vector(regfile.HISPI.DEBUG);
 
-  number_of_row <= regfile.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00";
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_row_start
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_row_start : process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset = '1') then
+        y_row_start <= (others => '0');
+      else
+        y_row_start <= regfile.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
+      end if;
+    end if;
+  end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_row_stop
+  -- Description :
+  -----------------------------------------------------------------------------
+  P_row_stop : process (axi_clk) is
+    variable start : unsigned(11 downto 0);
+    variable size  : unsigned(11 downto 0);
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset = '1') then
+        y_row_stop <= (others => '0');
+      else
+        start := unsigned(regfile.ACQ.SENSOR_ROI_Y_START.Y_START) & "00";
+        size  := unsigned(regfile.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE) & "00";
+        y_row_stop <= std_logic_vector(start + (size - 1));
+      end if;
+    end if;
+  end process;
+
+  
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_xgs_ctrl_calib_req
   -- Description : Flag sent by the XGS_controller to initiate a calibrartion
@@ -1153,7 +1191,7 @@ begin
         line_cntr <= (others => '0');
       else
         if (state = S_SOF) then
-          line_cntr <= (others => '0');
+          line_cntr <= unsigned(y_row_start);
         elsif (state = S_DONE) then
           line_cntr <= line_cntr+1;
         end if;
@@ -1264,27 +1302,27 @@ begin
       LINES_PER_FRAME           => LINES_PER_FRAME
       )
     port map(
-      sysclk               => axi_clk,
-      sysrst               => axi_reset,
-      row_id               => row_id,
-      buffer_enable        => buffer_enable,
-      init_frame           => init_frame,
-      nxtBuffer            => nxtBuffer,
-      clrBuffer            => clrBuffer,
-      lane_packer_req      => lane_packer_req,
-      lane_packer_ack      => lane_packer_ack,
-      buff_info_en         => buff_info_en,
-      buff_info            => buff_info,
-      buff_write           => buff_write,
-      buff_addr            => buff_addr,
-      buff_data            => buff_data,
-      line_buffer_ready    => line_buffer_ready,
-      line_buffer_read     => line_buffer_read,
-      line_buffer_ptr      => line_buffer_ptr,
-      line_buffer_address  => line_buffer_address,
-      line_buffer_count    => line_buffer_count,
-      line_buffer_row_id   => line_buffer_row_id,
-      line_buffer_data     => line_buffer_data
+      sysclk              => axi_clk,
+      sysrst              => axi_reset,
+      row_id              => row_id,
+      buffer_enable       => buffer_enable,
+      init_frame          => init_frame,
+      nxtBuffer           => nxtBuffer,
+      clrBuffer           => clrBuffer,
+      lane_packer_req     => lane_packer_req,
+      lane_packer_ack     => lane_packer_ack,
+      buff_info_en        => buff_info_en,
+      buff_info           => buff_info,
+      buff_write          => buff_write,
+      buff_addr           => buff_addr,
+      buff_data           => buff_data,
+      line_buffer_ready   => line_buffer_ready,
+      line_buffer_read    => line_buffer_read,
+      line_buffer_ptr     => line_buffer_ptr,
+      line_buffer_address => line_buffer_address,
+      line_buffer_count   => line_buffer_count,
+      line_buffer_row_id  => line_buffer_row_id,
+      line_buffer_data    => line_buffer_data
       );
 
 
@@ -1303,26 +1341,27 @@ begin
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
       )
     port map (
-      sysclk               => axi_clk,
-      sysrst               => axi_reset,
-      streamer_en          => '1',
-      streamer_busy        => open,
-      transfert_done       => transfert_done,
-      init_frame           => init_frame,
-      clrBuffer            => clrBuffer,
-      line_buffer_ready    => line_buffer_ready,
-      number_of_row        => number_of_row,
-      line_buffer_read     => line_buffer_read,
-      line_buffer_ptr      => line_buffer_ptr,
-      line_buffer_address  => line_buffer_address,
-      line_buffer_count    => line_buffer_count,
-      line_buffer_row_id   => line_buffer_row_id,
-      line_buffer_data     => line_buffer_data,
-      m_axis_tready        => m_axis_tready,
-      m_axis_tvalid        => m_axis_tvalid,
-      m_axis_tuser         => m_axis_tuser,
-      m_axis_tlast         => m_axis_tlast,
-      m_axis_tdata         => m_axis_tdata
+      sysclk              => axi_clk,
+      sysrst              => axi_reset,
+      streamer_en         => '1',
+      streamer_busy       => open,
+      transfert_done      => transfert_done,
+      init_frame          => init_frame,
+      y_row_start         => y_row_start,
+      y_row_stop          => y_row_stop,
+      clrBuffer           => clrBuffer,
+      line_buffer_ready   => line_buffer_ready,
+      line_buffer_read    => line_buffer_read,
+      line_buffer_ptr     => line_buffer_ptr,
+      line_buffer_address => line_buffer_address,
+      line_buffer_count   => line_buffer_count,
+      line_buffer_row_id  => line_buffer_row_id,
+      line_buffer_data    => line_buffer_data,
+      m_axis_tready       => m_axis_tready,
+      m_axis_tvalid       => m_axis_tvalid,
+      m_axis_tuser        => m_axis_tuser,
+      m_axis_tlast        => m_axis_tlast,
+      m_axis_tdata        => m_axis_tdata
       );
 
 

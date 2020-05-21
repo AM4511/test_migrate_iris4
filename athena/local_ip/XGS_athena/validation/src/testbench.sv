@@ -784,30 +784,13 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
-				ROI_YSTART = 0;
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 16;
 				EXPOSURE   = 50;  //in us
 				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
 				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
-
-
-				///////////////////////////////////////////////////
-				// XGS Controller : set ROI Y size
-				///////////////////////////////////////////////////
-				$display("  7.2 set ROI Y size @0x%h", SENSOR_ROI_Y_SIZE_OFFSET);
-				ROI_YSIZE  = 16;
 				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
-
-				///////////////////////////////////////////////////
-				// XGS Controller : set exposure time
-				///////////////////////////////////////////////////
-				$display("  7.3 set exposure time @0x%h", EXP_CTRL1_OFFSET);
 				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
-
-
-				///////////////////////////////////////////////////
-				// XGS Controller : set exposure time
-				///////////////////////////////////////////////////
-				$display("  7.4 set trigger @0x%h", GRAB_CTRL_OFFSET);
 				axil_driver.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
 
@@ -816,9 +799,9 @@ module testbench();
 				// Trigger ROI #2
 				///////////////////////////////////////////////////
 				$display("8. Trigger ROI #2");
-				ROI_YSTART = 8;
-				ROI_YSIZE  = 8;
-				EXPOSURE   = 50;  //in us
+				//ROI_YSTART = 8;
+				//ROI_YSIZE  = 8;
+				//EXPOSURE   = 50;  //in us
 				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
 				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
 				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
