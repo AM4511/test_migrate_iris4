@@ -126,10 +126,11 @@ close $OUTFILE
 #--------------------------------------------
 set VIVADO_PROJECT_DIR        [get_property DIRECTORY ${design_name}]
 set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
+set tmp_dir                   ${OUTPUT_DIR}/tmp
+file mkdir $tmp_dir
 
 set ARCHIVE_FILE  ${OUTPUT_DIR}/${VIVADO_PROJECT_DIR_NAME}.xpr.zip
-set TEMP_DIR C:/temp
-archive_project ${ARCHIVE_FILE} -temp_dir ${TEMP_DIR} -force -include_local_ip_cache -include_config_settings
+archive_project ${ARCHIVE_FILE} -temp_dir  $tmp_dir -force -include_local_ip_cache -include_config_settings
 
 
 #--------------------------------------------

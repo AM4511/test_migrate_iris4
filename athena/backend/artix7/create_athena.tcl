@@ -13,9 +13,10 @@ puts "Running ${myself}"
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : New axiHiSPi
 # 0.0.3 : New XGS_athena ip-core
+# 0.0.4 : First version that grab frames
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_SUB_MINOR_VERSION 4
 
 
 set BASE_NAME athena
@@ -166,15 +167,6 @@ write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
 report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 
-
-# temporairement on genere toujours le .bit et .mcs (meme s'il y a des erreurs de timing)
-# .bit + .MCS : Version SINGLE boot
-write_bitstream -force ./${PROJECT_NAME}.bit
-write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up 0x0 ./${PROJECT_NAME}.bit" ./${PROJECT_NAME}.mcs
-
-close_design
-
-
  	
 ################################################
 # Run archive script
@@ -185,7 +177,17 @@ set TOTAL_FAILED_NETS          [get_property  STATS.FAILED_NETS [get_runs $IMPL_
 set ROUTE_STATUS               [get_property  STATUS [get_runs $IMPL_RUN]]
 
 if {$TOTAL_FAILED_NETS > 0} {
+     # temporairement on genere toujours le .bit et .mcs (meme s'il y a des erreurs de timing)
+     # .bit + .MCS : Version SINGLE boot
+	 set UNSAFE_OUTPUT_DIR ./unsafe_output
+	 set UNSAFE_FIRMWARE   $UNSAFE_OUTPUT_DIR/unsafe_${PROJECT_NAME}
+	 file mkdir ${UNSAFE_OUTPUT_DIR}
+
+     write_bitstream -force ${UNSAFE_FIRMWARE}.bit
+     write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up 0x0 ${UNSAFE_FIRMWARE}.bit" ${UNSAFE_FIRMWARE}.bit.mcs
+
 	 puts "** Compilation contains timing errors. You have to source $ARCHIVE_SCRIPT manually"
+     close_design
 	 
 } elseif [string match "route_design Complete!" $ROUTE_STATUS] {
 	 puts "** Write_bitstream Completed. Releasing project in the pre-release folder"
