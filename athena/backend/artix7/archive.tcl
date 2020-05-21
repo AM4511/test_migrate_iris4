@@ -79,7 +79,7 @@ while {$id < 20} {
 set UPGRADE_OFFSET 0x000000
 
 
-set UPGRADE_BASE_NAME             $OUTPUT_DIR/${design_name}_build_${FPGA_BUILD_DATE}
+set UPGRADE_BASE_NAME             $OUTPUT_DIR/${design_name}
 set UPGRADE_BIT_FILENAME          ${UPGRADE_BASE_NAME}.bit
 set UPGRADE_MCS_FILENAME          ${UPGRADE_BASE_NAME}.mcs
 set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
