@@ -11,8 +11,9 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "PCIE_VENDOR_ID" -parent ${PCIe}
   ipgui::add_param $IPINST -name "PCIE_DEVICE_ID" -parent ${PCIe}
   ipgui::add_param $IPINST -name "PCIE_REV_ID" -parent ${PCIe}
-  ipgui::add_param $IPINST -name "PCIE_SUBSYS_VENDOR_ID" -parent ${PCIe}
   ipgui::add_param $IPINST -name "PCIE_SUBSYS_ID" -parent ${PCIe}
+  ipgui::add_param $IPINST -name "PCIE_SUBSYS_VENDOR_ID" -parent ${PCIe}
+  ipgui::add_param $IPINST -name "PCIE_NB_LANES" -parent ${PCIe} -widget comboBox
 
   #Adding Page
   set AXI [ipgui::add_page $IPINST -name "AXI"]
@@ -131,6 +132,15 @@ proc validate_PARAM_VALUE.PCIE_DEVICE_ID { PARAM_VALUE.PCIE_DEVICE_ID } {
 	return true
 }
 
+proc update_PARAM_VALUE.PCIE_NB_LANES { PARAM_VALUE.PCIE_NB_LANES } {
+	# Procedure called to update PCIE_NB_LANES when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.PCIE_NB_LANES { PARAM_VALUE.PCIE_NB_LANES } {
+	# Procedure called to validate PCIE_NB_LANES
+	return true
+}
+
 proc update_PARAM_VALUE.PCIE_REV_ID { PARAM_VALUE.PCIE_REV_ID } {
 	# Procedure called to update PCIE_REV_ID when any of the dependent parameters in the arguments change
 }
@@ -221,5 +231,10 @@ proc update_MODELPARAM_VALUE.ENABLE_DMA { MODELPARAM_VALUE.ENABLE_DMA PARAM_VALU
 proc update_MODELPARAM_VALUE.ENABLE_MTX_SPI { MODELPARAM_VALUE.ENABLE_MTX_SPI PARAM_VALUE.ENABLE_MTX_SPI } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.ENABLE_MTX_SPI}] ${MODELPARAM_VALUE.ENABLE_MTX_SPI}
+}
+
+proc update_MODELPARAM_VALUE.PCIE_NB_LANES { MODELPARAM_VALUE.PCIE_NB_LANES PARAM_VALUE.PCIE_NB_LANES } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.PCIE_NB_LANES}] ${MODELPARAM_VALUE.PCIE_NB_LANES}
 }
 

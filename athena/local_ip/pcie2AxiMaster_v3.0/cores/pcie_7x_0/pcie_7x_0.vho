@@ -54,10 +54,10 @@
 ------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
 COMPONENT pcie_7x_0
   PORT (
-    pci_exp_txp : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
-    pci_exp_txn : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
-    pci_exp_rxp : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-    pci_exp_rxn : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    pci_exp_txp : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_txn : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_rxp : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_rxn : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
     user_clk_out : OUT STD_LOGIC;
     user_reset_out : OUT STD_LOGIC;
     user_lnk_up : OUT STD_LOGIC;

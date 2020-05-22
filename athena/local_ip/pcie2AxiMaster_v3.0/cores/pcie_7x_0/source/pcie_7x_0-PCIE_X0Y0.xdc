@@ -62,7 +62,7 @@
 # PCIe Block   - PCIE_X0Y0
 #
 # Link Speed   - 1
-# Link Width   - X1
+# Link Width   - X2
 # AXIST Width  - 64-bit
 # AXIST Frequ  - 1
 #
@@ -92,6 +92,8 @@
 
 # PCIe Lane 0
 set_property LOC GTPE2_CHANNEL_X0Y1 [get_cells {inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
+# PCIe Lane 1
+set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {inst/gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 
 # GTP Common Placement
 set_property LOC GTPE2_COMMON_X0Y0 [get_cells {inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].pipe_quad.gt_common_enabled.gt_common_int.gt_common_i/qpll_wrapper_i/gtp_common.gtpe2_common_i}]
@@ -106,8 +108,6 @@ set_property LOC PCIE_X0Y0 [get_cells inst/pcie_top_i/pcie_7x_i/pcie_block_i]
 #
 # BlockRAM placement
 #
-set_property LOC RAMB36_X0Y24 [get_cells {inst/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[0].ram/use_sdp.ramb36sdp/genblk*.bram36_sdp_bl_2.bram36_sdp_bl_2}]
-set_property LOC RAMB36_X0Y21 [get_cells {inst/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[0].ram/use_sdp.ramb36sdp/genblk*.bram36_sdp_bl_2.bram36_sdp_bl_2}]
 
 ###############################################################################
 # Timing Constraints

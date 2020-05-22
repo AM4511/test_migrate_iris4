@@ -12,7 +12,8 @@ module pcie_7x_0_mtx_wrapper # (
 				parameter         CFG_DEV_ID         = 16'hffff,
 				parameter         CFG_REV_ID         =  8'hFF,
 				parameter         CFG_SUBSYS_VEND_ID = 16'h102b,
-				parameter         CFG_SUBSYS_ID      = 16'hffff
+				parameter         CFG_SUBSYS_ID      = 16'hffff,
+				parameter         PCIE_NB_LANES      = 2'h1 
 				)
    (
     pci_exp_txp,
@@ -123,10 +124,10 @@ module pcie_7x_0_mtx_wrapper # (
 
 
 
-   output wire [0 : 0] pci_exp_txp;
-   output wire [0 : 0] pci_exp_txn;
-   input wire [0 : 0]  pci_exp_rxp;
-   input wire [0 : 0]  pci_exp_rxn;
+   output wire [PCIE_NB_LANES-1 : 0] pci_exp_txp;
+   output wire [PCIE_NB_LANES-1 : 0] pci_exp_txn;
+   input wire [PCIE_NB_LANES-1 : 0]  pci_exp_rxp;
+   input wire [PCIE_NB_LANES-1 : 0]  pci_exp_rxn;
    output wire 	       user_clk_out;
    output wire 	       user_reset_out;
    output wire 	       user_lnk_up;
