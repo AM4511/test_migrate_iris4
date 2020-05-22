@@ -89,6 +89,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 
 		0,             //Sensor Type
 		24,            //XGSmax HISPI channels 
+		32,            //XGS_Xorigin;
 		1280,          //Xsize_Full
 		1024,          //Ysize_Full
 		1280,          //Xsize_BL;

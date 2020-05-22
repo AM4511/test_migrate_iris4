@@ -61,6 +61,7 @@ struct SensorParamStruct
 {
 	M_UINT32 SENSOR_TYPE;
 	M_UINT32 XGS_HiSPI_Ch;
+	M_UINT32 XGS_Xorigin;
 	M_UINT32 Xsize_Full;
 	M_UINT32 Ysize_Full;
 	M_UINT32 Xsize_BL;
