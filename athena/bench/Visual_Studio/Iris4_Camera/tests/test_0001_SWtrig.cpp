@@ -79,8 +79,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setExposure(8000);
 
 	// For a full frame ROI 
-	GrabParams->Y_START = 0;                                               //1-base Here - Dois etre multiple de 4
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;  //1-base Here - Dois etre multiple de 4
+	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
 	//GrabParams->Y_END   = 8;
 
 	GrabParams->SUBSAMPLING_X        = 0;

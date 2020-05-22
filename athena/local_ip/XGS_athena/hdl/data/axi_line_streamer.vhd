@@ -113,7 +113,6 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of streamer_busy       : signal is "true";
   attribute mark_debug of transfert_done      : signal is "true";
   attribute mark_debug of init_frame          : signal is "true";
-  --attribute mark_debug of row_start       : signal is "true";
   attribute mark_debug of clrBuffer           : signal is "true";
   attribute mark_debug of line_buffer_ready   : signal is "true";
   attribute mark_debug of line_buffer_read    : signal is "true";
@@ -127,6 +126,8 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of m_axis_tuser        : signal is "true";
   attribute mark_debug of m_axis_tlast        : signal is "true";
   attribute mark_debug of m_axis_tdata        : signal is "true";
+  attribute mark_debug of y_row_start         : signal is "true";
+  attribute mark_debug of y_row_stop          : signal is "true";
 
 
 begin
@@ -184,28 +185,11 @@ begin
     end if;
   end process;
 
+  
   last_row <= '1' when (line_buffer_row_id = y_row_stop) else
               '0';
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_last_row
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_last_row : process (sysclk) is
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1') then
-  --       last_row <= '0';
-  --     else
-  --       if (init_frame = '1') then
-  --         last_row <= '0';
-  --       elsif (state = S_SOL and line_buffer_row_id = row_stop) then
-  --         last_row <= '1';
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
+ 
 
   -----------------------------------------------------------------------------
   -- Process     : P_burst_length

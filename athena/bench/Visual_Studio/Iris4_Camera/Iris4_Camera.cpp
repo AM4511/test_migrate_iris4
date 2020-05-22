@@ -39,7 +39,7 @@ void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 void Help(CXGS_Ctrl* Camera);
 void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-
+void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 
 /* Main function. */
@@ -276,6 +276,12 @@ int main(void)
 
 			case '1':
 				test_0001_SWtrig(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
+			case '2':
+				test_0002_Continu_2xROI(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;

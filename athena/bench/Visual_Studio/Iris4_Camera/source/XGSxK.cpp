@@ -143,6 +143,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;
 	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
 
-
-
+	// Set Location of first valid x pixel(including Interpolation) - X origin
+	sXGSptr.ACQ.SENSOR_X_ORIGIN.f.SENSOR_X_ORIGIN = SensorParams.XGS_Xorigin;
+	rXGSptr.ACQ.SENSOR_X_ORIGIN.u32               = sXGSptr.ACQ.SENSOR_X_ORIGIN.u32;
 }

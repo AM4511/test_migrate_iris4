@@ -171,6 +171,7 @@
     <ClCompile Include="source\XGS_Data.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />
     <ClCompile Include="tests\test_0001_SWtrig.cpp" />
+    <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\I2C.h" />

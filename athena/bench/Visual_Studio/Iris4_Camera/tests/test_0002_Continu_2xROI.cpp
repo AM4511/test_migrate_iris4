@@ -17,12 +17,17 @@
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
 
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
 	unsigned long long ImageBufferAddr=0;
+
+	MIL_ID MilDisplay2;
+	MIL_ID MilGrabBuffer2;
+	unsigned long long ImageBufferAddr2 = 0;
+
 	int MonoType = 8;
 
 	int Sortie = 0;
@@ -40,15 +45,17 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
 
+	int ROI_sel   = 0;
+
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 	DMAParamStruct*    DMAParams    = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0000.cpp    *\n");
-	printf(    "********************************\n\n");
+	printf("\n\n**************************************\n");
+	printf(    "*    Executing Test0002_2xROIcpp    *\n");
+	printf(    "**************************************\n\n");
 
 
 
@@ -68,9 +75,14 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1*SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
+
+	// Init Display with correct X-Y parameters 
+	ImageBufferAddr2 = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+	LayerInitDisplay(MilGrabBuffer2, &MilDisplay2, 1);
+	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr2);
 
 	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
 	//ch = _getch();
@@ -89,9 +101,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setExposure(40000);
 
 	// For a full frame ROI 
-	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	//1-base Here - Dois etre multiple de 4										
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -105,12 +116,6 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
 
 
-	//---------------------
-    // DMA PARAMETERS
-    //---------------------
-	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = SensorParams->Xsize_Full; // Full window MIL display
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
 
 
 
@@ -175,45 +180,49 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	while (Sortie == 0)
 	{
 
-		if (XGS_Ctrl->sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP == 0)
-			XGS_Ctrl->WaitEndExpReadout();
+		if (ROI_sel == 0) {
+
+			//---------------------
+            // DMA PARAMETERS
+            //---------------------
+			DMAParams->FSTART                = ImageBufferAddr;          // Adresse Mono pour DMA
+			DMAParams->LINE_PITCH            = SensorParams->Xsize_Full; // Full window MIL display
+			DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
+			GrabParams->SUBSAMPLING_X        = 0;
+			GrabParams->M_SUBSAMPLING_Y      = 0;
+			GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+		} else {
+
+			//---------------------
+            // DMA PARAMETERS
+            //---------------------
+			DMAParams->FSTART                = ImageBufferAddr2;          // Adresse Mono pour DMA
+			DMAParams->LINE_PITCH            = SensorParams->Xsize_Full; // Full window MIL display
+			DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
+			GrabParams->SUBSAMPLING_X        = 1;
+			GrabParams->M_SUBSAMPLING_Y      = 0;
+			GrabParams->ACTIVE_SUBSAMPLING_Y = 1;
+		}
+
 
 		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 
+		XGS_Ctrl->WaitEndExpReadout();
 
-		if (FPS_On)
-		{
 
-			// Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
-			// Tfot fixe en nmbre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
-			//
-			// Le exp_max pour fps max est un peu plus tricky a calculer.
-			// Avec le Xcerelator j'utilise une exposure_synthetique qui ne reflete pas le timing exact du real_integration, 
-			// alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
-			// width minimum sur le signal trig0 du senseur.
-
-			fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-
-			printf("\r%dfps, Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
-				1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + ((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7))),
-				((XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES + 1) * XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-				- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0)
-				//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
-			);
+		if (ROI_sel == 0) {
+			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+		}
+		else {
+			MbufControl(MilGrabBuffer2, M_MODIFIED, M_DEFAULT);
 		}
 
-		
-	
-		if (DisplayOn)
-		//{
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
-		//	//printf("%f", DisplayLength1 - DisplayLength0);
-		//}
 
-
+		if (ROI_sel == 0)
+			ROI_sel = 1;
+		else
+			ROI_sel = 0;
 
 		if (_kbhit())
 		{
@@ -338,6 +347,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//------------------------------
 	MbufFree(MilGrabBuffer);
 	MdispFree(MilDisplay);
+
+	MbufFree(MilGrabBuffer2);
+	MdispFree(MilDisplay2);
+
 
 	//----------------------
 	// Disable HW
