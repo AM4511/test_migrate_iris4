@@ -105,6 +105,7 @@ architecture rtl of lane_packer is
 
   constant LANE_WIDTH_IN_PIX  : natural := PIXELS_PER_LINE/(NUMBER_OF_LANE*MUX_RATIO);
   constant FIFO_ADDRESS_WIDTH : natural := 10;
+  --constant FIFO_ADDRESS_WIDTH : natural := 11; --jmansill 10 to 11
   constant FIFO_DATA_WIDTH    : natural := LINE_BUFFER_DATA_WIDTH + LINE_BUFFER_ADDRESS_WIDTH;
   constant PIXEL_PER_STRIPE   : natural := (2*PIXELS_PER_LINE)/(NUMBER_OF_LANE*MUX_RATIO);
   constant PIXEL_PER_PACKER   : natural := 4*PIXEL_PER_STRIPE;
