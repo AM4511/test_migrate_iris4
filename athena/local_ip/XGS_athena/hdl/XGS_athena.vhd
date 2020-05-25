@@ -250,7 +250,9 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       -- Register file interface 
       ---------------------------------------------------------------------------
-      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
+      rclk         : in    std_logic;
+      rclk_reset_n : in    std_logic;
+      regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
       ---------------------------------------------------------------------------
       -- XGS Controller I/F
@@ -622,6 +624,8 @@ begin
     port map(
       sclk                     => sclk,
       sclk_reset_n             => sclk_reset_n,
+      rclk                     => aclk,
+      rclk_reset_n             => aclk_reset_n,
       regfile                  => regfile,
       idelay_clk               => idelay_clk,
       hispi_start_calibration  => hispi_start_calibration,

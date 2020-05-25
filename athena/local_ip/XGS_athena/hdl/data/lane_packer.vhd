@@ -39,10 +39,7 @@ entity lane_packer is
     sclk       : in std_logic;
     sclk_reset : in std_logic;
 
-    -- registers
-    --packer_fifo_overrun  : out std_logic;
-    --packer_fifo_underrun : out std_logic;
-
+  
     enable         : in  std_logic;
     init_packer    : in  std_logic;
     odd_line       : in  std_logic;

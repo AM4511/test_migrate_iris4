@@ -44,9 +44,9 @@ entity xgs_hispi_top is
     ---------------------------------------------------------------------------
     -- Registerfile clock domain
     ---------------------------------------------------------------------------
-    rclk       : in    std_logic;
-    rclk_reset : in    std_logic;
-    regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
+    rclk         : in    std_logic;
+    rclk_reset_n : in    std_logic;
+    regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
 
     ---------------------------------------------------------------------------
@@ -158,12 +158,8 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- sclk clock domain
       ---------------------------------------------------------------------------
-      sclk : in std_logic;
+      sclk       : in std_logic;
       sclk_reset : in std_logic;
-
-      -- registers
-      -- packer_fifo_overrun  : out std_logic;
-      -- packer_fifo_underrun : out std_logic;
 
       enable         : in  std_logic;
       init_packer    : in  std_logic;
@@ -187,8 +183,6 @@ architecture rtl of xgs_hispi_top is
       bottom_fifo_read_data       : in  std_logic_vector(31 downto 0);
 
       -- Line buffer interface
-      -- lane_packer_info_en : out std_logic;
-      -- lane_packer_info    : out std_logic_vector(3 downto 0);
       lane_packer_ack   : in  std_logic;
       lane_packer_req   : out std_logic;
       lane_packer_write : out std_logic;
@@ -233,8 +227,6 @@ architecture rtl of xgs_hispi_top is
       ------------------------------------------------------------------------------------
       lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
       lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-      -- buff_info_en    : in  std_logic;
-      -- buff_info       : in  std_logic_vector(3 downto 0);
       buff_write      : in  std_logic;
       buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
       buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
@@ -336,7 +328,6 @@ architecture rtl of xgs_hispi_top is
   signal sclk_pll_locked_Meta : std_logic;
   signal sclk_pll_locked      : std_logic;
 
-  --signal sclk_manual_calibration      : std_logic_vector(31 downto 0);
   signal sclk_calibration_req         : std_logic;
   signal sclk_calibration_pending     : std_logic;
   signal sclk_start_calibration       : std_logic;
@@ -345,8 +336,6 @@ architecture rtl of xgs_hispi_top is
   signal sclk_xgs_ctrl_calib_req      : std_logic;
   signal sclk_calibration_done        : std_logic_vector(1 downto 0);
   signal top_cal_done                 : std_logic;
-  --signal top_cal_error                : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  --signal top_cal_tap_value            : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
   signal top_lanes_p                 : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n                 : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -359,8 +348,6 @@ architecture rtl of xgs_hispi_top is
   signal top_fifo_read_data_valid    : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_done             : std_logic;
-  --signal bottom_cal_error            : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  --signal bottom_cal_tap_value        : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
   signal bottom_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_sof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -394,8 +381,6 @@ architecture rtl of xgs_hispi_top is
 
   signal lane_packer_ack   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal lane_packer_req   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  -- signal lane_packer_info_en : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  -- signal lane_packer_info    : PACKER_INFO_ARRAY_TYPE;
   signal lane_packer_write : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal lane_packer_addr  : PACKER_ADDR_ARRAY_TYPE;
   signal lane_packer_data  : PACKER_DATA_ARRAY_TYPE;
@@ -405,8 +390,6 @@ architecture rtl of xgs_hispi_top is
   signal clrBuffer         : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
   signal line_buffer_ready : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
 
-  -- signal buff_info_en : std_logic;
-  -- signal buff_info    : std_logic_vector(3 downto 0);
   signal buff_write : std_logic;
   signal buff_addr  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buff_data  : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
@@ -434,15 +417,16 @@ architecture rtl of xgs_hispi_top is
   signal aggregated_sync_error    : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
 
   -- Status lane packer (slpack)
-  signal slpack_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal slpack_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal fifo_error           : std_logic;
+  signal aggregated_packer_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal aggregated_packer_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal fifo_error                      : std_logic;
 
   signal aggregated_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-
+  signal rclk_reset                : std_logic;
 
 begin
 
+  rclk_reset <= not rclk_reset_n;
 
   -----------------------------------------------------------------------------
   -- Registerfile mapping
@@ -471,17 +455,15 @@ begin
 
 
   G_lane_packer_status : for i in 0 to NUMB_LANE_PACKER-1 generate
-    -- regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_OVERRUN_set  <= packer_fifo_overrun(i);
-    -- regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_UNDERRUN_set <= packer_fifo_underrun(i);
-    slpack_fifo_overrun(i)  <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_OVERRUN;
-    slpack_fifo_underrun(i) <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_UNDERRUN;
+    aggregated_packer_fifo_overrun(i)  <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_OVERRUN;
+    aggregated_packer_fifo_underrun(i) <= regfile.HISPI.LANE_PACKER_STATUS(i).FIFO_UNDERRUN;
   end generate G_lane_packer_status;
 
 
   fifo_error <= '1' when (aggregated_fifo_overrun /= (aggregated_fifo_overrun'range => '0')) else
-                '1' when (aggregated_fifo_underrun /= (aggregated_fifo_underrun'range => '0')) else
-                '1' when (slpack_fifo_overrun /= (slpack_fifo_overrun'range           => '0')) else
-                '1' when (slpack_fifo_underrun /= (slpack_fifo_underrun'range         => '0')) else
+                '1' when (aggregated_fifo_underrun /= (aggregated_fifo_underrun'range               => '0')) else
+                '1' when (aggregated_packer_fifo_overrun /= (aggregated_packer_fifo_overrun'range   => '0')) else
+                '1' when (aggregated_packer_fifo_underrun /= (aggregated_packer_fifo_underrun'range => '0')) else
                 '0';
 
   regfile.HISPI.STATUS.FIFO_ERROR <= fifo_error;
