@@ -307,7 +307,7 @@ int main(void)
 	}//while
 
 	printf("\n\nPress any key to exit");
-
+	_getch();
 	
 	
 	MbufFree(MilRegBuf1);	//a effacer avec le vrai produit
@@ -315,6 +315,9 @@ int main(void)
 	delete XGS_Data;
 	delete I2C;
 	IrisMilFree();
+
+
+
 	exit(0);
 
 
