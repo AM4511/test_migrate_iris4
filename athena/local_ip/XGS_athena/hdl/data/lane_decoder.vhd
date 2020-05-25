@@ -170,7 +170,8 @@ architecture rtl of lane_decoder is
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
-  constant FIFO_ADDRESS_WIDTH        : integer := 6;
+  --constant FIFO_ADDRESS_WIDTH        : integer := 6;
+  constant FIFO_ADDRESS_WIDTH        : integer := 10;  -- jmansill 1024 locationsde 32bits : 32K : 1 block memoire 36Kbits
   constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
 
   signal pclk_reset          : std_logic;

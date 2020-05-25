@@ -310,6 +310,7 @@ architecture rtl of xgs_hispi_top is
 
   constant LINE_BUFFER_DATA_WIDTH    : integer := 64;
   constant LINE_BUFFER_ADDRESS_WIDTH : integer := 11;
+  --constant LINE_BUFFER_ADDRESS_WIDTH : integer := 12; --jmansill 11 to 12
   constant LINE_BUFFER_PTR_WIDTH     : integer := 1;
   constant NUMB_LANE_PACKER          : integer := NUMBER_OF_LANE/2;
 

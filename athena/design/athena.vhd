@@ -26,6 +26,7 @@ entity athena is
     FPGA_BUILD_DATE             : integer := 0;
     FPGA_IS_NPI_GOLDEN          : integer := 0;
     FPGA_DEVICE_ID              : integer := 0;
+    PCIE_NB_LANES               : integer := 2;   
     HISPI_NUMBER_OF_DATA_LANES  : integer := 6;
     HISPI_NUMBER_OF_CLOCK_LANES : integer := 2
     );
@@ -42,10 +43,10 @@ entity athena is
     pcie_clk_n : in std_logic;
     pcie_clk_p : in std_logic;
 
-    pcie_rx_n : in  std_logic_vector(0 downto 0);
-    pcie_rx_p : in  std_logic_vector(0 downto 0);
-    pcie_tx_n : out std_logic_vector(0 downto 0);
-    pcie_tx_p : out std_logic_vector(0 downto 0);
+    pcie_rx_n : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_rx_p : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_tx_n : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_tx_p : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- XGS sensor control interface
@@ -142,12 +143,12 @@ component system_pb_wrapper
     info_fpga_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
     info_fpga_sub_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
     led_out : out STD_LOGIC_VECTOR ( 1 downto 0 );
-    pcie_rxn : in STD_LOGIC;
-    pcie_rxp : in STD_LOGIC;
+    pcie_rxn : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_rxp : in STD_LOGIC_VECTOR ( 1 downto 0 );
     pcie_sys_clk : in STD_LOGIC;
     pcie_sys_rst_n : in STD_LOGIC;
-    pcie_txn : out STD_LOGIC;
-    pcie_txp : out STD_LOGIC;
+    pcie_txn : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_txp : out STD_LOGIC_VECTOR ( 1 downto 0 );
     ref_clk : in STD_LOGIC;
     hispi_hispi_data_p : in STD_LOGIC_VECTOR ( 5 downto 0 );
     hispi_hispi_clk_p : in STD_LOGIC_VECTOR ( 1 downto 0 );
@@ -223,14 +224,14 @@ begin
    
     led_out                 => led_out,
     
-    pcie_rxn             => pcie_rx_n(0),
-    --pcie_rxn(1)             => pcie_rx_n(1),
-    pcie_rxp             => pcie_rx_p(0),
-    --pcie_rxp(1)             => pcie_rx_p(1),
-    pcie_txn             => pcie_tx_n(0),
-    --pcie_txn(1)             => pcie_tx_n(1),
-    pcie_txp             => pcie_tx_p(0),
-    --pcie_txp(1)             => pcie_tx_p(1),
+    pcie_rxn(0)             => pcie_rx_n(0),
+    pcie_rxn(1)             => pcie_rx_n(1),
+    pcie_rxp(0)             => pcie_rx_p(0),
+    pcie_rxp(1)             => pcie_rx_p(1),
+    pcie_txn(0)             => pcie_tx_n(0),
+    pcie_txn(1)             => pcie_tx_n(1),
+    pcie_txp(0)             => pcie_tx_p(0),
+    pcie_txp(1)             => pcie_tx_p(1),
 
     pcie_sys_clk            => pcie_clk_100MHz,
     pcie_sys_rst_n          => sys_rst_n,

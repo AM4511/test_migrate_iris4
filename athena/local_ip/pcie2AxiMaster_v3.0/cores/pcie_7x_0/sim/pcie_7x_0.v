@@ -160,13 +160,13 @@ module pcie_7x_0 (
 );
 
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie_7x_mgt:1.0 pcie_7x_mgt txp" *)
-output wire [0 : 0] pci_exp_txp;
+output wire [1 : 0] pci_exp_txp;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie_7x_mgt:1.0 pcie_7x_mgt txn" *)
-output wire [0 : 0] pci_exp_txn;
+output wire [1 : 0] pci_exp_txn;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie_7x_mgt:1.0 pcie_7x_mgt rxp" *)
-input wire [0 : 0] pci_exp_rxp;
+input wire [1 : 0] pci_exp_rxp;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie_7x_mgt:1.0 pcie_7x_mgt rxn" *)
-input wire [0 : 0] pci_exp_rxn;
+input wire [1 : 0] pci_exp_rxn;
 (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.user_clk_out, ASSOCIATED_BUSIF m_axis_rx:s_axis_tx, FREQ_HZ 125000000, ASSOCIATED_RESET user_reset_out, PHASE 0.000, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.user_clk_out CLK" *)
 output wire user_clk_out;
@@ -376,21 +376,21 @@ input wire sys_rst_n;
     .c_dev_port_type("0"),
     .c_header_type("00"),
     .c_upstream_facing("TRUE"),
-    .max_lnk_wdt("000001"),
+    .max_lnk_wdt("000010"),
     .max_lnk_spd("1"),
     .c_gen1(1'B0),
     .pci_exp_int_freq(1),
     .c_pcie_fast_config(0),
-    .bar_0("FC000004"),
+    .bar_0("FC00000C"),
     .bar_1("FFFFFFFF"),
-    .bar_2("FFFFFC04"),
+    .bar_2("FFFFFC0C"),
     .bar_3("FFFFFFFF"),
     .bar_4("00000000"),
     .bar_5("00000000"),
     .xrom_bar("00000000"),
     .cost_table(1),
     .ven_id("102b"),
-    .dev_id("4687"),
+    .dev_id("5054"),
     .rev_id("01"),
     .subsys_ven_id("102b"),
     .subsys_id("0400"),
@@ -398,8 +398,8 @@ input wire sys_rst_n;
     .cardbus_cis_ptr("00000000"),
     .cap_ver("2"),
     .c_pcie_cap_slot_implemented("FALSE"),
-    .mps("000"),
-    .cmps("0"),
+    .mps("010"),
+    .cmps("2"),
     .ext_tag_fld_sup("FALSE"),
     .c_dev_control_ext_tag_default("FALSE"),
     .phantm_func_sup("00"),
@@ -413,14 +413,14 @@ input wire sys_rst_n;
     .c_cpl_timeout_ranges_sup("2"),
     .c_buf_opt_bma("FALSE"),
     .c_perf_level_high("FALSE"),
-    .c_tx_last_tlp("25"),
-    .c_rx_ram_limit("1FF"),
+    .c_tx_last_tlp("14"),
+    .c_rx_ram_limit("3FF"),
     .c_fc_ph("4"),
-    .c_fc_pd("32"),
+    .c_fc_pd("64"),
     .c_fc_nph("4"),
     .c_fc_npd("8"),
     .c_fc_cplh("72"),
-    .c_fc_cpld("114"),
+    .c_fc_cpld("338"),
     .c_cpl_inf("TRUE"),
     .c_cpl_infinite("TRUE"),
     .c_dll_lnk_actv_cap("FALSE"),
@@ -563,7 +563,7 @@ input wire sys_rst_n;
     .c_ur_prs_response("TRUE"),
     .c_silicon_rev("2"),
     .c_aer_cap_optional_err_support("07FF07"),
-    .LINK_CAP_MAX_LINK_WIDTH(1),
+    .LINK_CAP_MAX_LINK_WIDTH(2),
     .C_DATA_WIDTH(64),
     .PIPE_SIM("FALSE"),
     .PCIE_EXT_CLK("FALSE"),
@@ -599,10 +599,10 @@ input wire sys_rst_n;
     .int_qplllock_out(),
     .int_qplloutclk_out(),
     .int_qplloutrefclk_out(),
-    .int_pclk_sel_slave(1'B0),
+    .int_pclk_sel_slave(2'B0),
     .pipe_pclk_in(1'B0),
     .pipe_rxusrclk_in(1'B0),
-    .pipe_rxoutclk_in(1'B0),
+    .pipe_rxoutclk_in(2'B0),
     .pipe_dclk_in(1'B0),
     .pipe_userclk1_in(1'B1),
     .pipe_userclk2_in(1'B0),
@@ -804,7 +804,7 @@ input wire sys_rst_n;
     .pipe_rxprbscntreset(1'B0),
     .pipe_loopback(3'B0),
     .pipe_rxprbserr(),
-    .pipe_txinhibit(1'B0),
+    .pipe_txinhibit(2'B0),
     .pipe_rst_fsm(),
     .pipe_qrst_fsm(),
     .pipe_rate_fsm(),
@@ -843,10 +843,10 @@ input wire sys_rst_n;
     .pipe_debug_9(),
     .pipe_debug(),
     .ext_ch_gt_drpclk(),
-    .ext_ch_gt_drpaddr(9'B0),
-    .ext_ch_gt_drpen(1'B0),
-    .ext_ch_gt_drpdi(16'B0),
-    .ext_ch_gt_drpwe(1'B0),
+    .ext_ch_gt_drpaddr(18'B0),
+    .ext_ch_gt_drpen(2'B0),
+    .ext_ch_gt_drpdi(32'B0),
+    .ext_ch_gt_drpwe(2'B0),
     .ext_ch_gt_drpdo(),
     .ext_ch_gt_drprdy(),
     .pcie_drp_clk(1'B1),
