@@ -55,10 +55,10 @@
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
 pcie_7x_0 your_instance_name (
-  .pci_exp_txp(pci_exp_txp),                                                                // output wire [0 : 0] pci_exp_txp
-  .pci_exp_txn(pci_exp_txn),                                                                // output wire [0 : 0] pci_exp_txn
-  .pci_exp_rxp(pci_exp_rxp),                                                                // input wire [0 : 0] pci_exp_rxp
-  .pci_exp_rxn(pci_exp_rxn),                                                                // input wire [0 : 0] pci_exp_rxn
+  .pci_exp_txp(pci_exp_txp),                                                                // output wire [1 : 0] pci_exp_txp
+  .pci_exp_txn(pci_exp_txn),                                                                // output wire [1 : 0] pci_exp_txn
+  .pci_exp_rxp(pci_exp_rxp),                                                                // input wire [1 : 0] pci_exp_rxp
+  .pci_exp_rxn(pci_exp_rxn),                                                                // input wire [1 : 0] pci_exp_rxn
   .user_clk_out(user_clk_out),                                                              // output wire user_clk_out
   .user_reset_out(user_reset_out),                                                          // output wire user_reset_out
   .user_lnk_up(user_lnk_up),                                                                // output wire user_lnk_up

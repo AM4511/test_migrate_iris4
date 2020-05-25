@@ -6,6 +6,8 @@
 --               character to determine this alignment. The extraction is based
 --               on the detection of 4 consecutives idle_character. This module
 --               Also provide the associated pixel clock.
+--
+--  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)     
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -32,13 +34,14 @@ entity bit_split is
     -------------------------------------------------------------------------
     -- Register file interface
     -------------------------------------------------------------------------
-    rclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    aclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Pixel clock domain
     ---------------------------------------------------------------------------
-    pclk      : out std_logic;
-    pclk_data : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+    pclk            : in  std_logic;
+    pclk_bit_locked : out std_logic;
+    pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
     );
 end entity bit_split;
 
@@ -51,26 +54,29 @@ architecture rtl of bit_split is
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant HISPI_SHIFT_REGISTER_SIZE : integer := HISPI_WORDS_PER_SYNC_CODE * PIXEL_SIZE + PHY_OUTPUT_WIDTH;
 
-  signal hclk_shift_register    : std_logic_vector (HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
-  signal hclk_lsb_ptr           : integer range 0 to PIXEL_SIZE-1;
-  signal hclk_lsb_ptr_reg       : integer range 0 to 2*PIXEL_SIZE-1;
-  signal hclk_aligned_pixel_mux : std_logic_vector (PIXEL_SIZE- 1 downto 0);
-  signal hclk_idle_detected     : std_logic;
-  signal load_data              : std_logic := '0';
-  signal hclk_div2              : std_logic := '0';
+  signal hclk_phase               : std_logic             := '0';
+  signal hclk_shift_register      : std_logic_vector (HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal hclk_lsb_ptr             : integer range 0 to PIXEL_SIZE-1;
+  signal hclk_lsb_ptr_reg         : integer range 0 to 2*PIXEL_SIZE-1;
+  signal hclk_aligned_pixel_mux   : std_logic_vector (PIXEL_SIZE- 1 downto 0);
+  signal hclk_data                : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal hclk_idle_detected       : std_logic;
+  signal hclk_lock_cntr_max_value : unsigned(12 downto 0) := (others => '1');
+  signal hclk_lock_cntr           : unsigned(12 downto 0);
+  signal hclk_bit_locked          : std_logic;
 
-  
   -----------------------------------------------------------------------------
   -- Debug attributes
   -----------------------------------------------------------------------------
   attribute mark_debug of hclk_reset          : signal is "true";
   attribute mark_debug of hclk_data_lane      : signal is "true";
-  attribute mark_debug of rclk_idle_char      : signal is "true";
+  attribute mark_debug of hclk_data           : signal is "true";
+  attribute mark_debug of aclk_idle_char      : signal is "true";
   attribute mark_debug of hclk_shift_register : signal is "true";
   attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
-  attribute mark_debug of load_data           : signal is "true";
-  attribute mark_debug of hclk_div2           : signal is "true";
   attribute mark_debug of hclk_idle_detected  : signal is "true";
+  attribute mark_debug of hclk_lock_cntr      : signal is "true";
+  attribute mark_debug of hclk_bit_locked     : signal is "true";
 
 begin
 
@@ -111,7 +117,7 @@ begin
   -----------------------------------------------------------------------------
   -- Detect a sequence of 4 consecutives IDLE characters (4x12bits)
   -----------------------------------------------------------------------------
-  P_detect_idle_char : process (hclk_shift_register, rclk_idle_char) is
+  P_detect_idle_char : process (hclk_shift_register, aclk_idle_char) is
     variable msb                   : integer;
     variable lsb                   : integer;
     variable hclk_idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
@@ -119,7 +125,7 @@ begin
   begin
 
 
-    hclk_idle_quad_vector := rclk_idle_char & rclk_idle_char & rclk_idle_char & rclk_idle_char;
+    hclk_idle_quad_vector := aclk_idle_char & aclk_idle_char & aclk_idle_char & aclk_idle_char;
 
 
     ---------------------------------------------------------------------------
@@ -177,23 +183,21 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hclk_div2
-  -- Description : HiSPi clock divider. Divid by 2 the HiSPi clock. Since we
-  --               concatenate 2 x hclk_data_lane to form a full pixel, we provide
-  --               a divide by 2 clock to simplify the design.
+  -- Process     : P_hclk_phase
+  -- Description : HiSPi clock phase. 
   -----------------------------------------------------------------------------
-  P_hclk_div2 : process (hclk) is
+  P_hclk_phase : process (hclk) is
   begin
     if (rising_edge(hclk)) then
       if (hclk_reset = '1')then
-        hclk_div2 <= '0';
+        hclk_phase <= '0';
       else
         -- If the idle sequence is detected,
         -- we realign the clock phase with the pixel boundaries
         if (hclk_idle_detected = '1') then
-          hclk_div2 <= '1';
+          hclk_phase <= '1';
         else
-          hclk_div2 <= not hclk_div2;
+          hclk_phase <= not hclk_phase;
         end if;
       end if;
     end if;
@@ -201,23 +205,74 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_pclk_data
-  -- Description : Provide the correctly extracted pixel
+  -- Process     : P_hclk_lock_cntr
+  -- Description : 
   -----------------------------------------------------------------------------
-  P_pclk_data : process (hclk) is
+  P_hclk_lock_cntr : process (hclk) is
   begin
     if (rising_edge(hclk)) then
-      if (hclk_idle_detected = '1' or hclk_div2 = '0') then
-        pclk_data <= hclk_aligned_pixel_mux;
+      if (hclk_reset = '1') then
+        hclk_lock_cntr <= (others => '0');
+      else
+        if (hclk_phase = '0') then
+          if (hclk_idle_detected = '1') then
+            hclk_lock_cntr <= hclk_lock_cntr_max_value;
+          elsif (hclk_bit_locked = '1') then
+            hclk_lock_cntr <= hclk_lock_cntr - 1;
+          end if;
+        end if;
       end if;
     end if;
   end process;
 
 
   -----------------------------------------------------------------------------
-  -- Port remapping
+  -- Flag        : hclk_bit_locked
+  -- Description : If the hclk_lock_cntr > 0 we consider the lane is in
+  --               lock mode (we detect correctly the idle character).  
   -----------------------------------------------------------------------------
-  pclk <= hclk_div2;
+  hclk_bit_locked <= '1' when (hclk_lock_cntr > (hclk_lock_cntr'range => '0')) else
+                     '0';
+
+
+  P_pclk_bit_locked : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        pclk_bit_locked <= '0';
+      else
+        if (hclk_phase = '0') then
+          pclk_bit_locked <= hclk_bit_locked;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_data
+  -- Description : Provide the correctly extracted pixel
+  -----------------------------------------------------------------------------
+  P_hclk_data : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_idle_detected = '1' or hclk_phase = '0') then
+        hclk_data <= hclk_aligned_pixel_mux;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_data
+  -- Description : Provide the correctly extracted pixel on pclk
+  -----------------------------------------------------------------------------
+  P_pclk_data : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      pclk_data <= hclk_data;
+    end if;
+  end process;
 
 
 end architecture rtl;

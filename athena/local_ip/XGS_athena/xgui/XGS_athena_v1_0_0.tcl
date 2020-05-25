@@ -12,7 +12,6 @@ proc init_gui { IPINST } {
   set_property tooltip {Set the system clock period (units in ns)} ${SYS_CLK_PERIOD}
   set SENSOR_FREQ [ipgui::add_param $IPINST -name "SENSOR_FREQ" -parent ${Controller}]
   set_property tooltip {Sensor frequency (units in KHz)} ${SENSOR_FREQ}
-  ipgui::add_param $IPINST -name "KU706" -parent ${Controller}
   ipgui::add_param $IPINST -name "SIMULATION" -parent ${Controller}
 
   #Adding Page

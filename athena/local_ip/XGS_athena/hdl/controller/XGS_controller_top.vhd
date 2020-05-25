@@ -266,10 +266,8 @@ architecture arch_imp of XGS_controller_top is
 begin
 
 
-  
-
-
-
+-- To identify Zynq/Artix fpga  
+REGFILE.ACQ.DEBUG.FPGA_7c706 <= '0' when (G_KU706=0) else '1';
 
   
   

@@ -13,9 +13,10 @@ puts "Running ${myself}"
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : New axiHiSPi
 # 0.0.3 : New XGS_athena ip-core
+# 0.0.4 : First version that grab frames
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_SUB_MINOR_VERSION 4
 
 
 set BASE_NAME athena
@@ -89,7 +90,7 @@ set_property default_lib work [current_project]
 
 
 
-set_property  ip_repo_paths  [list ${IPCORES_DIR} ${LOCAL_IP_DIR}] [current_project]
+set_property  ip_repo_paths  [list ${LOCAL_IP_DIR} ${IPCORES_DIR} ] [current_project]
 update_ip_catalog
 
 set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
@@ -165,26 +166,34 @@ write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
 write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
 report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
-close_design
 
+ 	
+################################################
+# Run archive script
+################################################
+set TOTAL_SETUP_NEGATIVE_SLACK [get_property  STATS.TNS [get_runs $IMPL_RUN]]
+set TOTAL_HOLD_NEGATIVE_SLACK  [get_property  STATS.THS [get_runs $IMPL_RUN]]
+set TOTAL_FAILED_NETS          [get_property  STATS.FAILED_NETS [get_runs $IMPL_RUN]]
+set ROUTE_STATUS               [get_property  STATUS [get_runs $IMPL_RUN]]
 
-# A faire plus tard	
-#  	
-#  ################################################
-#  # Run Backend script
-#  ################################################
-#  set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-#  if [string match "route_design Complete, Failed Timing!" $route_status] {
-#       puts "** Timing error. You have to source $POST_PNR_SCRIPT manually"
-#  } elseif [string match "write_bitstream Complete!" $route_status] {
-#  	 puts "** Write_bitstream Complete. Generating image"
-#  	 source  $SDK_SCRIPT
-#   	 source  $ARCHIVE_SCRIPT
-#  } else {
-#  	 puts "** Run status: $route_status. Unknown status"
-#   }
+if {$TOTAL_FAILED_NETS > 0} {
+     # temporairement on genere toujours le .bit et .mcs (meme s'il y a des erreurs de timing)
+     # .bit + .MCS : Version SINGLE boot
+	 set UNSAFE_OUTPUT_DIR ./unsafe_output
+	 set UNSAFE_FIRMWARE   $UNSAFE_OUTPUT_DIR/unsafe_${PROJECT_NAME}
+	 file mkdir ${UNSAFE_OUTPUT_DIR}
+
+     write_bitstream -force ${UNSAFE_FIRMWARE}.bit
+     write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up 0x0 ${UNSAFE_FIRMWARE}.bit" ${UNSAFE_FIRMWARE}.bit.mcs
+
+	 puts "** Compilation contains timing errors. You have to source $ARCHIVE_SCRIPT manually"
+     close_design
+	 
+} elseif [string match "route_design Complete!" $ROUTE_STATUS] {
+	 puts "** Write_bitstream Completed. Releasing project in the pre-release folder"
+ 	 source  $ARCHIVE_SCRIPT
+} else {
+	 puts "** Route status: $ROUTE_STATUS  Unknown route status"
+}
 
 puts "** Done."
-
-
-

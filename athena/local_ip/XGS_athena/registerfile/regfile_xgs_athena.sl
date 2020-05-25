@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
-%  FDK IDE Version: 4.7.0_beta4
-%  Build ID: I20191220-1537
+%  FDK IDE Version: 4.7.0_beta3
+%  Build ID: I20191219-1127
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -353,6 +353,9 @@ Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+Register("sensor_x_origin", 0x1cc, 4, "null");
+		Field("sensor_x_origin", 9, 0, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("debug2_sel", 20, 16, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -368,6 +371,9 @@ Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
 Register("debug", 0x2a0, 4, "null");
+		Field("fpga_7c706", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Artix fpga", 0);
+			FieldValue("Zynq fpga", 1);
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
@@ -552,9 +558,28 @@ Register("ctrl", 0x400, 4, "null");
 		Field("sw_calib_serdes", 2, 2, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Initiate the SERDES TAP calibrartion ");
 			FieldValue("No effect", 0);
 			FieldValue("Initiate the calibration", 1);
+		Field("enable_data_path", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("enable_hispi", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("status", 0x404, 4, "Global status register");
+		Field("fsm", 31, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "HISPI  finite state machine status");
+			FieldValue("S_DISABLED", 0);
+			FieldValue("S_IDLE", 1);
+			FieldValue("S_RESET_PHY", 2);
+			FieldValue("S_INIT", 3);
+			FieldValue("S_START_CALIBRATION", 4);
+			FieldValue("S_CALIBRATE", 5);
+			FieldValue("S_PACK", 6);
+			FieldValue("S_FLUSH_PACKER", 7);
+			FieldValue("S_SOF", 8);
+			FieldValue("S_EOF", 9);
+			FieldValue("S_SOL", 10);
+			FieldValue("S_EOL", 11);
+			FieldValue("Reserved", 12);
+			FieldValue("Reserved", 13);
+			FieldValue("FSM error (Unknown state)", 14);
+			FieldValue("S_DONE", 15);
+		Field("phy_bit_locked_error", 3, 3, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_error", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
 		Field("calibration_error", 1, 1, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
 		Field("calibration_done", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
@@ -563,6 +588,9 @@ Register("idelayctrl_status", 0x408, 4, "null");
 		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "IDELAYCTRL PLL locked");
 			FieldValue("IDELAYCTRL PLL unlocked", 0);
 			FieldValue("IDELAYCTRL PLL locked", 1);
+
+Register("idle_character", 0x40c, 4, "null");
+		Field("value", 11, 0, "rd|wr", 0x0, 0x3A6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 variable lane_decoder_statusTags = UChar_Type[6];
 
@@ -576,12 +604,37 @@ Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("lane_decoder_status", 0x40c + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+	Register("lane_decoder_status", 0x410 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+			FieldValue("Pixel bit boundaries unlocked", 0);
+			FieldValue("Pixel bit boundaries locked", 1);
+		Field("phy_bit_locked_error", 13, 13, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+			FieldValue("Pixel bit boundaries unlocked", 0);
+			FieldValue("Pixel bit boundaries locked", 1);
+		Field("phy_bit_locked", 12, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Pixel bit boundaries unlocked", 0);
+			FieldValue("Pixel bit boundaries locked", 1);
 		Field("calibration_tap_value", 8, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("calibration_error", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("calibration_active", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("calibration_done", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+}
+
+variable tap_histogramTags = UChar_Type[6];
+
+for(i = 0; i < 6; i++)
+{
+	tap_histogramTags[i] = i;
+}
+
+Group("tap_histogram", "DECTAG", tap_histogramTags);
+
+for(i = 0; i < 6; i++)
+{
+
+	Register("tap_histogram", 0x428 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
+		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }
 
 variable lane_packer_statusTags = UChar_Type[3];
@@ -596,9 +649,19 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x424 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+	Register("lane_packer_status", 0x440 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
+
+Register("debug", 0x44c, 4, "null");
+		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("tap_lane_4", 24, 20, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("tap_lane_3", 19, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("tap_lane_2", 14, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("tap_lane_1", 9, 5, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("tap_lane_0", 4, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 

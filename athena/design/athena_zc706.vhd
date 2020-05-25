@@ -12,7 +12,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
-
+use ieee.std_logic_arith.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -784,18 +784,17 @@ ibuf_200MHz : IBUFDS
       );
 
 
-
-
   xsystem_wrapper : system_wrapper
     port map(
       FPGA_Info_board_info         => "0000",
-      FPGA_Info_fpga_build_id      => "00000000000000000000000000000000",
-      FPGA_Info_fpga_device_id     => "00000000",
+      FPGA_Info_fpga_build_id      => conv_std_logic_vector(FPGA_BUILD_DATE, 32),
+      FPGA_Info_fpga_device_id     => conv_std_logic_vector(FPGA_DEVICE_ID,   8),
       FPGA_Info_fpga_firmware_type => "00000000",
-      FPGA_Info_fpga_major_ver     => "00000000",
-      FPGA_Info_fpga_minor_ver     => "00000000",
-      FPGA_Info_fpga_sub_minor_ver => "00000000",
-    
+      FPGA_Info_fpga_major_ver     => conv_std_logic_vector(FPGA_MAJOR_VERSION,     8),
+      FPGA_Info_fpga_minor_ver     => conv_std_logic_vector(FPGA_MINOR_VERSION,     8),
+      FPGA_Info_fpga_sub_minor_ver => conv_std_logic_vector(FPGA_SUB_MINOR_VERSION, 8),
+
+
       I2C_if_i2c_sdata        => smbdata,
       I2C_if_i2c_slk          => smbclk,   
     

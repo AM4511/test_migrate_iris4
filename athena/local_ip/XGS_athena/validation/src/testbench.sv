@@ -5,6 +5,7 @@ import driver_pkg::*;
 import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
+
 module testbench();
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
 	parameter MUX_RATIO = 4;
@@ -17,12 +18,14 @@ module testbench();
 	parameter SIMULATION = 1;
 	parameter KU706 = 0;
 
-	parameter AXIL_DATA_WIDTH=32;
-	parameter AXIL_ADDR_WIDTH=11;
-
-	parameter GPIO_NUMB_INPUT=1;
-	parameter GPIO_NUMB_OUTPUT=1;
-	parameter MAX_PCIE_PAYLOAD_SIZE=128;
+	parameter AXIL_DATA_WIDTH = 32;
+	parameter AXIL_ADDR_WIDTH = 11;
+	parameter AXIS_DATA_WIDTH = 64;
+	parameter AXIS_USER_WIDTH = 4;
+	parameter GPIO_NUMB_INPUT = 1;
+	parameter GPIO_NUMB_OUTPUT = 1;
+	parameter MAX_PCIE_PAYLOAD_SIZE = 128;
+	parameter HISPI_IDLE_CHARACTER = 12'h3A6;
 
 	parameter BAR_XGS_ATHENA        = 32'h00000000;
 
@@ -56,7 +59,9 @@ module testbench();
 
 
 	// XGS_athena HiSPi
-	parameter HISPI_CTRL_OFFSET         = 'h0400;
+	parameter HISPI_CTRL_OFFSET                = 'h0400;
+	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
+	parameter HISPI_DEBUG_OFFSET               = 'h0434;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -126,11 +131,11 @@ module testbench();
 
 
 	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) axil_driver;
-	Cscoreboard scoreboard;
+	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
 
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) axil(axi_clk);
-	axi_stream_interface #(.T_DATA_WIDTH(64), .T_USER_WIDTH(4)) tx_axis(pcie_clk, pcie_reset_n);
+	axi_stream_interface #(.T_DATA_WIDTH(AXIS_DATA_WIDTH), .T_USER_WIDTH(AXIS_USER_WIDTH)) tx_axis(pcie_clk, pcie_reset_n);
 	io_interface #(GPIO_NUMB_INPUT,GPIO_NUMB_OUTPUT) if_gpio();
 	hispi_interface #(.NUMB_LANE(NUMBER_OF_LANE)) if_hispi(XGS_MODEL_EXTCLK);
 	tlp_interface tlp();
@@ -318,6 +323,7 @@ module testbench();
 			.anput_exposure_out(anput_exposure_out),
 			.anput_trig_rdy_out(anput_trig_rdy_out),
 			.led_out(led_out),
+			.debug_out(),
 			.s_axi_awaddr(axil.awaddr),
 			.s_axi_awprot(axil.awprot),
 			.s_axi_awvalid(axil.awvalid),
@@ -412,12 +418,12 @@ module testbench();
 
 		// Initialize classes
 		axil_driver = new(axil, if_gpio);
-
+	    scoreboard = new(tx_axis);
 
 		fork
 			// Start the scorboard
 			begin
-				//scoreboard.run();
+				scoreboard.run();
 			end
 
 			// Start the test
@@ -440,7 +446,7 @@ module testbench();
 				int KEEP_OUT_TRIG_END_sysclk;
 				int MLines;
 				int MLines_supressed;
-
+                bit [31:0] manual_calib;
 
 				// Parameters
 				longint fstart;
@@ -551,9 +557,9 @@ module testbench();
 				#200us;
 
 
-					///////////////////////////////////////////////////
-					// SPI read XGS model id
-					///////////////////////////////////////////////////
+				///////////////////////////////////////////////////
+				// SPI read XGS model id
+				///////////////////////////////////////////////////
 				$display("  4.1 SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
 				XGS_ReadSPI(SPI_MODEL_ID_OFFSET, data_rd);
 
@@ -646,10 +652,10 @@ module testbench();
 				#50us;
 
 
-					///////////////////////////////////////////////////
-					// XGS Controller : SENSOR REG_UPDATE =1
-					///////////////////////////////////////////////////
-					// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// XGS Controller : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
 				$display("  5.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
 				axil_driver.write(SENSOR_CTRL_OFFSET, 16'h0012);
 
@@ -722,9 +728,51 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control
 				///////////////////////////////////////////////////
-				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-				axil_driver.write(HISPI_CTRL_OFFSET, 'h0007);
+				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_CTRL_IDLE_CHARACTER_OFFSET);
+				axil_driver.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
+				///////////////////////////////////////////////////
+				// XGS HiSPi : Control
+				///////////////////////////////////////////////////
+				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				axil_driver.write(HISPI_CTRL_OFFSET, 'h0003);
+
+
+				///////////////////////////////////////////////////
+				// XGS HiSPi : DEBUG Enable manual calibration
+				///////////////////////////////////////////////////
+				$display("  6.2 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
+				manual_calib[4:0] = 5'b10101; // TAP lane 0
+				manual_calib[9:5] = 5'b10101; // TAP lane 1
+				manual_calib[14:10] = 5'b10101; // TAP lane 2
+				manual_calib[19:15] = 5'b10101; // TAP lane 3
+				manual_calib[24:20] = 5'b10101; // TAP lane 4
+				manual_calib[29:25] = 5'b10101; // TAP lane 5
+
+				manual_calib[30] = 1'b1; // Load calibration tap
+				manual_calib[31] = 1'b1; // Manual calib enable
+
+				axil_driver.write(HISPI_DEBUG_OFFSET, manual_calib);
+				#100ns
+
+
+				///////////////////////////////////////////////////
+				// XGS HiSPi : DEBUG Disable manual calibration
+				///////////////////////////////////////////////////
+				$display("  6.3 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
+				manual_calib = 'hC0000000; // Manual calib enable
+				axil_driver.write(HISPI_DEBUG_OFFSET, manual_calib);
+				#100ns
+				manual_calib = 'h00000000; // Manual calib enable
+				axil_driver.write(HISPI_DEBUG_OFFSET, manual_calib);
+				#100ns
+
+
+				///////////////////////////////////////////////////
+				// XGS HiSPi : Control Start a calibration
+				///////////////////////////////////////////////////
+				$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				axil_driver.write(HISPI_CTRL_OFFSET, 'h0007);
 
 
 				///////////////////////////////////////////////////
@@ -736,29 +784,13 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
-				ROI_YSTART = 0;
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 16;
 				EXPOSURE   = 50;  //in us
 				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
 				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
-
-
-				///////////////////////////////////////////////////
-				// XGS Controller : set ROI Y size
-				///////////////////////////////////////////////////
-				$display("  7.2 set ROI Y size @0x%h", SENSOR_ROI_Y_SIZE_OFFSET);
-				ROI_YSIZE  = 16;
 				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
-				///////////////////////////////////////////////////
-				// XGS Controller : set exposure time
-				///////////////////////////////////////////////////
-				$display("  7.3 set exposure time @0x%h", EXP_CTRL1_OFFSET);
 				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
-
-
-				///////////////////////////////////////////////////
-				// XGS Controller : set exposure time
-				///////////////////////////////////////////////////
-				$display("  7.4 set trigger @0x%h", GRAB_CTRL_OFFSET);
 				axil_driver.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
 
@@ -767,9 +799,9 @@ module testbench();
 				// Trigger ROI #2
 				///////////////////////////////////////////////////
 				$display("8. Trigger ROI #2");
-				ROI_YSTART = 8;
-				ROI_YSIZE  = 8;
-				EXPOSURE   = 50;  //in us
+				//ROI_YSTART = 8;
+				//ROI_YSIZE  = 8;
+				//EXPOSURE   = 50;  //in us
 				axil_driver.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
 				axil_driver.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
 				axil_driver.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz

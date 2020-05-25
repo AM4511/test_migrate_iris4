@@ -27,6 +27,7 @@ entity pcie2AxiMaster is
     PCIE_REV_ID           : integer               := 8#00#;
     PCIE_SUBSYS_VENDOR_ID : integer               := 16#102B#;
     PCIE_SUBSYS_ID        : integer               := 16#0000#;
+    PCIE_NB_LANES         : integer               := 1;
     AXI_ID_WIDTH          : integer range 1 to 8  := 6;
     ENABLE_DMA            : integer range 0 to 1  := 0;
     ENABLE_MTX_SPI        : integer range 0 to 1  := 0;
@@ -39,10 +40,10 @@ entity pcie2AxiMaster is
     ---------------------------------------------------------------------------
     pcie_sys_rst_n : in  std_logic;
     pcie_sys_clk   : in  std_logic;
-    pcie_rxp       : in  std_logic;
-    pcie_rxn       : in  std_logic;
-    pcie_txp       : out std_logic;
-    pcie_txn       : out std_logic;
+    pcie_rxp       : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_rxn       : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_txp       : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
+    pcie_txn       : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
 
     ---------------------------------------------------------------------------
     --  FPGA Info
@@ -225,13 +226,14 @@ architecture struct of pcie2AxiMaster is
       CFG_DEV_ID         : integer := 16#FFFF#;
       CFG_REV_ID         : integer := 16#FF#;
       CFG_SUBSYS_VEND_ID : integer := 16#102b#;
-      CFG_SUBSYS_ID      : integer := 16#FFFF#
+      CFG_SUBSYS_ID      : integer := 16#FFFF#;
+      PCIE_NB_LANES      : integer := 1
       );
     port (
-      pci_exp_txp                                : out std_logic_vector(0 downto 0);
-      pci_exp_txn                                : out std_logic_vector(0 downto 0);
-      pci_exp_rxp                                : in  std_logic_vector(0 downto 0);
-      pci_exp_rxn                                : in  std_logic_vector(0 downto 0);
+      pci_exp_txp                                : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
+      pci_exp_txn                                : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
+      pci_exp_rxp                                : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
+      pci_exp_rxn                                : in  std_logic_vector(PCIE_NB_LANES-1 downto 0);
       user_clk_out                               : out std_logic;
       user_reset_out                             : out std_logic;
       user_lnk_up                                : out std_logic;
@@ -800,10 +802,10 @@ architecture struct of pcie2AxiMaster is
   ---------------------------------------------------------------------------
   --  Xilinx PCIe core
   ---------------------------------------------------------------------------
-  signal pci_exp_txp                                : std_logic_vector(0 downto 0);
-  signal pci_exp_txn                                : std_logic_vector(0 downto 0);
-  signal pci_exp_rxp                                : std_logic_vector(0 downto 0);
-  signal pci_exp_rxn                                : std_logic_vector(0 downto 0);
+  --signal pci_exp_txp                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
+  --signal pci_exp_txn                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
+  --signal pci_exp_rxp                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
+  --signal pci_exp_rxn                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
   signal user_lnk_up                                : std_logic;
   signal user_app_rdy                               : std_logic;
   signal tx_buf_av                                  : std_logic_vector(5 downto 0);
@@ -986,9 +988,14 @@ begin
 
   -- Derived from pcie_sys_rst_n
   sys_reset_n <= not sys_reset;
-
+  
+  -- Connecting DMA requester   
   cfg_no_snoop_en  <= cfg_dcommand(11);
   cfg_relax_ord_en <= cfg_dcommand(4);
+
+  cfg_bus_mast_en  <= cfg_command(2);
+  cfg_setmaxpld    <= cfg_dcommand(7 downto 5);
+
 
   -- cfg_no_snoop_en  <= '0';
   -- cfg_relax_ord_en <= '0';
@@ -1107,10 +1114,10 @@ begin
   cfg_aer_interrupt_msgnum      <= "00000";  -- AER non-utilise
 
 
-  pcie_txp       <= pci_exp_txp(0);
-  pcie_txn       <= pci_exp_txn(0);
-  pci_exp_rxp(0) <= pcie_rxp;
-  pci_exp_rxn(0) <= pcie_rxn;
+  --pcie_txp       <= pci_exp_txp;
+  --pcie_txn       <= pci_exp_txn;
+  --pci_exp_rxp    <= pcie_rxp;
+  --pci_exp_rxn    <= pcie_rxn;
 
 
   -----------------------------------------------------------------------------
@@ -1124,13 +1131,14 @@ begin
       CFG_DEV_ID         => PCIE_DEVICE_ID,
       CFG_REV_ID         => PCIE_REV_ID,
       CFG_SUBSYS_VEND_ID => PCIE_SUBSYS_VENDOR_ID,
-      CFG_SUBSYS_ID      => PCIE_SUBSYS_ID
+      CFG_SUBSYS_ID      => PCIE_SUBSYS_ID,
+      PCIE_NB_LANES      => PCIE_NB_LANES
       )
     port map (
-      pci_exp_txp                                => pci_exp_txp,
-      pci_exp_txn                                => pci_exp_txn,
-      pci_exp_rxp                                => pci_exp_rxp,
-      pci_exp_rxn                                => pci_exp_rxn,
+      pci_exp_txp                                => pcie_txp,
+      pci_exp_txn                                => pcie_txn,
+      pci_exp_rxp                                => pcie_rxp,
+      pci_exp_rxn                                => pcie_rxn,
       user_clk_out                               => sys_clk,
       user_reset_out                             => sys_reset,
       user_lnk_up                                => user_lnk_up,  -- pcie_rx_axi

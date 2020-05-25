@@ -37,7 +37,8 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Register interface
     ---------------------------------------------------------------------------
-    number_of_row : in std_logic_vector(11 downto 0);
+    y_row_start : in std_logic_vector(11 downto 0);
+    y_row_stop  : in std_logic_vector(11 downto 0);
 
     ---------------------------------------------------------------------------
     -- Line buffer I/F
@@ -48,7 +49,7 @@ entity axi_line_streamer is
     line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
     line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
     line_buffer_count   : in  std_logic_vector(11 downto 0);
-    line_buffer_line_id : in  std_logic_vector(11 downto 0);
+    line_buffer_row_id  : in  std_logic_vector(11 downto 0);
     line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
     ---------------------------------------------------------------------------
@@ -63,9 +64,10 @@ entity axi_line_streamer is
 end axi_line_streamer;
 
 
-
 architecture rtl of axi_line_streamer is
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   type FSM_TYPE is (S_IDLE,
                     S_SOF,
@@ -91,6 +93,41 @@ architecture rtl of axi_line_streamer is
   signal buffer_ptr        : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
   signal start_transfer    : std_logic;
   signal m_axis_tvalid_int : std_logic;
+
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of m_wait            : signal is "true";
+  attribute mark_debug of state             : signal is "true";
+  attribute mark_debug of burst_length      : signal is "true";
+  attribute mark_debug of burst_cntr        : signal is "true";
+  attribute mark_debug of read_en           : signal is "true";
+  attribute mark_debug of read_data_valid   : signal is "true";
+  attribute mark_debug of first_row         : signal is "true";
+  attribute mark_debug of last_row          : signal is "true";
+  attribute mark_debug of buffer_ptr        : signal is "true";
+  attribute mark_debug of start_transfer    : signal is "true";
+  attribute mark_debug of m_axis_tvalid_int : signal is "true";
+
+  attribute mark_debug of streamer_en         : signal is "true";
+  attribute mark_debug of streamer_busy       : signal is "true";
+  attribute mark_debug of transfert_done      : signal is "true";
+  attribute mark_debug of init_frame          : signal is "true";
+  attribute mark_debug of clrBuffer           : signal is "true";
+  attribute mark_debug of line_buffer_ready   : signal is "true";
+  attribute mark_debug of line_buffer_read    : signal is "true";
+  attribute mark_debug of line_buffer_ptr     : signal is "true";
+  attribute mark_debug of line_buffer_address : signal is "true";
+  attribute mark_debug of line_buffer_count   : signal is "true";
+  attribute mark_debug of line_buffer_row_id  : signal is "true";
+  attribute mark_debug of line_buffer_data    : signal is "true";
+  attribute mark_debug of m_axis_tready       : signal is "true";
+  attribute mark_debug of m_axis_tvalid       : signal is "true";
+  attribute mark_debug of m_axis_tuser        : signal is "true";
+  attribute mark_debug of m_axis_tlast        : signal is "true";
+  attribute mark_debug of m_axis_tdata        : signal is "true";
+  attribute mark_debug of y_row_start         : signal is "true";
+  attribute mark_debug of y_row_stop          : signal is "true";
 
 
 begin
@@ -148,26 +185,11 @@ begin
     end if;
   end process;
 
+  
+  last_row <= '1' when (line_buffer_row_id = y_row_stop) else
+              '0';
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_last_row
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_last_row : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
-        last_row <= '0';
-      else
-        if (init_frame = '1') then
-          last_row <= '0';
-        elsif (state = S_SOL and (std_logic_vector(unsigned(number_of_row)-1) = line_buffer_line_id)) then
-          last_row <= '1';
-        end if;
-      end if;
-    end if;
-  end process;
-
+ 
 
   -----------------------------------------------------------------------------
   -- Process     : P_burst_length

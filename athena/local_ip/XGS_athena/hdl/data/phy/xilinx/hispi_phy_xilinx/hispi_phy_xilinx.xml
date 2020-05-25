@@ -628,11 +628,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:09 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:06:36 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:88a71145</spirit:value>
+            <spirit:value>9:8b73fe76</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -648,11 +648,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:59 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:07:04 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:88a71145</spirit:value>
+            <spirit:value>9:8b73fe76</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -663,7 +663,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:88a71145</spirit:value>
+            <spirit:value>9:8b73fe76</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -679,11 +679,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:59 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:07:04 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:88a71145</spirit:value>
+            <spirit:value>9:8b73fe76</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -699,11 +699,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:59 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:07:04 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:3fdde466</spirit:value>
+            <spirit:value>9:34198775</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -719,11 +719,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:59 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:07:04 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:3fdde466</spirit:value>
+            <spirit:value>9:34198775</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -737,11 +737,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Apr 30 17:04:59 UTC 2020</spirit:value>
+            <spirit:value>Wed May 20 17:07:04 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:88a71145</spirit:value>
+            <spirit:value>9:8b73fe76</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -2094,7 +2094,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>C_DEVICE_FAMILY</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_DEVICE_FAMILY" spirit:order="44">zynq</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_DEVICE_FAMILY" spirit:order="44">artix7</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>C_NOTES</spirit:name>
@@ -2374,6 +2374,27 @@
       <spirit:enumeration spirit:text="Variable loadable">VAR_LOADABLE</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
+      <spirit:name>choice_pairs_6355f26a</spirit:name>
+      <spirit:enumeration spirit:text="DIFF HSTL I">DIFF_HSTL_I</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL135 R">DIFF_SSTL135_R</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF MOBILE DDR">DIFF_MOBILE_DDR</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL15 R">DIFF_SSTL15_R</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF HSTL I 18">DIFF_HSTL_I_18</spirit:enumeration>
+      <spirit:enumeration spirit:text="LVDS 25">LVDS_25</spirit:enumeration>
+      <spirit:enumeration spirit:text="TMDS 33">TMDS_33</spirit:enumeration>
+      <spirit:enumeration spirit:text="MINI LVDS 25">MINI_LVDS_25</spirit:enumeration>
+      <spirit:enumeration spirit:text="PPDS 25">PPDS_25</spirit:enumeration>
+      <spirit:enumeration spirit:text="BLVDS 25">BLVDS_25</spirit:enumeration>
+      <spirit:enumeration spirit:text="RSDS 25">RSDS_25</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF HSTL II">DIFF_HSTL_II</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF HSTL II 18">DIFF_HSTL_II_18</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL135">DIFF_SSTL135</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL15">DIFF_SSTL15</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL18 I">DIFF_SSTL18_I</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF SSTL18 II">DIFF_SSTL18_II</spirit:enumeration>
+      <spirit:enumeration spirit:text="DIFF HSUL 12">DIFF_HSUL_12</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
       <spirit:name>choice_pairs_9e328cea</spirit:name>
       <spirit:enumeration spirit:text="None">NONE</spirit:enumeration>
       <spirit:enumeration spirit:text="Fixed">FIXED</spirit:enumeration>
@@ -2420,39 +2441,6 @@
       <spirit:enumeration spirit:text="Stay at limit">STAY_AT_LIMIT</spirit:enumeration>
       <spirit:enumeration spirit:text="Wrap around">WRAPAROUND</spirit:enumeration>
       <spirit:enumeration spirit:text="Not applicable">NOT_APP</spirit:enumeration>
-    </spirit:choice>
-    <spirit:choice>
-      <spirit:name>choice_pairs_db6b0662</spirit:name>
-      <spirit:enumeration spirit:text="DIFF HSTL I">DIFF_HSTL_I</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL135 R">DIFF_SSTL135_R</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF MOBILE DDR">DIFF_MOBILE_DDR</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL15 R">DIFF_SSTL15_R</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL I 18">DIFF_HSTL_I_18</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL I DCI">DIFF_HSTL_I_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL I DCI 18">DIFF_HSTL_I_DCI_18</spirit:enumeration>
-      <spirit:enumeration spirit:text="LVDS 25">LVDS_25</spirit:enumeration>
-      <spirit:enumeration spirit:text="TMDS 33">TMDS_33</spirit:enumeration>
-      <spirit:enumeration spirit:text="MINI LVDS 25">MINI_LVDS_25</spirit:enumeration>
-      <spirit:enumeration spirit:text="PPDS 25">PPDS_25</spirit:enumeration>
-      <spirit:enumeration spirit:text="BLVDS 25">BLVDS_25</spirit:enumeration>
-      <spirit:enumeration spirit:text="LVDS">LVDS</spirit:enumeration>
-      <spirit:enumeration spirit:text="RSDS 25">RSDS_25</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL II">DIFF_HSTL_II</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL II 18">DIFF_HSTL_II_18</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL II DCI">DIFF_HSTL_II_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSTL II DCI 18">DIFF_HSTL_II_DCI_18</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL12">DIFF_SSTL12</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL12 DCI">DIFF_SSTL12_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL135">DIFF_SSTL135</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL135 DCI">DIFF_SSTL135_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL15">DIFF_SSTL15</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL15 DCI">DIFF_SSTL15_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL18 I">DIFF_SSTL18_I</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL18 I DCI">DIFF_SSTL18_I_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL18 II">DIFF_SSTL18_II</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF SSTL18 II DCI">DIFF_SSTL18_II_DCI</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSUL 12">DIFF_HSUL_12</spirit:enumeration>
-      <spirit:enumeration spirit:text="DIFF HSUL 12 DCI">DIFF_HSUL_12_DCI</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
       <spirit:name>choice_pairs_fef3465d</spirit:name>
@@ -2540,7 +2528,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>BUS_IO_STD</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.BUS_IO_STD" spirit:choiceRef="choice_pairs_db6b0662" spirit:order="6">LVDS_25</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.BUS_IO_STD" spirit:choiceRef="choice_pairs_6355f26a" spirit:order="6">LVDS_25</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>USE_PHASE_DETECTOR</spirit:name>
@@ -2637,7 +2625,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>SELIO_CLK_IO_STD</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.SELIO_CLK_IO_STD" spirit:choiceRef="choice_pairs_db6b0662" spirit:order="30">LVDS_25</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.SELIO_CLK_IO_STD" spirit:choiceRef="choice_pairs_6355f26a" spirit:order="30">LVDS_25</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>CLK_BUF</spirit:name>
@@ -2707,7 +2695,7 @@
     <spirit:parameter>
       <spirit:name>CLK_FWD_IO_STD</spirit:name>
       <spirit:displayName>Standard</spirit:displayName>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.CLK_FWD_IO_STD" spirit:choiceRef="choice_pairs_db6b0662" spirit:order="46">LVDS_25</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.CLK_FWD_IO_STD" spirit:choiceRef="choice_pairs_6355f26a" spirit:order="46">LVDS_25</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>DDR_CLK_BUF</spirit:name>
