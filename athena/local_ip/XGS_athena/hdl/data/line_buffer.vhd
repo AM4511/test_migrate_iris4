@@ -51,8 +51,8 @@ entity line_buffer is
     ------------------------------------------------------------------------------------
     lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
     lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-    buff_info_en    : in  std_logic;
-    buff_info       : in  std_logic_vector(3 downto 0);
+    -- buff_info_en    : in  std_logic;
+    -- buff_info       : in  std_logic_vector(3 downto 0);
     buff_write      : in  std_logic;
     buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
     buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);

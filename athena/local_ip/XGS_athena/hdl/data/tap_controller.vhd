@@ -2,9 +2,6 @@
 -- MODULE        : tap_controller
 --
 -- DESCRIPTION   : Calculate the tap delay for calibrating the SERDES lanes
---
--- CLOCK DOMAINS : pclk
---                 
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -16,6 +13,9 @@ entity tap_controller is
     PIXEL_SIZE : integer := 12
     );
   port (
+    ---------------------------------------------------------------------------
+    -- Pixel clock domain (pclk)
+    ---------------------------------------------------------------------------
     pclk                : in  std_logic;
     pclk_reset          : in  std_logic;
     pclk_pixel          : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
