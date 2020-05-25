@@ -142,6 +142,11 @@ set_property generic  ${generic_list} ${HDL_FILESET}
 
 
 ################################################
+# To evaluate runtime
+################################################
+set t0 [clock clicks -millisec]
+
+################################################
 # Generate synthesis run
 ################################################
 reset_run   ${SYNTH_RUN}
@@ -195,5 +200,7 @@ if {$TOTAL_FAILED_NETS > 0} {
 } else {
 	 puts "** Route status: $ROUTE_STATUS  Unknown route status"
 }
+
+puts stderr "Runtime [expr {([clock clicks -millisec]-$t0)/60000.}] min" ;# RS
 
 puts "** Done."
