@@ -358,7 +358,7 @@ begin
     if (rising_edge(sclk)) then
 
       if (load_data = '1') then
-        if (odd_line = '0') then
+        if (odd_line = '1') then
           pix_packer(15 downto 0)  <= top_fifo_read_data(15 downto 0);
           pix_packer(31 downto 16) <= bottom_fifo_read_data(15 downto 0);
           pix_packer(47 downto 32) <= top_fifo_read_data(31 downto 16);
