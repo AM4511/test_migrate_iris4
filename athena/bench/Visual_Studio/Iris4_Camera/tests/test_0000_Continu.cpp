@@ -40,6 +40,8 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
 
+	M_UINT32 XGSTestMode = 0;
+
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 	DMAParamStruct*    DMAParams    = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
@@ -321,6 +323,34 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				break;
 
+
+			case 't':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(1000);
+
+				
+					XGS_Ctrl->WriteSPI(0x3e10, 0x0); //Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x0); //Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x0); //Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x0); //Test data Green-B channel
+
+					XGS_Ctrl->WriteSPI(0x3e0e, 3); //fade to gray
+					//XGS_Ctrl->WriteSPI(0x3e0e, 4); //diagonal gray x1
+					//XGS_Ctrl->WriteSPI(0x3e0e, 5); //diagonal gray x3		
+					//XGS_Ctrl->WriteSPI(0x3e0e, 1); //Solid color
+
+			
+				break;
+
+
+			case 'i':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(1000);
+			    XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal operation image
+			    XGSTestMode = 0;
+
+
+				break;
 
 			}
 
