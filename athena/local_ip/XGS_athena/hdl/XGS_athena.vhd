@@ -650,8 +650,8 @@ begin
       )
     port map(
       regfile      => regfile,
-      sclk         => aclk,             -- TBD change to SCLK if required
-      sclk_reset_n => aclk_reset_n,  -- TBD change to SCLK_RESET_N if required
+      sclk         => sclk,          -- TBD change to SCLK if required
+      sclk_reset_n => sclk_reset_n,  -- TBD change to SCLK_RESET_N if required
       sclk_tready  => sclk_tready,
       sclk_tvalid  => sclk_tvalid,
       sclk_tuser   => sclk_tuser,

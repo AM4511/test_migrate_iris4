@@ -58,8 +58,9 @@ entity hispi_phy is
     sclk       : in std_logic;
     sclk_reset : in std_logic;
 
-    sclk_reset_phy         : in std_logic;
-    sclk_start_calibration : in std_logic;
+    sclk_reset_phy         : in  std_logic;
+    sclk_start_calibration : in  std_logic;
+    sclk_calibration_done  : out std_logic;
 
     -- Read fifo interface
     sclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -203,6 +204,7 @@ architecture rtl of hispi_phy is
   signal hclk_reset                   : std_logic      := '1';
   signal hclk_state                   : FSM_STATE_TYPE := S_IDLE;
   signal hclk_start_calibration       : std_logic;
+  signal hclk_calibration_done        : std_logic;
   signal hclk_serdes_data             : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
   signal hclk_lane_data               : LANE_DATA_ARRAY;
   signal hclk_manual_calibration_en   : std_logic;
@@ -394,15 +396,15 @@ begin
   -----------------------------------------------------------------------------
   G_TOP_PHY_MAPPING : if (PHY_ID = 0) generate
     rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_0;
-    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_2;
-    rclk_manual_calibration_tap(24 downto 20) <= regfile.HISPI.DEBUG.TAP_LANE_4;
+    rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_2;
+    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_4;
   end generate;
 
 
   G_BOTTOM_PHY_MAPPING : if (PHY_ID > 0) generate
     rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_1;
-    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_3;
-    rclk_manual_calibration_tap(24 downto 20) <= regfile.HISPI.DEBUG.TAP_LANE_5;
+    rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_3;
+    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_5;
   end generate;
 
 
@@ -433,6 +435,24 @@ begin
       bClk  => hclk,
       bClr  => hclk_reset,
       bDout => hclk_start_calibration,
+      bRise => open,
+      bFall => open
+      );
+
+  -----------------------------------------------------------------------------
+  -- Module      : M_sclk_calibration_done
+  -- Description : Resynchronize 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  M_sclk_calibration_done : mtx_resync
+    port map (
+      aclk  => hclk,
+      aClr  => hclk_reset,
+      aDin  => hclk_calibration_done,
+      bClk  => sclk,
+      bClr  => sclk_reset,
+      bDout => sclk_calibration_done,
       bRise => open,
       bFall => open
       );
@@ -488,6 +508,28 @@ begin
   G_cal_tap_value : for i in 0 to LANE_PER_PHY-1 generate
     regfile.HISPI.LANE_DECODER_STATUS(2*i+PHY_ID).CALIBRATION_TAP_VALUE <= rclk_cal_tap_value(5*i+4 downto 5*i);
   end generate G_cal_tap_value;
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_calibration_done
+  -- Description : 
+  -----------------------------------------------------------------------------
+
+  P_hclk_calibration_done : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_calibration_done <= '0';
+      else
+        if (hclk_state = S_INIT) then
+          hclk_calibration_done <= '0';
+        elsif (hclk_state = S_DONE) then
+          hclk_calibration_done <= '1';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------

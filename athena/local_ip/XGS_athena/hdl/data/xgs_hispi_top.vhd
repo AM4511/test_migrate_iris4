@@ -119,6 +119,7 @@ architecture rtl of xgs_hispi_top is
 
       sclk_reset_phy         : in std_logic;
       sclk_start_calibration : in std_logic;
+      sclk_calibration_done  : out std_logic;
 
       -- Read fifo interface
       sclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -331,10 +332,10 @@ architecture rtl of xgs_hispi_top is
   signal sclk_calibration_req         : std_logic;
   signal sclk_calibration_pending     : std_logic;
   signal sclk_start_calibration       : std_logic;
+  signal sclk_calibration_done        : std_logic_vector(1 downto 0);
   signal sclk_cal_error               : std_logic_vector(2*LANE_PER_PHY-1 downto 0);
   signal sclk_xgs_ctrl_calib_req_Meta : std_logic;
   signal sclk_xgs_ctrl_calib_req      : std_logic;
-  signal sclk_calibration_done        : std_logic_vector(1 downto 0);
   signal top_cal_done                 : std_logic;
 
   signal top_lanes_p                 : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -431,9 +432,6 @@ begin
   -----------------------------------------------------------------------------
   -- Registerfile mapping
   -----------------------------------------------------------------------------
-
-  regfile.SYSTEM.VERSION.HW <= std_logic_vector(to_unsigned(HW_VERSION, 8));
-
   sclk_reset <= (not sclk_reset_n) or regfile.HISPI.CTRL.SW_CLR_HISPI;
 
   enable_hispi <= regfile.HISPI.CTRL.ENABLE_HISPI;
@@ -657,6 +655,7 @@ begin
       sclk_reset                => sclk_reset,
       sclk_reset_phy            => sclk_reset_phy,
       sclk_start_calibration    => sclk_start_calibration,
+      sclk_calibration_done     => sclk_calibration_done(0),
       sclk_fifo_read_en         => top_fifo_read_en,
       sclk_fifo_empty           => top_fifo_empty,
       sclk_fifo_read_data_valid => top_fifo_read_data_valid,
@@ -692,6 +691,7 @@ begin
       sclk_reset                => sclk_reset,
       sclk_reset_phy            => sclk_reset_phy,
       sclk_start_calibration    => sclk_start_calibration,
+      sclk_calibration_done     => sclk_calibration_done(1),
       sclk_fifo_read_en         => bottom_fifo_read_en,
       sclk_fifo_empty           => bottom_fifo_empty,
       sclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
@@ -793,25 +793,25 @@ begin
   -- Process     : P_sclk_calibration_done
   -- Description : 
   -----------------------------------------------------------------------------
-  P_sclk_calibration_done : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1')then
-        sclk_calibration_done <= "00";
-      else
-        if (state = S_IDLE and sclk_calibration_req = '1') then
-          sclk_calibration_done <= "00";
-        elsif (state = S_CALIBRATE) then
-          if (top_cal_done = '1') then
-            sclk_calibration_done(0) <= '1';
-          end if;
-          if (bottom_cal_done = '1') then
-            sclk_calibration_done(1) <= '1';
-          end if;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_sclk_calibration_done : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1')then
+  --       sclk_calibration_done <= "00";
+  --     else
+  --       if (state = S_IDLE and sclk_calibration_req = '1') then
+  --         sclk_calibration_done <= "00";
+  --       elsif (state = S_CALIBRATE) then
+  --         if (top_cal_done = '1') then
+  --           sclk_calibration_done(0) <= '1';
+  --         end if;
+  --         if (bottom_cal_done = '1') then
+  --           sclk_calibration_done(1) <= '1';
+  --         end if;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -1122,8 +1122,6 @@ begin
         regfile                     => regfile,
         sclk                        => sclk,
         sclk_reset                  => sclk_reset,
-        -- packer_fifo_overrun         => packer_fifo_overrun(i),
-        -- packer_fifo_underrun        => packer_fifo_underrun(i),
         enable                      => packer_enable,
         init_packer                 => init_lane_packer,
         odd_line                    => row_id(0),
@@ -1146,8 +1144,6 @@ begin
         bottom_fifo_empty           => bottom_fifo_empty(i),
         bottom_fifo_read_data_valid => bottom_fifo_read_data_valid(i),
         bottom_fifo_read_data       => bottom_fifo_read_data(i),
-        -- lane_packer_info_en         => lane_packer_info_en(i),
-        -- lane_packer_info            => lane_packer_info(i),
         lane_packer_ack             => lane_packer_ack(i),
         lane_packer_req             => lane_packer_req(i),
         lane_packer_write           => lane_packer_write(i),

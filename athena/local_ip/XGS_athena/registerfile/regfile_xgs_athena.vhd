@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/21 14:48:43
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0xFB33FF50
+-- Created on          : 2020/05/26 12:37:24
+-- Created by          : amarchan
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x6C5A2E71
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3767,11 +3767,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/21 14:48:43
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0xFB33FF50
+-- Created on          : 2020/05/26 12:37:24
+-- Created by          : amarchan
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x6C5A2E71
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4756,10 +4756,11 @@ regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
 ------------------------------------------------------------------------------------------
--- Field name: HW(7 downto 0)
--- Field type: RO
+-- Field name: HW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(7 downto 0) <= regfile.SYSTEM.VERSION.HW;
+rb_SYSTEM_VERSION(7 downto 0) <= std_logic_vector(to_unsigned(integer(0),8));
+regfile.SYSTEM.VERSION.HW <= rb_SYSTEM_VERSION(7 downto 0);
 
 
 
