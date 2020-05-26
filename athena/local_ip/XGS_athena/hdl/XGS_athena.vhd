@@ -27,11 +27,11 @@ entity XGS_athena is
     ---------------------------------------------------------------------------
     -- 
     ---------------------------------------------------------------------------
-    axi_clk     : in std_logic;
-    axi_reset_n : in std_logic;
+    aclk         : in std_logic;
+    aclk_reset_n : in std_logic;
 
-    -- sclk         : in std_logic;
-    -- sclk_reset_n : in std_logic;
+    sclk         : in std_logic;
+    sclk_reset_n : in std_logic;
 
     ---------------------------------------------------------------------------
     -- Interrupts
@@ -39,7 +39,7 @@ entity XGS_athena is
     irq : out std_logic_vector(7 downto 0);
 
     ------------------------------------------
-    -- CMOS INTERFACE TO SENSOR
+    -- CMOS interface to sensor
     ------------------------------------------
     xgs_power_good : in  std_logic;
     xgs_clk_pll_en : out std_logic;
@@ -60,7 +60,7 @@ entity XGS_athena is
     xgs_monitor2 : in std_logic;
 
     ---------------------------------------------------------------------------
-    --  OUTPUTS 
+    --  Outputs 
     ---------------------------------------------------------------------------
     anput_ext_trig : in std_logic;
 
@@ -71,32 +71,32 @@ entity XGS_athena is
     led_out : out std_logic_vector(1 downto 0);  -- led_out(0) --> vert, led_out(1) --> rouge
 
     ---------------------------------------------------------------------------
-    --  DEBUG OUTPUTS 
+    --  Debug interface 
     ---------------------------------------------------------------------------
     debug_out : out std_logic_vector(3 downto 0);  -- To debug pins jmansill
 
     ---------------------------------------------------------------------------
     -- AXI Slave interface (Registerfile)
     ---------------------------------------------------------------------------
-    s_axi_awaddr  : in  std_logic_vector(10 downto 0);
-    s_axi_awprot  : in  std_logic_vector(2 downto 0);
-    s_axi_awvalid : in  std_logic;
-    s_axi_awready : out std_logic;
-    s_axi_wdata   : in  std_logic_vector(31 downto 0);
-    s_axi_wstrb   : in  std_logic_vector(3 downto 0);
-    s_axi_wvalid  : in  std_logic;
-    s_axi_wready  : out std_logic;
-    s_axi_bresp   : out std_logic_vector(1 downto 0);
-    s_axi_bvalid  : out std_logic;
-    s_axi_bready  : in  std_logic;
-    s_axi_araddr  : in  std_logic_vector(10 downto 0);
-    s_axi_arprot  : in  std_logic_vector(2 downto 0);
-    s_axi_arvalid : in  std_logic;
-    s_axi_arready : out std_logic;
-    s_axi_rdata   : out std_logic_vector(31 downto 0);
-    s_axi_rresp   : out std_logic_vector(1 downto 0);
-    s_axi_rvalid  : out std_logic;
-    s_axi_rready  : in  std_logic;
+    aclk_awaddr  : in  std_logic_vector(10 downto 0);
+    aclk_awprot  : in  std_logic_vector(2 downto 0);
+    aclk_awvalid : in  std_logic;
+    aclk_awready : out std_logic;
+    aclk_wdata   : in  std_logic_vector(31 downto 0);
+    aclk_wstrb   : in  std_logic_vector(3 downto 0);
+    aclk_wvalid  : in  std_logic;
+    aclk_wready  : out std_logic;
+    aclk_bresp   : out std_logic_vector(1 downto 0);
+    aclk_bvalid  : out std_logic;
+    aclk_bready  : in  std_logic;
+    aclk_araddr  : in  std_logic_vector(10 downto 0);
+    aclk_arprot  : in  std_logic_vector(2 downto 0);
+    aclk_arvalid : in  std_logic;
+    aclk_arready : out std_logic;
+    aclk_rdata   : out std_logic_vector(31 downto 0);
+    aclk_rresp   : out std_logic_vector(1 downto 0);
+    aclk_rvalid  : out std_logic;
+    aclk_rready  : in  std_logic;
 
 
     ---------------------------------------------------------------------------
@@ -109,10 +109,11 @@ entity XGS_athena is
     hispi_io_data_n : in std_logic_vector(NUMBER_OF_LANE - 1 downto 0);
 
     ---------------------------------------------------------------------
-    -- PCIe Configuration space info (axi_clk)
+    -- PCIe Configuration space info (aclk)
     ---------------------------------------------------------------------
     cfg_bus_mast_en : in std_logic;
     cfg_setmaxpld   : in std_logic_vector(2 downto 0);
+
 
     ---------------------------------------------------------------------
     -- TLP Interface
@@ -242,14 +243,16 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       -- AXI Slave interface
       ---------------------------------------------------------------------------
-      axi_clk     : in std_logic;
-      axi_reset_n : in std_logic;
+      sclk         : in std_logic;
+      sclk_reset_n : in std_logic;
 
 
       ---------------------------------------------------------------------------
       -- Register file interface 
       ---------------------------------------------------------------------------
-      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
+      rclk         : in    std_logic;
+      rclk_reset_n : in    std_logic;
+      regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
       ---------------------------------------------------------------------------
       -- XGS Controller I/F
@@ -272,11 +275,11 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       -- AXI Master stream interface
       ---------------------------------------------------------------------------
-      m_axis_tready : in  std_logic;
-      m_axis_tvalid : out std_logic;
-      m_axis_tuser  : out std_logic_vector(3 downto 0);
-      m_axis_tlast  : out std_logic;
-      m_axis_tdata  : out std_logic_vector(63 downto 0)
+      sclk_tready : in  std_logic;
+      sclk_tvalid : out std_logic;
+      sclk_tuser  : out std_logic_vector(3 downto 0);
+      sclk_tlast  : out std_logic;
+      sclk_tdata  : out std_logic_vector(63 downto 0)
       );
   end component;
 
@@ -494,7 +497,7 @@ architecture struct of XGS_athena is
 
   end component;
 
-  
+
   -----------------------------------------------------------------------------
   -- HW_VERSION :
   --
@@ -559,27 +562,27 @@ begin
       C_S_AXI_ADDR_WIDTH => C_S_AXI_ADDR_WIDTH
       )
     port map(
-      axi_clk           => axi_clk,
-      axi_reset_n       => axi_reset_n,
-      axi_awvalid       => s_axi_awvalid,
-      axi_awready       => s_axi_awready,
-      axi_awprot        => s_axi_awprot,
-      axi_awaddr        => s_axi_awaddr,
-      axi_wvalid        => s_axi_wvalid,
-      axi_wready        => s_axi_wready,
-      axi_wstrb         => s_axi_wstrb,
-      axi_wdata         => s_axi_wdata,
-      axi_bready        => s_axi_bready,
-      axi_bvalid        => s_axi_bvalid,
-      axi_bresp         => s_axi_bresp,
-      axi_arvalid       => s_axi_arvalid,
-      axi_arready       => s_axi_arready,
-      axi_arprot        => s_axi_arprot,
-      axi_araddr        => s_axi_araddr,
-      axi_rready        => s_axi_rready,
-      axi_rvalid        => s_axi_rvalid,
-      axi_rdata         => s_axi_rdata,
-      axi_rresp         => s_axi_rresp,
+      axi_clk           => aclk,
+      axi_reset_n       => aclk_reset_n,
+      axi_awvalid       => aclk_awvalid,
+      axi_awready       => aclk_awready,
+      axi_awprot        => aclk_awprot,
+      axi_awaddr        => aclk_awaddr,
+      axi_wvalid        => aclk_wvalid,
+      axi_wready        => aclk_wready,
+      axi_wstrb         => aclk_wstrb,
+      axi_wdata         => aclk_wdata,
+      axi_bready        => aclk_bready,
+      axi_bvalid        => aclk_bvalid,
+      axi_bresp         => aclk_bresp,
+      axi_arvalid       => aclk_arvalid,
+      axi_arready       => aclk_arready,
+      axi_arprot        => aclk_arprot,
+      axi_araddr        => aclk_araddr,
+      axi_rready        => aclk_rready,
+      axi_rvalid        => aclk_rvalid,
+      axi_rdata         => aclk_rdata,
+      axi_rresp         => aclk_rresp,
       reg_read          => reg_read,
       reg_write         => reg_write,
       reg_addr          => reg_addr,
@@ -597,8 +600,8 @@ begin
   -----------------------------------------------------------------------------
   xregfile_xgs_athena : regfile_xgs_athena
     port map(
-      resetN        => axi_reset_n,
-      sysclk        => axi_clk,
+      resetN        => aclk_reset_n,
+      sysclk        => aclk,
       regfile       => regfile,
       reg_read      => reg_read,
       reg_write     => reg_write,
@@ -608,17 +611,6 @@ begin
       reg_readdata  => reg_readdata
       );
 
-
--- Alain,
-
--- Voici les signaux dont je te parlais tantot :
-
--- start_calibration  : Signal qui sort du controlleur vers le HiSpi (1 clk axi @ 62.5mhz). Il n’est pas la encore dans mon top.
--- HISPI_pix_clk       : Signal qui entre dans le controlleur, pixclk (peu importe top ou bottom)
--- DEC_EOF             : Signal qui entre dans le controlleur dans le domaine pixclk (allonge-le a 5 clk pour que le changement de domaine d’horloge soit un simple 2 ff de resynch)
-
-
--- Laisse les signaux dans le top, je vais les connecter la semaine prochaine.
 
   x_xgs_hispi_top : xgs_hispi_top
     generic map(
@@ -630,8 +622,10 @@ begin
       PIXEL_SIZE      => PIXEL_SIZE
       )
     port map(
-      axi_clk                  => axi_clk,  -- TBD change to SCLK if required
-      axi_reset_n              => axi_reset_n,  -- TBD change to SCLK_RESET_N if required
+      sclk                     => sclk,
+      sclk_reset_n             => sclk_reset_n,
+      rclk                     => aclk,
+      rclk_reset_n             => aclk_reset_n,
       regfile                  => regfile,
       idelay_clk               => idelay_clk,
       hispi_start_calibration  => hispi_start_calibration,
@@ -642,11 +636,11 @@ begin
       hispi_io_clk_n           => hispi_io_clk_n,
       hispi_io_data_p          => hispi_io_data_p,
       hispi_io_data_n          => hispi_io_data_n,
-      m_axis_tready            => sclk_tready,
-      m_axis_tvalid            => sclk_tvalid,
-      m_axis_tuser             => sclk_tuser,
-      m_axis_tlast             => sclk_tlast,
-      m_axis_tdata             => sclk_tdata
+      sclk_tready              => sclk_tready,
+      sclk_tvalid              => sclk_tvalid,
+      sclk_tuser               => sclk_tuser,
+      sclk_tlast               => sclk_tlast,
+      sclk_tdata               => sclk_tdata
       );
 
 
@@ -656,15 +650,15 @@ begin
       )
     port map(
       regfile      => regfile,
-      sclk         => axi_clk,          -- TBD change to SCLK if required
-      sclk_reset_n => axi_reset_n,  -- TBD change to SCLK_RESET_N if required
+      sclk         => sclk,          -- TBD change to SCLK if required
+      sclk_reset_n => sclk_reset_n,  -- TBD change to SCLK_RESET_N if required
       sclk_tready  => sclk_tready,
       sclk_tvalid  => sclk_tvalid,
       sclk_tuser   => sclk_tuser,
       sclk_tlast   => sclk_tlast,
       sclk_tdata   => sclk_tdata,
-      aclk         => axi_clk,
-      aclk_reset_n => axi_reset_n,
+      aclk         => aclk,
+      aclk_reset_n => aclk_reset_n,
       aclk_tready  => aclk_tready,
       aclk_tvalid  => aclk_tvalid,
       aclk_tuser   => aclk_tuser,
@@ -678,8 +672,8 @@ begin
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
-      sclk               => axi_clk,
-      srst_n             => axi_reset_n,
+      sclk               => aclk,
+      srst_n             => aclk_reset_n,
       intevent           => irq_dma,
       context_strb       => load_dma_context,
       regfile            => regfile,
@@ -715,10 +709,10 @@ begin
   --               when an External section is declared. In case of regular
   --               FF register, the read latency is 1 clock cycle.
   -----------------------------------------------------------------------------
-  P_reg_readdatavalid : process (axi_clk) is
+  P_reg_readdatavalid : process (aclk) is
   begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
+    if (rising_edge(aclk)) then
+      if (aclk_reset_n = '0') then
         reg_readdatavalid <= '0';
       else
         reg_readdatavalid <= reg_read;
@@ -754,8 +748,8 @@ begin
       )
     port map(
 
-      sys_clk     => axi_clk,
-      sys_reset_n => axi_reset_n,
+      sys_clk     => aclk,
+      sys_reset_n => aclk_reset_n,
 
       ------------------------------------------
       -- CMOS INTERFACE TO SENSOR

@@ -11,7 +11,6 @@
 --                 Remove sclk and srst
 --
 -------------------------------------------------------------------------------
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -20,13 +19,16 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
+use work.regfile_xgs_athena_pack.all;
 use work.mtx_types_pkg.all;
 use work.hispi_pack.all;
+
 
 entity hispi_phy is
   generic (
     LANE_PER_PHY : integer := 3;        -- Physical lane
-    PIXEL_SIZE   : integer := 12        -- Pixel size in bits
+    PIXEL_SIZE   : integer := 12;       -- Pixel size in bits
+    PHY_ID       : integer := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -37,50 +39,40 @@ entity hispi_phy is
     hispi_serial_input_p : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
     hispi_serial_input_n : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
 
-    ---------------------------------------------------------------------------
-    -- axi_clk clock domain
-    ---------------------------------------------------------------------------
-    aclk       : in std_logic;
-    aclk_reset : in std_logic;
 
-    -- Register file information
-    aclk_idle_character     : in std_logic_vector(PIXEL_SIZE-1 downto 0);
-    aclk_hispi_phy_en       : in std_logic;
-    aclk_hispi_data_path_en : in std_logic;
-
+    ---------------------------------------------------------------------------
     -- To XGS_controller
+    ---------------------------------------------------------------------------
     hispi_pix_clk : out std_logic;
 
-    -- Calibration
-    aclk_tap_histogram           : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_manual_calibration_en   : in  std_logic;
-    aclk_manual_calibration_load : in  std_logic;
-    aclk_manual_calibration_tap  : in  std_logic_vector(14 downto 0);
+    ---------------------------------------------------------------------------
+    -- Registerfile clock domain
+    ---------------------------------------------------------------------------
+    rclk       : in    std_logic;
+    rclk_reset : in    std_logic;
+    regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
-    aclk_reset_phy         : in  std_logic;
-    aclk_start_calibration : in  std_logic;
-    aclk_cal_done          : out std_logic;
-    aclk_cal_error         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_cal_tap_value     : out std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+    ---------------------------------------------------------------------------
+    -- sclk clock domain
+    ---------------------------------------------------------------------------
+    sclk       : in std_logic;
+    sclk_reset : in std_logic;
+
+    sclk_reset_phy         : in  std_logic;
+    sclk_start_calibration : in  std_logic;
+    sclk_calibration_done  : out std_logic;
 
     -- Read fifo interface
-    aclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_fifo_overrun         : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_fifo_underrun        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
     -- Flags 
-    aclk_sync_error      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_bit_locked      : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_bit_locked_rise : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_bit_locked_fall : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_embeded_data    : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_sof_flag        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_eof_flag        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_sol_flag        : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    aclk_eol_flag        : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+    sclk_sof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_eof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_sol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_eol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0)
     );
 
 end entity hispi_phy;
@@ -115,7 +107,8 @@ architecture rtl of hispi_phy is
     generic (
       PHY_OUTPUT_WIDTH : integer := 6;   -- Physical lane
       PIXEL_SIZE       : integer := 12;  -- Pixel size in bits
-      LANE_DATA_WIDTH  : integer := 32
+      LANE_DATA_WIDTH  : integer := 32;
+      LANE_ID          : integer := 0
       );
     port (
       ---------------------------------------------------------------------------
@@ -125,45 +118,41 @@ architecture rtl of hispi_phy is
       hclk_reset     : in std_logic;
       hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
+
       -- calibration
       pclk               : in  std_logic;
       pclk_cal_en        : in  std_logic;
       pclk_cal_busy      : out std_logic;
-      pclk_cal_error     : out std_logic;
       pclk_cal_load_tap  : out std_logic;
       pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
 
       ---------------------------------------------------------------------------
-      -- axi_clk clock domain
+      -- Registerfile  clock domain
       ---------------------------------------------------------------------------
-      aclk       : in std_logic;
-      aclk_reset : in std_logic;
+      rclk       : in    std_logic;
+      rclk_reset : in    std_logic;
+      regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
-      -- Register file 
-      aclk_idle_character     : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      aclk_hispi_phy_en       : in  std_logic;
-      aclk_hispi_data_path_en : in  std_logic;
-      aclk_sync_error         : out std_logic;
-      aclk_tap_histogram      : out std_logic_vector(31 downto 0);
+      ---------------------------------------------------------------------------
+      -- sclk clock domain
+      ---------------------------------------------------------------------------
+      sclk       : in std_logic;
+      sclk_reset : in std_logic;
+
 
       -- Read fifo interface
-      aclk_fifo_read_en         : in  std_logic;
-      aclk_fifo_empty           : out std_logic;
-      aclk_fifo_read_data_valid : out std_logic;
-      aclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
-      aclk_fifo_overrun         : out std_logic;
-      aclk_fifo_underrun        : out std_logic;
+      sclk_fifo_read_en         : in  std_logic;
+      sclk_fifo_empty           : out std_logic;
+      sclk_fifo_read_data_valid : out std_logic;
+      sclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
 
-      -- Flags 
-      aclk_bit_locked      : out std_logic;
-      aclk_bit_locked_rise : out std_logic;
-      aclk_bit_locked_fall : out std_logic;
-      aclk_embeded_data    : out std_logic;
-      aclk_sof_flag        : out std_logic;
-      aclk_eof_flag        : out std_logic;
-      aclk_sol_flag        : out std_logic;
-      aclk_eol_flag        : out std_logic
+      -- Flags
+      --sclk_embeded_data : out std_logic;
+      sclk_sof_flag : out std_logic;
+      sclk_eof_flag : out std_logic;
+      sclk_sol_flag : out std_logic;
+      sclk_eol_flag : out std_logic
       );
   end component;
 
@@ -171,7 +160,7 @@ architecture rtl of hispi_phy is
   component mtx_resync is
     port
       (
-        aClk  : in  std_logic;
+        aclk  : in  std_logic;
         aClr  : in  std_logic;
         aDin  : in  std_logic;
         bclk  : in  std_logic;
@@ -201,6 +190,7 @@ architecture rtl of hispi_phy is
   constant EMBEDDED_FLAG_BIT  : integer := PIXEL_SIZE-5;
   constant FIFO_ADDRESS_WIDTH : integer := 4;
   constant MUX_RATIO          : integer := 4;
+  constant LANE_DATA_WIDTH    : integer := 32;
 
   type FSM_STATE_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_LOAD_DELAY, S_DONE);
 
@@ -214,8 +204,10 @@ architecture rtl of hispi_phy is
   signal hclk_reset                   : std_logic      := '1';
   signal hclk_state                   : FSM_STATE_TYPE := S_IDLE;
   signal hclk_start_calibration       : std_logic;
+  signal hclk_calibration_done        : std_logic;
   signal hclk_serdes_data             : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
   signal hclk_lane_data               : LANE_DATA_ARRAY;
+  signal hclk_manual_calibration_en   : std_logic;
   signal hclk_manual_calibration_load : std_logic;
 
   signal delay_reset    : std_logic                                     := '0';
@@ -227,14 +219,12 @@ architecture rtl of hispi_phy is
   signal pclk               : std_logic;
   signal pclk_cal_en        : std_logic;
   signal pclk_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal pclk_cal_error     : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
-  signal aclk_latch_cal_status  : std_logic;
-  signal aclk_hispi_phy_en_ff   : std_logic;
-  signal aclk_hispi_phy_en_rise : std_logic;
-
+  signal rclk_latch_cal_status       : std_logic;
+  signal rclk_manual_calibration_tap : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
+  signal rclk_cal_tap_value          : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
 
   attribute mark_debug of hclk_reset_vect              : signal is "true";
   attribute mark_debug of hclk_reset                   : signal is "true";
@@ -245,19 +235,15 @@ architecture rtl of hispi_phy is
 
   attribute mark_debug of pclk_cal_en        : signal is "true";
   attribute mark_debug of pclk_cal_busy      : signal is "true";
-  attribute mark_debug of pclk_cal_error     : signal is "true";
   attribute mark_debug of pclk_cal_load_tap  : signal is "true";
   attribute mark_debug of pclk_cal_tap_value : signal is "true";
 
-  attribute mark_debug of aclk_latch_cal_status  : signal is "true";
-  attribute mark_debug of aclk_hispi_phy_en_ff   : signal is "true";
-  attribute mark_debug of aclk_hispi_phy_en_rise : signal is "true";
-
-  attribute mark_debug of delay_reset    : signal is "true";
-  attribute mark_debug of delay_tap_in   : signal is "true";
-  attribute mark_debug of delay_tap_out  : signal is "true";
-  attribute mark_debug of delay_data_ce  : signal is "true";
-  attribute mark_debug of delay_data_inc : signal is "true";
+  attribute mark_debug of rclk_latch_cal_status : signal is "true";
+  attribute mark_debug of delay_reset           : signal is "true";
+  attribute mark_debug of delay_tap_in          : signal is "true";
+  attribute mark_debug of delay_tap_out         : signal is "true";
+  attribute mark_debug of delay_data_ce         : signal is "true";
+  attribute mark_debug of delay_data_inc        : signal is "true";
 
 
 begin
@@ -265,11 +251,11 @@ begin
 
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
-  -- aclk_reset re-synchronisation in the hclk clock domain
+  -- sclk_reset re-synchronisation in the hclk clock domain
   -----------------------------------------------------------------------------
-  P_hclk_reset : process (aclk_reset, hclk) is
+  P_hclk_reset : process (sclk_reset, hclk) is
   begin
-    if (aclk_reset = '1') then
+    if (sclk_reset = '1') then
       hclk_reset_vect <= (others => '1');
       hclk_reset      <= '1';
 
@@ -282,27 +268,6 @@ begin
 
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_hispi_phy_en_ff
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_aclk_hispi_phy_en_ff : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_hispi_phy_en_ff   <= '0';
-        aclk_hispi_phy_en_rise <= '0';
-      else
-        aclk_hispi_phy_en_ff <= aclk_hispi_phy_en;
-        if (aclk_hispi_phy_en = '1' and aclk_hispi_phy_en_ff = '0') then
-          aclk_hispi_phy_en_rise <= '1';
-        else
-          aclk_hispi_phy_en_rise <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
 
   xhispi_serdes : hispi_serdes
     generic map(
@@ -310,7 +275,7 @@ begin
       PHY_PARALLEL_WIDTH => PHY_PARALLEL_WIDTH
       )
     port map(
-      async_pll_reset => aclk_reset_phy,
+      async_pll_reset => sclk_reset_phy,
       delay_reset     => delay_reset,
       delay_data_ce   => delay_data_ce,
       delay_data_inc  => delay_data_inc,
@@ -356,7 +321,9 @@ begin
     inst_lane_decoder : lane_decoder
       generic map(
         PHY_OUTPUT_WIDTH => DESERIALIZATION_RATIO,
-        PIXEL_SIZE       => PIXEL_SIZE
+        PIXEL_SIZE       => PIXEL_SIZE,
+        LANE_DATA_WIDTH  => LANE_DATA_WIDTH,
+        LANE_ID          => (2*i) + PHY_ID
         )
       port map(
         hclk                      => hclk,
@@ -365,46 +332,57 @@ begin
         pclk                      => pclk,
         pclk_cal_en               => pclk_cal_en,
         pclk_cal_busy             => pclk_cal_busy(i),
-        pclk_cal_error            => pclk_cal_error(i),
         pclk_cal_load_tap         => pclk_cal_load_tap(i),
         pclk_cal_tap_value        => pclk_cal_tap_value((i*5) + 4 downto (i*5)),
-        aclk                      => aclk,
-        aclk_reset                => aclk_reset,
-        aclk_idle_character       => aclk_idle_character,
-        aclk_hispi_phy_en         => aclk_hispi_phy_en,
-        aclk_sync_error           => aclk_sync_error(i),
-        aclk_hispi_data_path_en   => aclk_hispi_data_path_en,
-        aclk_tap_histogram        => aclk_tap_histogram(i),
-        aclk_fifo_read_en         => aclk_fifo_read_en(i),
-        aclk_fifo_empty           => aclk_fifo_empty(i),
-        aclk_fifo_read_data_valid => aclk_fifo_read_data_valid(i),
-        aclk_fifo_read_data       => aclk_fifo_read_data(i),
-        aclk_fifo_overrun         => aclk_fifo_overrun(i),
-        aclk_fifo_underrun        => aclk_fifo_underrun(i),
-        aclk_bit_locked           => aclk_bit_locked(i),
-        aclk_bit_locked_rise      => aclk_bit_locked_rise(i),
-        aclk_bit_locked_fall      => aclk_bit_locked_fall(i),
-        aclk_embeded_data         => aclk_embeded_data(i),
-        aclk_sof_flag             => aclk_sof_flag(i),
-        aclk_eof_flag             => aclk_eof_flag(i),
-        aclk_sol_flag             => aclk_sol_flag(i),
-        aclk_eol_flag             => aclk_eol_flag(i)
+        rclk                      => rclk,
+        rclk_reset                => rclk_reset,
+        regfile                   => regfile,
+        sclk                      => sclk,
+        sclk_reset                => sclk_reset,
+        sclk_fifo_read_en         => sclk_fifo_read_en(i),
+        sclk_fifo_empty           => sclk_fifo_empty(i),
+        sclk_fifo_read_data_valid => sclk_fifo_read_data_valid(i),
+        sclk_fifo_read_data       => sclk_fifo_read_data(i),
+        sclk_sof_flag             => sclk_sof_flag(i),
+        sclk_eof_flag             => sclk_eof_flag(i),
+        sclk_sol_flag             => sclk_sol_flag(i),
+        sclk_eol_flag             => sclk_eol_flag(i)
         );
   end generate G_lane_decoder;
 
 
+  -----------------------------------------------------------------------------
+  -- Module      : M_hclk_manual_calibration_en
+  -- Description : Resynchronize regfile.HISPI.DEBUG.MANUAL_CALIB_EN
+  --               on hclk domain
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  M_hclk_manual_calibration_en : mtx_resync
+    port map (
+      aclk  => rclk,
+      aClr  => rclk_reset,
+      aDin  => regfile.HISPI.DEBUG.MANUAL_CALIB_EN,
+      bClk  => hclk,
+      bClr  => hclk_reset,
+      bDout => hclk_manual_calibration_en,
+      bRise => open,
+      bFall => open
+      );
+
 
   -----------------------------------------------------------------------------
   -- Module      : M_hclk_manual_calibration_load
-  -- Description : Resynchronize aclk_start_calibration on hclk domain
+  -- Description : Resynchronize regfile.HISPI.DEBUG.MANUAL_CALIB_EN
+  --               on hclk domain
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
   M_hclk_manual_calibration_load : mtx_resync
     port map (
-      aClk  => aclk,
-      aClr  => aclk_reset,
-      aDin  => aclk_manual_calibration_load,
+      aclk  => rclk,
+      aClr  => rclk_reset,
+      aDin  => regfile.HISPI.DEBUG.LOAD_TAPS,
       bClk  => hclk,
       bClr  => hclk_reset,
       bDout => open,
@@ -412,11 +390,30 @@ begin
       bFall => open
       );
 
-  delay_tap_in <= aclk_manual_calibration_tap when (aclk_manual_calibration_en = '1') else
+
+  -----------------------------------------------------------------------------
+  -- Manual calibration tap mapping
+  -----------------------------------------------------------------------------
+  G_TOP_PHY_MAPPING : if (PHY_ID = 0) generate
+    rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_0;
+    rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_2;
+    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_4;
+  end generate;
+
+
+  G_BOTTOM_PHY_MAPPING : if (PHY_ID > 0) generate
+    rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_1;
+    rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_3;
+    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_5;
+  end generate;
+
+
+  delay_tap_in <= rclk_manual_calibration_tap when (hclk_manual_calibration_en = '1') else
                   pclk_cal_tap_value;
 
-  delay_reset <= '1' when (aclk_manual_calibration_en = '0' and pclk_cal_load_tap(0) = '1') else
-                 '1' when (aclk_manual_calibration_en = '1' and hclk_manual_calibration_load = '1') else
+
+  delay_reset <= '1' when (hclk_manual_calibration_en = '0' and pclk_cal_load_tap(0) = '1') else
+                 '1' when (hclk_manual_calibration_en = '1' and hclk_manual_calibration_load = '1') else
                  '0';
 
 
@@ -424,19 +421,17 @@ begin
                  '0';
 
 
-
-
   -----------------------------------------------------------------------------
   -- Module      : M_hclk_start_calibration
-  -- Description : Resynchronize aclk_start_calibration on hclk domain
+  -- Description : Resynchronize sclk_start_calibration on hclk domain
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
   M_hclk_start_calibration : mtx_resync
     port map (
-      aClk  => aclk,
-      aClr  => aclk_reset,
-      aDin  => aclk_start_calibration,
+      aclk  => sclk,
+      aClr  => sclk_reset,
+      aDin  => sclk_start_calibration,
       bClk  => hclk,
       bClr  => hclk_reset,
       bDout => hclk_start_calibration,
@@ -444,47 +439,93 @@ begin
       bFall => open
       );
 
-
   -----------------------------------------------------------------------------
-  -- Module      : M_aclk_latch_cal_status
-  -- Description : Resynchronize aclk_latch_cal_status on aclk domain
+  -- Module      : M_sclk_calibration_done
+  -- Description : Resynchronize 
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
-  M_aclk_latch_cal_status : mtx_resync
+  M_sclk_calibration_done : mtx_resync
     port map (
-      aClk  => hclk,
+      aclk  => hclk,
       aClr  => hclk_reset,
-      aDin  => delay_reset,
-      bClk  => aclk,
-      bClr  => aclk_reset,
-      bDout => open,
-      bRise => aclk_latch_cal_status,
+      aDin  => hclk_calibration_done,
+      bClk  => sclk,
+      bClr  => sclk_reset,
+      bDout => sclk_calibration_done,
+      bRise => open,
       bFall => open
       );
 
 
-  aclk_cal_done <= aclk_latch_cal_status;
-
-
   -----------------------------------------------------------------------------
-  -- Process     : P_hclk_state
-  -- Description : Resynchronize pclk_cal_error and pclk_cal_tap_value on aclk
-  -- Src clock   : hclk
-  -- Dest clock  : aclk
+  -- Module      : M_sclk_latch_cal_status
+  -- Description : Resynchronize sclk_latch_cal_status on sclk domain
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -----------------------------------------------------------------------------
-  P_aclk_latch_cal_status : process (aclk) is
+  M_sclk_latch_cal_status : mtx_resync
+    port map (
+      aclk  => hclk,
+      aClr  => hclk_reset,
+      aDin  => delay_reset,
+      bClk  => rclk,
+      bClr  => rclk_reset,
+      bDout => open,
+      bRise => rclk_latch_cal_status,
+      bFall => open
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_rclk_cal_tap_value
+  -- Description : 
+  -- Src clock   : hclk
+  -- Dest clock  : rclk
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  P_rclk_cal_tap_value : process (rclk) is
   begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_cal_error     <= (others => '0');
-        aclk_cal_tap_value <= (others => '0');
+    if (rising_edge(rclk)) then
+      if (rclk_reset = '1') then
+        rclk_cal_tap_value <= (others => '0');
       else
-        if (aclk_latch_cal_status = '1') then
-          aclk_cal_error     <= pclk_cal_error;
-          aclk_cal_tap_value <= delay_tap_out;  -- Assume to be stable
+        if (rclk_latch_cal_status = '1') then
+          rclk_cal_tap_value <= delay_tap_out;  -- Assume to be stable
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- For top phy =>  PHY_ID=0; for bottom phy =>  PHY_ID=1
+  --
+  -- Top phy    = Lane0, Lane2, Lane4
+  -- Bottom phy = Lane1, Lane3, Lane5
+  -----------------------------------------------------------------------------
+  G_cal_tap_value : for i in 0 to LANE_PER_PHY-1 generate
+    regfile.HISPI.LANE_DECODER_STATUS(2*i+PHY_ID).CALIBRATION_TAP_VALUE <= rclk_cal_tap_value(5*i+4 downto 5*i);
+  end generate G_cal_tap_value;
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_calibration_done
+  -- Description : 
+  -----------------------------------------------------------------------------
+
+  P_hclk_calibration_done : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_calibration_done <= '0';
+      else
+        if (hclk_state = S_INIT) then
+          hclk_calibration_done <= '0';
+        elsif (hclk_state = S_DONE) then
+          hclk_calibration_done <= '1';
         end if;
       end if;
     end if;

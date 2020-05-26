@@ -561,6 +561,188 @@
       </fields>
     </registers>
   </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DATA" baseAddress="300" endAddress="388">
+    <registers name="LUT_CTRL" useReservedSpaceBelow="true">
+      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT logic will not be used, and the 10 bits data will en send to the DMA. This register is used for optical test usage since the Perceptron/N3 have only 10 to 8 bits LUT only. The DMA must be configured in synthesys to be able to transfert 10bpp images. " lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Use LUT logic.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>LUT logic bypass.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_PALETTE_USE" alias="LUT PALETTE to USE" description="This register selects the LUT palette to be use in the grab path." lsb="29">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Palette 0 is used&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Palette 1 is used&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_PALETTE_W" alias="LUT PALETTE to Write" description="This register selects the palette to be write into the LUT. This register must be set to 0 when programming the Palette 0 and to 1 when programming the Palette 1. " lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Palette 0&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Palette 1&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT" lsb="16" size="10"/>
+      <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;The Color and Mono shares the same 4 physical LUT. " lsb="12" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read or Write to Gamma / Mono0 LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read or write to Blue / Mono1 LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read or write to Green / Mono2 LUT &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read or write to Red / Mono3   LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write ALL LUT with same data.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_WRN" alias="LUT Write ReadNot" description="LUT Write mode" lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_SS" alias="LUT SnapShot" description="Start the LUT OPERATION (R/W)" lsb="10" readWrite="false" writeOnly="true"/>
+      <fields name="LUT_ADD" size="10"/>
+    </registers>
+    <registers name="LUT_RB" alias="" offsetFromParent="8" useReservedSpaceBelow="true">
+      <fields name="LUT_RB" description="LUT ReadBack" size="10" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="WB_MULT1" offsetFromParent="10" useReservedSpaceBelow="true">
+      <fields name="WB_MULT_G" lsb="16" size="16" valueAtReset="1000"/>
+      <fields name="WB_MULT_B" size="16" valueAtReset="1000"/>
+    </registers>
+    <registers name="WB_MULT2" offsetFromParent="18" useReservedSpaceBelow="true">
+      <fields name="WB_MULT_R" size="16" valueAtReset="1000"/>
+    </registers>
+    <registers name="WB_B_ACC" offsetFromParent="20" useReservedSpaceBelow="true">
+      <fields name="B_ACC" description="ACQuisition Blue ACCumulator" size="31" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="WB_G_ACC" offsetFromParent="28" useReservedSpaceBelow="true">
+      <fields name="G_ACC" description="ACQuisition Green ACCumulator" size="32" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="WB_R_ACC" offsetFromParent="30" useReservedSpaceBelow="true">
+      <fields name="R_ACC" description="ACQuisition Red ACCumulator" size="31" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="FPN_ADD" offsetFromParent="38">
+      <fields name="FPN_73" description="Use [7].[3] fpn correction instead old [5].[3] .&#xD;&#xA;&#xD;&#xA;This 7.3 mode is not implemented in the released FPGA.  &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Use normal fpn mode 5.3 &lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Use advanced fpn mode 7.3&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_WE" alias="FPN Write Enable" description="This register is the coefficient RAM WRITE ENABLE" lsb="28" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_EN" alias="FPN ENable" description="This field enables the HW FPN and PRNU correction" lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>HW correction disable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>HW correction enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_SS" alias="FPN SnapShot" description="This register is the snapshot for read/write to the coefficient RAM." lsb="16" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Snapshot&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_ADD" alias="FPN ADDress" description="This register is the address to be write/read in the coefficient RAM.&#xD;&#xA;The first 512(144bits) locations are correction factors to not SUBsampled image(palette 0).&#xD;&#xA;The second 512 locations(144bits) are correction factors to SUBsampled image(palette 1)." size="10">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="FPN_READ_REG" offsetFromParent="3C">
+      <fields name="FPN_READ_PIX_SEL" description="This is the pixel number to be read (0 to 7) in the RAM. Each RAM location contains corrections for 8 pixels per address(FPN_ADD). This field selects the PIXel correction to be readed." lsb="28" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_READ_PRNU" description="This is the PRNU coefficient readed in RAM." lsb="16" size="9" readWrite="false" readOnly="true"/>
+      <fields name="FPN_READ_FPN" description="This is the FPN coefficient readed in RAM." size="11" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="FPN_DATA" offsetFromParent="40" useMultiples="true" numberOfMultiples="8">
+      <fields name="FPN_DATA_PRNU" alias="FPN DATA PRNU" description="This is the PRNU coefficient be written in RAM.&#xD;&#xA; &#xD;&#xA;PRNU factor is signed 9 bits [0].[00][+/-][8]&#xD;&#xA;&#xD;&#xA;From the DoubleValue calculated in SW, program this field as: &#xD;&#xA;&#xD;&#xA;FPN_DATA_PRNU = int(DoubleVal*2048.0)&#xD;&#xA;&#xD;&#xA;Clip correction to implement in the driver is :&#xD;&#xA;&#xD;&#xA;if(DoubleVal > (255.0 / 2048.0) )  DoubleVal = (255.0 / 2048.0)     (0.124511718)&#xD;&#xA;if(DoubleVal &lt; -(255.0 / 2048.0) )  DoubleVal = -(255.0 / 2048.0)     (0.124511718)&#xD;&#xA;" lsb="16" size="9"/>
+      <fields name="FPN_DATA_FPN" alias="FPN DATA FPN" description="This is the FPN coefficient be written in RAM.&#xD;&#xA; &#xD;&#xA;If FPN 5.3 is implemented(default) factor is signed 9 bits [+/-][5].[3]&#xD;&#xA;If FPN 7.3 is implemented(default) factor is signed 11 bits [+/-][7].[3]&#xD;&#xA;&#xD;&#xA;In 5.3 configuration, from the DoubleValue alculated in SW, program this field as: &#xD;&#xA;&#xD;&#xA;FPN_DATA_FPN = int(DoubleVal*8.0)&#xD;&#xA;&#xD;&#xA;Clip correction to implement in the driver is :&#xD;&#xA;&#xD;&#xA;if(DoubleValue > 255.0/8.0) DoubleValue= 255.0/8.0   (31.875)&#xD;&#xA;if(DoubleValue &lt; -255.0/8.0) DoubleValue= -255.0/8.0  (-31.875)" size="11"/>
+    </registers>
+    <registers name="FPN_CONTRAST" description="" offsetFromParent="60" useReservedSpaceBelow="true">
+      <fields name="CONTRAST_GAIN" description="This is a digital gain [4].[8] applied after the EXIT_CP3 substractor.&#xD;&#xA;This register MUST be set to 1 or greater." lsb="16" size="12" valueAtReset="100"/>
+      <fields name="CONTRAST_OFFSET" alias="CONTRAST OFFSET" description="This is the constant substracted to the 10 bit pixel FPN and PRNU corrected. The value is a 8 bits integer value [8].[0] . This register is aligned with the LSB of the 10 bit pixel value." size="8"/>
+    </registers>
+    <registers name="FPN_ACC_ADD" offsetFromParent="68" useReservedSpaceBelow="true">
+      <fields name="FPN_ACC_MODE_SEL" description="This register selects if the Contrast Gain and Offset is used for compute the pixel accumulators.&#xD;&#xA;&#xD;&#xA;If FPN_ACC_MODE_SEL =0 then the module will use CONTRAST_GAIN=1 and CONTRAST_OFFSET=0 for the accumulators.&#xD;&#xA;&#xD;&#xA;If FPN_ACC_MODE_SEL =1 then the module will use Gain and Offset from registers CONTRAST_GAIN and CONTRAST_OFFSET." lsb="21">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Don't use Contrast Gain and Offset&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Use Contrast Gain and Offset&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_ACC_MODE_EN" alias="FPN ACCumulator MODE ENable" description="This field defines the accumulator mode. When this register is set to '1', the accumulators will start count and no frame will be sent to the host memory.&#xD;&#xA;" lsb="20">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Normal DMA transfert mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Accumulator mode&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_ACC_R_SS" alias="FPN ACCumulator Read Snapshot" description="This is the column read accumulator snapshot." lsb="16" readWrite="false" writeOnly="true"/>
+      <fields name="FPN_ACC_ADD" alias="FPN ACCumulator ADDress" description="This is the column accumulator adress to read." size="12"/>
+    </registers>
+    <registers name="FPN_ACC_DATA" offsetFromParent="70" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
+      <fields name="FPN_ACC_R_WORKING" alias="FPN ACCumulator Read WORKING" description="This field is the working status of the read-to-column accumulator. The data in the field FPN_ACC_DATA will be valid when FPN_ACC_R_WORKING is set to '0'" lsb="24" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The data in the field FPN_ACC_DATA is valid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The data in the field FPN_ACC_DATA is invalid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="FPN_ACC_DATA" alias="FPN ACCumulator DATA" description="This is the column accumulator.&#xD;&#xA;&#xD;&#xA;" size="24" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 24 bits value&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DPC_LIST_CTRL" offsetFromParent="80">
+      <fields name="dpc_fifo_underrun" alias="" description="This is the fifo underrun status of the 2 linebuffers in the dpc macro. Write '1' then '0' to field dpc_FIFO_RST to reset this flag and reset the Fifo logic. " lsb="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun not detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_fifo_overrun" description="This is the fifo overrun status of the 2 linebuffers in the dpc macro.&#xD;&#xA;Write '1' then '0' to field dpc_FIFO_RST to reset this flag and reset the Fifo logic. " lsb="30" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Overrun not detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Overrun detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_fifo_reset" alias="" description="Write '1' then '0' to field dpcL_FIFO_RST to reset overrun/underrun flags of the line buffers and reset the Fifo logic.&#xD;&#xA;&#xD;&#xA;The DPC dual port ram  is not SW reset .&#xD;&#xA;&#xD;&#xA;The fifo in each  processing DPC unit is HW reset at each SOF. " lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in reset State&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_firstlast_line_rem" description="When this register is set to 1, the DPC macro will remove the first and last line of the image corrected.&#xD;&#xA;This can be usefull if we want to correct the 4 pixels in the corners of the image. The SW can program two more lines in the frame so the DPC macro can have enough pixels to correct the 4 pixel coners." lsb="26" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not remove any lines of the image received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Remove first and last line of the image received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_pattern0_cfg" description="This field configures the behabieur of the correction pattern 0x0. If this field is set to 0x0 then the current pixel will not be corrected. If this field is set to 0x1 then the current pixel will be replaced by the value 0x3ff (white pixel)" lsb="25" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not correct current pixel&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Replace current pixel by a white pixel (0x3ff)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_enable" description="Dead Pixel Correction core Enable, when this field is set to 1, the DPC logic will correct all the dead pixels that are listed in the DPC list.&#xD;&#xA;&#xD;&#xA;The grab must be idle when changing this register." lsb="24">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>DPC logic is bypassed&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>PDC  logic is enable&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. Up to 63 pixels can be corrected. The value 0 is allowed and when set to 0 no pixel will be corrected." lsb="16" size="6">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value from 0 to 63&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_WRn" description="This is the Write/ReadN flag. To write to the DPC list set this bit to 1 and start the transaction with the dpc_list_ss field. To read from the DPC list set this bit to 0 and start the transaction with the dpc_list_ss field. " lsb="12">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read list operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write list operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_ss" description="This is the DPC snapshot. In order to start a write or read transaction the snapsot needs to be writen to '1'. This bit is a auto clear regsiter. " lsb="8" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start the READ/WRITE transaction&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address b000000. Since the dpc_list_count field is also 6 bit wide, address 0 to 62 of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x3f cannot be used. This DPC location will not be corrected." size="6">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-62&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Valid DPC adress&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DPC_LIST_DATA" offsetFromParent="84">
+      <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" lsb="24" size="8"/>
+      <fields name="dpc_list_corr_y" description="This is Y location of the pixel to be corrected when executing a write to the DPC list." lsb="12" size="12"/>
+      <fields name="dpc_list_corr_x" description="This is X location of the pixel to be corrected when executing a write to the DPC list." size="12"/>
+    </registers>
+    <registers name="DPC_LIST_DATA_RD" offsetFromParent="88">
+      <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel read from DPC list.&#xD;&#xA;&#xD;&#xA;2 Bit correction : 34, 17, 136, 68&#xD;&#xA;4 Bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" lsb="24" size="8" readWrite="false" readOnly="true"/>
+      <fields name="dpc_list_corr_y" description="This is Y location of the pixel read from the DPC list." lsb="12" size="12" readWrite="false" readOnly="true"/>
+      <fields name="dpc_list_corr_x" description="This is X location of the pixel read from the DPC list." size="12" readWrite="false" readOnly="true"/>
+    </registers>
+  </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="44C">
     <registers name="CTRL">
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">

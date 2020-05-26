@@ -23,8 +23,8 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- System clock interface
     ---------------------------------------------------------------------------
-    sysclk : in std_logic;
-    sysrst : in std_logic;
+    sclk       : in std_logic;
+    sclk_reset : in std_logic;
 
     ---------------------------------------------------------------------------
     -- Control interface
@@ -55,11 +55,11 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- AXI Master stream interface
     ---------------------------------------------------------------------------
-    m_axis_tready : in  std_logic;
-    m_axis_tvalid : out std_logic;
-    m_axis_tuser  : out std_logic_vector(3 downto 0);
-    m_axis_tlast  : out std_logic;
-    m_axis_tdata  : out std_logic_vector(63 downto 0)
+    sclk_tready : in  std_logic;
+    sclk_tvalid : out std_logic;
+    sclk_tuser  : out std_logic_vector(3 downto 0);
+    sclk_tlast  : out std_logic;
+    sclk_tdata  : out std_logic_vector(63 downto 0)
     );
 end axi_line_streamer;
 
@@ -82,32 +82,32 @@ architecture rtl of axi_line_streamer is
                     );
 
 
-  signal m_wait            : std_logic;
-  signal state             : FSM_TYPE;
-  signal burst_length      : integer;
-  signal burst_cntr        : integer := 0;
-  signal read_en           : std_logic;
-  signal read_data_valid   : std_logic;
-  signal first_row         : std_logic;
-  signal last_row          : std_logic;
-  signal buffer_ptr        : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal start_transfer    : std_logic;
-  signal m_axis_tvalid_int : std_logic;
+  signal m_wait          : std_logic;
+  signal state           : FSM_TYPE;
+  signal burst_length    : integer;
+  signal burst_cntr      : integer := 0;
+  signal read_en         : std_logic;
+  signal read_data_valid : std_logic;
+  signal first_row       : std_logic;
+  signal last_row        : std_logic;
+  signal buffer_ptr      : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+  signal start_transfer  : std_logic;
+  signal sclk_tvalid_int : std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of m_wait            : signal is "true";
-  attribute mark_debug of state             : signal is "true";
-  attribute mark_debug of burst_length      : signal is "true";
-  attribute mark_debug of burst_cntr        : signal is "true";
-  attribute mark_debug of read_en           : signal is "true";
-  attribute mark_debug of read_data_valid   : signal is "true";
-  attribute mark_debug of first_row         : signal is "true";
-  attribute mark_debug of last_row          : signal is "true";
-  attribute mark_debug of buffer_ptr        : signal is "true";
-  attribute mark_debug of start_transfer    : signal is "true";
-  attribute mark_debug of m_axis_tvalid_int : signal is "true";
+  attribute mark_debug of m_wait          : signal is "true";
+  attribute mark_debug of state           : signal is "true";
+  attribute mark_debug of burst_length    : signal is "true";
+  attribute mark_debug of burst_cntr      : signal is "true";
+  attribute mark_debug of read_en         : signal is "true";
+  attribute mark_debug of read_data_valid : signal is "true";
+  attribute mark_debug of first_row       : signal is "true";
+  attribute mark_debug of last_row        : signal is "true";
+  attribute mark_debug of buffer_ptr      : signal is "true";
+  attribute mark_debug of start_transfer  : signal is "true";
+  attribute mark_debug of sclk_tvalid_int : signal is "true";
 
   attribute mark_debug of streamer_en         : signal is "true";
   attribute mark_debug of streamer_busy       : signal is "true";
@@ -121,11 +121,11 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of line_buffer_count   : signal is "true";
   attribute mark_debug of line_buffer_row_id  : signal is "true";
   attribute mark_debug of line_buffer_data    : signal is "true";
-  attribute mark_debug of m_axis_tready       : signal is "true";
-  attribute mark_debug of m_axis_tvalid       : signal is "true";
-  attribute mark_debug of m_axis_tuser        : signal is "true";
-  attribute mark_debug of m_axis_tlast        : signal is "true";
-  attribute mark_debug of m_axis_tdata        : signal is "true";
+  attribute mark_debug of sclk_tready         : signal is "true";
+  attribute mark_debug of sclk_tvalid         : signal is "true";
+  attribute mark_debug of sclk_tuser          : signal is "true";
+  attribute mark_debug of sclk_tlast          : signal is "true";
+  attribute mark_debug of sclk_tdata          : signal is "true";
   attribute mark_debug of y_row_start         : signal is "true";
   attribute mark_debug of y_row_stop          : signal is "true";
 
@@ -133,7 +133,7 @@ architecture rtl of axi_line_streamer is
 begin
 
 
-  m_wait <= '1' when (m_axis_tready = '0' and read_data_valid = '1' and m_axis_tvalid_int = '1') else
+  m_wait <= '1' when (sclk_tready = '0' and read_data_valid = '1' and sclk_tvalid_int = '1') else
             '0';
 
 
@@ -145,10 +145,10 @@ begin
   -- Process     : P_clrBuffer
   -- Description : 
   -----------------------------------------------------------------------------
-  P_clrBuffer : process (sysclk) is
+  P_clrBuffer : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         clrBuffer <= (others => '0');
       else
         if (state = S_EOL or state = S_EOF) then
@@ -170,10 +170,10 @@ begin
   -- Process     : P_first_row
   -- Description : 
   -----------------------------------------------------------------------------
-  P_first_row : process (sysclk) is
+  P_first_row : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         first_row <= '0';
       else
         if (init_frame = '1') then
@@ -185,20 +185,20 @@ begin
     end if;
   end process;
 
-  
+
   last_row <= '1' when (line_buffer_row_id = y_row_stop) else
               '0';
 
- 
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_burst_length
   -- Description : 
   -----------------------------------------------------------------------------
-  P_burst_length : process (sysclk) is
+  P_burst_length : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         burst_length <= 0;
       else
         if (state = S_LOAD_BURST_CNTR) then
@@ -213,10 +213,10 @@ begin
   -- Process     : P_buffer_ptr
   -- Description : 
   -----------------------------------------------------------------------------
-  P_buffer_ptr : process (sysclk) is
+  P_buffer_ptr : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         buffer_ptr <= (others => '0');
       else
         if (init_frame = '1') then
@@ -236,10 +236,10 @@ begin
   -- Process     : P_burst_cntr
   -- Description : 
   -----------------------------------------------------------------------------
-  P_burst_cntr : process (sysclk) is
+  P_burst_cntr : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         burst_cntr <= 0;
       else
         if (state = S_LOAD_BURST_CNTR) then
@@ -279,10 +279,10 @@ begin
   -- Process     : P_state
   -- Description : Streamer main FSM. Control the stream transfer.
   -----------------------------------------------------------------------------
-  P_state : process (sysclk) is
+  P_state : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1' or streamer_en = '0') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1' or streamer_en = '0') then
         state <= S_IDLE;
 
       else
@@ -375,7 +375,7 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_m_axis_tuser
+  -- Process     : P_sclk_tuser
   -- Description : In the AXI stream video protocol TUSER is used as the SOF
   --               sync marker.
   --
@@ -388,11 +388,11 @@ begin
   --                    1 1 0 0   HEADER
   --                    others    RESERVED
   -----------------------------------------------------------------------------
-  P_m_axis_tuser : process (sysclk) is
+  P_sclk_tuser : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
-        m_axis_tuser <= "0000";
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tuser <= "0000";
       else
         if (m_wait = '0') then
           ---------------------------------------------------------------------
@@ -401,10 +401,10 @@ begin
           if (state = S_DATA_PHASE and burst_cntr = 1) then
             -- Start of frame
             if (first_row = '1') then
-              m_axis_tuser <= "0001";
+              sclk_tuser <= "0001";
             -- Start of line
             else
-              m_axis_tuser <= "0100";
+              sclk_tuser <= "0100";
             end if;
 
 
@@ -414,11 +414,11 @@ begin
           elsif (state = S_LAST_DATA) then
             -- End of frame
             if (last_row = '1') then
-              m_axis_tuser <= "0010";
+              sclk_tuser <= "0010";
 
             -- End of line
             else
-              m_axis_tuser <= "1000";
+              sclk_tuser <= "1000";
 
             end if;
 
@@ -426,7 +426,7 @@ begin
           -- Continue
           ---------------------------------------------------------------------
           else
-            m_axis_tuser <= "0000";
+            sclk_tuser <= "0000";
           end if;
         end if;
       end if;
@@ -448,10 +448,10 @@ begin
   -- Description : Indicates data that the read data from the buffer is
   --               available
   -----------------------------------------------------------------------------
-  P_read_data_valid : process (sysclk) is
+  P_read_data_valid : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         read_data_valid <= '0';
       else
         if (read_en = '1') then
@@ -467,38 +467,38 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_m_axis_tvalid
+  -- Process     : P_sclk_tvalid
   -- Description : AXI Stream video interface : data bus
   -----------------------------------------------------------------------------
-  P_m_axis_tvalid : process (sysclk) is
+  P_sclk_tvalid : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
-        m_axis_tvalid_int <= '0';
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tvalid_int <= '0';
       else
         if (m_wait = '0') then
-          m_axis_tvalid_int <= read_data_valid;
+          sclk_tvalid_int <= read_data_valid;
         end if;
       end if;
     end if;
   end process;
 
 
-  m_axis_tvalid <= m_axis_tvalid_int;
+  sclk_tvalid <= sclk_tvalid_int;
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_m_axis_tdata
+  -- Process     : P_sclk_tdata
   -- Description : AXI Stream video interface : data bus
   -----------------------------------------------------------------------------
-  P_m_axis_tdata : process (sysclk) is
+  P_sclk_tdata : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
-        m_axis_tdata <= (others => '0');
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tdata <= (others => '0');
       else
         if (m_wait = '0' and read_data_valid = '1') then
-          m_axis_tdata <= line_buffer_data;
+          sclk_tdata <= line_buffer_data;
         end if;
       end if;
     end if;
@@ -506,21 +506,21 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_m_axis_tlast
+  -- Process     : P_sclk_tlast
   -- Description : In the AXI stream video protocol TLAST is used as the EOL
   --               sync marker
   -----------------------------------------------------------------------------
-  P_m_axis_tlast : process (sysclk) is
+  P_sclk_tlast : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
-        m_axis_tlast <= '0';
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tlast <= '0';
       else
         if (m_wait = '0') then
           if (state = S_LAST_DATA) then
-            m_axis_tlast <= '1';
+            sclk_tlast <= '1';
           else
-            m_axis_tlast <= '0';
+            sclk_tlast <= '0';
           end if;
         end if;
       end if;

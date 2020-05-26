@@ -127,6 +127,7 @@ matrox.com:user:AXI_i2c_Matrox:1.0\
 matrox.com:Imaging:XGS_athena:1.0.0\
 xilinx.com:ip:clk_wiz:6.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
+xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:xlconstant:1.1\
 "
 
@@ -242,7 +243,14 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.CLKOUT1_JITTER {114.829} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {200.000} \
+   CONFIG.CLKOUT2_JITTER {130.958} \
+   CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
+   CONFIG.CLKOUT2_USED {true} \
+   CONFIG.CLK_OUT1_PORT {refclk200MHz} \
+   CONFIG.CLK_OUT2_PORT {sclk100MHz} \
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {5.000} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {10} \
+   CONFIG.NUM_OUT_CLKS {2} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.USE_LOCKED {true} \
@@ -258,6 +266,9 @@ proc create_root_design { parentCell } {
    CONFIG.ENABLE_MTX_SPI {1} \
    CONFIG.PCIE_DEVICE_ID {20564} \
  ] $pcie2AxiMaster_0
+
+  # Create instance: sys_reset_0, and set properties
+  set sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 sys_reset_0 ]
 
   # Create instance: xlconstant_0, and set properties
   set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
@@ -280,13 +291,16 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net pcie2AxiMaster_0_pcie_mgt [get_bd_intf_ports pcie] [get_bd_intf_pins pcie2AxiMaster_0/pcie_mgt]
 
   # Create port connections
-  connect_bd_net -net ARESETN_1 [get_bd_pins AXI_i2c_Matrox_0/s_axi_aresetn] [get_bd_pins XGS_athena_0/axi_reset_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net ARESETN_1 [get_bd_pins AXI_i2c_Matrox_0/s_axi_aresetn] [get_bd_pins XGS_athena_0/aclk_reset_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net XGS_athena_0_debug_out [get_bd_ports debug_out] [get_bd_pins XGS_athena_0/debug_out]
   connect_bd_net -net XGS_athena_0_led_out [get_bd_ports led_out] [get_bd_pins XGS_athena_0/led_out]
-  connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_pins XGS_athena_0/idelay_clk] [get_bd_pins clk_wiz_0/clk_out1]
-  connect_bd_net -net pcie2AxiMaster_0_axim_clk [get_bd_pins AXI_i2c_Matrox_0/s_axi_aclk] [get_bd_pins XGS_athena_0/axi_clk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk]
+  connect_bd_net -net clk_wiz_0_clk_out2 [get_bd_pins XGS_athena_0/sclk] [get_bd_pins clk_wiz_0/sclk100MHz] [get_bd_pins sys_reset_0/slowest_sync_clk]
+  connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins sys_reset_0/dcm_locked]
+  connect_bd_net -net clk_wiz_0_refclk200MHz [get_bd_pins XGS_athena_0/idelay_clk] [get_bd_pins clk_wiz_0/refclk200MHz]
+  connect_bd_net -net pcie2AxiMaster_0_axim_clk [get_bd_pins AXI_i2c_Matrox_0/s_axi_aclk] [get_bd_pins XGS_athena_0/aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk]
   connect_bd_net -net pcie_sys_clk_1 [get_bd_ports pcie_sys_clk] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
-  connect_bd_net -net pcie_sys_rst_n_1 [get_bd_ports pcie_sys_rst_n] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n]
+  connect_bd_net -net pcie_sys_rst_n_1 [get_bd_ports pcie_sys_rst_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n] [get_bd_pins sys_reset_0/ext_reset_in]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins XGS_athena_0/sclk_reset_n] [get_bd_pins sys_reset_0/peripheral_aresetn]
   connect_bd_net -net ref_clk_1 [get_bd_ports ref_clk] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
 
@@ -298,6 +312,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -309,6 +324,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

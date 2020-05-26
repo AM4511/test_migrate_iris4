@@ -185,13 +185,36 @@ set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xb
 set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O"}]
 create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
 
+
+# ###################################################################################################################
+# Rename generated clock : refclk200MHz
+# ###################################################################################################################
+set src_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1] 
+set clk_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name refclk200MHz -source $src_pin -master_clock [get_clocks ref_clk] $clk_pin
+
+
+# ###################################################################################################################
+# Rename generated clock : sclk100MHz
+# ###################################################################################################################
+set src_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1]
+set clk_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT1]
+create_generated_clock -name sclk100MHz -source $src_pin -master_clock [get_clocks ref_clk] $clk_pin
+
+
 # ###################################################################################################################
 # Clock domain crossing false path
 # ###################################################################################################################
-set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_bottom] 
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_top] 
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_bottom] 
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_top] 
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_bottom] 
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks sclk100MHz]
+
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks hclk_top] 
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks hclk_bottom] 
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks pclk_top] 
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks pclk_bottom] 
 
 
 # ###################################################################################################################
