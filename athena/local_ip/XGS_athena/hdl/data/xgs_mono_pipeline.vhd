@@ -109,8 +109,10 @@ architecture rtl of xgs_mono_pipeline is
   signal aclk_tvalid_int      : std_logic;
   signal aclk_read_data_valid : std_logic;
   signal aclk_acknowledge     : std_logic;
-  signal aclk_tlast_int       : std_logic;
-  
+  signal aclk_tlast_int    : std_logic;
+  -- signal aclk_sync_packer     : std_logic_vector (3 downto 0);
+  -- signal aclk_data_packer     : std_logic_vector (63 downto 0);
+ 
 begin
 
   

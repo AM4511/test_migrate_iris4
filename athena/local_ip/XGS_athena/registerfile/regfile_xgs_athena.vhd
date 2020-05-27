@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/26 14:06:58
+-- Created on          : 2020/05/27 12:43:48
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7FCA80E0
+-- Register file CRC32 : 0xF522555B
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -61,7 +61,9 @@ package regfile_xgs_athena_pack is
    constant K_ACQ_SENSOR_DP_GB_ADDR           : natural := 16#1c0#;
    constant K_ACQ_SENSOR_DP_R_ADDR            : natural := 16#1c4#;
    constant K_ACQ_SENSOR_DP_B_ADDR            : natural := 16#1c8#;
-   constant K_ACQ_SENSOR_X_ORIGIN_ADDR        : natural := 16#1cc#;
+   constant K_ACQ_SENSOR_X_SIZE_ADDR          : natural := 16#1cc#;
+   constant K_ACQ_SENSOR_X_START_ADDR         : natural := 16#1d0#;
+   constant K_ACQ_SENSOR_X_END_ADDR           : natural := 16#1d4#;
    constant K_ACQ_DEBUG_PINS_ADDR             : natural := 16#1e0#;
    constant K_ACQ_TRIGGER_MISSED_ADDR         : natural := 16#1e8#;
    constant K_ACQ_SENSOR_FPS_ADDR             : natural := 16#1f0#;
@@ -880,19 +882,49 @@ package regfile_xgs_athena_pack is
    function to_ACQ_SENSOR_DP_B_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_B_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: SENSOR_X_ORIGIN
+   -- Register Name: SENSOR_X_SIZE
    ------------------------------------------------------------------------------------------
-   type ACQ_SENSOR_X_ORIGIN_TYPE is record
-      SENSOR_X_ORIGIN: std_logic_vector(9 downto 0);
-   end record ACQ_SENSOR_X_ORIGIN_TYPE;
+   type ACQ_SENSOR_X_SIZE_TYPE is record
+      SENSOR_X_SIZE  : std_logic_vector(12 downto 0);
+   end record ACQ_SENSOR_X_SIZE_TYPE;
 
-   constant INIT_ACQ_SENSOR_X_ORIGIN_TYPE : ACQ_SENSOR_X_ORIGIN_TYPE := (
-      SENSOR_X_ORIGIN => (others=> 'Z')
+   constant INIT_ACQ_SENSOR_X_SIZE_TYPE : ACQ_SENSOR_X_SIZE_TYPE := (
+      SENSOR_X_SIZE   => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : ACQ_SENSOR_X_ORIGIN_TYPE) return std_logic_vector;
-   function to_ACQ_SENSOR_X_ORIGIN_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_ORIGIN_TYPE;
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_SIZE_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_X_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_SIZE_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_X_START
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_X_START_TYPE is record
+      SENSOR_X_START : std_logic_vector(12 downto 0);
+   end record ACQ_SENSOR_X_START_TYPE;
+
+   constant INIT_ACQ_SENSOR_X_START_TYPE : ACQ_SENSOR_X_START_TYPE := (
+      SENSOR_X_START  => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_START_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_X_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_START_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: SENSOR_X_END
+   ------------------------------------------------------------------------------------------
+   type ACQ_SENSOR_X_END_TYPE is record
+      SENSOR_X_END   : std_logic_vector(12 downto 0);
+   end record ACQ_SENSOR_X_END_TYPE;
+
+   constant INIT_ACQ_SENSOR_X_END_TYPE : ACQ_SENSOR_X_END_TYPE := (
+      SENSOR_X_END    => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_END_TYPE) return std_logic_vector;
+   function to_ACQ_SENSOR_X_END_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_END_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: DEBUG_PINS
@@ -1289,7 +1321,9 @@ package regfile_xgs_athena_pack is
       SENSOR_DP_GB   : ACQ_SENSOR_DP_GB_TYPE;
       SENSOR_DP_R    : ACQ_SENSOR_DP_R_TYPE;
       SENSOR_DP_B    : ACQ_SENSOR_DP_B_TYPE;
-      SENSOR_X_ORIGIN: ACQ_SENSOR_X_ORIGIN_TYPE;
+      SENSOR_X_SIZE  : ACQ_SENSOR_X_SIZE_TYPE;
+      SENSOR_X_START : ACQ_SENSOR_X_START_TYPE;
+      SENSOR_X_END   : ACQ_SENSOR_X_END_TYPE;
       DEBUG_PINS     : ACQ_DEBUG_PINS_TYPE;
       TRIGGER_MISSED : ACQ_TRIGGER_MISSED_TYPE;
       SENSOR_FPS     : ACQ_SENSOR_FPS_TYPE;
@@ -1329,7 +1363,9 @@ package regfile_xgs_athena_pack is
       SENSOR_DP_GB    => INIT_ACQ_SENSOR_DP_GB_TYPE,
       SENSOR_DP_R     => INIT_ACQ_SENSOR_DP_R_TYPE,
       SENSOR_DP_B     => INIT_ACQ_SENSOR_DP_B_TYPE,
-      SENSOR_X_ORIGIN => INIT_ACQ_SENSOR_X_ORIGIN_TYPE,
+      SENSOR_X_SIZE   => INIT_ACQ_SENSOR_X_SIZE_TYPE,
+      SENSOR_X_START  => INIT_ACQ_SENSOR_X_START_TYPE,
+      SENSOR_X_END    => INIT_ACQ_SENSOR_X_END_TYPE,
       DEBUG_PINS      => INIT_ACQ_DEBUG_PINS_TYPE,
       TRIGGER_MISSED  => INIT_ACQ_TRIGGER_MISSED_TYPE,
       SENSOR_FPS      => INIT_ACQ_SENSOR_FPS_TYPE,
@@ -2520,26 +2556,72 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from ACQ_SENSOR_X_ORIGIN_TYPE to std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_X_SIZE_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : ACQ_SENSOR_X_ORIGIN_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_SIZE_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(9 downto 0) := reg.SENSOR_X_ORIGIN;
+      output(12 downto 0) := reg.SENSOR_X_SIZE;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_ACQ_SENSOR_X_ORIGIN_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_X_ORIGIN_TYPE
+   -- Function Name: to_ACQ_SENSOR_X_SIZE_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_X_SIZE_TYPE
    --------------------------------------------------------------------------------
-   function to_ACQ_SENSOR_X_ORIGIN_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_ORIGIN_TYPE is
-   variable output : ACQ_SENSOR_X_ORIGIN_TYPE;
+   function to_ACQ_SENSOR_X_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_SIZE_TYPE is
+   variable output : ACQ_SENSOR_X_SIZE_TYPE;
    begin
-      output.SENSOR_X_ORIGIN := stdlv(9 downto 0);
+      output.SENSOR_X_SIZE := stdlv(12 downto 0);
       return output;
-   end to_ACQ_SENSOR_X_ORIGIN_TYPE;
+   end to_ACQ_SENSOR_X_SIZE_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_X_START_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_START_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(12 downto 0) := reg.SENSOR_X_START;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_X_START_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_X_START_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_X_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_START_TYPE is
+   variable output : ACQ_SENSOR_X_START_TYPE;
+   begin
+      output.SENSOR_X_START := stdlv(12 downto 0);
+      return output;
+   end to_ACQ_SENSOR_X_START_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_SENSOR_X_END_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_SENSOR_X_END_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(12 downto 0) := reg.SENSOR_X_END;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_SENSOR_X_END_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_X_END_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_SENSOR_X_END_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_X_END_TYPE is
+   variable output : ACQ_SENSOR_X_END_TYPE;
+   begin
+      output.SENSOR_X_END := stdlv(12 downto 0);
+      return output;
+   end to_ACQ_SENSOR_X_END_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -2956,11 +3038,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/26 14:06:58
+-- Created on          : 2020/05/27 12:43:48
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7FCA80E0
+-- Register file CRC32 : 0xF522555B
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -2998,8 +3080,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(70 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(70 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(72 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(72 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3047,7 +3129,9 @@ signal rb_ACQ_SENSOR_DP_GR                                         : std_logic_v
 signal rb_ACQ_SENSOR_DP_GB                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_R                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_B                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_X_ORIGIN                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_X_SIZE                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_X_START                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_SENSOR_X_END                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_DEBUG_PINS                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_TRIGGER_MISSED                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_FPS                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -3145,7 +3229,9 @@ signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                      : std_logic_v
 signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                      : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
 signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
 signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
-signal field_rw_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN                : std_logic_vector(9 downto 0);                    -- Field: SENSOR_X_ORIGIN
+signal field_rw_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE                    : std_logic_vector(12 downto 0);                   -- Field: SENSOR_X_SIZE
+signal field_rw_ACQ_SENSOR_X_START_SENSOR_X_START                  : std_logic_vector(12 downto 0);                   -- Field: SENSOR_X_START
+signal field_rw_ACQ_SENSOR_X_END_SENSOR_X_END                      : std_logic_vector(12 downto 0);                   -- Field: SENSOR_X_END
 signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
@@ -3270,34 +3356,36 @@ hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else 
 hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GB
 hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_R
 hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_B
-hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1cc#,12)))	else '0'; -- Addr:  0x01CC	SENSOR_X_ORIGIN
-hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
-hit(45) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
-hit(46) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
-hit(47) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
-hit(48) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
-hit(49) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
-hit(50) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
-hit(51) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
-hit(52) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
-hit(53) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,12)))	else '0'; -- Addr:  0x0408	IDELAYCTRL_STATUS
-hit(54) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,12)))	else '0'; -- Addr:  0x040C	IDLE_CHARACTER
-hit(55) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,12)))	else '0'; -- Addr:  0x0410	LANE_DECODER_STATUS[0]
-hit(56) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#414#,12)))	else '0'; -- Addr:  0x0414	LANE_DECODER_STATUS[1]
-hit(57) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else '0'; -- Addr:  0x0418	LANE_DECODER_STATUS[2]
-hit(58) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#41c#,12)))	else '0'; -- Addr:  0x041C	LANE_DECODER_STATUS[3]
-hit(59) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#420#,12)))	else '0'; -- Addr:  0x0420	LANE_DECODER_STATUS[4]
-hit(60) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_DECODER_STATUS[5]
-hit(61) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	TAP_HISTOGRAM[0]
-hit(62) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	TAP_HISTOGRAM[1]
-hit(63) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	TAP_HISTOGRAM[2]
-hit(64) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	TAP_HISTOGRAM[3]
-hit(65) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#438#,12)))	else '0'; -- Addr:  0x0438	TAP_HISTOGRAM[4]
-hit(66) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#43c#,12)))	else '0'; -- Addr:  0x043C	TAP_HISTOGRAM[5]
-hit(67) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#440#,12)))	else '0'; -- Addr:  0x0440	LANE_PACKER_STATUS[0]
-hit(68) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else '0'; -- Addr:  0x0444	LANE_PACKER_STATUS[1]
-hit(69) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	LANE_PACKER_STATUS[2]
-hit(70) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	DEBUG
+hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1cc#,12)))	else '0'; -- Addr:  0x01CC	SENSOR_X_SIZE
+hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d0#,12)))	else '0'; -- Addr:  0x01D0	SENSOR_X_START
+hit(45) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d4#,12)))	else '0'; -- Addr:  0x01D4	SENSOR_X_END
+hit(46) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
+hit(47) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
+hit(48) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
+hit(49) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
+hit(50) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
+hit(51) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
+hit(52) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
+hit(53) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
+hit(54) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
+hit(55) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,12)))	else '0'; -- Addr:  0x0408	IDELAYCTRL_STATUS
+hit(56) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,12)))	else '0'; -- Addr:  0x040C	IDLE_CHARACTER
+hit(57) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,12)))	else '0'; -- Addr:  0x0410	LANE_DECODER_STATUS[0]
+hit(58) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#414#,12)))	else '0'; -- Addr:  0x0414	LANE_DECODER_STATUS[1]
+hit(59) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else '0'; -- Addr:  0x0418	LANE_DECODER_STATUS[2]
+hit(60) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#41c#,12)))	else '0'; -- Addr:  0x041C	LANE_DECODER_STATUS[3]
+hit(61) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#420#,12)))	else '0'; -- Addr:  0x0420	LANE_DECODER_STATUS[4]
+hit(62) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_DECODER_STATUS[5]
+hit(63) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	TAP_HISTOGRAM[0]
+hit(64) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	TAP_HISTOGRAM[1]
+hit(65) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	TAP_HISTOGRAM[2]
+hit(66) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	TAP_HISTOGRAM[3]
+hit(67) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#438#,12)))	else '0'; -- Addr:  0x0438	TAP_HISTOGRAM[4]
+hit(68) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#43c#,12)))	else '0'; -- Addr:  0x043C	TAP_HISTOGRAM[5]
+hit(69) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#440#,12)))	else '0'; -- Addr:  0x0440	LANE_PACKER_STATUS[0]
+hit(70) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else '0'; -- Addr:  0x0444	LANE_PACKER_STATUS[1]
+hit(71) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	LANE_PACKER_STATUS[2]
+hit(72) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	DEBUG
 
 
 
@@ -3351,7 +3439,9 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_ACQ_SENSOR_DP_GB,
                             rb_ACQ_SENSOR_DP_R,
                             rb_ACQ_SENSOR_DP_B,
-                            rb_ACQ_SENSOR_X_ORIGIN,
+                            rb_ACQ_SENSOR_X_SIZE,
+                            rb_ACQ_SENSOR_X_START,
+                            rb_ACQ_SENSOR_X_END,
                             rb_ACQ_DEBUG_PINS,
                             rb_ACQ_TRIGGER_MISSED,
                             rb_ACQ_SENSOR_FPS,
@@ -3554,9 +3644,17 @@ begin
       when 16#1C8# =>
          readBackMux <= rb_ACQ_SENSOR_DP_B;
 
-      -- [0x1cc]: /ACQ/SENSOR_X_ORIGIN
+      -- [0x1cc]: /ACQ/SENSOR_X_SIZE
       when 16#1CC# =>
-         readBackMux <= rb_ACQ_SENSOR_X_ORIGIN;
+         readBackMux <= rb_ACQ_SENSOR_X_SIZE;
+
+      -- [0x1d0]: /ACQ/SENSOR_X_START
+      when 16#1D0# =>
+         readBackMux <= rb_ACQ_SENSOR_X_START;
+
+      -- [0x1d4]: /ACQ/SENSOR_X_END
+      when 16#1D4# =>
+         readBackMux <= rb_ACQ_SENSOR_X_END;
 
       -- [0x1e0]: /ACQ/DEBUG_PINS
       when 16#1E0# =>
@@ -6186,36 +6284,106 @@ end process P_ACQ_SENSOR_DP_B_DP_OFFSET_B;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: ACQ_SENSOR_X_ORIGIN
+-- Register name: ACQ_SENSOR_X_SIZE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(43) <= (hit(43)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: SENSOR_X_ORIGIN(9 downto 0)
+-- Field name: SENSOR_X_SIZE(12 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_X_ORIGIN(9 downto 0) <= field_rw_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN(9 downto 0);
-regfile.ACQ.SENSOR_X_ORIGIN.SENSOR_X_ORIGIN <= field_rw_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN(9 downto 0);
+rb_ACQ_SENSOR_X_SIZE(12 downto 0) <= field_rw_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE(12 downto 0);
+regfile.ACQ.SENSOR_X_SIZE.SENSOR_X_SIZE <= field_rw_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE(12 downto 0);
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN
+-- Process: P_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE
 ------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN : process(sysclk)
+P_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN <= std_logic_vector(to_unsigned(integer(32),10));
+         field_rw_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE <= std_logic_vector(to_unsigned(integer(4176),13));
       else
-         for j in  9 downto 0  loop
+         for j in  12 downto 0  loop
             if(wEn(43) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN(j-0) <= reg_writedata(j);
+               field_rw_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN;
+end process P_ACQ_SENSOR_X_SIZE_SENSOR_X_SIZE;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_X_START
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(44) <= (hit(44)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: SENSOR_X_START(12 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_X_START(12 downto 0) <= field_rw_ACQ_SENSOR_X_START_SENSOR_X_START(12 downto 0);
+regfile.ACQ.SENSOR_X_START.SENSOR_X_START <= field_rw_ACQ_SENSOR_X_START_SENSOR_X_START(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_X_START_SENSOR_X_START
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_X_START_SENSOR_X_START : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_X_START_SENSOR_X_START <= std_logic_vector(to_unsigned(integer(36),13));
+      else
+         for j in  12 downto 0  loop
+            if(wEn(44) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_X_START_SENSOR_X_START(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_X_START_SENSOR_X_START;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_SENSOR_X_END
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(45) <= (hit(45)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: SENSOR_X_END(12 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_SENSOR_X_END(12 downto 0) <= field_rw_ACQ_SENSOR_X_END_SENSOR_X_END(12 downto 0);
+regfile.ACQ.SENSOR_X_END.SENSOR_X_END <= field_rw_ACQ_SENSOR_X_END_SENSOR_X_END(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_SENSOR_X_END_SENSOR_X_END
+------------------------------------------------------------------------------------------
+P_ACQ_SENSOR_X_END_SENSOR_X_END : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_SENSOR_X_END_SENSOR_X_END <= std_logic_vector(to_unsigned(integer(4131),13));
+      else
+         for j in  12 downto 0  loop
+            if(wEn(45) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_SENSOR_X_END_SENSOR_X_END(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_SENSOR_X_END_SENSOR_X_END;
 
 
 
@@ -6224,7 +6392,7 @@ end process P_ACQ_SENSOR_X_ORIGIN_SENSOR_X_ORIGIN;
 -- Register name: ACQ_DEBUG_PINS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(44) <= (hit(44)) and (reg_write);
+wEn(46) <= (hit(46)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Debug3_sel(28 downto 24)
@@ -6244,7 +6412,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug3_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  28 downto 24  loop
-            if(wEn(44) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug3_sel(j-24) <= reg_writedata(j);
             end if;
          end loop;
@@ -6270,7 +6438,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug2_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  20 downto 16  loop
-            if(wEn(44) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug2_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -6296,7 +6464,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug1_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  12 downto 8  loop
-            if(wEn(44) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug1_sel(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -6322,7 +6490,7 @@ begin
          field_rw_ACQ_DEBUG_PINS_Debug0_sel <= std_logic_vector(to_unsigned(integer(31),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(44) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_PINS_Debug0_sel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6337,7 +6505,7 @@ end process P_ACQ_DEBUG_PINS_Debug0_sel;
 -- Register name: ACQ_TRIGGER_MISSED
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(45) <= (hit(45)) and (reg_write);
+wEn(47) <= (hit(47)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TRIGGER_MISSED_RST
@@ -6356,7 +6524,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
       else
-         if(wEn(45) = '1' and bitEnN(28) = '0') then
+         if(wEn(47) = '1' and bitEnN(28) = '0') then
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= reg_writedata(28);
          else
             field_wautoclr_ACQ_TRIGGER_MISSED_TRIGGER_MISSED_RST <= '0';
@@ -6379,7 +6547,7 @@ rb_ACQ_TRIGGER_MISSED(15 downto 0) <= regfile.ACQ.TRIGGER_MISSED.TRIGGER_MISSED_
 -- Register name: ACQ_SENSOR_FPS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(46) <= (hit(46)) and (reg_write);
+wEn(48) <= (hit(48)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FPS(15 downto 0)
@@ -6395,7 +6563,7 @@ rb_ACQ_SENSOR_FPS(15 downto 0) <= regfile.ACQ.SENSOR_FPS.SENSOR_FPS;
 -- Register name: ACQ_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(47) <= (hit(47)) and (reg_write);
+wEn(49) <= (hit(49)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FPGA_7c706
@@ -6421,7 +6589,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= '1';
       else
-         if(wEn(47) = '1' and bitEnN(28) = '0') then
+         if(wEn(49) = '1' and bitEnN(28) = '0') then
             field_rw_ACQ_DEBUG_DEBUG_RST_CNTR <= reg_writedata(28);
          end if;
       end if;
@@ -6446,7 +6614,7 @@ begin
          field_rw_ACQ_DEBUG_LED_TEST_COLOR <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  2 downto 1  loop
-            if(wEn(47) = '1' and bitEnN(j) = '0') then
+            if(wEn(49) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_DEBUG_LED_TEST_COLOR(j-1) <= reg_writedata(j);
             end if;
          end loop;
@@ -6471,7 +6639,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_DEBUG_LED_TEST <= '0';
       else
-         if(wEn(47) = '1' and bitEnN(0) = '0') then
+         if(wEn(49) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_DEBUG_LED_TEST <= reg_writedata(0);
          end if;
       end if;
@@ -6485,7 +6653,7 @@ end process P_ACQ_DEBUG_LED_TEST;
 -- Register name: ACQ_DEBUG_CNTR1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(48) <= (hit(48)) and (reg_write);
+wEn(50) <= (hit(50)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_FRAME_DURATION(27 downto 0)
@@ -6501,7 +6669,7 @@ rb_ACQ_DEBUG_CNTR1(27 downto 0) <= regfile.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION
 -- Register name: ACQ_EXP_FOT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(49) <= (hit(49)) and (reg_write);
+wEn(51) <= (hit(51)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EXP_FOT
@@ -6520,7 +6688,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_EXP_FOT_EXP_FOT <= '1';
       else
-         if(wEn(49) = '1' and bitEnN(16) = '0') then
+         if(wEn(51) = '1' and bitEnN(16) = '0') then
             field_rw_ACQ_EXP_FOT_EXP_FOT <= reg_writedata(16);
          end if;
       end if;
@@ -6545,7 +6713,7 @@ begin
          field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(49) = '1' and bitEnN(j) = '0') then
+            if(wEn(51) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6560,7 +6728,7 @@ end process P_ACQ_EXP_FOT_EXP_FOT_TIME;
 -- Register name: ACQ_ACQ_SFNC
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(50) <= (hit(50)) and (reg_write);
+wEn(52) <= (hit(52)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: RELOAD_GRAB_PARAMS
@@ -6579,7 +6747,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= '1';
       else
-         if(wEn(50) = '1' and bitEnN(0) = '0') then
+         if(wEn(52) = '1' and bitEnN(0) = '0') then
             field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS <= reg_writedata(0);
          end if;
       end if;
@@ -6593,7 +6761,7 @@ end process P_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS;
 -- Register name: HISPI_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(51) <= (hit(51)) and (reg_write);
+wEn(53) <= (hit(53)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: SW_CLR_IDELAYCTRL
@@ -6612,7 +6780,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= '0';
       else
-         if(wEn(51) = '1' and bitEnN(4) = '0') then
+         if(wEn(53) = '1' and bitEnN(4) = '0') then
             field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= reg_writedata(4);
          end if;
       end if;
@@ -6636,7 +6804,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_CTRL_SW_CLR_HISPI <= '0';
       else
-         if(wEn(51) = '1' and bitEnN(3) = '0') then
+         if(wEn(53) = '1' and bitEnN(3) = '0') then
             field_rw_HISPI_CTRL_SW_CLR_HISPI <= reg_writedata(3);
          end if;
       end if;
@@ -6660,7 +6828,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= '0';
       else
-         if(wEn(51) = '1' and bitEnN(2) = '0') then
+         if(wEn(53) = '1' and bitEnN(2) = '0') then
             field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= reg_writedata(2);
          else
             field_wautoclr_HISPI_CTRL_SW_CALIB_SERDES <= '0';
@@ -6686,7 +6854,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_CTRL_ENABLE_DATA_PATH <= '0';
       else
-         if(wEn(51) = '1' and bitEnN(1) = '0') then
+         if(wEn(53) = '1' and bitEnN(1) = '0') then
             field_rw_HISPI_CTRL_ENABLE_DATA_PATH <= reg_writedata(1);
          end if;
       end if;
@@ -6710,7 +6878,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_CTRL_ENABLE_HISPI <= '0';
       else
-         if(wEn(51) = '1' and bitEnN(0) = '0') then
+         if(wEn(53) = '1' and bitEnN(0) = '0') then
             field_rw_HISPI_CTRL_ENABLE_HISPI <= reg_writedata(0);
          end if;
       end if;
@@ -6724,7 +6892,7 @@ end process P_HISPI_CTRL_ENABLE_HISPI;
 -- Register name: HISPI_STATUS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(52) <= (hit(52)) and (reg_write);
+wEn(54) <= (hit(54)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FSM(3 downto 0)
@@ -6768,7 +6936,7 @@ rb_HISPI_STATUS(0) <= regfile.HISPI.STATUS.CALIBRATION_DONE;
 -- Register name: HISPI_IDELAYCTRL_STATUS
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(53) <= (hit(53)) and (reg_write);
+wEn(55) <= (hit(55)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PLL_LOCKED
@@ -6784,7 +6952,7 @@ rb_HISPI_IDELAYCTRL_STATUS(0) <= regfile.HISPI.IDELAYCTRL_STATUS.PLL_LOCKED;
 -- Register name: HISPI_IDLE_CHARACTER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(54) <= (hit(54)) and (reg_write);
+wEn(56) <= (hit(56)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(11 downto 0)
@@ -6804,7 +6972,7 @@ begin
          field_rw_HISPI_IDLE_CHARACTER_VALUE <= std_logic_vector(to_unsigned(integer(934),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(54) = '1' and bitEnN(j) = '0') then
+            if(wEn(56) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_IDLE_CHARACTER_VALUE(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6819,7 +6987,7 @@ end process P_HISPI_IDLE_CHARACTER_VALUE;
 -- Register name: HISPI_LANE_DECODER_STATUS_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(55) <= (hit(55)) and (reg_write);
+wEn(57) <= (hit(57)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -6838,7 +7006,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(55) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(57) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_SYNC_ERROR <= '0';
          else
@@ -6866,7 +7034,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(55) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(57) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -6908,7 +7076,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(55) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(57) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR <= '0';
          else
@@ -6943,7 +7111,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(55) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(57) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN <= '0';
          else
@@ -6971,7 +7139,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN <= '0';
       else
-         if(wEn(55) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(57) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN <= '0';
          else
@@ -6989,7 +7157,7 @@ end process P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_DECODER_STATUS_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(56) <= (hit(56)) and (reg_write);
+wEn(58) <= (hit(58)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -7008,7 +7176,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(56) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(58) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_SYNC_ERROR <= '0';
          else
@@ -7036,7 +7204,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(56) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(58) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -7078,7 +7246,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(56) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(58) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR <= '0';
          else
@@ -7113,7 +7281,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(56) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(58) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN <= '0';
          else
@@ -7141,7 +7309,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN <= '0';
       else
-         if(wEn(56) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(58) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN <= '0';
          else
@@ -7159,7 +7327,7 @@ end process P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_DECODER_STATUS_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(57) <= (hit(57)) and (reg_write);
+wEn(59) <= (hit(59)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -7178,7 +7346,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(57) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(59) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_SYNC_ERROR <= '0';
          else
@@ -7206,7 +7374,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(57) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(59) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -7248,7 +7416,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(57) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(59) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR <= '0';
          else
@@ -7283,7 +7451,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(57) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(59) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN <= '0';
          else
@@ -7311,7 +7479,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN <= '0';
       else
-         if(wEn(57) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(59) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN <= '0';
          else
@@ -7329,7 +7497,7 @@ end process P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_DECODER_STATUS_3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(58) <= (hit(58)) and (reg_write);
+wEn(60) <= (hit(60)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -7348,7 +7516,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(58) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(60) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_SYNC_ERROR <= '0';
          else
@@ -7376,7 +7544,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(58) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(60) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -7418,7 +7586,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(58) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(60) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR <= '0';
          else
@@ -7453,7 +7621,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(58) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(60) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN <= '0';
          else
@@ -7481,7 +7649,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN <= '0';
       else
-         if(wEn(58) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(60) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN <= '0';
          else
@@ -7499,7 +7667,7 @@ end process P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_DECODER_STATUS_4
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(59) <= (hit(59)) and (reg_write);
+wEn(61) <= (hit(61)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -7518,7 +7686,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(59) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(61) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_SYNC_ERROR <= '0';
          else
@@ -7546,7 +7714,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(59) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(61) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -7588,7 +7756,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(59) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(61) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR <= '0';
          else
@@ -7623,7 +7791,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(59) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(61) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN <= '0';
          else
@@ -7651,7 +7819,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN <= '0';
       else
-         if(wEn(59) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(61) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN <= '0';
          else
@@ -7669,7 +7837,7 @@ end process P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_DECODER_STATUS_5
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(60) <= (hit(60)) and (reg_write);
+wEn(62) <= (hit(62)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -7688,7 +7856,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_SYNC_ERROR <= '0';
       else
-         if(wEn(60) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
+         if(wEn(62) = '1' and reg_writedata(14) = '1' and bitEnN(14) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_SYNC_ERROR <= '0';
          else
@@ -7716,7 +7884,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_BIT_LOCKED_ERROR <= '0';
       else
-         if(wEn(60) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
+         if(wEn(62) = '1' and reg_writedata(13) = '1' and bitEnN(13) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_BIT_LOCKED_ERROR <= '0';
          else
@@ -7758,7 +7926,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR <= '0';
       else
-         if(wEn(60) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
+         if(wEn(62) = '1' and reg_writedata(3) = '1' and bitEnN(3) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR <= '0';
          else
@@ -7793,7 +7961,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(60) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(62) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN <= '0';
          else
@@ -7821,7 +7989,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN <= '0';
       else
-         if(wEn(60) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(62) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN <= '0';
          else
@@ -7839,7 +8007,7 @@ end process P_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN;
 -- Register name: HISPI_TAP_HISTOGRAM_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(61) <= (hit(61)) and (reg_write);
+wEn(63) <= (hit(63)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7855,7 +8023,7 @@ rb_HISPI_TAP_HISTOGRAM_0(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(0).VALUE;
 -- Register name: HISPI_TAP_HISTOGRAM_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(62) <= (hit(62)) and (reg_write);
+wEn(64) <= (hit(64)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7871,7 +8039,7 @@ rb_HISPI_TAP_HISTOGRAM_1(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(1).VALUE;
 -- Register name: HISPI_TAP_HISTOGRAM_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(63) <= (hit(63)) and (reg_write);
+wEn(65) <= (hit(65)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7887,7 +8055,7 @@ rb_HISPI_TAP_HISTOGRAM_2(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(2).VALUE;
 -- Register name: HISPI_TAP_HISTOGRAM_3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(64) <= (hit(64)) and (reg_write);
+wEn(66) <= (hit(66)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7903,7 +8071,7 @@ rb_HISPI_TAP_HISTOGRAM_3(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(3).VALUE;
 -- Register name: HISPI_TAP_HISTOGRAM_4
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(65) <= (hit(65)) and (reg_write);
+wEn(67) <= (hit(67)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7919,7 +8087,7 @@ rb_HISPI_TAP_HISTOGRAM_4(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(4).VALUE;
 -- Register name: HISPI_TAP_HISTOGRAM_5
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(66) <= (hit(66)) and (reg_write);
+wEn(68) <= (hit(68)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: VALUE(31 downto 0)
@@ -7935,7 +8103,7 @@ rb_HISPI_TAP_HISTOGRAM_5(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(5).VALUE;
 -- Register name: HISPI_LANE_PACKER_STATUS_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(67) <= (hit(67)) and (reg_write);
+wEn(69) <= (hit(69)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -7954,7 +8122,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(67) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(69) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
          else
@@ -7982,7 +8150,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
       else
-         if(wEn(67) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(69) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
          else
@@ -8000,7 +8168,7 @@ end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_PACKER_STATUS_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(68) <= (hit(68)) and (reg_write);
+wEn(70) <= (hit(70)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -8019,7 +8187,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(68) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(70) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
          else
@@ -8047,7 +8215,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
       else
-         if(wEn(68) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(70) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
          else
@@ -8065,7 +8233,7 @@ end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
 -- Register name: HISPI_LANE_PACKER_STATUS_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(69) <= (hit(69)) and (reg_write);
+wEn(71) <= (hit(71)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: FIFO_UNDERRUN
@@ -8084,7 +8252,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
       else
-         if(wEn(69) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
+         if(wEn(71) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
          else
@@ -8112,7 +8280,7 @@ begin
       if (resetN = '0') then
          field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
       else
-         if(wEn(69) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         if(wEn(71) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
             -- Clear the field to '0'
             field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
          else
@@ -8130,7 +8298,7 @@ end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
 -- Register name: HISPI_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(70) <= (hit(70)) and (reg_write);
+wEn(72) <= (hit(72)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MANUAL_CALIB_EN
@@ -8149,7 +8317,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= '0';
       else
-         if(wEn(70) = '1' and bitEnN(31) = '0') then
+         if(wEn(72) = '1' and bitEnN(31) = '0') then
             field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= reg_writedata(31);
          end if;
       end if;
@@ -8173,7 +8341,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
       else
-         if(wEn(70) = '1' and bitEnN(30) = '0') then
+         if(wEn(72) = '1' and bitEnN(30) = '0') then
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= reg_writedata(30);
          else
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
@@ -8200,7 +8368,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_5 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  29 downto 25  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_5(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -8226,7 +8394,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_4 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  24 downto 20  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_4(j-20) <= reg_writedata(j);
             end if;
          end loop;
@@ -8252,7 +8420,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_3 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  19 downto 15  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_3(j-15) <= reg_writedata(j);
             end if;
          end loop;
@@ -8278,7 +8446,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_2 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  14 downto 10  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_2(j-10) <= reg_writedata(j);
             end if;
          end loop;
@@ -8304,7 +8472,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_1 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  9 downto 5  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_1(j-5) <= reg_writedata(j);
             end if;
          end loop;
@@ -8330,7 +8498,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_0 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(72) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_0(j-0) <= reg_writedata(j);
             end if;
          end loop;

@@ -37,6 +37,8 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Register interface
     ---------------------------------------------------------------------------
+    x_row_start : in std_logic_vector(12 downto 0);
+    x_row_stop  : in std_logic_vector(12 downto 0);
     y_row_start : in std_logic_vector(11 downto 0);
     y_row_stop  : in std_logic_vector(11 downto 0);
 
@@ -48,7 +50,6 @@ entity axi_line_streamer is
     line_buffer_read    : out std_logic;
     line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
     line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    line_buffer_count   : in  std_logic_vector(11 downto 0);
     line_buffer_row_id  : in  std_logic_vector(11 downto 0);
     line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
@@ -118,7 +119,6 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of line_buffer_read    : signal is "true";
   attribute mark_debug of line_buffer_ptr     : signal is "true";
   attribute mark_debug of line_buffer_address : signal is "true";
-  attribute mark_debug of line_buffer_count   : signal is "true";
   attribute mark_debug of line_buffer_row_id  : signal is "true";
   attribute mark_debug of line_buffer_data    : signal is "true";
   attribute mark_debug of sclk_tready         : signal is "true";
@@ -196,13 +196,19 @@ begin
   -- Description : 
   -----------------------------------------------------------------------------
   P_burst_length : process (sclk) is
+    variable xstart  : integer;
+    variable xstop   : integer;
+    variable xlength : integer;
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
         burst_length <= 0;
       else
+        xstart  := to_integer(unsigned(x_row_start));
+        xstop   := to_integer(unsigned(x_row_stop));
+        xlength := xstop - xstart + 1;
         if (state = S_LOAD_BURST_CNTR) then
-          burst_length <= to_integer(unsigned(line_buffer_count));
+          burst_length <= (xlength/4);
         end if;
       end if;
     end if;
