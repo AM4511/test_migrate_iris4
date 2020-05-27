@@ -11,6 +11,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.mtx_types_pkg.all;
+use work.regfile_xgs_athena_pack.all;
 
 entity lane_packer is
   generic (
@@ -25,13 +26,20 @@ entity lane_packer is
     PIXEL_SIZE                : integer              := 12
     );
   port (
-    sysclk : in std_logic;
-    sysrst : in std_logic;
+    ---------------------------------------------------------------------------
+    -- Registerfile  clock domain
+    ---------------------------------------------------------------------------
+    rclk       : in    std_logic;
+    rclk_reset : in    std_logic;
+    regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
-    -- registers
-    packer_fifo_overrun  : out std_logic;
-    packer_fifo_underrun : out std_logic;
+    ---------------------------------------------------------------------------
+    -- sclk clock domain
+    ---------------------------------------------------------------------------
+    sclk       : in std_logic;
+    sclk_reset : in std_logic;
 
+  
     enable         : in  std_logic;
     init_packer    : in  std_logic;
     odd_line       : in  std_logic;
@@ -54,8 +62,8 @@ entity lane_packer is
     bottom_fifo_read_data       : in  std_logic_vector(31 downto 0);
 
     -- Line buffer interface
-    lane_packer_info_en : out std_logic;
-    lane_packer_info    : out std_logic_vector(3 downto 0);
+    -- lane_packer_info_en : out std_logic;
+    -- lane_packer_info    : out std_logic_vector(3 downto 0);
     lane_packer_ack     : in  std_logic;
     lane_packer_req     : out std_logic;
     lane_packer_write   : out std_logic;
@@ -81,6 +89,20 @@ architecture rtl of lane_packer is
     return i;
   end log2;
 
+
+  component mtx_resync is
+    port
+      (
+        aClk  : in  std_logic;
+        aClr  : in  std_logic;
+        aDin  : in  std_logic;
+        bclk  : in  std_logic;
+        bclr  : in  std_logic;
+        bDout : out std_logic;
+        bRise : out std_logic;
+        bFall : out std_logic
+        );
+  end component;
 
   component mtxSCFIFO is
     generic
@@ -140,58 +162,72 @@ architecture rtl of lane_packer is
   signal pix_even          : std_logic_vector(15 downto 0) := (others => '0');
   signal pix_odd           : std_logic_vector(15 downto 0) := (others => '0');
 
-  signal fifo_rd        : std_logic;
-  signal fifo_wr        : std_logic;
-  signal fifo_wdata     : std_logic_vector(FIFO_DATA_WIDTH-1 downto 0);
-  signal fifo_rdata     : std_logic_vector(FIFO_DATA_WIDTH-1 downto 0);
-  signal fifo_full      : std_logic;
-  signal fifo_empty     : std_logic;
-  signal fifo_usedw     : std_logic_vector(FIFO_ADDRESS_WIDTH downto 0);
-  signal fifo_usedw_max : std_logic_vector(FIFO_ADDRESS_WIDTH downto 0);
+  signal fifo_rd              : std_logic;
+  signal fifo_wr              : std_logic;
+  signal fifo_wdata           : std_logic_vector(FIFO_DATA_WIDTH-1 downto 0);
+  signal fifo_rdata           : std_logic_vector(FIFO_DATA_WIDTH-1 downto 0);
+  signal fifo_full            : std_logic;
+  signal fifo_empty           : std_logic;
+  signal fifo_usedw           : std_logic_vector(FIFO_ADDRESS_WIDTH downto 0);
+  signal fifo_usedw_max       : std_logic_vector(FIFO_ADDRESS_WIDTH downto 0);
+  signal packer_fifo_overrun  : std_logic;
+  signal packer_fifo_underrun : std_logic;
 
+  signal rclk_packer_fifo_overrun  : std_logic;
+  signal rclk_packer_fifo_underrun : std_logic;
 
 begin
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_lane_packer_info_en
-  -- Description :  
-  -----------------------------------------------------------------------------
-  -- P_lane_packer_info_en : process (sysclk) is
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1') then
-  --       lane_packer_info_en <= '0';
-  --     else
-  --       if (LANE_PACKER_ID = 0 and  top_sync(0) = '1') then
-          
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-  
-  -----------------------------------------------------------------------------
-  -- Process     : P_lane_packer_info
-  -- Description :  
-  -----------------------------------------------------------------------------
-  -- P_lane_packer_info : process (sysclk) is
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1') then
-  --       lane_packer_info <= (others =>'0');
-  --     else
-  --       if (LANE_PACKER_ID = 0 and  top_sync(0) = '1') then
-          
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-  lane_packer_info <= (others =>'0');
-  lane_packer_info_en <= '0';
+  -- lane_packer_info    <= (others => '0');
+  -- lane_packer_info_en <= '0';
+
+
   -----------------------------------------------------------------------------
   -- TBD
   -----------------------------------------------------------------------------
-  packer_fifo_overrun  <= '0';
-  packer_fifo_underrun <= '0';
+  packer_fifo_overrun <= '1' when(fifo_wr = '1' and fifo_full = '1') else
+                         '0';
+
+  packer_fifo_underrun <= '1' when(fifo_rd = '1' and fifo_empty = '1') else
+                          '0';
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  M_rclk_packer_fifo_underrun : mtx_resync
+    port map
+    (
+      aClk  => sclk,
+      aClr  => sclk_reset,
+      aDin  => packer_fifo_underrun,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => open,
+      bRise => rclk_packer_fifo_underrun,
+      bFall => open
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  M_rclk_packer_fifo_overrun : mtx_resync
+    port map
+    (
+      aClk  => sclk,
+      aClr  => sclk_reset,
+      aDin  => packer_fifo_overrun,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => open,
+      bRise => rclk_packer_fifo_overrun,
+      bFall => open
+      );
+
+
+  regfile.HISPI.LANE_PACKER_STATUS(LANE_PACKER_ID).FIFO_OVERRUN_set  <= rclk_packer_fifo_overrun;
+  regfile.HISPI.LANE_PACKER_STATUS(LANE_PACKER_ID).FIFO_UNDERRUN_set <= rclk_packer_fifo_underrun;
 
 
   -----------------------------------------------------------------------------
@@ -213,10 +249,10 @@ begin
   -- Description : Lane packer main FSM. Control the top and bottom XGS lane
   --               packing.
   -----------------------------------------------------------------------------
-  P_state : process (sysclk) is
+  P_state : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         state <= S_IDLE;
       else
         if (init_packer = '1') then
@@ -283,10 +319,10 @@ begin
   -- Process     : P_busy
   -- Description : the busy flag indicates that a transfer is presently running
   -----------------------------------------------------------------------------
-  P_busy : process (sysclk) is
+  P_busy : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
         busy <= '0';
       else
         if (state = S_INIT) then
@@ -311,12 +347,12 @@ begin
   -- Description : Packer buffer. The top lane data and the associated bottom
   --               lane data is packe in this process. 
   -----------------------------------------------------------------------------
-  P_pix_packer : process (sysclk) is
+  P_pix_packer : process (sclk) is
     variable msb            : natural;
     variable lsb            : natural;
     variable nxt_packer_ptr : natural;
   begin
-    if (rising_edge(sysclk)) then
+    if (rising_edge(sclk)) then
 
       if (load_data = '1') then
         if (odd_line = '1') then
@@ -349,13 +385,13 @@ begin
   --               the packed segment of pixel shouls be stored> Units are in
   --               WORDS (LINE_BUFFER_DATA_WIDTH)
   -----------------------------------------------------------------------------
-  P_line_buffer_offset : process (sysclk) is
+  P_line_buffer_offset : process (sclk) is
     variable packer_offset_in_pix : natural;
     variable line_offset_in_pix   : INTEGER_ARRAY_TYPE(3 downto 0);
 
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
         pix_offset_stripe_0 <= 0;
         pix_offset_stripe_1 <= 0;
         pix_offset_stripe_2 <= 0;
@@ -401,9 +437,9 @@ begin
   -- Process     : P_pix_packer_wren
   -- Description : Packer fifo write enable (Write port) 
   -----------------------------------------------------------------------------
-  P_pix_packer_wren : process (sysclk) is
+  P_pix_packer_wren : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
+    if (rising_edge(sclk)) then
       if (load_data = '1') then
         pix_packer_wren <= '1';
       else
@@ -428,8 +464,8 @@ begin
       ADDRWIDTH => FIFO_ADDRESS_WIDTH
       )
     port map (
-      clk   => sysclk,
-      sclr  => sysrst,
+      clk   => sclk,
+      sclr  => sclk_reset,
       wren  => fifo_wr,
       data  => fifo_wdata,
       rden  => fifo_rd,
@@ -443,10 +479,10 @@ begin
   -- Process     : P_fifo_usedw_max
   -- Description :  
   -----------------------------------------------------------------------------
-  P_fifo_usedw_max : process (sysclk) is
+  P_fifo_usedw_max : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         fifo_usedw_max <= (others => '0');
       else
         if (unsigned(fifo_usedw) > unsigned(fifo_usedw_max)) then
@@ -462,10 +498,10 @@ begin
   -- Description : Lane packer main FSM. Control the top and bottom XGS lane
   --               packing.
   -----------------------------------------------------------------------------
-  P_output_state : process (sysclk) is
+  P_output_state : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         output_state <= S_IDLE;
       else
         if (init_packer = '1') then
@@ -528,10 +564,10 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_lane_packer_write : process (sysclk) is
+  P_lane_packer_write : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         lane_packer_write <= '0';
       else
         lane_packer_write <= fifo_rd;
@@ -543,10 +579,10 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_lane_packer_req : process (sysclk) is
+  P_lane_packer_req : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1') then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
         lane_packer_req <= '0';
       else
         if (output_state = S_REQ) then
@@ -567,11 +603,11 @@ begin
   -- synthesis translate_off
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-  P_pix_in_cntr : process (sysclk) is
+  P_pix_in_cntr : process (sclk) is
 
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
         pix_in_cntr <= 0;
       else
         if (state = S_INIT) then

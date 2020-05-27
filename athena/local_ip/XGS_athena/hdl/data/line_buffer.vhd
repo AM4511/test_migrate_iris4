@@ -34,7 +34,6 @@ entity line_buffer is
     -- Description: 
     ------------------------------------------------------------------------------------
     row_id        : in std_logic_vector(11 downto 0);
---    row_last      : in std_logic;
     buffer_enable : in std_logic;
     init_frame    : in std_logic;
 
@@ -51,8 +50,6 @@ entity line_buffer is
     ------------------------------------------------------------------------------------
     lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
     lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-    buff_info_en    : in  std_logic;
-    buff_info       : in  std_logic_vector(3 downto 0);
     buff_write      : in  std_logic;
     buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
     buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
@@ -61,14 +58,12 @@ entity line_buffer is
     -- Interface name: registerFileIF
     -- Description: 
     ------------------------------------------------------------------------------------
-    line_buffer_ready    : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-    line_buffer_read     : in  std_logic;
-    line_buffer_ptr      : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-    line_buffer_address  : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    line_buffer_count    : out std_logic_vector(11 downto 0);
+    line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    line_buffer_read    : in  std_logic;
+    line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+    line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
     line_buffer_row_id  : out std_logic_vector(11 downto 0);
-    --line_buffer_row_info : out std_logic_vector(1 downto 0);
-    line_buffer_data     : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+    line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
     );
 end entity line_buffer;
 
@@ -110,11 +105,12 @@ architecture rtl of line_buffer is
 
   type ROW_ID_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(line_buffer_row_id'range);
   type ROW_INFO_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(1 downto 0);
+  --type WORD_CNTR_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
 
   signal sysrst_n         : std_logic;
   signal lane_grant       : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal write_buffer_ptr : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal word_cntr        : natural := 0;
+  --signal word_cntr        : WORD_CNTR_ARRAY;
   signal pixel_id         : natural := 0;
   signal buffer_row_id    : ROW_ID_ARRAY;
   signal buffer_row_info  : ROW_INFO_ARRAY;
@@ -197,8 +193,9 @@ begin
   end process;
 
 
-
-
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
   P_nxtBuffer_ff : process (sysclk) is
   begin
     if (rising_edge(sysclk)) then
@@ -211,73 +208,28 @@ begin
   end process;
 
 
-
-
-  P_word_cntr : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        word_cntr <= 0;
-      else
-        if (init_frame = '1') then
-          word_cntr <= 0;
-        elsif (buffer_write_en = '1' and line_buffer_read = '0') then
-          word_cntr <= word_cntr+1;
-        elsif (buffer_write_en = '0' and line_buffer_read = '1') then
-          word_cntr <= word_cntr-1;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-
-
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
   P_buffer_row_id : process (sysclk) is
   begin
     if (rising_edge(sysclk)) then
       if (sysrst = '1')then
         buffer_row_id <= (others => (others => '0'));
       else
-        if (nxtBuffer_ff = '1') then
-          for i in 0 to NUMB_LINE_BUFFER-1 loop
-            if (i = to_integer(write_buffer_ptr)) then
-              buffer_row_id(i) <= row_id;
-            end if;
-          end loop;
-        end if;
+        for i in 0 to NUMB_LINE_BUFFER-1 loop
+          if (i = to_integer(write_buffer_ptr) and buff_write = '1') then
+            buffer_row_id(i) <= row_id;
+          end if;
+        end loop;
       end if;
     end if;
   end process;
 
 
-  -- P_buffer_row_last : process (sysclk) is
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1') then
-  --       buffer_row_info <= (others => (others => '0'));
-  --     else
-  --       if (init_frame = '1') then
-  --         -- Set the first_row flag
-  --         buffer_row_info(0)(0) <= '1';
-         
-  --       elsif (nxtBuffer_ff = '1') then
-  --         for i in 0 to NUMB_LINE_BUFFER-1 loop
-           
-  --           if (i = to_integer(write_buffer_ptr)) then
-  --             -- Clear the last_row flag
-  --             buffer_row_info(i)(0) <= '0';
-              
-  --             -- Set the last_row flag
-  --             buffer_row_info(i)(1) <= row_last;
-  --           end if;
-  --         end loop;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => LINE_BUFFER_DATA_WIDTH,
@@ -295,7 +247,6 @@ begin
       );
 
   buffer_read_address <= line_buffer_ptr & line_buffer_address;
-  line_buffer_count   <= std_logic_vector(unsigned(to_unsigned(word_cntr, line_buffer_count'length)));
 
   P_line_buffer_row_id : process (sysclk) is
   begin
@@ -313,22 +264,5 @@ begin
   end process;
 
 
-
-
-  -- P_line_buffer_row_info : process (sysclk) is
-  -- begin
-  --   if (rising_edge(sysclk)) then
-  --     if (sysrst = '1')then
-  --       line_buffer_row_info <= (others => '0');
-  --     else
-  --       for i in 0 to NUMB_LINE_BUFFER-1 loop
-  --         if (i = to_integer(unsigned(line_buffer_ptr))) then
-  --           line_buffer_row_info <= buffer_row_info(i);
-  --         end if;
-  --       end loop;
-
-  --     end if;
-  --   end if;
-  -- end process;
 
 end architecture rtl;

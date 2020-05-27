@@ -34,7 +34,7 @@ entity bit_split is
     -------------------------------------------------------------------------
     -- Register file interface
     -------------------------------------------------------------------------
-    aclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Pixel clock domain
@@ -71,7 +71,7 @@ architecture rtl of bit_split is
   attribute mark_debug of hclk_reset          : signal is "true";
   attribute mark_debug of hclk_data_lane      : signal is "true";
   attribute mark_debug of hclk_data           : signal is "true";
-  attribute mark_debug of aclk_idle_char      : signal is "true";
+  attribute mark_debug of hclk_idle_char      : signal is "true";
   attribute mark_debug of hclk_shift_register : signal is "true";
   attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
   attribute mark_debug of hclk_idle_detected  : signal is "true";
@@ -117,7 +117,7 @@ begin
   -----------------------------------------------------------------------------
   -- Detect a sequence of 4 consecutives IDLE characters (4x12bits)
   -----------------------------------------------------------------------------
-  P_detect_idle_char : process (hclk_shift_register, aclk_idle_char) is
+  P_detect_idle_char : process (hclk_shift_register, hclk_idle_char) is
     variable msb                   : integer;
     variable lsb                   : integer;
     variable hclk_idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
@@ -125,7 +125,7 @@ begin
   begin
 
 
-    hclk_idle_quad_vector := aclk_idle_char & aclk_idle_char & aclk_idle_char & aclk_idle_char;
+    hclk_idle_quad_vector := hclk_idle_char & hclk_idle_char & hclk_idle_char & hclk_idle_char;
 
 
     ---------------------------------------------------------------------------

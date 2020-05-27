@@ -16,12 +16,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.regfile_xgs_athena_pack.all;
+
 
 entity lane_decoder is
   generic (
     PHY_OUTPUT_WIDTH : integer := 6;    -- Physical lane
     PIXEL_SIZE       : integer := 12;   -- Pixel size in bits
-    LANE_DATA_WIDTH  : integer := 32
+    LANE_DATA_WIDTH  : integer := 32;
+    LANE_ID          : integer := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -36,41 +40,34 @@ entity lane_decoder is
     pclk               : in  std_logic;
     pclk_cal_en        : in  std_logic;
     pclk_cal_busy      : out std_logic;
-    pclk_cal_error     : out std_logic;
     pclk_cal_load_tap  : out std_logic;
     pclk_cal_tap_value : out std_logic_vector(4 downto 0);
 
+    ---------------------------------------------------------------------------
+    -- Registerfile  clock domain
+    ---------------------------------------------------------------------------
+    rclk       : in    std_logic;
+    rclk_reset : in    std_logic;
+    regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
     ---------------------------------------------------------------------------
-    -- axi_clk clock domain
+    -- sclk clock domain
     ---------------------------------------------------------------------------
-    aclk       : in std_logic;
-    aclk_reset : in std_logic;
-
-    -- Register file 
-    aclk_idle_character     : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-    aclk_hispi_phy_en       : in  std_logic;
-    aclk_hispi_data_path_en : in  std_logic;
-    aclk_sync_error         : out std_logic;
-    aclk_tap_histogram      : out std_logic_vector(31 downto 0);
+    sclk       : in std_logic;
+    sclk_reset : in std_logic;
 
     -- Read fifo interface
-    aclk_fifo_read_en         : in  std_logic;
-    aclk_fifo_empty           : out std_logic;
-    aclk_fifo_read_data_valid : out std_logic;
-    aclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
-    aclk_fifo_overrun         : out std_logic;
-    aclk_fifo_underrun        : out std_logic;
+    sclk_fifo_read_en         : in  std_logic;
+    sclk_fifo_empty           : out std_logic;
+    sclk_fifo_read_data_valid : out std_logic;
+    sclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
 
     -- Flags
-    aclk_bit_locked      : out std_logic;
-    aclk_bit_locked_rise : out std_logic;
-    aclk_bit_locked_fall : out std_logic;
-    aclk_embeded_data    : out std_logic;
-    aclk_sof_flag        : out std_logic;
-    aclk_eof_flag        : out std_logic;
-    aclk_sol_flag        : out std_logic;
-    aclk_eol_flag        : out std_logic
+    --sclk_embeded_data : out std_logic;
+    sclk_sof_flag : out std_logic;
+    sclk_eof_flag : out std_logic;
+    sclk_sol_flag : out std_logic;
+    sclk_eol_flag : out std_logic
     );
 end entity lane_decoder;
 
@@ -94,7 +91,7 @@ architecture rtl of lane_decoder is
       -------------------------------------------------------------------------
       -- Register file interface
       -------------------------------------------------------------------------
-      aclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
 
       ---------------------------------------------------------------------------
       -- Pixel clock domain
@@ -163,6 +160,7 @@ architecture rtl of lane_decoder is
         );
   end component;
 
+
   attribute mark_debug : string;
   attribute keep       : string;
 
@@ -170,19 +168,18 @@ architecture rtl of lane_decoder is
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
-  --constant FIFO_ADDRESS_WIDTH        : integer := 6;
   constant FIFO_ADDRESS_WIDTH        : integer := 10;  -- jmansill 1024 locationsde 32bits : 32K : 1 block memoire 36Kbits
   constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
 
-  signal pclk_reset          : std_logic;
-  signal pclk_reset_Meta1    : std_logic;
-  signal pclk_reset_Meta2    : std_logic;
-  signal pclk_shift_register : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
-  signal pclk_data           : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal pclk_data_p1        : std_logic_vector(PIXEL_SIZE-1 downto 0);
-  signal pclk_bit_locked     : std_logic;
-  signal pclk_cal_busy_int   : std_logic;
-
+  signal pclk_reset              : std_logic;
+  signal pclk_reset_Meta1        : std_logic;
+  signal pclk_reset_Meta2        : std_logic;
+  signal pclk_shift_register     : std_logic_vector(PIX_SHIFT_REGISTER_SIZE-1 downto 0);
+  signal pclk_data               : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal pclk_data_p1            : std_logic_vector(PIXEL_SIZE-1 downto 0);
+  signal pclk_bit_locked         : std_logic;
+  signal pclk_cal_busy_int       : std_logic;
+  signal pclk_cal_error          : std_logic;
   signal pclk_hispi_phy_en       : std_logic;
   signal pclk_hispi_data_path_en : std_logic;
   signal pclk_embeded_data       : std_logic;
@@ -194,65 +191,111 @@ architecture rtl of lane_decoder is
   signal pclk_fifo_wen           : std_logic;
   signal pclk_fifo_full          : std_logic;
   signal pclk_packer_mux         : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
-  signal pclk_state              : FSM_STATE_TYPE := S_DISABLED;
+  signal pclk_state              : FSM_STATE_TYPE                                := S_DISABLED;
   signal pclk_dataCntr           : unsigned(2 downto 0);  -- Modulo 8 counter
+  signal pclk_sync_detected      : std_logic;
+  signal pclk_packer_valid       : std_logic;
+  signal pclk_sync_error         : std_logic;
+  signal pclk_packer_0_valid     : std_logic;
+  signal pclk_packer_1_valid     : std_logic;
+  signal pclk_packer_2_valid     : std_logic;
+  signal pclk_packer_3_valid     : std_logic;
+  signal pclk_packer_0           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"00000000";
+  signal pclk_packer_1           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"10000000";
+  signal pclk_packer_2           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
+  signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
+  signal pclk_crc_enable         : std_logic                                     := '1';
+  signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
 
-  signal pclk_sync_detected  : std_logic;
-  signal pclk_packer_valid   : std_logic;
-  signal pclk_sync_error     : std_logic;
-  signal pclk_packer_0_valid : std_logic;
-  signal pclk_packer_1_valid : std_logic;
-  signal pclk_packer_2_valid : std_logic;
-  signal pclk_packer_3_valid : std_logic;
-  signal pclk_packer_0       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"00000000";
-  signal pclk_packer_1       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"10000000";
-  signal pclk_packer_2       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
-  signal pclk_packer_3       : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
+  signal sclk_fifo_empty_int : std_logic;
+  signal sclk_fifo_underrun  : std_logic;
 
-  signal pclk_crc_enable          : std_logic := '1';
-  signal pclk_tap_histogram       : std_logic_vector (31 downto 0);
-  signal aclk_fifo_empty_int      : std_logic;
-  signal aclk_fifo_overrun_int    : std_logic;
-  signal aclk_bit_locked_int      : std_logic;
-  signal aclk_bit_locked_rise_int : std_logic;
-  signal aclk_bit_locked_fall_int : std_logic;
-  signal aclk_sync_error_int      : std_logic;
-  signal aclk_latch_tap_histogram : std_logic;
+  signal rclk_enable_hispi    : std_logic;
+  signal rclk_enable_datapath : std_logic;
+  signal rclk_fifo_overrun    : std_logic;
+  signal rclk_fifo_underrun   : std_logic;
+  signal rclk_sync_error      : std_logic;
+  signal rclk_tap_histogram   : std_logic_vector(31 downto 0);
+  signal rclk_cal_busy_rise   : std_logic;
+  signal rclk_cal_busy_fall   : std_logic;
+  signal rclk_cal_done        : std_logic;
+  signal rclk_cal_error       : std_logic;
+  signal rclk_bit_locked      : std_logic;
+  signal rclk_bit_locked_fall : std_logic;
+  
+  signal async_idle_character : std_logic_vector(PIXEL_SIZE-1 downto 0);
 
   -----------------------------------------------------------------------------
   -- Debug attributes on pclk clock domain
   -----------------------------------------------------------------------------
-  attribute mark_debug of pclk_data                : signal is "true";
-  attribute mark_debug of pclk_data_p1             : signal is "true";
-  attribute mark_debug of pclk_state               : signal is "true";
-  attribute mark_debug of pclk_sync_detected       : signal is "true";
-  attribute mark_debug of pclk_shift_register      : signal is "true";
-  attribute mark_debug of pclk_embeded_data        : signal is "true";
-  attribute mark_debug of pclk_crc_enable          : signal is "true";
-  attribute mark_debug of pclk_packer_0            : signal is "true";
-  attribute mark_debug of pclk_packer_1            : signal is "true";
-  attribute mark_debug of pclk_packer_2            : signal is "true";
-  attribute mark_debug of pclk_packer_3            : signal is "true";
-  attribute mark_debug of pclk_packer_0_valid      : signal is "true";
-  attribute mark_debug of pclk_packer_1_valid      : signal is "true";
-  attribute mark_debug of pclk_packer_2_valid      : signal is "true";
-  attribute mark_debug of pclk_packer_3_valid      : signal is "true";
-  attribute mark_debug of pclk_dataCntr            : signal is "true";
-  attribute mark_debug of pclk_packer_mux          : signal is "true";
-  attribute mark_debug of pclk_packer_valid        : signal is "true";
-  attribute mark_debug of pclk_sof_flag            : signal is "true";
-  attribute mark_debug of pclk_eof_flag            : signal is "true";
-  attribute mark_debug of pclk_sol_flag            : signal is "true";
-  attribute mark_debug of pclk_eol_flag            : signal is "true";
-  attribute mark_debug of pclk_fifo_wen            : signal is "true";
-  attribute mark_debug of pclk_fifo_overrun        : signal is "true";
-  attribute mark_debug of pclk_fifo_full           : signal is "true";
-  attribute mark_debug of aclk_latch_tap_histogram : signal is "true";
-  attribute mark_debug of aclk_sync_error_int      : signal is "true";
+  attribute mark_debug of rclk_enable_hispi    : signal is "true";
+  attribute mark_debug of rclk_enable_datapath : signal is "true";
+  attribute mark_debug of rclk_fifo_overrun    : signal is "true";
+  attribute mark_debug of rclk_fifo_underrun   : signal is "true";
+  attribute mark_debug of rclk_sync_error      : signal is "true";
+  attribute mark_debug of rclk_tap_histogram   : signal is "true";
+  attribute mark_debug of rclk_cal_busy_rise   : signal is "true";
+  attribute mark_debug of rclk_cal_busy_fall   : signal is "true";
+  attribute mark_debug of rclk_cal_done        : signal is "true";
+  attribute mark_debug of rclk_cal_error       : signal is "true";
+  attribute mark_debug of rclk_bit_locked      : signal is "true";
+  attribute mark_debug of rclk_bit_locked_fall : signal is "true";
+
+
+  attribute mark_debug of pclk_reset              : signal is "true";
+  attribute mark_debug of pclk_reset_Meta1        : signal is "true";
+  attribute mark_debug of pclk_reset_Meta2        : signal is "true";
+  attribute mark_debug of pclk_shift_register     : signal is "true";
+  attribute mark_debug of pclk_data               : signal is "true";
+  attribute mark_debug of pclk_data_p1            : signal is "true";
+  attribute mark_debug of pclk_bit_locked         : signal is "true";
+  attribute mark_debug of pclk_cal_busy_int       : signal is "true";
+  attribute mark_debug of pclk_cal_error          : signal is "true";
+  attribute mark_debug of pclk_hispi_phy_en       : signal is "true";
+  attribute mark_debug of pclk_hispi_data_path_en : signal is "true";
+  attribute mark_debug of pclk_embeded_data       : signal is "true";
+  attribute mark_debug of pclk_sof_flag           : signal is "true";
+  attribute mark_debug of pclk_eof_flag           : signal is "true";
+  attribute mark_debug of pclk_sol_flag           : signal is "true";
+  attribute mark_debug of pclk_eol_flag           : signal is "true";
+  attribute mark_debug of pclk_fifo_overrun       : signal is "true";
+  attribute mark_debug of pclk_fifo_wen           : signal is "true";
+  attribute mark_debug of pclk_fifo_full          : signal is "true";
+  attribute mark_debug of pclk_packer_mux         : signal is "true";
+  attribute mark_debug of pclk_state              : signal is "true";
+  attribute mark_debug of pclk_dataCntr           : signal is "true";
+  attribute mark_debug of pclk_sync_detected      : signal is "true";
+  attribute mark_debug of pclk_packer_valid       : signal is "true";
+  attribute mark_debug of pclk_sync_error         : signal is "true";
+  attribute mark_debug of pclk_packer_0_valid     : signal is "true";
+  attribute mark_debug of pclk_packer_1_valid     : signal is "true";
+  attribute mark_debug of pclk_packer_2_valid     : signal is "true";
+  attribute mark_debug of pclk_packer_3_valid     : signal is "true";
+  attribute mark_debug of pclk_packer_0           : signal is "true";
+  attribute mark_debug of pclk_packer_1           : signal is "true";
+  attribute mark_debug of pclk_packer_2           : signal is "true";
+  attribute mark_debug of pclk_packer_3           : signal is "true";
+  attribute mark_debug of pclk_crc_enable         : signal is "true";
+  attribute mark_debug of pclk_tap_histogram      : signal is "true";
+
+
+  attribute mark_debug of sclk_reset                : signal is "true";
+  attribute mark_debug of sclk_fifo_empty_int       : signal is "true";
+  attribute mark_debug of sclk_fifo_underrun        : signal is "true";
+  attribute mark_debug of sclk_fifo_read_en         : signal is "true";
+  attribute mark_debug of sclk_fifo_empty           : signal is "true";
+  attribute mark_debug of sclk_fifo_read_data_valid : signal is "true";
+  attribute mark_debug of sclk_fifo_read_data       : signal is "true";
+  attribute mark_debug of sclk_sof_flag             : signal is "true";
+  attribute mark_debug of sclk_eof_flag             : signal is "true";
+  attribute mark_debug of sclk_sol_flag             : signal is "true";
+  attribute mark_debug of sclk_eol_flag             : signal is "true";
 
 begin
 
+  async_idle_character <= regfile.HISPI.IDLE_CHARACTER.VALUE;
 
+                         
   -----------------------------------------------------------------------------
   -- Process     : P_pclk_reset
   -- Description : Resynchronize hclk_reset on the pixel clock
@@ -285,7 +328,7 @@ begin
       hclk            => hclk,
       hclk_reset      => hclk_reset,
       hclk_data_lane  => hclk_data_lane,
-      aclk_idle_char  => aclk_idle_character,
+      hclk_idle_char  => async_idle_character,  -- Falsepath
       pclk            => pclk,
       pclk_bit_locked => pclk_bit_locked,
       pclk_data       => pclk_data
@@ -298,9 +341,9 @@ begin
   M_pclk_hispi_phy_en : mtx_resync
     port map
     (
-      aClk  => aclk,
-      aClr  => aclk_reset,
-      aDin  => aclk_hispi_phy_en,
+      aClk  => rclk,
+      aClr  => rclk_reset,
+      aDin  => rclk_enable_hispi,
       bclk  => pclk,
       bclr  => pclk_reset,
       bDout => pclk_hispi_phy_en,
@@ -308,22 +351,22 @@ begin
       bFall => open
       );
 
+
   -----------------------------------------------------------------------------
   -- Resync  
   -----------------------------------------------------------------------------
   M_pclk_hispi_data_path_en : mtx_resync
     port map
     (
-      aClk  => aclk,
-      aClr  => aclk_reset,
-      aDin  => aclk_hispi_data_path_en,
+      aClk  => rclk,
+      aClr  => rclk_reset,
+      aDin  => rclk_enable_datapath,
       bclk  => pclk,
       bclr  => pclk_reset,
       bDout => pclk_hispi_data_path_en,
       bRise => open,
       bFall => open
       );
-
 
 
   -----------------------------------------------------------------------------
@@ -338,7 +381,7 @@ begin
       pclk                => pclk,
       pclk_reset          => pclk_reset,
       pclk_pixel          => pclk_data,
-      pclk_idle_character => aclk_idle_character,
+      pclk_idle_character => async_idle_character,  -- Falsepath
       pclk_cal_en         => pclk_cal_en,
       pclk_cal_busy       => pclk_cal_busy_int,
       pclk_cal_error      => pclk_cal_error,
@@ -583,7 +626,7 @@ begin
             pclk_state        <= S_IDLE;
             pclk_embeded_data <= '0';
 
-            
+
           -------------------------------------------------------------------
           -- S_IDLE : 
           -------------------------------------------------------------------
@@ -607,7 +650,7 @@ begin
               pclk_state <= S_IDLE;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_EMBEDED : Detected the embeded line (line 0)
           -------------------------------------------------------------------
@@ -625,7 +668,7 @@ begin
             else
               pclk_state <= S_EMBEDED;
             end if;
-           
+
 
 
           -------------------------------------------------------------------
@@ -759,270 +802,288 @@ begin
       wEn    => pclk_fifo_wen,
       wData  => pclk_packer_mux,
       wFull  => pclk_fifo_full,
-      rClk   => aclk,
-      rEn    => aclk_fifo_read_en,
-      rData  => aclk_fifo_read_data,
-      rEmpty => aclk_fifo_empty_int
+      rClk   => sclk,
+      rEn    => sclk_fifo_read_en,
+      rData  => sclk_fifo_read_data,
+      rEmpty => sclk_fifo_empty_int
       );
 
 
-
-
   -----------------------------------------------------------------------------
-  -- Resync aclk_embeded_data
+  -- Resync sclk_sof_flag
   -----------------------------------------------------------------------------
-  M_aclk_embeded_data : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_embeded_data,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_embeded_data,
-      bRise => open,
-      bFall => open
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync aclk_sof_flag
-  -----------------------------------------------------------------------------
-  M_aclk_sof_flag : mtx_resync
+  M_sclk_sof_flag : mtx_resync
     port map
     (
       aClk  => pclk,
       aClr  => pclk_reset,
       aDin  => pclk_sof_flag,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_sof_flag,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => sclk_sof_flag,
       bRise => open,
       bFall => open
       );
 
   -----------------------------------------------------------------------------
-  -- Resync aclk_eof_flag
+  -- Resync sclk_eof_flag
   -----------------------------------------------------------------------------
-  M_aclk_eof_flag : mtx_resync
+  M_sclk_eof_flag : mtx_resync
     port map
     (
       aClk  => pclk,
       aClr  => pclk_reset,
       aDin  => pclk_eof_flag,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_eof_flag,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => sclk_eof_flag,
       bRise => open,
       bFall => open
       );
 
   -----------------------------------------------------------------------------
-  -- Resync aclk_sol_flag
+  -- Resync sclk_sol_flag
   -----------------------------------------------------------------------------
-  M_aclk_sol_flag : mtx_resync
+  M_sclk_sol_flag : mtx_resync
     port map
     (
       aClk  => pclk,
       aClr  => pclk_reset,
       aDin  => pclk_sol_flag,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_sol_flag,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => sclk_sol_flag,
       bRise => open,
       bFall => open
       );
 
   -----------------------------------------------------------------------------
-  -- Resync aclk_eof_flag
+  -- Resync sclk_eof_flag
   -----------------------------------------------------------------------------
-  M_aclk_eol_flag : mtx_resync
+  M_sclk_eol_flag : mtx_resync
     port map
     (
       aClk  => pclk,
       aClr  => pclk_reset,
       aDin  => pclk_eol_flag,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_eol_flag,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => sclk_eol_flag,
       bRise => open,
       bFall => open
       );
 
 
   -----------------------------------------------------------------------------
-  -- Resync aclk_eof_flag
+  -- Resync rclk_cal_busy
   -----------------------------------------------------------------------------
-  M_aclk_fifo_overrun : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_fifo_overrun,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_fifo_overrun_int,
-      bRise => open,
-      bFall => open
-      );
-
-
-  -----------------------------------------------------------------------------
-  -- Resync aclk_bit_locked
-  -----------------------------------------------------------------------------
-  M_aclk_bit_locked : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_bit_locked,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => aclk_bit_locked_int,
-      bRise => aclk_bit_locked_rise_int,
-      bFall => aclk_bit_locked_fall_int
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync aclk_sync_error
-  -----------------------------------------------------------------------------
-  M_aclk_sync_error : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_sync_error,
-      bclk  => aclk,
-      bclr  => aclk_reset,
-      bDout => open,
-      bRise => aclk_sync_error_int,
-      bFall => open
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync aclk_bit_locked
-  -----------------------------------------------------------------------------
-  M_aclk_latch_tap_histogram : mtx_resync
+  M_rclk_cal_busy : mtx_resync
     port map
     (
       aClk  => pclk,
       aClr  => pclk_reset,
       aDin  => pclk_cal_busy_int,
-      bclk  => aclk,
-      bclr  => aclk_reset,
+      bclk  => rclk,
+      bclr  => rclk_reset,
       bDout => open,
-      bRise => open,
-      bFall => aclk_latch_tap_histogram
+      bRise => rclk_cal_busy_rise,
+      bFall => rclk_cal_busy_fall
       );
 
+
   -----------------------------------------------------------------------------
-  -- Process     : P_aclk_fifo_read_data_valid
+  -- Process     : P_rclk_cal_done
+  -- Description : Indicates the calibration is completed.
+  -----------------------------------------------------------------------------
+  P_rclk_cal_done : process (rclk) is
+  begin
+    if (rising_edge(rclk)) then
+      if (rclk_reset = '1') then
+        rclk_cal_done <= '0';
+      else
+        if (rclk_enable_hispi = '1') then
+          if (rclk_cal_busy_rise = '1') then
+            rclk_cal_done <= '0';
+          elsif (rclk_cal_busy_fall = '1') then
+            rclk_cal_done <= '1';
+          end if;
+        else
+          rclk_cal_done <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_fifo_read_data_valid
   -- Description : Indicates presence of read data on the FiFo read data bus.
   -----------------------------------------------------------------------------
-  P_aclk_fifo_read_data_valid : process (aclk) is
+  P_sclk_fifo_read_data_valid : process (sclk) is
   begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_fifo_read_data_valid <= '0';
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_fifo_read_data_valid <= '0';
       else
-        aclk_fifo_read_data_valid <= aclk_fifo_read_en;
+        sclk_fifo_read_data_valid <= sclk_fifo_read_en;
       end if;
     end if;
   end process;
 
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_fifo_overrun
-  -- Description : We gate aclk_fifo_overrun_int with aclk_hispi_phy_en
-  --               otherwise can generate an overflow error in th register file
-  --               when there is no pixclk available
-  -----------------------------------------------------------------------------
-  P_aclk_fifo_overrun : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_fifo_overrun <= '0';
-      else
-        if (aclk_hispi_phy_en = '1') then
-          aclk_fifo_overrun <= aclk_fifo_overrun_int;
-        else
-          aclk_fifo_overrun <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_bit_locked
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_aclk_bit_locked : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_bit_locked      <= '0';
-        aclk_bit_locked_rise <= '0';
-        aclk_bit_locked_fall <= '0';
-        aclk_sync_error      <= '0';
-      else
-        if (aclk_hispi_phy_en = '1') then
-          aclk_bit_locked      <= aclk_bit_locked_int;
-          aclk_bit_locked_rise <= aclk_bit_locked_rise_int;
-          aclk_bit_locked_fall <= aclk_bit_locked_fall_int;
-          aclk_sync_error      <= aclk_sync_error_int;
-        else
-          aclk_bit_locked      <= '0';
-          aclk_bit_locked_rise <= '0';
-          aclk_bit_locked_fall <= '0';
-          aclk_sync_error      <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_fifo_underrun
-  -- Description : Flag a FiFo underrun error condition
-  -----------------------------------------------------------------------------
-  P_aclk_fifo_underrun : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_fifo_underrun <= '0';
-      else
-        if (aclk_fifo_read_en = '1' and aclk_fifo_empty_int = '1') then
-          aclk_fifo_underrun <= '1';
-        else
-          aclk_fifo_underrun <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_tap_histogram
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_aclk_tap_histogram : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1') then
-        aclk_tap_histogram <= (others => '0');
-      else
-        if (aclk_latch_tap_histogram = '1') then
-          aclk_tap_histogram <= pclk_tap_histogram;
-        end if;
-      end if;
-    end if;
-  end process;
 
 
   -----------------------------------------------------------------------------
   -- Send the pixel clock to the higher level of hierarchy 
   -----------------------------------------------------------------------------
-  --pix_clk         <= pclk;
-  aclk_fifo_empty <= aclk_fifo_empty_int;
+  sclk_fifo_empty <= sclk_fifo_empty_int;
+
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Registerfile status
+  -----------------------------------------------------------------------------
+  rclk_enable_hispi <= regfile.HISPI.CTRL.ENABLE_HISPI;
+  rclk_enable_datapath <= regfile.HISPI.CTRL.ENABLE_DATA_PATH;
+  -----------------------------------------------------------------------------
+  -- Resync FiFo overrun
+  -----------------------------------------------------------------------------
+  M_sclk_fifo_overrun : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_fifo_overrun,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => rclk_fifo_overrun,
+      bRise => open,
+      bFall => open
+      );
+
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).FIFO_OVERRUN_set <= '1' when (rclk_fifo_overrun = '1' and rclk_enable_hispi = '1') else
+                                                                 '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Resync FiFo underrun
+  -----------------------------------------------------------------------------
+  sclk_fifo_underrun <= '1' when (sclk_fifo_read_en = '1' and sclk_fifo_empty_int = '1') else
+                        '0';
+  M_sclk_fifo_underrun : mtx_resync
+    port map
+    (
+      aClk  => sclk,
+      aClr  => sclk_reset,
+      aDin  => sclk_fifo_underrun,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => rclk_fifo_underrun,
+      bRise => open,
+      bFall => open
+      );
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).FIFO_UNDERRUN_set <= rclk_fifo_underrun;
+
+
+  -----------------------------------------------------------------------------
+  -- Resync Calibration done
+  -----------------------------------------------------------------------------
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).CALIBRATION_DONE <= rclk_cal_done;
+
+
+  -----------------------------------------------------------------------------
+  -- Calibration error
+  -----------------------------------------------------------------------------
+  M_rclk_cal_error : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_cal_error,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => rclk_cal_error,
+      bRise => open,
+      bFall => open
+      );
+
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).CALIBRATION_ERROR_set <= '1' when (rclk_cal_error = '1' and rclk_enable_hispi = '1') else
+                                                                      '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Resync rclk_bit_locked
+  -----------------------------------------------------------------------------
+  M_sclk_bit_locked : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_bit_locked,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => rclk_bit_locked,
+      bRise => open,
+      bFall => rclk_bit_locked_fall
+      );
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_BIT_LOCKED           <= rclk_bit_locked;
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_BIT_LOCKED_ERROR_set <= '1' when (rclk_bit_locked_fall = '1' and rclk_enable_hispi = '1') else
+                                                                         '0';
+
+
+
+  -----------------------------------------------------------------------------
+  -- Resync rclk_sync_error
+  -----------------------------------------------------------------------------
+  M_rclk_sync_error : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_sync_error,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => open,
+      bRise => rclk_sync_error,
+      bFall => open
+      );
+
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_SYNC_ERROR_set <= '1' when (rclk_sync_error = '1' and rclk_enable_hispi = '1') else
+                                                                   '0';
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_rclk_tap_histogram
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_rclk_tap_histogram : process (rclk) is
+  begin
+    if (rising_edge(rclk)) then
+      if (rclk_reset = '1') then
+        rclk_tap_histogram <= (others => '0');
+      else
+        if (rclk_cal_busy_fall = '1') then
+          rclk_tap_histogram <= pclk_tap_histogram;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  regfile.HISPI.TAP_HISTOGRAM(LANE_ID).VALUE <= rclk_tap_histogram;
+
+
 
 
 end architecture rtl;
