@@ -10,7 +10,7 @@
     <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;1.3.x : First functionnal revision with a single list of multiple Ethernet frames&#xD;&#xA;1.4.x : Second revision. Implements multiple list of frames" offsetFromParent="4">
       <fields name="MAJOR" lsb="16" size="8" readWrite="false" staticVal="true"/>
       <fields name="MINOR" lsb="8" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
-      <fields name="HW" size="8" readWrite="false" readOnly="true"/>
+      <fields name="HW" size="8" readWrite="false" staticVal="true"/>
     </registers>
     <registers name="CAPABILITY" alias="Register file version" offsetFromParent="8">
       <fields name="VALUE" size="8" readWrite="false" staticVal="true"/>
