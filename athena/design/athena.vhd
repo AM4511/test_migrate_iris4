@@ -150,9 +150,9 @@ component system_pb_wrapper
     pcie_txn : out STD_LOGIC_VECTOR ( 1 downto 0 );
     pcie_txp : out STD_LOGIC_VECTOR ( 1 downto 0 );
     ref_clk : in STD_LOGIC;
-    hispi_hispi_data_p : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    hispi_hispi_data_p : in STD_LOGIC_VECTOR ( HISPI_NUMBER_OF_DATA_LANES-1 downto 0 );
     hispi_hispi_clk_p : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    hispi_hispi_data_n : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    hispi_hispi_data_n : in STD_LOGIC_VECTOR ( HISPI_NUMBER_OF_DATA_LANES-1 downto 0 );
     hispi_hispi_clk_n : in STD_LOGIC_VECTOR ( 1 downto 0 );
     xgs_ctrl_xgs_clk_pll_en : out STD_LOGIC;
     xgs_ctrl_xgs_cs_n : out STD_LOGIC;
@@ -237,9 +237,9 @@ begin
     pcie_sys_rst_n          => sys_rst_n,
     ref_clk                 => ref_clk,
     
-    hispi_hispi_data_p      => xgs_hispi_sdata_p,
+    hispi_hispi_data_p      => xgs_hispi_sdata_p(HISPI_NUMBER_OF_DATA_LANES-1 downto 0),
     hispi_hispi_clk_p       => xgs_hispi_sclk_p,
-    hispi_hispi_data_n      => xgs_hispi_sdata_n,
+    hispi_hispi_data_n      => xgs_hispi_sdata_n(HISPI_NUMBER_OF_DATA_LANES-1 downto 0),
     hispi_hispi_clk_n       => xgs_hispi_sclk_n,
     
     xgs_ctrl_xgs_clk_pll_en => xgs_clk_pll_en,

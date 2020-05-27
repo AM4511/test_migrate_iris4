@@ -56,6 +56,37 @@ architecture xilinx of hispi_serdes is
         );
   end component;
 
+  
+--  component hispi_phy_xilinx_4L
+--  generic
+--   (-- width of the data for the system
+--    SYS_W       : integer := 2;
+--    -- width of the data for the device
+--    DEV_W       : integer := 12);
+--  port
+--   (
+--    -- From the system into the device
+--    data_in_from_pins_p     : in    std_logic_vector(SYS_W-1 downto 0);
+--    data_in_from_pins_n     : in    std_logic_vector(SYS_W-1 downto 0);
+--    data_in_to_device       : out   std_logic_vector(DEV_W-1 downto 0);
+--  
+--  -- Input, Output delay control signals
+--    in_delay_reset          : in    std_logic;                    -- Active high synchronous reset for input delay
+--    in_delay_data_ce        : in    std_logic_vector(SYS_W -1 downto 0);                    -- Enable signal for delay 
+--    in_delay_data_inc       : in    std_logic_vector(SYS_W -1 downto 0);                    -- Delay increment (high), decrement (low) signal
+--    in_delay_tap_in         : in    std_logic_vector(5*SYS_W -1 downto 0); -- Dynamically loadable delay tap value for input delay
+--    in_delay_tap_out        : out   std_logic_vector(5*SYS_W -1 downto 0); -- Delay tap value for monitoring input delay
+--    bitslip                 : in    std_logic_vector(SYS_W-1 downto 0);                    -- Bitslip module is enabled in NETWORKING mode
+--                                                                  -- User should tie it to '0' if not needed
+--   
+--  -- Clock and reset signals
+--    clk_in_p                : in    std_logic;                    -- Differential fast clock from IOB
+--    clk_in_n                : in    std_logic;
+--    clk_div_out             : out   std_logic;                    -- Slow clock output
+--    clk_reset               : in    std_logic;                    -- Reset signal for Clock circuit
+--    io_reset                : in    std_logic);                   -- Reset signal for IO circuit
+--  end component;
+  
 
   constant RESET_LENGTH : integer := 8;
   signal bitslip        : std_logic_vector(PHY_SERIAL_WIDTH-1 downto 0);
@@ -86,7 +117,34 @@ begin
   end process;
 
 
-  xhispi_phy_xilinx : hispi_phy_xilinx
+  
+--  Generate2Lanes : if PHY_SERIAL_WIDTH = 2 generate
+--    xhispi_phy_xilinx : hispi_phy_xilinx_4L
+--    generic map (
+--      SYS_W => PHY_SERIAL_WIDTH,
+--      DEV_W => PHY_PARALLEL_WIDTH
+--      )
+--    port map (
+--      data_in_from_pins_p => rx_in_p,
+--      data_in_from_pins_n => rx_in_n,
+--      data_in_to_device   => rx_out,
+--      in_delay_reset      => delay_reset,
+--      in_delay_data_ce    => delay_data_ce,
+--      in_delay_data_inc   => delay_data_inc,
+--      in_delay_tap_in     => delay_tap_in,
+--      in_delay_tap_out    => delay_tap_out,
+--      bitslip             => bitslip,
+--      clk_in_p            => rx_in_clock_p,
+--      clk_in_n            => rx_in_clock_n,
+--      clk_div_out         => rx_div_clock,
+--      clk_reset           => async_pll_reset,
+--      io_reset            => io_reset
+--      );
+--  end generate Generate2Lanes;  
+  
+  
+--  Generate3Lanes : if PHY_SERIAL_WIDTH = 3 generate
+    xhispi_phy_xilinx : hispi_phy_xilinx
     generic map (
       SYS_W => PHY_SERIAL_WIDTH,
       DEV_W => PHY_PARALLEL_WIDTH
@@ -107,6 +165,8 @@ begin
       clk_reset           => async_pll_reset,
       io_reset            => io_reset
       );
+--  end generate Generate3Lanes;    
+
 
   rx_out_clock <= rx_div_clock;
 

@@ -487,8 +487,20 @@
       <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
       <fields name="DP_OFFSET_B" description="Sensor Analog data pedestal for B pixels (Black offset)" size="12" valueAtReset="100"/>
     </registers>
-    <registers name="SENSOR_X_ORIGIN" description="SENSOR X ORIGIN location (X Start)" offsetFromParent="CC" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="4">
-      <fields name="SENSOR_X_ORIGIN" description="This register defines the position of the first horizontal valid pixel (including the interpolation pixels). The location of the first X valid pixel differs between XGS family members and configurations. The dcf will load the location of this X origin." size="10" valueAtReset="20">
+    <registers name="SENSOR_X_SIZE" description="SENSOR X SIZE" offsetFromParent="CC" numberOfReservedSpacesBelow="4">
+      <fields name="SENSOR_X_SIZE" description="SENSOR X SIZE is the complete X size of the sensor defined in number of pixels. It includes dummy pixels, black reference pixels, interpolation pixels and valid pixels.  Thesensor X size differs between XGS family members and configurations. The dcf will load the X size. It is defined as 1-based number.&#xD;&#xA;&#xD;&#xA;For XGS12000, the value is 4176 (0x1050)" size="13" valueAtReset="1050">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_X_START" description="SENSOR X START" offsetFromParent="D0" numberOfReservedSpacesBelow="4">
+      <fields name="SENSOR_X_START" description="This register defines the position of the first horizontal valid pixel (including dummy pixels, black reference pixels and interpolation pixels). The location of the first X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X start. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x start is 36 (0x24).&#xD;&#xA;For XGS12000, in a color sensor the x start is 32 (0x22). (For BAYER correction) " size="13" valueAtReset="24">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="SENSOR_X_END" description="SENSOR X ORIGIN location (X Start)" offsetFromParent="D4" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="SENSOR_X_END" description="This register defines the position of the last horizontal valid pixel (including initials dummy pixels, black reference pixels and interpolation pixels). The location of the last X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X end. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x end is 4132 (0x1024).&#xD;&#xA;For XGS12000, in a color sensor the x end is 4136 (0x1028). (For BAYER correction) " size="13" valueAtReset="1024">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>

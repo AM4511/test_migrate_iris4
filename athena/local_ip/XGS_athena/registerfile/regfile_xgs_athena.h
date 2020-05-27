@@ -1,16 +1,16 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : jmansill
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version     : 4.7.0_beta3
-* Build ID            : I20191219-1127
-* Register file CRC32 : 0xFB33FF50
+* FDK IDE Version     : 4.7.0_beta4
+* Build ID            : I20191220-1537
+* Register file CRC32 : 0xE07E1DC5
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -71,7 +71,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_ADDRESS               0x1C0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_ADDRESS                0x1C4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_ADDRESS                0x1C8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_ORIGIN_ADDRESS            0x1CC
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_ADDRESS              0x1CC
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_ADDRESS             0x1D0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_ADDRESS               0x1D4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
@@ -982,7 +984,7 @@ typedef union
 
 
 /**************************************************************************
-* Register name : SENSOR_X_ORIGIN
+* Register name : SENSOR_X_SIZE
 ***************************************************************************/
 typedef union
 {
@@ -992,12 +994,48 @@ typedef union
 
    struct
    {
-      M_UINT32 SENSOR_X_ORIGIN        : 10;  /* Bits(9:0), null */
-      M_UINT32 RSVD0                  : 22;  /* Bits(31:10), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[4] ;      /* Reserved space below */
+      M_UINT32 SENSOR_X_SIZE : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0         : 19;  /* Bits(31:13), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_ORIGIN_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_TYPE;
+
+
+/**************************************************************************
+* Register name : SENSOR_X_START
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 SENSOR_X_START : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0          : 19;  /* Bits(31:13), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_TYPE;
+
+
+/**************************************************************************
+* Register name : SENSOR_X_END
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 SENSOR_X_END           : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0                  : 19;  /* Bits(31:13), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[2] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_TYPE;
 
 
 /**************************************************************************
@@ -1718,7 +1756,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_TYPE           SENSOR_DP_GB;            /* Address offset: 0xc0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_TYPE            SENSOR_DP_R;             /* Address offset: 0xc4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xc8 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_ORIGIN_TYPE        SENSOR_X_ORIGIN;         /* Address offset: 0xcc */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_TYPE          SENSOR_X_SIZE;           /* Address offset: 0xcc */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_TYPE         SENSOR_X_START;          /* Address offset: 0xd0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_TYPE           SENSOR_X_END;            /* Address offset: 0xd4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */
