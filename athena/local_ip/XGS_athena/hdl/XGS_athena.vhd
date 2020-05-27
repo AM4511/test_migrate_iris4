@@ -261,6 +261,8 @@ architecture struct of XGS_athena is
       hispi_calibration_active : out std_logic;
       hispi_pix_clk            : out std_logic;
       hispi_eof                : out std_logic;
+      hispi_ystart             : in  std_logic_vector(11 downto 0);
+      hispi_ysize              : in  std_logic_vector(11 downto 0);
 
       ---------------------------------------------------------------------------
       -- Top HiSPI I/F
@@ -542,6 +544,8 @@ architecture struct of XGS_athena is
   signal hispi_calibration_active : std_logic;
   signal hispi_pix_clk            : std_logic;
   signal hispi_eof                : std_logic;
+  signal hispi_ystart             : std_logic_vector(11 downto 0);
+  signal hispi_ysize              : std_logic_vector(11 downto 0);
 
   signal dma_idle : std_logic := '1';
 
@@ -632,6 +636,8 @@ begin
       hispi_calibration_active => hispi_calibration_active,
       hispi_pix_clk            => hispi_pix_clk,
       hispi_eof                => hispi_eof,
+      hispi_ystart             => hispi_ystart,
+      hispi_ysize              => hispi_ysize,
       hispi_io_clk_p           => hispi_io_clk_p,
       hispi_io_clk_n           => hispi_io_clk_n,
       hispi_io_data_p          => hispi_io_data_p,
@@ -650,7 +656,7 @@ begin
       )
     port map(
       regfile      => regfile,
-      sclk         => sclk,          -- TBD change to SCLK if required
+      sclk         => sclk,             -- TBD change to SCLK if required
       sclk_reset_n => sclk_reset_n,  -- TBD change to SCLK_RESET_N if required
       sclk_tready  => sclk_tready,
       sclk_tvalid  => sclk_tvalid,
@@ -806,8 +812,8 @@ begin
 
       curr_db_GRAB_ROI2_EN => open,
 
-      curr_db_y_start_ROI1 => open,
-      curr_db_nblines_ROI1 => open,
+      curr_db_y_start_ROI1 => hispi_ystart,
+      curr_db_nblines_ROI1 => hispi_ysize,
 
       curr_db_y_start_ROI2 => open,
       curr_db_nblines_ROI2 => open,

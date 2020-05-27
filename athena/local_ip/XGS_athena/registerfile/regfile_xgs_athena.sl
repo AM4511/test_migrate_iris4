@@ -33,7 +33,7 @@ Register("tag", 0x0, 4, "null");
 Register("version", 0x4, 4, "Register file version");
 		Field("major", 23, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("minor", 15, 8, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("hw", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("hw", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("capability", 0x8, 4, "Register file version");
 		Field("value", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
@@ -353,8 +353,14 @@ Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_x_origin", 0x1cc, 4, "null");
-		Field("sensor_x_origin", 9, 0, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+Register("sensor_x_size", 0x1cc, 4, "");
+		Field("sensor_x_size", 12, 0, "rd|wr", 0x0, 0x1050, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_x_start", 0x1d0, 4, "null");
+		Field("sensor_x_start", 12, 0, "rd|wr", 0x0, 0x24, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_x_end", 0x1d4, 4, "null");
+		Field("sensor_x_end", 12, 0, "rd|wr", 0x0, 0x1023, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

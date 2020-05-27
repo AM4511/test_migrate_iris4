@@ -9,7 +9,7 @@
 --
 -- TODO          : Clarify clock domain crossing
 --                 Add more explicit comments
---
+--                 Connect x_row_start to registerfile
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -21,7 +21,7 @@ use UNISIM.vcomponents.all;
 library work;
 use work.regfile_xgs_athena_pack.all;
 use work.mtx_types_pkg.all;
-use work.hispi_pack.all;
+--use work.hispi_pack.all;
 
 
 entity xgs_hispi_top is
@@ -56,6 +56,8 @@ entity xgs_hispi_top is
     hispi_calibration_active : out std_logic;
     hispi_pix_clk            : out std_logic;
     hispi_eof                : out std_logic;
+    hispi_ystart             : in  std_logic_vector(11 downto 0);
+    hispi_ysize              : in  std_logic_vector(11 downto 0);
 
 
     ---------------------------------------------------------------------------
@@ -117,8 +119,8 @@ architecture rtl of xgs_hispi_top is
       sclk       : in std_logic;
       sclk_reset : in std_logic;
 
-      sclk_reset_phy         : in std_logic;
-      sclk_start_calibration : in std_logic;
+      sclk_reset_phy         : in  std_logic;
+      sclk_start_calibration : in  std_logic;
       sclk_calibration_done  : out std_logic;
 
       -- Read fifo interface
@@ -240,7 +242,7 @@ architecture rtl of xgs_hispi_top is
       line_buffer_read    : in  std_logic;
       line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
       line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count   : out std_logic_vector(11 downto 0);
+      --line_buffer_count   : out std_logic_vector(11 downto 0);
       line_buffer_row_id  : out std_logic_vector(11 downto 0);
       line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
       );
@@ -273,6 +275,8 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Register interface
       ---------------------------------------------------------------------------
+      x_row_start : in std_logic_vector(12 downto 0);
+      x_row_stop  : in std_logic_vector(12 downto 0);
       y_row_start : in std_logic_vector(11 downto 0);
       y_row_stop  : in std_logic_vector(11 downto 0);
 
@@ -284,7 +288,6 @@ architecture rtl of xgs_hispi_top is
       line_buffer_read    : out std_logic;
       line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
       line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_count   : in  std_logic_vector(11 downto 0);
       line_buffer_row_id  : in  std_logic_vector(11 downto 0);
       line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
@@ -302,12 +305,12 @@ architecture rtl of xgs_hispi_top is
 
   constant C_S_AXI_ADDR_WIDTH : integer              := 8;
   constant C_S_AXI_DATA_WIDTH : integer              := 32;
-  constant NUMB_LINE_BUFFER   : integer range 2 to 4 := 2;
+  constant NUMB_LINE_BUFFER   : integer range 2 to 4 := 4;
   constant LANE_PER_PHY       : integer              := NUMBER_OF_LANE/2;
 
   constant LINE_BUFFER_DATA_WIDTH    : integer := 64;
   constant LINE_BUFFER_ADDRESS_WIDTH : integer := 11;
-  constant LINE_BUFFER_PTR_WIDTH     : integer := 1;
+  constant LINE_BUFFER_PTR_WIDTH     : integer := 2;
   constant NUMB_LANE_PACKER          : integer := NUMBER_OF_LANE/2;
 
 
@@ -398,13 +401,14 @@ architecture rtl of xgs_hispi_top is
   signal sync            : std_logic_vector(1 downto 0);
   signal hispi_eof_pulse : std_logic_vector(3 downto 0);
   signal buffer_enable   : std_logic;
+  signal x_row_start     : std_logic_vector(12 downto 0);
+  signal x_row_stop      : std_logic_vector(12 downto 0);
   signal y_row_start     : std_logic_vector(11 downto 0);
   signal y_row_stop      : std_logic_vector(11 downto 0);
 
   signal line_buffer_read    : std_logic;
   signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
   signal line_buffer_address : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal line_buffer_count   : std_logic_vector(11 downto 0);
   signal line_buffer_row_id  : std_logic_vector(11 downto 0);
   signal line_buffer_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
@@ -480,19 +484,57 @@ begin
   regfile.HISPI.STATUS.FSM <= state_mapping;
 
   --sclk_manual_calibration <= to_std_logic_vector(regfile.HISPI.DEBUG);
+  -----------------------------------------------------------------------------
+  -- Process     : P_x_row_start
+  -- Description : Units in pixels
+  -----------------------------------------------------------------------------
+  P_x_row_start : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        x_row_start <= (others => '0');
+      else
+        if (state = S_SOF) then
+          --ToDO should come from register
+          x_row_start <= regfile.ACQ.SENSOR_X_START.SENSOR_X_START;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_row_stop
+  -- Description : Units in pixels
+  -----------------------------------------------------------------------------
+  P_x_row_stop : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+       x_row_stop <= (others => '0');
+      else
+        if (state = S_SOF) then
+          x_row_stop <= regfile.ACQ.SENSOR_X_END.SENSOR_X_END;
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
   -- Process     : P_row_start
   -- Description : 
   -----------------------------------------------------------------------------
-  P_row_start : process (sclk) is
+  P_y_row_start : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
         y_row_start <= (others => '0');
       else
-        y_row_start <= regfile.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
+        if (state = S_SOF) then
+          y_row_start <= hispi_ystart;
+        end if;
       end if;
     end if;
   end process;
@@ -502,7 +544,7 @@ begin
   -- Process     : P_row_stop
   -- Description :
   -----------------------------------------------------------------------------
-  P_row_stop : process (sclk) is
+  P_y_row_stop : process (sclk) is
     variable start : unsigned(11 downto 0);
     variable size  : unsigned(11 downto 0);
   begin
@@ -510,9 +552,11 @@ begin
       if (sclk_reset = '1') then
         y_row_stop <= (others => '0');
       else
-        start      := unsigned(regfile.ACQ.SENSOR_ROI_Y_START.Y_START) & "00";
-        size       := unsigned(regfile.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE) & "00";
-        y_row_stop <= std_logic_vector(start + (size - 1));
+        if (state = S_SOF) then
+          start      := unsigned(hispi_ystart);
+          size       := unsigned(hispi_ysize);
+          y_row_stop <= std_logic_vector(start + (size - 1));
+        end if;
       end if;
     end if;
   end process;
@@ -789,30 +833,6 @@ begin
     end if;
   end process;
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_sclk_calibration_done
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_sclk_calibration_done : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1')then
-  --       sclk_calibration_done <= "00";
-  --     else
-  --       if (state = S_IDLE and sclk_calibration_req = '1') then
-  --         sclk_calibration_done <= "00";
-  --       elsif (state = S_CALIBRATE) then
-  --         if (top_cal_done = '1') then
-  --           sclk_calibration_done(0) <= '1';
-  --         end if;
-  --         if (bottom_cal_done = '1') then
-  --           sclk_calibration_done(1) <= '1';
-  --         end if;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
 
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_reset_phy
@@ -901,6 +921,7 @@ begin
           when S_SOF =>
             state <= S_INIT;
 
+
           ---------------------------------------------------------------------
           -- S_INIT : Initialize the IP state
           ---------------------------------------------------------------------
@@ -959,7 +980,6 @@ begin
           when others =>
             null;
         end case;
-      --  end if;
       end if;
     end if;
   end process P_state;
@@ -1081,7 +1101,7 @@ begin
         line_cntr <= (others => '0');
       else
         if (state = S_SOF) then
-          line_cntr <= unsigned(y_row_start);
+          line_cntr <= unsigned(hispi_ystart);
         elsif (state = S_DONE) then
           line_cntr <= line_cntr+1;
         end if;
@@ -1200,8 +1220,6 @@ begin
       clrBuffer           => clrBuffer,
       lane_packer_req     => lane_packer_req,
       lane_packer_ack     => lane_packer_ack,
-      -- buff_info_en        => buff_info_en,
-      -- buff_info           => buff_info,
       buff_write          => buff_write,
       buff_addr           => buff_addr,
       buff_data           => buff_data,
@@ -1209,7 +1227,6 @@ begin
       line_buffer_read    => line_buffer_read,
       line_buffer_ptr     => line_buffer_ptr,
       line_buffer_address => line_buffer_address,
-      line_buffer_count   => line_buffer_count,
       line_buffer_row_id  => line_buffer_row_id,
       line_buffer_data    => line_buffer_data
       );
@@ -1236,6 +1253,8 @@ begin
       streamer_busy       => open,
       transfert_done      => transfert_done,
       init_frame          => init_frame,
+      x_row_start         => x_row_start,
+      x_row_stop          => x_row_stop,
       y_row_start         => y_row_start,
       y_row_stop          => y_row_stop,
       clrBuffer           => clrBuffer,
@@ -1243,7 +1262,6 @@ begin
       line_buffer_read    => line_buffer_read,
       line_buffer_ptr     => line_buffer_ptr,
       line_buffer_address => line_buffer_address,
-      line_buffer_count   => line_buffer_count,
       line_buffer_row_id  => line_buffer_row_id,
       line_buffer_data    => line_buffer_data,
       sclk_tready         => sclk_tready,
