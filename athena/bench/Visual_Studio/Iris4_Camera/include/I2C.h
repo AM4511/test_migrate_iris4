@@ -4,7 +4,8 @@
 
 #include <math.h>
 #include <vector>
-#include "regfile_i2c.h"
+#include "../../../../local_ip/axi_i2c_1.0/registerfile/regfile_i2c.h"
+
 using namespace std;
 
 

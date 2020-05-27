@@ -86,13 +86,13 @@
     <ClInclude Include="include\I2C.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\regfile_i2c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\XGS_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\regfile_xgs_athena.h">
+    <ClInclude Include="..\..\..\local_ip\XGS_athena\registerfile\regfile_xgs_athena.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

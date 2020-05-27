@@ -29,7 +29,11 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    SensorParams.SENSOR_TYPE            = 12000;
    SensorParams.XGS_HiSPI_Ch           = 24;
-   SensorParams.XGS_Xorigin            = 32;   // Location of first valid x pixel(including Interpolation)
+
+   SensorParams.XGS_X_START            = 36;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END              = 4131; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_SIZE             = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   
    SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
    SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED 
  
@@ -87,7 +91,12 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 
 	SensorParams.SENSOR_TYPE  = 9400;
 	SensorParams.XGS_HiSPI_Ch = 24;
-	SensorParams.XGS_Xorigin  = 544;  // Location of first valid x pixel(including Interpolation)
+
+	SensorParams.XGS_X_START = 548;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_END   = 3619;  // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_SIZE  = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+
+
 	SensorParams.Xsize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
   
@@ -139,7 +148,11 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 
 	SensorParams.SENSOR_TYPE = 8000;
 	SensorParams.XGS_HiSPI_Ch = 24;
-	SensorParams.XGS_Xorigin = 32;  // Location of first valid x pixel(including Interpolation)
+
+	SensorParams.XGS_X_START = 36;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_END   = 4131; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_SIZE  = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+
 	SensorParams.Xsize_Full = 4096; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
 

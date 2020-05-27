@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <vector>
-#include "regfile_xgs_athena.h"
+#include "../../../../local_ip/XGS_athena/registerfile/regfile_xgs_athena.h"
 using namespace std;
 
 
