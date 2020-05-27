@@ -42,7 +42,6 @@ entity line_buffer is
     -- Description: 
     ------------------------------------------------------------------------------------
     nxtBuffer : in std_logic;
-    clrBuffer : in std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
 
     ------------------------------------------------------------------------------------
     -- Interface name: registerFileIF
@@ -58,6 +57,7 @@ entity line_buffer is
     -- Interface name: registerFileIF
     -- Description: 
     ------------------------------------------------------------------------------------
+    line_buffer_clr     : in  std_logic;
     line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
     line_buffer_read    : in  std_logic;
     line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -105,22 +105,23 @@ architecture rtl of line_buffer is
 
   type ROW_ID_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(line_buffer_row_id'range);
   type ROW_INFO_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(1 downto 0);
-  --type WORD_CNTR_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
 
   signal sysrst_n         : std_logic;
   signal lane_grant       : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal write_buffer_ptr : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  --signal word_cntr        : WORD_CNTR_ARRAY;
   signal pixel_id         : natural := 0;
   signal buffer_row_id    : ROW_ID_ARRAY;
   signal buffer_row_info  : ROW_INFO_ARRAY;
 
+  signal current_buffer_ready : std_logic;
   signal buffer_write_en      : std_logic;
   signal buffer_write_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-
-  signal buffer_read_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal nxtBuffer_ff        : std_logic;
+  signal buffer_read_address  : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
+  signal nxtBuffer_ff         : std_logic;
+  signal buffer_ready         : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+  signal lane_packer_req_int  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal req_enable           : std_logic;
 
 begin
 
@@ -133,16 +134,53 @@ begin
     port map(
       clk   => sysclk,
       rst_n => sysrst_n,
-      req   => lane_packer_req,
+      req   => lane_packer_req_int,
       grant => lane_grant
       );
 
   lane_packer_ack <= lane_grant;
 
+  lane_packer_req_int <= lane_packer_req when (req_enable = '1') else
+                         (others => '0');
+
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_req_enable : process (sysclk) is
+  begin
+    if (rising_edge(sysclk)) then
+      if (sysrst = '1')then
+        req_enable <= '0';
+      else
+        if (buffer_enable = '1') then
+          for i in 0 to NUMB_LINE_BUFFER-1 loop
+            if (i = to_integer(write_buffer_ptr)) then
+              if (buffer_ready(i) = '0') then
+                -- If line buffer empty we allow lane packer to write in
+                -- the current line buffer
+                req_enable <= '1';
+              else
+                -- If line buffer full we do not allow lane packer to write in
+                -- the current line buffer
+                req_enable <= '0';
+              end if;
+              exit;
+            end if;
+          end loop;
+        else
+          req_enable <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
 
   buffer_write_en      <= buff_write;
-  buffer_write_address <= std_logic_vector(write_buffer_ptr)& buff_addr;
+  buffer_write_address <= std_logic_vector(write_buffer_ptr) & buff_addr;
   buffer_write_data    <= buff_data;
+
 
 
   -----------------------------------------------------------------------------
@@ -167,30 +205,30 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_line_buffer_ready : process (sysclk) is
+  P_buffer_ready : process (sysclk) is
   begin
     if (rising_edge(sysclk)) then
       if (sysrst = '1')then
-        line_buffer_ready <= (others => '0');
+        buffer_ready <= (others => '0');
       else
         if (init_frame = '1') then
-          line_buffer_ready <= (others => '0');
-        elsif (nxtBuffer = '1') then
-          for i in 0 to NUMB_LINE_BUFFER-1 loop
-            if (i = to_integer(write_buffer_ptr)) then
-              line_buffer_ready(i) <= '1';
-            end if;
-          end loop;
+          buffer_ready <= (others => '0');
         else
           for i in 0 to NUMB_LINE_BUFFER-1 loop
-            if (clrBuffer(i) = '1') then
-              line_buffer_ready(i) <= '0';
+            -- On the write side
+            if (i = to_integer(write_buffer_ptr) and nxtBuffer = '1') then
+              buffer_ready(i) <= '1';
+            -- On the read side
+            elsif (i = to_integer(unsigned(line_buffer_ptr)) and (line_buffer_clr = '1')) then
+              buffer_ready(i) <= '0';
             end if;
           end loop;
         end if;
       end if;
     end if;
   end process;
+
+  line_buffer_ready <= buffer_ready;
 
 
   -----------------------------------------------------------------------------

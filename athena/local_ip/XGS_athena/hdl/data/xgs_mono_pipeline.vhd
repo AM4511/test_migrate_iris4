@@ -109,13 +109,13 @@ architecture rtl of xgs_mono_pipeline is
   signal aclk_tvalid_int      : std_logic;
   signal aclk_read_data_valid : std_logic;
   signal aclk_acknowledge     : std_logic;
-  signal aclk_tlast_int    : std_logic;
-  -- signal aclk_sync_packer     : std_logic_vector (3 downto 0);
-  -- signal aclk_data_packer     : std_logic_vector (63 downto 0);
- 
+  signal aclk_tlast_int       : std_logic;
+  signal aclk_sync_packer     : std_logic_vector (3 downto 0);
+  signal aclk_tlast_packer    : std_logic;
+
 begin
 
-  
+
   sclk_reset <= not sclk_reset_n;
 
 
@@ -414,7 +414,11 @@ begin
     end if;
   end process;
 
+  
+  aclk_sync_packer  <= aclk_read_data(67 downto 64);
+  aclk_tlast_packer <= aclk_read_data(68);
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_tuser
   -- Description : AXI Stream video interface : data bus
@@ -426,7 +430,7 @@ begin
         aclk_tuser <= (others => '0');
       else
         if ((aclk_tready = '1' or aclk_tvalid_int = '0') and aclk_read_data_valid = '1') then
-          aclk_tuser <= aclk_read_data(67 downto 64);
+          aclk_tuser <= aclk_sync_packer;
         end if;
       end if;
     end if;
@@ -445,7 +449,7 @@ begin
         aclk_tlast_int <= '0';
       else
         if ((aclk_tready = '1' or aclk_tvalid_int = '0') and aclk_read_data_valid = '1') then
-          aclk_tlast_int <= aclk_read_data(68);
+          aclk_tlast_int <= aclk_tlast_packer;
         elsif (aclk_tlast_int = '1' and aclk_tready = '1') then
           aclk_tlast_int <= '0';
         end if;

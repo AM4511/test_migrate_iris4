@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- MODULE      : axi_line_streamer
 --
--- DESCRIPTION : Stream recombine lines extracted from the XGS sensor
+-- DESCRIPTION : Stream recombined lines extracted from the XGS sensor
 --
 -- REFERENCES  :
 --                 See Xilinx UG934,  
@@ -35,7 +35,7 @@ entity axi_line_streamer is
     init_frame     : in  std_logic;
 
     ---------------------------------------------------------------------------
-    -- Register interface
+    -- Register interface (ROI parameters)
     ---------------------------------------------------------------------------
     x_row_start : in std_logic_vector(12 downto 0);
     x_row_stop  : in std_logic_vector(12 downto 0);
@@ -45,7 +45,7 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Line buffer I/F
     ---------------------------------------------------------------------------
-    clrBuffer           : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+    line_buffer_clr     : out std_logic;
     line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
     line_buffer_read    : out std_logic;
     line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -91,7 +91,7 @@ architecture rtl of axi_line_streamer is
   signal read_data_valid : std_logic;
   signal first_row       : std_logic;
   signal last_row        : std_logic;
-  signal buffer_ptr      : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
+  signal buffer_read_ptr : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
   signal start_transfer  : std_logic;
   signal sclk_tvalid_int : std_logic;
 
@@ -106,7 +106,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of read_data_valid : signal is "true";
   attribute mark_debug of first_row       : signal is "true";
   attribute mark_debug of last_row        : signal is "true";
-  attribute mark_debug of buffer_ptr      : signal is "true";
+  attribute mark_debug of buffer_read_ptr : signal is "true";
   attribute mark_debug of start_transfer  : signal is "true";
   attribute mark_debug of sclk_tvalid_int : signal is "true";
 
@@ -114,7 +114,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of streamer_busy       : signal is "true";
   attribute mark_debug of transfert_done      : signal is "true";
   attribute mark_debug of init_frame          : signal is "true";
-  attribute mark_debug of clrBuffer           : signal is "true";
+  attribute mark_debug of line_buffer_clr     : signal is "true";
   attribute mark_debug of line_buffer_ready   : signal is "true";
   attribute mark_debug of line_buffer_read    : signal is "true";
   attribute mark_debug of line_buffer_ptr     : signal is "true";
@@ -142,31 +142,6 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_clrBuffer
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_clrBuffer : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        clrBuffer <= (others => '0');
-      else
-        if (state = S_EOL or state = S_EOF) then
-          for i in 0 to NUMB_LINE_BUFFER loop
-            if (i = to_integer(buffer_ptr)) then
-              clrBuffer(i) <= '1';
-              exit;
-            end if;
-          end loop;
-        else
-          clrBuffer <= (others => '0');
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
   -- Process     : P_first_row
   -- Description : 
   -----------------------------------------------------------------------------
@@ -186,7 +161,7 @@ begin
   end process;
 
 
-  last_row <= '1' when (line_buffer_row_id = y_row_stop) else
+  last_row <= '1' when (line_buffer_row_id = y_row_stop and state /= S_IDLE) else
               '0';
 
 
@@ -216,26 +191,47 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_buffer_ptr
+  -- Process     : P_buffer_read_ptr
   -- Description : 
   -----------------------------------------------------------------------------
-  P_buffer_ptr : process (sclk) is
+  P_buffer_read_ptr : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        buffer_ptr <= (others => '0');
+        buffer_read_ptr <= (others => '0');
       else
         if (init_frame = '1') then
-          buffer_ptr <= (others => '0');
+          buffer_read_ptr <= (others => '0');
         elsif (state = S_EOL) then
-          buffer_ptr <= buffer_ptr+1;
+          buffer_read_ptr <= buffer_read_ptr+1;
         end if;
       end if;
     end if;
   end process;
 
 
-  line_buffer_ptr <= std_logic_vector(buffer_ptr);
+  line_buffer_ptr <= std_logic_vector(buffer_read_ptr);
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_line_buffer_clr
+  -- Description : Clear the line buffer ready flag from  line_buffer module
+  -----------------------------------------------------------------------------
+  P_line_buffer_clr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        line_buffer_clr <= '0';
+      else
+        if (state = S_LAST_DATA) then
+          line_buffer_clr <= '1';
+        else
+          line_buffer_clr <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -264,11 +260,11 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_start_transfer : process (state, buffer_ptr, line_buffer_ready) is
+  P_start_transfer : process (state, buffer_read_ptr, line_buffer_ready) is
   begin
     if (state = S_WAIT_SOL) then
       for i in 0 to NUMB_LINE_BUFFER-1 loop
-        if (i = to_integer(buffer_ptr) and line_buffer_ready(i) = '1') then
+        if (i = to_integer(buffer_read_ptr) and line_buffer_ready(i) = '1') then
           start_transfer <= '1';
           exit;
         else
