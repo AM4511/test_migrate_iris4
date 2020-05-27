@@ -390,7 +390,6 @@ begin
       bFall => open
       );
 
-
   -----------------------------------------------------------------------------
   -- Manual calibration tap mapping
   -----------------------------------------------------------------------------
@@ -408,8 +407,8 @@ begin
   end generate;
 
 
-  delay_tap_in <= rclk_manual_calibration_tap when (hclk_manual_calibration_en = '1') else
-                  pclk_cal_tap_value;
+  delay_tap_in((5*LANE_PER_PHY)-1 downto 0) <= rclk_manual_calibration_tap((5*LANE_PER_PHY)-1 downto 0) when (hclk_manual_calibration_en = '1') else
+                                               pclk_cal_tap_value;
 
 
   delay_reset <= '1' when (hclk_manual_calibration_en = '0' and pclk_cal_load_tap(0) = '1') else

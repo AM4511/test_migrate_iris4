@@ -11,6 +11,10 @@
 #include <time.h>
 #include <math.h>
 #include <Windows.h>
+
+#include <iostream>
+using namespace std;
+
 #include <mil.h>
 
 #include "MilLayer.h"
@@ -40,7 +44,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
 
-	M_UINT32 XGSTestMode = 0;
+	M_UINT32 XGSTestImageMode = 0;
 
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
@@ -158,6 +162,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (+) Increase Exposure");
 	printf("\n  (-) Decrease Exposure");
 	printf("\n  (p) Pause grab");
+	printf("\n  (t) XGS test images");
 	printf("\n  (y) Set new ROI (Y-only)");
 	printf("\n  (r) Read current ROI configuration in XGS");
 	printf("\n  (S) Subsampling mode");
@@ -278,7 +283,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'b':
 				printf("\nEnter Black Offset in HEX (Data Pedestal, 0-0xfff LSB12) : 0x");
 				scanf_s("%x", &BlackOffset);
-				XGS_Ctrl->setBlackRef(BlackOffset);			
+				XGS_Ctrl->setBlackRef(BlackOffset);
 				break;
 
 
@@ -292,18 +297,18 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(1000);
 				XGS_Ctrl->DisableRegUpdate();
 				Sleep(100);
-				printf("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a)*4);
-				printf("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c)*4 );
-				printf("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e)*4 );
-				printf("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820)*4 );
-				printf("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH *16);
+				printf("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a) * 4);
+				printf("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c) * 4);
+				printf("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e) * 4);
+				printf("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH * 16);
 				Sleep(100);
 				XGS_Ctrl->EnableRegUpdate();
 				break;
 
 			case 'y':
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
-				scanf_s("%d", &XGSSize_Y);				
+				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = XGSSize_Y;
 				break;
 
@@ -316,7 +321,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf("Subsampling Y (0=NO, 1=YES) ? : ");
 				scanf_s("%d", &SubY);
 
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
+				XGS_Ctrl->GrabParams.SUBSAMPLING_X = SubX;
 				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
 
 				printf("\n");
@@ -326,30 +331,64 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			case 't':
 				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(1000);
+				cout << "\n";
+				XGSTestImageMode ++;
+				if (XGSTestImageMode == 7)
+				{
+					XGSTestImageMode = 0;
+					XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal image
+				}
 
+				// Programmable Flat Image
+				if (XGSTestImageMode == 1) {
+					cout << "Xgs Image Test Mode is set to Flat Image (Can be programmed to any value)\n" ;
+					XGS_Ctrl->WriteSPI(0x3e10, 0x7ff); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x7ff); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x7ff); // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x7ff); // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
+				}
+				//  Programmable Horizontal black and white lines
+				if (XGSTestImageMode == 2) {
+					cout << "Xgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
+					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x1fff); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x0);    // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
+				}
+				//  Programmable Vertical black and white columns
+				if (XGSTestImageMode == 3) {
+					cout << "Xgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
+					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x0); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x1fff);    // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
+				}
+				//XGS_Ctrl->WriteSPI(0x3e0e, 2); // Color bars (BAYER)
+				//XGS_Ctrl->WriteSPI(0x3e0e, 3); // fade to gray, all must be 0 or 1 (NE Marche PAS ??? a cause du 6 Lanes???)
+
+				// diagonal gray x1
+				if (XGSTestImageMode == 4) {
+					cout << "Xgs Image Test Mode is set to Diagonal gray x1\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
+				}
 				
-					XGS_Ctrl->WriteSPI(0x3e10, 0x0); //Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x0); //Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x0); //Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x0); //Test data Green-B channel
+				// diagonal gray x3	
+				if (XGSTestImageMode == 5) {
+					cout << "Xgs Image Test Mode is set to Diagonal gray x3\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 5); // diagonal gray x3		
+				}
 
-					XGS_Ctrl->WriteSPI(0x3e0e, 3); //fade to gray
-					//XGS_Ctrl->WriteSPI(0x3e0e, 4); //diagonal gray x1
-					//XGS_Ctrl->WriteSPI(0x3e0e, 5); //diagonal gray x3		
-					//XGS_Ctrl->WriteSPI(0x3e0e, 1); //Solid color
+				// White/Black bar(coarse)
+				if (XGSTestImageMode == 6) {
+					cout << "Xgs Image Test Mode is set to White/Black bar(coarse)\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
+				}
 
-			
-				break;
-
-
-			case 'i':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(1000);
-			    XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal operation image
-			    XGSTestMode = 0;
-
-
+			    //XGS_Ctrl->WriteSPI(0x3e0e, 7);    // White/Black bar(fine)   (NE Marche PAS ???  a cause du 6 Lanes???)			
+				cout << "\n";
 				break;
 
 			}
