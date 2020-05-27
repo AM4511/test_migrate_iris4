@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : amarchan
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xF522555B
+* Register file CRC32 : 0x36EA9D6F
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved

@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <vector>
-#include "regfile_xgs_athena.h"
+#include "../../../../local_ip/XGS_athena/registerfile/regfile_xgs_athena.h"
 using namespace std;
 
 
@@ -61,7 +61,9 @@ struct SensorParamStruct
 {
 	M_UINT32 SENSOR_TYPE;
 	M_UINT32 XGS_HiSPI_Ch;
-	M_UINT32 XGS_Xorigin;
+	M_UINT32 XGS_X_START;
+	M_UINT32 XGS_X_END;
+	M_UINT32 XGS_X_SIZE;
 	M_UINT32 Xsize_Full;
 	M_UINT32 Ysize_Full;
 	M_UINT32 Xsize_BL;

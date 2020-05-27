@@ -353,7 +353,7 @@ Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_x_size", 0x1cc, 4, "");
+Register("sensor_x_size", 0x1cc, 4, "null");
 		Field("sensor_x_size", 12, 0, "rd|wr", 0x0, 0x1050, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("sensor_x_start", 0x1d0, 4, "null");

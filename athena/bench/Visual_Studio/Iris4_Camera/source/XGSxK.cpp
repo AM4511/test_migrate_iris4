@@ -143,7 +143,16 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;
 	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
 
-	// Set Location of first valid x pixel(including Interpolation) - X origin
-	sXGSptr.ACQ.SENSOR_X_ORIGIN.f.SENSOR_X_ORIGIN = SensorParams.XGS_Xorigin;
-	rXGSptr.ACQ.SENSOR_X_ORIGIN.u32               = sXGSptr.ACQ.SENSOR_X_ORIGIN.u32;
+	// Set Location of first valid x pixel(including Interpolation)
+	sXGSptr.ACQ.SENSOR_X_START.f.SENSOR_X_START     = SensorParams.XGS_X_START;
+	rXGSptr.ACQ.SENSOR_X_START.u32                  = sXGSptr.ACQ.SENSOR_X_START.u32;
+
+	// Set Location of last valid x pixel(including Interpolation) 
+	sXGSptr.ACQ.SENSOR_X_END.f.SENSOR_X_END = SensorParams.XGS_X_END;
+	rXGSptr.ACQ.SENSOR_X_END.u32            = sXGSptr.ACQ.SENSOR_X_END.u32;
+
+	// Set complete line size (including Black pixels, Interpolation, dummies, valid) 
+	sXGSptr.ACQ.SENSOR_X_SIZE.f.SENSOR_X_SIZE = SensorParams.XGS_X_SIZE;
+	rXGSptr.ACQ.SENSOR_X_SIZE.u32 = sXGSptr.ACQ.SENSOR_X_SIZE.u32;
+
 }
