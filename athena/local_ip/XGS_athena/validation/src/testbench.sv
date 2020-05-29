@@ -6,6 +6,8 @@ import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
 
+
+
 module testbench();
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
 	parameter MUX_RATIO = 4;
@@ -530,7 +532,7 @@ module testbench();
 				// DMA line size register
 				///////////////////////////////////////////////////
 				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				host.write(LINE_SIZE_OFFSET, line_size/2);
+				host.write(LINE_SIZE_OFFSET, line_size/2);			
 				host.wait_n(10);
 
 
@@ -809,6 +811,7 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
+				scoreboard.predict_img(2048, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 
 				///////////////////////////////////////////////////
@@ -823,6 +826,9 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
+				scoreboard.predict_img(2048, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+
+				
 				#1ms;
 
 
