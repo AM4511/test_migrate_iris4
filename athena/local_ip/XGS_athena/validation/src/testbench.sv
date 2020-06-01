@@ -154,7 +154,7 @@ module testbench();
 			.G_MODEL_ID         (16'h0058),     // XGS12M
 			.G_REV_ID           (16'h0002),     // XGS12M
 			.G_NUM_PHY          (6),            // XGS12M
-			.G_PXL_PER_COLRAM   (174),          // XGS12M
+			.G_PXL_PER_COLRAM   (174),          // XGS12M (4176)
 			.G_PXL_ARRAY_ROWS   (3100)          // XGS12M
 
 			//----------------------------------------------
@@ -532,7 +532,7 @@ module testbench();
 				// DMA line size register
 				///////////////////////////////////////////////////
 				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				host.write(LINE_SIZE_OFFSET, line_size/2);			
+				host.write(LINE_SIZE_OFFSET, line_size);					
 				host.wait_n(10);
 
 
@@ -811,7 +811,7 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-				scoreboard.predict_img(2048, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 
 				///////////////////////////////////////////////////
@@ -826,7 +826,7 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-				scoreboard.predict_img(2048, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 				
 				#1ms;

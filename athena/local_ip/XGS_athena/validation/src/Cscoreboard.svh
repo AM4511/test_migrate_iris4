@@ -94,7 +94,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 				
 				    tlp_length =this.axis.tdata[9:0];
 				    
-					$display("New TLP : %d, tlp_length : %d ", tlp_id, tlp_length  );
+					//$display("New TLP : %d, tlp_length : %d ", tlp_id, tlp_length  );
 
 					// PCIE format
 					pcie_fmt_type = this.axis.tdata[30:24];
@@ -111,10 +111,10 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 					end
 
 					first_dw_be  = this.axis.tdata[35:32];
-                    $display("FDWBE is %h", first_dw_be );
+                    //$display("FDWBE is %h", first_dw_be );
 
 					last_dw_be   = this.axis.tdata[39:36];
-                    $display("LDWBE is %h", last_dw_be );
+                    //$display("LDWBE is %h", last_dw_be );
 
 					pcie_tag     = this.axis.tdata[47:40];
 					requester_id = this.axis.tdata[63:48];
@@ -167,7 +167,6 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 					tlp_cntr = 0;
 					tlp_id++;
 					$display("TLP %d completed!", tlp_id);
-					//int(data_array);
 				end
 			end
 		end while (1);
@@ -177,7 +176,9 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 
 
 
-	
+	/////////////////////////////////////////////////////////////////////////
+	// Prediction de la rampe simple sans aucun processing
+	/////////////////////////////////////////////////////////////////////////
     task predict_img(int X_size, int Y_start, int Y_size, longint fstart, int line_size, int line_pitch);
 
        int Initial_X_pix;
@@ -217,6 +218,10 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
     endtask
     
 
+	
+	/////////////////////////////////////////////////////////////////////////
+	// Inline validation
+	/////////////////////////////////////////////////////////////////////////
     task validate_DW(longint address, int data);    
       
 	  int data_LE;
