@@ -802,8 +802,8 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
-				ROI_YSTART = 8;
-				ROI_YSIZE  = 16;
+				ROI_YSTART = 0;
+				ROI_YSIZE  = 512;
 				EXPOSURE   = 50;  //in us
 				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);

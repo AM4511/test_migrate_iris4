@@ -88,16 +88,20 @@ architecture rtl of axi_stream_in is
 
   signal state : FSM_TYPE := S_IDLE;
 
+  signal buffer_rdy           : std_logic_vector(1 downto 0);
+  signal buffer_empty         : std_logic_vector(1 downto 0);
   signal buffer_write_en      : std_logic;
-  signal buffer_write_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal buffer_write_address : std_logic_vector(BUFFER_ADDR_WIDTH downto 0);
+  signal buffer_write_ptr     : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
   signal buffer_read_en      : std_logic;
-  signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
+  signal double_buffer_ptr   : std_logic;
 
-  
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
@@ -127,26 +131,84 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_s_axis_tready
-  -- Description : AXI Stream input tready. 
+  -- Process     : P_buffer_rdy
+  -- Description : 
   -----------------------------------------------------------------------------
-  P_s_axis_tready : process (sclk) is
+  P_buffer_rdy : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        s_axis_tready <= '0';
+        buffer_rdy <= (others=>'0');
       else
-        if (state = S_IDLE) then
-          s_axis_tready <= '0';
-        elsif (state = S_INIT) then
-          s_axis_tready <= '1';
-        elsif (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1') then
-          s_axis_tready <= '0';
+        -----------------------------------------------------------------------
+        -- Store data in buffer 0; Read from buffer 1
+        -----------------------------------------------------------------------
+        if (double_buffer_ptr = '0') then
+          if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
+            buffer_rdy(0) <= '1';
+          end if;
+          if (line_transfered = '1') then
+            buffer_rdy(1) <= '0';
+          end if;
+          
+        -----------------------------------------------------------------------
+        -- Store data in buffer 1; Read from buffer 0
+        -----------------------------------------------------------------------
+        else
+          if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
+            buffer_rdy(1) <= '1';
+          end if;
+          if (line_transfered = '1') then
+            buffer_rdy(0) <= '0';
+          end if;
         end if;
       end if;
     end if;
   end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_buffer_empty
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_buffer_empty : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        buffer_empty <= (others=>'1');
+      else
+        -----------------------------------------------------------------------
+        -- Store data in buffer 0; Read from buffer 1
+        -----------------------------------------------------------------------
+        if (double_buffer_ptr = '0') then
+          if (s_axis_tvalid = '1') then
+            buffer_empty(0) <= '0';
+          end if;
+          if (line_transfered = '1') then
+            buffer_empty(1) <= '1';
+          end if;
+          
+        -----------------------------------------------------------------------
+        -- Store data in buffer 1; Read from buffer 0
+        -----------------------------------------------------------------------
+        else
+          if (s_axis_tvalid = '1') then
+            buffer_empty(1) <= '0';
+          end if;
+          if (line_transfered = '1') then
+            buffer_empty(0) <= '1';
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+
+  s_axis_tready <= '1' when (double_buffer_ptr = '0' and buffer_rdy(0) = '0') else
+                   '1' when (double_buffer_ptr = '1' and buffer_rdy(1) = '0') else
+                   '0';
+  
 
   -----------------------------------------------------------------------------
   -- Process     : P_last_row
@@ -162,6 +224,25 @@ begin
           last_row <= '1';
         elsif (state = S_END_OF_DMA) then
           last_row <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_double_buffer_ptr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_double_buffer_ptr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        double_buffer_ptr <= '0';
+      else
+        if (state = S_SOF) then
+          double_buffer_ptr <= '0';
+        elsif (state = S_INIT_HOST_TRANSFER) then
+          double_buffer_ptr <= not double_buffer_ptr;
         end if;
       end if;
     end if;
@@ -283,31 +364,31 @@ begin
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
-  P_buffer_write_address : process (sclk) is
+  P_buffer_write_ptr : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        buffer_write_address <= (others => '0');
+        buffer_write_ptr <= (others => '0');
       else
         if (state = S_INIT) then
-          buffer_write_address <= (others => '0');
+          buffer_write_ptr <= (others => '0');
         elsif (buffer_write_en = '1') then
-          buffer_write_address <= std_logic_vector(unsigned(buffer_write_address)+1);
+          buffer_write_ptr <= buffer_write_ptr + 1;
         end if;
       end if;
     end if;
   end process;
 
-  buffer_write_data <= s_axis_tdata;
-
+  buffer_write_address <= (double_buffer_ptr) & std_logic_vector(buffer_write_ptr);
+  buffer_write_data    <= s_axis_tdata;
 
   -----------------------------------------------------------------------------
-  -- Line buffer 
+  -- Line buffer (2xline buffer size to support double buffering)
   -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
-      ADDRWIDTH => BUFFER_ADDR_WIDTH
+      ADDRWIDTH => BUFFER_ADDR_WIDTH+1
       )
     port map(
       data      => buffer_write_data,
@@ -321,7 +402,7 @@ begin
       );
 
   buffer_read_en        <= line_buffer_read_en;
-  buffer_read_address   <= line_buffer_read_address;
+  buffer_read_address   <= not(double_buffer_ptr) & line_buffer_read_address;
   line_buffer_read_data <= buffer_read_data;
 
 

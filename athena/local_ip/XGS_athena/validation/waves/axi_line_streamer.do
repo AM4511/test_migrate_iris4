@@ -10,7 +10,7 @@ add wave -noupdate -expand -group axi_line_streamer -radix unsigned /testbench/D
 add wave -noupdate -expand -group axi_line_streamer -radix unsigned /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/x_row_stop
 add wave -noupdate -expand -group axi_line_streamer -radix unsigned /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/y_row_start
 add wave -noupdate -expand -group axi_line_streamer -radix unsigned /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/y_row_stop
-add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/clrBuffer
+add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_clr
 add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_ready
 add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_read
 add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_address
@@ -19,25 +19,24 @@ add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer 
 add wave -noupdate -expand -group axi_line_streamer -expand -group {line buffer I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_data
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/m_wait
 add wave -noupdate -expand -group axi_line_streamer -color Gold /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/state
-add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/burst_length
+add wave -noupdate -expand -group axi_line_streamer -radix unsigned /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/burst_length
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/burst_cntr
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/read_en
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/read_data_valid
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/first_row
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/last_row
-add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/buffer_ptr
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/start_transfer
 add wave -noupdate -expand -group axi_line_streamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tvalid_int
 add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tready
 add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tvalid
-add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tuser
+add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} -expand /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tuser
 add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tlast
 add wave -noupdate -expand -group axi_line_streamer -expand -group {AXI stream output I/F} /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1175705000 ps} 1} {{Cursor 2} {2112793680 ps} 0}
-quietly wave cursor active 2
-configure wave -namecolwidth 212
-configure wave -valuecolwidth 258
+WaveRestoreCursors {{Cursor 1} {1293415000 ps} 0} {{Cursor 2} {1650315000 ps} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 257
+configure wave -valuecolwidth 226
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -50,4 +49,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {3752030155 ps}
+WaveRestoreZoom {0 ps} {2018437372 ps}
