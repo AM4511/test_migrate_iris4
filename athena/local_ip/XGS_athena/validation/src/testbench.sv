@@ -6,6 +6,8 @@ import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
 
+
+
 module testbench();
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
 	parameter MUX_RATIO = 4;
@@ -57,6 +59,9 @@ module testbench();
 	parameter SENSOR_M_LINES_OFFSET     = 'h01b8;
 	parameter EXP_FOT_OFFSET            = 'h02b8;
 
+	parameter SENSOR_X_START_OFFSET     = 'h01d0;
+	parameter SENSOR_X_END_OFFSET       = 'h01d4;
+	
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
@@ -152,7 +157,7 @@ module testbench();
 			.G_MODEL_ID         (16'h0058),     // XGS12M
 			.G_REV_ID           (16'h0002),     // XGS12M
 			.G_NUM_PHY          (6),            // XGS12M
-			.G_PXL_PER_COLRAM   (174),          // XGS12M
+			.G_PXL_PER_COLRAM   (174),          // XGS12M (4176)
 			.G_PXL_ARRAY_ROWS   (3100)          // XGS12M
 
 			//----------------------------------------------
@@ -457,6 +462,9 @@ module testbench();
 				int EXP_FOT_TIME;
 				int ROI_YSTART;
 				int ROI_YSIZE;
+				int SENSOR_X_START;
+				int SENSOR_X_END;
+				
 				int EXPOSURE;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
@@ -530,7 +538,7 @@ module testbench();
 				// DMA line size register
 				///////////////////////////////////////////////////
 				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				host.write(LINE_SIZE_OFFSET, line_size/2);
+				host.write(LINE_SIZE_OFFSET, line_size);					
 				host.wait_n(10);
 
 
@@ -796,12 +804,19 @@ module testbench();
 				///////////////////////////////////////////////////
 				$display("7. Trigger ROI #1");
 
-
+                // X origin 
+				SENSOR_X_START  = 32;
+                SENSOR_X_END    = SENSOR_X_START+4096-1;              
+				
+				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
+				host.write(SENSOR_X_END_OFFSET,   SENSOR_X_END);
+				
+				
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
-				ROI_YSTART = 0;
-				ROI_YSIZE  = 512;
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 16;
 				EXPOSURE   = 50;  //in us
 				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
@@ -809,6 +824,7 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
+				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 
 				///////////////////////////////////////////////////
@@ -823,6 +839,9 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
+				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+
+				
 				#1ms;
 
 
