@@ -170,9 +170,9 @@ begin
 		      frame(1)(j) <= X"00D";
               frame(2)(j) <= X"00D"; 			  
 			elsif(j<4136) then           --Interpolation+valid
-              frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));
-              frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j,12));  
-			if(j<4140) then              --DUMMY
+              frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  --pixel0 located @ (32,0)
+              frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  
+			elsif(j<4140) then           --DUMMY
 		      frame(1)(j) <= X"00D";
               frame(2)(j) <= X"00D"; 
 			elsif(j<4172) then           --Black REF  
@@ -180,7 +180,8 @@ begin
               frame(2)(j) <= X"000";
 		    elsif(j<4176) then           --DUMMY
 		      frame(1)(j) <= X"00D";
-              frame(2)(j) <= X"00D"; 		
+              frame(2)(j) <= X"00D"; 	
+            end if;			  
           else
             frame(1)(j) <= X"EB5";
             frame(2)(j) <= X"EB5"; 

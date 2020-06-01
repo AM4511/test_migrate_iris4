@@ -59,6 +59,9 @@ module testbench();
 	parameter SENSOR_M_LINES_OFFSET     = 'h01b8;
 	parameter EXP_FOT_OFFSET            = 'h02b8;
 
+	parameter SENSOR_X_START_OFFSET     = 'h01d0;
+	parameter SENSOR_X_END_OFFSET       = 'h01d4;
+	
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
@@ -459,6 +462,9 @@ module testbench();
 				int EXP_FOT_TIME;
 				int ROI_YSTART;
 				int ROI_YSIZE;
+				int SENSOR_X_START;
+				int SENSOR_X_END;
+				
 				int EXPOSURE;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
@@ -798,12 +804,19 @@ module testbench();
 				///////////////////////////////////////////////////
 				$display("7. Trigger ROI #1");
 
-
+                // X origin 
+				SENSOR_X_START  = 32;
+                SENSOR_X_END    = SENSOR_X_START+4096-1;              
+				
+				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
+				host.write(SENSOR_X_END_OFFSET,   SENSOR_X_END);
+				
+				
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
-				ROI_YSTART = 0;
-				ROI_YSIZE  = 512;
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 16;
 				EXPOSURE   = 50;  //in us
 				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);

@@ -1,5 +1,6 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
+add wave -noupdate -expand -subitemconfig {/testbench/DUT/regfile.ACQ -expand} /testbench/DUT/regfile
 add wave -noupdate /testbench/XGS_MODEL/xgs_image_inst/frame
 add wave -noupdate -group TLP /testbench/inst_pcie_tx_axi/tlp_out_req_to_send
 add wave -noupdate -group TLP /testbench/inst_pcie_tx_axi/tlp_out_grant
@@ -16,8 +17,74 @@ add wave -noupdate /testbench/DUT/x_xgs_hispi_top/bottom_sol_flag(0)
 add wave -noupdate /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/G_lane_decoder(0)/inst_lane_decoder/pclk_packer_0_valid
 add wave -noupdate /testbench/DUT/x_xgs_hispi_top/bottom_eol_flag(0)
 add wave -noupdate /testbench/DUT/x_xgs_hispi_top/bottom_eof_flag(0)
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/trigger_int
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/emb_data
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/first_line
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/last_line
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/dataline_valid
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/dataline_nxt
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_length
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/roi_start
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/roi_size
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/ext_emb_data
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/cmc_patgen_en
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/active_ctxt
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/nested_readout
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/x_subsampling
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/y_subsampling
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/y_reversed
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/swap_top_bottom
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/sequencer_enable
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/slave_triggered_mode
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_count
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_pattern_mode
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_red
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenr
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_blue
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenb
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_nxt
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_valid
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/line_count
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_count_int
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line0
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line1
+add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line2
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -divider {New Divider}
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_reset
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/streamer_en
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/streamer_busy
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/transfert_done
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/init_frame
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/x_row_start
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/x_row_stop
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/y_row_start
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/y_row_stop
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_clr
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_ready
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_read
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_ptr
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_address
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_row_id
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/line_buffer_data
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/m_wait
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/state
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/burst_length
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/burst_cntr
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/read_en
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/read_data_valid
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/first_row
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/last_row
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/buffer_read_ptr
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/start_transfer
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tvalid_int
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tvalid
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tready
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tdata
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tuser
+add wave -noupdate -expand -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_tlast
 add wave -noupdate -group MonoPipeline -expand -group MonoPipeline -group output_fifo /testbench/DUT/xgs_mono_pipeline_inst/xoutput_fifo/aClr
 add wave -noupdate -group MonoPipeline -expand -group MonoPipeline -group output_fifo /testbench/DUT/xgs_mono_pipeline_inst/xoutput_fifo/wClk
 add wave -noupdate -group MonoPipeline -expand -group MonoPipeline -group output_fifo /testbench/DUT/xgs_mono_pipeline_inst/xoutput_fifo/wEn
@@ -78,7 +145,6 @@ add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/acl
 add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_empty
 add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid_int
 add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_read_data_valid
-add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_acknowledge
 add wave -noupdate -group MonoPipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast_int
 add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/enable_hispi
 add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/hispi_io_data_p
@@ -135,9 +201,9 @@ add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/scl
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_reset_n
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tready
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tvalid
+add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tdata
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tuser
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tlast
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tdata
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_reset_n
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tready
@@ -161,7 +227,6 @@ add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/acl
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_empty
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid_int
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_read_data_valid
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_acknowledge
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast_int
 add wave -noupdate -group AXI_Stream_IN -group AXI_Stream -expand -group dualportRAM -color {Dark Orchid} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/xdual_port_ram/wrclock
 add wave -noupdate -group AXI_Stream_IN -group AXI_Stream -expand -group dualportRAM -color {Dark Orchid} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/xdual_port_ram/wren
@@ -252,88 +317,55 @@ add wave -noupdate -group DMA_WRITE /testbench/DUT/xdmawr2tlp/xdma_write/plane_c
 add wave -noupdate -group DMA_WRITE /testbench/DUT/xdmawr2tlp/xdma_write/ram_output_enable
 add wave -noupdate -group DMA_WRITE /testbench/DUT/xdmawr2tlp/xdma_write/read_data_delayed
 add wave -noupdate -group DMA_WRITE /testbench/DUT/xdmawr2tlp/xdma_write/byte_shift
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/sys_clk
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/sys_reset_n
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tready
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tdata
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tkeep
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tlast
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tvalid
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tuser
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_bus_number
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_device_number
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_no_snoop_en
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_relax_ord_en
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_req_to_send
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_grant
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_fmt_type
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_length_in_dw
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_src_rdy_n
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_dst_rdy_n
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_data
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_address
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_ldwbe_fdwbe
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_attr
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_transaction_id
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_byte_count
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_lower_address
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/nxt_tlp_tx_state
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_tx_state
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/nxt_gnt_id
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/gnt_id
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tvalid
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/dst_rdy
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/new_grant
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/fmt_type
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_length
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/byte_count
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/ldwbe_fdwbe
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/transaction_id
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/lower_address
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/address
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/attr
-add wave -noupdate -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_data_p1
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/sys_clk
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/sys_reset_n
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tvalid
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tready
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tdata
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tkeep
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tlast
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/s_axis_tx_tuser
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_bus_number
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_device_number
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_no_snoop_en
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/cfg_relax_ord_en
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_req_to_send
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_grant
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_fmt_type
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_length_in_dw
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_src_rdy_n
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_dst_rdy_n
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_data
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_address
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_ldwbe_fdwbe
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_attr
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_transaction_id
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_byte_count
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_lower_address
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/nxt_tlp_tx_state
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_tx_state
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/nxt_gnt_id
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/gnt_id
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tvalid
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/dst_rdy
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/new_grant
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/fmt_type
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_length
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/byte_count
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/ldwbe_fdwbe
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/transaction_id
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/lower_address
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/address
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/attr
+add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_data_p1
 add wave -noupdate -radix unsigned /testbench/XGS_MODEL/xgs_image_inst/G_PXL_ARRAY_COLUMNS
-add wave -noupdate -expand -group XGS_MODEL_image -expand /testbench/XGS_MODEL/xgs_image_inst/frame
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/trigger_int
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/emb_data
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/first_line
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/last_line
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/dataline_valid
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/dataline_nxt
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_length
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/roi_start
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/roi_size
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/ext_emb_data
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/cmc_patgen_en
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/active_ctxt
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/nested_readout
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/x_subsampling
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/y_subsampling
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/y_reversed
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/swap_top_bottom
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/sequencer_enable
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/slave_triggered_mode
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_count
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_pattern_mode
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_red
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenr
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_blue
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenb
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_nxt
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_valid
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/line_count
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/frame_count_int
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line0
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line1
-add wave -noupdate -expand -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line2
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1164215948 ps} 0} {{Cursor 2} {342995690 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1197774643 ps} 0} {{Cursor 2} {82368804 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 357
-configure wave -valuecolwidth 218
+configure wave -namecolwidth 203
+configure wave -valuecolwidth 134
 configure wave -justifyvalue left
-configure wave -signalnamewidth 0
+configure wave -signalnamewidth 1
 configure wave -snapdistance 10
 configure wave -datasetprefix 0
 configure wave -rowmargin 4
@@ -344,4 +376,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {2569771614 ps}
+WaveRestoreZoom {1197580625 ps} {1197974254 ps}
