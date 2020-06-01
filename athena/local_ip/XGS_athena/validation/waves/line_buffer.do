@@ -21,16 +21,17 @@ add wave -noupdate -expand -group {line buffer} /testbench/DUT/x_xgs_hispi_top/x
 add wave -noupdate -expand -group {line buffer} /testbench/DUT/x_xgs_hispi_top/xline_buffer/buffer_write_address
 add wave -noupdate -expand -group {line buffer} /testbench/DUT/x_xgs_hispi_top/xline_buffer/buffer_write_data
 add wave -noupdate -expand -group {line buffer} /testbench/DUT/x_xgs_hispi_top/xline_buffer/buffer_read_address
+add wave -noupdate -expand -group {line buffer} -expand /testbench/DUT/x_xgs_hispi_top/xline_buffer/buffer_ready
 add wave -noupdate -expand -group {line buffer} /testbench/DUT/x_xgs_hispi_top/xline_buffer/nxtBuffer_ff
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} -expand /testbench/DUT/x_xgs_hispi_top/xline_buffer/clrBuffer
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_ready
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_read
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_ptr
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_address
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} -radix unsigned /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_row_id
-add wave -noupdate -expand -group {line buffer} -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_data
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_clr
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_ready
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_read
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_ptr
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_address
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} -radix unsigned /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_row_id
+add wave -noupdate -expand -group {line buffer} -expand -group {Output I/F} /testbench/DUT/x_xgs_hispi_top/xline_buffer/line_buffer_data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {14795501 ps} 0} {{Cursor 2} {1114986228 ps} 0}
+WaveRestoreCursors {{Cursor 1} {14795501 ps} 0} {{Cursor 2} {739106328 ps} 0}
 quietly wave cursor active 2
 configure wave -namecolwidth 257
 configure wave -valuecolwidth 100
@@ -46,4 +47,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {2953097583 ps}
+WaveRestoreZoom {0 ps} {491337867 ps}

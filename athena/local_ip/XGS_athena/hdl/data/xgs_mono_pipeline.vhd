@@ -89,16 +89,20 @@ architecture rtl of xgs_mono_pipeline is
   -----------------------------------------------------------------------------
   -- SCLK clock domain
   -----------------------------------------------------------------------------
-  signal sclk_reset        : std_logic;
-  signal sclk_wen          : std_logic;
-  signal sclk_data         : std_logic_vector (71 downto 0) := (others => '0');
-  signal sclk_full         : std_logic;
-  signal sclk_data_phase   : std_logic;
-  signal sclk_load_data    : std_logic;
-  signal sclk_last_data    : std_logic;
-  signal sclk_sync_packer  : std_logic_vector (3 downto 0);
-  signal sclk_data_packer  : std_logic_vector (63 downto 0);
-  signal sclk_packer_valid : std_logic;
+  signal sclk_reset         : std_logic;
+  signal sclk_wen           : std_logic;
+  signal sclk_data          : std_logic_vector (71 downto 0) := (others => '0');
+  signal sclk_full          : std_logic;
+  signal sclk_data_phase    : std_logic;
+  signal sclk_load_data     : std_logic;
+  signal sclk_last_data     : std_logic;
+  signal sclk_sync_packer   : std_logic_vector (3 downto 0);
+  signal sclk_data_packer   : std_logic_vector (63 downto 0);
+  signal sclk_packer_valid  : std_logic;
+  signal sclk_pix_cntr      : integer;
+  signal sclk_pix_cntr_en   : std_logic;
+  signal sclk_pix_cntr_init : std_logic;
+
 
   -----------------------------------------------------------------------------
   -- ACLK clock domain
@@ -108,22 +112,58 @@ architecture rtl of xgs_mono_pipeline is
   signal aclk_empty           : std_logic;
   signal aclk_tvalid_int      : std_logic;
   signal aclk_read_data_valid : std_logic;
-  signal aclk_acknowledge     : std_logic;
-  signal aclk_tlast_int    : std_logic;
-  -- signal aclk_sync_packer     : std_logic_vector (3 downto 0);
-  -- signal aclk_data_packer     : std_logic_vector (63 downto 0);
- 
+  signal aclk_tlast_int       : std_logic;
+  signal aclk_sync_packer     : std_logic_vector (3 downto 0);
+  signal aclk_tlast_packer    : std_logic;
+  signal aclk_pix_cntr        : integer;
+  signal aclk_pix_cntr_en     : std_logic;
+  signal aclk_pix_cntr_init   : std_logic;
+  signal aclk_tuser_int       : std_logic_vector(3 downto 0);
+
+
 begin
 
-  
+
   sclk_reset <= not sclk_reset_n;
 
 
   sclk_load_data <= '1' when (sclk_full = '0' and sclk_tvalid = '1') else
                     '0';
 
+
   sclk_tready <= '1' when (sclk_full = '0') else
                  '0';
+
+
+  sclk_pix_cntr_en <= '1' when (sclk_full = '0' and sclk_tvalid = '1') else
+                      '0';
+
+
+  sclk_pix_cntr_init <= '1' when (sclk_tuser(0) = '1' or sclk_tuser(2) = '1') else
+                        '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_pix_cntr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sclk_pix_cntr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset_n = '0') then
+        sclk_pix_cntr <= 0;
+      else
+        if (sclk_pix_cntr_en = '1') then
+          if (sclk_pix_cntr_init = '1') then
+            sclk_pix_cntr <= 4;
+          else
+            sclk_pix_cntr <= sclk_pix_cntr+4;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
@@ -415,6 +455,10 @@ begin
   end process;
 
 
+  aclk_sync_packer  <= aclk_read_data(67 downto 64);
+  aclk_tlast_packer <= aclk_read_data(68);
+
+
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_tuser
   -- Description : AXI Stream video interface : data bus
@@ -423,14 +467,21 @@ begin
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset_n = '0') then
-        aclk_tuser <= (others => '0');
+        aclk_tuser_int <= (others => '0');
       else
-        if ((aclk_tready = '1' or aclk_tvalid_int = '0') and aclk_read_data_valid = '1') then
-          aclk_tuser <= aclk_read_data(67 downto 64);
+        if (aclk_tready = '1' or aclk_tvalid_int = '0') then
+          if (aclk_read_data_valid = '1') then
+            aclk_tuser_int <= aclk_sync_packer;
+          else
+            aclk_tuser_int <= (others => '0');
+          end if;
         end if;
       end if;
     end if;
   end process;
+
+
+  aclk_tuser <= aclk_tuser_int;
 
 
   -----------------------------------------------------------------------------
@@ -445,7 +496,7 @@ begin
         aclk_tlast_int <= '0';
       else
         if ((aclk_tready = '1' or aclk_tvalid_int = '0') and aclk_read_data_valid = '1') then
-          aclk_tlast_int <= aclk_read_data(68);
+          aclk_tlast_int <= aclk_tlast_packer;
         elsif (aclk_tlast_int = '1' and aclk_tready = '1') then
           aclk_tlast_int <= '0';
         end if;
@@ -453,9 +504,40 @@ begin
     end if;
   end process;
 
+
   aclk_tlast <= aclk_tlast_int;
 
-  aclk_acknowledge <= '1' when (aclk_tvalid_int = '1' and aclk_tready = '1') else
+
+  aclk_pix_cntr_en <= '1' when (aclk_tvalid_int = '1' and aclk_tready = '1') else
                       '0';
+
+
+  aclk_pix_cntr_init <= '1' when (aclk_tuser_int(0) = '1' or aclk_tuser_int(2) = '1') else
+                        '0';
+
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_pix_cntr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_aclk_pix_cntr : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset_n = '0') then
+        aclk_pix_cntr <= 0;
+      else
+        if (aclk_pix_cntr_en = '1') then
+          if (aclk_tlast_int = '1') then
+            aclk_pix_cntr <= 0;
+          elsif (aclk_pix_cntr_init = '1') then
+            aclk_pix_cntr <= 8;
+          else
+            aclk_pix_cntr <= aclk_pix_cntr+8;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 end architecture rtl;

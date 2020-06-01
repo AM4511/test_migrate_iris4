@@ -221,8 +221,8 @@ architecture rtl of xgs_hispi_top is
       -- Interface name: Buffer control
       -- Description: 
       ------------------------------------------------------------------------------------
-      nxtBuffer : in std_logic;
-      clrBuffer : in std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      nxtBuffer       : in std_logic;
+      line_buffer_clr : in std_logic;
 
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
@@ -242,7 +242,6 @@ architecture rtl of xgs_hispi_top is
       line_buffer_read    : in  std_logic;
       line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
       line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      --line_buffer_count   : out std_logic_vector(11 downto 0);
       line_buffer_row_id  : out std_logic_vector(11 downto 0);
       line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
       );
@@ -283,7 +282,7 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Line buffer I/F
       ---------------------------------------------------------------------------
-      clrBuffer           : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+      line_buffer_clr     : out std_logic;
       line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
       line_buffer_read    : out std_logic;
       line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -391,7 +390,7 @@ architecture rtl of xgs_hispi_top is
   signal packer_enable     : std_logic;
 
   signal nxtBuffer         : std_logic;
-  signal clrBuffer         : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
+  signal line_buffer_clr   : std_logic;
   signal line_buffer_ready : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
 
   signal buff_write : std_logic;
@@ -1217,7 +1216,7 @@ begin
       buffer_enable       => buffer_enable,
       init_frame          => init_frame,
       nxtBuffer           => nxtBuffer,
-      clrBuffer           => clrBuffer,
+      line_buffer_clr     => line_buffer_clr,
       lane_packer_req     => lane_packer_req,
       lane_packer_ack     => lane_packer_ack,
       buff_write          => buff_write,
@@ -1257,7 +1256,7 @@ begin
       x_row_stop          => x_row_stop,
       y_row_start         => y_row_start,
       y_row_stop          => y_row_stop,
-      clrBuffer           => clrBuffer,
+      line_buffer_clr     => line_buffer_clr ,
       line_buffer_ready   => line_buffer_ready,
       line_buffer_read    => line_buffer_read,
       line_buffer_ptr     => line_buffer_ptr,
