@@ -75,7 +75,8 @@ architecture rtl of axi_stream_in is
         );
   end component;
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_INIT_HOST_TRANSFER, S_WAIT_COMPLETION, S_END_OF_DMA, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_TOGGLE_BUFFER, S_INIT_HOST_TRANSFER, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_TRANSFER, S_END_OF_DMA, S_DONE);
 
   constant C_S_AXI_ADDR_WIDTH : integer := 8;
   constant C_S_AXI_DATA_WIDTH : integer := 32;
@@ -86,7 +87,8 @@ architecture rtl of axi_stream_in is
   constant EOL  : std_logic_vector(1 downto 0) := "10";
   constant EOF  : std_logic_vector(1 downto 0) := "11";
 
-  signal state : FSM_TYPE := S_IDLE;
+  signal state        : FSM_TYPE        := S_IDLE;
+  signal output_state : OUTPUT_FSM_TYPE := S_IDLE;
 
   signal buffer_rdy           : std_logic_vector(1 downto 0);
   signal buffer_empty         : std_logic_vector(1 downto 0);
@@ -138,7 +140,7 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        buffer_rdy <= (others=>'0');
+        buffer_rdy <= (others => '0');
       else
         -----------------------------------------------------------------------
         -- Store data in buffer 0; Read from buffer 1
@@ -150,7 +152,7 @@ begin
           if (line_transfered = '1') then
             buffer_rdy(1) <= '0';
           end if;
-          
+
         -----------------------------------------------------------------------
         -- Store data in buffer 1; Read from buffer 0
         -----------------------------------------------------------------------
@@ -166,7 +168,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_buffer_empty
   -- Description : 
@@ -175,7 +177,7 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        buffer_empty <= (others=>'1');
+        buffer_empty <= (others => '1');
       else
         -----------------------------------------------------------------------
         -- Store data in buffer 0; Read from buffer 1
@@ -187,7 +189,7 @@ begin
           if (line_transfered = '1') then
             buffer_empty(1) <= '1';
           end if;
-          
+
         -----------------------------------------------------------------------
         -- Store data in buffer 1; Read from buffer 0
         -----------------------------------------------------------------------
@@ -205,10 +207,10 @@ begin
 
 
 
-  s_axis_tready <= '1' when (double_buffer_ptr = '0' and buffer_rdy(0) = '0') else
-                   '1' when (double_buffer_ptr = '1' and buffer_rdy(1) = '0') else
+  s_axis_tready <= '1' when (state = S_LOAD_LINE and double_buffer_ptr = '0' and buffer_rdy(0) = '0') else
+                   '1' when (state = S_LOAD_LINE and double_buffer_ptr = '1' and buffer_rdy(1) = '0') else
                    '0';
-  
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_last_row
@@ -222,7 +224,7 @@ begin
       else
         if (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1' and s_axis_tuser(1) = '1') then
           last_row <= '1';
-        elsif (state = S_END_OF_DMA) then
+        elsif (output_state = S_END_OF_DMA) then
           last_row <= '0';
         end if;
       end if;
@@ -241,7 +243,7 @@ begin
       else
         if (state = S_SOF) then
           double_buffer_ptr <= '0';
-        elsif (state = S_INIT_HOST_TRANSFER) then
+        elsif (state = S_TOGGLE_BUFFER) then
           double_buffer_ptr <= not double_buffer_ptr;
         end if;
       end if;
@@ -296,40 +298,26 @@ begin
           -------------------------------------------------------------------
           when S_LOAD_LINE =>
             if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
-              state <= S_INIT_HOST_TRANSFER;
+              state <= S_TOGGLE_BUFFER;
             else
               state <= S_LOAD_LINE;
             end if;
 
+          -------------------------------------------------------------------
+          -- S_TRANSFER : 
+          -------------------------------------------------------------------
+          when S_TOGGLE_BUFFER =>
+            state <= S_INIT_HOST_TRANSFER;
 
           -------------------------------------------------------------------
           -- S_TRANSFER : 
           -------------------------------------------------------------------
           when S_INIT_HOST_TRANSFER =>
-            state <= S_WAIT_COMPLETION;
-
-
-          -------------------------------------------------------------------
-          -- S_WAIT_COMPLETION : 
-          -------------------------------------------------------------------
-          when S_WAIT_COMPLETION =>
-            if (line_transfered = '1') then
-              if (last_row = '1') then
-                state <= S_END_OF_DMA;
-              else
-                state <= S_DONE;
-              end if;
+            if (output_state = S_INIT) then
+              state <= S_DONE;
             else
-              state <= S_WAIT_COMPLETION;
+              state <= S_INIT_HOST_TRANSFER;
             end if;
-
-
-          -------------------------------------------------------------------
-          -- S_END_OF_DMA : 
-          -------------------------------------------------------------------
-          when S_END_OF_DMA =>
-            state <= S_DONE;
-
 
           -------------------------------------------------------------------
           -- S_DONE : 
@@ -349,16 +337,12 @@ begin
   end process P_state;
 
 
-
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
-  buffer_write_en <= '1' when (state = S_LOAD_LINE and s_axis_tvalid = '1') else
+  buffer_write_en <= '1' when (state = S_LOAD_LINE and double_buffer_ptr = '0' and buffer_rdy(0) = '0' and s_axis_tvalid = '1') else
+                     '1' when (state = S_LOAD_LINE and double_buffer_ptr = '1' and buffer_rdy(1) = '0' and s_axis_tvalid = '1') else
                      '0';
-
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
 
 
 -----------------------------------------------------------------------------
@@ -379,8 +363,10 @@ begin
     end if;
   end process;
 
+
   buffer_write_address <= (double_buffer_ptr) & std_logic_vector(buffer_write_ptr);
   buffer_write_data    <= s_axis_tdata;
+
 
   -----------------------------------------------------------------------------
   -- Line buffer (2xline buffer size to support double buffering)
@@ -406,6 +392,70 @@ begin
   line_buffer_read_data <= buffer_read_data;
 
 
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hispi_output_state
+  -- Description : Decode the hispi protocol output_state
+  -----------------------------------------------------------------------------
+  P_output_state : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        output_state <= S_IDLE;
+      else
+
+        case output_state is
+          -------------------------------------------------------------------
+          -- S_IDLE : 
+          -------------------------------------------------------------------
+          when S_IDLE =>
+            if (state = S_INIT_HOST_TRANSFER) then
+              output_state <= S_INIT;
+            end if;
+
+          -------------------------------------------------------------------
+          -- S_INIT : 
+          -------------------------------------------------------------------
+          when S_INIT =>
+            output_state <= S_TRANSFER;
+
+
+          -------------------------------------------------------------------
+          --  S_LOAD_LINE : 
+          -------------------------------------------------------------------
+          when S_TRANSFER =>
+            if (line_transfered = '1') then
+              if (last_row = '1') then
+                output_state <= S_END_OF_DMA;
+              else
+                output_state <= S_DONE;
+              end if;
+            end if;
+
+          -------------------------------------------------------------------
+          -- S_END_OF_DMA : 
+          -------------------------------------------------------------------
+          when S_END_OF_DMA =>
+            output_state <= S_DONE;
+
+
+          -------------------------------------------------------------------
+          -- S_DONE : 
+          -------------------------------------------------------------------
+          when S_DONE =>
+            output_state <= S_IDLE;
+
+
+          -------------------------------------------------------------------
+          -- 
+          -------------------------------------------------------------------
+          when others =>
+            null;
+        end case;
+      end if;
+    end if;
+  end process;
+
 -----------------------------------------------------------------------------
 -- line_ready
 -----------------------------------------------------------------------------
@@ -415,7 +465,7 @@ begin
       if (srst_n = '0')then
         line_ready <= '0';
       else
-        if (state = S_INIT_HOST_TRANSFER) then
+        if (output_state = S_INIT) then
           line_ready <= '1';
         elsif (line_transfered = '1') then
           line_ready <= '0';
@@ -430,7 +480,7 @@ begin
 
   line_buffer_read_data <= buffer_read_data;
 
-  end_of_dma <= '1' when (state = S_END_OF_DMA) else
+  end_of_dma <= '1' when (output_state = S_END_OF_DMA) else
                 '0';
 
 end rtl;
