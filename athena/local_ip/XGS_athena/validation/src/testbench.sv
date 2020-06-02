@@ -61,7 +61,7 @@ module testbench();
 
 	parameter SENSOR_X_START_OFFSET     = 'h01d0;
 	parameter SENSOR_X_END_OFFSET       = 'h01d4;
-	
+
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
@@ -83,6 +83,7 @@ module testbench();
 	integer  address;
 	integer  data;
 	integer  ben;
+	integer  dma_irq_cntr = 0;
 
 	//clock and reset signal declaration
 	bit 	    idelay_clk=1'b0;
@@ -432,6 +433,11 @@ module testbench();
 		sclk_reset_n <= pcie_axi.reset_n;
 	end
 
+	always_ff @(posedge irq[0])
+	begin
+		dma_irq_cntr++;
+	end
+
 	// Clock and Reset generation
 	//always #5 axi_clk = ~axi_clk;
 
@@ -464,7 +470,7 @@ module testbench();
 				int ROI_YSIZE;
 				int SENSOR_X_START;
 				int SENSOR_X_END;
-				
+
 				int EXPOSURE;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
@@ -497,9 +503,9 @@ module testbench();
 				#160ns
 					pcie_reset_n = 1'b1;
 
-					///////////////////////////////////////////////////
-					// Start setting up registers
-					///////////////////////////////////////////////////
+				///////////////////////////////////////////////////
+				// Start setting up registers
+				///////////////////////////////////////////////////
 				$display("2. Starting XGS_athena register file accesses");
 
 
@@ -538,7 +544,7 @@ module testbench();
 				// DMA line size register
 				///////////////////////////////////////////////////
 				$display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-				host.write(LINE_SIZE_OFFSET, line_size);					
+				host.write(LINE_SIZE_OFFSET, line_size);
 				host.wait_n(10);
 
 
@@ -581,9 +587,9 @@ module testbench();
 				#200us;
 
 
-					///////////////////////////////////////////////////
-					// SPI read XGS model id
-					///////////////////////////////////////////////////
+				///////////////////////////////////////////////////
+				// SPI read XGS model id
+				///////////////////////////////////////////////////
 				$display("  4.1 SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
 				XGS_ReadSPI(SPI_MODEL_ID_OFFSET, data_rd);
 
@@ -616,7 +622,7 @@ module testbench();
 
 				//- Wait at least 500us for the PLL to start and all clocks to be stable.
 				#500us;
-					//- REG Write = 0x3E3E, 0x0001
+				//- REG Write = 0x3E3E, 0x0001
 				$display("  4.4 SPI write XGS UNKNOWN register @0x%h", SPI_UNKNOWN_REGISTER_REG);
 				XGS_WriteSPI(SPI_UNKNOWN_REGISTER_REG, 16'h0001);
 
@@ -676,10 +682,10 @@ module testbench();
 				#50us;
 
 
-					///////////////////////////////////////////////////
-					// XGS Controller : SENSOR REG_UPDATE =1
-					///////////////////////////////////////////////////
-					// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// XGS Controller : SENSOR REG_UPDATE =1
+				///////////////////////////////////////////////////
+				// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
 				$display("  5.1 Write SENSOR_CTRL register @0x%h", SENSOR_CTRL_OFFSET);
 				host.write(SENSOR_CTRL_OFFSET, 16'h0012);
 
@@ -780,22 +786,22 @@ module testbench();
 				#100ns
 
 
-					///////////////////////////////////////////////////
-					// XGS HiSPi : DEBUG Disable manual calibration
-					///////////////////////////////////////////////////
-					$display("  6.3 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
+				///////////////////////////////////////////////////
+				// XGS HiSPi : DEBUG Disable manual calibration
+				///////////////////////////////////////////////////
+				$display("  6.3 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
 				manual_calib = 'hC0000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
 				#100ns
-					manual_calib = 'h00000000; // Manual calib enable
+				manual_calib = 'h00000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
 				#100ns
 
 
-					///////////////////////////////////////////////////
-					// XGS HiSPi : Control Start a calibration
-					///////////////////////////////////////////////////
-					$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				///////////////////////////////////////////////////
+				// XGS HiSPi : Control Start a calibration
+				///////////////////////////////////////////////////
+				$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
 				host.write(HISPI_CTRL_OFFSET, 'h0007);
 
 
@@ -804,14 +810,14 @@ module testbench();
 				///////////////////////////////////////////////////
 				$display("7. Trigger ROI #1");
 
-                // X origin 
+				// X origin
 				SENSOR_X_START  = 32;
-                SENSOR_X_END    = SENSOR_X_START+4096-1;              
-				
+				SENSOR_X_END    = SENSOR_X_START+4096-1;
+
 				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
 				host.write(SENSOR_X_END_OFFSET,   SENSOR_X_END);
-				
-				
+
+
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
@@ -841,19 +847,32 @@ module testbench();
 
 				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
-				
-				#1ms;
 
+				///////////////////////////////////////////////////
+				// Wait for 2 end of DMA irq event
+				///////////////////////////////////////////////////
+				while (dma_irq_cntr != 2) begin
+					#1us;
+				end
 
-					///////////////////////////////////////////////////
-					// Terminate the simulation
-					///////////////////////////////////////////////////
-				host.wait_n(1000);
+				///////////////////////////////////////////////////
+				// Terminate the simulation
+				///////////////////////////////////////////////////
+				//host.wait_n(1000);
 
 			end
 
-		join;
-			#1ms;
+		join_any;
+
+		///////////////////////////////////////////////////
+		// Terminate the successfull simulation
+		///////////////////////////////////////////////////
+		#1us;
+		$display("######################################################");
+		$display("###         Simulation completed successfully      ###");
+		$display("###                                                ###");
+		$display("###           BRAVO CHAMPION, WELL DONE!!!         ###");
+		$display("######################################################");
 		$finish;
 	end
 
