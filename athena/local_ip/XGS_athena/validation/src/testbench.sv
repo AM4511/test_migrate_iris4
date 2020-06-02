@@ -805,7 +805,7 @@ module testbench();
 				$display("7. Trigger ROI #1");
 
                 // X origin 
-				SENSOR_X_START  = 32;
+				SENSOR_X_START  = 8;
                 SENSOR_X_END    = SENSOR_X_START+4096-1;              
 				
 				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
@@ -824,22 +824,22 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+				scoreboard.predict_img(SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #2
 				///////////////////////////////////////////////////
-				$display("8. Trigger ROI #2");
-				ROI_YSTART = 4;
-				ROI_YSIZE  = 8;
-				//EXPOSURE   = 50;  //in us
-				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
-				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
-				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
-				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
-
-				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+//				$display("8. Trigger ROI #2");
+//				ROI_YSTART = 4;
+//				ROI_YSIZE  = 8;
+//				//EXPOSURE   = 50;  //in us
+//				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
+//				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
+//				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
+//				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+//
+//				scoreboard.predict_img(SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 				
 				#1ms;

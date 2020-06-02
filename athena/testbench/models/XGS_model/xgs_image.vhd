@@ -29,7 +29,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.math_real.all;
+use IEEE.std_logic_textio.all;  
 
+library std;
+use std.textio.all;
+ 
 library work;
 use work.xgs_model_pkg.all;
 
@@ -79,11 +84,12 @@ architecture behaviour of xgs_image is
 constant C_TP_COLUMN_SIZE    : integer := G_PXL_PER_COLRAM * (G_XGS45M+1); 
 constant G_PXL_ARRAY_COLUMNS : integer := G_PXL_PER_COLRAM * G_NUM_PHY * 4;
 
+
 --A frame is defined as 3 lines
 --Frame(0) = Embedded data line
 --Frame(1) = Line with red and green_red pixels
 --Frame(2) = Line with blue and green_blue pixels
-type t_frame_type is array(0 to 2) of t_dataline(0 to G_PXL_ARRAY_COLUMNS-1);
+type t_frame_type is array(0 to 1) of t_dataline(0 to G_PXL_ARRAY_COLUMNS-1);
 signal frame           : t_frame_type;
 signal frame_nxt       : std_logic;
 signal frame_valid     : std_logic;
@@ -94,19 +100,114 @@ signal debug_frame_line0: t_debug_frame_line;
 signal debug_frame_line1: t_debug_frame_line;
 signal debug_frame_line2: t_debug_frame_line;
 
+type XGS_image_array is array (0 to G_PXL_ARRAY_ROWS, 0 to G_PXL_ARRAY_COLUMNS) of integer range 0 to 4095;
+signal XGS_image : XGS_image_array;
+
 begin
 
 frame_count <= frame_count_int;
 
+
+
+--------------------------------------------------
+--
+-- Generation de lèimage a utiliser dans le test
+--
+--------------------------------------------------
+Create_XGS_Image : process(sequencer_enable)
+
+  variable seed1, seed2 : integer := 69;
+  variable random1              : integer;
+
+  -- Random generator --jmansill
+  impure function rand_int(min_val, max_val : integer) return integer is
+    variable r : real;
+  begin
+    uniform(seed1, seed2, r);
+    return integer(
+      round(r * real(max_val - min_val + 1) + real(min_val) - 0.5));
+  end function;
+
+  file xgs_image_file_dec      : text open write_mode is "XGS_image_dec.txt";
+  file xgs_image_file_hex12    : text open write_mode is "XGS_image_hex12.txt";
+  file xgs_image_file_hex8     : text open write_mode is "XGS_image_hex8.txt";
+
+  variable hex_value        : std_logic_vector(11 downto 0); 
+  variable row_dec          : line;
+  variable row_hex12        : line;
+  variable row_hex8         : line;
+
+  begin
+    if(rising_edge(sequencer_enable)) then    
+		
+	  report "Starting XGS image generation...";
+	  
+      for line_count in 0 to 3079 loop
+      
+	    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
+          if(j<4) then                 --DUMMY
+             random1 := 16#00D#;
+          elsif(j<28) then             --Black REF  
+             random1 := 16#000#;
+          elsif(j<32) then             --DUMMY
+             random1 := 16#00D#;
+          elsif(j<4136) then           --Interpolation+valid      
+            --random1 := rand_int(0, 4095);  
+            random1 := (line_count+j-32) mod 4096;			
+          elsif(j<4140) then           --DUMMY
+            random1 := 16#00D#; 
+          elsif(j<4172) then           --Black REF  
+            random1 := 16#000#;
+          elsif(j<4176) then           --DUMMY
+            random1 := 16#00D#;			  
+          end if;
+          
+		  if(random1=4096) then 
+		    report "random1=4096 WAFFF????";
+		  end if;  
+		  
+		  XGS_image(line_count, j) <= random1; 
+		  
+		  write(row_dec, random1);
+          write(row_dec, ' ');
+            
+          hex_value := std_logic_vector(to_unsigned(random1, 12) );   
+          hwrite(row_hex12, hex_value );
+          write(row_hex12, ' ');      
+          
+	      --hwrite(row_hex8, hex_value(11 downto 4) ) ;
+		  hwrite(row_hex8, hex_value(7 downto 0) ) ;
+
+          write(row_hex8, ' ');        		 		 
+        end loop; 
+
+        writeline(xgs_image_file_dec,   row_dec);
+        writeline(xgs_image_file_hex12, row_hex12);    
+        writeline(xgs_image_file_hex8,  row_hex8);      
+	   
+      end loop; 
+
+	  report "XGS Image generation Done.";
+      file_close(xgs_image_file_dec);
+	  file_close(xgs_image_file_hex12);
+	  file_close(xgs_image_file_hex8);	 
+	  
+	end if;  
+  
+end process Create_XGS_Image;
+
+
+
 --Frame generation based on mode setting
 FRAME_CONTENT : process(trigger_int, dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
-variable var_test_data_red    : unsigned(12 downto 0);
-variable var_test_data_blue   : unsigned(12 downto 0);
-variable var_test_data_greenr : unsigned(12 downto 0);
-variable var_test_data_greenb : unsigned(12 downto 0); 
-variable var_pixel_value      : unsigned(15 downto 0);
-variable var_ftg              : unsigned(11 downto 0);
-variable var_line_nr          : integer range 0 to 1023;
+  variable var_test_data_red    : unsigned(12 downto 0);
+  variable var_test_data_blue   : unsigned(12 downto 0);
+  variable var_test_data_greenr : unsigned(12 downto 0);
+  variable var_test_data_greenb : unsigned(12 downto 0); 
+  variable var_pixel_value      : unsigned(15 downto 0);
+  variable var_ftg              : unsigned(11 downto 0);
+  variable var_line_nr          : integer range 0 to 1023; 
+  
 begin
   if sequencer_enable = '0' then
     frame_count_int <= (others => '0');
@@ -150,519 +251,45 @@ begin
             frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
           end loop;
         end if;
-        --for j in 0 to (G_PXL_ARRAY_COLUMNS/2)-1 loop
-        --  frame(1)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j-2,12));
-        --  frame(1)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j-1,12));
-        --  frame(2)(2*j)   <= std_logic_vector(to_unsigned(line_count+2*j  ,12));
-        --  frame(2)(2*j+1) <= std_logic_vector(to_unsigned(line_count+2*j+1,12));    
-        --end loop;      
+
+		
         -- jmansill simple B&W ramp
         for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
           --if(line_count>0) then
           if(line_count>roi_start) then
 		    if(j<4) then                 --DUMMY
 		      frame(1)(j) <= X"00D";
-              frame(2)(j) <= X"00D"; 
+              --frame(2)(j) <= X"00D"; 
 			elsif(j<28) then             --Black REF  
 		      frame(1)(j) <= X"000";
-              frame(2)(j) <= X"000";
+              --frame(2)(j) <= X"000";
 		    elsif(j<32) then             --DUMMY
 		      frame(1)(j) <= X"00D";
-              frame(2)(j) <= X"00D"; 			  
+              --frame(2)(j) <= X"00D"; 			  
 			elsif(j<4136) then           --Interpolation+valid
-              frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  --pixel0 located @ (32,0)
-              frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  
+              --frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  --pixel0 located @ (32,0)  -- Line with red and green_red pixels
+              --frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));                             -- Line with blue and green_blue pixels             
+			  
+			  frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count, j), 12));
+			  --frame(2)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count, j), 12));
+			  
 			elsif(j<4140) then           --DUMMY
 		      frame(1)(j) <= X"00D";
-              frame(2)(j) <= X"00D"; 
+              --frame(2)(j) <= X"00D"; 
 			elsif(j<4172) then           --Black REF  
 		      frame(1)(j) <= X"000";
-              frame(2)(j) <= X"000";
+              --frame(2)(j) <= X"000";
 		    elsif(j<4176) then           --DUMMY
 		      frame(1)(j) <= X"00D";
-              frame(2)(j) <= X"00D"; 	
+              --frame(2)(j) <= X"00D"; 	
             end if;			  
           else
             frame(1)(j) <= X"EB5";
-            frame(2)(j) <= X"EB5"; 
-          end if;  
-        end loop; 
-        
-        
-      when "001" => --solid color
-        frame(0)    <= (others => X"EB5"); --Embedded dataline
-        if ext_emb_data = '1' then
-          for i in 0 to 347 loop
-            frame(0)(i)(        11) <= swap_top_bottom;
-            frame(0)(i)(        10) <= y_reversed;
-            frame(0)(i)(         9) <= y_subsampling;
-            frame(0)(i)(         8) <= x_subsampling;
-            frame(0)(i)(         7) <= nested_readout;
-            frame(0)(i)(6 downto 4) <= (others => cmc_patgen_en);
-            frame(0)(i)(3 downto 0) <= "0101"; --Embedded dataline
-          end loop;
-        else
-          for i in 0 to 347 loop
-            frame(0)(i)(11 downto 7) <= "00000";
-            frame(0)(i)( 6 downto 4) <= (others => cmc_patgen_en);
-            frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
-          end loop;
-        end if;
-        var_test_data_red    := unsigned(test_data_red)   ;
-        var_test_data_greenr := unsigned(test_data_greenr);
-        var_test_data_blue   := unsigned(test_data_blue)  ;
-        var_test_data_greenb := unsigned(test_data_greenb);    
-        for j in 0 to (G_PXL_ARRAY_COLUMNS/2)-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop; 
-        
-      when "010" => --color bar
-        var_test_data_red(12 downto 1)    := X"FFF";  --white bar
-        var_test_data_greenr(12 downto 1) := X"FFF";
-        var_test_data_blue(12 downto 1)   := X"FFF";
-        var_test_data_greenb(12 downto 1) := X"FFF";     
-        for j in 0 to C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"FFF"; --yellow bar
-        var_test_data_greenr(12 downto 1) := X"FFF";
-        var_test_data_blue(12 downto 1)   := X"001";
-        var_test_data_greenb(12 downto 1) := X"FFF";     
-        for j in C_TP_COLUMN_SIZE to 2*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"001"; --cyan bar
-        var_test_data_greenr(12 downto 1) := X"FFF";
-        var_test_data_blue(12 downto 1)   := X"FFF";
-        var_test_data_greenb(12 downto 1) := X"FFF";     
-        for j in 2*C_TP_COLUMN_SIZE to 3*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"001"; --green bar
-        var_test_data_greenr(12 downto 1) := X"FFF";
-        var_test_data_blue(12 downto 1)   := X"001";
-        var_test_data_greenb(12 downto 1) := X"FFF";     
-        for j in 3*C_TP_COLUMN_SIZE to 4*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"FFF"; --magenta bar
-        var_test_data_greenr(12 downto 1) := X"001";
-        var_test_data_blue(12 downto 1)   := X"FFF";
-        var_test_data_greenb(12 downto 1) := X"001";     
-        for j in 4*C_TP_COLUMN_SIZE to 5*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"FFF"; --red bar
-        var_test_data_greenr(12 downto 1) := X"001";
-        var_test_data_blue(12 downto 1)   := X"001";
-        var_test_data_greenb(12 downto 1) := X"001";     
-        for j in 5*C_TP_COLUMN_SIZE to 6*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"001"; --blue bar
-        var_test_data_greenr(12 downto 1) := X"001";
-        var_test_data_blue(12 downto 1)   := X"FFF";
-        var_test_data_greenb(12 downto 1) := X"001";     
-        for j in 6*C_TP_COLUMN_SIZE to 7*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        var_test_data_red(12 downto 1)    := X"000"; --black bar
-        var_test_data_greenr(12 downto 1) := X"000";
-        var_test_data_blue(12 downto 1)   := X"000";
-        var_test_data_greenb(12 downto 1) := X"000";     
-        for j in 7*C_TP_COLUMN_SIZE to (G_PXL_ARRAY_COLUMNS/2)-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-      when "011" => --fade-to-gray
-        if line_count <= 2 then
-          var_line_nr := 0;
-        else
-          var_line_nr := ((line_count-1)/2) mod 1024;
-        end if;
-        if (var_line_nr = 0) then
-          var_test_data_red(12 downto 1)    := X"FFF";  --white bar - part 1
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-2*var_line_nr,12);  --white bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-2*var_line_nr,12);     
-        end if;
-        for j in 0 to C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"FFF";  --white bar - part 2
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);  --white bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);     
-        end if;
-        for j in C_TP_COLUMN_SIZE/2 to C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
+            --frame(2)(j) <= X"EB5"; 
+          end if;
+		  
         end loop; 
  
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"FFF";  --yellow bar - part 1
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-2*var_line_nr,12); --yellow bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-2*var_line_nr,12); 
-        end if;
-        for j in C_TP_COLUMN_SIZE to 3*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"FFF";  --yellow bar bar - part 2
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); --yellow bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); 
-        end if;
-        for j in 3*C_TP_COLUMN_SIZE/2 to 2*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"000"; --cyan bar - part 1
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     2*var_line_nr,12); --cyan bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-2*var_line_nr,12); 
-        end if;
-        for j in 2*C_TP_COLUMN_SIZE to 5*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"000";  --cyan bar - part 2
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); --cyan bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); 
-        end if;
-        for j in 5*C_TP_COLUMN_SIZE/2 to 3*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"000"; --green bar - part 1
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     2*var_line_nr,12); --green bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-2*var_line_nr,12); 
-        end if;
-        for j in 3*C_TP_COLUMN_SIZE to 7*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"000";  --green bar - part 2
-          var_test_data_greenr(12 downto 1) := X"FFF";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"FFF";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); --green bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); 
-        end if;
-        for j in 7*C_TP_COLUMN_SIZE/2 to 4*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"FFF"; --magenta bar - part 1
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-2*var_line_nr,12); --magenta bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(     2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     2*var_line_nr,12); 
-        end if;
-        for j in 4*C_TP_COLUMN_SIZE to 9*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"FFF";  --magenta bar - part 2
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); --magenta bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); 
-        end if;
-        for j in 9*C_TP_COLUMN_SIZE/2 to 5*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"FFF"; --red bar - part 1
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-2*var_line_nr,12); --red bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(     2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     2*var_line_nr,12); 
-        end if;
-        for j in 5*C_TP_COLUMN_SIZE to 11*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"FFF";  --red bar - part 2
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12); --red bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); 
-        end if;
-        for j in 11*C_TP_COLUMN_SIZE/2 to 6*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"000"; --blue bar - part 1
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     2*var_line_nr,12); --blue bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(     2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     2*var_line_nr,12); 
-        end if;
-        for j in 6*C_TP_COLUMN_SIZE to 13*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"000";  --blue bar - part 2
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"FFF";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); --blue bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(4096-4*(var_line_nr/2)-(var_line_nr/128)+(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); 
-        end if;
-        for j in 13*C_TP_COLUMN_SIZE/2 to 7*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-
-        if var_line_nr = 0 then
-          var_test_data_red(12 downto 1)    := X"000"; --black bar - part 1
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     2*var_line_nr,12); --black bar - part 1
-          var_test_data_greenr(12 downto 1) := to_unsigned(     2*var_line_nr,12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     2*var_line_nr,12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     2*var_line_nr,12); 
-        end if;
-        for j in 7*C_TP_COLUMN_SIZE to 15*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 8*C_TP_COLUMN_SIZE to 17*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 9*C_TP_COLUMN_SIZE to 19*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 10*C_TP_COLUMN_SIZE to 21*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 11*C_TP_COLUMN_SIZE to 23*C_TP_COLUMN_SIZE/2-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        if (var_line_nr < 2) then
-          var_test_data_red(12 downto 1)    := X"000";  --black bar - part 2
-          var_test_data_greenr(12 downto 1) := X"000";
-          var_test_data_blue(12 downto 1)   := X"000";
-          var_test_data_greenb(12 downto 1) := X"000";     
-        else
-          var_test_data_red(12 downto 1)    := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); --black bar - part 2
-          var_test_data_greenr(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_blue(12 downto 1)   := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12);
-          var_test_data_greenb(12 downto 1) := to_unsigned(     4*(var_line_nr/2)+(var_line_nr/128)-(var_line_nr/256),12); 
-        end if;
-        for j in 15*C_TP_COLUMN_SIZE/2 to 8*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 17*C_TP_COLUMN_SIZE/2 to 9*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 19*C_TP_COLUMN_SIZE/2 to 10*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 21*C_TP_COLUMN_SIZE/2 to 11*C_TP_COLUMN_SIZE-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-        for j in 23*C_TP_COLUMN_SIZE/2 to (G_PXL_ARRAY_COLUMNS/2)-1 loop
-          frame(1)(2*j)   <= std_logic_vector(var_test_data_red   (12 downto 1));
-          frame(1)(2*j+1) <= std_logic_vector(var_test_data_greenr(12 downto 1));
-          frame(2)(2*j)   <= std_logic_vector(var_test_data_greenb(12 downto 1));
-          frame(2)(2*j+1) <= std_logic_vector(var_test_data_blue  (12 downto 1));    
-        end loop;  
-          
-      when "100" => --diagonal gray 1x
-        for j in 0 to G_PXL_ARRAY_COLUMNS-1 loop
-          var_pixel_value := to_unsigned(((line_count+j)/2),16);
-          if (line_count mod 2 = 0) then
-            frame(2)(j) <= std_logic_vector(var_pixel_value(11 downto 0));
-          else
-            frame(1)(j) <= std_logic_vector(var_pixel_value(11 downto 0));
-          end if;
-        end loop;
-      when "101" => --diagonal gray 3x
-        if line_count /= 0 then
-          for j in 0 to G_PXL_ARRAY_COLUMNS-1 loop
-            var_pixel_value := to_unsigned((3*(line_count+j-1)+1)/2,16);
-            if (line_count mod 2 = 0) then
-              frame(2)(j) <= std_logic_vector(var_pixel_value(11 downto 0));
-            else
-              frame(1)(j) <= std_logic_vector(var_pixel_value(11 downto 0));
-            end if;
-          end loop;
-        end if;
-      when "110" => --white/black bar (Coarse)
-        for j in 0 to G_NUM_PHY-1 loop
-          for k in 0 to 2*G_PXL_PER_COLRAM-1 loop
-            frame(1)( 2*j   *2*G_PXL_PER_COLRAM+k) <= (others => '1');
-            frame(1)((2*j+1)*2*G_PXL_PER_COLRAM+k) <= (others => '0');
-            frame(2)( 2*j   *2*G_PXL_PER_COLRAM+k) <= (others => '1');
-            frame(2)((2*j+1)*2*G_PXL_PER_COLRAM+k) <= (others => '0');
-          end loop;
-        end loop;
       when others => --white/black bar (Fine)
         var_test_data_red(12 downto 8) := "00000";
         var_test_data_red( 7 downto 0) := unsigned(test_data_red(7 downto 0));
@@ -672,17 +299,17 @@ begin
           for k in 0 to G_PXL_PER_COLRAM-1 loop
             if k >= to_integer(var_test_data_greenr) then
               frame(1)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '0');
-              frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '0');
+              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '0');
             else
               frame(1)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '1'); 
-              frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '1'); 
+              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '1'); 
             end if;              
             if k >= to_integer(var_test_data_red) then
               frame(1)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '0');
-              frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '0');
+              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '0');
             else
               frame(1)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '1'); 
-              frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '1'); 
+              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '1'); 
             end if;              
           end loop;
         end loop;
@@ -748,15 +375,15 @@ begin
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
-      elsif (line_count mod 2 = 0) then
-        case frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1);
-        end case;
-        case frame(2)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i); 
-        end case;        
+      --elsif (line_count mod 2 = 0) then
+      --  case frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
+      --    when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
+      --    when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1);
+      --  end case;
+      --  case frame(2)(2*j*G_PXL_PER_COLRAM+2*i) is 
+      --    when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
+      --    when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i); 
+      --  end case;        
       else
         case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
@@ -776,7 +403,7 @@ begin
   for i in 0 to 31 loop
     debug_frame_line0(i) <= frame(0)(i);
     debug_frame_line1(i) <= frame(1)(i);
-    debug_frame_line2(i) <= frame(2)(i);
+    --debug_frame_line2(i) <= frame(2)(i);
   end loop;
 end process DEBUG_PROC;
 

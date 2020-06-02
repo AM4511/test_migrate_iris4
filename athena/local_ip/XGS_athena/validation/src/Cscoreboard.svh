@@ -179,30 +179,53 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	/////////////////////////////////////////////////////////////////////////
 	// Prediction de la rampe simple sans aucun processing
 	/////////////////////////////////////////////////////////////////////////
-    task predict_img(int X_size, int Y_start, int Y_size, longint fstart, int line_size, int line_pitch);
+    task predict_img(int X_start, X_end, int Y_start, int Y_size, longint fstart, int line_size, int line_pitch);
 
        int Initial_X_pix;
-       int expected_data;
-       longint expected_address;
-       int nbElements=0;
-	   
+       int nbElements=0;	   
 	   Pcie32_trans DW_pred;	   
 
+	   // temp XGS12M
+	   int D0_end     = 4;
+	   int BL0_end    = D0_end  + 24;
+	   int D1_end     = BL0_end + 4;
+	   int Valid_end  = D1_end  + 4 + 4096 + 4;
+	   int D2_end     = Valid_end + 4;
+	   int BL1_end    = D2_end  + 32;
+	   int D3_end     = BL1_end + 4;
+	   
        $display ("Image %h Predictor, XGS Y_start=%d, XGS Y_size=%d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Y_start, Y_size, fstart, line_size, line_pitch);       
        
        for(int y = 0; y < Y_size; y = y+1)
 	     begin
-         for(int x = 0; x < X_size; x = x+4)
+         for(int x = X_start; x < X_end; x = x+4)
            begin
              
-             Initial_X_pix= (Y_start+y)%252 + x; // rampe
-		   
-             DW_pred.Data32[31:24] = Initial_X_pix + 3;
-             DW_pred.Data32[23:16] = Initial_X_pix + 2;
-             DW_pred.Data32[15:8]  = Initial_X_pix + 1;
-             DW_pred.Data32[7:0]   = Initial_X_pix + 0;
-         
-             DW_pred.Add64         = fstart + (line_pitch*y) + x ; 
+			 if(x<D0_end) begin
+                 DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
+			   end else
+			     if(x<BL0_end) begin
+                   DW_pred.Data32[31:0] = 32'h00000000;
+			     end else
+                   if(x<D1_end) begin
+                     DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
+			       end else  
+			         if(x<Valid_end) begin
+                       Initial_X_pix= (Y_start+y)%252 + x - D1_end; // rampe		   
+                       DW_pred.Data32[31:24] = Initial_X_pix + 3;
+                       DW_pred.Data32[23:16] = Initial_X_pix + 2;
+                       DW_pred.Data32[15:8]  = Initial_X_pix + 1;
+                       DW_pred.Data32[7:0]   = Initial_X_pix + 0;
+                     end else
+			           if(x<D2_end) begin
+                         DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
+			           end else
+			             if(x<BL1_end) begin
+                           DW_pred.Data32[31:0] = 32'h00000000;
+			             end else
+			         	   DW_pred.Data32[31:0] = 32'h0d0d0d0d;
+				 
+             DW_pred.Add64 = fstart + (line_pitch*y) + x ; 
              			
 		 	 // mettre la transaction dans la queue.
 		     this.Pcie32_queue.push_back(DW_pred);
@@ -234,7 +257,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	  data_LE[31:24] = data[7:0];
 	  data_LE[23:16] = data[15:8];
 	  data_LE[15:8]  = data[23:16];
-	  data_LE[7:0]   = data[31:24];
+	  data_LE[7:0]   = data[31:24]; 
 	  	  
 	  if (this.Pcie32_queue.size() > 0) begin
 	    DW_pred = this.Pcie32_queue.pop_front();
@@ -242,7 +265,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	    if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin	
 	     $display ("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
          number_of_errors++;	
-         if(number_of_errors>4) $stop;           
+         //if(number_of_errors>8) $stop;           
 		  
 		end 		 
       end  else begin
