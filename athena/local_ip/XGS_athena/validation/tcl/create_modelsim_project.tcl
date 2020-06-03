@@ -105,6 +105,7 @@ set model_file_list [join [list  [subst {
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
 ${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
+${TESTBENCH_SRC_PATH}/Cimage.sv \
 ${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/hispi_interface.sv \
 ${TESTBENCH_SRC_PATH}/tlp_interface.sv \
