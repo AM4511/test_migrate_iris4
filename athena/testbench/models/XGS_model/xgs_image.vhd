@@ -45,6 +45,7 @@ entity xgs_image is
           G_PXL_PER_COLRAM   : integer := 174
           );
   port(
+       xgs_model_GenImage  : in std_logic; 
        trigger_int         : in std_logic;
        
        dataline            : out t_dataline(0 to G_NUM_PHY*4*G_PXL_PER_COLRAM-1);
@@ -87,8 +88,7 @@ constant G_PXL_ARRAY_COLUMNS : integer := G_PXL_PER_COLRAM * G_NUM_PHY * 4;
 
 --A frame is defined as 3 lines
 --Frame(0) = Embedded data line
---Frame(1) = Line with red and green_red pixels
---Frame(2) = Line with blue and green_blue pixels
+--Frame(1) = Now is all data mono/color
 type t_frame_type is array(0 to 1) of t_dataline(0 to G_PXL_ARRAY_COLUMNS-1);
 signal frame           : t_frame_type;
 signal frame_nxt       : std_logic;
@@ -114,7 +114,7 @@ frame_count <= frame_count_int;
 -- Generation de lèimage a utiliser dans le test
 --
 --------------------------------------------------
-Create_XGS_Image : process(sequencer_enable)
+Create_XGS_Image : process(xgs_model_GenImage)
 
   variable seed1, seed2 : integer := 69;
   variable random1              : integer;
@@ -128,9 +128,9 @@ Create_XGS_Image : process(sequencer_enable)
       round(r * real(max_val - min_val + 1) + real(min_val) - 0.5));
   end function;
 
-  file xgs_image_file_dec      : text open write_mode is "XGS_image_dec.txt";
-  file xgs_image_file_hex12    : text open write_mode is "XGS_image_hex12.txt";
-  file xgs_image_file_hex8     : text open write_mode is "XGS_image_hex8.txt";
+  file xgs_image_file_dec      : text open write_mode is "XGS_image_dec.pgm";
+  file xgs_image_file_hex12    : text open write_mode is "XGS_image_hex12.pgm";
+  file xgs_image_file_hex8     : text open write_mode is "XGS_image_hex8.pgm";
 
   variable hex_value        : std_logic_vector(11 downto 0); 
   variable row_dec          : line;
@@ -138,9 +138,25 @@ Create_XGS_Image : process(sequencer_enable)
   variable row_hex8         : line;
 
   begin
-    if(rising_edge(sequencer_enable)) then    
+    if(rising_edge(xgs_model_GenImage)) then    
 		
-	  report "Starting XGS image generation...";
+	  if(test_pattern_mode="000") then
+	    report "Starting XGS image generation, Image is random 12bpp.";
+	  elsif(test_pattern_mode="001") then
+	    report "Starting XGS image generation, Image is ramp 12bpp.";
+	  else
+	  	report "Starting XGS image generation, Image is ramp 8bpp (8 MSB of 12bpp, +16 increments).";
+	  end if;
+	  
+	  -- Entete .pgm
+	  write(row_hex12, string'("P2"));
+	  writeline(xgs_image_file_hex12, row_hex12);
+      write(row_hex12, G_PXL_ARRAY_COLUMNS);
+	  write(row_hex12, ' ');
+	  write(row_hex12, G_PXL_ARRAY_ROWS);
+	  writeline(xgs_image_file_hex12, row_hex12);
+	  write(row_hex12, string'("4095"));
+	  writeline(xgs_image_file_hex12, row_hex12);
 	  
       for line_count in 0 to 3079 loop
       
@@ -151,9 +167,14 @@ Create_XGS_Image : process(sequencer_enable)
              random1 := 16#000#;
           elsif(j<32) then             --DUMMY
              random1 := 16#00D#;
-          elsif(j<4136) then           --Interpolation+valid      
-            --random1 := rand_int(0, 4095);  
-            random1 := (line_count+j-32) mod 4096;			
+          elsif(j<4136) then           --Interpolation+valid    
+            if(test_pattern_mode="000") then 		  
+              random1 := rand_int(0, 4095);                 -- random
+            elsif(test_pattern_mode="001") then 
+			  random1 :=  (line_count+j-32) mod 4096;	    -- ramp 12 bits 
+            else			  
+			  random1 := ((line_count+j-32)*16) mod 4096;	-- ramp 8 bits msb 	
+			end if;  
           elsif(j<4140) then           --DUMMY
             random1 := 16#00D#; 
           elsif(j<4172) then           --Black REF  
@@ -200,13 +221,6 @@ end process Create_XGS_Image;
 
 --Frame generation based on mode setting
 FRAME_CONTENT : process(trigger_int, dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
-  variable var_test_data_red    : unsigned(12 downto 0);
-  variable var_test_data_blue   : unsigned(12 downto 0);
-  variable var_test_data_greenr : unsigned(12 downto 0);
-  variable var_test_data_greenb : unsigned(12 downto 0); 
-  variable var_pixel_value      : unsigned(15 downto 0);
-  variable var_ftg              : unsigned(11 downto 0);
-  variable var_line_nr          : integer range 0 to 1023; 
   
 begin
   if sequencer_enable = '0' then
@@ -222,7 +236,6 @@ begin
     else
       if(frame_valid='0' and trigger_int='1') then
         frame_valid <= '1';
-      --elsif(line_count = to_integer(unsigned(frame_length)) )then
       elsif(line_count = to_integer(unsigned(frame_length)) + roi_start )then
         frame_valid <= '0';
       else
@@ -231,8 +244,8 @@ begin
     end if;
     
     
-    case test_pattern_mode is 
-      when "000" => --normal operation
+    --case test_pattern_mode is 
+    --  when "000" => --normal operation
         frame(0)    <= (others => X"EB5"); --Embedded dataline
         if ext_emb_data = '1' then
           for i in 0 to 347 loop
@@ -251,69 +264,19 @@ begin
             frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
           end loop;
         end if;
-
 		
-        -- jmansill simple B&W ramp
+        -- jmansill Loading image from generated file
         for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-          --if(line_count>0) then
           if(line_count>roi_start) then
-		    if(j<4) then                 --DUMMY
-		      frame(1)(j) <= X"00D";
-              --frame(2)(j) <= X"00D"; 
-			elsif(j<28) then             --Black REF  
-		      frame(1)(j) <= X"000";
-              --frame(2)(j) <= X"000";
-		    elsif(j<32) then             --DUMMY
-		      frame(1)(j) <= X"00D";
-              --frame(2)(j) <= X"00D"; 			  
-			elsif(j<4136) then           --Interpolation+valid
-              --frame(1)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));  --pixel0 located @ (32,0)  -- Line with red and green_red pixels
-              --frame(2)(j) <= std_logic_vector(to_unsigned(line_count-1+j-32,12));                             -- Line with blue and green_blue pixels             
-			  
-			  frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count, j), 12));
-			  --frame(2)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count, j), 12));
-			  
-			elsif(j<4140) then           --DUMMY
-		      frame(1)(j) <= X"00D";
-              --frame(2)(j) <= X"00D"; 
-			elsif(j<4172) then           --Black REF  
-		      frame(1)(j) <= X"000";
-              --frame(2)(j) <= X"000";
-		    elsif(j<4176) then           --DUMMY
-		      frame(1)(j) <= X"00D";
-              --frame(2)(j) <= X"00D"; 	
-            end if;			  
+			frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
           else
             frame(1)(j) <= X"EB5";
-            --frame(2)(j) <= X"EB5"; 
-          end if;
-		  
+          end if;		  
         end loop; 
  
-      when others => --white/black bar (Fine)
-        var_test_data_red(12 downto 8) := "00000";
-        var_test_data_red( 7 downto 0) := unsigned(test_data_red(7 downto 0));
-        var_test_data_greenr(12 downto 8) := "00000";
-        var_test_data_greenr( 7 downto 0) := unsigned(test_data_greenr(7 downto 0));
-        for j in 0 to 2*G_NUM_PHY-1 loop
-          for k in 0 to G_PXL_PER_COLRAM-1 loop
-            if k >= to_integer(var_test_data_greenr) then
-              frame(1)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '0');
-              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '0');
-            else
-              frame(1)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '1'); 
-              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k) <= (others => '1'); 
-            end if;              
-            if k >= to_integer(var_test_data_red) then
-              frame(1)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '0');
-              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '0');
-            else
-              frame(1)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '1'); 
-              --frame(2)(j*2*G_PXL_PER_COLRAM+2*k+1) <= (others => '1'); 
-            end if;              
-          end loop;
-        end loop;
-    end case;
+    --  when others => 
+    --    report "ONLY test_pattern 0 is supported, it can be a ramp or random data";
+    --end case;
       
   end if;
 end process FRAME_CONTENT;
@@ -327,7 +290,6 @@ begin
     
   --jmansill
   elsif(slave_triggered_mode='1' and dataline_nxt='1') then 
-    --if line_count = to_integer(unsigned(frame_length)) then
     if line_count = to_integer(unsigned(frame_length) + roi_start) then
       frame_nxt  <= '0';
       line_count <= 0;  --ici on va rester a length+1
@@ -336,7 +298,6 @@ begin
     end if;
     
   elsif(slave_triggered_mode='0' and  dataline_nxt = '1') then
-    --if line_count = to_integer(unsigned(frame_length)) then
     if line_count = to_integer(unsigned(frame_length) + roi_start) then
       frame_nxt  <= '1';
       line_count <= 0;
@@ -346,12 +307,6 @@ begin
   end if;
    
 end process LINE_COUNT_PROC;
-
---emb_data       <= '1' when (line_count = 0) else '0';
---first_line     <= '1' when line_count = 0 else '0'; 
---last_line      <= '1' when line_count = roi_size else '0'; 
---dataline_valid <= '1' when frame_valid = '1' and line_count <= roi_size else '0';
-
 
 emb_data       <= '1' when (line_count = roi_start) else '0';
 first_line     <= '1' when line_count = roi_start else '0'; 
@@ -375,17 +330,17 @@ begin
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
-      --elsif (line_count mod 2 = 0) then
-      --  case frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-      --    when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
-      --    when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i+1);
-      --  end case;
-      --  case frame(2)(2*j*G_PXL_PER_COLRAM+2*i) is 
-      --    when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
-      --    when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(2)(2*j*G_PXL_PER_COLRAM+2*i); 
-      --  end case;        
-      else
+      elsif (line_count mod 2 = 0) then
         case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
+          when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
+        end case;
+        case frame(1)(2*j*G_PXL_PER_COLRAM+2*i) is 
+          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
+          when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
+        end case;
+      else 
+ 	    case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
         end case;
@@ -403,7 +358,6 @@ begin
   for i in 0 to 31 loop
     debug_frame_line0(i) <= frame(0)(i);
     debug_frame_line1(i) <= frame(1)(i);
-    --debug_frame_line2(i) <= frame(2)(i);
   end loop;
 end process DEBUG_PROC;
 

@@ -20,7 +20,7 @@ create_generated_clock -name ncsi_clk_io -source  [get_pins ncsi_clk_oddr/C] -di
 ## Because of the PLL phase advance, we need to specify on which edge we want the
 ## setup analyse to occur
 ###################################################################################
-set_multicycle_path -from [get_clocks ncsi_clk_io] -to [get_clocks pll_ncsi_clk_int] 2
+#set_multicycle_path -from [get_clocks ncsi_clk_io] -to [get_clocks pll_ncsi_clk_int] 2
 
 
 

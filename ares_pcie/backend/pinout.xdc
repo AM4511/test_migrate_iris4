@@ -6,8 +6,7 @@ set_property keep_compatible {xc7a35ticpg236}  [current_design]
 ####################################################
 ## Pin assignment
 ####################################################
-#set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
-set_property PACKAGE_PIN M18  [get_ports ref_clk]
+set_property PACKAGE_PIN M18  [get_ports ref_clk_100MHz]
 set_property PACKAGE_PIN J1   [get_ports sys_rst_in_n]
 set_property PACKAGE_PIN H1   [get_ports sys_rst_out_n]
 set_property PACKAGE_PIN U18  [get_ports {fpga_straps[3]}]

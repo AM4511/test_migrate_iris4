@@ -87,6 +87,7 @@ architecture rtl of axi_line_streamer is
   signal state           : FSM_TYPE;
   signal burst_length    : integer;
   signal burst_cntr      : integer := 0;
+  signal buffer_address  : integer := 0;
   signal read_en         : std_logic;
   signal read_data_valid : std_logic;
   signal first_row       : std_logic;
@@ -102,6 +103,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of state           : signal is "true";
   attribute mark_debug of burst_length    : signal is "true";
   attribute mark_debug of burst_cntr      : signal is "true";
+  attribute mark_debug of buffer_address  : signal is "true";
   attribute mark_debug of read_en         : signal is "true";
   attribute mark_debug of read_data_valid : signal is "true";
   attribute mark_debug of first_row       : signal is "true";
@@ -192,7 +194,7 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_buffer_read_ptr
-  -- Description : 
+  -- Description : Units in QWORD (2Bytes per pix / 8 bytes per QWORDS)
   -----------------------------------------------------------------------------
   P_buffer_read_ptr : process (sclk) is
   begin
@@ -201,7 +203,7 @@ begin
         buffer_read_ptr <= (others => '0');
       else
         if (init_frame = '1') then
-          buffer_read_ptr <= (others => '0');
+          buffer_read_ptr <= (others=>'0');
         elsif (state = S_EOL) then
           buffer_read_ptr <= buffer_read_ptr+1;
         end if;
@@ -253,8 +255,27 @@ begin
     end if;
   end process;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_buffer_address
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_line_buffer_address : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        buffer_address <= 0;
+      else
+        if (state = S_LOAD_BURST_CNTR) then
+          buffer_address <= to_integer(unsigned(x_row_start))*2/8;
+        elsif (state = S_DATA_PHASE and read_en = '1') then
+          buffer_address <= buffer_address+1;
+        end if;
+      end if;
+    end if;
+  end process;
+  
+  line_buffer_address <= std_logic_vector(to_unsigned(buffer_address, line_buffer_address 'length));
   line_buffer_read    <= read_en;
-  line_buffer_address <= std_logic_vector(to_unsigned(burst_cntr, line_buffer_address 'length));
 
 
   -----------------------------------------------------------------------------
