@@ -6,9 +6,8 @@ import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
 
-
-
 module testbench();
+	
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
 	parameter MUX_RATIO = 4;
 	parameter PIXELS_PER_LINE=4176;
@@ -124,7 +123,8 @@ module testbench();
 	wire 	      xgs_monitor1;
 	wire 	      xgs_monitor2;
 
-
+	bit           xgs_model_GenImage = 0;
+    
 	logic 	      anput_ext_trig;
 
 	logic 	      anput_strobe_out;
@@ -138,9 +138,14 @@ module testbench();
 
 
 
+	
+	
+
 	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) host;
 	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
+    CImage XGS_image;
 
+	
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) pcie_axi(pcie_clk);
 	axi_stream_interface #(.T_DATA_WIDTH(AXIS_DATA_WIDTH), .T_USER_WIDTH(AXIS_USER_WIDTH)) tx_axis(pcie_clk, pcie_reset_n);
@@ -172,6 +177,8 @@ module testbench();
 		)
 		XGS_MODEL
 		(
+		    .xgs_model_GenImage(xgs_model_GenImage), 
+			 
 			.VAAHV_NPIX(),
 			.VREF1_BOT_0(),
 			.VREF1_BOT_1(),
@@ -446,7 +453,9 @@ module testbench();
 		// Initialize classes
 		host = new(pcie_axi, if_gpio);
 		scoreboard = new(tx_axis);
-
+        XGS_image  = new();
+		
+		
 		fork
 			// Start the scorboard
 			begin
@@ -636,16 +645,8 @@ module testbench();
 				// XGS_WriteSPI(16'h3e28,16'h2527);                     //mux 4:2
 				$display("  4.5 SPI write XGS HiSPI control common register @0x%h", SPI_HISPI_CONTROL_COMMON_REG);
 				XGS_WriteSPI(SPI_HISPI_CONTROL_COMMON_REG,16'h2537);    //mux 4:1
-
-
-				///////////////////////////////////////////////////
-				// XGS model : Set image Diagonal ramp
-				//             line0 start=0, line1 start=1, line2 start=2..
-				///////////////////////////////////////////////////
-				$display("  4.6 SPI write XGS set test pattern @0x%h", SPI_TEST_PATTERN_MODE_REG);
-				XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG,16'h0000);
-
-
+		
+				
 				///////////////////////////////////////////////////
 				// XGS model : Set line time (for 6 lanes)
 				///////////////////////////////////////////////////
@@ -655,7 +656,7 @@ module testbench();
 
 
 				///////////////////////////////////////////////////
-				// XGS model : Set line time (for 6 lanes)
+				// XGS model : Slave Mode And ENABLE SEQUENCER
 				///////////////////////////////////////////////////
 				$display("  4.8 SPI write XGS set general config @0x%h", SPI_GENERAL_CONFIG0_REG);
 				XGS_WriteSPI(SPI_GENERAL_CONFIG0_REG,16'h0030);                 // Slave + trigger mode
@@ -663,7 +664,7 @@ module testbench();
 
 
 				///////////////////////////////////////////////////
-				// XGS model : Set line time (for 6 lanes)
+				// XGS model : Set Monitor pins
 				///////////////////////////////////////////////////
 				$display("  4.9 SPI write XGS set monitor pins @0x%h", SPI_MONITOR_REG);
 				monitor_0_reg = 16'h6;    // 0x6 : Real Integration  , 0x2 : Integrate
@@ -805,19 +806,33 @@ module testbench();
 				host.write(HISPI_CTRL_OFFSET, 'h0007);
 
 
+				//-------------------------------------------------
+				// Generation de l'image du senseur XGS  
+				//
+				// XGS Image Pattern : 
+				//   0 : Random 12 bpp
+                //   1 : Ramp 12bpp
+                //   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
+                //				
+				//--------------------------------------------------
+				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				XGS_image.load_image;                                // Load le .pgm dans la class SystemVerilog
+        		XGS_image.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
+				
+				
 				///////////////////////////////////////////////////
-				// Trigger ROI
+				// Program X Origin of valid data
 				///////////////////////////////////////////////////
 				$display("7. Trigger ROI #1");
 
-				// X origin
+                // X origin 
 				SENSOR_X_START  = 32;
-				SENSOR_X_END    = SENSOR_X_START+4096-1;
-
+                SENSOR_X_END    = SENSOR_X_START+4096-1;              
+				
 				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
 				host.write(SENSOR_X_END_OFFSET,   SENSOR_X_END);
-
-
+		
+				
 				///////////////////////////////////////////////////
 				// XGS Controller : Set ROI Y start offset
 				///////////////////////////////////////////////////
@@ -830,14 +845,14 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+				scoreboard.predict_img(XGS_image, SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
 
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #2
 				///////////////////////////////////////////////////
 				$display("8. Trigger ROI #2");
-				ROI_YSTART = 4;
+				ROI_YSTART = 0;
 				ROI_YSIZE  = 8;
 				//EXPOSURE   = 50;  //in us
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
@@ -845,17 +860,17 @@ module testbench();
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 
-				scoreboard.predict_img(4096, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
-
-
+				scoreboard.predict_img(XGS_image, SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+				
+				
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
 				while (dma_irq_cntr != 2) begin
 					#1us;
 				end
-
-				///////////////////////////////////////////////////
+				
+				
 				// Terminate the simulation
 				///////////////////////////////////////////////////
 				//host.wait_n(1000);
@@ -910,6 +925,20 @@ module testbench();
 	endtask : XGS_ReadSPI
 
 
+	////////////////////////////////////////////////////////////////
+	// Task : XGS_ReadSPI
+	////////////////////////////////////////////////////////////////
+	task automatic GenImage_XGS(input int ImgPattern);
+		xgs_model_GenImage = 1'b0;      
+	    XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
+		host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!  
+	    #1ns;
+		xgs_model_GenImage = 1'b1;      // Cree le .pgm et loade le modele XGS vhdl
+	    #1ns;
+		xgs_model_GenImage = 1'b0;     
+	    #1ns;		
+	endtask : GenImage_XGS	
+	
 
 endmodule
 

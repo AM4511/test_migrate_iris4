@@ -1,0 +1,3 @@
+*.bak
+XGS_image*
+vsim_stacktrace.vstf

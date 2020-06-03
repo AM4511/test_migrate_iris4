@@ -203,7 +203,7 @@ begin
           ---------------------------------------------------------------------
           -- Normal packing
           ---------------------------------------------------------------------
-          if (SIMULATION = 0) then
+          --if (SIMULATION = 0) then
             -- Phase 0
             if (sclk_data_phase = '0') then
               sclk_data_packer(7 downto 0)   <= sclk_tdata(11 downto 4);
@@ -220,21 +220,21 @@ begin
           ---------------------------------------------------------------------
           -- Simulation packing (removed MSB to keep the ramp)
           ---------------------------------------------------------------------
-          else
-            -- Phase 0
-            if (sclk_data_phase = '0') then
-              sclk_data_packer(7 downto 0)   <= sclk_tdata(7 downto 0);
-              sclk_data_packer(15 downto 8)  <= sclk_tdata(23 downto 16);
-              sclk_data_packer(23 downto 16) <= sclk_tdata(39 downto 32);
-              sclk_data_packer(31 downto 24) <= sclk_tdata(55 downto 48);
-            -- Phase 1
-            else
-              sclk_data_packer(39 downto 32) <= sclk_tdata(7 downto 0);
-              sclk_data_packer(47 downto 40) <= sclk_tdata(23 downto 16);
-              sclk_data_packer(55 downto 48) <= sclk_tdata(39 downto 32);
-              sclk_data_packer(63 downto 56) <= sclk_tdata(55 downto 48);
-            end if;
-          end if;
+          --else
+          --  -- Phase 0
+          --  if (sclk_data_phase = '0') then
+          --    sclk_data_packer(7 downto 0)   <= sclk_tdata(7 downto 0);
+          --    sclk_data_packer(15 downto 8)  <= sclk_tdata(23 downto 16);
+          --    sclk_data_packer(23 downto 16) <= sclk_tdata(39 downto 32);
+          --    sclk_data_packer(31 downto 24) <= sclk_tdata(55 downto 48);
+          --  -- Phase 1
+          --  else
+          --    sclk_data_packer(39 downto 32) <= sclk_tdata(7 downto 0);
+          --    sclk_data_packer(47 downto 40) <= sclk_tdata(23 downto 16);
+          --    sclk_data_packer(55 downto 48) <= sclk_tdata(39 downto 32);
+          --    sclk_data_packer(63 downto 56) <= sclk_tdata(55 downto 48);
+          --  end if;
+          --end if;
         end if;
       end if;
     end if;
