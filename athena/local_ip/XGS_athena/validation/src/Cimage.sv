@@ -90,7 +90,7 @@ class CImage;
     
 	    $display("System Verilog load of PGM file in memory");
 		
-        fileId = $fopen( "C:/work/iris4/athena/local_ip/XGS_athena/validation/mti/XGS_image_hex12.pgm", "r" );   
+        fileId = $fopen( "XGS_image_hex12.pgm", "r" );   
         //if (fileId)  $display(".PGM File was opened successfully");
         //else         $display(".PGM File was NOT opened successfully");
 		

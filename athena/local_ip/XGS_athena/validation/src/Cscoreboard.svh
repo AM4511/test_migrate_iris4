@@ -203,30 +203,6 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
          for(int x = X_start; x < X_end; x = x+4)
            begin
              
-			//if(x<D0_end) begin
-            //    DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
-			//  end else
-			//    if(x<BL0_end) begin
-            //      DW_pred.Data32[31:0] = 32'h00000000;
-			//    end else
-            //      if(x<D1_end) begin
-            //        DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
-			//      end else  
-			//        if(x<Valid_end) begin
-            //          Initial_X_pix= (Y_start+y)%253 + x - D1_end; // rampe		   
-            //          DW_pred.Data32[31:24] = Initial_X_pix + 3;
-            //          DW_pred.Data32[23:16] = Initial_X_pix + 2;
-            //          DW_pred.Data32[15:8]  = Initial_X_pix + 1;
-            //          DW_pred.Data32[7:0]   = Initial_X_pix + 0;
-            //        end else
-			//          if(x<D2_end) begin
-            //            DW_pred.Data32[31:0] = 32'h0d0d0d0d;			 
-			//          end else
-			//            if(x<BL1_end) begin
-            //              DW_pred.Data32[31:0] = 32'h00000000;
-			//            end else
-			//        	   DW_pred.Data32[31:0] = 32'h0d0d0d0d;
-			
              DW_pred.Data32[31:24] = Image.get_pixel(x+3, Y_start+y);
              DW_pred.Data32[23:16] = Image.get_pixel(x+2, Y_start+y);
              DW_pred.Data32[15:8]  = Image.get_pixel(x+1, Y_start+y);

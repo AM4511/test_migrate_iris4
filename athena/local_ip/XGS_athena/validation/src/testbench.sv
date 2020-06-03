@@ -815,7 +815,7 @@ module testbench();
                 //   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
                 //				
 				//--------------------------------------------------
-				GenImage_XGS(1);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				XGS_image.load_image;                                // Load le .pgm dans la class SystemVerilog
         		XGS_image.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
 				

@@ -158,6 +158,24 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  write(row_hex12, string'("4095"));
 	  writeline(xgs_image_file_hex12, row_hex12);
 	  
+	  write(row_hex8, string'("P2"));
+	  writeline(xgs_image_file_hex8, row_hex8);
+      write(row_hex8, G_PXL_ARRAY_COLUMNS);
+	  write(row_hex8, ' ');
+	  write(row_hex8, G_PXL_ARRAY_ROWS);
+	  writeline(xgs_image_file_hex8, row_hex8);
+	  write(row_hex8, string'("4095"));
+	  writeline(xgs_image_file_hex8, row_hex8);
+	  
+	  write(row_dec, string'("P2"));
+	  writeline(xgs_image_file_dec, row_dec);
+      write(row_dec, G_PXL_ARRAY_COLUMNS);
+	  write(row_dec, ' ');
+	  write(row_dec, G_PXL_ARRAY_ROWS);
+	  writeline(xgs_image_file_dec, row_dec);
+	  write(row_dec, string'("4095"));
+	  writeline(xgs_image_file_dec, row_dec);	  
+	  
       for line_count in 0 to 3079 loop
       
 	    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
@@ -244,39 +262,34 @@ begin
     end if;
     
     
-    --case test_pattern_mode is 
-    --  when "000" => --normal operation
-        frame(0)    <= (others => X"EB5"); --Embedded dataline
-        if ext_emb_data = '1' then
-          for i in 0 to 347 loop
-            frame(0)(i)(        11) <= swap_top_bottom;
-            frame(0)(i)(        10) <= y_reversed;
-            frame(0)(i)(         9) <= y_subsampling;
-            frame(0)(i)(         8) <= x_subsampling;
-            frame(0)(i)(         7) <= nested_readout;
-            frame(0)(i)(6 downto 4) <= active_ctxt;
-            frame(0)(i)(3 downto 0) <= "0101"; --Embedded dataline
-          end loop;
-        else
-          for i in 0 to 347 loop
-            frame(0)(i)(11 downto 7) <= "00000";
-            frame(0)(i)( 6 downto 4) <= active_ctxt;
-            frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
-          end loop;
-        end if;
-		
-        -- jmansill Loading image from generated file
-        for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-          if(line_count>roi_start) then
-			frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
-          else
-            frame(1)(j) <= X"EB5";
-          end if;		  
-        end loop; 
+    frame(0)    <= (others => X"EB5"); --Embedded dataline
+    if ext_emb_data = '1' then
+      for i in 0 to 347 loop
+        frame(0)(i)(        11) <= swap_top_bottom;
+        frame(0)(i)(        10) <= y_reversed;
+        frame(0)(i)(         9) <= y_subsampling;
+        frame(0)(i)(         8) <= x_subsampling;
+        frame(0)(i)(         7) <= nested_readout;
+        frame(0)(i)(6 downto 4) <= active_ctxt;
+        frame(0)(i)(3 downto 0) <= "0101"; --Embedded dataline
+      end loop;
+    else
+      for i in 0 to 347 loop
+        frame(0)(i)(11 downto 7) <= "00000";
+        frame(0)(i)( 6 downto 4) <= active_ctxt;
+        frame(0)(i)( 3 downto 0) <= "0101"; --Embedded dataline
+      end loop;
+    end if;
+	
+    -- jmansill Loading image from generated file
+    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
+      if(line_count>roi_start) then
+		frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
+      else
+        frame(1)(j) <= X"EB5";
+      end if;		  
+    end loop; 
  
-    --  when others => 
-    --    report "ONLY test_pattern 0 is supported, it can be a ramp or random data";
-    --end case;
       
   end if;
 end process FRAME_CONTENT;
