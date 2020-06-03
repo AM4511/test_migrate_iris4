@@ -195,7 +195,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
          for(int x = 0; x < X_size; x = x+4)
            begin
              
-             Initial_X_pix= (Y_start+y)%252 + x; // rampe
+             Initial_X_pix= (Y_start+y)%253 + x; // rampe
 		   
              DW_pred.Data32[31:24] = Initial_X_pix + 3;
              DW_pred.Data32[23:16] = Initial_X_pix + 2;
