@@ -75,7 +75,7 @@ architecture rtl of axi_stream_in is
         );
   end component;
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_TOGGLE_BUFFER, S_INIT_HOST_TRANSFER, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_WAIT_LINE_FLUSHED, S_TOGGLE_BUFFER, S_INIT_HOST_TRANSFER, S_DONE);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_TRANSFER, S_END_OF_DMA, S_DONE);
 
   constant C_S_AXI_ADDR_WIDTH : integer := 8;
@@ -102,7 +102,9 @@ architecture rtl of axi_stream_in is
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
   signal double_buffer_ptr   : std_logic;
-
+  signal wait_line_flushed   : std_logic;
+  signal back_pressure_cntr  : integer;
+  signal max_back_pressure   : integer;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -127,6 +129,10 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of line_buffer_read_address : signal is "true";
   attribute mark_debug of line_buffer_read_data    : signal is "true";
 
+  -- For debug
+  attribute mark_debug of wait_line_flushed        : signal is "true";
+  attribute mark_debug of back_pressure_cntr       : signal is "true";
+  attribute mark_debug of max_back_pressure        : signal is "true";
 
 
 begin
@@ -298,11 +304,32 @@ begin
           -------------------------------------------------------------------
           when S_LOAD_LINE =>
             if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
-              state <= S_TOGGLE_BUFFER;
+              -- If output_state is IDLE we toggle the buffers and we
+              -- can start to flush this new available line
+              if (output_state = S_IDLE) then
+                state <= S_TOGGLE_BUFFER;
+              else
+                -- We go and wait for the current line to be flushed
+                state <= S_WAIT_LINE_FLUSHED;
+              end if;
             else
               state <= S_LOAD_LINE;
             end if;
 
+          -------------------------------------------------------------------
+          -- S_WAIT_LINE_FLUSHED : 
+          -------------------------------------------------------------------
+          when S_WAIT_LINE_FLUSHED =>
+            -- If output_state is IDLE we toggle the buffers and we
+            -- can start to flush this new available line
+            if (output_state = S_IDLE) then
+              state <= S_TOGGLE_BUFFER;
+            else
+              -- We go and wait for the current line to be flushed
+              state <= S_WAIT_LINE_FLUSHED;
+            end if;
+
+            
           -------------------------------------------------------------------
           -- S_TRANSFER : 
           -------------------------------------------------------------------
@@ -336,7 +363,50 @@ begin
     end if;
   end process P_state;
 
+  
 
+  wait_line_flushed <= '1' when (state = S_WAIT_LINE_FLUSHED) else
+                       '0';
+
+    
+  -----------------------------------------------------------------------------
+  -- Process     : P_back_pressure_cntr
+  -- Description : Debug flag for chipscope to indicate back pressure
+  -----------------------------------------------------------------------------
+  P_back_pressure_cntr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        back_pressure_cntr <= 0;
+      else
+        if (state = S_INIT) then
+          back_pressure_cntr <= 0;
+        elsif (wait_line_flushed = '1') then
+          back_pressure_cntr <= back_pressure_cntr+1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_max_back_pressure
+  -- Description : Debug flag for chipscope to indicate back pressure
+  -----------------------------------------------------------------------------
+  P_max_back_pressure : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        max_back_pressure <= 0;
+      else
+        if (back_pressure_cntr > max_back_pressure) then
+          max_back_pressure <= back_pressure_cntr;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
