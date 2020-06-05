@@ -842,11 +842,20 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
+<<<<<<< HEAD
 				ROI_Y_START = 3088;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
+=======
+				ROI_YSTART = 8;
+				ROI_YSIZE  = 3100;
+				EXPOSURE   = 50;  //in us
+				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
+				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
+				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
+>>>>>>> master
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
                 test_nb_images++;
