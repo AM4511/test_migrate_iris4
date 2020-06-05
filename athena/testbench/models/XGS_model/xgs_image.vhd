@@ -192,6 +192,9 @@ Create_XGS_Image : process(xgs_model_GenImage)
 			  random1 :=  (line_count+j-32) mod 4096;	    -- ramp 12 bits 
             else			  
 			  random1 := ((line_count+j-32)*16) mod 4096;	-- ramp 8 bits msb 	
+			  if(line_count=0) then
+			    random1 := 16#3a6#;
+			  end if;	
 			end if;  
           elsif(j<4140) then           --DUMMY
             random1 := 16#00D#; 
