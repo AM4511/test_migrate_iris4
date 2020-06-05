@@ -92,7 +92,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(40000);
+	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 

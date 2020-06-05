@@ -184,7 +184,7 @@ int main(void)
 
 	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x210000)
 	{
-		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 2;
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		printf("\n");
 		printf("------------------------------------------------------------------\n");
 		printf(" XGS FRAMERATE IS AT NOMINAL SPEED, SINCE FPGA IS IN PCIe Gen1 x2 \n");
