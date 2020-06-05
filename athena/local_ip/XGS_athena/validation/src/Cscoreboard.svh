@@ -131,7 +131,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 					if (header_dw==3 && has_data == 1) begin
 						nxt_pcie_address[63:32] = 0;
 						nxt_pcie_address[31:0]  = this.axis.tdata[31:0];
-						$display("Header DW3 is data %h", this.axis.tdata[63:32] );
+						//$display("Header DW3 is data %h", this.axis.tdata[63:32] );
 				    	validate_DW(nxt_pcie_address, this.axis.tdata[63:32]);			
 						nxt_pcie_address = nxt_pcie_address + 4;
 						tlp_length--;
@@ -168,7 +168,8 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 				if (this.axis.tlast == 1'b1) begin
 					tlp_cntr = 0;
 					tlp_id++;
-					$display("TLP %d completed!", tlp_id);
+					if(tlp_id%50 ==0)
+					  $display("TLP %d completed!", tlp_id);
 				end
 			end
 		end while (1);
@@ -181,34 +182,26 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	/////////////////////////////////////////////////////////////////////////
 	// Prediction de la rampe simple sans aucun processing
 	/////////////////////////////////////////////////////////////////////////
-    task predict_img(input CImage Image, int X_start, X_end, int Y_start, int Y_size, longint fstart, int line_size, int line_pitch);
+    task predict_img(input CImage Image, longint fstart, int line_size, int line_pitch);
 
        int Initial_X_pix;
        int nbElements=0;	   
 	   Pcie32_trans DW_pred;	   
 
-	   // temp XGS12M
-	   int D0_end     = 4;
-	   int BL0_end    = D0_end  + 24;
-	   int D1_end     = BL0_end + 4;
-	   int Valid_end  = D1_end  + 4 + 4096 + 4;
-	   int D2_end     = Valid_end + 4;
-	   int BL1_end    = D2_end  + 32;
-	   int D3_end     = BL1_end + 4;
-	   
-       $display ("Image %h Predictor, XGS Y_start=%d, XGS Y_size=%d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Y_start, Y_size, fstart, line_size, line_pitch);       
+   
+       $display ("Image %h Predictor, XGS Xsize=%d, XGS Ysize=%d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.pgm_size_x, Image.pgm_size_y, fstart, line_size, line_pitch);       
        
-       for(int y = 0; y < Y_size; y = y+1)
+       for(int y = 0; y < Image.pgm_size_y; y = y+1)
 	     begin
-         for(int x = X_start; x < X_end; x = x+4)
+         for(int x = 0; x < Image.pgm_size_x; x = x+4)
            begin
              
-             DW_pred.Data32[31:24] = Image.get_pixel(x+3, Y_start+y);
-             DW_pred.Data32[23:16] = Image.get_pixel(x+2, Y_start+y);
-             DW_pred.Data32[15:8]  = Image.get_pixel(x+1, Y_start+y);
-             DW_pred.Data32[7:0]   = Image.get_pixel(x+0, Y_start+y);
+             DW_pred.Data32[31:24] = Image.get_pixel(x+3, y);
+             DW_pred.Data32[23:16] = Image.get_pixel(x+2, y);
+             DW_pred.Data32[15:8]  = Image.get_pixel(x+1, y);
+             DW_pred.Data32[7:0]   = Image.get_pixel(x+0, y);
 			
-             DW_pred.Add64 = fstart + (line_pitch*y) + (x-X_start) ; 
+             DW_pred.Add64 = fstart + (line_pitch*y) + x ; 
              			
 		 	 // mettre la transaction dans la queue.
 		     this.Pcie32_queue.push_back(DW_pred);
