@@ -7,7 +7,8 @@
 --               on the detection of 4 consecutives idle_character. This module
 --               Also provide the associated pixel clock.
 --
---  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)     
+--  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)
+--               Reduce the Shift register
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -39,9 +40,10 @@ entity bit_split is
     ---------------------------------------------------------------------------
     -- Pixel clock domain
     ---------------------------------------------------------------------------
-    pclk            : in  std_logic;
-    pclk_bit_locked : out std_logic;
-    pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+    pclk                : in  std_logic;
+    pclk_idle_detect_en : in  std_logic;
+    pclk_bit_locked     : out std_logic;
+    pclk_data           : out std_logic_vector(PIXEL_SIZE-1 downto 0)
     );
 end entity bit_split;
 
@@ -117,7 +119,7 @@ begin
   -----------------------------------------------------------------------------
   -- Detect a sequence of 4 consecutives IDLE characters (4x12bits)
   -----------------------------------------------------------------------------
-  P_detect_idle_char : process (hclk_shift_register, hclk_idle_char) is
+  P_detect_idle_char : process (hclk_shift_register, hclk_idle_char, pclk_idle_detect_en) is
     variable msb                   : integer;
     variable lsb                   : integer;
     variable hclk_idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
@@ -125,6 +127,8 @@ begin
   begin
 
 
+    -- ToDO : No need to have 4 consecutive IDLE character anymore because of
+    --        pclk_idle_detect_en = '1'. can be simplified eventually
     hclk_idle_quad_vector := hclk_idle_char & hclk_idle_char & hclk_idle_char & hclk_idle_char;
 
 
@@ -137,7 +141,7 @@ begin
       msb := lsb + (4*PIXEL_SIZE) - 1;
 
       -- If detected 4-IDLE character, assert the flag hclk_idle_detected 
-      if (hclk_shift_register(msb downto lsb) = hclk_idle_quad_vector) then
+      if (hclk_shift_register(msb downto lsb) = hclk_idle_quad_vector and pclk_idle_detect_en = '1') then
         hclk_idle_detected <= '1';
         hclk_lsb_ptr       <= bit_index;
         exit;                           -- exit the bit_index forloop
