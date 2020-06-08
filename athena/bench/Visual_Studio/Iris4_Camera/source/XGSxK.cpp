@@ -94,6 +94,10 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	if (read == 0x31)
 		printf("XGS sequencer enable!!!\n\n\n");
 
+	// Par defaut XGS mets une latence de UN frame pour les registre OFFSET_LAT_COMP et GAIN_LAT_COMP, nous les ecritures registres sont allignees au EO_FOT
+	// alors on ne veux pas une latence de 1 frame. Mettre OFFSET_LAT_COMP et GAIN_LAT_COMP a 0
+	WriteSPI(0x3802, 0xfcff & ReadSPI(0x3802) );  
+
 }
 
 
@@ -154,5 +158,9 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	// Set complete line size (including Black pixels, Interpolation, dummies, valid) 
 	sXGSptr.ACQ.SENSOR_X_SIZE.f.SENSOR_X_SIZE = SensorParams.XGS_X_SIZE;
 	rXGSptr.ACQ.SENSOR_X_SIZE.u32 = sXGSptr.ACQ.SENSOR_X_SIZE.u32;
+
+
+
+
 
 }
