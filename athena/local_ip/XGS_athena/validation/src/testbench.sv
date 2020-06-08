@@ -143,8 +143,8 @@ module testbench();
 
 	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) host;
 	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
+    CImage XGS_imageSRC;
     CImage XGS_image;
-
 	
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) pcie_axi(pcie_clk);
@@ -453,8 +453,9 @@ module testbench();
 		// Initialize classes
 		host = new(pcie_axi, if_gpio);
 		scoreboard = new(tx_axis);
-        XGS_image  = new();
-		
+        XGS_imageSRC   = new();
+        XGS_image      = new();
+	
 		
 		fork
 			// Start the scorboard
@@ -475,12 +476,14 @@ module testbench();
 				real xgs_ctrl_period;
 				real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
 				int EXP_FOT_TIME;
-				int ROI_YSTART;
-				int ROI_YSIZE;
-				int SENSOR_X_START;
-				int SENSOR_X_END;
+				
+				int ROI_Y_START;
+				int ROI_Y_SIZE;
 
-				int EXPOSURE;
+				int ROI_X_START;
+				int ROI_X_END;
+
+				int EXPOSURE=50;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
 				int MLines;
@@ -497,9 +500,13 @@ module testbench();
 				int monitor_1_reg;
 				int monitor_2_reg;
 
+                int test_nb_images=0;
+
 				fstart = 'hA0000000;
 				line_size = 'h1000;
 				line_pitch = 'h1000;
+
+
 
 				///////////////////////////////////////////////////
 				// STARTING POINT : Reset the testbench
@@ -816,57 +823,59 @@ module testbench();
                 //				
 				//--------------------------------------------------
 				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_image.load_image;                                // Load le .pgm dans la class SystemVerilog
-        		XGS_image.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
+				XGS_imageSRC.load_image;                                // Load le .pgm dans la class SystemVerilog
+        		XGS_imageSRC.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
+				
 				
 				
 				///////////////////////////////////////////////////
 				// Program X Origin of valid data
 				///////////////////////////////////////////////////
-				$display("7. Trigger ROI #1");
-
                 // X origin 
-				SENSOR_X_START  = 32;
-                SENSOR_X_END    = SENSOR_X_START+4096-1;              
+				ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
+                ROI_X_END    = ROI_X_START+4096-1;              
 				
-				host.write(SENSOR_X_START_OFFSET, SENSOR_X_START);
-				host.write(SENSOR_X_END_OFFSET,   SENSOR_X_END);
+				host.write(SENSOR_X_START_OFFSET, ROI_X_START);
+				host.write(SENSOR_X_END_OFFSET,   ROI_X_END);
 		
-				
+
 				///////////////////////////////////////////////////
-				// XGS Controller : Set ROI Y start offset
+				// Trigger ROI #0
 				///////////////////////////////////////////////////
-				ROI_YSTART = 8;
-				ROI_YSIZE  = 3100;
-				EXPOSURE   = 50;  //in us
-				$display("  7.1 set ROI @0x%h", SENSOR_ROI_Y_START_OFFSET);
-				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);
-				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);
+				ROI_Y_START = 0;    // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
+				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+                test_nb_images++;
 
-				scoreboard.predict_img(XGS_image, SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
-
+                XGS_image = XGS_imageSRC.copy;
+				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
 
 				///////////////////////////////////////////////////
-				// Trigger ROI #2
+				// Trigger ROI #1
 				///////////////////////////////////////////////////
-				$display("8. Trigger ROI #2");
-				ROI_YSTART = 0;
-				ROI_YSIZE  = 8;
-				//EXPOSURE   = 50;  //in us
-				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_YSTART/4);                 // Y START  (kernel is 4)
-				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_YSIZE/4);                   // Y SIZE   (kernel is 4)
+				ROI_Y_START = 3088;    // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
+				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+                test_nb_images++;
 
-				scoreboard.predict_img(XGS_image, SENSOR_X_START, SENSOR_X_END, ROI_YSTART, ROI_YSIZE, fstart, line_size, line_pitch);
+                XGS_image = XGS_imageSRC.copy;
+				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);		
 				
 				
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
-				while (dma_irq_cntr != 2) begin
+				while (dma_irq_cntr != test_nb_images) begin
 					#1us;
 				end
 				

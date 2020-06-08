@@ -129,7 +129,12 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of line_buffer_read_address : signal is "true";
   attribute mark_debug of line_buffer_read_data    : signal is "true";
 
-  -- For debug
+  attribute mark_debug of state                    : signal is "true"; 
+  attribute mark_debug of output_state             : signal is "true";
+  attribute mark_debug of buffer_empty             : signal is "true";
+  attribute mark_debug of buffer_rdy               : signal is "true";
+  attribute mark_debug of buffer_write_ptr         : signal is "true";
+  attribute mark_debug of double_buffer_ptr        : signal is "true";
   attribute mark_debug of wait_line_flushed        : signal is "true";
   attribute mark_debug of back_pressure_cntr       : signal is "true";
   attribute mark_debug of max_back_pressure        : signal is "true";
