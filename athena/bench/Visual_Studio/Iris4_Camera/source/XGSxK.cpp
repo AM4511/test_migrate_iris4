@@ -140,7 +140,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	// Set FOT time (not used by fpga for the moment)
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
-	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;
+	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;  //EO_FOT genere ds le fpga : programmable number of lines!
 	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
 
 	// Set Location of first valid x pixel(including Interpolation)

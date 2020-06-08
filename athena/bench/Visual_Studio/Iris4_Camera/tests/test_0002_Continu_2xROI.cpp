@@ -24,8 +24,8 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_ID MilGrabBuffer;
 	unsigned long long ImageBufferAddr=0;
 
-	MIL_ID MilDisplay2;
-	MIL_ID MilGrabBuffer2;
+	//MIL_ID MilDisplay2;
+	//MIL_ID MilGrabBuffer2;
 	unsigned long long ImageBufferAddr2 = 0;
 
 	int MonoType = 8;
@@ -75,13 +75,13 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1*SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr2 = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
-	LayerInitDisplay(MilGrabBuffer2, &MilDisplay2, 1);
+	//ImageBufferAddr2 = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
+	//LayerInitDisplay(MilGrabBuffer2, &MilDisplay2, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr2);
 
 	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
@@ -98,7 +98,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(40000);
+	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
@@ -172,6 +172,13 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
 
+	XGS_Ctrl->WriteSPI(0x384a,0);
+	XGS_Ctrl->WriteSPI(0x384c,0);
+	XGS_Ctrl->WriteSPI(0x384e,0);
+	XGS_Ctrl->WriteSPI(0x3850,0);
+
+	XGS_Ctrl->WriteSPI(0x3804, 0x0019);
+
 	//---------------------
 	// Give SPI control to FPGA
 	//---------------------
@@ -179,9 +186,8 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	while (Sortie == 0)
 	{
-
+		Sleep(1000);
 		if (ROI_sel == 0) {
-
 			//---------------------
             // DMA PARAMETERS
             //---------------------
@@ -191,18 +197,63 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			GrabParams->SUBSAMPLING_X        = 0;
 			GrabParams->M_SUBSAMPLING_Y      = 0;
 			GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
-		} else {
+			XGS_Ctrl->setBlackRef(0x0);
+			XGS_Ctrl->setAnalogGain(1);  //1-2-4
+			XGS_Ctrl->setExposure(20000);
+			GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+			GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
 
-			//---------------------
-            // DMA PARAMETERS
-            //---------------------
-			DMAParams->FSTART                = ImageBufferAddr2;          // Adresse Mono pour DMA
-			DMAParams->LINE_PITCH            = SensorParams->Xsize_Full; // Full window MIL display
-			DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
-			GrabParams->SUBSAMPLING_X        = 1;
-			GrabParams->M_SUBSAMPLING_Y      = 0;
-			GrabParams->ACTIVE_SUBSAMPLING_Y = 1;
-		}
+		} else 
+	  	  if (ROI_sel == 1)  {
+			 //---------------------
+             // DMA PARAMETERS
+             //---------------------
+			 DMAParams->FSTART                = ImageBufferAddr+(SensorParams->Xsize_Full* SensorParams->Ysize_Full / 4);          // Adresse Mono pour DMA
+			 DMAParams->LINE_PITCH            = SensorParams->Xsize_Full;  // Full window MIL display
+			 DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
+			 GrabParams->SUBSAMPLING_X        = 0;
+			 GrabParams->M_SUBSAMPLING_Y      = 0;
+			 GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+			 XGS_Ctrl->setBlackRef(0);
+			 XGS_Ctrl->setAnalogGain(1);  //1-2-4
+			 XGS_Ctrl->setExposure(40000);
+			 GrabParams->Y_START = 4+SensorParams->Ysize_Full/4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+			 GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
+		  } else
+			  if (ROI_sel == 2) {
+				  //---------------------
+				  // DMA PARAMETERS
+				  //---------------------
+				  DMAParams->FSTART = ImageBufferAddr + (SensorParams->Xsize_Full * SensorParams->Ysize_Full / 2);          // Adresse Mono pour DMA
+				  DMAParams->LINE_PITCH = SensorParams->Xsize_Full;  // Full window MIL display
+				  DMAParams->LINE_SIZE = SensorParams->Xsize_Full;
+				  GrabParams->SUBSAMPLING_X = 0;
+				  GrabParams->M_SUBSAMPLING_Y = 0;
+				  GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+				  XGS_Ctrl->setBlackRef(0);
+				  XGS_Ctrl->setAnalogGain(1);  //1-2-4
+				  XGS_Ctrl->setExposure(60000);
+				  GrabParams->Y_START = 4 + SensorParams->Ysize_Full / 2;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+				  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+			  }
+			  else
+				  if (ROI_sel ==  3) {
+					  //---------------------
+					  // DMA PARAMETERS
+					  //---------------------
+					  DMAParams->FSTART = ImageBufferAddr + (SensorParams->Xsize_Full * SensorParams->Ysize_Full * 3 / 4);          // Adresse Mono pour DMA
+					  DMAParams->LINE_PITCH = SensorParams->Xsize_Full;  // Full window MIL display
+					  DMAParams->LINE_SIZE = SensorParams->Xsize_Full;
+					  GrabParams->SUBSAMPLING_X = 0;
+					  GrabParams->M_SUBSAMPLING_Y = 0;
+					  GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+					  XGS_Ctrl->setBlackRef(0);
+					  XGS_Ctrl->setAnalogGain(4);  //1-2-4
+					  XGS_Ctrl->setExposure(80000);
+					  GrabParams->Y_START = 4 + SensorParams->Ysize_Full *3 / 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+					  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+				  }
+		  
 
 
 		XGS_Data->SetDMA();
@@ -211,18 +262,17 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->WaitEndExpReadout();
 
 
-		if (ROI_sel == 0) {
+		//if (ROI_sel == 0 || ROI_sel == 1 ) {
 			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-		}
-		else {
-			MbufControl(MilGrabBuffer2, M_MODIFIED, M_DEFAULT);
-		}
+		//}
+		//else {
+		//	MbufControl(MilGrabBuffer2, M_MODIFIED, M_DEFAULT);
+		//}
 
 
-		if (ROI_sel == 0)
-			ROI_sel = 1;
-		else
-			ROI_sel = 0;
+		ROI_sel++;
+	    if(ROI_sel == 4)
+		  ROI_sel = 0;
 
 		if (_kbhit())
 		{
@@ -348,8 +398,8 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MbufFree(MilGrabBuffer);
 	MdispFree(MilDisplay);
 
-	MbufFree(MilGrabBuffer2);
-	MdispFree(MilDisplay2);
+	//MbufFree(MilGrabBuffer2);
+	//MdispFree(MilDisplay2);
 
 
 	//----------------------

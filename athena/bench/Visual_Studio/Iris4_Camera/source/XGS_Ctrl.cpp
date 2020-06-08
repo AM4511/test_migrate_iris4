@@ -896,8 +896,6 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_DP_B.f.DP_OFFSET_B   = GrabParams.BLACK_OFFSET;
 	rXGSptr.ACQ.SENSOR_DP_B.u32             = sXGSptr.ACQ.SENSOR_DP_B.u32;
 
-
-
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.f.ANALOG_GAIN = GrabParams.ANALOG_GAIN;
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32 = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
 

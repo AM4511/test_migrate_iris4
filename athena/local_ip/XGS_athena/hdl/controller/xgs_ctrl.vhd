@@ -552,9 +552,9 @@ constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "11111010
 signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0); 
 
 -- Pour le board de developpement, on n'a aps les signaux monitor
-signal Synthetic_EXPOSURE : std_logic :='0';
-signal Synthetic_DELAI_EXP: std_logic :='0'; 
-signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
+--signal Synthetic_EXPOSURE : std_logic :='0';
+--signal Synthetic_DELAI_EXP: std_logic :='0'; 
+--signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
 
 signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
@@ -1805,11 +1805,11 @@ BEGIN
       else
         xgs_monitor0_p1  <= xgs_monitor0; 
         
-        if(G_KU706=0) then
+        --if(G_KU706=0) then
           xgs_exposure   <= xgs_monitor0_p1;
-        else
-          xgs_exposure   <= Synthetic_EXPOSURE;
-        end if;
+        --else
+        --  xgs_exposure   <= Synthetic_EXPOSURE;
+        --end if;
         
         xgs_exposure_p1  <= xgs_exposure;
       end if;
@@ -1822,10 +1822,8 @@ BEGIN
       else
         xgs_monitor1_p1  <= xgs_monitor1;       
         xgs_FOT          <= xgs_monitor1_p1;
-        
         xgs_FOT_p1       <= xgs_FOT;
-        xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
-        
+                
         if(REGFILE.ACQ.READOUT_CFG1.EO_FOT_SEL='0')then 
           xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
         else  
@@ -2402,46 +2400,46 @@ BEGIN
   -- A enlever lorsqu'on aura le sensor board et qu'on pourra utiliser les MONITOR
   -----------------------------------------------------------------------    
 
-  process(sys_clk)
-  begin
-    if(rising_edge(sys_clk)) then
-      if(sys_reset_n='0') then
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';
-        Synthetic_cntr     <=(others=>'0');
-      elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GENERATE EXPOSURE
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='1';    
-        Synthetic_cntr     <=(others=>'0');    
-      elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
-        Synthetic_EXPOSURE <='1';
-        Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <=(others=>'0');
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Start of exposure Delay one line Start Of Exposure  12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
-        Synthetic_EXPOSURE <='1';
-        Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <= (others=>'0');                     
-      elsif(G_SYS_CLK_PERIOD=16 and XGS_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  Simulating END of EXP during FOT 12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and XGS_FOT='1' and Synthetic_cntr=X"029e" ) then
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';         
-        Synthetic_cntr     <= Synthetic_cntr+'1';              
-      elsif(XGS_FOT='0' and XGS_FOT_p1='1') then -- END OF FOT
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';         
-        Synthetic_cntr     <= (others=>'0');
-      elsif(XGS_FOT='1' or Synthetic_DELAI_EXP='1') then 
-        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
-        Synthetic_cntr     <= Synthetic_cntr+'1';
-      else
-        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
-        Synthetic_cntr     <= Synthetic_cntr;      
-      end if;                 
-    end if;
-  end process;     
+  --process(sys_clk)
+  --begin
+  --  if(rising_edge(sys_clk)) then
+  --    if(sys_reset_n='0') then
+  --      Synthetic_EXPOSURE <='0';
+  --      Synthetic_DELAI_EXP<='0';
+  --      Synthetic_cntr     <=(others=>'0');
+  --    elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GENERATE EXPOSURE
+  --      Synthetic_EXPOSURE <='0';
+  --      Synthetic_DELAI_EXP<='1';    
+  --      Synthetic_cntr     <=(others=>'0');    
+  --    elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
+  --      Synthetic_EXPOSURE <='1';
+  --      Synthetic_DELAI_EXP<='0'; 
+  --      Synthetic_cntr     <=(others=>'0');
+  --    elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Start of exposure Delay one line Start Of Exposure  12M @ 6 LANES  
+  --         (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
+  --      Synthetic_EXPOSURE <='1';
+  --      Synthetic_DELAI_EXP<='0'; 
+  --      Synthetic_cntr     <= (others=>'0');                     
+  --    elsif(G_SYS_CLK_PERIOD=16 and XGS_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  Simulating END of EXP during FOT 12M @ 6 LANES  
+  --         (G_SYS_CLK_PERIOD=8  and XGS_FOT='1' and Synthetic_cntr=X"029e" ) then
+  --      Synthetic_EXPOSURE <='0';
+  --      Synthetic_DELAI_EXP<='0';         
+  --      Synthetic_cntr     <= Synthetic_cntr+'1';              
+  --    elsif(XGS_FOT='0' and XGS_FOT_p1='1') then -- END OF FOT
+  --      Synthetic_EXPOSURE <='0';
+  --      Synthetic_DELAI_EXP<='0';         
+  --      Synthetic_cntr     <= (others=>'0');
+  --    elsif(XGS_FOT='1' or Synthetic_DELAI_EXP='1') then 
+  --      Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
+  --      Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
+  --      Synthetic_cntr     <= Synthetic_cntr+'1';
+  --    else
+  --      Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
+  --      Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
+  --      Synthetic_cntr     <= Synthetic_cntr;      
+  --    end if;                 
+  --  end if;
+  --end process;     
       
       
 end functional;

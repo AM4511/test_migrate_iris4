@@ -343,6 +343,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n");
 	printf("\n  (0) Grab Test Continu");
 	printf("\n  (1) Grab Test SW trig - Manual");
+	printf("\n  (2) Grab Test Continu, 2x Host Buffers");
 	printf("\n");
 	printf("\n  (e) Enable XGS sensor (Enable clk + unreset + Load DCF)");
 	printf("\n  (d) Disable XGS sensor (Disable clk + Reset)");
