@@ -23,8 +23,7 @@ library UNISIM;
   use UNISIM.VCOMPONENTS.all;
 
 entity xgs_ctrl is
-   generic(  G_KU706               : integer := 0; -- Nous n'avons pas de monitor sur le board Xcelerator+KU706 , generation interne!
-             G_SIMULATION          : integer := 0;
+   generic(  G_SIMULATION          : integer := 0;
              G_SYS_CLK_PERIOD      : integer := 16;
              G_SENSOR_FREQ         : integer := 32400
              
@@ -550,11 +549,6 @@ constant SENSOR_PERIOD_32p4          : std_logic_vector(18 downto 0):= "11110110
 constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "1111101000000000000"; --X"7d000";  --[4].[15] :     15.625 ns = 1/(2x32Mhz)
 
 signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0); 
-
--- Pour le board de developpement, on n'a aps les signaux monitor
---signal Synthetic_EXPOSURE : std_logic :='0';
---signal Synthetic_DELAI_EXP: std_logic :='0'; 
---signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
 
 signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
@@ -1804,13 +1798,7 @@ BEGIN
         xgs_exposure_p1  <= '0';
       else
         xgs_monitor0_p1  <= xgs_monitor0; 
-        
-        --if(G_KU706=0) then
-          xgs_exposure   <= xgs_monitor0_p1;
-        --else
-        --  xgs_exposure   <= Synthetic_EXPOSURE;
-        --end if;
-        
+        xgs_exposure     <= xgs_monitor0_p1;     
         xgs_exposure_p1  <= xgs_exposure;
       end if;
       
@@ -2263,22 +2251,7 @@ BEGIN
 
 
 
-  --Xpython_ctrl_DMA_params  : python_ctrl_DMA_params
-  --port map(  
-  --        regfile           => regfile,
-  --        
-  --        regfile_dma       => regfile_dma_parameters,
-  --
-  --        COLOR_SPACE       => COLOR_SPACE,
-  --        MONO10            => MONO10,
-  --        REVERSE_Y         => REVERSE_Y,
-  --        GRAB_REVX         => GRAB_REVX
-  --
-  --     );
-  --
-
-  
-  
+ 
   ----------------------------------------------
   -- Exposure Time Jitter in Triggered Mode
   -- See dev. guide
@@ -2391,56 +2364,7 @@ BEGIN
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          
       
-  ----------------------------------------------------------------------
-  --
-  -- For XGS DEV BOARD WE ONLY HAVE ONE MONITOR
-  --
-  -- So Let's generate the monitor FOT and REAL INTEGRATION internally
-  --
-  -- A enlever lorsqu'on aura le sensor board et qu'on pourra utiliser les MONITOR
-  -----------------------------------------------------------------------    
 
-  --process(sys_clk)
-  --begin
-  --  if(rising_edge(sys_clk)) then
-  --    if(sys_reset_n='0') then
-  --      Synthetic_EXPOSURE <='0';
-  --      Synthetic_DELAI_EXP<='0';
-  --      Synthetic_cntr     <=(others=>'0');
-  --    elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GENERATE EXPOSURE
-  --      Synthetic_EXPOSURE <='0';
-  --      Synthetic_DELAI_EXP<='1';    
-  --      Synthetic_cntr     <=(others=>'0');    
-  --    elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
-  --      Synthetic_EXPOSURE <='1';
-  --      Synthetic_DELAI_EXP<='0'; 
-  --      Synthetic_cntr     <=(others=>'0');
-  --    elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Start of exposure Delay one line Start Of Exposure  12M @ 6 LANES  
-  --         (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
-  --      Synthetic_EXPOSURE <='1';
-  --      Synthetic_DELAI_EXP<='0'; 
-  --      Synthetic_cntr     <= (others=>'0');                     
-  --    elsif(G_SYS_CLK_PERIOD=16 and XGS_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  Simulating END of EXP during FOT 12M @ 6 LANES  
-  --         (G_SYS_CLK_PERIOD=8  and XGS_FOT='1' and Synthetic_cntr=X"029e" ) then
-  --      Synthetic_EXPOSURE <='0';
-  --      Synthetic_DELAI_EXP<='0';         
-  --      Synthetic_cntr     <= Synthetic_cntr+'1';              
-  --    elsif(XGS_FOT='0' and XGS_FOT_p1='1') then -- END OF FOT
-  --      Synthetic_EXPOSURE <='0';
-  --      Synthetic_DELAI_EXP<='0';         
-  --      Synthetic_cntr     <= (others=>'0');
-  --    elsif(XGS_FOT='1' or Synthetic_DELAI_EXP='1') then 
-  --      Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-  --      Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
-  --      Synthetic_cntr     <= Synthetic_cntr+'1';
-  --    else
-  --      Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-  --      Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
-  --      Synthetic_cntr     <= Synthetic_cntr;      
-  --    end if;                 
-  --  end if;
-  --end process;     
-      
       
 end functional;
 

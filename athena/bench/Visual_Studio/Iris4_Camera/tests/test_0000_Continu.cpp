@@ -125,7 +125,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	//------------------------------------
-	//  XGS Ctrl Debug pin in Xcelerator
+	//  XGS Ctrl Debug 
 	//------------------------------------
 	//debug_ctrl16_int(0) <= xgs_exposure; --python_monitor0;  --resync to sysclk
 	//debug_ctrl16_int(1) <= xgs_FOT;      --python_monitor1;  --resync to sysclk
@@ -144,9 +144,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
 	
-	// In Xcelerator(7c706) USERCLK_P connected to TRING_INT
-	// In Xcelerator(7c706) USERCLK_N connected to DEBUG_OUT(0)
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; // sort sur XCELERATOR : USER_CLK_N
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; 
 
 
 	//---------------------

@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/05/27 14:01:08
+-- Created on          : 2020/06/09 13:29:43
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x36EA9D6F
+-- Register file CRC32 : 0x834CDAB
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -983,14 +983,12 @@ package regfile_xgs_athena_pack is
    -- Register Name: DEBUG
    ------------------------------------------------------------------------------------------
    type ACQ_DEBUG_TYPE is record
-      FPGA_7c706     : std_logic;
       DEBUG_RST_CNTR : std_logic;
       LED_TEST_COLOR : std_logic_vector(1 downto 0);
       LED_TEST       : std_logic;
    end record ACQ_DEBUG_TYPE;
 
    constant INIT_ACQ_DEBUG_TYPE : ACQ_DEBUG_TYPE := (
-      FPGA_7c706      => 'Z',
       DEBUG_RST_CNTR  => 'Z',
       LED_TEST_COLOR  => (others=> 'Z'),
       LED_TEST        => 'Z'
@@ -2708,7 +2706,6 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31) := reg.FPGA_7c706;
       output(28) := reg.DEBUG_RST_CNTR;
       output(2 downto 1) := reg.LED_TEST_COLOR;
       output(0) := reg.LED_TEST;
@@ -2722,7 +2719,6 @@ package body regfile_xgs_athena_pack is
    function to_ACQ_DEBUG_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_DEBUG_TYPE is
    variable output : ACQ_DEBUG_TYPE;
    begin
-      output.FPGA_7c706 := stdlv(31);
       output.DEBUG_RST_CNTR := stdlv(28);
       output.LED_TEST_COLOR := stdlv(2 downto 1);
       output.LED_TEST := stdlv(0);
@@ -3038,11 +3034,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/05/27 14:01:08
+-- Created on          : 2020/06/09 13:29:43
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x36EA9D6F
+-- Register file CRC32 : 0x834CDAB
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -6564,13 +6560,6 @@ rb_ACQ_SENSOR_FPS(15 downto 0) <= regfile.ACQ.SENSOR_FPS.SENSOR_FPS;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(49) <= (hit(49)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: FPGA_7c706
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_ACQ_DEBUG(31) <= regfile.ACQ.DEBUG.FPGA_7c706;
-
 
 ------------------------------------------------------------------------------------------
 -- Field name: DEBUG_RST_CNTR

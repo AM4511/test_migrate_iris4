@@ -50,10 +50,7 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.Ysize_Full             = 2048; //+8;
 
    // This may depend on the configuration (Lanes+LineSize) 
-   if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
-	   SensorParams.ReadOutN_2_TrigN = 0; //
-   else
-	   SensorParams.ReadOutN_2_TrigN = 0; //
+   SensorParams.ReadOutN_2_TrigN = 0; //
 
    SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 

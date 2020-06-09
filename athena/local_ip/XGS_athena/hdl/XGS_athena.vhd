@@ -20,8 +20,7 @@ entity XGS_athena is
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;
     SENSOR_FREQ           : integer              := 32400;
-    SIMULATION            : integer              := 0;
-    KU706                 : integer              := 0
+    SIMULATION            : integer              := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -405,8 +404,7 @@ architecture struct of XGS_athena is
       -- Users to add parameters here
       G_SYS_CLK_PERIOD : integer := 16;
       G_SENSOR_FREQ    : integer := 32400;
-      G_SIMULATION     : integer := 0;
-      G_KU706          : integer := 0
+      G_SIMULATION     : integer := 0
       );
     port (
       -- Users to add ports here
@@ -749,8 +747,7 @@ begin
       -- Users to add parameters here
       G_SYS_CLK_PERIOD => SYS_CLK_PERIOD,
       G_SENSOR_FREQ    => SENSOR_FREQ,
-      G_SIMULATION     => SIMULATION,
-      G_KU706          => KU706
+      G_SIMULATION     => SIMULATION
       )
     port map(
 
