@@ -159,7 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Pcie.cpp" />
-    <ClCompile Include="tests\Iris4_Camera.cpp" />
+    <ClCompile Include="Iris4_Camera.cpp" />
     <ClCompile Include="source\I2C.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />

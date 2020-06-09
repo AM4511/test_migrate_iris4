@@ -57,10 +57,10 @@
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp">
       <Filter>tests</Filter>
     </ClCompile>
-    <ClCompile Include="tests\Iris4_Camera.cpp">
+    <ClCompile Include="source\Pcie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Pcie.cpp">
+    <ClCompile Include="Iris4_Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
