@@ -8,7 +8,7 @@
 --               Also provide the associated pixel clock.
 --
 --  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)
---               Reduce the Shift register
+--               Reduce the Shift register size
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

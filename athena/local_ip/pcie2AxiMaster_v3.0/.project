@@ -7,7 +7,7 @@
 	<buildSpec>
 	</buildSpec>
 	<natures>
-		<nature>net.sf.sveditor.core.SVNature</nature>
+		<nature>com.matrox.fdk.core.project.matroxNature</nature>
 	</natures>
 	<linkedResources>
 		<link>
