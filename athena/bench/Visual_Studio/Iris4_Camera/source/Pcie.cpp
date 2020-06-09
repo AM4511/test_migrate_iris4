@@ -155,15 +155,25 @@ M_UINT32 CPcie::Read_QSPI_DW(M_UINT32 address)
     while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
 
     //read 4 bytes mem
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
+        rPcie_ptr.spi.spiregin.f.spidataw   = 0x0;
+        rPcie_ptr.spi.spiregin.f.spisel     = 0x0;
+        rPcie_ptr.spi.spiregin.f.spicmddone = 0x0;
+        rPcie_ptr.spi.spiregin.f.spirw      = 0x1;
+        rPcie_ptr.spi.spiregin.f.spitxst    = 0x1;
+        while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
+        read32 = read32 + ( rPcie_ptr.spi.spiregout.f.spidatard << (i*8) );
+    }
+    for (int i = 3; i < 4; i++) {
         rPcie_ptr.spi.spiregin.f.spidataw   = 0x0;
         rPcie_ptr.spi.spiregin.f.spisel     = 0x0;
         rPcie_ptr.spi.spiregin.f.spicmddone = 0x1;
         rPcie_ptr.spi.spiregin.f.spirw      = 0x1;
         rPcie_ptr.spi.spiregin.f.spitxst    = 0x1;
         while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
-        read32 = read32 + ( rPcie_ptr.spi.spiregout.f.spidatard << (i*8) );
+        read32 = read32 + (rPcie_ptr.spi.spiregout.f.spidatard << (i * 8));
     }
+
 
     //SPI disable
     rPcie_ptr.spi.spiregin.f.spi_enable = 0x0;
