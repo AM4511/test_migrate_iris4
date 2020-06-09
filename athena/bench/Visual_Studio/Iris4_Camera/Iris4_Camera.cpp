@@ -264,6 +264,8 @@ int main(void)
             
 			case 's':
 				Pcie->Read_QSPI_ID();
+				for(int i=0; i<16; i++)
+				  printf ("0x%08X 0x%08X\n", i*4, Pcie->Read_QSPI_DW(i*4) );
 				break;
 
 			}
