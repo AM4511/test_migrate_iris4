@@ -36,7 +36,7 @@ CPcie::CPcie(volatile FPGA_PCIE2AXIMASTER_TYPE& i_rPcie):
 
 CPcie::~CPcie()
 {
-
+    
 
 }
 

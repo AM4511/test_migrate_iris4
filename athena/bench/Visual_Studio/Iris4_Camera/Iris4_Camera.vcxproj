@@ -158,7 +158,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Iris4_Camera.cpp" />
+    <ClCompile Include="source\Pcie.cpp" />
+    <ClCompile Include="tests\Iris4_Camera.cpp" />
     <ClCompile Include="source\I2C.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
@@ -174,7 +175,12 @@
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h" />
+    <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\sdk\pcie2AxiMaster.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\..\..\local_ip\XGS_athena\registerfile\regfile_xgs_athena.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -182,6 +188,7 @@
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
+    <ClInclude Include="include\Pcie.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />
     <ClInclude Include="include\targetver.h" />

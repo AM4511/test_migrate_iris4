@@ -17,7 +17,7 @@ class CPcie
 
 public:
 	
-	CPcie(volatile FPGA_PCIE2AXIMASTER_TYPE& i_rMaio); 
+	CPcie(volatile FPGA_PCIE2AXIMASTER_TYPE& i_rPcie); 
 	~CPcie();
 
 

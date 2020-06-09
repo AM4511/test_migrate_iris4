@@ -207,7 +207,7 @@ architecture rtl of lane_decoder is
   signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
   signal pclk_crc_enable         : std_logic                                     := '1';
   signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
-  signal pclk_idle_detect_en     : std_logic;
+  signal pclk_idle_detect_en     : std_logic := '1';
 
   signal sclk_fifo_empty_int : std_logic;
   signal sclk_fifo_underrun  : std_logic;
@@ -774,8 +774,10 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Module      :
-  -- Description : 
+  -- Process     : P_pclk_idle_detect_en
+  -- Description : We always detect idle character except during S_AIL. Pixel
+  --               values can provocate false idle characters. In that case we
+  --               can confuse the bit alignment and miss following syncs
   -----------------------------------------------------------------------------
   P_pclk_idle_detect_en : process (pclk) is
   begin
@@ -783,10 +785,10 @@ begin
       if (pclk_reset = '1')then
         pclk_idle_detect_en <= '1';
       else
-        if (pclk_state = S_IDLE) then
-          pclk_idle_detect_en <= '1';
-        else
+        if (pclk_state = S_AIL) then
           pclk_idle_detect_en <= '0';
+        else
+          pclk_idle_detect_en <= '1';
         end if;
       end if;
     end if;

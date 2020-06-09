@@ -23,12 +23,16 @@
 
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
 #include "I2C.h"
 
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
+
+
+#define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
 #define regfile_I2C_ADD_OFFSET        0x00010000  //
 
@@ -60,7 +64,6 @@ int main(void)
 	// Init ATHENA FPGAs, Regfile
 	//------------------------------
 	Struck_FPGAs FPGAs[16];
-	Struck_FPGAs FPGAsTemp[16];
 
 	int FPGA_used = 0;
 	int NBiter = 1;
@@ -89,46 +92,22 @@ int main(void)
 
 	MilLayerAlloc();
 
-     int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
+    int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
 
 	printf("\n\nATHENA   %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
 
+
 	//------------------------------
-	// Program Maio PCIe window 0
+	// Init Global PCIe (Maio) REGISTER FILE
 	//------------------------------
-	MIL_ID MilRegBuf1;
-	volatile M_UINT32* RegPtr_bar1;
-
-	MbufCreate2d(
-		M_DEFAULT_HOST,
-		1000,
-		1,
-		8 + M_UNSIGNED,
-		M_IMAGE + M_MMX_ENABLED,
-		M_PHYSICAL_ADDRESS,
-		1000,
-		(void**)fpga_bar1_add,
-		&MilRegBuf1
-	);
-
-	RegPtr_bar1 = (M_UINT32*)MbufInquire(MilRegBuf1, M_HOST_ADDRESS, M_NULL);
-
-	printf("\n\nMaio ID is 0x%X, programming PCIe Window0 \n", *(RegPtr_bar1 + (0x000 / 4)) );
-	*(RegPtr_bar1 + (0x100 / 4)) = 0x0;         //pci_bar0_disable 
-	*(RegPtr_bar1 + (0x104 / 4)) = 0x0;         //pci_bar0_start
-	*(RegPtr_bar1 + (0x108 / 4)) = 0x20000;     //pci_bar0_End (8k)
-	*(RegPtr_bar1 + (0x10c / 4)) = 0x40000000;  //pci_bar0_size 
-	*(RegPtr_bar1 + (0x100 / 4)) = 0x1;         //pci_bar0_enable
-
-	
-
+	volatile unsigned char* PCIe_regptr = getMilLayerRegisterPtr(0, fpga_bar1_add + regfile_MAIO_ADD_OFFSET);
+	volatile FPGA_PCIE2AXIMASTER_TYPE& rPcie_ptr = (*(volatile FPGA_PCIE2AXIMASTER_TYPE*)(PCIe_regptr));
 
 	//------------------------------
 	// Init Global XGS Athena REGISTER FILE
 	//------------------------------
-	volatile unsigned char* XGS_Athena_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + regfile_XGS_ATHENA_ADD_OFFSET);   // Lets put a pointer to the FPGA XGS ctrl
+	volatile unsigned char* XGS_Athena_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + regfile_XGS_ATHENA_ADD_OFFSET);   // Lets put a pointer to the FPGA XGS ctrl
 	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGS_Athena_ptr = (*(volatile FPGA_REGFILE_XGS_ATHENA_TYPE*)(XGS_Athena_regptr));
-
 
 	//------------------------------
 	// Init I2C REGISTER FILE
@@ -136,6 +115,14 @@ int main(void)
 	volatile unsigned char* I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + regfile_I2C_ADD_OFFSET);       // Lets put a pointer to the FPGA I2C
 	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 
+
+	//------------------------------
+	// Init class 
+	//------------------------------
+	CPcie* Pcie;
+	Pcie = new CPcie(rPcie_ptr);
+
+	Pcie->InitBar0Window();
 
 	//------------------------------
 	// Init class XGS CONTROLLER
@@ -155,6 +142,8 @@ int main(void)
 	//------------------------------
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
+
+
 
 	//-----------------------------------------------------
     // If PCIe x1 detected, reduce Framerate of the sensor
@@ -215,7 +204,7 @@ int main(void)
 	}
 
 	//Print build ID
-	printf("\n\nFPGA Build is ID is %d (0x%X) \n", *(RegPtr_bar1 + (0x024 / 4)), *(RegPtr_bar1 + (0x024 / 4)));
+	printf("\n\nFPGA Build is ID is %d (0x%X) \n", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
 
 
 	// pour tester que le fix du bug TLP_2_AXI est repare
@@ -301,6 +290,10 @@ int main(void)
 			case 'h':
 				XGS_Data->HiSpiCalibrate();
 				break;
+            
+			case 's':
+				Pcie->Read_QSPI_ID();
+				break;
 
 			}
 		}//KBhit
@@ -309,11 +302,11 @@ int main(void)
 	printf("\n\nPress any key to exit");
 	_getch();
 	
-	
-	MbufFree(MilRegBuf1);	//a effacer avec le vrai produit
+
 	delete XGS_Ctrl;
 	delete XGS_Data;
 	delete I2C;
+	delete Pcie;
 	IrisMilFree();
 
 
@@ -352,7 +345,8 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (D) Dump XGS sensor registers");
 	printf("\n  (r) Dump XGS sensor registers range");
 	printf("\n  (w) Write XGS sensor register");
-
+	printf("\n");
+	printf("\n  (s) Read QSPI identification");
 	printf("\n------------------------------------------------------------------------------\n\n");
 
 }
