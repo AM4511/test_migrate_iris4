@@ -41,10 +41,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.Trig_2_EXP             = 76800;
 
    // This may depend on the configuration (Lanes+LineSize) 
-   if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
-	   SensorParams.ReadOutN_2_TrigN = 11400; //
-   else
-	   SensorParams.ReadOutN_2_TrigN = 51200; //
+   SensorParams.ReadOutN_2_TrigN = 51200; //
 
    SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
@@ -101,10 +98,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
   
 	// This may depend on the configuration (Lanes+LineSize) 
-	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
-		SensorParams.ReadOutN_2_TrigN = 0; //
-	else
-		SensorParams.ReadOutN_2_TrigN = 0; //
+	SensorParams.ReadOutN_2_TrigN = 0; //
 
 	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
@@ -160,11 +154,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	SensorParams.ReadOutN_2_TrigN = 0;  // in ns
 	SensorParams.TrigN_2_FOT      = 0;  // in ns
 	
-    // This may depend on the configuration (Lanes+LineSize) 
-	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
-		SensorParams.ReadOutN_2_TrigN = 0; //
-	else
-		SensorParams.ReadOutN_2_TrigN = 0; //
+    SensorParams.ReadOutN_2_TrigN = 0; //
 
 	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 

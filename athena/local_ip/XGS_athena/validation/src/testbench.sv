@@ -17,7 +17,6 @@ module testbench();
 	parameter SYS_CLK_PERIOD= 16;
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
-	parameter KU706 = 0;
 
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
@@ -314,8 +313,7 @@ module testbench();
 			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
 			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
 			.SENSOR_FREQ(SENSOR_FREQ),
-			.SIMULATION(SIMULATION),
-			.KU706(KU706)
+			.SIMULATION(SIMULATION)
 		) DUT (
 			.aclk(pcie_clk),
 			.aclk_reset_n(pcie_axi.reset_n),

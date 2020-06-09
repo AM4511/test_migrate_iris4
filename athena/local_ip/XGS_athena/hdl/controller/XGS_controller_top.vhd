@@ -12,8 +12,7 @@ entity XGS_controller_top is
 		-- Users to add parameters here
         G_SYS_CLK_PERIOD    : integer  := 16;
         G_SENSOR_FREQ       : integer  := 32400; 
-		G_SIMULATION        : integer  := 0;
-        G_KU706             : integer  := 0
+		G_SIMULATION        : integer  := 0
 	);
 	port (
 		
@@ -113,8 +112,7 @@ architecture arch_imp of XGS_controller_top is
   -- COMPONENT XGS CONTROLLER
   -------------------------------  
    component xgs_ctrl
-   generic(  G_KU706               : integer := 0;
-             G_SIMULATION          : integer := 0;
+   generic(  G_SIMULATION          : integer := 0;
              G_SYS_CLK_PERIOD      : integer := 16;
              G_SENSOR_FREQ         : integer := 32400            
           );
@@ -266,11 +264,7 @@ architecture arch_imp of XGS_controller_top is
 begin
 
 
--- To identify Zynq/Artix fpga  
-REGFILE.ACQ.DEBUG.FPGA_7c706 <= '0' when (G_KU706=0) else '1';
 
-  
-  
   
   -------------------------------------------------------------------------------
   --
@@ -314,8 +308,7 @@ REGFILE.ACQ.DEBUG.FPGA_7c706 <= '0' when (G_KU706=0) else '1';
   -- COMPONENT XGS CONTROLLER
   -------------------------------  
    Inst_xgs_ctrl : xgs_ctrl
-   generic map(  G_KU706                   => G_KU706,
-                 G_SIMULATION              => G_SIMULATION,
+   generic map(  G_SIMULATION              => G_SIMULATION,
                  G_SYS_CLK_PERIOD          => G_SYS_CLK_PERIOD,
                  G_SENSOR_FREQ             => G_SENSOR_FREQ
           )

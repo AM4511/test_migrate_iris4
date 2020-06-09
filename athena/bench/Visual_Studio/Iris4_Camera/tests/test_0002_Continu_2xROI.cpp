@@ -75,12 +75,12 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1*SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr2 = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr2 = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer2, &MilDisplay2, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr2);
 
@@ -98,7 +98,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(40000);
+	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
@@ -124,7 +124,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	//------------------------------------
-	//  XGS Ctrl Debug pin in Xcelerator
+	//  XGS Ctrl Debug pin
 	//------------------------------------
 	//debug_ctrl16_int(0) <= xgs_exposure; --python_monitor0;  --resync to sysclk
 	//debug_ctrl16_int(1) <= xgs_FOT;      --python_monitor1;  --resync to sysclk
@@ -143,9 +143,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
 	
-	// In Xcelerator(7c706) USERCLK_P connected to TRING_INT
-	// In Xcelerator(7c706) USERCLK_N connected to DEBUG_OUT(0)
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; // sort sur XCELERATOR : USER_CLK_N
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; 
 
 
 	//---------------------
@@ -179,11 +177,10 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	while (Sortie == 0)
 	{
-
+		//Sleep(1000);
 		if (ROI_sel == 0) {
-
 			//---------------------
-            // DMA PARAMETERS
+            // DMA PARAMETERS 1/4 frame
             //---------------------
 			DMAParams->FSTART                = ImageBufferAddr;          // Adresse Mono pour DMA
 			DMAParams->LINE_PITCH            = SensorParams->Xsize_Full; // Full window MIL display
@@ -191,18 +188,79 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			GrabParams->SUBSAMPLING_X        = 0;
 			GrabParams->M_SUBSAMPLING_Y      = 0;
 			GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
-		} else {
+			XGS_Ctrl->setBlackRef(0x0);
+			XGS_Ctrl->setAnalogGain(1);  //1-2-4
+			XGS_Ctrl->setExposure(20000);
+			GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+			GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
 
-			//---------------------
-            // DMA PARAMETERS
-            //---------------------
-			DMAParams->FSTART                = ImageBufferAddr2;          // Adresse Mono pour DMA
-			DMAParams->LINE_PITCH            = SensorParams->Xsize_Full; // Full window MIL display
-			DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
-			GrabParams->SUBSAMPLING_X        = 1;
-			GrabParams->M_SUBSAMPLING_Y      = 0;
-			GrabParams->ACTIVE_SUBSAMPLING_Y = 1;
-		}
+		} else 
+	  	  if (ROI_sel == 1)  {
+			 //---------------------
+             // DMA PARAMETERS 1/4 frame
+             //---------------------
+			 DMAParams->FSTART                = ImageBufferAddr+(SensorParams->Xsize_Full* SensorParams->Ysize_Full / 4);          // Adresse Mono pour DMA
+			 DMAParams->LINE_PITCH            = SensorParams->Xsize_Full;  // Full window MIL display
+			 DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;
+			 GrabParams->SUBSAMPLING_X        = 0;
+			 GrabParams->M_SUBSAMPLING_Y      = 0;
+			 GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+			 XGS_Ctrl->setBlackRef(0);
+			 XGS_Ctrl->setAnalogGain(1);  //1-2-4
+			 XGS_Ctrl->setExposure(40000);
+			 GrabParams->Y_START = 4+SensorParams->Ysize_Full/4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+			 GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
+		  } else
+			  if (ROI_sel == 2) {
+				  //---------------------
+				  // DMA PARAMETERS  1/4 frame
+				  //---------------------
+				  DMAParams->FSTART = ImageBufferAddr + (SensorParams->Xsize_Full * SensorParams->Ysize_Full / 2);          // Adresse Mono pour DMA
+				  DMAParams->LINE_PITCH = SensorParams->Xsize_Full;  // Full window MIL display
+				  DMAParams->LINE_SIZE = SensorParams->Xsize_Full;
+				  GrabParams->SUBSAMPLING_X = 0;
+				  GrabParams->M_SUBSAMPLING_Y = 0;
+				  GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+				  XGS_Ctrl->setBlackRef(0);
+				  XGS_Ctrl->setAnalogGain(1);  //1-2-4
+				  XGS_Ctrl->setExposure(60000);
+				  GrabParams->Y_START = 4 + SensorParams->Ysize_Full / 2;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+				  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+			  }
+			  else
+				  if (ROI_sel ==  3) {
+					  //---------------------
+					  // DMA PARAMETERS  1/4 frame
+					  //---------------------
+					  DMAParams->FSTART = ImageBufferAddr + (SensorParams->Xsize_Full * SensorParams->Ysize_Full * 3 / 4);          // Adresse Mono pour DMA
+					  DMAParams->LINE_PITCH = SensorParams->Xsize_Full;  // Full window MIL display
+					  DMAParams->LINE_SIZE = SensorParams->Xsize_Full;
+					  GrabParams->SUBSAMPLING_X = 0;
+					  GrabParams->M_SUBSAMPLING_Y = 0;
+					  GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+					  XGS_Ctrl->setBlackRef(0);
+					  XGS_Ctrl->setAnalogGain(1);  //1-2-4
+					  XGS_Ctrl->setExposure(80000);
+					  GrabParams->Y_START = 4 + SensorParams->Ysize_Full *3 / 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+					  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+				  }
+				  else
+					  if (ROI_sel == 4) {
+						  //---------------------
+						  // DMA PARAMETERS 1 full frame
+						  //---------------------
+						  DMAParams->FSTART = ImageBufferAddr2;          // Adresse Mono pour DMA
+						  DMAParams->LINE_PITCH = SensorParams->Xsize_Full;  // Full window MIL display
+						  DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
+						  GrabParams->SUBSAMPLING_X        = 0;
+						  GrabParams->M_SUBSAMPLING_Y      = 0;
+						  GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+						  XGS_Ctrl->setBlackRef(0);
+						  XGS_Ctrl->setAnalogGain(1);  //1-2-4
+						  XGS_Ctrl->setExposure(30000);
+						  GrabParams->Y_START = 4 ;                   //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+						  GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	//1-base Here - Dois etre multiple de 4										
+					  }
 
 
 		XGS_Data->SetDMA();
@@ -211,7 +269,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->WaitEndExpReadout();
 
 
-		if (ROI_sel == 0) {
+		if (ROI_sel == 0 || ROI_sel == 1 || ROI_sel == 2 || ROI_sel == 3) {
 			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 		}
 		else {
@@ -219,10 +277,9 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		}
 
 
-		if (ROI_sel == 0)
-			ROI_sel = 1;
-		else
-			ROI_sel = 0;
+		ROI_sel++;
+	    if(ROI_sel == 5)
+		  ROI_sel = 0;
 
 		if (_kbhit())
 		{

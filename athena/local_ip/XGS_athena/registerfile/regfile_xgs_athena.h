@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x36EA9D6F
+* Register file CRC32 : 0x834CDAB
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1102,8 +1102,7 @@ typedef union
       M_UINT32 LED_TEST_COLOR         : 2;   /* Bits(2:1), null */
       M_UINT32 RSVD0                  : 25;  /* Bits(27:3), Reserved */
       M_UINT32 DEBUG_RST_CNTR         : 1;   /* Bits(28:28), null */
-      M_UINT32 RSVD1                  : 2;   /* Bits(30:29), Reserved */
-      M_UINT32 FPGA_7C706             : 1;   /* Bits(31:31), null */
+      M_UINT32 RSVD1                  : 3;   /* Bits(31:29), Reserved */
       M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 

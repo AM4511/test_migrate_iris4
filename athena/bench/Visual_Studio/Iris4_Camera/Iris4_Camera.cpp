@@ -23,17 +23,19 @@
 
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
 #include "I2C.h"
 
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
+
+
+#define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
 #define regfile_I2C_ADD_OFFSET        0x00010000  //
 
-void InitXcelerator(CXGS_Ctrl* XGS_Ctrl, CI2C* I2C);
-void Test7c706Eprom(CI2C* I2C);
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
 void Help(CXGS_Ctrl* Camera);
@@ -60,7 +62,6 @@ int main(void)
 	// Init ATHENA FPGAs, Regfile
 	//------------------------------
 	Struck_FPGAs FPGAs[16];
-	Struck_FPGAs FPGAsTemp[16];
 
 	int FPGA_used = 0;
 	int NBiter = 1;
@@ -89,46 +90,22 @@ int main(void)
 
 	MilLayerAlloc();
 
-     int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
+    int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
 
 	printf("\n\nATHENA   %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
 
+
 	//------------------------------
-	// Program Maio PCIe window 0
+	// Init Global PCIe (Maio) REGISTER FILE
 	//------------------------------
-	MIL_ID MilRegBuf1;
-	volatile M_UINT32* RegPtr_bar1;
-
-	MbufCreate2d(
-		M_DEFAULT_HOST,
-		1000,
-		1,
-		8 + M_UNSIGNED,
-		M_IMAGE + M_MMX_ENABLED,
-		M_PHYSICAL_ADDRESS,
-		1000,
-		(void**)fpga_bar1_add,
-		&MilRegBuf1
-	);
-
-	RegPtr_bar1 = (M_UINT32*)MbufInquire(MilRegBuf1, M_HOST_ADDRESS, M_NULL);
-
-	printf("\n\nMaio ID is 0x%X, programming PCIe Window0 \n", *(RegPtr_bar1 + (0x000 / 4)) );
-	*(RegPtr_bar1 + (0x100 / 4)) = 0x0;         //pci_bar0_disable 
-	*(RegPtr_bar1 + (0x104 / 4)) = 0x0;         //pci_bar0_start
-	*(RegPtr_bar1 + (0x108 / 4)) = 0x20000;     //pci_bar0_End (8k)
-	*(RegPtr_bar1 + (0x10c / 4)) = 0x40000000;  //pci_bar0_size 
-	*(RegPtr_bar1 + (0x100 / 4)) = 0x1;         //pci_bar0_enable
-
-	
-
+	volatile unsigned char* PCIe_regptr = getMilLayerRegisterPtr(0, fpga_bar1_add + regfile_MAIO_ADD_OFFSET);
+	volatile FPGA_PCIE2AXIMASTER_TYPE& rPcie_ptr = (*(volatile FPGA_PCIE2AXIMASTER_TYPE*)(PCIe_regptr));
 
 	//------------------------------
 	// Init Global XGS Athena REGISTER FILE
 	//------------------------------
-	volatile unsigned char* XGS_Athena_regptr = getMilLayerRegisterPtr(0, fpga_bar0_add + regfile_XGS_ATHENA_ADD_OFFSET);   // Lets put a pointer to the FPGA XGS ctrl
+	volatile unsigned char* XGS_Athena_regptr = getMilLayerRegisterPtr(1, fpga_bar0_add + regfile_XGS_ATHENA_ADD_OFFSET);   // Lets put a pointer to the FPGA XGS ctrl
 	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGS_Athena_ptr = (*(volatile FPGA_REGFILE_XGS_ATHENA_TYPE*)(XGS_Athena_regptr));
-
 
 	//------------------------------
 	// Init I2C REGISTER FILE
@@ -136,6 +113,14 @@ int main(void)
 	volatile unsigned char* I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + regfile_I2C_ADD_OFFSET);       // Lets put a pointer to the FPGA I2C
 	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 
+
+	//------------------------------
+	// Init class 
+	//------------------------------
+	CPcie* Pcie;
+	Pcie = new CPcie(rPcie_ptr);
+
+	Pcie->InitBar0Window();
 
 	//------------------------------
 	// Init class XGS CONTROLLER
@@ -156,32 +141,11 @@ int main(void)
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 
+
+
 	//-----------------------------------------------------
     // If PCIe x1 detected, reduce Framerate of the sensor
     //-----------------------------------------------------
-	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x110000)
-	{   
-
-		printf("\nPCIe is in Gen1 x1, do you want to reduce Linerate by a factor x4 ? (0=No, 1=Yes) : ");
-		ch = _getch();
-		if (ch == '1') {
-			XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
-			printf("\n");
-			printf("--------------------------------------------------------------------------\n");
-			printf(" REDUCING XGS LINERATE(FPS) BY A FACTOR %d, SINCE FPGA IS IN PCIe Gen1 x1 \n", XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR);
-			printf("--------------------------------------------------------------------------\n");
-			printf("\n");
-
-		}
-		else
-		  XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
-		  printf("\n");
-		  printf("-----------------------------------\n");
-		  printf(" XGS FRAMERATE IS AT NOMINAL SPEED \n");
-		  printf("-----------------------------------\n");
-		  printf("\n");
-	}
-
 	if ((FPGAs[0].LinkStatusReg & 0xff0000) == 0x210000)
 	{
 		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 1;
@@ -190,6 +154,15 @@ int main(void)
 		printf(" XGS FRAMERATE IS AT NOMINAL SPEED, SINCE FPGA IS IN PCIe Gen1 x2 \n");
 		printf("------------------------------------------------------------------\n");
 		printf("\n");
+	}
+	else
+	{
+
+    	printf("------------------------------------------------------------------\n");
+		printf(" Athena PCIe is not at Gen1 x2 speed, something is wrong here!!!  \n");
+		printf("------------------------------------------------------------------\n");
+		printf("\n");
+		exit(0);
 	}
 
 	//------------------------------
@@ -201,21 +174,8 @@ int main(void)
 	printf("\n");
 
 
-
-
-	// Pour le dev Board de ONsemi Xcelerator, no need with our board
-	if (rXGS_Athena_ptr.ACQ.DEBUG.f.FPGA_7C706 == 1)
-	{
-		printf("Zynq FPGA detected, with Xcelerator board, Enable XGS power by I2C\n");
-		InitXcelerator(XGS_Ctrl, I2C);
-	}
-	else
-	{ 
-		printf("Artix7 FPGA detected, Matrox XGS Sensor board\n");
-	}
-
 	//Print build ID
-	printf("\n\nFPGA Build is ID is %d (0x%X) \n", *(RegPtr_bar1 + (0x024 / 4)), *(RegPtr_bar1 + (0x024 / 4)));
+	printf("\n\nFPGA Build is ID is %d (0x%X) \n", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
 
 
 	// pour tester que le fix du bug TLP_2_AXI est repare
@@ -301,6 +261,10 @@ int main(void)
 			case 'h':
 				XGS_Data->HiSpiCalibrate();
 				break;
+            
+			case 's':
+				Pcie->Read_QSPI_ID();
+				break;
 
 			}
 		}//KBhit
@@ -309,11 +273,11 @@ int main(void)
 	printf("\n\nPress any key to exit");
 	_getch();
 	
-	
-	MbufFree(MilRegBuf1);	//a effacer avec le vrai produit
+
 	delete XGS_Ctrl;
 	delete XGS_Data;
 	delete I2C;
+	delete Pcie;
 	IrisMilFree();
 
 
@@ -343,6 +307,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n");
 	printf("\n  (0) Grab Test Continu");
 	printf("\n  (1) Grab Test SW trig - Manual");
+	printf("\n  (2) Grab Test Continu, 2x Host Buffers");
 	printf("\n");
 	printf("\n  (e) Enable XGS sensor (Enable clk + unreset + Load DCF)");
 	printf("\n  (d) Disable XGS sensor (Disable clk + Reset)");
@@ -351,192 +316,13 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (D) Dump XGS sensor registers");
 	printf("\n  (r) Dump XGS sensor registers range");
 	printf("\n  (w) Write XGS sensor register");
-
+	printf("\n");
+	printf("\n  (s) Read QSPI identification");
 	printf("\n------------------------------------------------------------------------------\n\n");
 
 }
 
 
-
-//--------------------------------------------------------
-//  Init Xcelerator Onsemi Dev board
-//
-//  No need to execute this on our Matrox sensor board
-//
-//--------------------------------------------------------
-void InitXcelerator(CXGS_Ctrl* XGS_Ctrl, CI2C* I2C)
-{
-
-	M_UINT32 I2C_readdata;
-
-    //--------------------------------------------
-    // PMIC programmation : defaut voltages are NO GOOD
-    //--------------------------------------------
-    
-    //OPEN I2C path to the xcelerator
-    I2C->Write_i2c(0, 0x74, 1, 0, 0x20);  // PCA9548ARGER on 7C706 : Enable I2C channel 5 FMC HPC (non-index access)
-    Sleep(10);
-    
-    // Force XGS to reset
-    XGS_Ctrl->rXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_RESETN = 0;
-    Sleep(30);
-    
-    //-------------------------------------------------------------------------------
-    // Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), DISABLE PMIC
-    //-------------------------------------------------------------------------------
-    //Disable the PMIC in case it is enabled
-    I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 0 to output0 : HWEN=0)
-    Sleep(30);
-    I2C->Write_i2c(0, 0x20, 0, 3, 0xce);             // Write add=3 (Configuration output : bit 0 is output now : HWEN to enable PMIC + Monitor_mux_select=output)
-    Sleep(30);
-    I2C->Write_i2c(0, 0x20, 0, 1, 0x0);              // Write add=1 (Write 0 to output0 : HWEN=0, monitor select is monitor0)
-    Sleep(30);
-    
-    // Reset the PMIC to default register values
-    I2C->Write_i2c(0, 0x10, 0, 0x30, 0x81);
-    Sleep(10);
-    I2C->Write_i2c(0, 0x10, 0, 0x30, 0x1);
-    Sleep(10);
-    
-    // NEW NCP6914 on Xcelerator  Voltage VALUES
-    //I2C->Write_i2c(0, 0x10, 0, 0x40, 0x30);
-    //I2C->Write_i2c(0, 0x10, 1, 0, 0x40);                        // Dummy write(not indexed) without data to set add ptr=40 (non-index access)
-    //I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage DCDC
-    //if (I2C_readdata == 0x30) printf("NEW PMIC DCDC    is set to 1.2V\n");
-    
-    //I2C->Write_i2c(0, 0x10, 0, 0x41, 0x30);
-    //I2C->Write_i2c(0, 0x10, 1, 0, 0x41);                        // Dummy write(not indexed) without data to set add ptr=41 (non-index access)
-    //I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage DCDC
-    //if (I2C_readdata == 0x30) printf("NEW PMIC DCDC    is set to 1.2V\n");
-    
-    I2C->Write_i2c(0, 0x10, 0, 0x42, 0x24);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x42);                        // Dummy write(not indexed) without data to set add ptr=42 (non-index access)
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VAA
-    if (I2C_readdata == 0x10) printf("NEW PMIC VAA     is set to 1.8V\n");
-    if (I2C_readdata == 0x24) printf("NEW PMIC VAA     is set to 2.8V\n");
-    
-    I2C->Write_i2c(0, 0x10, 0, 0x43, 0x28);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x43);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VAA-PIX
-    if (I2C_readdata == 0x10) printf("NEW PMIC VAA-PIX is set to 1.8V\n");
-    if (I2C_readdata == 0x28) printf("NEW PMIC VAA-PIX is set to 3.0V\n");
-    
-    I2C->Write_i2c(0, 0x10, 0, 0x44, 0x24);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x44);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);             // Voltage VDD
-    if (I2C_readdata == 0x10) printf("NEW PMIC VDD     is set to 1.8V\n");
-    if (I2C_readdata == 0x24) printf("NEW PMIC VDD     is set to 2.8V\n");
-    if (I2C_readdata == 0x28) printf("NEW PMIC VDD     is set to 3.0V\n");
-    
-    //Powergood
-    //I2C->Write_i2c(0, 0x10, 0, 0x37, 0x3f);
-    //I2C->Write_i2c(0, 0x10, 1, 0, 0x37);
-    //I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    //enable discharge on all outputs
-    I2C->Write_i2c(0, 0x10, 0, 0x35, 0x1f);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x35);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    
-    // config start delays, min = 2 ms
-    // 1. VDD_IO(ldo3) -> 2ms
-    // 2. VDD(dcdc) -> 4ms
-    // 3. VAA(ldo1) -> 6ms
-    // 4. VPIX(ldo2) -> 8ms
-    // 5. not used(ldo4) -> 2 ms
-    //
-    // ncp6914_setup_startdelay(dcdc = 4, ldo1 = 6, ldo2 = 8, ldo3 = 2, ldo4 = 2)
-    // 
-    // code_dcdc = ((dcdc - 2)//2) & 0x7  => 4-2 /2 = 1
-    // code_ldo1 = ((ldo1 - 2)//2) & 0x7  => 6-2 /2 = 2
-    // code_ldo2 = ((ldo2 - 2)//2) & 0x7  => 8-2 /2 = 3
-    // code_ldo3 = ((ldo3 - 2)//2) & 0x7  => 2-2 /2 = 0
-    // code_ldo4 = ((ldo4 - 2)//2) & 0x7  => 2-2 /2 = 0
-    
-    M_UINT32 seq1code = 1;
-    M_UINT32 seq2code = 2 + (3 << 3);
-    M_UINT32 seq3code = 0 + (0 << 3);
-    
-    //Sequencer1
-    I2C->Write_i2c(0, 0x10, 0, 0x39, seq1code);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x39);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    //Sequencer2
-    I2C->Write_i2c(0, 0x10, 0, 0x3a, seq2code);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x3a);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    //Sequencer3
-    I2C->Write_i2c(0, 0x10, 0, 0x3b, seq3code);
-    I2C->Write_i2c(0, 0x10, 1, 0, 0x3b);
-    I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    //#enable outputs, leave out4 disabled
-    //ncp6914_setup_enable(0x1E)
-    //I2C->Write_i2c(0, 0x10, 0, 0x34, 0x1e);
-    //I2C->Write_i2c(0, 0x10, 1, 0, 0x34);
-    //I2C_readdata = I2C->Read_i2c(0, 0x10, 1, 0, 0);
-    
-    Sleep(50);
-    
-    //-------------------------------------------------------------------------------
-    // Access I2C vers Xcelerator IO EXPANDER PCA9654E (0x20, 7 bits), ENABLE PMIC
-    //-------------------------------------------------------------------------------
-    I2C->Write_i2c(0, 0x20, 0, 1, 0x11);              // Write add=1 (Write 1 to output0 : HWEN=1 and Monitor_Mux_sel is 0x1 so EFOT is sent to FPGA)
-    Sleep(250);
-
-}
-
-
-
-//--------------------------------------------------------
-//  TEST I2C EPROM 7c706 
-//--------------------------------------------------------
-void Test7c706Eprom(CI2C* I2C)
-{
-
-	M_UINT32 I2C_readdata;
-
-	//--------------------------------------------
-	// TEST D'acces I2C vers EPROM I2c DU 7C706
-	//--------------------------------------------
-	//test de ecriture lecture du Eprom I2C  sur 7C706 (M24c08, U9)
-	I2C->Write_i2c(0, 0x74, 1, 0, 0x04);  //enable channel 2  on mux translator : EPROM M24c08
-	Sleep(200);
-
-	//Write Eprom
-	I2C->Write_i2c(0, 0x54, 0, 0, 0x0);  //write add=0
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 1, 0xc);  //write add=1
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 2, 0xa);  //write add=2
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 3, 0xf);  //write add=3
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 4, 0xe);  //write add=4
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 5, 0xf);  //write add=5
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 6, 0xa);  //write add=6
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 7, 0xd);  //write add=7
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 8, 0xe);  //write add=8
-	Sleep(200);
-	I2C->Write_i2c(0, 0x54, 0, 0, 0x0);  //write add=0 <---- set the internal pointer to add=0+1
-	Sleep(200);
-
-	//Read Eprom
-	for (int i = 0; i < 8; i++) {
-		I2C_readdata = I2C->Read_i2c(0, 0x54, 1, 0, 0);  //read current internal pointer add
-		Sleep(500);
-		printf("\nI2C read from eprom : 0x%X\n", I2C_readdata);
-		Sleep(100);
-	}
-
-}
 
 
 

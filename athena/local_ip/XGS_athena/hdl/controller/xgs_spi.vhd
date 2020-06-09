@@ -395,9 +395,57 @@ BEGIN
             sensor_reconf_dat   <=  regfile.ACQ.SENSOR_ROI2_Y_SIZE.reserved  &
                                     regfile.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE;
 
-                                  
-   
-          elsif(sensor_reconf_WF_pipe(4)='1') then            -- Program reg ROI ACTIVE context 0 (0x383e) : ceci est automatiquement gere par le fpga
+                                    
+            
+          elsif(sensor_reconf_WF_pipe(4)='1') then            -- Program reg SUBSAMPLING (0x383c) 
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"383c";
+            sensor_reconf_dat    <= regfile.ACQ.SENSOR_SUBSAMPLING.reserved1             &
+                                    regfile.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y  &
+                                    regfile.ACQ.SENSOR_SUBSAMPLING.reserved0             &
+                                    regfile.ACQ.SENSOR_SUBSAMPLING.M_SUBSAMPLING_Y       &
+                                    regfile.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;            
+            
+    
+          elsif(sensor_reconf_WF_pipe(5)='1') then            -- Program reg ANALOG_GAIN_CODE (0x3844)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3844";
+            sensor_reconf_dat    <= regfile.ACQ.SENSOR_GAIN_ANA.reserved1      &
+                                    regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN    &
+                                    regfile.ACQ.SENSOR_GAIN_ANA.reserved0;
+    
+          elsif(sensor_reconf_WF_pipe(6)='1') then            -- Program reg Data Pedestal (Gr)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384A";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GR.reserved        &
+                                     regfile.ACQ.SENSOR_DP_GR.DP_OFFSET_GR;
+          
+         
+          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg Data Pedestal (Gb)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384C";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GB.reserved        &
+                                     regfile.ACQ.SENSOR_DP_GB.DP_OFFSET_GB;
+                   
+          elsif(sensor_reconf_WF_pipe(8)='1') then            -- Program reg Data Pedestal (R)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"384E";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_R.reserved        &
+                                     regfile.ACQ.SENSOR_DP_R.DP_OFFSET_R;
+          
+          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg Data Pedestal (B)
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3850";
+            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_B.reserved        &
+                                     regfile.ACQ.SENSOR_DP_B.DP_OFFSET_B;
+
+          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg ROI ACTIVE context 0 (0x383e) : ceci est automatiquement gere par le fpga
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"383e";
@@ -409,54 +457,6 @@ BEGIN
               sensor_reconf_dat(3 downto 2)   <= "00";
             end if;
             
-            
-          elsif(sensor_reconf_WF_pipe(5)='1') then            -- Program reg SUBSAMPLING (0x383c) 
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"383c";
-            sensor_reconf_dat    <= regfile.ACQ.SENSOR_SUBSAMPLING.reserved1             &
-                                    regfile.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y  &
-                                    regfile.ACQ.SENSOR_SUBSAMPLING.reserved0             &
-                                    regfile.ACQ.SENSOR_SUBSAMPLING.M_SUBSAMPLING_Y       &
-                                    regfile.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;            
-            
-    
-          elsif(sensor_reconf_WF_pipe(6)='1') then            -- Program reg ANALOG_GAIN_CODE (0x3844)
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"3844";
-            sensor_reconf_dat    <= regfile.ACQ.SENSOR_GAIN_ANA.reserved1      &
-                                    regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN    &
-                                    regfile.ACQ.SENSOR_GAIN_ANA.reserved0;
-    
-          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg Data Pedestal (Gr)
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"384A";
-            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GR.reserved        &
-                                     regfile.ACQ.SENSOR_DP_GR.DP_OFFSET_GR;
-          
-         
-          elsif(sensor_reconf_WF_pipe(8)='1') then            -- Program reg Data Pedestal (Gb)
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"384C";
-            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GB.reserved        &
-                                     regfile.ACQ.SENSOR_DP_GB.DP_OFFSET_GB;
-                   
-          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg Data Pedestal (R)
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"384E";
-            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_R.reserved        &
-                                     regfile.ACQ.SENSOR_DP_R.DP_OFFSET_R;
-          
-          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg Data Pedestal (B)
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            sensor_reconf_add    <= X"3850";
-            sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_B.reserved        &
-                                     regfile.ACQ.SENSOR_DP_B.DP_OFFSET_B;
                             
           elsif(sensor_reconf_WF_pipe(11)='1') then            -- Program STOP SEPARATOR 
             sensor_reconf_WF_ss  <= '1';
