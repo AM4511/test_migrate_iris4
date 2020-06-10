@@ -98,7 +98,7 @@
       <fields name="REVERSE_X" lsb="8"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2CC">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2D8">
     <registers name="GRAB_CTRL" alias="GRAB ConTRoL Register" description="Grag Control Register" useReservedSpaceBelow="true" address="118">
       <fields name="RESET_GRAB" description="This register resets the entire python_ctrl." lsb="31">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset not active&lt;/matrox_column_delimiter></possibleValues>
@@ -131,7 +131,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Rising or Falling edge&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Level HI &lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Level LO&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Internal Programmable Timer Trigger&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>RESERVED&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -566,6 +566,16 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+    </registers>
+    <registers name="TIMER_CTRL" offsetFromParent="1D0">
+      <fields name="TIMERSTOP" description="This field stops the internal programmable Timer Trigger" lsb="4" readWrite="false" writeOnly="true"/>
+      <fields name="TIMERSTART" description="This field starts the internal programmable Timer Trigger." readWrite="false" writeOnly="true"/>
+    </registers>
+    <registers name="TIMER_DELAY" offsetFromParent="1D4">
+      <fields name="VALUE" description="This register sets the delay for the first trigger generated when the timer is used. &#xD;&#xA;&#xD;&#xA;This register is double buffered with TimerStart register." size="32"/>
+    </registers>
+    <registers name="TIMER_DURATION" offsetFromParent="1D8">
+      <fields name="VALUE" description="This register sets the timer duration. When the counter reaches the value programmed in this register the counter will be reseted to 0. The trigger will be generated when the counter reaches value 0x1. &#xD;&#xA;&#xD;&#xA;This register is double buffered with TIMERSTART register." size="32"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="44C">

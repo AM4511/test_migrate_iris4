@@ -308,6 +308,7 @@ architecture functional of xgs_ctrl is
   signal  grab_mngr_trig_p1            : std_logic;
   signal  next_grab_mngr_trig_rdy      : std_logic;
   signal  grab_mngr_trig_rdy           : std_logic;
+  signal  grab_mngr_trig_rdy_P1        : std_logic;
   signal  next_grab_mngr_trig_ack      : std_logic;
   signal  grab_mngr_trig_ack           : std_logic;
 
@@ -458,6 +459,8 @@ architecture functional of xgs_ctrl is
   
   signal debug_int        : std_logic_vector(debug_out'range);
   
+  
+  
   -------------------------------------
   --  Signaux Chipscopables
   -------------------------------------
@@ -555,6 +558,28 @@ signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 
 
 signal debug_ctrl16_int : std_logic_vector(15 downto 0);
+
+
+-----------------------------------------------------
+-- POur avoir un trigger HW interne programmable
+-----------------------------------------------------
+
+type type_timer_state is (  idle,
+                            wait_arm,
+                            count_delai,   
+                            trig_first,    
+                            wait_rdy,      
+                            trig,          
+                            count_duration
+                          );
+signal  curr_timer_state   :  type_timer_state;
+
+signal Timer_event       : std_logic := '0';
+signal SeqTimer_cntr     : std_logic_vector(REGFILE.ACQ.TIMER_DURATION.VALUE'range);
+
+signal TIMER_DELAY_DB    : std_logic_vector(REGFILE.ACQ.TIMER_DELAY.VALUE'range);
+signal TIMER_DURATION_DB : std_logic_vector(REGFILE.ACQ.TIMER_DURATION.VALUE'range);
+
 
 BEGIN
 
@@ -733,7 +758,19 @@ BEGIN
             hw_trig          <= hw_trig;
             hw_trig_miss     <= '0';
           end if;
-        
+        elsif(curr_trigger_act="101") then                                        -- Internal programmable Timer
+          if(Timer_event='1') then
+            if(grab_mngr_trig_rdy='1') then
+              hw_trig          <= '1';
+              hw_trig_miss     <= '0';
+            else
+              hw_trig          <= '0';
+              hw_trig_miss     <= '1';
+            end if;
+          else
+            hw_trig          <= '0';
+            hw_trig_miss     <= '0';
+          end if;
         else
           hw_trig          <= '0';
           hw_trig_miss     <= '0';
@@ -1191,6 +1228,7 @@ BEGIN
         grab_mngr_stat          <=  "0000";
         grab_mngr_sensor_reconf <=  '0';
         grab_mngr_trig_rdy      <=  '0';
+        grab_mngr_trig_rdy_P1   <=  '0';
         grab_mngr_trig_ack      <=  '0';
       else
         curr_grab_mngr_state    <=  next_grab_mngr_state;
@@ -1199,6 +1237,7 @@ BEGIN
         grab_mngr_stat          <=  next_grab_mngr_stat;
         grab_mngr_sensor_reconf <=  next_grab_mngr_sensor_reconf;
         grab_mngr_trig_rdy      <=  next_grab_mngr_trig_rdy;
+		grab_mngr_trig_rdy_P1   <=  grab_mngr_trig_rdy;
         grab_mngr_trig_ack      <=  next_grab_mngr_trig_ack;
         
       end if;
@@ -2364,6 +2403,122 @@ BEGIN
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          
       
+
+
+
+  ----------------------------------------------------------------------
+  -- Trigger timer for continuous mode state machine
+  -- 
+  -- Le timer envoie un premier trigger pour le premier exposure, ensuite il attends le trigger rdy
+  -- avant d'envoyer la suite de triggers en regime permanent ceci aura comme consequence de se 
+  -- synchroniser au grab a partir du 2e grab.
+  --  
+  --
+  --
+  ----------------------------------------------------------------------
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(REGFILE.ACQ.TIMER_CTRL.TIMERSTART='1') then 
+        TIMER_DELAY_DB    <= REGFILE.ACQ.TIMER_DELAY.VALUE;
+        TIMER_DURATION_DB <= REGFILE.ACQ.TIMER_DURATION.VALUE;
+      end if;
+    end if;
+  end process;
+  
+  process(sys_clk)
+  begin
+    if rising_edge(sys_clk) then
+      if (sys_reset_n='0') then 
+        curr_timer_state <= idle;
+        Timer_event      <= '0';
+        SeqTimer_cntr    <= (others=>'0');
+      else
+    
+        case curr_timer_state is
+          when  idle            =>  Timer_event        <= '0';
+                                    SeqTimer_cntr      <= (others=>'0');
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTART='1') then
+                                      curr_timer_state <= wait_arm;
+                                    else
+                                      curr_timer_state <= idle;
+                                    end if;
+          
+		  when  wait_arm        =>  Timer_event        <= '0';
+                                    SeqTimer_cntr      <= (others=>'0');
+		                            if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									elsif(curr_grab_mngr_state = arm and curr_timer_mngr_state=idle and curr_trig_mngr_state=idle) then --wait for state to be rdy and in from idle mode exposure
+                                      curr_timer_state <= count_delai;                                  
+                                    end if;									
+									 
+									
+          when  count_delai     =>  Timer_event        <= '0';
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(SeqTimer_cntr = TIMER_DELAY_DB) then 
+                                      curr_timer_state <= trig_first;
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    else
+                                      curr_timer_state <= count_delai; 
+                                      SeqTimer_cntr    <= SeqTimer_cntr + '1';
+                                    end if;
+                                    
+          when  trig_first      =>  if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									else
+									  curr_timer_state <= wait_rdy;                                             
+                                      Timer_event      <= '1';  
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    end if;
+                                    
+          when  wait_rdy        =>  Timer_event      <= '0';
+                                    SeqTimer_cntr    <= (others=>'0');
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(grab_mngr_trig_rdy='1' and grab_mngr_trig_rdy_P1='0') then
+                                      curr_timer_state <= trig;  -- trig second trigger and goto permanet regime
+                                    else
+                                      curr_timer_state <= wait_rdy;
+                                    end if;                                  
+                                    
+          when  trig            =>  if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									else
+									  curr_timer_state <= count_duration; 
+                                      Timer_event      <= '1';  
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    end if;
+									
+          when  count_duration  =>  Timer_event      <= '0';  
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(SeqTimer_cntr=TIMER_DURATION_DB) then 
+                                      curr_timer_state <= trig;
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    else
+                                      curr_timer_state <= count_duration; 
+                                      SeqTimer_cntr    <= SeqTimer_cntr + '1';
+                                    end if;        
+                                    
+      end case;      
+    end if;
+  end if;
+    
+  end process;
+
+
+
 
       
 end functional;

@@ -119,7 +119,7 @@ Register("grab_ctrl", 0x100, 4, "GRAB ConTRoL Register");
 			FieldValue("Rising or Falling edge", 2);
 			FieldValue("Level HI ", 3);
 			FieldValue("Level LO", 4);
-			FieldValue("RESERVED", 5);
+			FieldValue("Internal Programmable Timer Trigger", 5);
 			FieldValue("RESERVED", 6);
 			FieldValue("RESERVED", 7);
 		Field("trigger_src", 10, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER SouRCe");
@@ -402,6 +402,16 @@ Register("acq_sfnc", 0x2c0, 4, "null");
 		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
 			FieldValue("", 0);
 			FieldValue("", 1);
+
+Register("timer_ctrl", 0x2d0, 4, "null");
+		Field("timerstop", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("timerstart", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("timer_delay", 0x2d4, 4, "null");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("timer_duration", 0x2d8, 4, "null");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
 % SECTION NAME	: HISPI

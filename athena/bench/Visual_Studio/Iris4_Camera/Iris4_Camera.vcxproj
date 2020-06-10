@@ -171,6 +171,7 @@
     <ClCompile Include="source\XGS_Ctrl.cpp" />
     <ClCompile Include="source\XGS_Data.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />
+    <ClCompile Include="tests\test_0003_HW_Timer.cpp" />
     <ClCompile Include="tests\test_0001_SWtrig.cpp" />
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
   </ItemGroup>
