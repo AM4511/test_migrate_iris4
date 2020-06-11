@@ -186,7 +186,6 @@ Register("readout_cfg3", 0x120, 4, "null");
 		Field("line_time", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
 
 Register("readout_cfg4", 0x124, 4, "null");
-		Field("keep_out_trig_end", 31, 16, "rd|wr", 0x0, 0x16d, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("exp_ctrl1", 0x128, 4, "null");

@@ -12,7 +12,9 @@
 #include <math.h>
 #include <Windows.h>
 
+#include <string>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 #include <mil.h>
@@ -139,32 +141,43 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    // TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
 	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
 
-	// GTR image plane position testing in preparation for GTX
-	// abeaudoi - april 2020
+	// GTX image plane position testing in preparation for GTX
+	// abeaudoi - june 2020
 
 	/*
 	The goal is to take a sequence of images with different exposure times.
+	We do this several times with various numbers of shims between the sensor board and the
+	case+lens to see the effect of image quality.
 	To ease the post processing we want to encode information in the file names.
-	File name structure : [prefix]_[middlefix]_[exposuretime].tiff
-	prefix : context info like lens type, datetime
-	middlefix : idealy encode the number of shims used a dot separeted int values in 1/1000 inch.
+	File name structure : [some general name]_[some specific info]_[exposuretime].tiff
+	
+	-some general name : something like the date and setup information
+	
+	-some specific info : idealy encode the number of shims used a dot separeted int values in 1/1000 inch.
 	ex: no shim would be "0", 2 10/1000" inch and a 5/5000" shims stacked would be "10.10.5".
 	This will later be parsed by the processing function.
-	exposuretime : exposure time in milliseconds
+	
+	-exposuretime : exposure time in milliseconds
 
-	For a given sequence the prefix does not change, the middlefix is changed for each image sequence.
-	The values for exposure time are hardcoded and the same for every sequence.
+	The exposure time values are asked every time, the file name corresponding to the 
+	[some general name]_[some specific info]
+	part of the filename also.
+
+	I use wstrings instead of strings everywhere because thats the only I could get dynamic string names into
+	file names.
+
 	*/
-	MIL_TEXT_CHAR FileName[50];
 
-	//std::string prefix;
-	std::string middlefix;
+	//mil stuff
+	MIL_TEXT_CHAR FileName[50];	
 
-	// prefix is set once
-	//std::cin.ignore();
-	//std::cout << "filename prefix : ";
-	//std::getline(std::cin, prefix);
-	//std::cout << prefix << std::endl;
+	std::wstring imagefilename;	
+	std::wstring quit_character = L"q";	// to quit the loop
+
+	std::wstring fullfilename;
+	std::wstring f_str;
+
+	const wchar_t* fullfilename2;
 
 
 	printf("\nEnter the Base Exposure in us : ");
@@ -175,26 +188,13 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n");
 
 	// get the first middlefix
-	std::cout << "filename middlefix (press q to quit) : ";
-	std::getline(std::cin, middlefix);
-	std::cout << middlefix << std::endl;
-	string s_middlefix = middlefix;
+	std::cin.ignore();
+    std::cout << "filename (press q to quit) : ";
+	std::getline(std::wcin, imagefilename);
 
-	// use "q" to stop acquisition
-	while (middlefix != "q")
+	
+	while (imagefilename != quit_character)
 	{
-
-		//std::string filename_part1;
-		//std::string filename;
-		//std::string path_prefix;
-		//std::string path;
-		//
-		//std::string exp_time_str;
-
-		// messing around to build filenames and paths
-		//filename_part1.append(prefix);
-		//filename_part1.append("_");
-		//filename_part1.append(middlefix);
 
 		M_UINT32 exp_time_1 = ExposureBase;
 		M_UINT32 exp_time_2 = ExposureBase+(ExposureIncr);
@@ -203,7 +203,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		M_UINT32 exp_time_5 = ExposureBase+(ExposureIncr*4);
 
 		// grabs and file save for every exposure time in the sequence.
-		//exp_time_str = std::to_string(exp_time_1);
+
 
 		XGS_Ctrl->setExposure(exp_time_1);                 //Exposure in us		
 		XGS_Data->SetDMA();
@@ -211,15 +211,21 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
 		XGS_Ctrl->WaitEndExpReadout();
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-
-
-		MosSprintf(FileName, 50, MIL_TEXT("img_%d.tiff"), exp_time_1);
+        
+        // lines below for silly conversion and append
+		fullfilename = imagefilename;
+		fullfilename += L"_";
+		f_str = std::to_wstring(exp_time_1);
+		fullfilename += f_str;
+		fullfilename += L".tiff";
+		fullfilename2 = fullfilename.c_str();
+		
+	    MosSprintf(FileName, 50, fullfilename2);
 		printf("\nPrinting .tiff file: %S\n", FileName);
 		MbufSave(FileName, MilGrabBuffer);
 		//      Sleep(2000);
 
 		// grabs and file save for every exposure time in the sequence.
-		//exp_time_str = std::to_string(exp_time_2);
 
 		XGS_Ctrl->setExposure(exp_time_2);                 //Exposure in us		
 		XGS_Data->SetDMA();
@@ -229,7 +235,15 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
 
-		MosSprintf(FileName, 50, MIL_TEXT("img_%d.tiff"), exp_time_2);
+		// lines below for silly conversion and append
+		fullfilename = imagefilename;
+		fullfilename += L"_";
+		f_str = std::to_wstring(exp_time_2);
+		fullfilename += f_str;
+		fullfilename += L".tiff";
+		fullfilename2 = fullfilename.c_str();
+
+		MosSprintf(FileName, 50, fullfilename2);
 		printf("\nPrinting .tiff file: %S\n", FileName);
 		MbufSave(FileName, MilGrabBuffer);
 		//      Sleep(2000);
@@ -245,7 +259,15 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
 
-		MosSprintf(FileName, 50, MIL_TEXT("img_%d.tiff"), exp_time_3);
+		// lines below for silly conversion and append
+		fullfilename = imagefilename;
+		fullfilename += L"_";
+		f_str = std::to_wstring(exp_time_3);
+		fullfilename += f_str;
+		fullfilename += L".tiff";
+		fullfilename2 = fullfilename.c_str();
+
+		MosSprintf(FileName, 50, fullfilename2);
 		printf("\nPrinting .tiff file: %S\n", FileName);
 		MbufSave(FileName, MilGrabBuffer);
 		//      Sleep(2000);
@@ -261,7 +283,15 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
 
-		MosSprintf(FileName, 50, MIL_TEXT("img_%d.tiff"), exp_time_4);
+		// lines below for silly conversion and append
+		fullfilename = imagefilename;
+		fullfilename += L"_";
+		f_str = std::to_wstring(exp_time_4);
+		fullfilename += f_str;
+		fullfilename += L".tiff";
+		fullfilename2 = fullfilename.c_str();
+
+		MosSprintf(FileName, 50, fullfilename2);
 		printf("\nPrinting .tiff file: %S\n", FileName);
 		MbufSave(FileName, MilGrabBuffer);
 		//      Sleep(2000);
@@ -277,22 +307,27 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
 
-		MosSprintf(FileName, 50, MIL_TEXT("img_%d.tiff"), exp_time_5);
+		// lines below for silly conversion and append
+		fullfilename = imagefilename;
+		fullfilename += L"_";
+		f_str = std::to_wstring(exp_time_5);
+		fullfilename += f_str;
+		fullfilename += L".tiff";
+		fullfilename2 = fullfilename.c_str();
+
+		MosSprintf(FileName, 50, fullfilename2);
 		printf("\nPrinting .tiff file: %S\n", FileName);
 		MbufSave(FileName, MilGrabBuffer);
 		//      Sleep(2000);
 
-		std::cout << "filename middlefix (press q to quit) : ";
-		std::getline(std::cin, middlefix);
-		//std::cout << middlefix << std::endl;
+
+	    std::cout << "filename middlefix (press q to quit) : ";
+		std::getline(std::wcin, imagefilename);
+
 
 	}
 
-
-	printf("\n\nFINI!\n\n");
-
-
-	   
+   
 
 	//------------------------------
 	// Free MIL Display

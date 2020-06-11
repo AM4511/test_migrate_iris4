@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/06/10 10:59:42
+-- Created on          : 2020/06/11 16:15:35
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x5E078809
+-- Register file CRC32 : 0x15F8352
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -463,12 +463,10 @@ package regfile_xgs_athena_pack is
    -- Register Name: READOUT_CFG4
    ------------------------------------------------------------------------------------------
    type ACQ_READOUT_CFG4_TYPE is record
-      KEEP_OUT_TRIG_END: std_logic_vector(15 downto 0);
       KEEP_OUT_TRIG_START: std_logic_vector(15 downto 0);
    end record ACQ_READOUT_CFG4_TYPE;
 
    constant INIT_ACQ_READOUT_CFG4_TYPE : ACQ_READOUT_CFG4_TYPE := (
-      KEEP_OUT_TRIG_END => (others=> 'Z'),
       KEEP_OUT_TRIG_START => (others=> 'Z')
    );
 
@@ -2007,7 +2005,6 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 16) := reg.KEEP_OUT_TRIG_END;
       output(15 downto 0) := reg.KEEP_OUT_TRIG_START;
       return output;
    end to_std_logic_vector;
@@ -2019,7 +2016,6 @@ package body regfile_xgs_athena_pack is
    function to_ACQ_READOUT_CFG4_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_READOUT_CFG4_TYPE is
    variable output : ACQ_READOUT_CFG4_TYPE;
    begin
-      output.KEEP_OUT_TRIG_END := stdlv(31 downto 16);
       output.KEEP_OUT_TRIG_START := stdlv(15 downto 0);
       return output;
    end to_ACQ_READOUT_CFG4_TYPE;
@@ -3161,11 +3157,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/06/10 10:59:42
+-- Created on          : 2020/06/11 16:15:35
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x5E078809
+-- Register file CRC32 : 0x15F8352
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3315,7 +3311,6 @@ signal field_rw_ACQ_READOUT_CFG1_FOT_LENGTH                        : std_logic_v
 signal field_rw_ACQ_READOUT_CFG_FRAME_LINE_DUMMY_LINES             : std_logic_vector(7 downto 0);                    -- Field: DUMMY_LINES
 signal field_rw_ACQ_READOUT_CFG3_KEEP_OUT_TRIG_ENA                 : std_logic;                                       -- Field: KEEP_OUT_TRIG_ENA
 signal field_rw_ACQ_READOUT_CFG3_LINE_TIME                         : std_logic_vector(15 downto 0);                   -- Field: LINE_TIME
-signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END                 : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_END
 signal field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_START               : std_logic_vector(15 downto 0);                   -- Field: KEEP_OUT_TRIG_START
 signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_LEV_MODE                    : std_logic;                                       -- Field: EXPOSURE_LEV_MODE
 signal field_rw_ACQ_EXP_CTRL1_EXPOSURE_SS                          : std_logic_vector(27 downto 0);                   -- Field: EXPOSURE_SS
@@ -5042,32 +5037,6 @@ end process P_ACQ_READOUT_CFG3_LINE_TIME;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(20) <= (hit(20)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: KEEP_OUT_TRIG_END(31 downto 16)
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_ACQ_READOUT_CFG4(31 downto 16) <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(15 downto 0);
-regfile.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_END <= field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(15 downto 0);
-
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END
-------------------------------------------------------------------------------------------
-P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END <= std_logic_vector(to_unsigned(integer(365),16));
-      else
-         for j in  31 downto 16  loop
-            if(wEn(20) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END(j-16) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_ACQ_READOUT_CFG4_KEEP_OUT_TRIG_END;
 
 ------------------------------------------------------------------------------------------
 -- Field name: KEEP_OUT_TRIG_START(15 downto 0)

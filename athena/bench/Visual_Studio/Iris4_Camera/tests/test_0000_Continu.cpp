@@ -134,7 +134,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(4) <= readout_cntr_EO_FOT;
 	//debug_ctrl16_int(5) <= curr_trig0;
 	//debug_ctrl16_int(6) <= strobe;
-	//debug_ctrl16_int(7) <= FOT;
+	//debug_ctrl16_int(7) <= strobe;
 	//debug_ctrl16_int(8) <= readout;
 	//debug_ctrl16_int(9) <= readout_stateD;
 	//debug_ctrl16_int(10) <= readout_cntr2_armed;
@@ -143,9 +143,13 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
-	
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; 
-
+	//debug_ctrl32_int(16) <= xgs_monitor2_metasync;
+	//debug_ctrl32_int(17) <= keep_out_zone;
+	//debug_ctrl32_int(18) <= xgs_trig_int_delayed;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 31; 
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 5;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 17;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 18;
 
 	//---------------------
 	// START GRAB 

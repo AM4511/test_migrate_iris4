@@ -152,10 +152,10 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
-	
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 10; 
-
-
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 31;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 5;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 17;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 18;
 	//---------------------
 	// START GRAB 
 	//---------------------

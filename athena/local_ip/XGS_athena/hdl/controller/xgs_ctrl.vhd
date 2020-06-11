@@ -407,12 +407,11 @@ architecture functional of xgs_ctrl is
   attribute ASYNC_REG of xgs_monitor1_p1  : signal is "TRUE";
   attribute ASYNC_REG of xgs_FOT          : signal is "TRUE";
 
-  signal  xgs_monitor2_p1  : std_logic;
-  signal  XGS_NEW_LINE     : std_logic;
-  signal  XGS_NEW_LINE_p1  : std_logic;
+  signal  xgs_monitor2_meta      : std_logic;
+  signal  xgs_monitor2_metasync  : std_logic;
  
-  attribute ASYNC_REG of xgs_monitor2_p1  : signal is "TRUE";
-  attribute ASYNC_REG of XGS_NEW_LINE     : signal is "TRUE";
+  --attribute ASYNC_REG of xgs_monitor2_p1  : signal is "TRUE";
+  --attribute ASYNC_REG of XGS_NEW_LINE     : signal is "TRUE";
   
   
 
@@ -557,7 +556,7 @@ signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 
 
-signal debug_ctrl16_int : std_logic_vector(15 downto 0);
+signal debug_ctrl32_int : std_logic_vector(31 downto 0):=(others=>'0');
 
 
 -----------------------------------------------------
@@ -1859,15 +1858,6 @@ BEGIN
         
       end if;
    
-      if(sys_reset_n='0') then
-        xgs_monitor2_p1  <= '0';
-        XGS_NEW_LINE     <= '0';
-        XGS_NEW_LINE_p1  <= '0';
-      else
-        xgs_monitor2_p1  <= xgs_monitor2;
-        XGS_NEW_LINE     <= xgs_monitor2_p1;
-        XGS_NEW_LINE_p1  <= XGS_NEW_LINE;
-      end if;
    
       if(sys_reset_n='0') then
         exposure_cntr <= (others=> '0');      
@@ -2059,27 +2049,32 @@ BEGIN
   -- DEBUG PINS
   --
   -------------------------------------------------------------------------------
-  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
-  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
-  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
-  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
-  debug_ctrl16_int(5)  <=  curr_trig0;
-  debug_ctrl16_int(6)  <=  strobe;
-  debug_ctrl16_int(7)  <=  FOT;
-  debug_ctrl16_int(8)  <=  readout;
-  debug_ctrl16_int(9)  <=  readout_stateD;
-  debug_ctrl16_int(10) <=  readout_cntr2_armed;
-  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
-  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
-  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
-  debug_ctrl16_int(14) <=  grab_pending;
-  debug_ctrl16_int(15) <=  grab_active;
+  debug_ctrl32_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl32_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl32_int(2)  <=  grab_mngr_trig_rdy;
+  debug_ctrl32_int(3)  <=  readout_cntr_FOT;         
+  debug_ctrl32_int(4)  <=  readout_cntr_EO_FOT;
+  debug_ctrl32_int(5)  <=  curr_trig0;
+  debug_ctrl32_int(6)  <=  strobe;
+  debug_ctrl32_int(7)  <=  FOT;
+  debug_ctrl32_int(8)  <=  readout;
+  debug_ctrl32_int(9)  <=  readout_stateD;
+  debug_ctrl32_int(10) <=  readout_cntr2_armed;
+  debug_ctrl32_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+  debug_ctrl32_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+  debug_ctrl32_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+  debug_ctrl32_int(14) <=  grab_pending;
+  debug_ctrl32_int(15) <=  grab_active;
+  debug_ctrl32_int(16) <=  xgs_monitor2_metasync;   
+  debug_ctrl32_int(17) <=  keep_out_zone;
+  debug_ctrl32_int(18) <=  xgs_trig_int_delayed;
 
-  debug_int(0) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
-  debug_int(1) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(3 downto 0) ));
-  debug_int(2) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(3 downto 0) ));
-  debug_int(3) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(3 downto 0) ));
+
+
+  debug_int(0) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(4 downto 0) ));
+  debug_int(1) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(4 downto 0) ));
+  debug_int(2) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(4 downto 0) ));
+  debug_int(3) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(4 downto 0) ));
       
   
   -- output ff
@@ -2297,22 +2292,37 @@ BEGIN
   -- Need to synchronize triger_int with new_line
   -- in a 100ns window
   ----------------------------------------------
-  process(sys_clk)
+
+  -- Reset bridge for synchronize the deassertion of async reset (xgs_monitor2_metasync)
+  process(sys_clk, xgs_monitor2)
   begin
-    if(rising_edge(sys_clk)) then
+    if(xgs_monitor2='1') then 
+	  xgs_monitor2_meta     <= '1';
+	  xgs_monitor2_metasync <= '1';
+    elsif(rising_edge(sys_clk)) then 
+      xgs_monitor2_meta     <= '0';
+	  xgs_monitor2_metasync <= xgs_monitor2_meta;
+    end if;
+  end process;
+  
+  
+  
+  process(sys_clk, xgs_monitor2_metasync)
+  begin
+    if(xgs_monitor2_metasync='1') then
+	  keep_out_zone_cntr <= (others=>'0');
+      keep_out_zone      <=  '1';
+    elsif(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
         keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';     
-      elsif(XGS_NEW_LINE='0' and XGS_NEW_LINE_p1='1') then --On falling edge start the counter for trigger keep-out zone
-        keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';
-      elsif(keep_out_zone='0' and keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START) then 
-        keep_out_zone_cntr <= (others=>'0');        
+        keep_out_zone      <=  '0';  
+      elsif(keep_out_zone='1' and keep_out_zone_cntr = X"0000") then   --reset keep zone when detected falling of monitor2 signal resync
+        keep_out_zone_cntr <= keep_out_zone_cntr + '1';        
+        keep_out_zone      <=  '0';		
+      elsif(keep_out_zone='0' and keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START) then -- we are in keepout zone, waiting for new_line signal
+        keep_out_zone_cntr <= keep_out_zone_cntr;        
         keep_out_zone      <=  '1';
-      elsif(keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_END) then   --j'enleve ici le keep_out_zone=1, ce registre va donc reseter la zone lorsque le compteur va atteindre le compteur
-        keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';     
-      else  
+      elsif(keep_out_zone='0') then   
         keep_out_zone_cntr <= keep_out_zone_cntr+'1';
         keep_out_zone      <= keep_out_zone;        
       end if;

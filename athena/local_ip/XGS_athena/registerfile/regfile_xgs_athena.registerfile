@@ -234,7 +234,6 @@
       </fields>
     </registers>
     <registers name="READOUT_CFG4" offsetFromParent="24">
-      <fields name="KEEP_OUT_TRIG_END" description="During the line time, this register indicates the end of the trigger keep-out  zone." lsb="16" size="16" valueAtReset="16d"/>
       <fields name="KEEP_OUT_TRIG_START" description="During the line time, this register indicates the start of the trigger keep-out  zone." size="16" valueAtReset="16e"/>
     </registers>
     <registers name="EXP_CTRL1" offsetFromParent="28" useReservedSpaceBelow="true">
