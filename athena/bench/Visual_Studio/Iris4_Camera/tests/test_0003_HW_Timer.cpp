@@ -21,7 +21,7 @@ using namespace std;
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
 
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
@@ -37,6 +37,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	int PolldoSleep =0;
 	bool FPS_On     = true;
 
+	M_UINT32 Tmissed;
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
 	M_UINT32 XGSSize_Y = 0;
@@ -53,7 +54,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 FileDumpNum = 0;
 
 	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0000.cpp    *\n");
+	printf(    "*    Executing Test0003.cpp    *\n");
 	printf(    "********************************\n\n");
 
 
@@ -107,9 +108,17 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
-	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
+	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO, TIMER 
+	XGS_Ctrl->SetGrabMode(HW_TRIG, TIMER);
 
+
+	//---------------------
+    // Programming HW TIMER
+    //---------------------
+	double FPS = 10.0;
+	XGS_Ctrl->StartHWTimerFPS(FPS);
+
+	XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_RST = 1;
 
 	//---------------------
     // DMA PARAMETERS
@@ -134,7 +143,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(4) <= readout_cntr_EO_FOT;
 	//debug_ctrl16_int(5) <= curr_trig0;
 	//debug_ctrl16_int(6) <= strobe;
-	//debug_ctrl16_int(7) <= strobe;
+	//debug_ctrl16_int(7) <= FOT;
 	//debug_ctrl16_int(8) <= readout;
 	//debug_ctrl16_int(9) <= readout_stateD;
 	//debug_ctrl16_int(10) <= readout_cntr2_armed;
@@ -143,14 +152,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	//debug_ctrl16_int(14) <= grab_pending;
 	//debug_ctrl16_int(15) <= grab_active;
-	//debug_ctrl32_int(16) <= xgs_monitor2_metasync;
-	//debug_ctrl32_int(17) <= keep_out_zone;
-	//debug_ctrl32_int(18) <= xgs_trig_int_delayed;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 31; 
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 31;
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 5;
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 17;
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 18;
-
 	//---------------------
 	// START GRAB 
 	//---------------------
@@ -169,6 +174,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (r) Read current ROI configuration in XGS");
 	printf("\n  (S) Subsampling mode");
 	printf("\n  (D) Disable Image Display transfer (Max fps)");
+	printf("\n  (C) Change Framerate");
 	printf("\n\n");
 
 	unsigned long fps_reg;
@@ -212,8 +218,11 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
 			);
 		}
-
+		Tmissed = XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR;
+		if (Tmissed != 0)
+			printf("Tmissed = %d ", Tmissed);
 		
+
 	
 		if (DisplayOn)
 		//{
@@ -234,6 +243,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
+				XGS_Ctrl->StopHWTimer();
 				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
 				printf("\n\n");
@@ -400,6 +410,16 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					DisplayOn = FALSE;
 				else
 					DisplayOn = TRUE;
+				break;
+
+
+			case 'C':
+				XGS_Ctrl->StopHWTimer();
+				XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR = 1;
+				cout << "\n\nEnter the new FrameRate (FPS, can be decimal) : ";
+				scanf_s("%lf", &FPS);
+				XGS_Ctrl->StartHWTimerFPS(FPS);
+				cout << "\n";
 				break;
 
 			}

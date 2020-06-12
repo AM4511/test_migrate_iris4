@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x834CDAB
+* Register file CRC32 : 0xB0675DB7
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -81,6 +81,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_ADDRESS                0x2A8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_ADDRESS                    0x2B8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_ADDRESS                   0x2C0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_ADDRESS                 0x2D0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DELAY_ADDRESS                0x2D4
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DURATION_ADDRESS             0x2D8
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_ADDRESS                     0x400
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS                   0x404
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x408
@@ -484,9 +487,8 @@ typedef union
 
    struct
    {
-      M_UINT32 LINE_TIME         : 16;  /* Bits(15:0), LINE TIME */
-      M_UINT32 KEEP_OUT_TRIG_ENA : 1;   /* Bits(16:16), null */
-      M_UINT32 RSVD0             : 15;  /* Bits(31:17), Reserved */
+      M_UINT32 LINE_TIME : 16;  /* Bits(15:0), LINE TIME */
+      M_UINT32 RSVD0     : 16;  /* Bits(31:16), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG3_TYPE;
@@ -504,7 +506,8 @@ typedef union
    struct
    {
       M_UINT32 KEEP_OUT_TRIG_START : 16;  /* Bits(15:0), null */
-      M_UINT32 KEEP_OUT_TRIG_END   : 16;  /* Bits(31:16), null */
+      M_UINT32 KEEP_OUT_TRIG_ENA   : 1;   /* Bits(16:16), null */
+      M_UINT32 RSVD0               : 15;  /* Bits(31:17), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG4_TYPE;
@@ -1169,6 +1172,60 @@ typedef union
 
 
 /**************************************************************************
+* Register name : TIMER_CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 TIMERSTART : 1;   /* Bits(0:0), null */
+      M_UINT32 RSVD0      : 3;   /* Bits(3:1), Reserved */
+      M_UINT32 TIMERSTOP  : 1;   /* Bits(4:4), null */
+      M_UINT32 RSVD1      : 27;  /* Bits(31:5), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : TIMER_DELAY
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 VALUE : 32;  /* Bits(31:0), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DELAY_TYPE;
+
+
+/**************************************************************************
+* Register name : TIMER_DURATION
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 VALUE : 32;  /* Bits(31:0), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DURATION_TYPE;
+
+
+/**************************************************************************
 * Register name : CTRL
 ***************************************************************************/
 typedef union
@@ -1406,6 +1463,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_TYPE            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_TYPE                EXP_FOT;                 /* Address offset: 0x1b8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_TYPE               ACQ_SFNC;                /* Address offset: 0x1c0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_TYPE             TIMER_CTRL;              /* Address offset: 0x1d0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DELAY_TYPE            TIMER_DELAY;             /* Address offset: 0x1d4 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_DURATION_TYPE         TIMER_DURATION;          /* Address offset: 0x1d8 */
 } FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE;
 
 /**************************************************************************
@@ -1433,7 +1493,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE    DMA;        /* Section; Base address offset: 0x70 */
    M_UINT32                            RSVD1[22];  /* Padding; Size (88 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE    ACQ;        /* Section; Base address offset: 0x100 */
-   M_UINT32                            RSVD2[76];  /* Padding; Size (304 Bytes) */
+   M_UINT32                            RSVD2[73];  /* Padding; Size (292 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE  HISPI;      /* Section; Base address offset: 0x400 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

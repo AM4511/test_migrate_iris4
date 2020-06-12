@@ -3,4 +3,5 @@ Debug/**
 x64/**
 XGS_CTRL*.txt
 Images_dump/**
+*.tiff
 

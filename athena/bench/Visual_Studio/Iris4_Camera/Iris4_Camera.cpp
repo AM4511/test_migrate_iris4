@@ -42,7 +42,9 @@ void Help(CXGS_Ctrl* Camera);
 void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
+void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 /* Main function. */
 int main(void)
@@ -246,6 +248,18 @@ int main(void)
 				Help(XGS_Ctrl);
 				break;
 
+			case '3':
+				test_0003_HW_Timer(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
+			case '9':
+				test_0009_Optics(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
 			case 'e':
 				XGS_Ctrl->InitXGS();      //unreset, enable clk and load DCF
 				printf("\n\n");
@@ -264,6 +278,8 @@ int main(void)
             
 			case 's':
 				Pcie->Read_QSPI_ID();
+				for(int i=0; i<16; i++)
+				  printf ("0x%08X 0x%08X\n", i*4, Pcie->Read_QSPI_DW(i*4) );
 				break;
 
 			}
@@ -301,13 +317,16 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n------------------------------------------------------------------------------");
 	printf("\n");
 	XGS_Ctrl->PrintTime();
-	printf("\n  IRIS 4 - MENU ");
+	printf("\n  JDK - Bench IRIS 4 - MENU ");
 	printf("\n");
 	printf("\n  (q) Quit the app");
 	printf("\n");
 	printf("\n  (0) Grab Test Continu");
 	printf("\n  (1) Grab Test SW trig - Manual");
 	printf("\n  (2) Grab Test Continu, 2x Host Buffers");
+	printf("\n  (3) Grab Test HW, Src is HW Timer");
+	printf("\n");
+	printf("\n  (9) Grab Optics");
 	printf("\n");
 	printf("\n  (e) Enable XGS sensor (Enable clk + unreset + Load DCF)");
 	printf("\n  (d) Disable XGS sensor (Disable clk + Reset)");

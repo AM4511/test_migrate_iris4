@@ -107,7 +107,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
         0,             //TrigN_2_FOT, in ns
 		0,             //EXP_FOT;
 		0,	           //EXP_FOT_TIME;      // in ns (Total)
-
+		0xffff,        //KEEP_OUT_ZONE_START
 
 
 	};
@@ -1022,3 +1022,40 @@ void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
 	}
 }
 
+//----------------------------------------------------
+// HW TIMER PROGRAMMATION
+//----------------------------------------------------
+
+void CXGS_Ctrl::StartHWTimerFPS(double FPS) {
+
+	double FramePeriod = 1 / FPS;
+
+	double FramePeriod_clk = FramePeriod / (SystemPeriodNanoSecond / 1000000000);
+
+	M_UINT32 TIMERDURATION = (M_UINT32)FramePeriod_clk;
+
+	StartHWTimer(0, TIMERDURATION);
+
+}
+
+void CXGS_Ctrl::StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION) {
+
+	sXGSptr.ACQ.TIMER_DELAY.u32    = TIMERDELAY;
+	rXGSptr.ACQ.TIMER_DELAY.u32    = sXGSptr.ACQ.TIMER_DELAY.u32;
+
+	sXGSptr.ACQ.TIMER_DURATION.u32 = TIMERDURATION;
+	rXGSptr.ACQ.TIMER_DURATION.u32 = sXGSptr.ACQ.TIMER_DURATION.u32;
+
+	sXGSptr.ACQ.TIMER_CTRL.f.TIMERSTART = 1;
+	rXGSptr.ACQ.TIMER_CTRL.u32          = sXGSptr.ACQ.TIMER_CTRL.u32;
+	sXGSptr.ACQ.TIMER_CTRL.f.TIMERSTART = 0;
+}
+
+
+void CXGS_Ctrl::StopHWTimer(void) {
+	sXGSptr.ACQ.TIMER_CTRL.f.TIMERSTOP = 1;
+	rXGSptr.ACQ.TIMER_CTRL.u32 = sXGSptr.ACQ.TIMER_CTRL.u32;
+	sXGSptr.ACQ.TIMER_CTRL.f.TIMERSTOP = 0;
+
+
+}

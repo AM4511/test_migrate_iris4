@@ -171,8 +171,10 @@
     <ClCompile Include="source\XGS_Ctrl.cpp" />
     <ClCompile Include="source\XGS_Data.cpp" />
     <ClCompile Include="tests\test_0000_Continu.cpp" />
+    <ClCompile Include="tests\test_0003_HW_Timer.cpp" />
     <ClCompile Include="tests\test_0001_SWtrig.cpp" />
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
+    <ClCompile Include="tests\test_0009_Optics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
