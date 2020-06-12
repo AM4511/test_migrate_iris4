@@ -40,6 +40,7 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
 
    SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
+   SensorParams.KEEP_OUT_ZONE_START = 0xffff;
 
    //---------------------------------
    // Constants for XGS 16M FOT

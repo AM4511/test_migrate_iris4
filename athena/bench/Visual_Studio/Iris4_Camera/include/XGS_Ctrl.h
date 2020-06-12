@@ -72,11 +72,12 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
-	M_UINT32 Trig_2_EXP;        // in ns
-	M_UINT32 ReadOutN_2_TrigN;  // in ns
-	M_UINT32 TrigN_2_FOT;       // in ns
-	M_UINT32 EXP_FOT;           // in ns
-	M_UINT32 EXP_FOT_TIME;      // in ns (Total)
+	M_UINT32 Trig_2_EXP;          // in ns
+	M_UINT32 ReadOutN_2_TrigN;    // in ns
+	M_UINT32 TrigN_2_FOT;         // in ns
+	M_UINT32 EXP_FOT;             // in ns
+	M_UINT32 EXP_FOT_TIME;        // in ns (Total)
+	M_UINT32 KEEP_OUT_ZONE_START; // in pix clk
 	
 };
 

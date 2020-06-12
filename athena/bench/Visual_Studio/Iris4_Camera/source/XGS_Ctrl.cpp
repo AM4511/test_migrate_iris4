@@ -107,7 +107,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
         0,             //TrigN_2_FOT, in ns
 		0,             //EXP_FOT;
 		0,	           //EXP_FOT_TIME;      // in ns (Total)
-
+		0xffff,        //KEEP_OUT_ZONE_START
 
 
 	};

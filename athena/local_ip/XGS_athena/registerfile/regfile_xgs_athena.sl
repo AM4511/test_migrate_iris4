@@ -182,11 +182,11 @@ Register("readout_cfg2", 0x118, 4, "null");
 		Field("readout_length", 28, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg3", 0x120, 4, "null");
-		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("line_time", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
 
 Register("readout_cfg4", 0x124, 4, "null");
-		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0xffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_lev_mode", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE LEVel MODE");

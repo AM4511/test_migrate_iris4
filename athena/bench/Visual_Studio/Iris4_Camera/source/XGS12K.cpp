@@ -49,6 +49,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    SensorParams.EXP_FOT_TIME         = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
+   SensorParams.KEEP_OUT_ZONE_START  = 0x2bf;
 
    //---------------------------------
    // Constants for XGS 12M FOT  greg ferrel 1/04/2020
@@ -103,6 +104,8 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
 	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
 
 	//---------------------------------
 	// Constants for XGS 9.4M FOT
@@ -159,6 +162,8 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
 	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
 
 
 	//---------------------------------

@@ -112,16 +112,13 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 
 	//Enable EXP during FOT
 	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT_TIME = (M_UINT32)((double)SensorParams.EXP_FOT_TIME / SystemPeriodNanoSecond);
-	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT = 1;
-	rXGSptr.ACQ.EXP_FOT.u32 = sXGSptr.ACQ.EXP_FOT.u32;
+	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT      = 1;
+	rXGSptr.ACQ.EXP_FOT.u32            = sXGSptr.ACQ.EXP_FOT.u32;
 
 	//Trigger KeepOut zone
-	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_START = 0x2bc;   //START Keepout trigger zone (100ns)
-	rXGSptr.ACQ.READOUT_CFG4.u32 = sXGSptr.ACQ.READOUT_CFG4.u32;
-
-	// Enable trigger keepOUT zone
-	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA = 1;
-	rXGSptr.ACQ.READOUT_CFG3.u32 = sXGSptr.ACQ.READOUT_CFG3.u32;
+	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_START = SensorParams.KEEP_OUT_ZONE_START;   //START Keepout trigger zone (100ns before and during NEW_LINE monitor)
+	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_ENA   = 1;
+	rXGSptr.ACQ.READOUT_CFG4.u32                   = sXGSptr.ACQ.READOUT_CFG4.u32;
 
 	// Set FOT time (not used by fpga for the moment)
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;

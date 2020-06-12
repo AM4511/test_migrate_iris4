@@ -39,10 +39,16 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	int PolldoSleep =0;
 	bool FPS_On     = true;
 
+	M_UINT32 DefaultGain;
+	M_UINT32 DefaultBlackOffset;
+
 	M_UINT32 ExposureBase = 8000;
 	M_UINT32 ExposureIncr = 10;
-	M_UINT32 BlackOffset  = 0x100;
-	M_UINT32 XGSSize_Y = 0;
+	M_UINT32 ExposureIter = 5;
+
+	M_UINT32 exp_time     = 1000;
+
+    M_UINT32 XGSSize_Y = 0;
 
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
@@ -125,7 +131,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	printf("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
-
+	printf("\n\n");
 
 	 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -171,159 +177,60 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//mil stuff
 	MIL_TEXT_CHAR FileName[50];	
 
-	std::wstring imagefilename;	
-	std::wstring quit_character = L"q";	// to quit the loop
+	string cin_imagefilename;
+	//string cin_quit_character = "q";	// to quit the loop
+	string cin_use_old_params = "n";
 
-	std::wstring fullfilename;
-	std::wstring f_str;
+	// Get the first File name
+	std::cout << "Enter output filename (press q to quit) : ";
+	cin >> cin_imagefilename;
 
-	const wchar_t* fullfilename2;
-
-
-	printf("\nEnter the Base Exposure in us : ");
-	scanf_s("%d", &ExposureBase);
-	printf("\n");
-	printf("\nEnter the Increment Exposure in us : ");
-	scanf_s("%d", &ExposureIncr);
-	printf("\n");
-
-	// get the first middlefix
-	std::cin.ignore();
-    std::cout << "filename (press q to quit) : ";
-	std::getline(std::wcin, imagefilename);
-
-	
-	while (imagefilename != quit_character)
+	while (cin_imagefilename != "q")
 	{
+		if (cin_use_old_params == "n") {
+			printf("\nEnter default Gain(1-2-4)               : ");
+			scanf_s("%d", &DefaultGain);
+			printf("\nEnter default Balck Offset(12bit, HEX)  : 0x");
+			scanf_s("%d", &DefaultBlackOffset);
+			printf("\nEnter the Base Exposure in us           : ");
+			scanf_s("%d", &ExposureBase);
+			printf("\nEnter the Increment Exposure in us      : ");
+			scanf_s("%d", &ExposureIncr);
+			printf("\nEnter the number of iterations          : ");
+			scanf_s("%d", &ExposureIter);
+			printf("\n");
+			XGS_Ctrl->setAnalogGain(DefaultGain);
+			XGS_Ctrl->setBlackRef(DefaultBlackOffset);
+			printf("\n");
+		}
+		exp_time = ExposureBase;
 
-		M_UINT32 exp_time_1 = ExposureBase;
-		M_UINT32 exp_time_2 = ExposureBase+(ExposureIncr);
-		M_UINT32 exp_time_3 = ExposureBase+(ExposureIncr*2);
-		M_UINT32 exp_time_4 = ExposureBase+(ExposureIncr*3);
-		M_UINT32 exp_time_5 = ExposureBase+(ExposureIncr*4);
+		for (M_UINT32 iteration = 0; iteration < ExposureIter; iteration++) {
 
-		// grabs and file save for every exposure time in the sequence.
+			// grabs and file save for every exposure time in the sequence.
+			XGS_Ctrl->setExposure(exp_time);                 // Exposure in us		
+			XGS_Data->SetDMA();
+			XGS_Ctrl->SetGrabCMD(0, PolldoSleep);            // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
+			XGS_Ctrl->SW_snapshot(0);                        // Ici on poll trig_rdy avant d'envoyer le trigger
+			XGS_Ctrl->WaitEndExpReadout();
+			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
+			MosSprintf(FileName, 50, MIL_TEXT("%S_%d.tiff"), cin_imagefilename.c_str(), exp_time);
+			printf("Printing .tiff file: %S\n\n", FileName);
+			MbufSave(FileName, MilGrabBuffer);
 
-		XGS_Ctrl->setExposure(exp_time_1);                 //Exposure in us		
-		XGS_Data->SetDMA();
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
-		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
-		XGS_Ctrl->WaitEndExpReadout();
-		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-        
-        // lines below for silly conversion and append
-		fullfilename = imagefilename;
-		fullfilename += L"_";
-		f_str = std::to_wstring(exp_time_1);
-		fullfilename += f_str;
-		fullfilename += L".tiff";
-		fullfilename2 = fullfilename.c_str();
-		
-	    MosSprintf(FileName, 50, fullfilename2);
-		printf("\nPrinting .tiff file: %S\n", FileName);
-		MbufSave(FileName, MilGrabBuffer);
-		//      Sleep(2000);
+			exp_time = exp_time + ExposureIncr;
+		}
 
-		// grabs and file save for every exposure time in the sequence.
+		// Get the following File name
+		std::cout << "Enter output filename (press q to quit) : ";
+		cin >> cin_imagefilename;
 
-		XGS_Ctrl->setExposure(exp_time_2);                 //Exposure in us		
-		XGS_Data->SetDMA();
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
-		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
-		XGS_Ctrl->WaitEndExpReadout();
-		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-
-
-		// lines below for silly conversion and append
-		fullfilename = imagefilename;
-		fullfilename += L"_";
-		f_str = std::to_wstring(exp_time_2);
-		fullfilename += f_str;
-		fullfilename += L".tiff";
-		fullfilename2 = fullfilename.c_str();
-
-		MosSprintf(FileName, 50, fullfilename2);
-		printf("\nPrinting .tiff file: %S\n", FileName);
-		MbufSave(FileName, MilGrabBuffer);
-		//      Sleep(2000);
-
-		// grabs and file save for every exposure time in the sequence.
-		//exp_time_str = std::to_string(exp_time_3);
-
-		XGS_Ctrl->setExposure(exp_time_3);                 //Exposure in us		
-		XGS_Data->SetDMA();
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
-		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
-		XGS_Ctrl->WaitEndExpReadout();
-		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-
-
-		// lines below for silly conversion and append
-		fullfilename = imagefilename;
-		fullfilename += L"_";
-		f_str = std::to_wstring(exp_time_3);
-		fullfilename += f_str;
-		fullfilename += L".tiff";
-		fullfilename2 = fullfilename.c_str();
-
-		MosSprintf(FileName, 50, fullfilename2);
-		printf("\nPrinting .tiff file: %S\n", FileName);
-		MbufSave(FileName, MilGrabBuffer);
-		//      Sleep(2000);
-
-		// grabs and file save for every exposure time in the sequence.
-		//exp_time_str = std::to_string(exp_time_4);
-
-		XGS_Ctrl->setExposure(exp_time_4);                 //Exposure in us	
-		XGS_Data->SetDMA();
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
-		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
-		XGS_Ctrl->WaitEndExpReadout();
-		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-
-
-		// lines below for silly conversion and append
-		fullfilename = imagefilename;
-		fullfilename += L"_";
-		f_str = std::to_wstring(exp_time_4);
-		fullfilename += f_str;
-		fullfilename += L".tiff";
-		fullfilename2 = fullfilename.c_str();
-
-		MosSprintf(FileName, 50, fullfilename2);
-		printf("\nPrinting .tiff file: %S\n", FileName);
-		MbufSave(FileName, MilGrabBuffer);
-		//      Sleep(2000);
-
-		// grabs and file save for every exposure time in the sequence.
-		//exp_time_str = std::to_string(exp_time_5);
-
-		XGS_Ctrl->setExposure(exp_time_5);                 //Exposure in us		
-		XGS_Data->SetDMA();
-		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer, on program les paramettres de grab.
-		XGS_Ctrl->SW_snapshot(0);                     // Ici on poll trig_rdy avant d'envoyer le trigger
-		XGS_Ctrl->WaitEndExpReadout();
-		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-
-
-		// lines below for silly conversion and append
-		fullfilename = imagefilename;
-		fullfilename += L"_";
-		f_str = std::to_wstring(exp_time_5);
-		fullfilename += f_str;
-		fullfilename += L".tiff";
-		fullfilename2 = fullfilename.c_str();
-
-		MosSprintf(FileName, 50, fullfilename2);
-		printf("\nPrinting .tiff file: %S\n", FileName);
-		MbufSave(FileName, MilGrabBuffer);
-		//      Sleep(2000);
-
-
-	    std::cout << "filename middlefix (press q to quit) : ";
-		std::getline(std::wcin, imagefilename);
-
+		if (cin_imagefilename != "q") {
+			std::cout << "Use same grab parameters? (y or n) : ";
+			cin >> cin_use_old_params;
+			printf("\n");
+		}
 
 	}
 
