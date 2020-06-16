@@ -124,7 +124,7 @@ M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysi
 
 
 //----------------------------------------------------
-// Get HOST addres of buffer
+// Get HOST address of buffer
 //----------------------------------------------------
 M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer)
    {

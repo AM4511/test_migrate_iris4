@@ -257,7 +257,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->WaitEndExpReadout();
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = XGSSize_Y;
+				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;                    //1-base Here - Dois etre multiple de 4
 				break;
 
 			case 's':

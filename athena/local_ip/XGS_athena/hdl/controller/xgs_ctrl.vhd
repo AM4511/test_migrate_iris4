@@ -458,6 +458,13 @@ architecture functional of xgs_ctrl is
   signal  fps_cntr               : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
   signal  fps_cntr_db            : std_logic_vector(REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS'range);
 
+  signal  TenSec_cntr            : std_logic_vector(31 downto 0); 
+  signal  fps_cntr10_ld          : std_logic;
+  signal  fps_cntr10             : std_logic_vector(REGFILE.ACQ.SENSOR_FPS2.SENSOR_FPS'range);
+  signal  fps_cntr10_db          : std_logic_vector(REGFILE.ACQ.SENSOR_FPS2.SENSOR_FPS'range);
+
+
+
   signal fast_fps_est     : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range);
   signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range); 
   
@@ -1285,20 +1292,25 @@ BEGIN
 
 
   ----------------------------------------
-  --  FPS
+  --  Fast FPS stimation on 1s/10s
   ----------------------------------------
   process(sys_clk)
   begin
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
    
-        OneSec_cntr  <= std_logic_vector(conv_unsigned(1000000000/G_SYS_CLK_PERIOD, 28)); -- 1 SEC
-        
+        OneSec_cntr  <= std_logic_vector(conv_unsigned(1000000000/G_SYS_CLK_PERIOD, 28)); -- 1 SEC	
         fps_cntr_ld  <= '0';
         fps_cntr     <= (others=> '0');
         fps_cntr_db  <= (others=> '0');
-      else
 
+		TenSec_cntr    <=  X"2540be40";  -- 10 SEC@16ns 
+		fps_cntr10_ld  <= '0';
+        fps_cntr10     <= (others=> '0');
+        fps_cntr10_db  <= (others=> '0');
+      else
+        
+		-- 1 second counter
         if(OneSec_cntr=X"0000000") then 
           OneSec_cntr  <= std_logic_vector(conv_unsigned(1000000000/G_SYS_CLK_PERIOD, 28)); -- 1 SEC
           fps_cntr_ld  <= '1';
@@ -1317,12 +1329,31 @@ BEGIN
           fps_cntr_db <= fps_cntr;
         end if;
         
+		-- 10 second counter
+		if(TenSec_cntr=X"00000000") then 
+          TenSec_cntr  <= X"2540be40"; -- 10 SEC@16ns
+          fps_cntr10_ld  <= '1';
+        else
+          TenSec_cntr  <= TenSec_cntr-'1';        
+          fps_cntr10_ld  <= '0';
+        end if;
+        
+        if(fps_cntr10_ld='1') then
+          fps_cntr10 <= (others=>'0');
+        elsif(SO_FOT='1') then
+          fps_cntr10 <= fps_cntr10+'1';
+        end if;
+        
+        if(fps_cntr10_ld='1') then
+          fps_cntr10_db <= fps_cntr10;
+        end if;
+		
       end if;
     end if;
   end process;
 
-  REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS  <= fps_cntr_db;
-
+  REGFILE.ACQ.SENSOR_FPS.SENSOR_FPS   <= fps_cntr_db;    -- fast fps stimation on 1s interval
+  REGFILE.ACQ.SENSOR_FPS2.SENSOR_FPS  <= fps_cntr10_db;  -- slow but precise fps stimation on 10s interval
 
   ------------------------------------------
   -- Fast FPS estimate, frame length
@@ -2536,9 +2567,14 @@ BEGIN
                                       curr_timer_state <= idle;
 									  Timer_event      <= '0';
 									  SeqTimer_cntr    <= (others=>'0');
-									elsif(SeqTimer_cntr=TIMER_DURATION_DB) then 
-                                      curr_timer_state <= trig;
-                                      SeqTimer_cntr    <= (others=>'0');
+									elsif(SeqTimer_cntr=TIMER_DURATION_DB ) then 
+                                      if(grab_mngr_trig_rdy='1') then                    -- Ce timer est adaptatif si trig_rdy=0 alors il attendra
+									    curr_timer_state <= trig;                        -- qu'il devienne rdy avant d'envoyer le trigger, de cette facon on ne perdra 
+                                        SeqTimer_cntr    <= (others=>'0');               -- pas de triggers. Le compteur arrete de compter jusqu'a ce que le rdy soit a 1.
+									  else                                               -- Si l'usager programme un framerate trop haut alors le timer delayera les triggers 
+									    curr_timer_state <= wait_rdy;                    -- au lieu de les perdre.
+                                        SeqTimer_cntr    <= (others=>'0');									  
+                                      end if;									  
                                     else
                                       curr_timer_state <= count_duration; 
                                       SeqTimer_cntr    <= SeqTimer_cntr + '1';

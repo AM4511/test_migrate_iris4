@@ -43,7 +43,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-
+void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 /* Main function. */
@@ -250,6 +250,12 @@ int main(void)
 
 			case '3':
 				test_0003_HW_Timer(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
+			case '4':
+				test_0004_Continu_FPS(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;

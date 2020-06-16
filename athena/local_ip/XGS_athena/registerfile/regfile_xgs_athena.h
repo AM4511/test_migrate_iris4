@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xB0675DB7
+* Register file CRC32 : 0xFB9F90B4
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -77,6 +77,7 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS2_ADDRESS                0x1F4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_ADDRESS                      0x2A0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_ADDRESS                0x2A8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_ADDRESS                    0x2B8
@@ -1082,12 +1083,30 @@ typedef union
 
    struct
    {
-      M_UINT32 SENSOR_FPS              : 16;  /* Bits(15:0), SENSOR Frame Per Second */
-      M_UINT32 RSVD0                   : 16;  /* Bits(31:16), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[43] ;      /* Reserved space below */
+      M_UINT32 SENSOR_FPS : 16;  /* Bits(15:0), SENSOR Frame Per Second */
+      M_UINT32 RSVD0      : 16;  /* Bits(31:16), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE;
+
+
+/**************************************************************************
+* Register name : SENSOR_FPS2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 SENSOR_FPS              : 20;  /* Bits(19:0), SENSOR Frame Per Second */
+      M_UINT32 RSVD0                   : 12;  /* Bits(31:20), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[42] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS2_TYPE;
 
 
 /**************************************************************************
@@ -1459,6 +1478,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS2_TYPE            SENSOR_FPS2;             /* Address offset: 0xf4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_TYPE                  DEBUG;                   /* Address offset: 0x1a0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_TYPE            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_TYPE                EXP_FOT;                 /* Address offset: 0x1b8 */

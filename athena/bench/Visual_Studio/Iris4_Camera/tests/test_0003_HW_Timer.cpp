@@ -322,8 +322,9 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'y':
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = XGSSize_Y;
+				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
 				break;
+
 
 			case 'S':
 				XGS_Ctrl->WaitEndExpReadout();
