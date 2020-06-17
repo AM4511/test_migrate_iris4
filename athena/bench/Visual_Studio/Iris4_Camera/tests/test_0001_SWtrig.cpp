@@ -68,7 +68,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2* SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1* SensorParams->Ysize_Full, MonoType);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
 
@@ -107,7 +107,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->PrintTime();
 
 	//------------------------------------
-	//  XGS Ctrl Debug pin in Xcelerator
+	//  XGS Ctrl Debug pin
 	//------------------------------------
 	// debug_pin(0) <= xgs_exposure;
 	// debug_pin(1) <= xgs_FOT;     
@@ -125,10 +125,10 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// debug_pin(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
 	// debug_pin(14) <= grab_pending;
 	// debug_pin(15) <= grab_active;
-
-	// In Xcelerator(7c706) USERCLK_P connected to TRING_INT
-	// In Xcelerator(7c706) USERCLK_N connected to DEBUG_OUT(0)
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 8;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 31;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 5;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 17;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 18;
 
 	//---------------------
 	// START GRAB 

@@ -10,8 +10,8 @@ using namespace std;
 
 
 
-enum TRIGGER_SRC { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4 };
-enum TRIGGER_ACT { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4 };
+enum TRIGGER_SRC { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
+enum TRIGGER_ACT { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
 enum LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
 
 struct GrabParamStruct
@@ -72,11 +72,12 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
-	M_UINT32 Trig_2_EXP;        // in ns
-	M_UINT32 ReadOutN_2_TrigN;  // in ns
-	M_UINT32 TrigN_2_FOT;       // in ns
-	M_UINT32 EXP_FOT;           // in ns
-	M_UINT32 EXP_FOT_TIME;      // in ns (Total)
+	M_UINT32 Trig_2_EXP;          // in ns
+	M_UINT32 ReadOutN_2_TrigN;    // in ns
+	M_UINT32 TrigN_2_FOT;         // in ns
+	M_UINT32 EXP_FOT;             // in ns
+	M_UINT32 EXP_FOT_TIME;        // in ns (Total)
+	M_UINT32 KEEP_OUT_ZONE_START; // in pix clk
 	
 };
 
@@ -141,6 +142,10 @@ public:
 
 	void XGS_PCIeCtrl_DumpFile(void);
 
+	void StartHWTimerFPS(double FPS);
+	void StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION);
+	void StopHWTimer(void);
+
 private:
 	
 	//Common for all DCF
@@ -163,6 +168,10 @@ private:
 	void XGS12M_LoadDCF(int lanes);
 	void XGS12M_Check_otpm_depended_uploads(void);
 	void XGS12M_Enable6lanes(void);
+	void XGS12M_Req_Reg_Up_0(void);
+	void XGS12M_Req_Reg_Up_2(void);
+	void XGS12M_Timing_Up(void);
+
 
 
 	//XGS 5/3/1.3

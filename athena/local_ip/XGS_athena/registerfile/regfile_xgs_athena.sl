@@ -119,7 +119,7 @@ Register("grab_ctrl", 0x100, 4, "GRAB ConTRoL Register");
 			FieldValue("Rising or Falling edge", 2);
 			FieldValue("Level HI ", 3);
 			FieldValue("Level LO", 4);
-			FieldValue("RESERVED", 5);
+			FieldValue("Internal Programmable Timer Trigger", 5);
 			FieldValue("RESERVED", 6);
 			FieldValue("RESERVED", 7);
 		Field("trigger_src", 10, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "TRIGGER SouRCe");
@@ -182,12 +182,11 @@ Register("readout_cfg2", 0x118, 4, "null");
 		Field("readout_length", 28, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("readout_cfg3", 0x120, 4, "null");
-		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("line_time", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "LINE TIME");
 
 Register("readout_cfg4", 0x124, 4, "null");
-		Field("keep_out_trig_end", 31, 16, "rd|wr", 0x0, 0x16d, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0x16e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_ena", 16, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("keep_out_trig_start", 15, 0, "rd|wr", 0x0, 0xffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("exp_ctrl1", 0x128, 4, "null");
 		Field("exposure_lev_mode", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPOSURE LEVel MODE");
@@ -377,9 +376,6 @@ Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
 Register("debug", 0x2a0, 4, "null");
-		Field("fpga_7c706", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-			FieldValue("Artix fpga", 0);
-			FieldValue("Zynq fpga", 1);
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
 			FieldValue("Reset counters", 1);
@@ -405,6 +401,16 @@ Register("acq_sfnc", 0x2c0, 4, "null");
 		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
 			FieldValue("", 0);
 			FieldValue("", 1);
+
+Register("timer_ctrl", 0x2d0, 4, "null");
+		Field("timerstop", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("timerstart", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("timer_delay", 0x2d4, 4, "null");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("timer_duration", 0x2d8, 4, "null");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
 % SECTION NAME	: HISPI

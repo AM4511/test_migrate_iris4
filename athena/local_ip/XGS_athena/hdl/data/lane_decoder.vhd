@@ -96,9 +96,10 @@ architecture rtl of lane_decoder is
       ---------------------------------------------------------------------------
       -- Pixel clock domain
       ---------------------------------------------------------------------------
-      pclk            : in  std_logic;
-      pclk_bit_locked : out std_logic;
-      pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+      pclk                : in  std_logic;
+      pclk_idle_detect_en : in  std_logic;
+      pclk_bit_locked     : out std_logic;
+      pclk_data           : out std_logic_vector(PIXEL_SIZE-1 downto 0)
       );
   end component;
 
@@ -206,6 +207,7 @@ architecture rtl of lane_decoder is
   signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
   signal pclk_crc_enable         : std_logic                                     := '1';
   signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
+  signal pclk_idle_detect_en     : std_logic := '1';
 
   signal sclk_fifo_empty_int : std_logic;
   signal sclk_fifo_underrun  : std_logic;
@@ -222,7 +224,7 @@ architecture rtl of lane_decoder is
   signal rclk_cal_error       : std_logic;
   signal rclk_bit_locked      : std_logic;
   signal rclk_bit_locked_fall : std_logic;
-  
+
   signal async_idle_character : std_logic_vector(PIXEL_SIZE-1 downto 0);
 
   -----------------------------------------------------------------------------
@@ -277,7 +279,7 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_packer_3           : signal is "true";
   attribute mark_debug of pclk_crc_enable         : signal is "true";
   attribute mark_debug of pclk_tap_histogram      : signal is "true";
-
+  attribute mark_debug of pclk_idle_detect_en     : signal is "true";
 
   attribute mark_debug of sclk_reset                : signal is "true";
   attribute mark_debug of sclk_fifo_empty_int       : signal is "true";
@@ -295,7 +297,7 @@ begin
 
   async_idle_character <= regfile.HISPI.IDLE_CHARACTER.VALUE;
 
-                         
+
   -----------------------------------------------------------------------------
   -- Process     : P_pclk_reset
   -- Description : Resynchronize hclk_reset on the pixel clock
@@ -325,13 +327,14 @@ begin
       PIXEL_SIZE       => PIXEL_SIZE
       )
     port map(
-      hclk            => hclk,
-      hclk_reset      => hclk_reset,
-      hclk_data_lane  => hclk_data_lane,
-      hclk_idle_char  => async_idle_character,  -- Falsepath
-      pclk            => pclk,
-      pclk_bit_locked => pclk_bit_locked,
-      pclk_data       => pclk_data
+      hclk                => hclk,
+      hclk_reset          => hclk_reset,
+      hclk_data_lane      => hclk_data_lane,
+      hclk_idle_char      => async_idle_character,  -- Falsepath
+      pclk                => pclk,
+      pclk_idle_detect_en => pclk_idle_detect_en,
+      pclk_bit_locked     => pclk_bit_locked,
+      pclk_data           => pclk_data
       );
 
 
@@ -769,6 +772,33 @@ begin
   pclk_sync_error <= '1' when (pclk_state = S_ERROR) else
                      '0';
 
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_idle_detect_en
+  -- Description : We always detect idle character except during S_AIL. Pixel
+  --               values can provocate false idle characters. In that case we
+  --               can confuse the bit alignment and miss following syncs
+  -----------------------------------------------------------------------------
+  P_pclk_idle_detect_en : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1')then
+        pclk_idle_detect_en <= '1';
+      else
+        if (pclk_state = S_AIL) then
+          pclk_idle_detect_en <= '0';
+        else
+          pclk_idle_detect_en <= '1';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Module      :
+  -- Description : 
+  -----------------------------------------------------------------------------
   P_pclk_fifo_overrun : process (pclk) is
   begin
     if (rising_edge(pclk)) then
@@ -783,6 +813,7 @@ begin
       end if;
     end if;
   end process;
+
 
 
   -----------------------------------------------------------------------------
@@ -948,7 +979,7 @@ begin
   -----------------------------------------------------------------------------
   -- Registerfile status
   -----------------------------------------------------------------------------
-  rclk_enable_hispi <= regfile.HISPI.CTRL.ENABLE_HISPI;
+  rclk_enable_hispi    <= regfile.HISPI.CTRL.ENABLE_HISPI;
   rclk_enable_datapath <= regfile.HISPI.CTRL.ENABLE_DATA_PATH;
   -----------------------------------------------------------------------------
   -- Resync FiFo overrun

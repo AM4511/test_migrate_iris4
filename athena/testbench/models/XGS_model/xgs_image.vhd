@@ -176,7 +176,7 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  write(row_dec, string'("4095"));
 	  writeline(xgs_image_file_dec, row_dec);	  
 	  
-      for line_count in 0 to 3079 loop
+      for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
       
 	    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
           if(j<4) then                 --DUMMY
@@ -283,7 +283,7 @@ begin
 	
     -- jmansill Loading image from generated file
     for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-      if(line_count>roi_start) then
+      if(line_count>roi_start and line_count<(roi_start+ to_integer(unsigned(frame_length)) ) )then
 		frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
       else
         frame(1)(j) <= X"EB5";

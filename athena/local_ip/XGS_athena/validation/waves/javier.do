@@ -2,7 +2,7 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /testbench/xgs_model_GenImage
 add wave -noupdate /testbench/DUT/regfile
-add wave -noupdate /testbench/XGS_MODEL/xgs_image_inst/frame
+add wave -noupdate -expand /testbench/XGS_MODEL/xgs_image_inst/frame
 add wave -noupdate -group TLP /testbench/inst_pcie_tx_axi/tlp_out_req_to_send
 add wave -noupdate -group TLP /testbench/inst_pcie_tx_axi/tlp_out_grant
 add wave -noupdate -group TLP /testbench/inst_pcie_tx_axi/tlp_out_fmt_type
@@ -53,6 +53,13 @@ add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/de
 add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line1
 add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line2
 add wave -noupdate -group XGS_MODEL_image /testbench/XGS_MODEL/xgs_image_inst/xgs_model_GenImage
+add wave -noupdate /testbench/DUT/xgs_sdout
+add wave -noupdate /testbench/DUT/xgs_sdin
+add wave -noupdate /testbench/DUT/xgs_sclk
+add wave -noupdate /testbench/DUT/xgs_trig_int
+add wave -noupdate /testbench/DUT/xgs_monitor0
+add wave -noupdate /testbench/DUT/xgs_monitor2
+add wave -noupdate /testbench/DUT/xgs_monitor1
 add wave -noupdate -divider {New Divider}
 add wave -noupdate -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk
 add wave -noupdate -group LineStreamer /testbench/DUT/x_xgs_hispi_top/xaxi_line_streamer/sclk_reset
@@ -165,56 +172,54 @@ add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/aggregated_fif
 add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/aggregated_fifo_overrun
 add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/aggregated_cal_error
 add wave -noupdate -group HiSpiTOP /testbench/DUT/x_xgs_hispi_top/aggregated_bit_lock_error
-add wave -noupdate -expand -group Model_Image -label SER_BUSY /testbench/DUT/regfile.ACQ.ACQ_SER_STAT.SER_BUSY
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_model_GenImage
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_pattern_mode
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/trigger_int
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/emb_data
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/first_line
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/last_line
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/dataline_valid
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/dataline_nxt
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_length
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/roi_start
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/roi_size
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/ext_emb_data
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/cmc_patgen_en
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/active_ctxt
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/nested_readout
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/x_subsampling
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/y_subsampling
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/y_reversed
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/swap_top_bottom
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/sequencer_enable
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/slave_triggered_mode
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_count
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_red
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenr
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_blue
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenb
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_nxt
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_valid
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/line_count
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_count_int
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line0
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line1
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line2
-add wave -noupdate -expand -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame
+add wave -noupdate -group Model_Image -label SER_BUSY /testbench/DUT/regfile.ACQ.ACQ_SER_STAT.SER_BUSY
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_model_GenImage
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_pattern_mode
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/trigger_int
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/emb_data
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/first_line
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/last_line
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/dataline_valid
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/roi_size
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/ext_emb_data
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/cmc_patgen_en
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/active_ctxt
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/nested_readout
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/x_subsampling
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/y_subsampling
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/y_reversed
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/swap_top_bottom
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/sequencer_enable
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/slave_triggered_mode
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_count
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_red
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenr
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_blue
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/test_data_greenb
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_nxt
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_valid
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/dataline_nxt
+add wave -noupdate -group Model_Image -radix unsigned /testbench/XGS_MODEL/xgs_image_inst/roi_start
+add wave -noupdate -group Model_Image -radix unsigned /testbench/XGS_MODEL/xgs_image_inst/line_count
+add wave -noupdate -group Model_Image -radix unsigned -childformat {{/testbench/XGS_MODEL/xgs_image_inst/frame_length(15) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(14) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(13) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(12) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(11) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(10) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(9) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(8) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(7) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(6) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(5) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(4) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(3) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(2) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(1) -radix unsigned} {/testbench/XGS_MODEL/xgs_image_inst/frame_length(0) -radix unsigned}} -subitemconfig {/testbench/XGS_MODEL/xgs_image_inst/frame_length(15) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(14) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(13) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(12) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(11) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(10) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(9) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(8) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(7) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(6) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(5) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(4) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(3) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(2) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(1) {-height 15 -radix unsigned} /testbench/XGS_MODEL/xgs_image_inst/frame_length(0) {-height 15 -radix unsigned}} /testbench/XGS_MODEL/xgs_image_inst/frame_length
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame_count_int
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line0
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line1
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/debug_frame_line2
+add wave -noupdate -group Model_Image /testbench/XGS_MODEL/xgs_image_inst/frame
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/regfile
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_reset_n
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tready
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tvalid
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tdata
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tuser
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_tlast
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_reset_n
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tready
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tuser
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast
-add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tdata
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk_tready
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk_tvalid
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk_tdata
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk_tuser
+add wave -noupdate -group MONOpipeline -color Magenta /testbench/DUT/xgs_mono_pipeline_inst/sclk_tlast
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk_tready
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk_tvalid
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk_tdata
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk_tuser
+add wave -noupdate -group MONOpipeline -color Khaki /testbench/DUT/xgs_mono_pipeline_inst/aclk_tlast
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_state
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_reset
 add wave -noupdate -group MONOpipeline /testbench/DUT/xgs_mono_pipeline_inst/sclk_wen
@@ -364,8 +369,8 @@ add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/attr
 add wave -noupdate -expand -group PCIe_TX_AXI /testbench/inst_pcie_tx_axi/tlp_out_data_p1
 add wave -noupdate -radix unsigned /testbench/XGS_MODEL/xgs_image_inst/G_PXL_ARRAY_COLUMNS
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1455495962 ps} 0} {{Cursor 2} {629460179 ps} 0} {{Cursor 3} {998280000 ps} 0}
-quietly wave cursor active 3
+WaveRestoreCursors {{Cursor 1} {8698512225 ps} 0} {{Cursor 2} {1165892741 ps} 0} {{Cursor 3} {2979888074 ps} 0} {{Cursor 4} {2444665459 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 203
 configure wave -valuecolwidth 134
 configure wave -justifyvalue left
@@ -380,4 +385,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {982369981 ps} {1015952533 ps}
+WaveRestoreZoom {1186614939 ps} {1351382421 ps}

@@ -19,41 +19,24 @@
 //-----------------------------------------
 void CXGS_Ctrl::XGS_Config_Monitor() {
 	
-	if (rXGSptr.ACQ.DEBUG.f.FPGA_7C706 == 0)
-	{
-		// Program monitor pins in XGS
-		M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
-		M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
-		M_UINT32 monitor_2_reg = 0x1;    // New_line
-		         monitor_2_reg = 0x13;   // Mline
-				 monitor_2_reg = 0xe;
 
-	    //Monitor is normal debug
-		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+    // Program monitor pins in XGS
+    M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+    M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+    M_UINT32 monitor_2_reg = 0x1;    // New_line
+             //monitor_2_reg = 0x13;   // Mline
+    		 //monitor_2_reg = 0xe;
+    
+    //Monitor is normal debug
+    WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+    WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);    // Monitor_ctrl
+    
+    //Monitor is debug monitor3 from MDH
+    //WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+    //WriteSPI(0x3e40, (0x4 << 10) + (0x0 << 5) + 0x0);    // Monitor Lines in mode MDH - Line valid
+    //WriteSPI(0x3602, (3 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
-		//Monitor is debug monitor3 from MDH
-		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-		WriteSPI(0x3e40, (0x4 << 10) + (0x0 << 5) + 0x0);    // Monitor Lines in mode MDH - Line valid
-		WriteSPI(0x3602, (3 << 6) + (2 << 3) + 2);    // Monitor_ctrl
 
-	}
-	else // ZYNQ
-	{
-		M_UINT32 monitor_0_reg = 0x6;    // Real EXP
-		M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication : Do not change
-		//M_UINT32 monitor_2_reg = 0x1;  // New_line
-		//M_UINT32 monitor_2_reg = 0x6;  // real int
-		M_UINT32 monitor_2_reg = 0x13;   // Mline
-
-		//Monitor 0 is normal debug
-		WriteSPI(0x3806, (monitor_2_reg << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
-		WriteSPI(0x3602, (2 << 6) + (2 << 3) + 2);           // Monitor_ctrl
-
-		//Monitor 0 is Line valid
-		//WriteSPI(0x3e40, (0x4 << 10) + (0x4 << 5) + 0x4);    // Monitor Lines in mode MDH - Line valid
-		//WriteSPI(0x3602, (2 << 6) + (2 << 3) + 3);           // Monitor_ctrl
-	}
 }
 
 
@@ -94,6 +77,10 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	if (read == 0x31)
 		printf("XGS sequencer enable!!!\n\n\n");
 
+	// Par defaut XGS mets une latence de UN frame pour les registre OFFSET_LAT_COMP et GAIN_LAT_COMP, nous les ecritures registres sont allignees au EO_FOT
+	// alors on ne veux pas une latence de 1 frame. Mettre OFFSET_LAT_COMP et GAIN_LAT_COMP a 0
+	WriteSPI(0x3802, 0xfcff & ReadSPI(0x3802) );  
+
 }
 
 
@@ -125,22 +112,18 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 
 	//Enable EXP during FOT
 	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT_TIME = (M_UINT32)((double)SensorParams.EXP_FOT_TIME / SystemPeriodNanoSecond);
-	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT = 1;
-	rXGSptr.ACQ.EXP_FOT.u32 = sXGSptr.ACQ.EXP_FOT.u32;
+	sXGSptr.ACQ.EXP_FOT.f.EXP_FOT      = 1;
+	rXGSptr.ACQ.EXP_FOT.u32            = sXGSptr.ACQ.EXP_FOT.u32;
 
 	//Trigger KeepOut zone
-	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_START = (M_UINT32)(double((sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) - 100) / SystemPeriodNanoSecond);   //START Keepout trigger zone (100ns)
-	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_END = (M_UINT32)(double(sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond);           //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter 	
-	rXGSptr.ACQ.READOUT_CFG4.u32 = sXGSptr.ACQ.READOUT_CFG4.u32;
-
-	// Pour le moment non enable car on recois pas le signal New_line du XGS (Xcelerator)
-	sXGSptr.ACQ.READOUT_CFG3.f.KEEP_OUT_TRIG_ENA = 0;
-	rXGSptr.ACQ.READOUT_CFG3.u32 = sXGSptr.ACQ.READOUT_CFG3.u32;
+	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_START = SensorParams.KEEP_OUT_ZONE_START;   //START Keepout trigger zone (100ns before and during NEW_LINE monitor)
+	sXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_ENA   = 1;
+	rXGSptr.ACQ.READOUT_CFG4.u32                   = sXGSptr.ACQ.READOUT_CFG4.u32;
 
 	// Set FOT time (not used by fpga for the moment)
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;
 	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
-	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;
+	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;  //EO_FOT genere ds le fpga : programmable number of lines!
 	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
 
 	// Set Location of first valid x pixel(including Interpolation)
@@ -154,5 +137,9 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	// Set complete line size (including Black pixels, Interpolation, dummies, valid) 
 	sXGSptr.ACQ.SENSOR_X_SIZE.f.SENSOR_X_SIZE = SensorParams.XGS_X_SIZE;
 	rXGSptr.ACQ.SENSOR_X_SIZE.u32 = sXGSptr.ACQ.SENSOR_X_SIZE.u32;
+
+
+
+
 
 }

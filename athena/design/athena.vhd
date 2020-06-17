@@ -202,8 +202,8 @@ begin
     I2C_if_i2c_slk          => smbclk,
     
     SPI_spi_csn             => cfg_spi_cs_n,
-    SPI_spi_sdin            => cfg_spi_sd(0),
-    SPI_spi_sdout           => cfg_spi_sd(1),
+    SPI_spi_sdin            => cfg_spi_sd(1),
+    SPI_spi_sdout           => cfg_spi_sd(0),
    
     info_board_info         => info_board_info,
     info_fpga_build_id      => conv_std_logic_vector(FPGA_BUILD_DATE, 32),

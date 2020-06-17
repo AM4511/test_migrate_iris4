@@ -23,8 +23,7 @@ library UNISIM;
   use UNISIM.VCOMPONENTS.all;
 
 entity xgs_ctrl is
-   generic(  G_KU706               : integer := 0; -- Nous n'avons pas de monitor sur le board Xcelerator+KU706 , generation interne!
-             G_SIMULATION          : integer := 0;
+   generic(  G_SIMULATION          : integer := 0;
              G_SYS_CLK_PERIOD      : integer := 16;
              G_SENSOR_FREQ         : integer := 32400
              
@@ -212,8 +211,15 @@ architecture functional of xgs_ctrl is
   -- constants
   --constant keep_out_zone_100ns : std_logic_vector(REGFILE.ACQ.READOUT_CFG3.LINE_TIME'range) := std_logic_vector(conv_unsigned(integer( (100/G_SYS_CLK_PERIOD)+1 ), REGFILE.ACQ.READOUT_CFG3.LINE_TIME'length));
   
+  signal  xgs_monitor2_meta      : std_logic;
+  signal  xgs_monitor2_metasync  : std_logic;
+  --attribute ASYNC_REG of xgs_monitor2_p1  : signal is "TRUE";
+  --attribute ASYNC_REG of XGS_NEW_LINE     : signal is "TRUE";
+  
   signal keep_out_zone_cntr : std_logic_vector(REGFILE.ACQ.READOUT_CFG3.LINE_TIME'range) := (others =>'0');
   signal keep_out_zone      : std_logic := '0';
+  signal xgs_trig_int_copy  : std_logic;
+
   
   -- synthesis translate_off
   -- SIM Debug
@@ -309,6 +315,7 @@ architecture functional of xgs_ctrl is
   signal  grab_mngr_trig_p1            : std_logic;
   signal  next_grab_mngr_trig_rdy      : std_logic;
   signal  grab_mngr_trig_rdy           : std_logic;
+  signal  grab_mngr_trig_rdy_P1        : std_logic;
   signal  next_grab_mngr_trig_ack      : std_logic;
   signal  grab_mngr_trig_ack           : std_logic;
 
@@ -395,6 +402,12 @@ architecture functional of xgs_ctrl is
   attribute dont_touch of exposure_outpin     : signal is "TRUE";
   attribute KEEP       of xgs_exposure_p1     : signal is "TRUE";
   attribute dont_touch of xgs_exposure_p1     : signal is "TRUE";
+  attribute KEEP       of xgs_trig_int        : signal is "TRUE";
+  attribute dont_touch of xgs_trig_int        : signal is "TRUE";
+  attribute KEEP       of xgs_trig_int_copy   : signal is "TRUE";
+  attribute dont_touch of xgs_trig_int_copy   : signal is "TRUE";
+  
+  
   
   attribute ASYNC_REG of xgs_monitor0_p1  : signal is "TRUE";
   attribute ASYNC_REG of xgs_exposure     : signal is "TRUE";
@@ -406,15 +419,6 @@ architecture functional of xgs_ctrl is
   signal  xgs_EO_FOT       : std_logic;
   attribute ASYNC_REG of xgs_monitor1_p1  : signal is "TRUE";
   attribute ASYNC_REG of xgs_FOT          : signal is "TRUE";
-
-  signal  xgs_monitor2_p1  : std_logic;
-  signal  XGS_NEW_LINE     : std_logic;
-  signal  XGS_NEW_LINE_p1  : std_logic;
- 
-  attribute ASYNC_REG of xgs_monitor2_p1  : signal is "TRUE";
-  attribute ASYNC_REG of XGS_NEW_LINE     : signal is "TRUE";
-  
-  
 
 
   signal  ext_trig_p1            : std_logic;
@@ -458,6 +462,8 @@ architecture functional of xgs_ctrl is
   signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range); 
   
   signal debug_int        : std_logic_vector(debug_out'range);
+  
+  
   
   -------------------------------------
   --  Signaux Chipscopables
@@ -551,16 +557,42 @@ constant SENSOR_PERIOD_32p0          : std_logic_vector(18 downto 0):= "11111010
 
 signal   SENSOR_PERIOD               : std_logic_vector(18 downto 0); 
 
--- Pour le board de developpement, on n'a aps les signaux monitor
-signal Synthetic_EXPOSURE : std_logic :='0';
-signal Synthetic_DELAI_EXP: std_logic :='0'; 
-signal Synthetic_cntr     : std_logic_vector(15 downto 0) :=(others=>'0');
-
 signal strobe_DMA_P1_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 signal strobe_DMA_P2_vector :  std_logic_vector(3 downto 0) :=(others=>'0');
 
 
-signal debug_ctrl16_int : std_logic_vector(15 downto 0);
+signal debug_ctrl32_int : std_logic_vector(31 downto 0):=(others=>'0');
+
+
+-----------------------------------------------------
+-- POur avoir un trigger HW interne programmable
+-----------------------------------------------------
+
+type type_timer_state is (  idle,
+                            wait_arm,
+                            count_delai,   
+                            trig_first,    
+                            wait_rdy,      
+                            trig,          
+                            count_duration
+                          );
+signal  curr_timer_state   :  type_timer_state;
+
+signal Timer_event       : std_logic := '0';
+signal SeqTimer_cntr     : std_logic_vector(REGFILE.ACQ.TIMER_DURATION.VALUE'range);
+
+signal TIMER_DELAY_DB    : std_logic_vector(REGFILE.ACQ.TIMER_DELAY.VALUE'range);
+signal TIMER_DURATION_DB : std_logic_vector(REGFILE.ACQ.TIMER_DURATION.VALUE'range);
+
+
+ attribute mark_debug of xgs_monitor2_metasync  : signal is "true";
+ attribute mark_debug of keep_out_zone_cntr     : signal is "true";
+ attribute mark_debug of keep_out_zone          : signal is "true";
+ attribute mark_debug of curr_trig0             : signal is "true";
+ attribute mark_debug of curr_trig0_P1          : signal is "true";
+ attribute mark_debug of xgs_trig_int_delayed   : signal is "true";
+ attribute mark_debug of xgs_trig_int_copy      : signal is "true";
+
 
 BEGIN
 
@@ -739,7 +771,19 @@ BEGIN
             hw_trig          <= hw_trig;
             hw_trig_miss     <= '0';
           end if;
-        
+        elsif(curr_trigger_act="101") then                                        -- Internal programmable Timer
+          if(Timer_event='1') then
+            if(grab_mngr_trig_rdy='1') then
+              hw_trig          <= '1';
+              hw_trig_miss     <= '0';
+            else
+              hw_trig          <= '0';
+              hw_trig_miss     <= '1';
+            end if;
+          else
+            hw_trig          <= '0';
+            hw_trig_miss     <= '0';
+          end if;
         else
           hw_trig          <= '0';
           hw_trig_miss     <= '0';
@@ -1197,6 +1241,7 @@ BEGIN
         grab_mngr_stat          <=  "0000";
         grab_mngr_sensor_reconf <=  '0';
         grab_mngr_trig_rdy      <=  '0';
+        grab_mngr_trig_rdy_P1   <=  '0';
         grab_mngr_trig_ack      <=  '0';
       else
         curr_grab_mngr_state    <=  next_grab_mngr_state;
@@ -1205,6 +1250,7 @@ BEGIN
         grab_mngr_stat          <=  next_grab_mngr_stat;
         grab_mngr_sensor_reconf <=  next_grab_mngr_sensor_reconf;
         grab_mngr_trig_rdy      <=  next_grab_mngr_trig_rdy;
+		grab_mngr_trig_rdy_P1   <=  grab_mngr_trig_rdy;
         grab_mngr_trig_ack      <=  next_grab_mngr_trig_ack;
         
       end if;
@@ -1804,13 +1850,7 @@ BEGIN
         xgs_exposure_p1  <= '0';
       else
         xgs_monitor0_p1  <= xgs_monitor0; 
-        
-        if(G_KU706=0) then
-          xgs_exposure   <= xgs_monitor0_p1;
-        else
-          xgs_exposure   <= Synthetic_EXPOSURE;
-        end if;
-        
+        xgs_exposure     <= xgs_monitor0_p1;     
         xgs_exposure_p1  <= xgs_exposure;
       end if;
       
@@ -1822,10 +1862,8 @@ BEGIN
       else
         xgs_monitor1_p1  <= xgs_monitor1;       
         xgs_FOT          <= xgs_monitor1_p1;
-        
         xgs_FOT_p1       <= xgs_FOT;
-        xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
-        
+                
         if(REGFILE.ACQ.READOUT_CFG1.EO_FOT_SEL='0')then 
           xgs_EO_FOT       <= xgs_FOT_p1 and not(xgs_FOT);
         else  
@@ -1834,15 +1872,6 @@ BEGIN
         
       end if;
    
-      if(sys_reset_n='0') then
-        xgs_monitor2_p1  <= '0';
-        XGS_NEW_LINE     <= '0';
-        XGS_NEW_LINE_p1  <= '0';
-      else
-        xgs_monitor2_p1  <= xgs_monitor2;
-        XGS_NEW_LINE     <= xgs_monitor2_p1;
-        XGS_NEW_LINE_p1  <= XGS_NEW_LINE;
-      end if;
    
       if(sys_reset_n='0') then
         exposure_cntr <= (others=> '0');      
@@ -2034,27 +2063,32 @@ BEGIN
   -- DEBUG PINS
   --
   -------------------------------------------------------------------------------
-  debug_ctrl16_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl16_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
-  debug_ctrl16_int(2)  <=  grab_mngr_trig_rdy;
-  debug_ctrl16_int(3)  <=  readout_cntr_FOT;         
-  debug_ctrl16_int(4)  <=  readout_cntr_EO_FOT;
-  debug_ctrl16_int(5)  <=  curr_trig0;
-  debug_ctrl16_int(6)  <=  strobe;
-  debug_ctrl16_int(7)  <=  FOT;
-  debug_ctrl16_int(8)  <=  readout;
-  debug_ctrl16_int(9)  <=  readout_stateD;
-  debug_ctrl16_int(10) <=  readout_cntr2_armed;
-  debug_ctrl16_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
-  debug_ctrl16_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
-  debug_ctrl16_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
-  debug_ctrl16_int(14) <=  grab_pending;
-  debug_ctrl16_int(15) <=  grab_active;
+  debug_ctrl32_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  debug_ctrl32_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl32_int(2)  <=  grab_mngr_trig_rdy;
+  debug_ctrl32_int(3)  <=  readout_cntr_FOT;         
+  debug_ctrl32_int(4)  <=  readout_cntr_EO_FOT;
+  debug_ctrl32_int(5)  <=  curr_trig0;
+  debug_ctrl32_int(6)  <=  xgs_trig_int_copy;
+  debug_ctrl32_int(7)  <=  FOT;
+  debug_ctrl32_int(8)  <=  readout;
+  debug_ctrl32_int(9)  <=  readout_stateD;
+  debug_ctrl32_int(10) <=  readout_cntr2_armed;
+  debug_ctrl32_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
+  debug_ctrl32_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
+  debug_ctrl32_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
+  debug_ctrl32_int(14) <=  grab_pending;
+  debug_ctrl32_int(15) <=  grab_active;
+  debug_ctrl32_int(16) <=  xgs_monitor2_metasync;   
+  debug_ctrl32_int(17) <=  keep_out_zone;
+  debug_ctrl32_int(18) <=  xgs_trig_int_delayed;
 
-  debug_int(0) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(3 downto 0) ));
-  debug_int(1) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(3 downto 0) ));
-  debug_int(2) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(3 downto 0) ));
-  debug_int(3) <= debug_ctrl16_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(3 downto 0) ));
+
+
+  debug_int(0) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug0_sel(4 downto 0) ));
+  debug_int(1) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug1_sel(4 downto 0) ));
+  debug_int(2) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug2_sel(4 downto 0) ));
+  debug_int(3) <= debug_ctrl32_int(conv_integer(REGFILE.ACQ.DEBUG_PINS.Debug3_sel(4 downto 0) ));
       
   
   -- output ff
@@ -2265,43 +2299,44 @@ BEGIN
 
 
 
-  --Xpython_ctrl_DMA_params  : python_ctrl_DMA_params
-  --port map(  
-  --        regfile           => regfile,
-  --        
-  --        regfile_dma       => regfile_dma_parameters,
-  --
-  --        COLOR_SPACE       => COLOR_SPACE,
-  --        MONO10            => MONO10,
-  --        REVERSE_Y         => REVERSE_Y,
-  --        GRAB_REVX         => GRAB_REVX
-  --
-  --     );
-  --
-
-  
-  
+ 
   ----------------------------------------------
   -- Exposure Time Jitter in Triggered Mode
   -- See dev. guide
   -- Need to synchronize triger_int with new_line
-  -- in a 100ns window
+  -- to be outside of a 100ns window. If not the exposure
+  -- will start one line before, or end one line
   ----------------------------------------------
-  process(sys_clk)
+
+  -- Reset bridge for synchronize the deassertion of async reset (xgs_monitor2_metasync)
+  process(sys_clk, xgs_monitor2)
   begin
-    if(rising_edge(sys_clk)) then
-      if(sys_reset_n='0') then
+    if(xgs_monitor2='1') then 
+	  xgs_monitor2_meta     <= '1';
+	  xgs_monitor2_metasync <= '1';
+    elsif(rising_edge(sys_clk)) then 
+      xgs_monitor2_meta     <= '0';
+	  xgs_monitor2_metasync <= xgs_monitor2_meta;
+    end if;
+  end process;
+  
+  
+  
+  process(sys_clk, xgs_monitor2_metasync)
+  begin
+    if(xgs_monitor2_metasync='1') then
+	  keep_out_zone_cntr <= (others=>'0');
+      keep_out_zone      <=  '1';
+    elsif(rising_edge(sys_clk)) then
+      if(sys_reset_n='0' or REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_ENA='0') then
         keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';     
-      elsif(XGS_NEW_LINE='0' and XGS_NEW_LINE_p1='1') then --On falling edge start the counter for trigger keep-out zone
-        keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';
-      elsif(keep_out_zone='0' and keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START) then 
-        keep_out_zone_cntr <= (others=>'0');        
-        keep_out_zone      <=  '1';
-      elsif(keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_END) then   --j'enleve ici le keep_out_zone=1, ce registre va donc reseter la zone lorsque le compteur va atteindre le compteur
-        keep_out_zone_cntr <= (others=>'0');
-        keep_out_zone      <=  '0';     
+        keep_out_zone      <=  '0';  
+      elsif(keep_out_zone='1' and keep_out_zone_cntr = X"0000") then   -- reset keep zone when detected falling of monitor2 signal resync
+        keep_out_zone_cntr <= X"0004";                                 -- at the end of keek_out zone, counter is 4 or 3 counts
+        keep_out_zone      <=  '0';		
+      elsif(keep_out_zone='0' and keep_out_zone_cntr = REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START) then -- We are in keepout zone, waiting for new_line signal,
+        keep_out_zone_cntr <= keep_out_zone_cntr+'1';                                                     -- if counter wrap around because no new_line received 
+        keep_out_zone      <=  '1';                                                                       -- we will automaticly exit from keep_out_zone (~1ms)
       else  
         keep_out_zone_cntr <= keep_out_zone_cntr+'1';
         keep_out_zone      <= keep_out_zone;        
@@ -2316,35 +2351,43 @@ BEGIN
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
         xgs_trig_int         <= '0';
+        xgs_trig_int_copy    <= '0';
         xgs_trig_int_delayed <= '0';   
-      elsif(REGFILE.ACQ.READOUT_CFG3.KEEP_OUT_TRIG_ENA='1') then 
+      elsif(REGFILE.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_ENA='1') then 
         if(curr_trig0='1' and curr_trig0_P1='0') then  --RISING / START OF TRIG
           if(keep_out_zone='0') then  
             xgs_trig_int         <= '1';
+            xgs_trig_int_copy    <= '1';
             xgs_trig_int_delayed <= '0';
           else 
             xgs_trig_int         <= '0'; 
+            xgs_trig_int_copy    <= '0'; 
             xgs_trig_int_delayed <= '1';
           end if;       
         elsif(curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG
           if(keep_out_zone='0') then  
             xgs_trig_int         <= '0';
+            xgs_trig_int_copy    <= '0';
             xgs_trig_int_delayed <= '0';          
           else
             xgs_trig_int         <= '1';
+            xgs_trig_int_copy    <= '1';
             xgs_trig_int_delayed <= '1';        
           end if;
         elsif(xgs_trig_int_delayed='1') then           -- Stay in same level as long keep-out zone is active
           if(keep_out_zone='1') then
             xgs_trig_int         <= not(curr_trig0);
+            xgs_trig_int_copy    <= not(curr_trig0);
             xgs_trig_int_delayed <= '1';        
           else
             xgs_trig_int         <= curr_trig0;
+            xgs_trig_int_copy    <= curr_trig0;
             xgs_trig_int_delayed <= '0';             
           end if;           
         end if;
       else -- do not synchronize
         xgs_trig_int         <= curr_trig0;
+        xgs_trig_int_copy    <= curr_trig0;
         xgs_trig_int_delayed <= '0';                    
       end if;      
     end if;
@@ -2393,56 +2436,123 @@ BEGIN
       
   REGFILE.ACQ.READOUT_CFG_FRAME_LINE.CURR_FRAME_LINES <= TOTAL_NB_LINES;          
       
-  ----------------------------------------------------------------------
-  --
-  -- For XGS DEV BOARD WE ONLY HAVE ONE MONITOR
-  --
-  -- So Let's generate the monitor FOT and REAL INTEGRATION internally
-  --
-  -- A enlever lorsqu'on aura le sensor board et qu'on pourra utiliser les MONITOR
-  -----------------------------------------------------------------------    
 
+
+
+  ----------------------------------------------------------------------
+  -- Trigger timer for continuous mode state machine
+  -- 
+  -- Le timer envoie un premier trigger pour le premier exposure, ensuite il attends le trigger rdy
+  -- avant d'envoyer la suite de triggers en regime permanent ceci aura comme consequence de se 
+  -- synchroniser au grab a partir du 2e grab.
+  --  
+  --
+  --
+  ----------------------------------------------------------------------
   process(sys_clk)
   begin
     if(rising_edge(sys_clk)) then
-      if(sys_reset_n='0') then
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';
-        Synthetic_cntr     <=(others=>'0');
-      elsif(curr_trig0='1' and curr_trig0_P1='0') then                             --RISING / START OF TRIG  : GENERATE EXPOSURE
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='1';    
-        Synthetic_cntr     <=(others=>'0');    
-      elsif(Synthetic_EXPOSURE='1' and curr_trig0='0' and curr_trig0_P1='1') then  --FALLING / END OF TRIG   : START OF FOT + EXPOSURE
-        Synthetic_EXPOSURE <='1';
-        Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <=(others=>'0');
-      elsif(G_SYS_CLK_PERIOD=16 and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"02c2" ) or   -- 11.3 us :  Start of exposure Delay one line Start Of Exposure  12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and Synthetic_DELAI_EXP='1' and Synthetic_cntr=X"0584" ) then
-        Synthetic_EXPOSURE <='1';
-        Synthetic_DELAI_EXP<='0'; 
-        Synthetic_cntr     <= (others=>'0');                     
-      elsif(G_SYS_CLK_PERIOD=16 and XGS_FOT='1' and Synthetic_cntr=X"014f" ) or   -- 5.36 us :  Simulating END of EXP during FOT 12M @ 6 LANES  
-           (G_SYS_CLK_PERIOD=8  and XGS_FOT='1' and Synthetic_cntr=X"029e" ) then
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';         
-        Synthetic_cntr     <= Synthetic_cntr+'1';              
-      elsif(XGS_FOT='0' and XGS_FOT_p1='1') then -- END OF FOT
-        Synthetic_EXPOSURE <='0';
-        Synthetic_DELAI_EXP<='0';         
-        Synthetic_cntr     <= (others=>'0');
-      elsif(XGS_FOT='1' or Synthetic_DELAI_EXP='1') then 
-        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;
-        Synthetic_cntr     <= Synthetic_cntr+'1';
-      else
-        Synthetic_EXPOSURE <= Synthetic_EXPOSURE;
-        Synthetic_DELAI_EXP<= Synthetic_DELAI_EXP;          
-        Synthetic_cntr     <= Synthetic_cntr;      
-      end if;                 
+      if(REGFILE.ACQ.TIMER_CTRL.TIMERSTART='1') then 
+        TIMER_DELAY_DB    <= REGFILE.ACQ.TIMER_DELAY.VALUE;
+        TIMER_DURATION_DB <= REGFILE.ACQ.TIMER_DURATION.VALUE;
+      end if;
     end if;
-  end process;     
-      
+  end process;
+  
+  process(sys_clk)
+  begin
+    if rising_edge(sys_clk) then
+      if (sys_reset_n='0') then 
+        curr_timer_state <= idle;
+        Timer_event      <= '0';
+        SeqTimer_cntr    <= (others=>'0');
+      else
+    
+        case curr_timer_state is
+          when  idle            =>  Timer_event        <= '0';
+                                    SeqTimer_cntr      <= (others=>'0');
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTART='1') then
+                                      curr_timer_state <= wait_arm;
+                                    else
+                                      curr_timer_state <= idle;
+                                    end if;
+          
+		  when  wait_arm        =>  Timer_event        <= '0';
+                                    SeqTimer_cntr      <= (others=>'0');
+		                            if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									elsif(curr_grab_mngr_state = arm and curr_timer_mngr_state=idle and curr_trig_mngr_state=idle) then --wait for state to be rdy and in from idle mode exposure
+                                      curr_timer_state <= count_delai;                                  
+                                    end if;									
+									 
+									
+          when  count_delai     =>  Timer_event        <= '0';
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(SeqTimer_cntr = TIMER_DELAY_DB) then 
+                                      curr_timer_state <= trig_first;
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    else
+                                      curr_timer_state <= count_delai; 
+                                      SeqTimer_cntr    <= SeqTimer_cntr + '1';
+                                    end if;
+                                    
+          when  trig_first      =>  if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									else
+									  curr_timer_state <= wait_rdy;                                             
+                                      Timer_event      <= '1';  
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    end if;
+                                    
+          when  wait_rdy        =>  Timer_event      <= '0';
+                                    SeqTimer_cntr    <= (others=>'0');
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(grab_mngr_trig_rdy='1' and grab_mngr_trig_rdy_P1='0') then
+                                      curr_timer_state <= trig;  -- trig second trigger and goto permanet regime
+                                    else
+                                      curr_timer_state <= wait_rdy;
+                                    end if;                                  
+                                    
+          when  trig            =>  if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									else
+									  curr_timer_state <= count_duration; 
+                                      Timer_event      <= '1';  
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    end if;
+									
+          when  count_duration  =>  Timer_event      <= '0';  
+                                    if(REGFILE.ACQ.TIMER_CTRL.TIMERSTOP='1') then
+                                      curr_timer_state <= idle;
+									  Timer_event      <= '0';
+									  SeqTimer_cntr    <= (others=>'0');
+									elsif(SeqTimer_cntr=TIMER_DURATION_DB) then 
+                                      curr_timer_state <= trig;
+                                      SeqTimer_cntr    <= (others=>'0');
+                                    else
+                                      curr_timer_state <= count_duration; 
+                                      SeqTimer_cntr    <= SeqTimer_cntr + '1';
+                                    end if;        
+                                    
+      end case;      
+    end if;
+  end if;
+    
+  end process;
+
+
+
+
       
 end functional;
 
