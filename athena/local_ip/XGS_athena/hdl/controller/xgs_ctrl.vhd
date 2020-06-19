@@ -2102,9 +2102,9 @@ BEGIN
   debug_ctrl32_int(5)  <=  curr_trig0;
   debug_ctrl32_int(6)  <=  xgs_trig_int_copy;
   debug_ctrl32_int(7)  <=  FOT;
-  debug_ctrl32_int(8)  <=  readout;
-  debug_ctrl32_int(9)  <=  readout_stateD;
-  debug_ctrl32_int(10) <=  readout_cntr2_armed;
+  debug_ctrl32_int(8)  <=  readout;              -- (readout qui contient le FOT)           
+  debug_ctrl32_int(9)  <=  readout_cntr2_armed;  -- (readout qui contient pas le FOT)
+  debug_ctrl32_int(10) <=  readout_stateD;
   debug_ctrl32_int(11) <=  REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
   debug_ctrl32_int(12) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
   debug_ctrl32_int(13) <=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
@@ -2568,13 +2568,18 @@ BEGIN
 									  Timer_event      <= '0';
 									  SeqTimer_cntr    <= (others=>'0');
 									elsif(SeqTimer_cntr=TIMER_DURATION_DB ) then 
-                                      if(grab_mngr_trig_rdy='1') then                    -- Ce timer est adaptatif si trig_rdy=0 alors il attendra
-									    curr_timer_state <= trig;                        -- qu'il devienne rdy avant d'envoyer le trigger, de cette facon on ne perdra 
-                                        SeqTimer_cntr    <= (others=>'0');               -- pas de triggers. Le compteur arrete de compter jusqu'a ce que le rdy soit a 1.
-									  else                                               -- Si l'usager programme un framerate trop haut alors le timer delayera les triggers 
-									    curr_timer_state <= wait_rdy;                    -- au lieu de les perdre.
-                                        SeqTimer_cntr    <= (others=>'0');									  
-                                      end if;									  
+                                      if(REGFILE.ACQ.TIMER_CTRL.ADAPTATIVE='1') then       -- TIMER ADAPTATIVE :
+									    if(grab_mngr_trig_rdy='1') then                    -- Ce timer est adaptatif si trig_rdy=0 alors il attendra
+									      curr_timer_state <= trig;                        -- qu'il devienne rdy avant d'envoyer le trigger, de cette facon on ne perdra 
+                                          SeqTimer_cntr    <= (others=>'0');               -- pas de triggers. Le compteur arrete de compter jusqu'a ce que le rdy soit a 1.
+									    else                                               -- Si l'usager programme un framerate trop haut alors le timer delayera les triggers 
+									      curr_timer_state <= wait_rdy;                    -- au lieu de les perdre.
+                                          SeqTimer_cntr    <= (others=>'0');									  
+                                        end if;									  
+									  else                                                 -- TIMER NON ADAPTATIVE :
+									    curr_timer_state <= trig;                          -- Stick to the frequency programmed and generate trigger missed if to fast
+                                        SeqTimer_cntr    <= (others=>'0');                 									  
+									  end if;
                                     else
                                       curr_timer_state <= count_duration; 
                                       SeqTimer_cntr    <= SeqTimer_cntr + '1';

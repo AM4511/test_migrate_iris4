@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/06/15 09:03:25
+-- Created on          : 2020/06/17 14:12:25
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xFB9F90B4
+-- Register file CRC32 : 0x2373A9D8
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1066,11 +1066,13 @@ package regfile_xgs_athena_pack is
    -- Register Name: TIMER_CTRL
    ------------------------------------------------------------------------------------------
    type ACQ_TIMER_CTRL_TYPE is record
+      ADAPTATIVE     : std_logic;
       TIMERSTOP      : std_logic;
       TIMERSTART     : std_logic;
    end record ACQ_TIMER_CTRL_TYPE;
 
    constant INIT_ACQ_TIMER_CTRL_TYPE : ACQ_TIMER_CTRL_TYPE := (
+      ADAPTATIVE      => 'Z',
       TIMERSTOP       => 'Z',
       TIMERSTART      => 'Z'
    );
@@ -2897,6 +2899,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(8) := reg.ADAPTATIVE;
       output(4) := reg.TIMERSTOP;
       output(0) := reg.TIMERSTART;
       return output;
@@ -2909,6 +2912,7 @@ package body regfile_xgs_athena_pack is
    function to_ACQ_TIMER_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_TIMER_CTRL_TYPE is
    variable output : ACQ_TIMER_CTRL_TYPE;
    begin
+      output.ADAPTATIVE := stdlv(8);
       output.TIMERSTOP := stdlv(4);
       output.TIMERSTART := stdlv(0);
       return output;
@@ -3198,11 +3202,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/06/15 09:03:25
+-- Created on          : 2020/06/17 14:12:25
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xFB9F90B4
+-- Register file CRC32 : 0x2373A9D8
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3406,6 +3410,7 @@ signal field_rw_ACQ_DEBUG_LED_TEST                                 : std_logic; 
 signal field_rw_ACQ_EXP_FOT_EXP_FOT                                : std_logic;                                       -- Field: EXP_FOT
 signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                           : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
 signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS                    : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
+signal field_rw_ACQ_TIMER_CTRL_ADAPTATIVE                          : std_logic;                                       -- Field: ADAPTATIVE
 signal field_wautoclr_ACQ_TIMER_CTRL_TIMERSTOP                     : std_logic;                                       -- Field: TIMERSTOP
 signal field_wautoclr_ACQ_TIMER_CTRL_TIMERSTART                    : std_logic;                                       -- Field: TIMERSTART
 signal field_rw_ACQ_TIMER_DELAY_VALUE                              : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -6936,6 +6941,30 @@ end process P_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(54) <= (hit(54)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ADAPTATIVE
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_TIMER_CTRL(8) <= field_rw_ACQ_TIMER_CTRL_ADAPTATIVE;
+regfile.ACQ.TIMER_CTRL.ADAPTATIVE <= field_rw_ACQ_TIMER_CTRL_ADAPTATIVE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_TIMER_CTRL_ADAPTATIVE
+------------------------------------------------------------------------------------------
+P_ACQ_TIMER_CTRL_ADAPTATIVE : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_TIMER_CTRL_ADAPTATIVE <= '1';
+      else
+         if(wEn(54) = '1' and bitEnN(8) = '0') then
+            field_rw_ACQ_TIMER_CTRL_ADAPTATIVE <= reg_writedata(8);
+         end if;
+      end if;
+   end if;
+end process P_ACQ_TIMER_CTRL_ADAPTATIVE;
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMERSTOP

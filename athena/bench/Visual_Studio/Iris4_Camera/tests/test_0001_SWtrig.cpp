@@ -117,9 +117,9 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// debug_pin(5) <= curr_trig0;
 	// debug_pin(6) <= strobe;
 	// debug_pin(7) <= FOT;
-	// debug_pin(8) <= readout;
-	// debug_pin(9) <= readout_stateD;
-	// debug_pin(10) <= readout_cntr2_armed;
+	// debug_ctrl32_int(8)  <= readout;              --(readout qui contient le FOT)
+	// debug_ctrl32_int(9)  <= readout_cntr2_armed;  --(readout qui contient pas le FOT)
+	// debug_ctrl32_int(10) <= readout_stateD;
 	// debug_pin(11) <= REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
 	// debug_pin(12) <= REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
 	// debug_pin(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;

@@ -211,7 +211,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="EO_FOT_SEL" description="This selector selects who will generate the EO_FOT in the controller. &#xD;&#xA;When select 0, the EO_FOT is the falling edge detection of the monitor FOT.&#xD;&#xA;When select 1, the EO_FOT will be generated inside the controller with programmed FOT_LENGTH." lsb="16"/>
-      <fields name="FOT_LENGTH" alias="Frame Overhead Time LENGTH" description="This is the length of the Frame Overhead Time. This register is defined as number of lines. It is used when EO_FOT_SEL is set to 1.&#xD;&#xA;&#xD;&#xA;" size="16">
+      <fields name="FOT_LENGTH" alias="Frame Overhead Time LENGTH" description="This is the length of the Frame Overhead Time in sys clock. This register is calculated from FOT_LENGTH_LINE and LINE_TIME. It is used when EO_FOT_SEL is set to 1.&#xD;&#xA;&#xD;&#xA;" size="16">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 16 bit value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -570,6 +570,11 @@
       </fields>
     </registers>
     <registers name="TIMER_CTRL" offsetFromParent="1D0">
+      <fields name="ADAPTATIVE" description="When this field is set to 1, the timer will adapt the trigger to the trigger_rdy of the controller to not generate trigger missed. When the timer is programmed too fast and the ADAPTATIVE field is set to 0, trigger missed will be generated." lsb="8" valueAtReset="1">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Non adaptative&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Adaptative to trigger_rdy&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="TIMERSTOP" description="This field stops the internal programmable Timer Trigger" lsb="4" readWrite="false" writeOnly="true"/>
       <fields name="TIMERSTART" description="This field starts the internal programmable Timer Trigger." readWrite="false" writeOnly="true"/>
     </registers>
