@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xFB9F90B4
+* Register file CRC32 : 0x2373A9D8
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1204,7 +1204,9 @@ typedef union
       M_UINT32 TIMERSTART : 1;   /* Bits(0:0), null */
       M_UINT32 RSVD0      : 3;   /* Bits(3:1), Reserved */
       M_UINT32 TIMERSTOP  : 1;   /* Bits(4:4), null */
-      M_UINT32 RSVD1      : 27;  /* Bits(31:5), Reserved */
+      M_UINT32 RSVD1      : 3;   /* Bits(7:5), Reserved */
+      M_UINT32 ADAPTATIVE : 1;   /* Bits(8:8), null */
+      M_UINT32 RSVD2      : 23;  /* Bits(31:9), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_TYPE;

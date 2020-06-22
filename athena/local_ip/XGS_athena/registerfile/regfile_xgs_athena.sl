@@ -406,6 +406,9 @@ Register("acq_sfnc", 0x2c0, 4, "null");
 			FieldValue("", 1);
 
 Register("timer_ctrl", 0x2d0, 4, "null");
+		Field("adaptative", 8, 8, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Non adaptative", 0);
+			FieldValue("Adaptative to trigger_rdy", 1);
 		Field("timerstop", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("timerstart", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 

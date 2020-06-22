@@ -85,8 +85,8 @@ set UPGRADE_MCS_FILENAME          ${UPGRADE_BASE_NAME}.mcs
 set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
 
 
-# Create upgrade firmware
-write_bitstream -force $UPGRADE_BIT_FILENAME
+# Create upgrade firmware (bit+bin) + mcs
+write_bitstream -bin_file -force $UPGRADE_BIT_FILENAME
 write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
 
 
