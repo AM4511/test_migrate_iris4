@@ -134,9 +134,9 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(5) <= curr_trig0;
 	//debug_ctrl16_int(6) <= strobe;
 	//debug_ctrl16_int(7) <= FOT;
-	//debug_ctrl16_int(8) <= readout;
-	//debug_ctrl16_int(9) <= readout_stateD;
-	//debug_ctrl16_int(10) <= readout_cntr2_armed;
+	//debug_ctrl32_int(8) <= readout;              --(readout qui contient le FOT)
+	//debug_ctrl32_int(9) <= readout_cntr2_armed;  --(readout qui contient pas le FOT)
+	//debug_ctrl32_int(10) <= readout_stateD;
 	//debug_ctrl16_int(11) <= REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
 	//debug_ctrl16_int(12) <= REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
@@ -346,46 +346,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 
-			case 'p':
-				printf("Paused. Press enter to restart grab...");
-				_getch();
-				printf(" GO!\n");
-				break;
 
-			case 'r':
-				Sleep(1000);
-				XGS_Ctrl->DisableRegUpdate();
-				Sleep(100);
-				printf("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a)*4);
-				printf("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c)*4 );
-				printf("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e)*4 );
-				printf("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820)*4 );
-				printf("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH *16);
-				Sleep(100);
-				XGS_Ctrl->EnableRegUpdate();
-				break;
-
-			case 'y':
-				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
-				scanf_s("%d", &XGSSize_Y);				
-				GrabParams->Y_END = XGSSize_Y;
-				break;
-
-			case 'S':
-				XGS_Ctrl->WaitEndExpReadout();
-
-				printf("\n\n");
-				printf("Subsampling X (0=NO, 1=YES) ? : ");
-				scanf_s("%d", &SubX);
-				printf("Subsampling Y (0=NO, 1=YES) ? : ");
-				scanf_s("%d", &SubY);
-
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
-				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
-
-				printf("\n");
-
-				break;
 
 
 			}

@@ -375,6 +375,9 @@ Register("trigger_missed", 0x1e8, 4, "null");
 Register("sensor_fps", 0x1f0, 4, "null");
 		Field("sensor_fps", 15, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
 
+Register("sensor_fps2", 0x1f4, 4, "null");
+		Field("sensor_fps", 19, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SENSOR Frame Per Second");
+
 Register("debug", 0x2a0, 4, "null");
 		Field("debug_rst_cntr", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("", 0);
@@ -403,6 +406,9 @@ Register("acq_sfnc", 0x2c0, 4, "null");
 			FieldValue("", 1);
 
 Register("timer_ctrl", 0x2d0, 4, "null");
+		Field("adaptative", 8, 8, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Non adaptative", 0);
+			FieldValue("Adaptative to trigger_rdy", 1);
 		Field("timerstop", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("timerstart", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 

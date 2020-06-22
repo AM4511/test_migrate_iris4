@@ -581,6 +581,20 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 	
 }
 
+void CXGS_Ctrl::setExposure_(M_UINT32 exposure_ss_us)
+{
+
+	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
+		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
+		CurrExposure = exposure_ss_us;
+	}
+	else {
+		printf("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+	}
+
+}
+
+
 //----------------------------------------------------
 //  setAnalogGain   
 //----------------------------------------------------

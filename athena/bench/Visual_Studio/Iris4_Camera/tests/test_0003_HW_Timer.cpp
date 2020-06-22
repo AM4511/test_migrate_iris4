@@ -144,9 +144,9 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//debug_ctrl16_int(5) <= curr_trig0;
 	//debug_ctrl16_int(6) <= strobe;
 	//debug_ctrl16_int(7) <= FOT;
-	//debug_ctrl16_int(8) <= readout;
-	//debug_ctrl16_int(9) <= readout_stateD;
-	//debug_ctrl16_int(10) <= readout_cntr2_armed;
+	//debug_ctrl32_int(8) <= readout;              --(readout qui contient le FOT)
+	//debug_ctrl32_int(9) <= readout_cntr2_armed;  --(readout qui contient pas le FOT)
+	//debug_ctrl32_int(10) <= readout_stateD;
 	//debug_ctrl16_int(11) <= REGFILE.ACQ.GRAB_STAT.GRAB_IDLE;
 	//debug_ctrl16_int(12) <= REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;
 	//debug_ctrl16_int(13) <= REGFILE.ACQ.GRAB_CTRL.GRAB_SS;
@@ -322,8 +322,9 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'y':
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = XGSSize_Y;
+				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
 				break;
+
 
 			case 'S':
 				XGS_Ctrl->WaitEndExpReadout();

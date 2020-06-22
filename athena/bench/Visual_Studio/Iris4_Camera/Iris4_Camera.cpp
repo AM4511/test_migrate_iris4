@@ -43,7 +43,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-
+void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 /* Main function. */
@@ -159,12 +159,16 @@ int main(void)
 	}
 	else
 	{
-
+		XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 4;
     	printf("------------------------------------------------------------------\n");
 		printf(" Athena PCIe is not at Gen1 x2 speed, something is wrong here!!!  \n");
 		printf("------------------------------------------------------------------\n");
 		printf("\n");
-		exit(0);
+		printf("----------------------------------------------------------------------\n");
+		printf(" XGS FRAMERATE IS NOT AT NOMINAL SPPED, SINCE FPGA IS IN PCIe Gen1 x1 \n");
+		printf("----------------------------------------------------------------------\n");
+		printf("\n");
+
 	}
 
 	//------------------------------
@@ -177,7 +181,17 @@ int main(void)
 
 
 	//Print build ID
-	printf("\n\nFPGA Build is ID is %d (0x%X) \n", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+	printf("\n\nFPGA Build is ID is %d (0x%X), ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+
+	//Epoch to human understandable time
+	time_t rawtime = Pcie->rPcie_ptr.fpga.build_id.f.value;
+	struct tm  ts;
+	char       buf[80];
+	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+	ts = *localtime(&rawtime);
+	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+	printf("%s\n", buf);
+
 
 
 	// pour tester que le fix du bug TLP_2_AXI est repare
@@ -254,6 +268,12 @@ int main(void)
 				Help(XGS_Ctrl);
 				break;
 
+			case '4':
+				test_0004_Continu_FPS(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
 			case '9':
 				test_0009_Optics(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
@@ -325,6 +345,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (1) Grab Test SW trig - Manual");
 	printf("\n  (2) Grab Test Continu, 2x Host Buffers");
 	printf("\n  (3) Grab Test HW, Src is HW Timer");
+	printf("\n  (4) Grag Test FPSmax, EXPmax");
 	printf("\n");
 	printf("\n  (9) Grab Optics");
 	printf("\n");
