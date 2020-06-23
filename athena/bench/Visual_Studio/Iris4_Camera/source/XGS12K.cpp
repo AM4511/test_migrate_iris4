@@ -45,7 +45,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.EXP_FOT              = 5360;
+   SensorParams.EXP_FOT              = 5400;
 
    SensorParams.EXP_FOT_TIME         = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
