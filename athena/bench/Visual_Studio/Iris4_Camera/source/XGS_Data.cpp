@@ -15,6 +15,7 @@ using std::string;
 #include "XGS_Data.h"
 
 #include "mtxservmanager.h"
+#include "MilLayer.h"
 
 #include <iostream>
 
@@ -156,3 +157,45 @@ void CXGS_Data::SetDMA(void)
 	rXGSptr.DMA.LINE_SIZE.u32        = sXGSptr.DMA.LINE_SIZE.u32;
 }
 
+
+
+//---------------------------------------------------------------------------------------
+//
+// Cette fonction retourne un pixel 8 bits de l'image en memoire Host
+//
+// Si cette fonction est utilise pour detecter des overruns de l'image (test0004):
+//
+// 1) Le BUffer DMA dois etre plus grand que la taille de l'image totale pour utiliser cette
+//    fonction.
+//
+// 2) Le buffer DMA est initialise a 0 lors du alloc, la detection peux-etre detecte si le 
+//    pixel retourne est different de 0
+//
+//---------------------------------------------------------------------------------------
+M_UINT32 CXGS_Data::GetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_UINT32 Y_POS, M_UINT64 LINE_PITCH)
+{
+	M_UINT32 PixelValue = 0;
+	M_UINT64 PixelAdd = 0;
+
+	volatile M_UINT8* SrcImgPtr;
+	SrcImgPtr = (M_UINT8*)ImageBufferAddr_SRC;
+
+	//Address generation
+	PixelAdd   = (LINE_PITCH * ((M_UINT64)Y_POS)) + X_POS ;  // Location in the image valid in memory
+	PixelValue = *(SrcImgPtr + PixelAdd);                    // Read 8bit pixel from image
+
+    return(PixelValue);
+}
+
+void CXGS_Data::SetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_UINT32 Y_POS, M_UINT64 LINE_PITCH, M_UINT32 PixelValue)
+{
+	M_UINT64 PixelAdd   = 0;
+
+	volatile M_UINT8* SrcImgPtr;
+	SrcImgPtr = (M_UINT8*)ImageBufferAddr_SRC;
+
+	//Address generation
+	PixelAdd = (LINE_PITCH * ((M_UINT64)Y_POS)) + X_POS;    // Location in the image valid in memory
+	*(SrcImgPtr + PixelAdd)= PixelValue;                    // Write 8bit pixel from image
+
+}

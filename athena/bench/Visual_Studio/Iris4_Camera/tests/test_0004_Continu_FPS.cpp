@@ -28,7 +28,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_ID MilGrabBuffer;
 	//MIL_ID MilDisplay;
 
-	unsigned long long ImageBufferAddr=0;
+	M_UINT64 ImageBufferAddr     =0;
 	int MonoType = 8;
 	M_UINT32 i = 0;
 	int Sortie = 0;
@@ -52,8 +52,10 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 	DMAParamStruct*    DMAParams    = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
 
-	M_UINT32 OverrunPixel = 0;
-	MIL_INT OverrunPixelAdd=0;
+	M_UINT32 OverrunPixel        = 0;
+	M_UINT32 OverrunPixelValue   = 0;
+	M_UINT32 OVERRUN_OFFSET_LINE = 4; // ATTENTION !!!! '0', nous detectons des overruns!!!!
+
 	M_UINT32 GrabCmdCnt = 0;
 
 	M_UINT32 FileDumpNum = 0;
@@ -80,8 +82,10 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
     // Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr     = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
 	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
+
+
 	//LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 
 	//---------------------
@@ -140,21 +144,15 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	
 
-	//std::vector<int> ROI_vector = { 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 3072 };
-	std::vector<int> ROI_vector = {3072, 2048,1024, 512,256,128,64,32,16,8 };
+	//std::vector<int> ROI_Y_SIZE_vector = { 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 3072 };
+	std::vector<int> ROI_Y_SIZE_vector = {3072, 2048,1024, 512,256,128,64,32,16,8 };
 
-	//std::vector<int> ROI_vector = { 1024, 2048, 3072 };
+	//std::vector<int> ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
 	
-	std::vector<int>::size_type vector_size = ROI_vector.size();
-	vector<double> ROI_vector_ExpMax(ROI_vector.begin(), ROI_vector.end());
-	vector<double> ROI_vector_FPSMax(ROI_vector.begin(), ROI_vector.end());
+	std::vector<int>::size_type vector_size = ROI_Y_SIZE_vector.size();
+	vector<double> ROI_Y_SIZE_vector_ExpMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
+	vector<double> ROI_Y_SIZE_vector_FPSMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
 
-	
-
-	M_UINT64 ImageBufferAddr_SRC = LayerGetHostAddressBuffer(MilGrabBuffer);
-	
-	volatile M_UINT8 *SrcImgPtr;
-	SrcImgPtr = (M_UINT8*)ImageBufferAddr_SRC;
 
 	while (Sortie == 0)
 	{
@@ -185,12 +183,12 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				//--------------------------------------------------
 				printf("1) Minimum ExposureTime FPS test\n\n");
 
-				for (i = 0; i < ROI_vector.size(); i++) {
+				for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
 					XGS_Ctrl->setExposure_(100);
 					GrabCmdCnt = 0;
 					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 					GrabParams->Y_START = 4;
-					GrabParams->Y_END   = GrabParams->Y_START + ROI_vector[i];
+					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 
 					// Run each sequence for TimePerLoop seconds
 					auto start = std::chrono::system_clock::now();
@@ -204,8 +202,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						GrabCmdCnt++;
 
 						// Test for overrun of DMA
-						OverrunPixelAdd = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL) * M_UINT64(ROI_vector[i]+4);  // First pixel of the 4th line after the image valid in memory
-						OverrunPixel    = *(SrcImgPtr + OverrunPixelAdd);  //read 8bit pixel from image
+						OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, ROI_Y_SIZE_vector[i] + OVERRUN_OFFSET_LINE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
 						if (OverrunPixel != 0)
 							break;
 
@@ -220,128 +217,136 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					if (OverrunPixel != 0)
 						break;
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
+					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
 
-					ROI_vector_ExpMax[i] = Sensor_EXP_max;
-					ROI_vector_FPSMax[i] = Sensor_PRED;
+					ROI_Y_SIZE_vector_ExpMax[i] = Sensor_EXP_max;
+					ROI_Y_SIZE_vector_FPSMax[i] = Sensor_PRED;
 
 					XGS_Ctrl->WaitEndExpReadout();
 
 				} //end for
 				if (OverrunPixel != 0)
-					printf("\n\nImage Overrun detected test STOPED computer crash possibility (Overrun pixel image adress 0x%llX, pixel= 0x%X, Ysize=%d, GrabCount=%d)\n\n", ImageBufferAddr+OverrunPixelAdd, OverrunPixel, ROI_vector[i], GrabCmdCnt);
+					printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
 
-				MbufClear(MilGrabBuffer, 0);
-				Sleep(100);
 
-				//-----------------------------------------------------------------------------
-				// 2.0 Lets put the exposure max theoric (-1Line) and see if the FPS still ok
-				//------------------------------------------------------------------------------
-				printf("\n2) Maximum ExposureTime(-1L) FPS test\n\n");
-				for (i = 0; i < ROI_vector.size(); i++) {
-					XGS_Ctrl->setExposure_( (M_UINT32)(ROI_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)) );
-					GrabCmdCnt = 0;
-					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
-					GrabParams->Y_START = 4;
-					GrabParams->Y_END = GrabParams->Y_START + ROI_vector[i];
+				// S'il n'y a pas eu d'erreur
+				if (OverrunPixel == 0) {
+					
+					MbufClear(MilGrabBuffer, 0);
+					Sleep(100);
 
-					// Run each sequence for TimePerLoop seconds
-					auto start = std::chrono::system_clock::now();
-					auto end = std::chrono::system_clock::now();
+					//-----------------------------------------------------------------------------
+					// 2.0 Lets put the exposure max theoric (-1Line) and see if the FPS still ok
+					//------------------------------------------------------------------------------
+					printf("\n2) Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
+					for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
+						XGS_Ctrl->setExposure_((M_UINT32)(ROI_Y_SIZE_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)));
+						GrabCmdCnt = 0;
+						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
+						GrabParams->Y_START = 4;
+						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 
-					while ((std::chrono::duration_cast<std::chrono::seconds>(end - start).count() != TimePerLoop))
-					{
-						XGS_Data->SetDMA();
-						XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
-						end = std::chrono::system_clock::now();
-						GrabCmdCnt++;
+						// Run each sequence for TimePerLoop seconds
+						auto start = std::chrono::system_clock::now();
+						auto end = std::chrono::system_clock::now();
 
-						// Test for overrun of DMA
-						OverrunPixelAdd = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL) * ((M_UINT64)ROI_vector[i] + 4);  // First pixel of the 4th line after the image valid in memory
-						OverrunPixel = *(SrcImgPtr + OverrunPixelAdd);  //read 8bit pixel from image
+						while ((std::chrono::duration_cast<std::chrono::seconds>(end - start).count() != TimePerLoop))
+						{
+							XGS_Data->SetDMA();
+							XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+							end = std::chrono::system_clock::now();
+							GrabCmdCnt++;
+
+							// Test for overrun of DMA
+							OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, ROI_Y_SIZE_vector[i] + OVERRUN_OFFSET_LINE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+							if (OverrunPixel != 0)
+								break;
+
+
+						} //end while
+
+						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
+						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
+						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
+							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
+						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+
 						if (OverrunPixel != 0)
 							break;
 
-					} //end while
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
 
-					double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-					double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
-					double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-						                    - double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
-					//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+						XGS_Ctrl->WaitEndExpReadout();
 
+					} //end for
 					if (OverrunPixel != 0)
-						break;
+						printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
+				}
 
-					XGS_Ctrl->WaitEndExpReadout();
+				// S'il n'y a pas eu d'erreur
+				if (OverrunPixel == 0) {
+					MbufClear(MilGrabBuffer, 0);
+					Sleep(100);
 
-				} //end for
-				if (OverrunPixel != 0)
-					printf("\n\nImage Overrun detected test STOPED computer crash possibility (Overrun pixel image adress 0x%llX, pixel= 0x%X, Ysize=%d, GrabCount=%d)\n\n", ImageBufferAddr + OverrunPixelAdd, OverrunPixel, ROI_vector[i], GrabCmdCnt);
+					//-----------------------------------------------------------------------------
+					// 3.0 Lets program an internal HW timer to generate Max FPS with Max Exp(-1L)
+					//------------------------------------------------------------------------------
+					XGS_Ctrl->SetGrabMode(HW_TRIG, TIMER);
 
+					printf("\n3) Adaptative HW Timer with Maximum FPS and Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
+					for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
+						XGS_Ctrl->StopHWTimer();
 
-				//-----------------------------------------------------------------------------
-				// 3.0 Lets program an internal HW timer to generate Max FPS with Max Exp(-1L)
-				//------------------------------------------------------------------------------
-				XGS_Ctrl->SetGrabMode(HW_TRIG, TIMER);
-				
-				printf("\n3) Adaptative HW Timer with Maximum FPS and Maximum ExposureTime(-1L) FPS test\n\n");
-				for (i = 0; i < ROI_vector.size(); i++) {
-					XGS_Ctrl->StopHWTimer();
+						XGS_Ctrl->StartHWTimerFPS(ROI_Y_SIZE_vector_FPSMax[i]);
+						XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_RST = 1;
+						XGS_Ctrl->setExposure_((M_UINT32)(ROI_Y_SIZE_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)));
 
-					XGS_Ctrl->StartHWTimerFPS(ROI_vector_FPSMax[i]);
-					XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_RST = 1;
-					XGS_Ctrl->setExposure_( (M_UINT32)(ROI_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)) );
+						GrabCmdCnt = 0;
+						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
+						GrabParams->Y_START = 4;
+						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 
-					GrabCmdCnt = 0;
-					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
-					GrabParams->Y_START = 4;
-					GrabParams->Y_END = GrabParams->Y_START + ROI_vector[i];
+						// Run each sequence for TimePerLoop seconds
+						auto start = std::chrono::system_clock::now();
+						auto end = std::chrono::system_clock::now();
 
-					// Run each sequence for TimePerLoop seconds
-					auto start = std::chrono::system_clock::now();
-					auto end = std::chrono::system_clock::now();
+						while ((std::chrono::duration_cast<std::chrono::seconds>(end - start).count() != TimePerLoop))
+						{
+							XGS_Data->SetDMA();
+							XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+							end = std::chrono::system_clock::now();
+							GrabCmdCnt++;
 
-					while ((std::chrono::duration_cast<std::chrono::seconds>(end - start).count() != TimePerLoop))
-					{
-						XGS_Data->SetDMA();
-						XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
-						end = std::chrono::system_clock::now();
-						GrabCmdCnt++;
+							// Test for overrun of DMA
+							OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, ROI_Y_SIZE_vector[i] + OVERRUN_OFFSET_LINE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+							if (OverrunPixel != 0)
+								break;
 
-						// Test for overrun of DMA
-						OverrunPixelAdd = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL) * ((M_UINT64)ROI_vector[i] + 4);  // First pixel of the 4th line after the image valid in memory
-						OverrunPixel = *(SrcImgPtr + OverrunPixelAdd);  //read 8bit pixel from image
+						} //end while
+
+						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
+						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
+						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
+							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
+						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+
+						if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)
+							printf("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);
+
 						if (OverrunPixel != 0)
 							break;
 
-					} //end while
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
 
-					double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-					double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
-					double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-						- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
-					//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+						XGS_Ctrl->WaitEndExpReadout();
 
-					if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)
-						printf("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);
-
+					} //end for
 					if (OverrunPixel != 0)
-						break;
+						printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
-
-					XGS_Ctrl->WaitEndExpReadout();
-
-				} //end for
-				if (OverrunPixel != 0)
-					printf("\n\nImage Overrun detected test STOPED computer crash possibility (Overrun pixel image adress 0x%llX, pixel= 0x%X, Ysize=%d, GrabCount=%d)\n\n", ImageBufferAddr + OverrunPixelAdd, OverrunPixel, ROI_vector[i], GrabCmdCnt);
-
-
-
+				}
 
 
 				break;
