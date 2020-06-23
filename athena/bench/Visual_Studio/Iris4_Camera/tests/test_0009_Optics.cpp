@@ -40,6 +40,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	bool FPS_On     = true;
 
 	M_UINT32 DefaultGain;
+	M_UINT32 DefaultDigGain;
 	M_UINT32 DefaultBlackOffset;
 
 	M_UINT32 ExposureBase = 8000;
@@ -114,6 +115,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	XGS_Ctrl->setBlackRef(0);
 	XGS_Ctrl->setAnalogGain(1);
+	XGS_Ctrl->setDigitalGain(0x20);  // gain= 1/32 *32
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
@@ -188,10 +190,12 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	while (cin_imagefilename != "q")
 	{
 		if (cin_use_old_params == "n") {
-			printf("\nEnter default Gain(1-2-4)               : ");
+			printf("\nEnter default AnalogGain(1-2-4)         : ");
 			scanf_s("%d", &DefaultGain);
+			printf("\nEnter default DigitalGain(0-127, ou 32=Gain unitaire, step gain 1/32) : ");
+			scanf_s("%d", &DefaultDigGain);
 			printf("\nEnter default Balck Offset(12bit, HEX)  : 0x");
-			scanf_s("%d", &DefaultBlackOffset);
+			scanf_s("%x", &DefaultBlackOffset);
 			printf("\nEnter the Base Exposure in us           : ");
 			scanf_s("%d", &ExposureBase);
 			printf("\nEnter the Increment Exposure in us      : ");
@@ -200,6 +204,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			scanf_s("%d", &ExposureIter);
 			printf("\n");
 			XGS_Ctrl->setAnalogGain(DefaultGain);
+			XGS_Ctrl->setDigitalGain(DefaultDigGain);  // ceci va faire saturer le senseur XGS
 			XGS_Ctrl->setBlackRef(DefaultBlackOffset);
 			printf("\n");
 		}

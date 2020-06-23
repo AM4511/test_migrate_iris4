@@ -617,6 +617,15 @@ void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
 
 }
 
+//----------------------------------------------------
+//  setXGSDigGain    
+//----------------------------------------------------
+void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
+{
+	DigGain = DigGain & 0x7f;
+	WriteSPI(0x3846, (DigGain << 8) + DigGain);
+	WriteSPI(0x3848, (DigGain << 8) + DigGain);
+}
 
 
 //----------------------------------------------------
@@ -1073,3 +1082,57 @@ void CXGS_Ctrl::StopHWTimer(void) {
 
 
 }
+
+
+
+//----------------------------------------------------
+//  This method configures the trigger delay 
+//----------------------------------------------------
+void CXGS_Ctrl::setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo)
+{
+	GrabParams.TRIGGER_DELAY = (M_UINT32)((M_UINT64)TRIGGER_DELAY_us * 1000 / SystemPeriodNanoSecond); // Exposure in us	
+	if (PrintInfo == 1) printf("\nTrigger Delai set to %d us\n", TRIGGER_DELAY_us);
+
+}
+
+
+
+//----------------------------------------------------
+//  This method enables and configures the Strobe 
+//----------------------------------------------------
+void CXGS_Ctrl::enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32 STROBE_END_us, int PrintInfo)
+{
+
+	GrabParams.STROBE_END = (M_UINT32)((M_UINT64)STROBE_END_us * 1000 / SystemPeriodNanoSecond);
+	GrabParams.STROBE_MODE = STROBE_MODE;
+
+	GrabParams.STROBE_START = (M_UINT32)((M_UINT64)STROBE_START_us * 1000 / SystemPeriodNanoSecond);
+	GrabParams.STROBE_E = 1;
+
+	if (PrintInfo == 1)
+	{
+		if (STROBE_MODE == 0) printf("Strobe enable, StartSTROBE during EXPOSURE, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
+		if (STROBE_MODE == 1) printf("Strobe enable, StartSTROBE during TRIG DELAY, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
+	}
+}
+
+
+//----------------------------------------------------
+//  This method Disablesthe Strobe 
+//----------------------------------------------------
+void CXGS_Ctrl::disableStrobe(void)
+{
+
+	GrabParams.STROBE_END = 0xfffffff;
+	GrabParams.STROBE_MODE = 0;
+
+	GrabParams.STROBE_START = 0;
+	GrabParams.STROBE_E = 0;
+}
+
+
+
+
+
+
+

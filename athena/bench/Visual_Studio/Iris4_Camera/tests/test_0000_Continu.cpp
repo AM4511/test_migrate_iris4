@@ -52,6 +52,9 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
+	M_UINT32 Overrun      = 0;
+	M_UINT32 OverrunPixel = 0;
+
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0000.cpp    *\n");
 	printf(    "********************************\n\n");
@@ -190,6 +193,16 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+
+		//Overrun detection
+		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		if (OverrunPixel != 0)
+		{
+			Overrun++;
+			printf(" DMA Overflow detected: %d\n", Overrun);
+			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+		}
+
 
 
 		if (FPS_On)

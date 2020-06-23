@@ -168,6 +168,8 @@
     <ClCompile Include="source\I2C.cpp" />
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
+    <ClCompile Include="source\Random.cpp" />
+    <ClCompile Include="source\Source.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS12K.cpp" />
     <ClCompile Include="source\XGS16K.cpp" />
@@ -180,6 +182,7 @@
     <ClCompile Include="tests\test_0001_SWtrig.cpp" />
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
     <ClCompile Include="tests\test_0004_Continu_FPS.cpp" />
+    <ClCompile Include="tests\test_0005_SWtrig_Random.cpp" />
     <ClCompile Include="tests\test_0009_Optics.cpp" />
   </ItemGroup>
   <ItemGroup>

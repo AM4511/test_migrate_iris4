@@ -132,6 +132,7 @@ public:
 	void setExposure(M_UINT32 exposure_ss_us);
 	void setExposure_(M_UINT32 exposure_ss_us);
 	void setAnalogGain(M_UINT32 gain);
+	void setDigitalGain(M_UINT32 DigGain);
 	void setBlackRef(int value);
 	void SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTIVATION);
 	void EnableRegUpdate(void);
@@ -146,6 +147,11 @@ public:
 	void StartHWTimerFPS(double FPS);
 	void StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION);
 	void StopHWTimer(void);
+
+	void setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo);
+	void enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32 STROBE_END_us, int PrintInfo);
+	void disableStrobe(void);
+
 
 private:
 	
