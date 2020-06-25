@@ -169,7 +169,6 @@
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\Random.cpp" />
-    <ClCompile Include="source\Source.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS12K.cpp" />
     <ClCompile Include="source\XGS16K.cpp" />
