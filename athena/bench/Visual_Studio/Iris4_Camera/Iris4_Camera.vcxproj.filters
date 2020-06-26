@@ -113,13 +113,13 @@
     <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\sdk\pcie2AxiMaster.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Pcie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\design\registerfile\regfile_pcie2AxiMaster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

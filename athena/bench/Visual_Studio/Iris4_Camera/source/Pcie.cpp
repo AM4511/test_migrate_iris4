@@ -25,7 +25,7 @@ using namespace std;
 
 
 
-CPcie::CPcie(volatile FPGA_PCIE2AXIMASTER_TYPE& i_rPcie):
+CPcie::CPcie(volatile FPGA_REGFILE_PCIE2AXIMASTER_TYPE& i_rPcie):
 	rPcie_ptr(i_rPcie)
 {
 	memset(&sPcie_ptr, 0, sizeof(sPcie_ptr));

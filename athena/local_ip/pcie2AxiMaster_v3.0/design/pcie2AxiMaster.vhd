@@ -10,6 +10,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -979,6 +981,27 @@ architecture struct of pcie2AxiMaster is
   signal debug_in_sig      : std_logic_vector(31 downto 0) := (others => '0');
   signal debug_out_sig     : std_logic_vector(31 downto 0) := (others => '0');
 
+  type type_debug_dma_state is (  idle,
+                                  header,
+                                  tlp_ok,   
+                                  error,    
+                                  overrun,      
+                                  wait_sof1,          
+                                  wait_sof2
+                              );
+  signal  curr_debug_dma_state   :  type_debug_dma_state;  
+
+  signal tlp_error_add        : std_logic:=	'0';
+  signal tlp_error_overrun    : std_logic:=	'0';								
+  signal tlp_next_address     : std_logic_vector(regfile.debug.DMA_DEBUG1.ADD_START'range);
+
+  attribute mark_debug of curr_debug_dma_state   : signal is "true";
+  attribute mark_debug of tlp_error_add          : signal is "true";
+  attribute mark_debug of tlp_error_overrun      : signal is "true";
+  attribute mark_debug of tlp_next_address       : signal is "true";
+
+
+
 
 begin
 
@@ -1750,6 +1773,115 @@ begin
       end if;
     end if;
   end process P_irq_event_resync;
+
+
+
+
+
+  -----------------------------------------------------------------------------
+  -- Pour debugage de Overruns
+  -----------------------------------------------------------------------------
+  process(sys_clk)
+  begin
+    if rising_edge(sys_clk) then
+      if (sys_reset_n='0') then 
+        curr_debug_dma_state <= idle;
+        tlp_error_add        <=	'0';
+        tlp_error_overrun    <=	'0';								
+        tlp_next_address     <= (others =>'0');
+      else
+    
+        case curr_debug_dma_state is
+ 		
+          when  idle            =>  tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'0';	
+									tlp_next_address     <= tlp_next_address;
+		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='0') then
+                                      if(s_axis_tx_tdata(9 downto 0)= "0000100000") then  --0x20 DW
+									    curr_debug_dma_state <= header; 
+                                      else
+                                        curr_debug_dma_state <= idle;
+									  end if;
+									else
+                                        curr_debug_dma_state <= idle;	
+                                    end if;
+ 
+          when  header          =>  tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'0';	
+		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='0') then
+                                      if(s_axis_tx_tdata(31 downto 0)= regfile.debug.DMA_DEBUG1.ADD_START) then   --Start of frame
+									    tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000"; -- nxt is SOF+0x80
+									    curr_debug_dma_state <= tlp_ok;
+									  elsif(s_axis_tx_tdata(31 downto 0)/=tlp_next_address) then  	-- suite pas ok	(erreur d'adresse)							    
+										curr_debug_dma_state <= error; 
+										tlp_next_address     <= tlp_next_address;
+									  elsif(s_axis_tx_tdata(31 downto 0)=regfile.debug.DMA_DEBUG2.ADD_OVERRUN) then  	--on depasse l'image
+										curr_debug_dma_state <= overrun;
+										tlp_next_address     <= tlp_next_address;
+									  elsif(s_axis_tx_tdata(31 downto 0)=tlp_next_address) then
+                                        tlp_next_address <= tlp_next_address + "10000000";                               -- ok , nxt is curr+0x80								  
+										curr_debug_dma_state <= tlp_ok;	
+                                      end if;
+									else
+                                        curr_debug_dma_state <= header;	
+                                    end if; 
+									
+		  when  tlp_ok          =>  tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'0';	
+		                            tlp_next_address     <= tlp_next_address;
+									if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='1') then
+                                      curr_debug_dma_state <= idle;
+									else
+                                      curr_debug_dma_state <= tlp_ok;	
+                                    end if; 							
+									
+                                    
+		  when  error           =>  curr_debug_dma_state <= wait_sof1;
+                                    tlp_error_add        <=	'1';
+                                    tlp_error_overrun    <=	'0';
+ 									tlp_next_address     <= tlp_next_address;
+
+          when  overrun         =>  curr_debug_dma_state <= wait_sof1;	
+                                    tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'1';
+                                    tlp_next_address     <= tlp_next_address;									
+
+		  when  wait_sof1        => tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'0';	
+                                    tlp_next_address     <= tlp_next_address;																		
+		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1') then
+                                      if(s_axis_tx_tdata(9 downto 0)= "0000100000") then  --0x20 dw
+									    curr_debug_dma_state <= wait_sof2; 
+                                      else
+                                        curr_debug_dma_state <= wait_sof1;
+									  end if;	
+									else
+                                        curr_debug_dma_state <= wait_sof1;	
+                                    end if;
+
+          when  wait_sof2       =>  tlp_error_add        <=	'0';
+                                    tlp_error_overrun    <=	'0';	
+		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1') then
+                                      if(s_axis_tx_tdata(31 downto 0)= regfile.debug.DMA_DEBUG1.ADD_START) then   --Start of frame
+									    tlp_next_address <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000"; -- +0x80
+									    curr_debug_dma_state <= tlp_ok;
+									  else  									    
+										curr_debug_dma_state <= wait_sof1; 
+                                        tlp_next_address     <= tlp_next_address;									
+									  end if;
+									else
+                                      curr_debug_dma_state   <= wait_sof1;	
+                                      tlp_next_address       <= tlp_next_address;																  
+                                    end if; 
+								
+        end case;      
+      end if;
+    end if;   
+  end process;
+
+
+regfile.debug.DMA_DEBUG3.DMA_ADD_ERROR <= tlp_error_add;
+regfile.debug.DMA_DEBUG3.DMA_OVERRUN   <= tlp_error_overrun;
 
 
 end struct;

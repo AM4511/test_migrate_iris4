@@ -39,7 +39,7 @@
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
 void Help(CXGS_Ctrl* Camera);
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
@@ -102,7 +102,7 @@ int main(void)
 	// Init Global PCIe (Maio) REGISTER FILE
 	//------------------------------
 	volatile unsigned char* PCIe_regptr = getMilLayerRegisterPtr(0, fpga_bar1_add + regfile_MAIO_ADD_OFFSET);
-	volatile FPGA_PCIE2AXIMASTER_TYPE& rPcie_ptr = (*(volatile FPGA_PCIE2AXIMASTER_TYPE*)(PCIe_regptr));
+	volatile FPGA_REGFILE_PCIE2AXIMASTER_TYPE& rPcie_ptr = (*(volatile FPGA_REGFILE_PCIE2AXIMASTER_TYPE*)(PCIe_regptr));
 
 	//------------------------------
 	// Init Global XGS Athena REGISTER FILE
@@ -122,14 +122,13 @@ int main(void)
 	//------------------------------
 	CPcie* Pcie;
 	Pcie = new CPcie(rPcie_ptr);
-
 	Pcie->InitBar0Window();
+
 
 	//------------------------------
 	// Init class XGS CONTROLLER
 	//------------------------------
 	CXGS_Ctrl *XGS_Ctrl;
-	//XGS_Ctrl = new CXGS_Ctrl(rXGSptr, 16.000000, 15.432099); //32.4Mhz
 	XGS_Ctrl = new CXGS_Ctrl(rXGS_Athena_ptr, 16.000000, 15.625);    //32Mhz
 
 	//------------------------------
@@ -246,7 +245,7 @@ int main(void)
 				break;
 
 			case '0':
-				test_0000_Continu(XGS_Ctrl, XGS_Data);
+				test_0000_Continu(Pcie, XGS_Ctrl, XGS_Data);
 				printf("\n\n");
 				Help(XGS_Ctrl);
 				break;
