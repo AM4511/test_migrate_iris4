@@ -767,7 +767,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3219341a</spirit:value>
+            <spirit:value>e35b1e40</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -807,7 +807,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3219341a</spirit:value>
+            <spirit:value>e35b1e40</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -858,7 +858,7 @@
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">1</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">0</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -875,7 +875,7 @@
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">1</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">0</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -892,7 +892,7 @@
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">1</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">0</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -909,7 +909,7 @@
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">1</spirit:left>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.PCIE_NB_LANES&apos;)) - 1)">0</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -2115,7 +2115,7 @@
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>PCIE_NB_LANES</spirit:name>
         <spirit:displayName>Pcie Nb Lanes</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.PCIE_NB_LANES">2</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.PCIE_NB_LANES">1</spirit:value>
       </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
@@ -2132,14 +2132,14 @@
       <spirit:enumeration>8</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
+      <spirit:name>choice_list_8aad6ae4</spirit:name>
+      <spirit:enumeration>1</spirit:enumeration>
+      <spirit:enumeration>2</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
       <spirit:name>choice_list_9d8b0d81</spirit:name>
       <spirit:enumeration>ACTIVE_HIGH</spirit:enumeration>
       <spirit:enumeration>ACTIVE_LOW</spirit:enumeration>
-    </spirit:choice>
-    <spirit:choice>
-      <spirit:name>choice_list_b90df883</spirit:name>
-      <spirit:enumeration>1</spirit:enumeration>
-      <spirit:enumeration>2</spirit:enumeration>
     </spirit:choice>
   </spirit:choices>
   <spirit:fileSets>
@@ -2154,14 +2154,13 @@
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
-        <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:name>registerfile/regfile_pcie2AxiMaster.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>design/regfile_pcie2AxiMaster.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
+        <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
@@ -2233,7 +2232,7 @@
       <spirit:file>
         <spirit:name>design/pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_e7b64c13</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_292dd48f</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
@@ -2278,14 +2277,14 @@
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
-        <spirit:fileType>verilogSource</spirit:fileType>
+        <spirit:name>registerfile/regfile_pcie2AxiMaster.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>design/regfile_pcie2AxiMaster.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
+        <spirit:fileType>verilogSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
@@ -2477,7 +2476,7 @@
     <spirit:parameter>
       <spirit:name>PCIE_NB_LANES</spirit:name>
       <spirit:displayName>PCIe lane number</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.PCIE_NB_LANES" spirit:choiceRef="choice_list_b90df883">2</spirit:value>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.PCIE_NB_LANES" spirit:choiceRef="choice_list_8aad6ae4">1</spirit:value>
     </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
@@ -2503,13 +2502,13 @@
       </xilinx:xpmLibraries>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>http://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>34</xilinx:coreRevision>
+      <xilinx:coreRevision>37</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3.0:3.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3_0:3.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-05-22T12:22:24Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-06-29T11:52:53Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="matrox.com:ConcordG2:pcie2AxiMaster:1.0_ARCHIVE_LOCATION">d:/git/gitlab/ipcores/pcie2AxiMaster</xilinx:tag>
@@ -3204,16 +3203,52 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6c8ad64f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@142fe881_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@4926921b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1475dd91_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@638bbbe1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b6f60a3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@8d849e5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2cdfb94_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36637eb8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c5c59c7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17932791_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4ddc5287_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36a01b3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1e452340_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c0952cf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bc67444_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51699338_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@43d64aa6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b63f86_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1bf2eeb3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7fa07cc6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2dae3ee1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38c72bde_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c30c6b7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22fb9b16_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1cccd3df_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7c000b46_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4aaee0ca_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@71f7ad49_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ccddc53_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@77f4af83_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@49770abd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34bc48ac_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@44814088_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d3039e0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2c767cc8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5f83a0cf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1aed9343_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a1e0c23_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="9c8c3f99"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="dab0a384"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="ef8dc353"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="b48260db"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="269e412a"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="49878b50"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="2ffa4711"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="c4739fe3"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="efaa5a27"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="5451f2a2"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

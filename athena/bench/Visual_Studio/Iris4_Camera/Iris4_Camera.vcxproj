@@ -188,7 +188,7 @@
     <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\design\registerfile\regfile_pcie2AxiMaster.h" />
+    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.h" />
     <ClInclude Include="..\..\..\local_ip\XGS_athena\registerfile\regfile_xgs_athena.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

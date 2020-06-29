@@ -4,12 +4,12 @@
 %  $Date:$
 %  $Author:$
 %
-%  MODULE: pcie2AxiMaster
+%  MODULE: regfile_pcie2AxiMaster
 %
-%  DESCRIPTION: Register file of the pcie2AxiMaster module
+%  DESCRIPTION: Register file of the regfile_pcie2AxiMaster module
 %
-%  FDK IDE Version: 4.5.0_beta5
-%  Build ID: I20151222-1010
+%  FDK IDE Version: 4.7.0_beta4
+%  Build ID: I20191220-1537
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -233,5 +233,15 @@ Register("input", 0x200, 4, "debug input signals");
 
 Register("output", 0x204, 4, "null");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dma_debug1", 0x208, 4, "null");
+		Field("add_start", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dma_debug2", 0x20c, 4, "null");
+		Field("add_overrun", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dma_debug3", 0x210, 4, "null");
+		Field("dma_add_error", 4, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("dma_overrun", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 

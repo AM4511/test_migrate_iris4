@@ -166,11 +166,11 @@ set IP_XGS_athena          ${LOCAL_IP_DIR}/XGS_athena
 set IP_AXI_I2C             ${LOCAL_IP_DIR}/axi_i2c_1.0
 set README_FILE            ${BACKEND_DIR}/Readme.txt
  
-file copy -force ${IP_PCIE2AXIMASTER_DIR}/design/registerfile/pcie2AxiMaster.registerfile $pre_release_registerfile_dir
-file copy -force ${IP_PCIE2AXIMASTER_DIR}/doc/pcie2AxiMaster_IPCore_Specification.docx    $pre_release_registerfile_dir
-file copy -force ${IP_PCIE2AXIMASTER_DIR}/doc/pcie2AxiMaster.pdf                          $pre_release_registerfile_dir
-file copy -force ${IP_PCIE2AXIMASTER_DIR}/sdk/pcie2AxiMaster.h                            $pre_release_registerfile_dir
-file copy -force ${IP_PCIE2AXIMASTER_DIR}/misc/pcie2AxiMaster.sl                          $pre_release_registerfile_dir
+file copy -force ${IP_PCIE2AXIMASTER_DIR}/doc/pcie2AxiMaster_IPCore_Specification.docx     $pre_release_registerfile_dir
+file copy -force ${IP_PCIE2AXIMASTER_DIR}/registerfile/regfile_pcie2AxiMaster.registerfile $pre_release_registerfile_dir
+file copy -force ${IP_PCIE2AXIMASTER_DIR}/registerfile/regfile_pcie2AxiMaster.pdf          $pre_release_registerfile_dir
+file copy -force ${IP_PCIE2AXIMASTER_DIR}/registerfile/regfile_pcie2AxiMaster.h            $pre_release_registerfile_dir
+file copy -force ${IP_PCIE2AXIMASTER_DIR}/registerfile/regfile_pcie2AxiMaster.sl           $pre_release_registerfile_dir
 
 file copy -force ${IP_XGS_athena}/registerfile/regfile_xgs_athena.registerfile            $pre_release_registerfile_dir
 file copy -force ${IP_XGS_athena}/registerfile/regfile_xgs_athena.pdf                     $pre_release_registerfile_dir

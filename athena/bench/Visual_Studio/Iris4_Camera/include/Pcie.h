@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <vector>
-#include "../../../../local_ip/pcie2AxiMaster_v3.0/design/registerfile/regfile_pcie2AxiMaster.h"
+#include "../../../../local_ip/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.h"
 using namespace std;
 
 

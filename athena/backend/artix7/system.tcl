@@ -265,6 +265,7 @@ proc create_root_design { parentCell } {
    CONFIG.ENABLE_DMA {1} \
    CONFIG.ENABLE_MTX_SPI {1} \
    CONFIG.PCIE_DEVICE_ID {20564} \
+   CONFIG.PCIE_NB_LANES {2} \
  ] $pcie2AxiMaster_0
 
   # Create instance: sys_reset_0, and set properties
