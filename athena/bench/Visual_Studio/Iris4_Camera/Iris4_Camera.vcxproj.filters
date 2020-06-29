@@ -133,4 +133,7 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.registerfile" />
+  </ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
--- Module              : regfile_regfile_pcie2AxiMaster_pack
--- Created on          : 2020/06/29 08:17:49
+-- Module              : regfile_pcie2AxiMaster_pack
+-- Created on          : 2020/06/29 12:06:56
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
@@ -14,7 +14,7 @@ library ieee;        -- The standard IEEE library
    use ieee.std_logic_unsigned.all;
 
 
-package regfile_regfile_pcie2AxiMaster_pack is
+package regfile_pcie2AxiMaster_pack is
    --------------------------------------------------------------------------------
    -- Address constants
    --------------------------------------------------------------------------------
@@ -703,9 +703,9 @@ package regfile_regfile_pcie2AxiMaster_pack is
    );
 
    ------------------------------------------------------------------------------------------
-   -- Register file name: regfile_regfile_pcie2AxiMaster
+   -- Register file name: regfile_pcie2AxiMaster
    ------------------------------------------------------------------------------------------
-   type REGFILE_REGFILE_PCIE2AXIMASTER_TYPE is record
+   type REGFILE_PCIE2AXIMASTER_TYPE is record
       info           : INFO_TYPE;
       fpga           : FPGA_TYPE;
       interrupts     : INTERRUPTS_TYPE;
@@ -714,9 +714,9 @@ package regfile_regfile_pcie2AxiMaster_pack is
       spi            : SPI_TYPE;
       axi_window     : AXI_WINDOW_TYPE_array;
       debug          : DEBUG_TYPE;
-   end record REGFILE_REGFILE_PCIE2AXIMASTER_TYPE;
+   end record REGFILE_PCIE2AXIMASTER_TYPE;
 
-   constant INIT_REGFILE_REGFILE_PCIE2AXIMASTER_TYPE : REGFILE_REGFILE_PCIE2AXIMASTER_TYPE := (
+   constant INIT_REGFILE_PCIE2AXIMASTER_TYPE : REGFILE_PCIE2AXIMASTER_TYPE := (
       info            => INIT_INFO_TYPE,
       fpga            => INIT_FPGA_TYPE,
       interrupts      => INIT_INTERRUPTS_TYPE,
@@ -728,9 +728,9 @@ package regfile_regfile_pcie2AxiMaster_pack is
    );
 
    
-end regfile_regfile_pcie2AxiMaster_pack;
+end regfile_pcie2AxiMaster_pack;
 
-package body regfile_regfile_pcie2AxiMaster_pack is
+package body regfile_pcie2AxiMaster_pack is
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
    -- Description: Cast from INFO_TAG_TYPE to std_logic_vector
@@ -1462,8 +1462,8 @@ end package body;
 -------------------------------------------------------------------------------
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
--- Module              : regfile_regfile_pcie2AxiMaster
--- Created on          : 2020/06/29 08:17:49
+-- Module              : regfile_pcie2AxiMaster
+-- Created on          : 2020/06/29 12:06:56
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
@@ -1477,30 +1477,30 @@ library ieee;
 
 -- Work library
 library work;
-   use work.regfile_regfile_pcie2AxiMaster_pack.all;
+   use work.regfile_pcie2AxiMaster_pack.all;
 
 
-entity regfile_regfile_pcie2AxiMaster is
+entity regfile_pcie2AxiMaster is
    
    port (
-      resetN        : in    std_logic;                                                                       -- System reset
-      sysclk        : in    std_logic;                                                                       -- System clock
-      regfile       : inout REGFILE_REGFILE_PCIE2AXIMASTER_TYPE := INIT_REGFILE_REGFILE_PCIE2AXIMASTER_TYPE; -- Register file
+      resetN        : in    std_logic;                                                       -- System reset
+      sysclk        : in    std_logic;                                                       -- System clock
+      regfile       : inout REGFILE_PCIE2AXIMASTER_TYPE := INIT_REGFILE_PCIE2AXIMASTER_TYPE; -- Register file
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
       -- Description: 
       ------------------------------------------------------------------------------------
-      reg_read      : in    std_logic;                                                                       -- Read
-      reg_write     : in    std_logic;                                                                       -- Write
-      reg_addr      : in    std_logic_vector(9 downto 2);                                                    -- Address
-      reg_beN       : in    std_logic_vector(3 downto 0);                                                    -- Byte enable
-      reg_writedata : in    std_logic_vector(31 downto 0);                                                   -- Write data
-      reg_readdata  : out   std_logic_vector(31 downto 0)                                                    -- Read data
+      reg_read      : in    std_logic;                                                       -- Read
+      reg_write     : in    std_logic;                                                       -- Write
+      reg_addr      : in    std_logic_vector(9 downto 2);                                    -- Address
+      reg_beN       : in    std_logic_vector(3 downto 0);                                    -- Byte enable
+      reg_writedata : in    std_logic_vector(31 downto 0);                                   -- Write data
+      reg_readdata  : out   std_logic_vector(31 downto 0)                                    -- Read data
    );
    
-end regfile_regfile_pcie2AxiMaster;
+end regfile_pcie2AxiMaster;
 
-architecture rtl of regfile_regfile_pcie2AxiMaster is
+architecture rtl of regfile_pcie2AxiMaster is
 ------------------------------------------------------------------------------------------
 -- Signals declaration
 ------------------------------------------------------------------------------------------
