@@ -41,7 +41,7 @@ fi
 export PROJECT_NAME="iris4"
 export ARES="${IRIS4}/ares_pcie"
 export ATHENA="${IRIS4}/athena"
-export IPCORES="${ATHENA}/ipcores"
+#export IPCORES="${ATHENA}/ipcores"
 export LOCAL_IP="${ATHENA}/local_ip"
 export PCIE2AXIMASTER="${LOCAL_IP}/pcie2AxiMaster_v3.0"
 export UTIL="${IRIS4}/util"

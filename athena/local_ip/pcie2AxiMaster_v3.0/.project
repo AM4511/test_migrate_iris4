@@ -5,9 +5,15 @@
 	<projects>
 	</projects>
 	<buildSpec>
+		<buildCommand>
+			<name>net.sf.sveditor.core.SVProjectBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.matrox.fdk.core.project.matroxNature</nature>
+		<nature>net.sf.sveditor.core.SVNature</nature>
 	</natures>
 	<linkedResources>
 		<link>
