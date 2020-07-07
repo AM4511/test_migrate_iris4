@@ -20,8 +20,9 @@ using namespace std;
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
-void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
@@ -180,6 +181,10 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
 
+	// For debug DMA overrun with full 12Mpix sensor
+	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = 0x10000080;
+	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = 0x10c00080;
+
 	//---------------------
 	// Give SPI control to FPGA
 	//---------------------
@@ -194,14 +199,7 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 
-		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
-		if (OverrunPixel != 0)
-		{
-			Overrun++;
-			printf(" DMA Overflow detected: %d\n", Overrun);
-			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
-		}
+		//XGS_Ctrl->WaitEndExpReadout();
 
 
 
@@ -235,6 +233,20 @@ void test_0000_Continu(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
 		//	//printf("%f", DisplayLength1 - DisplayLength0);
 		//}
+
+
+		//Overrun detection
+		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		if (OverrunPixel != 0)
+		{
+			Overrun++;
+			printf(" DMA Overflow detected: %d\n", Overrun);
+			//printf("Press enter to continue...\n");
+			//_getch();
+			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+
+		}
+
 
 
 

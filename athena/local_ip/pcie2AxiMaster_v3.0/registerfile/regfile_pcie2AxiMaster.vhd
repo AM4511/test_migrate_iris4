@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
--- File    : regfile_pcie2AxiMaster.vhd
--- Project : FDK
--- Module  : regfile_pcie2AxiMaster_pack
--- Created on : 2019/04/03 14:27:25
--- Created by : amarchan
--- FDK IDE Version: 4.5.0_beta5
--- Build ID: I20151222-1010
---
+-- File                : regfile_pcie2AxiMaster.vhd
+-- Project             : FDK
+-- Module              : regfile_pcie2AxiMaster_pack
+-- Created on          : 2020/06/29 12:06:56
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x482014AC
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -60,6 +60,9 @@ package regfile_pcie2AxiMaster_pack is
    constant K_axi_window_3_axi_translation_ADDR : natural := 16#13c#;
    constant K_debug_input_ADDR                 : natural := 16#200#;
    constant K_debug_output_ADDR                : natural := 16#204#;
+   constant K_debug_DMA_DEBUG1_ADDR            : natural := 16#208#;
+   constant K_debug_DMA_DEBUG2_ADDR            : natural := 16#20c#;
+   constant K_debug_DMA_DEBUG3_ADDR            : natural := 16#210#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: tag
@@ -516,6 +519,53 @@ package regfile_pcie2AxiMaster_pack is
    function to_DEBUG_OUTPUT_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_OUTPUT_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: DMA_DEBUG1
+   ------------------------------------------------------------------------------------------
+   type DEBUG_DMA_DEBUG1_TYPE is record
+      ADD_START      : std_logic_vector(31 downto 0);
+   end record DEBUG_DMA_DEBUG1_TYPE;
+
+   constant INIT_DEBUG_DMA_DEBUG1_TYPE : DEBUG_DMA_DEBUG1_TYPE := (
+      ADD_START       => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG1_TYPE) return std_logic_vector;
+   function to_DEBUG_DMA_DEBUG1_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DMA_DEBUG2
+   ------------------------------------------------------------------------------------------
+   type DEBUG_DMA_DEBUG2_TYPE is record
+      ADD_OVERRUN    : std_logic_vector(31 downto 0);
+   end record DEBUG_DMA_DEBUG2_TYPE;
+
+   constant INIT_DEBUG_DMA_DEBUG2_TYPE : DEBUG_DMA_DEBUG2_TYPE := (
+      ADD_OVERRUN     => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG2_TYPE) return std_logic_vector;
+   function to_DEBUG_DMA_DEBUG2_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG2_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DMA_DEBUG3
+   ------------------------------------------------------------------------------------------
+   type DEBUG_DMA_DEBUG3_TYPE is record
+      DMA_ADD_ERROR  : std_logic;
+      DMA_OVERRUN    : std_logic;
+   end record DEBUG_DMA_DEBUG3_TYPE;
+
+   constant INIT_DEBUG_DMA_DEBUG3_TYPE : DEBUG_DMA_DEBUG3_TYPE := (
+      DMA_ADD_ERROR   => 'Z',
+      DMA_OVERRUN     => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG3_TYPE) return std_logic_vector;
+   function to_DEBUG_DMA_DEBUG3_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG3_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Section Name: info
    ------------------------------------------------------------------------------------------
    type INFO_TYPE is record
@@ -639,11 +689,17 @@ package regfile_pcie2AxiMaster_pack is
    type DEBUG_TYPE is record
       input          : DEBUG_INPUT_TYPE;
       output         : DEBUG_OUTPUT_TYPE;
+      DMA_DEBUG1     : DEBUG_DMA_DEBUG1_TYPE;
+      DMA_DEBUG2     : DEBUG_DMA_DEBUG2_TYPE;
+      DMA_DEBUG3     : DEBUG_DMA_DEBUG3_TYPE;
    end record DEBUG_TYPE;
 
    constant INIT_DEBUG_TYPE : DEBUG_TYPE := (
       input           => INIT_DEBUG_INPUT_TYPE,
-      output          => INIT_DEBUG_OUTPUT_TYPE
+      output          => INIT_DEBUG_OUTPUT_TYPE,
+      DMA_DEBUG1      => INIT_DEBUG_DMA_DEBUG1_TYPE,
+      DMA_DEBUG2      => INIT_DEBUG_DMA_DEBUG2_TYPE,
+      DMA_DEBUG3      => INIT_DEBUG_DMA_DEBUG3_TYPE
    );
 
    ------------------------------------------------------------------------------------------
@@ -1328,19 +1384,90 @@ package body regfile_pcie2AxiMaster_pack is
       return output;
    end to_DEBUG_OUTPUT_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DEBUG_DMA_DEBUG1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 0) := reg.ADD_START;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DEBUG_DMA_DEBUG1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DEBUG_DMA_DEBUG1_TYPE
+   --------------------------------------------------------------------------------
+   function to_DEBUG_DMA_DEBUG1_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG1_TYPE is
+   variable output : DEBUG_DMA_DEBUG1_TYPE;
+   begin
+      output.ADD_START := stdlv(31 downto 0);
+      return output;
+   end to_DEBUG_DMA_DEBUG1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DEBUG_DMA_DEBUG2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 0) := reg.ADD_OVERRUN;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DEBUG_DMA_DEBUG2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DEBUG_DMA_DEBUG2_TYPE
+   --------------------------------------------------------------------------------
+   function to_DEBUG_DMA_DEBUG2_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG2_TYPE is
+   variable output : DEBUG_DMA_DEBUG2_TYPE;
+   begin
+      output.ADD_OVERRUN := stdlv(31 downto 0);
+      return output;
+   end to_DEBUG_DMA_DEBUG2_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DEBUG_DMA_DEBUG3_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DEBUG_DMA_DEBUG3_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(4) := reg.DMA_ADD_ERROR;
+      output(0) := reg.DMA_OVERRUN;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DEBUG_DMA_DEBUG3_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DEBUG_DMA_DEBUG3_TYPE
+   --------------------------------------------------------------------------------
+   function to_DEBUG_DMA_DEBUG3_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEBUG_DMA_DEBUG3_TYPE is
+   variable output : DEBUG_DMA_DEBUG3_TYPE;
+   begin
+      output.DMA_ADD_ERROR := stdlv(4);
+      output.DMA_OVERRUN := stdlv(0);
+      return output;
+   end to_DEBUG_DMA_DEBUG3_TYPE;
+
    
 end package body;
 
 
 -------------------------------------------------------------------------------
--- File : regfile_pcie2AxiMaster.vhd
--- Project : FDK
--- Module : regfile_pcie2AxiMaster
--- Created on : 2019/04/03 14:27:25
--- Created by : amarchan
--- FDK IDE Version: 4.5.0_beta5
--- Build ID: I20151222-1010
--- 
+-- File                : regfile_pcie2AxiMaster.vhd
+-- Project             : FDK
+-- Module              : regfile_pcie2AxiMaster
+-- Created on          : 2020/06/29 12:06:56
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x482014AC
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -1378,8 +1505,8 @@ architecture rtl of regfile_pcie2AxiMaster is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                   : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                           : std_logic_vector(41 downto 0);                   -- Address decode hit
-signal wEn                                           : std_logic_vector(41 downto 0);                   -- Write Enable
+signal hit                                           : std_logic_vector(44 downto 0);                   -- Address decode hit
+signal wEn                                           : std_logic_vector(44 downto 0);                   -- Write Enable
 signal fullAddr                                      : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                 : integer;                                        
 signal bitEnN                                        : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -1426,6 +1553,9 @@ signal rb_axi_window_3_pci_bar0_stop                 : std_logic_vector(31 downt
 signal rb_axi_window_3_axi_translation               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_debug_input                                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_debug_output                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_debug_DMA_DEBUG1                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_debug_DMA_DEBUG2                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_debug_DMA_DEBUG3                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_info_scratchpad_value                : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw_interrupts_ctrl_global_mask          : std_logic;                                       -- Field: global_mask
 signal field_rw2c_interrupts_status_0_value          : std_logic_vector(31 downto 0);                   -- Field: value
@@ -1463,6 +1593,8 @@ signal field_rw_axi_window_3_pci_bar0_start_value    : std_logic_vector(23 downt
 signal field_rw_axi_window_3_pci_bar0_stop_value     : std_logic_vector(23 downto 0);                   -- Field: value
 signal field_rw_axi_window_3_axi_translation_value   : std_logic_vector(29 downto 0);                   -- Field: value
 signal field_rw_debug_output_value                   : std_logic_vector(31 downto 0);                   -- Field: value
+signal field_rw_debug_DMA_DEBUG1_ADD_START           : std_logic_vector(31 downto 0);                   -- Field: ADD_START
+signal field_rw_debug_DMA_DEBUG2_ADD_OVERRUN         : std_logic_vector(31 downto 0);                   -- Field: ADD_OVERRUN
 
 begin -- rtl
 
@@ -1525,6 +1657,9 @@ hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else 
 hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#13c#,12)))	else '0'; -- Addr:  0x013C	axi_translation
 hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#200#,12)))	else '0'; -- Addr:  0x0200	input
 hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#204#,12)))	else '0'; -- Addr:  0x0204	output
+hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#208#,12)))	else '0'; -- Addr:  0x0208	DMA_DEBUG1
+hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#20c#,12)))	else '0'; -- Addr:  0x020C	DMA_DEBUG2
+hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#210#,12)))	else '0'; -- Addr:  0x0210	DMA_DEBUG3
 
 
 
@@ -1576,7 +1711,10 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_axi_window_3_pci_bar0_stop,
                             rb_axi_window_3_axi_translation,
                             rb_debug_input,
-                            rb_debug_output
+                            rb_debug_output,
+                            rb_debug_DMA_DEBUG1,
+                            rb_debug_DMA_DEBUG2,
+                            rb_debug_DMA_DEBUG3
                            )
 begin
    case fullAddrAsInt is
@@ -1748,6 +1886,18 @@ begin
       when 16#204# =>
          readBackMux <= rb_debug_output;
 
+      -- [0x208]: /debug/DMA_DEBUG1
+      when 16#208# =>
+         readBackMux <= rb_debug_DMA_DEBUG1;
+
+      -- [0x20c]: /debug/DMA_DEBUG2
+      when 16#20C# =>
+         readBackMux <= rb_debug_DMA_DEBUG2;
+
+      -- [0x210]: /debug/DMA_DEBUG3
+      when 16#210# =>
+         readBackMux <= rb_debug_DMA_DEBUG3;
+
       -- Default value
       when others =>
          readBackMux <= (others => '0');
@@ -1801,7 +1951,7 @@ wEn(1) <= (hit(1)) and (reg_write);
 -- Field name: value
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_info_fid(31 downto 0) <= std_logic_vector(to_unsigned(integer(0),32));
+rb_info_fid(31 downto 0) <= X"00000000";
 regfile.info.fid.value <= rb_info_fid(31 downto 0);
 
 
@@ -1878,7 +2028,7 @@ regfile.info.scratchpad.value <= field_rw_info_scratchpad_value(31 downto 0);
 P_info_scratchpad_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_info_scratchpad_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_info_scratchpad_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(4) = '1' and bitEnN(j) = '0') then
@@ -2034,7 +2184,7 @@ regfile.interrupts.status(0).value <= field_rw2c_interrupts_status_0_value(31 do
 P_interrupts_status_0_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw2c_interrupts_status_0_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw2c_interrupts_status_0_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(10) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
@@ -2071,7 +2221,7 @@ regfile.interrupts.status(1).value <= field_rw2c_interrupts_status_1_value(31 do
 P_interrupts_status_1_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw2c_interrupts_status_1_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw2c_interrupts_status_1_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(11) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
@@ -2108,7 +2258,7 @@ regfile.interrupts.enable(0).value <= field_rw_interrupts_enable_0_value(31 down
 P_interrupts_enable_0_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_enable_0_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_interrupts_enable_0_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(12) = '1' and bitEnN(j) = '0') then
@@ -2141,7 +2291,7 @@ regfile.interrupts.enable(1).value <= field_rw_interrupts_enable_1_value(31 down
 P_interrupts_enable_1_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_enable_1_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_interrupts_enable_1_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(13) = '1' and bitEnN(j) = '0') then
@@ -2174,7 +2324,7 @@ regfile.interrupts.mask(0).value <= field_rw_interrupts_mask_0_value(31 downto 0
 P_interrupts_mask_0_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_mask_0_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_interrupts_mask_0_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(14) = '1' and bitEnN(j) = '0') then
@@ -2207,7 +2357,7 @@ regfile.interrupts.mask(1).value <= field_rw_interrupts_mask_1_value(31 downto 0
 P_interrupts_mask_1_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_mask_1_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_interrupts_mask_1_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(15) = '1' and bitEnN(j) = '0') then
@@ -2345,7 +2495,7 @@ regfile.interrupt_queue.addr_high.addr <= field_rw_interrupt_queue_addr_high_add
 P_interrupt_queue_addr_high_addr : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupt_queue_addr_high_addr <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_interrupt_queue_addr_high_addr <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(19) = '1' and bitEnN(j) = '0') then
@@ -2378,7 +2528,7 @@ regfile.tlp.timeout.value <= field_rw_tlp_timeout_value(31 downto 0);
 P_tlp_timeout_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_tlp_timeout_value <= std_logic_vector(to_unsigned(integer(31250000),32));
+      field_rw_tlp_timeout_value <= X"01DCD650";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(20) = '1' and bitEnN(j) = '0') then
@@ -3170,7 +3320,7 @@ regfile.debug.output.value <= field_rw_debug_output_value(31 downto 0);
 P_debug_output_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_debug_output_value <= std_logic_vector(to_unsigned(integer(0),32));
+      field_rw_debug_output_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(41) = '1' and bitEnN(j) = '0') then
@@ -3179,6 +3329,95 @@ begin
       end loop;
    end if;
 end process P_debug_output_value;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: debug_DMA_DEBUG1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(42) <= (hit(42)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ADD_START(31 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_debug_DMA_DEBUG1(31 downto 0) <= field_rw_debug_DMA_DEBUG1_ADD_START(31 downto 0);
+regfile.debug.DMA_DEBUG1.ADD_START <= field_rw_debug_DMA_DEBUG1_ADD_START(31 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_debug_DMA_DEBUG1_ADD_START
+------------------------------------------------------------------------------------------
+P_debug_DMA_DEBUG1_ADD_START : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_rw_debug_DMA_DEBUG1_ADD_START <= X"00000000";
+   elsif (rising_edge(sysclk)) then
+      for j in  31 downto 0  loop
+         if(wEn(42) = '1' and bitEnN(j) = '0') then
+            field_rw_debug_DMA_DEBUG1_ADD_START(j-0) <= reg_writedata(j);
+         end if;
+      end loop;
+   end if;
+end process P_debug_DMA_DEBUG1_ADD_START;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: debug_DMA_DEBUG2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(43) <= (hit(43)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ADD_OVERRUN(31 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_debug_DMA_DEBUG2(31 downto 0) <= field_rw_debug_DMA_DEBUG2_ADD_OVERRUN(31 downto 0);
+regfile.debug.DMA_DEBUG2.ADD_OVERRUN <= field_rw_debug_DMA_DEBUG2_ADD_OVERRUN(31 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_debug_DMA_DEBUG2_ADD_OVERRUN
+------------------------------------------------------------------------------------------
+P_debug_DMA_DEBUG2_ADD_OVERRUN : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_rw_debug_DMA_DEBUG2_ADD_OVERRUN <= X"00000000";
+   elsif (rising_edge(sysclk)) then
+      for j in  31 downto 0  loop
+         if(wEn(43) = '1' and bitEnN(j) = '0') then
+            field_rw_debug_DMA_DEBUG2_ADD_OVERRUN(j-0) <= reg_writedata(j);
+         end if;
+      end loop;
+   end if;
+end process P_debug_DMA_DEBUG2_ADD_OVERRUN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: debug_DMA_DEBUG3
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(44) <= (hit(44)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: DMA_ADD_ERROR
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_debug_DMA_DEBUG3(4) <= regfile.debug.DMA_DEBUG3.DMA_ADD_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DMA_OVERRUN
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_debug_DMA_DEBUG3(0) <= regfile.debug.DMA_DEBUG3.DMA_OVERRUN;
+
 
 ldData <= reg_read;
 

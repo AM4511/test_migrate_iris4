@@ -3,30 +3,31 @@
 **  $Revision:$
 **  $Date:$
 **
-**  MODULE: pcie2AxiMaster
+**  MODULE: regfile_pcie2AxiMaster
 **
-**  DESCRIPTION: Register file of the pcie2AxiMaster module
+**  DESCRIPTION: Register file of the regfile_pcie2AxiMaster module
 **
 **
 **  DO NOT MODIFY MANUALLY.
 **
-**  FDK IDE Version: 4.5.0_beta5
-**  Build ID: I20151222-1010
+**  FDK IDE Version: 4.7.0_beta4
+**  Build ID: I20191220-1537
 **
 **  COPYRIGHT (c) 2011 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
 **
 *****************************************************************************/
-public class Cpcie2AxiMaster  extends CRegisterFile {
+public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
 
 
-   public Cpcie2AxiMaster()
+   public Cregfile_pcie2AxiMaster()
    {
-      super("pcie2AxiMaster", 10, 32, true);
+      super("regfile_pcie2AxiMaster", 10, 32, true);
 
       CSection section;
       CExternal external;
       CRegister register;
+
       /***************************************************************
       * Section: info
       * Offset: 0x0
@@ -381,8 +382,40 @@ public class Cpcie2AxiMaster  extends CRegisterFile {
       //Fields:
       register.addField(new CField(register, "value", "null", CField.FieldType.RW, 0, 32, 0x0));
 
+      /***************************************************************
+      * Register: DMA_DEBUG1
+      * Offset: 0x8
+      ****************************************************************/
+      register = new CRegister(section, "DMA_DEBUG1", "null", 0x8);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "ADD_START", "null", CField.FieldType.RW, 0, 32, 0x0));
+
+      /***************************************************************
+      * Register: DMA_DEBUG2
+      * Offset: 0xc
+      ****************************************************************/
+      register = new CRegister(section, "DMA_DEBUG2", "null", 0xc);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "ADD_OVERRUN", "null", CField.FieldType.RW, 0, 32, 0x0));
+
+      /***************************************************************
+      * Register: DMA_DEBUG3
+      * Offset: 0x10
+      ****************************************************************/
+      register = new CRegister(section, "DMA_DEBUG3", "null", 0x10);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "DMA_ADD_ERROR", "null", CField.FieldType.RO, 4, 1, 0x0));
+      register.addField(new CField(register, "DMA_OVERRUN", "null", CField.FieldType.RO, 0, 1, 0x0));
+
 
  }
 
 }
+
 

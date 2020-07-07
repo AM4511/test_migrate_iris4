@@ -1,39 +1,33 @@
 /*****************************************************************************
-**  $HeadURL:$
-**  $Revision:$
-**  $Date:$
+** File                : Cregfile_pcie2AxiMaster.cpp
+** Project             : FDK
+** Module              : regfile_pcie2AxiMaster
+** Created on          : 2020/06/29 12:06:56
+** Created by          : imaval
+** FDK IDE Version     : 4.7.0_beta4
+** Build ID            : I20191220-1537
+** Register file CRC32 : 0x482014AC
 **
-**  MODULE: pcie2AxiMaster
-**
-**  DESCRIPTION: Register file of the pcie2AxiMaster module
-**
-**
-**  DO NOT MODIFY MANUALLY.
-**
-**  FDK IDE Version: 4.5.0_beta5
-**  Build ID: I20151222-1010
-**
-**  COPYRIGHT (c) 2019 Matrox Electronic Systems Ltd.
+**  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
 **
 *****************************************************************************/
-#include "Cpcie2AxiMaster.h"
+#include "Cregfile_pcie2AxiMaster.h"
 
-Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, true)
+Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_pcie2AxiMaster", 10, 32, true)
 {
    CfdkSection *pSection;
    CfdkRegister *pRegister;
 
-
    /******************************************************************
-   * Section: //info
+   * Section: /regfile_pcie2AxiMaster/info
    * Offset: 0x0
    *******************************************************************/
    pSection = createSection(this, "info", 0x0);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //info/tag(31:0)
+   * Register: /regfile_pcie2AxiMaster/info/tag(31:0)
    * Offset: 0x0
    * Address: 0x0
    *******************************************************************/
@@ -44,7 +38,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 24, CfdkField::STATIC, 0x58544d, 0x0, 0xffffff)); // tag(23:0)
 
    /******************************************************************
-   * Register: //info/fid(31:0)
+   * Register: /regfile_pcie2AxiMaster/info/fid(31:0)
    * Offset: 0x4
    * Address: 0x4
    *******************************************************************/
@@ -55,7 +49,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::STATIC, 0x0, 0x0, 0xffffffff)); // fid(31:0)
 
    /******************************************************************
-   * Register: //info/version(31:0)
+   * Register: /regfile_pcie2AxiMaster/info/version(31:0)
    * Offset: 0x8
    * Address: 0x8
    *******************************************************************/
@@ -68,7 +62,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "sub_minor", 0, 8, CfdkField::STATIC, 0x0, 0x0, 0xff)); // version(7:0)
 
    /******************************************************************
-   * Register: //info/capability(31:0)
+   * Register: /regfile_pcie2AxiMaster/info/capability(31:0)
    * Offset: 0xc
    * Address: 0xc
    *******************************************************************/
@@ -79,7 +73,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 8, CfdkField::STATIC, 0x0, 0x0, 0xff)); // capability(7:0)
 
    /******************************************************************
-   * Register: //info/scratchpad(31:0)
+   * Register: /regfile_pcie2AxiMaster/info/scratchpad(31:0)
    * Offset: 0x10
    * Address: 0x10
    *******************************************************************/
@@ -91,14 +85,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //fpga
+   * Section: /regfile_pcie2AxiMaster/fpga
    * Offset: 0x20
    *******************************************************************/
    pSection = createSection(this, "fpga", 0x20);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //fpga/version(31:0)
+   * Register: /regfile_pcie2AxiMaster/fpga/version(31:0)
    * Offset: 0x0
    * Address: 0x20
    *******************************************************************/
@@ -112,7 +106,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "sub_minor", 0, 8, CfdkField::RO, 0x1, 0x0, 0xff)); // version(7:0)
 
    /******************************************************************
-   * Register: //fpga/build_id(31:0)
+   * Register: /regfile_pcie2AxiMaster/fpga/build_id(31:0)
    * Offset: 0x4
    * Address: 0x24
    *******************************************************************/
@@ -123,7 +117,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RO, 0x0, 0x0, 0xffffffff)); // build_id(31:0)
 
    /******************************************************************
-   * Register: //fpga/device(31:0)
+   * Register: /regfile_pcie2AxiMaster/fpga/device(31:0)
    * Offset: 0x8
    * Address: 0x28
    *******************************************************************/
@@ -134,7 +128,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "id", 0, 8, CfdkField::RO, 0x0, 0x0, 0xff)); // device(7:0)
 
    /******************************************************************
-   * Register: //fpga/board_info(31:0)
+   * Register: /regfile_pcie2AxiMaster/fpga/board_info(31:0)
    * Offset: 0xc
    * Address: 0x2c
    *******************************************************************/
@@ -146,14 +140,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //interrupts
+   * Section: /regfile_pcie2AxiMaster/interrupts
    * Offset: 0x40
    *******************************************************************/
    pSection = createSection(this, "interrupts", 0x40);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //interrupts/ctrl(31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/ctrl(31:0)
    * Offset: 0x0
    * Address: 0x40
    *******************************************************************/
@@ -165,7 +159,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "global_mask", 0, 1, CfdkField::RW, 0x1, 0x1, 0x1)); // ctrl(0)
 
    /******************************************************************
-   * Register: //interrupts/status[0](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/status[0](31:0)
    * Offset: 0x4
    * Address: 0x44
    *******************************************************************/
@@ -173,10 +167,10 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW2C, 0x0, 0xffffffff, 0x0)); // status[](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW2C, 0x0, 0xffffffff, 0x0)); // status[0](31:0)
 
    /******************************************************************
-   * Register: //interrupts/status[1](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/status[1](31:0)
    * Offset: 0x8
    * Address: 0x48
    *******************************************************************/
@@ -184,10 +178,21 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW2C, 0x0, 0xffffffff, 0x0)); // status[1](31:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/interrupts/status[1](31:0)
+   * Offset: 0x4
+   * Address: 0x44
+   *******************************************************************/
+   pRegister = createRegister(pSection, "status[1]", 0x4, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW2C, 0x0, 0xffffffff, 0x0)); // status[](31:0)
 
    /******************************************************************
-   * Register: //interrupts/enable[0](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/enable[0](31:0)
    * Offset: 0xc
    * Address: 0x4c
    *******************************************************************/
@@ -195,10 +200,10 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // enable[](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // enable[0](31:0)
 
    /******************************************************************
-   * Register: //interrupts/enable[1](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/enable[1](31:0)
    * Offset: 0x10
    * Address: 0x50
    *******************************************************************/
@@ -206,10 +211,21 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // enable[1](31:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/interrupts/enable[1](31:0)
+   * Offset: 0xc
+   * Address: 0x4c
+   *******************************************************************/
+   pRegister = createRegister(pSection, "enable[1]", 0xc, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // enable[](31:0)
 
    /******************************************************************
-   * Register: //interrupts/mask[0](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/mask[0](31:0)
    * Offset: 0x14
    * Address: 0x54
    *******************************************************************/
@@ -217,10 +233,10 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[0](31:0)
 
    /******************************************************************
-   * Register: //interrupts/mask[1](31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupts/mask[1](31:0)
    * Offset: 0x18
    * Address: 0x58
    *******************************************************************/
@@ -228,18 +244,29 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pSection->addRegister(pRegister);
 
    //Fields:
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[1](31:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/interrupts/mask[1](31:0)
+   * Offset: 0x14
+   * Address: 0x54
+   *******************************************************************/
+   pRegister = createRegister(pSection, "mask[1]", 0x14, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[](31:0)
 
 
    /******************************************************************
-   * Section: //interrupt_queue
+   * Section: /regfile_pcie2AxiMaster/interrupt_queue
    * Offset: 0x60
    *******************************************************************/
    pSection = createSection(this, "interrupt_queue", 0x60);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //interrupt_queue/control(31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupt_queue/control(31:0)
    * Offset: 0x0
    * Address: 0x60
    *******************************************************************/
@@ -251,7 +278,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // control(0)
 
    /******************************************************************
-   * Register: //interrupt_queue/cons_idx(31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupt_queue/cons_idx(31:0)
    * Offset: 0x4
    * Address: 0x64
    *******************************************************************/
@@ -262,7 +289,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "cons_idx", 0, 10, CfdkField::RW, 0x0, 0x3ff, 0x3ff)); // cons_idx(9:0)
 
    /******************************************************************
-   * Register: //interrupt_queue/addr_low(31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupt_queue/addr_low(31:0)
    * Offset: 0x8
    * Address: 0x68
    *******************************************************************/
@@ -273,7 +300,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "addr", 0, 32, CfdkField::RW, 0x0, 0xfffff000, 0xffffffff)); // addr_low(31:0)
 
    /******************************************************************
-   * Register: //interrupt_queue/addr_high(31:0)
+   * Register: /regfile_pcie2AxiMaster/interrupt_queue/addr_high(31:0)
    * Offset: 0xc
    * Address: 0x6c
    *******************************************************************/
@@ -285,14 +312,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //tlp
+   * Section: /regfile_pcie2AxiMaster/tlp
    * Offset: 0x70
    *******************************************************************/
    pSection = createSection(this, "tlp", 0x70);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //tlp/timeout(31:0)
+   * Register: /regfile_pcie2AxiMaster/tlp/timeout(31:0)
    * Offset: 0x0
    * Address: 0x70
    *******************************************************************/
@@ -303,7 +330,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x1dcd650, 0xffffffff, 0xffffffff)); // timeout(31:0)
 
    /******************************************************************
-   * Register: //tlp/transaction_abort_cntr(31:0)
+   * Register: /regfile_pcie2AxiMaster/tlp/transaction_abort_cntr(31:0)
    * Offset: 0x4
    * Address: 0x74
    *******************************************************************/
@@ -316,14 +343,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //spi
+   * Section: /regfile_pcie2AxiMaster/spi
    * Offset: 0xe0
    *******************************************************************/
    pSection = createSection(this, "spi", 0xe0);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //spi/SPIREGIN(31:0)
+   * Register: /regfile_pcie2AxiMaster/spi/SPIREGIN(31:0)
    * Offset: 0x0
    * Address: 0xe0
    *******************************************************************/
@@ -340,7 +367,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "SPIDATAW", 0, 8, CfdkField::RW, 0x0, 0xff, 0xff)); // SPIREGIN(7:0)
 
    /******************************************************************
-   * Register: //spi/SPIREGOUT(31:0)
+   * Register: /regfile_pcie2AxiMaster/spi/SPIREGOUT(31:0)
    * Offset: 0x8
    * Address: 0xe8
    *******************************************************************/
@@ -354,14 +381,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //axi_window[0]
+   * Section: /regfile_pcie2AxiMaster/axi_window[0]
    * Offset: 0x100
    *******************************************************************/
    pSection = createSection(this, "axi_window[0]", 0x100);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //axi_window[0]/ctrl(31:0)
+   * Register: /regfile_pcie2AxiMaster/axi_window[0]/ctrl(31:0)
    * Offset: 0x0
    * Address: 0x100
    *******************************************************************/
@@ -372,7 +399,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // ctrl(0)
 
    /******************************************************************
-   * Register: //axi_window[0]/pci_bar0_start(31:0)
+   * Register: /regfile_pcie2AxiMaster/axi_window[0]/pci_bar0_start(31:0)
    * Offset: 0x4
    * Address: 0x104
    *******************************************************************/
@@ -383,7 +410,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_start(25:0)
 
    /******************************************************************
-   * Register: //axi_window[0]/pci_bar0_stop(31:0)
+   * Register: /regfile_pcie2AxiMaster/axi_window[0]/pci_bar0_stop(31:0)
    * Offset: 0x8
    * Address: 0x108
    *******************************************************************/
@@ -394,7 +421,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_stop(25:0)
 
    /******************************************************************
-   * Register: //axi_window[0]/axi_translation(31:0)
+   * Register: /regfile_pcie2AxiMaster/axi_window[0]/axi_translation(31:0)
    * Offset: 0xc
    * Address: 0x10c
    *******************************************************************/
@@ -406,170 +433,14 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
 
 
    /******************************************************************
-   * Section: //axi_window[1]
-   * Offset: 0x110
-   *******************************************************************/
-   pSection = createSection(this, "axi_window[1]", 0x110);
-   this->addSection(pSection);
-
-   /******************************************************************
-   * Register: //axi_window[1]/ctrl(31:0)
-   * Offset: 0x0
-   * Address: 0x110
-   *******************************************************************/
-   pRegister = createRegister(pSection, "ctrl", 0x0, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // ctrl(0)
-
-   /******************************************************************
-   * Register: //axi_window[1]/pci_bar0_start(31:0)
-   * Offset: 0x4
-   * Address: 0x114
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_start", 0x4, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_start(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[1]/pci_bar0_stop(31:0)
-   * Offset: 0x8
-   * Address: 0x118
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_stop", 0x8, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_stop(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[1]/axi_translation(31:0)
-   * Offset: 0xc
-   * Address: 0x11c
-   *******************************************************************/
-   pRegister = createRegister(pSection, "axi_translation", 0xc, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xfffffffc, 0xffffffff)); // axi_translation(31:0)
-
-
-   /******************************************************************
-   * Section: //axi_window[2]
-   * Offset: 0x120
-   *******************************************************************/
-   pSection = createSection(this, "axi_window[2]", 0x120);
-   this->addSection(pSection);
-
-   /******************************************************************
-   * Register: //axi_window[2]/ctrl(31:0)
-   * Offset: 0x0
-   * Address: 0x120
-   *******************************************************************/
-   pRegister = createRegister(pSection, "ctrl", 0x0, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // ctrl(0)
-
-   /******************************************************************
-   * Register: //axi_window[2]/pci_bar0_start(31:0)
-   * Offset: 0x4
-   * Address: 0x124
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_start", 0x4, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_start(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[2]/pci_bar0_stop(31:0)
-   * Offset: 0x8
-   * Address: 0x128
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_stop", 0x8, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_stop(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[2]/axi_translation(31:0)
-   * Offset: 0xc
-   * Address: 0x12c
-   *******************************************************************/
-   pRegister = createRegister(pSection, "axi_translation", 0xc, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xfffffffc, 0xffffffff)); // axi_translation(31:0)
-
-
-   /******************************************************************
-   * Section: //axi_window[3]
-   * Offset: 0x130
-   *******************************************************************/
-   pSection = createSection(this, "axi_window[3]", 0x130);
-   this->addSection(pSection);
-
-   /******************************************************************
-   * Register: //axi_window[3]/ctrl(31:0)
-   * Offset: 0x0
-   * Address: 0x130
-   *******************************************************************/
-   pRegister = createRegister(pSection, "ctrl", 0x0, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // ctrl(0)
-
-   /******************************************************************
-   * Register: //axi_window[3]/pci_bar0_start(31:0)
-   * Offset: 0x4
-   * Address: 0x134
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_start", 0x4, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_start(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[3]/pci_bar0_stop(31:0)
-   * Offset: 0x8
-   * Address: 0x138
-   *******************************************************************/
-   pRegister = createRegister(pSection, "pci_bar0_stop", 0x8, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 26, CfdkField::RW, 0x0, 0x3fffffc, 0x3ffffff)); // pci_bar0_stop(25:0)
-
-   /******************************************************************
-   * Register: //axi_window[3]/axi_translation(31:0)
-   * Offset: 0xc
-   * Address: 0x13c
-   *******************************************************************/
-   pRegister = createRegister(pSection, "axi_translation", 0xc, 4, true);
-   pSection->addRegister(pRegister);
-
-   //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xfffffffc, 0xffffffff)); // axi_translation(31:0)
-
-
-   /******************************************************************
-   * Section: //debug
+   * Section: /regfile_pcie2AxiMaster/debug
    * Offset: 0x200
    *******************************************************************/
    pSection = createSection(this, "debug", 0x200);
    this->addSection(pSection);
 
    /******************************************************************
-   * Register: //debug/input(31:0)
+   * Register: /regfile_pcie2AxiMaster/debug/input(31:0)
    * Offset: 0x0
    * Address: 0x200
    *******************************************************************/
@@ -580,7 +451,7 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RO, 0x0, 0x0, 0xffffffff)); // input(31:0)
 
    /******************************************************************
-   * Register: //debug/output(31:0)
+   * Register: /regfile_pcie2AxiMaster/debug/output(31:0)
    * Offset: 0x4
    * Address: 0x204
    *******************************************************************/
@@ -590,7 +461,40 @@ Cpcie2AxiMaster::Cpcie2AxiMaster() : CfdkRegisterFile("pcie2AxiMaster", 9, 32, t
    //Fields:
    pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // output(31:0)
 
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/debug/DMA_DEBUG1(31:0)
+   * Offset: 0x8
+   * Address: 0x208
+   *******************************************************************/
+   pRegister = createRegister(pSection, "DMA_DEBUG1", 0x8, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "ADD_START", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // DMA_DEBUG1(31:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/debug/DMA_DEBUG2(31:0)
+   * Offset: 0xc
+   * Address: 0x20c
+   *******************************************************************/
+   pRegister = createRegister(pSection, "DMA_DEBUG2", 0xc, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "ADD_OVERRUN", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // DMA_DEBUG2(31:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/debug/DMA_DEBUG3(31:0)
+   * Offset: 0x10
+   * Address: 0x210
+   *******************************************************************/
+   pRegister = createRegister(pSection, "DMA_DEBUG3", 0x10, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "DMA_ADD_ERROR", 4, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // DMA_DEBUG3(4)
+   pRegister->addField(createField(pRegister, "DMA_OVERRUN", 0, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // DMA_DEBUG3(0)
+
 
 }
-
 

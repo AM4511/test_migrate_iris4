@@ -101,6 +101,7 @@ architecture rtl of axi_stream_in is
   signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
+  signal last_row_output     : std_logic;
   signal double_buffer_ptr   : std_logic;
   signal wait_line_flushed   : std_logic;
   signal back_pressure_cntr  : integer;
@@ -116,6 +117,7 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of buffer_read_address      : signal is "true";
   attribute mark_debug of buffer_read_data         : signal is "true";
   attribute mark_debug of last_row                 : signal is "true";
+  attribute mark_debug of last_row_output          : signal is "true";
   attribute mark_debug of s_axis_tready            : signal is "true";
   attribute mark_debug of s_axis_tvalid            : signal is "true";
   attribute mark_debug of s_axis_tdata             : signal is "true";
@@ -500,7 +502,7 @@ begin
           -------------------------------------------------------------------
           when S_TRANSFER =>
             if (line_transfered = '1') then
-              if (last_row = '1') then
+              if (last_row_output = '1') then
                 output_state <= S_END_OF_DMA;
               else
                 output_state <= S_DONE;
@@ -539,11 +541,15 @@ begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
         line_ready <= '0';
+		last_row_output <='0';
       else
         if (output_state = S_INIT) then
           line_ready <= '1';
+		  last_row_output <= last_row;
         elsif (line_transfered = '1') then
           line_ready <= '0';
+		  last_row_output<='0';
+
         end if;
       end if;
     end if;

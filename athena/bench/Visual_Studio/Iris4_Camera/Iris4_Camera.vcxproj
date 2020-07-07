@@ -169,7 +169,6 @@
     <ClCompile Include="source\MilLayer.cpp" />
     <ClCompile Include="source\mtxservmanager.cpp" />
     <ClCompile Include="source\Random.cpp" />
-    <ClCompile Include="source\Source.cpp" />
     <ClCompile Include="source\SystemTree.cpp" />
     <ClCompile Include="source\XGS12K.cpp" />
     <ClCompile Include="source\XGS16K.cpp" />
@@ -189,9 +188,7 @@
     <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\sdk\pcie2AxiMaster.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.h" />
     <ClInclude Include="..\..\..\local_ip\XGS_athena\registerfile\regfile_xgs_athena.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -212,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Camera.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.registerfile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
