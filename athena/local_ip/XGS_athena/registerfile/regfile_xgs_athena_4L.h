@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x1186D031
+* Register file CRC32 : 0xEA1517A6
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -90,9 +90,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x408
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_ADDRESS           0x40C
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x410
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x428
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x440
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x44C
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x420
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x430
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x438
 
 /**************************************************************************
 * Register name : TAG
@@ -1500,10 +1500,10 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE              STATUS;                  /* Address offset: 0x4 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE   IDELAYCTRL_STATUS;       /* Address offset: 0x8 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE      IDLE_CHARACTER;          /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[6];        /* Address offset: 0x28 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x40 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x4c */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[4];  /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[4];        /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[2];   /* Address offset: 0x30 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x38 */
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************

@@ -84,7 +84,8 @@ entity XGS_controller_top is
         
         curr_db_BUFFER_ID               : out   std_logic:='0';
         
-        
+        first_lines_mask_cnt            : out std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
+
         ---------------------------------------------------------------------------
         --  IRQ to system
         ---------------------------------------------------------------------------        
@@ -200,6 +201,8 @@ architecture arch_imp of XGS_controller_top is
            curr_db_subsampling_Y           : out std_logic;
                       
            curr_db_BUFFER_ID               : out std_logic;
+
+           first_lines_mask_cnt            : out std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
            ---------------------------------------------------------------------------
            --  Register file
@@ -396,6 +399,8 @@ begin
            curr_db_subsampling_Y           => curr_db_subsampling_Y,
            
            curr_db_BUFFER_ID               => curr_db_BUFFER_ID,
+
+           first_lines_mask_cnt            => first_lines_mask_cnt,
 
            ---------------------------------------------------------------------------
            --  RegFile

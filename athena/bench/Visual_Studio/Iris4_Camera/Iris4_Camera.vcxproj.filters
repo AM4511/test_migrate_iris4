@@ -78,6 +78,9 @@
     <ClCompile Include="source\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tests\test_0006_SWtrig_BlackCorr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">
