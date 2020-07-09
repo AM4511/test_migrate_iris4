@@ -30,16 +30,18 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.SENSOR_TYPE            = 12000;
    SensorParams.XGS_HiSPI_Ch           = 24;
 
-   SensorParams.Xsize_Full = 4096;             //+8; // Interpolation NOT INCLUDED
-   SensorParams.Ysize_Full = 3072;             //+8; // Interpolation NOT INCLUDED 
+   SensorParams.Xsize_Full             = 4096;             //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full             = 3072;             //+8; // Interpolation NOT INCLUDED 
 
    SensorParams.XGS_X_START            = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
    SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
    SensorParams.XGS_X_SIZE             = 4176;                                                   // FULL X, including everything
    
-   SensorParams.Trig_2_EXP             = 76800;
+
 
    // This may depend on the configuration (Lanes+LineSize) 
+   SensorParams.Trig_2_EXP           = 76800;
+
    SensorParams.ReadOutN_2_TrigN     = 51200; 
 
    SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;

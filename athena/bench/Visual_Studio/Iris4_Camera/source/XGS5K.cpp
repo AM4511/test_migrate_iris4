@@ -50,20 +50,23 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.XGS_X_SIZE  = 2688;                                                // FULL X, including everything
 
    // This may depend on the configuration (Lanes+LineSize) 
-   SensorParams.ReadOutN_2_TrigN = 0; //
 
-   SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+   SensorParams.Trig_2_EXP       = 76800;
 
-   SensorParams.EXP_FOT     = 0;
+   SensorParams.ReadOutN_2_TrigN = 51200; 
 
-   SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+   SensorParams.TrigN_2_FOT      = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.KEEP_OUT_ZONE_START = 0xffff;
+   SensorParams.EXP_FOT          = 7000;
+
+   SensorParams.EXP_FOT_TIME     = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+   SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
 
    if (lanes == 16)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
    if (lanes == 4)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
 
-   GrabParams.FOT = 0; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
+   GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
    GrabParams.Y_START             = 0;
    GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
