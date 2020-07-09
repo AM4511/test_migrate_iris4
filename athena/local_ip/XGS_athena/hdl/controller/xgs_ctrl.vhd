@@ -972,13 +972,13 @@ BEGIN
         curr_y_start               <= REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
 		
         if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then
-          if(REGFILE.ACQ.SENSOR_M_LINES.M_DISPLAY='0') then
+          if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
 		    curr_y_size              <= REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE   & "00";
 		  else
 		    curr_y_size              <= std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE   & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;
           end if;		  
         else
-		  if(REGFILE.ACQ.SENSOR_M_LINES.M_DISPLAY='0') then
+		  if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
             curr_y_size              <= '0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) & "00";       
 		  else
             curr_y_size              <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      
@@ -987,13 +987,13 @@ BEGIN
 
         curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
         if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then              
-          if(REGFILE.ACQ.SENSOR_M_LINES.M_DISPLAY='0') then
+          if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
 		    curr_y_size_ROI2         <= REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE   & "00";
 		  else
 		    curr_y_size_ROI2         <= std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      		  
           end if;		  
         else
-          if(REGFILE.ACQ.SENSOR_M_LINES.M_DISPLAY='0') then
+          if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
 	        curr_y_size_ROI2         <= '0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00";       
 		  else
 	        curr_y_size_ROI2         <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00" ) + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;            		  
@@ -1022,7 +1022,7 @@ BEGIN
       end if;
       
       -- Ici je double buff pas car ca va etre statique apres le load de la dcf
-	  if(REGFILE.ACQ.SENSOR_M_LINES.M_DISPLAY='0') then
+	  if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
 	    first_lines_mask_cnt <=  '1' + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED ;
 	  else
 	    first_lines_mask_cnt <=  "0000000001";  -- Quand on affiche les M_lines, masker juste la embedded

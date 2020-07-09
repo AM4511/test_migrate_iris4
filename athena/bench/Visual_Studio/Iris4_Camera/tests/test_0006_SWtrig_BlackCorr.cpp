@@ -145,6 +145,10 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n");
 
 	printf("\n  (q) Quit this test");
+	printf("\n  (e) Exposure Incr/Decr gap");
+	printf("\n  (+) Increase Exposure");
+	printf("\n  (-) Decrease Exposure");
+	printf("\n  (c) Calculate Stats on the PD and SN Black lines");
 
 	printf("\n\n");
 
@@ -168,7 +172,7 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->WriteSPI(0x389a, M_LINES_REG);                  // [14:10 -> Suppress M-lines] , [0:9 -> Total M-Lines] 
 	XGS_Data->rXGSptr.ACQ.SENSOR_M_LINES.u32 = M_LINES_REG;   // [14:10 -> Suppress M-lines] , [0:9 -> Total M-Lines] 
 
-	XGS_Data->rXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_DISPLAY = 1;
+	XGS_Data->rXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_DISPLAY = 1; // Setter a 1 pour transferer lignes noires vers le host
 
 	XGS_Ctrl->EnableRegUpdate();
 
