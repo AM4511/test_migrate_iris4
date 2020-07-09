@@ -396,14 +396,18 @@ begin
   G_TOP_PHY_MAPPING : if (PHY_ID = 0) generate
     rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_0;
     rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_2;
-    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_4;
-   end generate;
+    G_TOP_PHY_3LANE_PER_PHY : if (LANE_PER_PHY = 3) generate
+      rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_4;
+    end generate;
+  end generate;
 
 
   G_BOTTOM_PHY_MAPPING : if (PHY_ID > 0) generate
     rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_1;
     rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_3;
-    rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_5;
+    G_BOTTOM_PHY_3LANE_PER_PHY : if (LANE_PER_PHY = 3) generate    
+      rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_5;
+    end generate;
   end generate;
 
 

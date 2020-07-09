@@ -30,17 +30,18 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.SENSOR_TYPE            = 12000;
    SensorParams.XGS_HiSPI_Ch           = 24;
 
-   SensorParams.XGS_X_START            = 36;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_END              = 4131; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_SIZE             = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   
-   SensorParams.Xsize_Full             = 4096; //+8; // Interpolation NOT INCLUDED
-   SensorParams.Ysize_Full             = 3072; //+8; // Interpolation NOT INCLUDED 
- 
+   SensorParams.Xsize_Full             = 4096;             //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full             = 3072;             //+8; // Interpolation NOT INCLUDED 
 
-   SensorParams.Trig_2_EXP             = 76800;
+   SensorParams.XGS_X_START            = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_SIZE             = 4176;                                                   // FULL X, including everything
+   
+
 
    // This may depend on the configuration (Lanes+LineSize) 
+   SensorParams.Trig_2_EXP           = 76800;
+
    SensorParams.ReadOutN_2_TrigN     = 51200; 
 
    SensorParams.TrigN_2_FOT          = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
@@ -90,13 +91,14 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
 	SensorParams.SENSOR_TYPE  = 9400;
 	SensorParams.XGS_HiSPI_Ch = 24;
 
-	SensorParams.XGS_X_START = 548;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_END   = 3619;  // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_SIZE  = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.Xsize_Full = 3072; //+8; // Interpolation NOT INCLUDED
+	SensorParams.Ysize_Full = 3072; //+8; // Interpolation NOT INCLUDED
+
+	SensorParams.XGS_X_START = 548;                                                    // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_END   = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_SIZE  = 4176;                                                   // FULL X, including everything
 
 
-	SensorParams.Xsize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
-	SensorParams.Ysize_Full   = 3072; //+8; // Interpolation NOT INCLUDED
   
 	// This may depend on the configuration (Lanes+LineSize) 
 	SensorParams.ReadOutN_2_TrigN = 0; //
@@ -146,12 +148,12 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	SensorParams.SENSOR_TYPE = 8000;
 	SensorParams.XGS_HiSPI_Ch = 24;
 
-	SensorParams.XGS_X_START = 36;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_END   = 4131; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_SIZE  = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-
 	SensorParams.Xsize_Full = 4096; //+8; // Interpolation NOT INCLUDED
 	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
+
+	SensorParams.XGS_X_START = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_END   = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_SIZE  = 4176;                                                   // FULL X, including everything
 
     // This may depend on the configuration (Lanes+SensorArea)
 	SensorParams.ReadOutN_2_TrigN = 0;  // in ns

@@ -182,6 +182,7 @@
     <ClCompile Include="tests\test_0002_Continu_2xROI.cpp" />
     <ClCompile Include="tests\test_0004_Continu_FPS.cpp" />
     <ClCompile Include="tests\test_0005_SWtrig_Random.cpp" />
+    <ClCompile Include="tests\test_0006_SWtrig_BlackCorr.cpp" />
     <ClCompile Include="tests\test_0009_Optics.cpp" />
   </ItemGroup>
   <ItemGroup>

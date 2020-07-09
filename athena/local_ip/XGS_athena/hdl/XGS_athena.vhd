@@ -477,6 +477,7 @@ architecture struct of XGS_athena is
 
       curr_db_BUFFER_ID : out std_logic := '0';
 
+      first_lines_mask_cnt            : out std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
       ---------------------------------------------------------------------------
       --  IRQ to system
@@ -544,6 +545,7 @@ architecture struct of XGS_athena is
   signal hispi_eof                : std_logic;
   signal hispi_ystart             : std_logic_vector(11 downto 0);
   signal hispi_ysize              : std_logic_vector(11 downto 0);
+  signal first_lines_mask_cnt     : std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
   signal dma_idle : std_logic := '1';
 
@@ -820,6 +822,7 @@ begin
 
       curr_db_BUFFER_ID => open,
 
+      first_lines_mask_cnt  => first_lines_mask_cnt, -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
       ---------------------------------------------------------------------------
       --  IRQ to system

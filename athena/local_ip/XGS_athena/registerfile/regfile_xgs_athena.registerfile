@@ -467,6 +467,7 @@
       <fields name="Y_SIZE" alias="Y SIZE" description="Y SIZE in Kernel size (Kernel is 4 lines)" size="10" valueAtReset="302"/>
     </registers>
     <registers name="SENSOR_M_LINES" offsetFromParent="B8">
+      <fields name="M_LINES_DISPLAY" description="When setting to 1, the Y_SIZE will have the Black lines included and the first_lines_mask_cnt will be set to 1, to remove only the embedded data" lsb="15"/>
       <fields name="M_SUPPRESSED" description="Suppress the Readout of Initial Lines in the M Region" lsb="10" size="5"/>
       <fields name="M_LINES_SENSOR" description="Number of Lines to Readout from M Region in Context 0 Unit is #lines&#xD;&#xA;&#xD;&#xA;Total number of Black lines = M_LINES&#xD;&#xA;Total number of Black lines transfered as valid Black lines= M_LINES-M_SUPRESSED" size="10" valueAtReset="8"/>
     </registers>

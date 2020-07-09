@@ -45,6 +45,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 
 /* Main function. */
@@ -280,6 +281,12 @@ int main(void)
 				Help(XGS_Ctrl);
 				break;				
 
+			case '6':
+				test_0006_SWtrig_BlackCorr(XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+
 			case '9':
 				test_0009_Optics(XGS_Ctrl, XGS_Data);
 				printf("\n\n");
@@ -353,6 +360,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (3) Grab Test HW, Src is HW Timer");
 	printf("\n  (4) Grag Test FPSmax, EXPmax");
 	printf("\n  (5) Grag Test SW trig - Random");	
+	printf("\n  (6) Grag Test SW trig - Stats on the PD and SN Black lines");
 	printf("\n");
 	printf("\n  (9) Grab Optics");
 	printf("\n");
