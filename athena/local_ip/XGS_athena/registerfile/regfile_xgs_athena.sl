@@ -353,15 +353,6 @@ Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("sensor_x_size", 0x1cc, 4, "null");
-		Field("sensor_x_size", 12, 0, "rd|wr", 0x0, 0x1050, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("sensor_x_start", 0x1d0, 4, "null");
-		Field("sensor_x_start", 12, 0, "rd|wr", 0x0, 0x24, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("sensor_x_end", 0x1d4, 4, "null");
-		Field("sensor_x_end", 12, 0, "rd|wr", 0x0, 0x1023, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("debug2_sel", 20, 16, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -425,6 +416,8 @@ Register("timer_duration", 0x2d8, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
+		Field("xgs_mux_ratio", 14, 12, "rd", 0x0, 0x4, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("xgs_nb_lanes", 10, 8, "rd|wr", 0x0, 0x6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
 			FieldValue("No effect", 0);
 			FieldValue("Reset IDELAYCTRL", 1);
@@ -466,6 +459,14 @@ Register("idelayctrl_status", 0x408, 4, "null");
 Register("idle_character", 0x40c, 4, "null");
 		Field("value", 11, 0, "rd|wr", 0x0, 0x3A6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+Register("frame_cfg", 0x410, 4, "null");
+		Field("lines_per_frame", 27, 16, "rd|wr", 0x0, 0xc1e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("pixels_per_line", 12, 0, "rd|wr", 0x0, 0x1050, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("frame_cfg_x_valid", 0x414, 4, "null");
+		Field("x_end", 28, 16, "rd|wr", 0x0, 0x1023, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("x_start", 12, 0, "rd|wr", 0x0, 0x24, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
 variable lane_decoder_statusTags = UChar_Type[6];
 
 for(i = 0; i < 6; i++)
@@ -478,7 +479,7 @@ Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("lane_decoder_status", 0x410 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+	Register("lane_decoder_status", 0x420 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
 		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 			FieldValue("Pixel bit boundaries unlocked", 0);
 			FieldValue("Pixel bit boundaries locked", 1);
@@ -507,7 +508,7 @@ Group("tap_histogram", "DECTAG", tap_histogramTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("tap_histogram", 0x428 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
+	Register("tap_histogram", 0x438 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
 		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }
 
@@ -523,12 +524,12 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x440 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+	Register("lane_packer_status", 0x450 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
-Register("debug", 0x44c, 4, "null");
+Register("debug", 0x45c, 4, "null");
 		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

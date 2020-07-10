@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x1186D031
+* Register file CRC32 : 0x666F4DEE
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -71,9 +71,6 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_ADDRESS               0x1C0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_ADDRESS                0x1C4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_ADDRESS                0x1C8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_ADDRESS              0x1CC
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_ADDRESS             0x1D0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_ADDRESS               0x1D4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
@@ -89,10 +86,12 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS                   0x404
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x408
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_ADDRESS           0x40C
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x410
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x428
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x440
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x44C
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_ADDRESS                0x410
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_ADDRESS        0x414
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x420
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x438
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x450
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x45C
 
 /**************************************************************************
 * Register name : TAG
@@ -964,67 +963,13 @@ typedef union
 
    struct
    {
-      M_UINT32 DP_OFFSET_B : 12;  /* Bits(11:0), null */
-      M_UINT32 RESERVED    : 4;   /* Bits(15:12), null */
-      M_UINT32 RSVD0       : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 DP_OFFSET_B            : 12;  /* Bits(11:0), null */
+      M_UINT32 RESERVED               : 4;   /* Bits(15:12), null */
+      M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[5] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE;
-
-
-/**************************************************************************
-* Register name : SENSOR_X_SIZE
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 SENSOR_X_SIZE : 13;  /* Bits(12:0), null */
-      M_UINT32 RSVD0         : 19;  /* Bits(31:13), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_TYPE;
-
-
-/**************************************************************************
-* Register name : SENSOR_X_START
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 SENSOR_X_START : 13;  /* Bits(12:0), null */
-      M_UINT32 RSVD0          : 19;  /* Bits(31:13), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_TYPE;
-
-
-/**************************************************************************
-* Register name : SENSOR_X_END
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 SENSOR_X_END           : 13;  /* Bits(12:0), null */
-      M_UINT32 RSVD0                  : 19;  /* Bits(31:13), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[2] ;      /* Reserved space below */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_TYPE;
 
 
 /**************************************************************************
@@ -1263,7 +1208,11 @@ typedef union
       M_UINT32 SW_CALIB_SERDES   : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
       M_UINT32 SW_CLR_HISPI      : 1;   /* Bits(3:3), null */
       M_UINT32 SW_CLR_IDELAYCTRL : 1;   /* Bits(4:4), Reset the Xilinx macro IDELAYCTRL */
-      M_UINT32 RSVD0             : 27;  /* Bits(31:5), Reserved */
+      M_UINT32 RSVD0             : 3;   /* Bits(7:5), Reserved */
+      M_UINT32 XGS_NB_LANES      : 3;   /* Bits(10:8), null */
+      M_UINT32 RSVD1             : 1;   /* Bits(11:11), Reserved */
+      M_UINT32 XGS_MUX_RATIO     : 3;   /* Bits(14:12), null */
+      M_UINT32 RSVD2             : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
@@ -1325,6 +1274,47 @@ typedef union
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE;
+
+
+/**************************************************************************
+* Register name : FRAME_CFG
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 PIXELS_PER_LINE : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0           : 3;   /* Bits(15:13), Reserved */
+      M_UINT32 LINES_PER_FRAME : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1           : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_TYPE;
+
+
+/**************************************************************************
+* Register name : FRAME_CFG_X_VALID
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 X_START                : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0                  : 3;   /* Bits(15:13), Reserved */
+      M_UINT32 X_END                  : 13;  /* Bits(28:16), null */
+      M_UINT32 RSVD1                  : 3;   /* Bits(31:29), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[2] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_TYPE;
 
 
 /**************************************************************************
@@ -1475,9 +1465,6 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_TYPE           SENSOR_DP_GB;            /* Address offset: 0xc0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_TYPE            SENSOR_DP_R;             /* Address offset: 0xc4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xc8 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_SIZE_TYPE          SENSOR_X_SIZE;           /* Address offset: 0xcc */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_START_TYPE         SENSOR_X_START;          /* Address offset: 0xd0 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_X_END_TYPE           SENSOR_X_END;            /* Address offset: 0xd4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */
@@ -1500,10 +1487,12 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE              STATUS;                  /* Address offset: 0x4 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE   IDELAYCTRL_STATUS;       /* Address offset: 0x8 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE      IDLE_CHARACTER;          /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[6];        /* Address offset: 0x28 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x40 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x4c */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_TYPE           FRAME_CFG;               /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_TYPE   FRAME_CFG_X_VALID;       /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[6];        /* Address offset: 0x38 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x50 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x5c */
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************

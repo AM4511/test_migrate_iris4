@@ -116,7 +116,8 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
 		printf("Calibration OK\n");
-		rXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
+		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
+		rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
 	}
 }
 
