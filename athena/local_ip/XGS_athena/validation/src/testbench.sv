@@ -57,14 +57,15 @@ module testbench();
 	parameter SENSOR_M_LINES_OFFSET     = 'h01b8;
 	parameter EXP_FOT_OFFSET            = 'h02b8;
 
-	parameter SENSOR_X_START_OFFSET     = 'h01d0;
-	parameter SENSOR_X_END_OFFSET       = 'h01d4;
+
 
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
 	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
-	parameter HISPI_DEBUG_OFFSET               = 'h0434;
+    parameter FRAME_CFG_OFFSET                 = 'h0410;	
+	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0414;
+	parameter HISPI_DEBUG_OFFSET               = 'h045C;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -755,6 +756,9 @@ module testbench();
 
 
 
+
+
+
 				///////////////////////////////////////////////////
 				// PROGRAM XGS HiSPi interface
 				///////////////////////////////////////////////////
@@ -768,10 +772,15 @@ module testbench();
 				host.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
 				///////////////////////////////////////////////////
-				// XGS HiSPi : Control
+				// XGS HiSPi : Control, 6 lanes, mux 4
 				///////////////////////////////////////////////////
 				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-				host.write(HISPI_CTRL_OFFSET, 'h0003);
+				host.write(HISPI_CTRL_OFFSET, 'h4603);
+
+
+                $display("  6.1 Write FRAME_CFG register @0x%h", FRAME_CFG_OFFSET);
+				host.write(FRAME_CFG_OFFSET, 'h0c1e1050); // Pour XGS12M
+
 
 
 				///////////////////////////////////////////////////
@@ -808,7 +817,7 @@ module testbench();
 				// XGS HiSPi : Control Start a calibration
 				///////////////////////////////////////////////////
 				$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-				host.write(HISPI_CTRL_OFFSET, 'h0007);
+				host.write(HISPI_CTRL_OFFSET, 'h4607);
 
 
 				//-------------------------------------------------
@@ -827,15 +836,13 @@ module testbench();
 				
 				
 				///////////////////////////////////////////////////
-				// Program X Origin of valid data
+				// Program X Origin of valid data, in HiSPI
 				///////////////////////////////////////////////////
                 // X origin 
 				ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
-                ROI_X_END    = ROI_X_START+4096-1;              
+                ROI_X_END    = ROI_X_START+4096-1;              			
 				
-				host.write(SENSOR_X_START_OFFSET, ROI_X_START);
-				host.write(SENSOR_X_END_OFFSET,   ROI_X_END);
-		
+				host.write(FRAME_CFG_X_VALID_OFFSET,  (ROI_X_END<<16)+ ROI_X_START);	
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
