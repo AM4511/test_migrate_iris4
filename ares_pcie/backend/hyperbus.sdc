@@ -107,11 +107,6 @@ set_false_path -fall_from [get_clocks $input_clock] -rise_to [get_clocks $input_
 set_false_path -to [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_io/reset_clk90_Meta_reg}]
 set_false_path -to [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_io/reset_clk90_reg}]
 
-# Report Timing Template
-#report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
-#report_timing -fall_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_fall -file src_sync_edge_ddr_in_fall.txt;
-          
-       
 
 
 
@@ -150,20 +145,8 @@ set_output_delay -clock $fwclk -min [expr $trce_dly_min - $thd_r] [get_ports $ou
 set_output_delay -clock $fwclk -max [expr $trce_dly_max + $tsu_f] [get_ports $output_ports] -clock_fall -add_delay;
 set_output_delay -clock $fwclk -min [expr $trce_dly_min - $thd_f] [get_ports $output_ports] -clock_fall -add_delay;
 
-# Report Timing Template
-# report_timing -rise_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_rise -file src_sync_ddr_out_rise.txt;
-# report_timing -fall_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_fall -file src_sync_ddr_out_fall.txt;
-        
-	
-	
-	
-	
-#set_false_path -to [get_cells -hierarchical -filter {NAME =~ */adr_fifo_synchronizer/rd_ptr_fx_s1_reg}]
-#set_false_path -to [get_cells -hierarchical -filter {NAME =~ */adr_fifo_synchronizer/wr_ptr_fx_s1_reg}]
-	
 
 set_false_path -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/dq_io_tri_reg/C] -to [get_ports {hb_dq[*]}]
 set_false_path -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/rwds_io_tri_reg/C] -to [get_ports hb_rwds]
 
 
-#set_false_path -rise_from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_cs0n/ODDR_inst/C]  -fall_to [get_clocks hb_ck]
