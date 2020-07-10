@@ -495,7 +495,7 @@ begin
       else
         if (state = S_SOF) then
           --ToDO should come from register
-          x_row_start <= regfile.ACQ.SENSOR_X_START.SENSOR_X_START;
+          x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
         end if;
       end if;
     end if;
@@ -513,7 +513,7 @@ begin
        x_row_stop <= (others => '0');
       else
         if (state = S_SOF) then
-          x_row_stop <= regfile.ACQ.SENSOR_X_END.SENSOR_X_END;
+          x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
         end if;
       end if;
     end if;

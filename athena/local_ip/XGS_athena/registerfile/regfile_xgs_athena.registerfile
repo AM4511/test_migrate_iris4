@@ -483,27 +483,9 @@
       <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
       <fields name="DP_OFFSET_R" description="Sensor Analog data pedestal for R pixels (Black offset)" size="12" valueAtReset="100"/>
     </registers>
-    <registers name="SENSOR_DP_B" description="Sensor Analog data pedestal for B pixels (Black offset)" offsetFromParent="C8" numberOfReservedSpacesBelow="5">
+    <registers name="SENSOR_DP_B" description="Sensor Analog data pedestal for B pixels (Black offset)" offsetFromParent="C8" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="5">
       <fields name="reserved" lsb="12" size="4" readWrite="false" staticVal="true"/>
       <fields name="DP_OFFSET_B" description="Sensor Analog data pedestal for B pixels (Black offset)" size="12" valueAtReset="100"/>
-    </registers>
-    <registers name="SENSOR_X_SIZE" description="SENSOR X SIZE" offsetFromParent="CC" numberOfReservedSpacesBelow="4">
-      <fields name="SENSOR_X_SIZE" description="SENSOR X SIZE is the complete X size of the sensor defined in number of pixels. It includes dummy pixels, black reference pixels, interpolation pixels and valid pixels.  Thesensor X size differs between XGS family members and configurations. The dcf will load the X size. It is defined as 1-based number.&#xD;&#xA;&#xD;&#xA;For XGS12000, the value is 4176 (0x1050)" size="13" valueAtReset="1050">
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-    </registers>
-    <registers name="SENSOR_X_START" description="SENSOR X START" offsetFromParent="D0" numberOfReservedSpacesBelow="4">
-      <fields name="SENSOR_X_START" description="This register defines the position of the first horizontal valid pixel (including dummy pixels, black reference pixels and interpolation pixels). The location of the first X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X start. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x start is 36 (0x24).&#xD;&#xA;For XGS12000, in a color sensor the x start is 32 (0x22). (For BAYER correction) " size="13" valueAtReset="24">
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-    </registers>
-    <registers name="SENSOR_X_END" description="SENSOR X ORIGIN location (X Start)" offsetFromParent="D4" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
-      <fields name="SENSOR_X_END" description="This register defines the position of the last horizontal valid pixel (including initials dummy pixels, black reference pixels and interpolation pixels). The location of the last X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X end. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x end is 4132 (0x1024).&#xD;&#xA;For XGS12000, in a color sensor the x end is 4136 (0x1028). (For BAYER correction) " size="13" valueAtReset="1023">
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
     </registers>
     <registers name="DEBUG_PINS" offsetFromParent="E0" useReservedSpaceBelow="true">
       <fields name="Debug3_sel" description="  debug_vector(0x0)  &lt;=  python_monitor0;&#xD;&#xA;  debug_vector(0x1)  &lt;=  python_monitor1;&#xD;&#xA;  debug_vector(0x2)  &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0x3)  &lt;=  curr_trig0;&#xD;&#xA;  debug_vector(0x4)  &lt;=  strobe;&#xD;&#xA;  debug_vector(0x5)  &lt;=  python_exposure;&#xD;&#xA;  debug_vector(0x6)  &lt;=  FOT;&#xD;&#xA;  debug_vector(0x7)  &lt;=  readout;&#xD;&#xA;  debug_vector(0x8)  &lt;=  readout_stateD;&#xD;&#xA;  debug_vector(0x9)  &lt;=  ext_trig;&#xD;&#xA;  debug_vector(0xa) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_CMD;&#xD;&#xA;  debug_vector(0xb) &lt;=  REGFILE.ACQ.GRAB_CTRL.GRAB_SS;&#xD;&#xA;  debug_vector(0xc)&lt;=  grab_mngr_trig;&#xD;&#xA;  debug_vector(0xd) &lt;=  grab_mngr_trig_rdy;&#xD;&#xA;  debug_vector(0xe) &lt;=  grab_pending;&#xD;&#xA;  debug_vector(0xf) &lt;=  grab_active;&#xD;&#xA;  debug_vector(0x10) &lt;=  DEC_DATA_EN;&#xD;&#xA;  debug_vector(0x11) &lt;=  DEC_SOL;&#xD;&#xA;  debug_vector(0x12)  &lt;=  DEC_SOF;&#xD;&#xA;  debug_vector(0x13)  &lt;=  DEC_EOL;&#xD;&#xA;  debug_vector(0x14)  &lt;=  DEC_EOF;&#xD;&#xA;  debug_vector(0x15)  &lt;=  DEC_CRC;&#xD;&#xA;  debug_vector(0x16)  &lt;=  DEC_TRAIN;&#xD;&#xA;  debug_vector(0x17)  &lt;=  fpnprnu_corr_sof;&#xD;&#xA;  debug_vector(0x18)  &lt;=  fpnprnu_corr_sol;&#xD;&#xA;  debug_vector(0x19)  &lt;=  fpnprnu_corr_data_val;&#xD;&#xA;  debug_vector(0x1a) &lt;=  fpnprnu_corr_eol;&#xD;&#xA;  debug_vector(0x1b) &lt;=  fpnprnu_corr_eof;&#xD;&#xA;  debug_vector(0x1c) &lt;=  python_ssn_int;&#xD;&#xA;  debug_vector(0x1d) &lt;=  debug_lvds(0);&#xD;&#xA;  debug_vector(0x1e) &lt;=  debug_lvds(1);&#xD;&#xA;  debug_vector(0x1f) &lt;=  'Z'; " lsb="24" size="5" valueAtReset="1f"/>
@@ -586,8 +568,10 @@
       <fields name="VALUE" description="This register sets the timer duration. When the counter reaches the value programmed in this register the counter will be reseted to 0. The trigger will be generated when the counter reaches value 0x1. &#xD;&#xA;&#xD;&#xA;This register is double buffered with TIMERSTART register." size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="44C">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="45C">
     <registers name="CTRL">
+      <fields name="XGS_MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera it should be always set to 4." lsb="12" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
+      <fields name="XGS_NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" lsb="8" size="3" valueAtReset="6"/>
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset IDELAYCTRL&lt;/matrox_column_delimiter></possibleValues>
@@ -640,7 +624,21 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="LANE_DECODER_STATUS" offsetFromParent="10" useMultiples="true" numberOfMultiples="6">
+    <registers name="FRAME_CFG" offsetFromParent="10">
+      <fields name="LINES_PER_FRAME" description="This is the total number of lines in a frame including dummy, BL, Interpolation and valid pixels. Reset value is 3102 (XGS12M). The value may change depending on the Black Lines(BL) programmed in the M-LINES section of the frame.&#xD;&#xA;Reset value is 3102 (0xc1e, XGS12M)&#xD;&#xA;" lsb="16" size="12" valueAtReset="c1e"/>
+      <fields name="PIXELS_PER_LINE" description="This is the total number of pixel in a line, including dummy, BL, Interpolation and valid pixels. Reset value is 4176 (0x1050, XGS12M)" size="13" valueAtReset="1050"/>
+    </registers>
+    <registers name="FRAME_CFG_X_VALID" offsetFromParent="14" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="X_END" description="This register defines the position of the last horizontal valid pixel (including initials dummy pixels, black reference pixels and interpolation pixels). The location of the last X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X end. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x end is 4132 (0x1024).&#xD;&#xA;For XGS12000, in a color sensor the x end is 4136 (0x1028). (For BAYER correction) " lsb="16" size="13" valueAtReset="1023">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="X_START" description="This register defines the position of the first horizontal valid pixel (including dummy pixels, black reference pixels and interpolation pixels). The location of the first X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X start. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x start is 36 (0x24).&#xD;&#xA;For XGS12000, in a color sensor the x start is 32 (0x22). (For BAYER correction) " size="13" valueAtReset="24">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="LANE_DECODER_STATUS" offsetFromParent="20" useMultiples="true" numberOfMultiples="6">
       <fields name="PHY_SYNC_ERROR" lsb="14" readWrite="false" readWriteToClear="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries unlocked&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries locked&lt;/matrox_column_delimiter></possibleValues>
@@ -662,14 +660,14 @@
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="TAP_HISTOGRAM" offsetFromParent="28" useMultiples="true" numberOfMultiples="6">
+    <registers name="TAP_HISTOGRAM" offsetFromParent="38" useMultiples="true" numberOfMultiples="6">
       <fields name="VALUE" size="32" readWrite="false" readOnly="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="40" useMultiples="true" numberOfMultiples="3">
+    <registers name="LANE_PACKER_STATUS" offsetFromParent="50" useMultiples="true" numberOfMultiples="3">
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="DEBUG" offsetFromParent="4C">
+    <registers name="DEBUG" offsetFromParent="5C">
       <fields name="MANUAL_CALIB_EN" lsb="31"/>
       <fields name="LOAD_TAPS" lsb="30" readWrite="false" writeOnly="true"/>
       <fields name="TAP_LANE_5" lsb="25" size="5"/>

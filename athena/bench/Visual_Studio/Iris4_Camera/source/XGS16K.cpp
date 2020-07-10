@@ -22,55 +22,37 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
 
    SensorParams.SENSOR_TYPE            = 16000;
    SensorParams.XGS_HiSPI_Ch           = 24;
+   SensorParams.XGS_HiSPI_Ch_used      = 6;
+   SensorParams.XGS_HiSPI_mux          = 4;
 
-   SensorParams.XGS_X_START = 84;   // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_END   = 4083; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_SIZE  = 4176; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.Xsize_Full             = 4000;  //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full             = 4000;  //+8; // Interpolation NOT INCLUDED
 
+   SensorParams.XGS_X_START            = 84;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
 
-   SensorParams.Xsize_Full             = 4000; //+8; // Interpolation NOT INCLUDED
-   SensorParams.Ysize_Full             = 4000; //+8; // Interpolation NOT INCLUDED
+   SensorParams.XGS_X_SIZE             = 4176;   // FULL X, including everything
+   SensorParams.XGS_Y_SIZE             = 4030;   // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
+
  
 	// This may depend on the configuration (Lanes+LineSize) 
-   SensorParams.ReadOutN_2_TrigN = 0; //
+   SensorParams.ReadOutN_2_TrigN       = 0; //
 
-   SensorParams.TrigN_2_FOT          = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+   SensorParams.TrigN_2_FOT            = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.EXP_FOT              = 0;
+   SensorParams.EXP_FOT                = 0;
 
-   SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+   SensorParams.EXP_FOT_TIME           = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
-   SensorParams.KEEP_OUT_ZONE_START = 0xffff;
+   SensorParams.KEEP_OUT_ZONE_START    = 0xffff;
 
-   //---------------------------------
-   // Constants for XGS 16M FOT
-   //---------------------------------
-   // SFOTand EFOT numbers
-   // SFOT 24 lanes ->
-   // SFOT 18 lanes ->
-   // SFOT 12 lanes ->
-   // SFOT 6 lanes  ->
-   // EFOT 24 lanes ->
-   // EFOT 18 lanes ->
-   // EFOT 12 lanes ->
-   // EFOT 6 lanes  ->
-   
-   // Short Integration time
-   // SFOT 24 lanes -> 
-   // EFOT 24 lanes -> 
+   GrabParams.FOT                      = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-   if (lanes == 24)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-   if (lanes == 18)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-   if (lanes == 12)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-   if (lanes == 6)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
-
-   GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
-
-   GrabParams.Y_START             = 0;
-   GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
-   GrabParams.REVERSE_Y           = 0;
-   GrabParams.BLACK_OFFSET        = 0x0100;     // data_pedestal
-   GrabParams.ANALOG_GAIN         = 0x1;        // gain=1
+   GrabParams.Y_START                  = 0;
+   GrabParams.Y_END                    = SensorParams.Ysize_Full - 1;
+   GrabParams.REVERSE_Y                = 0;
+   GrabParams.BLACK_OFFSET             = 0x0100;     // data_pedestal
+   GrabParams.ANALOG_GAIN              = 0x1;        // gain=1
 						          
    printf("XGS16M Sensor detected, ");
    }

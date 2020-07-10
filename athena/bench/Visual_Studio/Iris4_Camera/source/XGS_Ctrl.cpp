@@ -89,16 +89,18 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 
 		0,             //Sensor Type
 		24,            //XGSmax HISPI channels 
-		
+	    6,             //XGS_HiSPI_Ch_used;
+	    4,             //XGS_HiSPI_mux;  (static register for the moment)
+
 		36,            // XGS_Start;
 	    4131,          // XGS_End;
-	    4176,          // XGS_Size;
+	    4176,          // XGS_X_Size;
+		3102,          // XGS_Y_Size;      
 
 		1280,          //Xsize_Full
 		1024,          //Ysize_Full
 		1280,          //Xsize_BL;
 
-		0,             //FOT;
 		0,             //BL_LINES;
 		0,             //EXP_DUMMY_LINES;
 
@@ -447,8 +449,8 @@ void CXGS_Ctrl::InitXGS()
 			printf("XGS is MONO\n");
 
 
-		XGS5M_SetGrabParamsInit5000(6);
-		XGS5M_LoadDCF(6);
+		XGS5M_SetGrabParamsInit5000(4);
+		XGS5M_LoadDCF(4);
 
 	}
 

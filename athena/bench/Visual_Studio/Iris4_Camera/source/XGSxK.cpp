@@ -121,24 +121,29 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	rXGSptr.ACQ.READOUT_CFG4.u32                   = sXGSptr.ACQ.READOUT_CFG4.u32;
 
 	// Set FOT time (not used by fpga for the moment)
-	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE = GrabParams.FOT;
-	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); //test: de EO_FOT genere ds le fpga
-	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL = 1;  //EO_FOT genere ds le fpga : programmable number of lines!
-	rXGSptr.ACQ.READOUT_CFG1.u32 = sXGSptr.ACQ.READOUT_CFG1.u32;
+	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE    = GrabParams.FOT;
+	sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH         = (M_UINT32)(double(GrabParams.FOT * sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond) / SystemPeriodNanoSecond); 
+	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL         = 1;  //EO_FOT genere ds le fpga : programmable number of lines!
+	rXGSptr.ACQ.READOUT_CFG1.u32                  = sXGSptr.ACQ.READOUT_CFG1.u32;
+
 
 	// Set Location of first valid x pixel(including Interpolation)
-	sXGSptr.ACQ.SENSOR_X_START.f.SENSOR_X_START     = SensorParams.XGS_X_START;
-	rXGSptr.ACQ.SENSOR_X_START.u32                  = sXGSptr.ACQ.SENSOR_X_START.u32;
+	sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START     = SensorParams.XGS_X_START;
+	rXGSptr.HISPI.FRAME_CFG_X_VALID.u32           = sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
 
 	// Set Location of last valid x pixel(including Interpolation) 
-	sXGSptr.ACQ.SENSOR_X_END.f.SENSOR_X_END = SensorParams.XGS_X_END;
-	rXGSptr.ACQ.SENSOR_X_END.u32            = sXGSptr.ACQ.SENSOR_X_END.u32;
+	sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_END       = SensorParams.XGS_X_END;
+	rXGSptr.HISPI.FRAME_CFG_X_VALID.u32           = sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
 
-	// Set complete line size (including Black pixels, Interpolation, dummies, valid) 
-	sXGSptr.ACQ.SENSOR_X_SIZE.f.SENSOR_X_SIZE = SensorParams.XGS_X_SIZE;
-	rXGSptr.ACQ.SENSOR_X_SIZE.u32 = sXGSptr.ACQ.SENSOR_X_SIZE.u32;
+	// Set complete line/frame size (including Black pixels, Interpolation, dummies, valid) 
+	sXGSptr.HISPI.FRAME_CFG.f.PIXELS_PER_LINE     = SensorParams.XGS_X_SIZE;
+	sXGSptr.HISPI.FRAME_CFG.f.LINES_PER_FRAME     = SensorParams.XGS_Y_SIZE;
+	rXGSptr.HISPI.FRAME_CFG.u32                   = sXGSptr.HISPI.FRAME_CFG.u32;
 
-
+	// Set FPGA MUX ratio and HiSPI number of lanes used
+	sXGSptr.HISPI.CTRL.f.XGS_MUX_RATIO            = SensorParams.XGS_HiSPI_mux;   //static register for the moment
+	sXGSptr.HISPI.CTRL.f.XGS_NB_LANES             = SensorParams.XGS_HiSPI_Ch_used; 
+	rXGSptr.HISPI.CTRL.u32                        = sXGSptr.HISPI.CTRL.u32;
 
 
 

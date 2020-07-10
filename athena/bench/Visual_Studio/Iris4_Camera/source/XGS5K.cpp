@@ -39,40 +39,40 @@
 void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    {
 
-   SensorParams.SENSOR_TYPE            = 5000;
-   SensorParams.XGS_HiSPI_Ch           = 16;
+   SensorParams.SENSOR_TYPE         = 5000;
+   SensorParams.XGS_HiSPI_Ch        = 16;
+   SensorParams.XGS_HiSPI_Ch_used   = 4;
+   SensorParams.XGS_HiSPI_mux       = 4;
 
-   SensorParams.Ysize_Full  = 2048;                                                //+8;
-   SensorParams.Xsize_Full  = 2592;                                                //+8; //8 Interpolation
+   SensorParams.Ysize_Full          = 2048;                                                //+8;
+   SensorParams.Xsize_Full          = 2592;                                                //+8; //8 Interpolation
    
-   SensorParams.XGS_X_START = 90;                                                  // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_END   = SensorParams.XGS_X_START+ SensorParams.Xsize_Full-1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_SIZE  = 2688;                                                // FULL X, including everything
+   SensorParams.XGS_X_START         = 90;                                                  // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END           = SensorParams.XGS_X_START+ SensorParams.Xsize_Full-1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_SIZE          = 2688;                                                // FULL X, including everything
+   SensorParams.XGS_Y_SIZE          = 2078;                                                // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
 
    // This may depend on the configuration (Lanes+LineSize) 
 
-   SensorParams.Trig_2_EXP       = 76800;
+   SensorParams.Trig_2_EXP          = 76800;
 
-   SensorParams.ReadOutN_2_TrigN = 51200; 
+   SensorParams.ReadOutN_2_TrigN    = 51200; 
 
-   SensorParams.TrigN_2_FOT      = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+   SensorParams.TrigN_2_FOT         = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
 
-   SensorParams.EXP_FOT          = 7000;
+   SensorParams.EXP_FOT             = 7000;
 
-   SensorParams.EXP_FOT_TIME     = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+   SensorParams.EXP_FOT_TIME        = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
    SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
 
-   if (lanes == 16)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-   if (lanes == 4)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
+   GrabParams.FOT                   = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-   GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
-
-   GrabParams.Y_START             = 0;
-   GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
-   GrabParams.REVERSE_Y           = 0;
-   GrabParams.BLACK_OFFSET        = 0x0100;     // data_pedestal
-   GrabParams.ANALOG_GAIN         = 0x1;        // gain=1
+   GrabParams.Y_START               = 0;
+   GrabParams.Y_END                 = SensorParams.Ysize_Full - 1;
+   GrabParams.REVERSE_Y             = 0;
+   GrabParams.BLACK_OFFSET          = 0x0100;     // data_pedestal
+   GrabParams.ANALOG_GAIN           = 0x1;        // gain=1
 						          
    printf("XGS5K Sensor detected, ");
    }

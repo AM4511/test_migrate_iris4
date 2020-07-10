@@ -27,16 +27,18 @@ M_UINT32 XGS12K_WIP = 17021;
 void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    {
 
-   SensorParams.SENSOR_TYPE            = 12000;
-   SensorParams.XGS_HiSPI_Ch           = 24;
+   SensorParams.SENSOR_TYPE          = 12000;
+   SensorParams.XGS_HiSPI_Ch         = 24;
+   SensorParams.XGS_HiSPI_Ch_used    = 6;
+   SensorParams.XGS_HiSPI_mux        = 4;
 
-   SensorParams.Xsize_Full             = 4096;             //+8; // Interpolation NOT INCLUDED
-   SensorParams.Ysize_Full             = 3072;             //+8; // Interpolation NOT INCLUDED 
+   SensorParams.Xsize_Full           = 4096;             //+8; // Interpolation NOT INCLUDED
+   SensorParams.Ysize_Full           = 3072;             //+8; // Interpolation NOT INCLUDED 
 
-   SensorParams.XGS_X_START            = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_SIZE             = 4176;                                                   // FULL X, including everything
-   
+   SensorParams.XGS_X_START          = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END            = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_SIZE           = 4176;                                                   // FULL X, including everything
+   SensorParams.XGS_Y_SIZE           = 3102;                                                   // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
 
 
    // This may depend on the configuration (Lanes+LineSize) 
@@ -52,154 +54,19 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 
    SensorParams.KEEP_OUT_ZONE_START  = 0x2bf;
 
-   //---------------------------------
-   // Constants for XGS 12M FOT  greg ferrel 1/04/2020
-   //---------------------------------
-   // SFOTand EFOT numbers
-   // SFOT 24 lanes -> 14.4us
-   // SFOT 18 lanes -> 15.2us
-   // SFOT 12 lanes -> 22.9us
-   // SFOT 6 lanes ->  45.76us -> 4.05 lines
-   // EFOT 24 lanes-> 29.9us
-   // EFOT 18 lanes -> 31.1us
-   // EFOT 12 lanes ->50.1us
-   // EFOT 6 lanes ->  95.9us
-   
-   // Short Integration time
-   // SFOT 24 lanes -> 3.605us
-   // EFOT 24 lanes -> 29.9us
+   GrabParams.FOT                    = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
-   if (lanes == 24)   SensorParams.FOT = unsigned long(29900 / SystemPeriodNanoSecond);
-   if (lanes == 18)   SensorParams.FOT = unsigned long(31100 / SystemPeriodNanoSecond);
-   if (lanes == 12)   SensorParams.FOT = unsigned long(50100 / SystemPeriodNanoSecond);
-   if (lanes == 6)    SensorParams.FOT = unsigned long(95900 / SystemPeriodNanoSecond); // ns/sysclk
-
-   GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
-
-   GrabParams.Y_START             = 0;
-   GrabParams.Y_END               = SensorParams.Ysize_Full - 1;
-   GrabParams.REVERSE_Y           = 0;
-   GrabParams.BLACK_OFFSET        = 0x0100;     // data_pedestal
-   GrabParams.ANALOG_GAIN         = 0x1;        // gain=1
+   GrabParams.Y_START                = 0;
+   GrabParams.Y_END                  = SensorParams.Ysize_Full - 1;
+   GrabParams.REVERSE_Y              = 0;
+   GrabParams.BLACK_OFFSET           = 0x0100;     // data_pedestal
+   GrabParams.ANALOG_GAIN            = 0x1;        // gain=1
 						          
    printf("XGS12M Sensor detected, ");
    }
 
-void CXGS_Ctrl::XGS12M_SetGrabParamsInit9400(int lanes)
-{
-
-	SensorParams.SENSOR_TYPE  = 9400;
-	SensorParams.XGS_HiSPI_Ch = 24;
-
-	SensorParams.Xsize_Full = 3072; //+8; // Interpolation NOT INCLUDED
-	SensorParams.Ysize_Full = 3072; //+8; // Interpolation NOT INCLUDED
-
-	SensorParams.XGS_X_START = 548;                                                    // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_END   = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_SIZE  = 4176;                                                   // FULL X, including everything
 
 
-  
-	// This may depend on the configuration (Lanes+LineSize) 
-	SensorParams.ReadOutN_2_TrigN = 0; //
-
-	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
-
-	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
-
-	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
-
-	//---------------------------------
-	// Constants for XGS 9.4M FOT
-	//---------------------------------
-	// SFOTand EFOT numbers
-	// SFOT 24 lanes -> 
-	// SFOT 18 lanes -> 
-	// SFOT 12 lanes -> 
-	// SFOT 6 lanes  -> 
-	// EFOT 24 lanes -> 
-	// EFOT 18 lanes -> 
-	// EFOT 12 lanes ->
-	// EFOT 6 lanes  -> 
-
-	// Short Integration time
-	// SFOT 24 lanes ->
-	// EFOT 24 lanes ->
-
-	if (lanes == 24)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 18)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 12)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 6)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
-
-	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
-
-	GrabParams.Y_START      = 0;
-	GrabParams.Y_END        = SensorParams.Ysize_Full - 1;
-	GrabParams.REVERSE_Y    = 0;
-	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
-	GrabParams.ANALOG_GAIN  = 0x1;        // gain=1
-
-	printf("XGS9.4M Sensor detected, ");
-}
-
-void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
-{
-
-	SensorParams.SENSOR_TYPE = 8000;
-	SensorParams.XGS_HiSPI_Ch = 24;
-
-	SensorParams.Xsize_Full = 4096; //+8; // Interpolation NOT INCLUDED
-	SensorParams.Ysize_Full = 2160; //+8; // Interpolation NOT INCLUDED
-
-	SensorParams.XGS_X_START = 36;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_END   = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-	SensorParams.XGS_X_SIZE  = 4176;                                                   // FULL X, including everything
-
-    // This may depend on the configuration (Lanes+SensorArea)
-	SensorParams.ReadOutN_2_TrigN = 0;  // in ns
-	SensorParams.TrigN_2_FOT      = 0;  // in ns
-	
-    SensorParams.ReadOutN_2_TrigN = 0; //
-
-	SensorParams.TrigN_2_FOT = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
-
-	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + 0;  //0us trig fall to FOT START  + 0us calculated from start of FOT to end of real exposure in dev board, to validate!
-
-	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
-
-
-	//---------------------------------
-	// Constants for XGS 9.4M FOT
-	//---------------------------------
-	// SFOTand EFOT numbers
-	// SFOT 24 lanes -> 
-	// SFOT 18 lanes -> 
-	// SFOT 12 lanes -> 
-	// SFOT 6 lanes  -> 
-	// EFOT 24 lanes -> 
-	// EFOT 18 lanes -> 
-	// EFOT 12 lanes ->
-	// EFOT 6 lanes  -> 
-
-	// Short Integration time
-	// SFOT 24 lanes ->
-	// EFOT 24 lanes ->
-
-	if (lanes == 24)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 18)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 12)   SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond);
-	if (lanes == 6)    SensorParams.FOT = unsigned long(0 / SystemPeriodNanoSecond); // ns/sysclk
-
-	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
-
-	GrabParams.Y_START = 0;
-	GrabParams.Y_END = SensorParams.Ysize_Full - 1;
-	GrabParams.REVERSE_Y = 0;
-	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
-	GrabParams.ANALOG_GAIN = 0x1;        // gain=1
-
-	printf("XGS8M Sensor detected, ");
-}
 
 void CXGS_Ctrl::XGS12M_LoadDCF(int lanes)
 {
