@@ -46,6 +46,7 @@
 # PART OF THIS FILE AT ALL TIMES.
 
 ## IOB constraints ######
+set_property LOC SLICE_X28Y29  [get_cells -hierarchical *.SCK_O_reg_reg]
 set_property IOB true [get_cells -hierarchical -filter {NAME =~*IO*_I_REG}]
 
 #####################################################################################################
