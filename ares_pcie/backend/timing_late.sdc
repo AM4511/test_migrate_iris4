@@ -62,5 +62,12 @@ set_false_path -to [get_ports pwm_out]
 set_false_path -to [get_ports debug_uart_txd] 
 set_false_path -from [get_ports debug_uart_rxd]
 
-set_false_path -to [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
-set_false_path -from [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
+#set_false_path -to [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
+#set_false_path -from [get_cells -hierarchical -filter {NAME =~ *rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_*}]
+
+
+###################################################################################
+## Because of the PLL phase advance, we need to specify on which edge we want the 
+## setup analyse to occur 
+###################################################################################
+set_multicycle_path -from [get_clocks  ncsi_clk_io] -to [get_clocks  ncsi_clk50MHz] 2

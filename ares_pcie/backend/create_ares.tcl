@@ -1,5 +1,5 @@
 # ##################################################################################
-# File         : create_csib.tcl
+# File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/create_ares.tcl
@@ -136,6 +136,13 @@ wait_on_run ${SYNTH_RUN}
 
 
 ################################################
+# Set strategy
+################################################
+#set_property strategy Flow_PerfOptimized_high [get_runs ${SYNTH_RUN}]
+#set_property strategy Performance_Explore [get_runs $IMPL_RUN]
+
+
+################################################
 # Generate implementation run
 ################################################
 current_run [get_runs $IMPL_RUN]
@@ -164,7 +171,7 @@ if [string match "route_design Complete, Failed Timing!" $route_status] {
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
 	 #source  $SDK_SCRIPT
- 	 source  $ARCHIVE_SCRIPT
+ 	 #source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"
  }
