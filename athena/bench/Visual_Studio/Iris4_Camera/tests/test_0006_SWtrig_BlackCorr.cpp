@@ -250,8 +250,8 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				SN_DARK_NOISE = (double)SN_DARK_NOISE_ACC / (double)((XGS_Data->rXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR-8) * XGS_Ctrl->SensorParams.Xsize_Full);
 
 				
-				printf("M_LINES PD(PhotoDiode)+SN(StorageNode) Dark current Black mean = %llf, Data Pedestal=%d\n", PD_SN_DARK_NOISE, BlackOffset/16);
-				printf("M_LINES SN(StorageNode) Dark current Black mean                = %llf, Data Pedestal=%d\n\n", SN_DARK_NOISE,    BlackOffset/16);
+				printf("M_LINES PD(PhotoDiode)+SN(StorageNode) Dark current Black mean = %f, Data Pedestal=%d\n", PD_SN_DARK_NOISE, BlackOffset/16);
+				printf("M_LINES SN(StorageNode) Dark current Black mean                = %f, Data Pedestal=%d\n\n", SN_DARK_NOISE,    BlackOffset/16);
 				break;
 
 			}
