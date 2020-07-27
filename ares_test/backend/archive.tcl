@@ -90,7 +90,7 @@ set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
 write_bitstream -force $UPGRADE_BIT_FILENAME
 
 # Create the .mcs version
-write_cfgmem -force -format MCS -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
+write_cfgmem -force -format MCS -size 8 -interface SPIx2-checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
 
 # Create the .bin version
 write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}

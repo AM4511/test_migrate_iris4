@@ -109,6 +109,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>

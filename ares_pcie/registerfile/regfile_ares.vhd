@@ -1,12 +1,12 @@
 -------------------------------------------------------------------------------
--- File    : regfile_ares.vhd
--- Project : FDK
--- Module  : regfile_ares_pack
--- Created on : 2018/09/07 11:27:07
--- Created by : jlarin
--- FDK IDE Version: 4.5.0_beta6
--- Build ID: I20160216-1844
---
+-- File                : regfile_ares.vhd
+-- Project             : FDK
+-- Module              : regfile_ares_pack
+-- Created on          : 2020/07/16 13:51:25
+-- Created by          : amarchan
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0xCC5990AA
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3328,14 +3328,14 @@ end package body;
 
 
 -------------------------------------------------------------------------------
--- File : regfile_ares.vhd
--- Project : FDK
--- Module : regfile_ares
--- Created on : 2018/09/07 11:27:07
--- Created by : jlarin
--- FDK IDE Version: 4.5.0_beta6
--- Build ID: I20160216-1844
--- 
+-- File                : regfile_ares.vhd
+-- Project             : FDK
+-- Module              : regfile_ares
+-- Created on          : 2020/07/16 13:51:25
+-- Created by          : amarchan
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0xCC5990AA
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -5447,7 +5447,7 @@ P_INTERRUPT_QUEUE_ADDR_HIGH_ADDR : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_INTERRUPT_QUEUE_ADDR_HIGH_ADDR <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_INTERRUPT_QUEUE_ADDR_HIGH_ADDR <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(9) = '1' and bitEnN(j) = '0') then
@@ -6701,7 +6701,7 @@ P_Quadrature_0_DecoderPosTrigger_PositionTrigger : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Quadrature_0_DecoderPosTrigger_PositionTrigger <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Quadrature_0_DecoderPosTrigger_PositionTrigger <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(33) = '1' and bitEnN(j) = '0') then
@@ -7215,7 +7215,7 @@ P_TickTable_0_WriteTime_WriteTime : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_TickTable_0_WriteTime_WriteTime <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_TickTable_0_WriteTime_WriteTime <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(42) = '1' and bitEnN(j) = '0') then
@@ -9167,7 +9167,7 @@ P_Timer_0_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_0_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_0_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(78) = '1' and bitEnN(j) = '0') then
@@ -9202,7 +9202,7 @@ P_Timer_0_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_0_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_0_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(79) = '1' and bitEnN(j) = '0') then
@@ -9926,7 +9926,7 @@ P_Timer_1_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_1_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_1_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(86) = '1' and bitEnN(j) = '0') then
@@ -9961,7 +9961,7 @@ P_Timer_1_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_1_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_1_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(87) = '1' and bitEnN(j) = '0') then
@@ -10685,7 +10685,7 @@ P_Timer_2_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_2_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_2_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(94) = '1' and bitEnN(j) = '0') then
@@ -10720,7 +10720,7 @@ P_Timer_2_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_2_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_2_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(95) = '1' and bitEnN(j) = '0') then
@@ -11444,7 +11444,7 @@ P_Timer_3_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_3_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_3_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(102) = '1' and bitEnN(j) = '0') then
@@ -11479,7 +11479,7 @@ P_Timer_3_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_3_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_3_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(103) = '1' and bitEnN(j) = '0') then
@@ -12203,7 +12203,7 @@ P_Timer_4_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_4_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_4_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(110) = '1' and bitEnN(j) = '0') then
@@ -12238,7 +12238,7 @@ P_Timer_4_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_4_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_4_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(111) = '1' and bitEnN(j) = '0') then
@@ -12962,7 +12962,7 @@ P_Timer_5_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_5_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_5_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(118) = '1' and bitEnN(j) = '0') then
@@ -12997,7 +12997,7 @@ P_Timer_5_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_5_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_5_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(119) = '1' and bitEnN(j) = '0') then
@@ -13721,7 +13721,7 @@ P_Timer_6_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_6_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_6_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(126) = '1' and bitEnN(j) = '0') then
@@ -13756,7 +13756,7 @@ P_Timer_6_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_6_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_6_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(127) = '1' and bitEnN(j) = '0') then
@@ -14480,7 +14480,7 @@ P_Timer_7_TimerDelayValue_TimerDelayValue : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_7_TimerDelayValue_TimerDelayValue <= std_logic_vector(to_unsigned(integer(0),32));
+         field_rw_Timer_7_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
             if(wEn(134) = '1' and bitEnN(j) = '0') then
@@ -14515,7 +14515,7 @@ P_Timer_7_TimerDuration_TimerDuration : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_Timer_7_TimerDuration_TimerDuration <= std_logic_vector(to_unsigned(integer(1),32));
+         field_rw_Timer_7_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
             if(wEn(135) = '1' and bitEnN(j) = '0') then

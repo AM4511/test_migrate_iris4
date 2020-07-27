@@ -2,29 +2,29 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
-  [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
-  [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
-  [file normalize "${SRC_DIR}/osirispak.vhd"]\
-  [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
-  [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
-  [file normalize "${SRC_DIR}/spider_pak.vhd"]\
-  [file normalize "${SRC_DIR}/Input_Conditioning.vhd"]\
-  [file normalize "${SRC_DIR}/Output_Conditioning.vhd"]\
-  [file normalize "${SRC_DIR}/pciepack.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_int_queue.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_irq_axi.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_reg.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_rx_axi.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_tx_axi.vhd"]\
-  [file normalize "${SRC_DIR}/pcie_top.vhd"]\
-  [file normalize "${SRC_DIR}/PWMoutput.vhd"]\
-  [file normalize "${SRC_DIR}/quaddecoder.vhd"]\
-  [file normalize "${SRC_DIR}/spider_pak.vhd"]\
-  [file normalize "${SRC_DIR}/TickTable.vhd"]\
-  [file normalize "${SRC_DIR}/timer.vhd"]\
-  [file normalize "${SRC_DIR}/userio_bank.vhd"]\
-  [file normalize "${SRC_DIR}/xil_ticktable.vhd"]\
-  [file normalize "${SRC_DIR}/ares_pcie.vhd"]
+  # [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
+  # [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
+  # [file normalize "${SRC_DIR}/osirispak.vhd"]\
+  # [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
+  # [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
+  # [file normalize "${SRC_DIR}/spider_pak.vhd"]\
+  # [file normalize "${SRC_DIR}/Input_Conditioning.vhd"]\
+  # [file normalize "${SRC_DIR}/Output_Conditioning.vhd"]\
+  # [file normalize "${SRC_DIR}/pciepack.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_int_queue.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_irq_axi.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_reg.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_rx_axi.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_tx_axi.vhd"]\
+  # [file normalize "${SRC_DIR}/pcie_top.vhd"]\
+  # [file normalize "${SRC_DIR}/PWMoutput.vhd"]\
+  # [file normalize "${SRC_DIR}/quaddecoder.vhd"]\
+  # [file normalize "${SRC_DIR}/spider_pak.vhd"]\
+  # [file normalize "${SRC_DIR}/TickTable.vhd"]\
+  # [file normalize "${SRC_DIR}/timer.vhd"]\
+  # [file normalize "${SRC_DIR}/userio_bank.vhd"]\
+  # [file normalize "${SRC_DIR}/xil_ticktable.vhd"]\
+  # [file normalize "${SRC_DIR}/ares_pcie.vhd"]
 ]
 
 add_files -norecurse -fileset ${HDL_FILESET} $FILE_LIST
@@ -64,5 +64,5 @@ add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
 
 # Problem with a Xilinx constraint file
-#set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
-#set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
+set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
+set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
