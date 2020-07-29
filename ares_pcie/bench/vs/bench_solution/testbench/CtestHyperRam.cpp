@@ -4,18 +4,24 @@
 CtestHyperRam::CtestHyperRam(Cares& ares) : Ctest("CtestHyperRam"), m_ares(ares)
 {
 
-	u32 zynqDDR2WindowStart = 0x02000000; // 32MB high
-	u32 zynqDDR2WindowStop = 0x03FFFFFF;
-	u32 zynqDDR2WindowOffset = 0x08000000;
+	u32 registerWindowStart = 0x00000000; // 32MB high
+	u32 registerWindowStop = 0x00000FFF;
+	u32 registerWindowOffset = 0x00000000; // AXI Offset
 
-	m_zynqDDR2WindowPtr = ares.setAxiWindow(0, zynqDDR2WindowStart, zynqDDR2WindowStop, zynqDDR2WindowOffset);
-	m_zynqDDR2 = new CzynqDDR2(m_zynqDDR2WindowPtr, 0x2000000);
+
+	u32 memoryWindowStart = 0x00400000; // 32MB high
+	u32 memoryWindowStop = 0x007FFFFF;
+	u32 memoryWindowOffset = 0x00400000; // AXI Offset
+
+	volatile u32* regfilePtr = ares.setAxiWindow(0, registerWindowStart, registerWindowStop, registerWindowOffset);
+	volatile void* memoryBaseAddr = ares.setAxiWindow(1, memoryWindowStart, memoryWindowStop, memoryWindowOffset);
+	m_rpc2Ctrl = new Crpc2Ctrl("rpc2ctrl", regfilePtr, memoryBaseAddr);
 }
 
 
 CtestHyperRam::~CtestHyperRam()
 {
-	delete m_zynqDDR2;
+	delete m_rpc2Ctrl;
 }
 
 u32 CtestHyperRam::run()
@@ -27,20 +33,21 @@ u32 CtestHyperRam::run()
 
 	// Test a ramp
 	u32 start = 0x0;
-	u32 stop = m_zynqDDR2->m_size;
+	u32 stop = 0x1000;
+	//u32 stop = 0;
 	u32 initValue = 0x0;
 	int32 increment = -1;
-	u32 clearBufferValue = 0x0;
+	u32 clearBufferValue = 0xcafefade;
 
-	for (u32 j = 0; j < 1; j++)
+	for (u32 j = 0; j < 10000; j++)
 	{
 		cout << "###################################################################" << endl;
 		cout << "###################################################################" << endl;
-		cout << "## TESTLOOP : " << j                                                 << endl;
+		cout << "## TESTLOOP : " << std::dec << j << endl;
 		cout << "###################################################################" << endl;
 		cout << "###################################################################" << endl;
 
-		for (u32 i = 0; i < 4; i++)
+		for (u32 i = 0; i < 1; i++)
 		{
 
 			u32 ddrWindowSize = 0x02000000; // 32MB high
@@ -48,14 +55,14 @@ u32 CtestHyperRam::run()
 
 			cout << endl;
 			cout << "###################################################################" << endl;
-			cout << "## BAR0 AXI window[" << i << "] ramp test 32MB                     " << endl;
+			cout << "## BAR0 AXI window[" << std::dec << i << "] ramp test 32MB                     " << endl;
 			cout << "###################################################################" << endl;
-			m_ares.setAxiWindowTranslationOffset(0, zynqDDR2WindowOffset);
+			//m_ares.setAxiWindowTranslationOffset(0, zynqDDR2WindowOffset);
 			clear32(start, stop, clearBufferValue);
-			test_ramp_u8(start, stop-4, (u8)initValue, (u8)increment);
-			test_ramp_u16(start, stop-4, (u16) initValue, (u16) increment);
+			//test_ramp_u8(start, stop - 4, (u8)initValue, (u8)increment);
+			//test_ramp_u16(start, stop - 4, (u16)initValue, (u16)increment);
 			test_ramp_u32(start, stop, initValue, increment);
-			test_ramp_u64(start, stop, (u64) initValue, (u64)increment);
+			//test_ramp_u64(start, stop, (u64)initValue, (u64)increment);
 			//software_trigger();
 			//test_ramp_u8_turbo(start, stop, (u8)initValue, (u8)increment);
 			//test_ramp_u16_turbo(start, stop, (u16)initValue, (u16)increment);
@@ -69,20 +76,19 @@ u32 CtestHyperRam::test_single_access()
 {
 	u32 address = 0x0;
 	u32 writeData = 0xdeadbeef;
-	u32 readData;
+	u32 readData = 0;
 	char message[256];
 
 	double time;
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 
 	// Single DDR2 write/read access
-	m_zynqDDR2->write_u32(address, writeData);
-	readData = m_zynqDDR2->read_u32(address);
+	m_rpc2Ctrl->write_u32(address, writeData);
+	readData = m_rpc2Ctrl->read_u32(address);
 
 	// Compare result
 	if (readData != writeData)
 	{
-
 		sprintf_s(message, sizeof(message), "Error : @0x%x : write32 data = 0x%x; readData = 0x%x; ", address, writeData, readData);
 		assert(true, message);
 	}
@@ -109,7 +115,7 @@ u32 CtestHyperRam::clear32(u32 start, u32 stop, u32 clearValue)
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	do
 	{
-		m_zynqDDR2->write_u32(address, clearValue);
+		m_rpc2Ctrl->write_u32(address, clearValue);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -121,7 +127,6 @@ u32 CtestHyperRam::clear32(u32 start, u32 stop, u32 clearValue)
 
 		stepCntr += 4;
 		address += 4;
-		//data++;
 	} while (address < stop);
 
 	// Print duration
@@ -150,7 +155,7 @@ u32 CtestHyperRam::test_ramp_u8(u32 start, u32 stop, u8 initValue, u8 increment)
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	do
 	{
-		m_zynqDDR2->write_u8(address, data);
+		//m_rpc2Ctrl->write_u8(address, data);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -181,10 +186,10 @@ u32 CtestHyperRam::test_ramp_u8(u32 start, u32 stop, u8 initValue, u8 increment)
 
 	do
 	{
-		u8 readData;
+		u8 readData = 0;
 
 		// Single DDR2 read access
-		readData = m_zynqDDR2->read_u8(address);
+		//readData = m_rpc2Ctrl->read_u8(address);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -237,7 +242,7 @@ u32 CtestHyperRam::test_ramp_u16(u32 start, u32 stop, u16 initValue, u16 increme
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	do
 	{
-		m_zynqDDR2->write_u16(address, data);
+		//m_rpc2Ctrl->write_u16(address, data);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -268,10 +273,10 @@ u32 CtestHyperRam::test_ramp_u16(u32 start, u32 stop, u16 initValue, u16 increme
 
 	do
 	{
-		u16 readData;
+		u16 readData = 0;
 
 		// Single DDR2 read access
-		readData = m_zynqDDR2->read_u16(address);
+		//readData = m_rpc2Ctrl->read_u16(address);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -321,7 +326,7 @@ u32 CtestHyperRam::test_ramp_u32(u32 start, u32 stop, u32 initValue, int32 incre
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	do
 	{
-		m_zynqDDR2->write_u32(address, data);
+		m_rpc2Ctrl->write_u32(address, data);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -355,7 +360,7 @@ u32 CtestHyperRam::test_ramp_u32(u32 start, u32 stop, u32 initValue, int32 incre
 		u32 readData;
 
 		// Single DDR2 read access
-		readData = m_zynqDDR2->read_u32(address);
+		readData = m_rpc2Ctrl->read_u32(address);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -405,7 +410,7 @@ u32 CtestHyperRam::test_ramp_u64(u32 start, u32 stop, u64 initValue, u64 increme
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	do
 	{
-		m_zynqDDR2->write_u64(address, data);
+		//m_rpc2Ctrl->write_u64(address, data);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -436,10 +441,10 @@ u32 CtestHyperRam::test_ramp_u64(u32 start, u32 stop, u64 initValue, u64 increme
 
 	do
 	{
-		u64 readData;
+		u64 readData = 0;
 
 		// Single DDR2 read access
-		readData = m_zynqDDR2->read_u64(address);
+		//readData = m_rpc2Ctrl->read_u64(address);
 
 		// Monitor
 		if (stepCntr == monitorStep)
@@ -487,9 +492,9 @@ u32 CtestHyperRam::test_ramp_u8_turbo(u32 start, u32 stop, u8 initValue, u8 incr
 	volatile u8* readPtr;
 	volatile u8* writePtr;
 	volatile u32* errorPtr;
-
-	writePtr = (u8*)m_zynqDDR2->m_basePtr;
-	errorPtr = (u32*)m_zynqDDR2->m_basePtr;
+	writePtr = 0x0;
+	//writePtr = (u8*)m_rpc2Ctrl->m_basePtr;
+	//errorPtr = (u32*)m_rpc2Ctrl->m_basePtr;
 
 	volatile u8* stopOffset = writePtr + stop;
 
@@ -520,26 +525,26 @@ u32 CtestHyperRam::test_ramp_u8_turbo(u32 start, u32 stop, u8 initValue, u8 incr
 	cout << message << endl;
 
 	// Initialize data
-	readPtr = (u8*)m_zynqDDR2->m_basePtr;
+	//readPtr = (u8*)m_rpc2Ctrl->m_basePtr;
 	expectedData = 0;
-	do
-	{
-		// Single DDR2 read access 
-		readData = *readPtr;
+	/*do
+	{*/
+	// Single DDR2 read access 
+	//readData = *readPtr;
 
-		//// Compare result
-		if (readData != expectedData)
-		{
-			*errorPtr = errorData;
-			char message[256];
-			sprintf_s(message, sizeof(message), "\nError : @0x%p : write u8 data = 0x%x; read u8 data = 0x%x; ", readPtr, expectedData, readData);
-			assert(true, message);
-		}
+	//// Compare result
+	//if (readData != expectedData)
+	//{
+	////	*errorPtr = errorData;
+	//	char message[256];
+	//	sprintf_s(message, sizeof(message), "\nError : @0x%p : write u8 data = 0x%x; read u8 data = 0x%x; ", readPtr, expectedData, readData);
+	//	assert(true, message);
+	//}
 
-		readPtr++;
-		expectedData++;
+	//readPtr++;
+	expectedData++;
 
-	} while (readPtr < stopOffset);
+	//} while (readPtr < stopOffset);
 
 	// Print duration
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
@@ -566,9 +571,9 @@ u32 CtestHyperRam::test_ramp_u16_turbo(u32 start, u32 stop, u16 initValue, u16 i
 	double time;
 	char message[256];
 
-	writePtr = (u16*)m_zynqDDR2->m_basePtr;
-	errorPtr = (u32*)m_zynqDDR2->m_basePtr;
-	stopOffset = writePtr + stop / 2;
+	//writePtr = (u16*)m_rpc2Ctrl->m_basePtr;
+	//errorPtr = (u32*)m_rpc2Ctrl->m_basePtr;
+	//stopOffset = writePtr + stop / 2;
 
 
 	/////////////////////////////////////////////////////////////////////////////////
@@ -577,12 +582,12 @@ u32 CtestHyperRam::test_ramp_u16_turbo(u32 start, u32 stop, u16 initValue, u16 i
 	MappTimer(M_DEFAULT, M_TIMER_RESET + M_SYNCHRONOUS, M_NULL);
 	sprintf_s(message, sizeof(message), "Writing u16 ramp\n");
 	cout << message << endl;
-	do
+	/*do
 	{
 		*writePtr = data;
 		writePtr++;
 		data++;
-	} while (writePtr < stopOffset);
+	} while (writePtr < stopOffset);*/
 
 	// Print duration
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
@@ -598,26 +603,26 @@ u32 CtestHyperRam::test_ramp_u16_turbo(u32 start, u32 stop, u16 initValue, u16 i
 	cout << message << endl;
 
 	// Initialize data
-	readPtr = (u16*)m_zynqDDR2->m_basePtr;
+	//readPtr = (u16*)m_rpc2Ctrl->m_basePtr;
 	expectedData = 0;
-	do
-	{
-		// Single DDR2 read access 
-		readData = *readPtr;
+	//do
+	//{
+	//	// Single DDR2 read access 
+	//	//readData = *readPtr;
 
-		//// Compare result
-		if (readData != expectedData)
-		{
-			*errorPtr = errorData;
-			char message[256];
-			sprintf_s(message, sizeof(message), "\nError : @0x%p : write u16 data = 0x%x; read u16 data = 0x%x; ", readPtr, expectedData, readData);
-			assert(true, message);
-		}
+	//	//// Compare result
+	//	//if (readData != expectedData)
+	//	//{
+	//	//	//*errorPtr = errorData;
+	//	//	char message[256];
+	//	//	sprintf_s(message, sizeof(message), "\nError : @0x%p : write u16 data = 0x%x; read u16 data = 0x%x; ", readPtr, expectedData, readData);
+	//	//	assert(true, message);
+	//	//}
 
-		readPtr++;
-		expectedData++;
+	//	readPtr++;
+	//	expectedData++;
 
-	} while (readPtr < stopOffset);
+	//} while (readPtr < stopOffset);
 
 	// Print duration
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
@@ -631,7 +636,7 @@ u32 CtestHyperRam::software_trigger()
 {
 	u32 writeData = 0xcafefade;
 	volatile u32* writePtr;
-	writePtr = (u32*)m_zynqDDR2->m_basePtr;
-	*writePtr = writeData;
+	//writePtr = (u32*)m_rpc2Ctrl->m_basePtr;
+	//*writePtr = writeData;
 	return 0;
 }

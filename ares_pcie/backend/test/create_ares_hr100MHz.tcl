@@ -2,7 +2,7 @@
 # File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/test/create_ares.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/test/create_ares_hr100MHz.tcl
 # 
 # ##################################################################################
 set myself [info script]
@@ -48,7 +48,7 @@ set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_jtag_test.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_jtag_test_100MHz.tcl
 
 
 set SYNTH_RUN "synth_1"

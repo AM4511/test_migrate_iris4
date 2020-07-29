@@ -39,21 +39,22 @@ int main()
 	Cares ares = Cares(aresName, PcieBAR0, PcieBAR2);
 
 	// Create tests
-	CtestAresID testMioxID = CtestAresID(ares);
-	CtestAresAxiWindow testAresAxiWindow = CtestAresAxiWindow(ares);
+	CtestAresID testAresID = CtestAresID(ares);
+	//CtestAresAxiWindow testAresAxiWindow = CtestAresAxiWindow(ares);
 	//CtestQuadSpi testQuadSpi = CtestQuadSpi(ares);
-	CtestHyperRam testDDR2 = CtestHyperRam(ares);
+	CtestHyperRam testHyperRam = CtestHyperRam(ares);
 
 	// Run tests
-	errCnt += testMioxID.run();
-	//errCnt += testMioxAxiWindow.run();
+	errCnt += testAresID.run();
+	//errCnt += testAresAxiWindow.run();
 	//errCnt += testQuadSpi.run();
-	errCnt += testDDR2.run();
+	errCnt += testHyperRam.run();
 
 	ares.freeMilBuffer();
 	MsysFree(MilSystem);
 	MappFree(MilApplication);
 
+	cout << endl << "Total error count : " << errCnt << endl;
 	// End test
 	cout << endl << "Press any key to exit..." << endl;
 	char c = getchar();

@@ -166,6 +166,7 @@
     <ClCompile Include="CaxiMaio.cpp" />
     <ClCompile Include="Cares.cpp" />
     <ClCompile Include="Cmiox.cpp" />
+    <ClCompile Include="Crpc2Ctrl.cpp" />
     <ClCompile Include="Ctest.cpp" />
     <ClCompile Include="CtestAxiMaio.cpp" />
     <ClCompile Include="CtestHyperRam.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="CaxiMaio.h" />
     <ClInclude Include="Cares.h" />
     <ClInclude Include="Cmiox.h" />
+    <ClInclude Include="Crpc2Ctrl.h" />
     <ClInclude Include="Ctest.h" />
     <ClInclude Include="CtestAxiMaio.h" />
     <ClInclude Include="CtestHyperRam.h" />

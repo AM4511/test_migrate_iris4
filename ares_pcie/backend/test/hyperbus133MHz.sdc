@@ -1,10 +1,34 @@
 # RDS CLK: 133 MHZ
-#set RDS_CLOCK_PERIOD 7.500
-set RDS_CLOCK_PERIOD 10.00
+set RDS_CLOCK_PERIOD 7.500
 create_clock -period ${RDS_CLOCK_PERIOD} -name VIRT_CLK
 create_clock -period ${RDS_CLOCK_PERIOD} -name RDS_CLK [get_ports hb_rwds]
+set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks  RDS_CLK] 0.300
 
-set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks  "*RDS*"] 0.300
+set_input_delay -clock VIRT_CLK  0.45      [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -0.45 -min [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK  0.45      [get_ports {hb_dq[*]}] -clock_fall -add_delay
+set_input_delay -clock VIRT_CLK -0.45 -min [get_ports {hb_dq[*]}] -clock_fall -add_delay
+
+# This effectively the capture edge back by one full clock period.
+set_multicycle_path 0 -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+
+# So now lets look at our four paths
+# 
+#     a) Launch  at 0ns to capture a -5ns (from 5ns pulled back one complete clock period)
+#     b) Launch at 5ns to capture at 0ns (from 10ns)
+#     c) Launch at 0ns to capture at 0ns (from 10ns) - this is the correct one! (Don't forget the delay line on the clock path in the FPGA that shift the clock)
+#     d) Launch at 5ns to capture at 5ns (from 15ns) - this is the other correct one  (Don't forget the delay line on the clock path in the FPGA that shift the clock)
+# 
+#  Clearly, though, now a) and b) are not just incorrect, but they will fail. So we need to disable them
+set_false_path -setup -rise_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]; # diable a)
+set_false_path -setup -fall_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]; # diable b) 
+
+
+# So now we have the correct setup checks. The hold checks are even more complicated; I won't go through the details, but they need these:
+
+set_multicycle_path -1 -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+set_false_path -hold -rise_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK];
+set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]; 
 
 # Edge-Aligned Double Data Rate Source Synchronous Inputs
 # (Using a direct FF connection)
@@ -26,24 +50,24 @@ set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks  "*RDS*"] 0.30
 # For better understanding on this cheating method for defining timings on source 
 # synchronous DDR inputs (Edge aligned) see the following link:
 #    https://forums.xilinx.com/t5/Timing-Analysis/How-to-constraint-Same-Edge-capture-edge-aligned-DDR-input/m-p/646009#M8411
-set input_clock         VIRT_CLK;            # Name of input clock
-set input_clock_period  ${RDS_CLOCK_PERIOD}; # Period of input clock (full-period)
-set skew_bre            0.450;               # Data invalid before the rising clock edge
-set skew_are            0.450;               # Data invalid after the rising clock edge
-set skew_bfe            0.450;               # Data invalid before the falling clock edge
-set skew_afe            0.450;               # Data invalid after the falling clock edge
-set input_ports         {hb_dq[*]};          # List of input ports
-
-# Input Delay Constraint
-set_input_delay -clock $input_clock -max [expr $input_clock_period/2 + $skew_afe] [get_ports $input_ports];
-set_input_delay -clock $input_clock -min [expr $input_clock_period/2 - $skew_bfe] [get_ports $input_ports];
-set_input_delay -clock $input_clock -max [expr $input_clock_period/2 + $skew_are] [get_ports $input_ports] -clock_fall -add_delay;
-set_input_delay -clock $input_clock -min [expr $input_clock_period/2 - $skew_bre] [get_ports $input_ports] -clock_fall -add_delay;
-
-# Report Timing Template
-# report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
-# report_timing -fall_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_fall -file src_sync_edge_ddr_in_fall.txt;
-          
+################set input_clock         VIRT_CLK;            # Name of input clock
+################set input_clock_period  ${RDS_CLOCK_PERIOD}; # Period of input clock (full-period)
+################set skew_bre            0.800;               # Data invalid before the rising clock edge
+################set skew_are            0.800;               # Data invalid after the rising clock edge
+################set skew_bfe            0.800;               # Data invalid before the falling clock edge
+################set skew_afe            0.800;               # Data invalid after the falling clock edge
+################set input_ports         {hb_dq[*]};          # List of input ports
+################
+################# Input Delay Constraint
+################set_input_delay -clock $input_clock -max [expr $input_clock_period/2 + $skew_afe] [get_ports $input_ports];
+################set_input_delay -clock $input_clock -min [expr $input_clock_period/2 - $skew_bfe] [get_ports $input_ports];
+################set_input_delay -clock $input_clock -max [expr $input_clock_period/2 + $skew_are] [get_ports $input_ports] -clock_fall -add_delay;
+################set_input_delay -clock $input_clock -min [expr $input_clock_period/2 - $skew_bre] [get_ports $input_ports] -clock_fall -add_delay;
+################
+################# Report Timing Template
+################# report_timing -rise_from [get_ports {hb_dq[*]}] -max_paths 32 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
+################# report_timing -fall_from [get_ports {hb_dq[*]}] -max_paths 32 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_fall -file src_sync_edge_ddr_in_fall.txt;
+################          
         
 
 

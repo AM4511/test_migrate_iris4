@@ -3,8 +3,8 @@
 set RDS_CLOCK_PERIOD 10.00
 create_clock -period ${RDS_CLOCK_PERIOD} -name VIRT_CLK
 create_clock -period ${RDS_CLOCK_PERIOD} -name RDS_CLK [get_ports hb_rwds]
+set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks  RDS_CLK] 0.350
 
-set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks  "*RDS*"] 0.300
 
 # Edge-Aligned Double Data Rate Source Synchronous Inputs
 # (Using a direct FF connection)

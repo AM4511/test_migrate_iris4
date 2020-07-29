@@ -1,7 +1,7 @@
 #pragma once
 #include "Ctest.h"
 #include "Cares.h"
-#include "CzynqDDR2.h"
+#include "Crpc2Ctrl.h"
 #include "fdk.h"
 
 using namespace std;
@@ -29,7 +29,8 @@ public:
 
 private:
 	Cares& m_ares;
-	volatile u32* m_zynqDDR2WindowPtr;
-	CzynqDDR2* m_zynqDDR2;
+	Crpc2Ctrl* m_rpc2Ctrl;
+
+	//CzynqDDR2* m_zynqDDR2;
 };
 

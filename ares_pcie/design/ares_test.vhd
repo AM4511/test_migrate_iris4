@@ -23,22 +23,30 @@ use UNISIM.vcomponents.all;
 
 entity ares_test is
   generic(
-    BUILD_ID        : std_logic_vector(31 downto 0) := x"76543210";  -- Generic passed in .tcl script
-    SIMULATION      : integer                       := 0;
+    FPGA_MAJOR_VERSION     : integer := 0;
+    FPGA_MINOR_VERSION     : integer := 0;
+    FPGA_SUB_MINOR_VERSION : integer := 0;
+    FPGA_BUILD_DATE        : integer := 0;
+    FPGA_IS_NPI_GOLDEN     : integer := 0;
+    FPGA_DEVICE_ID         : integer := 0;
+    
+	-- Deprecated
+	--BUILD_ID        : std_logic_vector(31 downto 0) := x"76543210";  -- Generic passed in .tcl script
+    --SIMULATION      : integer                       := 0;
     PCIe_LANES      : integer                       := 1;
     --FPGA_ID                   : integer := 8;                          -- Ares for y7478-00
-    FPGA_ID         : integer                       := 9;  -- Ares for y7478-01
+    --FPGA_ID         : integer                       := 9;  -- Ares for y7478-01
     NB_USER_IN      : integer                       := 4;
-    NB_USER_OUT     : integer                       := 3;
-    GOLDEN          : boolean                       := false;  -- le code Golden n'a pas de Microblaze
-    HOST_SPI_ACCESS : boolean                       := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
+    NB_USER_OUT     : integer                       := 3
+    --GOLDEN          : boolean                       := false;  -- le code Golden n'a pas de Microblaze
+   -- HOST_SPI_ACCESS : boolean                       := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
                                                            -- veuillez noter qu'il faut AUSSI enlever le STARTUPE2 dans le module SPI dans le block design
                                                            -- et changer quelle fichier de contrainte qui est actif.
 
     --SYNTH_SPI_PAGE_256B_BURST : integer := 1;                  -- Pour ne pas implementer la capacite de burster 256Bytes mettre a '0' (1 RAM de moins)
-    SYNTH_TICK_TABLES : integer := 1;  -- Pour ne pas implementer les TickTables mettre a '0'
-    SYNTH_TIMERs      : integer := 1;  -- Pour ne pas implementer les Timers mettre a '0'
-    SYNTH_QUAD_DECs   : integer := 1  -- Pour ne pas implementer les Quad Dec mettre a '0'
+   -- SYNTH_TICK_TABLES : integer := 1;  -- Pour ne pas implementer les TickTables mettre a '0'
+    --SYNTH_TIMERs      : integer := 1;  -- Pour ne pas implementer les Timers mettre a '0'
+    --SYNTH_QUAD_DECs   : integer := 1  -- Pour ne pas implementer les Quad Dec mettre a '0'
     );
   port (
     sys_rst_in_n   : in std_logic;
@@ -212,12 +220,12 @@ begin
   ares_pb_i : ares_pb_wrapper
     port map (
       FPGA_Info_board_info         => fpga_straps,
-      FPGA_Info_fpga_build_id      => BUILD_ID,
-      FPGA_Info_fpga_device_id     => X"AA",
-      FPGA_Info_fpga_firmware_type => X"00",
-      FPGA_Info_fpga_major_ver     => X"00",
-      FPGA_Info_fpga_minor_ver     => X"00",
-      FPGA_Info_fpga_sub_minor_ver => X"00",
+      FPGA_Info_fpga_build_id      => std_logic_vector(to_unsigned(FPGA_BUILD_DATE, 32)),
+      FPGA_Info_fpga_device_id     => std_logic_vector(to_unsigned(FPGA_DEVICE_ID, 8)),
+      FPGA_Info_fpga_firmware_type => std_logic_vector(to_unsigned(FPGA_IS_NPI_GOLDEN, 8)),
+      FPGA_Info_fpga_major_ver     => std_logic_vector(to_unsigned(FPGA_MAJOR_VERSION, 8)),
+      FPGA_Info_fpga_minor_ver     => std_logic_vector(to_unsigned(FPGA_MINOR_VERSION, 8)),
+      FPGA_Info_fpga_sub_minor_ver => std_logic_vector(to_unsigned(FPGA_SUB_MINOR_VERSION, 8)),
       hb_ck                        => hb_ck,
       hb_ck_n                      => hb_ck_n,
       hb_cs0_n                     => hb_cs_n,

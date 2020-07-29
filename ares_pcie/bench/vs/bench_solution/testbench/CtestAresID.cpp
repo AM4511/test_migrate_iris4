@@ -24,19 +24,20 @@ u32  CtestAresID::run()
 	u32  minor = (version >> 8) & 0xff;
 	u32  sub_minor = version & 0xff;
 
-	cout << "MIOX FPGA version: " << major << "." << minor << "." << sub_minor << endl;
+	cout << "MIOX FPGA current version: " << major << "." << minor << "." << sub_minor << endl;
 
-	assert(major > 1, "MIOX FPGA major version > 1");
+	assert(major > 0, "MIOX FPGA major version > 0");
 	assert(minor != 0, "MIOX FPGA minor version != 0");
-	assert(sub_minor != 4, "MIOX FPGA sub_minor version != 4");
+	assert(sub_minor != 1, "MIOX FPGA sub_minor version != 1");
 
 	//Test FPGA buildID
 	u32  fpgaBuildID = ares.getBuildID();
-	cout << "MIOX FPGA BuildID: " << fpgaBuildID << "; " << "0x" << hex << fpgaBuildID << endl;
+	cout << "MIOX FPGA current BuildID: " << fpgaBuildID << " (" << "0x" << hex << fpgaBuildID << ")" << endl;
 	assert(fpgaBuildID == 0, "MIOX FPGA BuildID is null");
-	assert(fpgaBuildID < 0x5ca63d35, "MIOX FPGA BuildID is smaller than 0x5ca63d35");
+	assert(fpgaBuildID < 0x5F204884, "MIOX FPGA BuildID is smaller than 0x5ca63d35");
 
 	// Test scratch pad register
+	cout << "MIOX FPGA test scratch pad register (R/W)" << endl;
 	for (u32  i = 0; i < 0x10000; i++)
 	{
 		ares.setScratchValue(i);
