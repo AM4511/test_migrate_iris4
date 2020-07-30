@@ -8,7 +8,6 @@
 #include "osincludes.h"
 
 #include <mil.h>
-//#include <process.h>
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
