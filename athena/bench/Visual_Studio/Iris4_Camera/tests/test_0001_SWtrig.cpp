@@ -213,10 +213,11 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				FileDumpNum++;
 				MIL_TEXT_CHAR FileName[50];
 				MosSprintf(FileName, 50, MIL_TEXT("./Images_dump/Image_Test0001_%d.tiff"), FileDumpNum);
-				if(sizeof(MIL_TEXT_CHAR) == 1)
-					printf("\nPrinting .tiff file: %s\n", FileName);
-				else
-					printf("\nPrinting .tiff file: %S\n", FileName);
+#if M_MIL_UNICODE_API
+				printf("\nPrinting .tiff file: %S\n", FileName);
+#else
+				printf("\nPrinting .tiff file: %s\n", FileName);
+#endif
 				MbufSave(FileName, MilGrabBuffer);
 				break;
 

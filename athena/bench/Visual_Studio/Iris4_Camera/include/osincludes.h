@@ -47,6 +47,7 @@
 #include "stdafx.h"
 #include <conio.h> 
 #include <Windows.h>
+#include <process.h>
 
 #endif
 
