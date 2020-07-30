@@ -5,12 +5,8 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
+
 #include <mil.h>
 
 #include "MilLayer.h"
@@ -307,8 +303,11 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 				FileDumpNum++;
 				MIL_TEXT_CHAR FileName[50];
-				MosSprintf(FileName, 50, MIL_TEXT(".\\Images_dump\\Image_Test0001_%d.tiff"), FileDumpNum);
-				printf("\nPrinting .tiff file: %S\n", FileName);
+				MosSprintf(FileName, 50, MIL_TEXT("./Images_dump/Image_Test0001_%d.tiff"), FileDumpNum);
+				if(sizeof(MIL_TEXT_CHAR) == 1)
+					printf("\nPrinting .tiff file: %s\n", FileName);
+				else
+					printf("\nPrinting .tiff file: %S\n", FileName);
 				MbufSave(FileName, MilGrabBuffer);
 				break;
 

@@ -5,14 +5,11 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
+#include "osfunctions.h"
+
 #include <mil.h>
-#include <process.h>
+//#include <process.h>
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
@@ -21,10 +18,14 @@
 extern int rand1(unsigned int val_max);
 extern void srand1(unsigned int seed);
 
-HANDLE AbortRunning_0005;
+OS_MUTEX AbortRunning_0005;
 bool StopAbortThread_0005;
 
+#ifdef __linux__
+void *AsyncAbortThread_0005(void* In)
+#else
 void AsyncAbortThread_0005(void* In)
+#endif
 {
 	int nb_aborts_ok = 0;
 	CXGS_Ctrl* XGS_Ctrl = (CXGS_Ctrl*)In;
@@ -34,18 +35,24 @@ void AsyncAbortThread_0005(void* In)
 
 	while (StopAbortThread_0005 == FALSE)
 	{
-		WaitForSingleObject(AbortRunning_0005, INFINITE);
+		if(!AcquireOsMutex(&AbortRunning_0005))
+			printf("\nError acquiring mutex.\n");
 
 		nb_aborts_ok = nb_aborts_ok + XGS_Ctrl->GrabAbort();                  // Abort in FPGA
 
-		printf(" NB Aborts: %d    ", nb_aborts_ok);
+		printf(" NB Aborts: %d    \r", nb_aborts_ok);
 
-		ReleaseMutex(AbortRunning_0005);
+		if(!ReleaseOsMutex(&AbortRunning_0005))
+			printf("\nError releasing mutex.\n");
 
 		//VarDelai = (rand1(750) + 250); // Delai entre 250ms et 1000 ms
 		VarDelai = rand1(250) + 500;
 		Sleep(VarDelai);
 	}
+
+	#ifdef __linux__
+	return NULL;
+	#endif
 }
 
 
@@ -55,8 +62,12 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	
 	srand1((unsigned)clock());
 
-	AbortRunning_0005 = CreateMutex(NULL, FALSE, NULL);
+	if(!CreateOsMutex(&AbortRunning_0005))
+		printf("\nError creating mutex.\n");
 
+	#ifdef __linux__
+	pthread_t pthreadid;
+	#endif
 
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
@@ -199,7 +210,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 		// Waiting for second async thread to fininsh the grab abort before start another grab
-		WaitForSingleObject(AbortRunning_0005, INFINITE);
+		if(!AcquireOsMutex(&AbortRunning_0005))
+			printf("\nError acquiring mutex.\n");
 
 		if (random == 1)
 		{
@@ -222,7 +234,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		}
 
 
-		ReleaseMutex(AbortRunning_0005);
+		if(!ReleaseOsMutex(&AbortRunning_0005))
+			printf("\nError releasing mutex.\n");
 
 		if (DisplayOn)
 		{
@@ -236,7 +249,12 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			{
 
 			case 'A':
+				#ifdef __linux__
+				if(pthread_create(&pthreadid, NULL, AsyncAbortThread_0005, XGS_Ctrl) != 0)
+					printf("\nError creating abort thread.\n");
+				#else
 				_beginthread(AsyncAbortThread_0005, NULL, XGS_Ctrl);
+				#endif
 				break;
 
 			case 'r':
@@ -295,6 +313,11 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// Disable HW
 	//----------------------
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
+
+	StopAbortThread_0005 = TRUE;
+	Sleep(1500);
+	if(!DestroyOsMutex(&AbortRunning_0005))
+		printf("\nError destroying mutex.\n");
 
 	printf("\n\n********************************\n");
 	printf("*    End of Test0000.cpp    *\n");

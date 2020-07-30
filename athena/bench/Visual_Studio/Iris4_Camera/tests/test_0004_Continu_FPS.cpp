@@ -5,12 +5,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
 
 #include <chrono>
 #include <iostream>

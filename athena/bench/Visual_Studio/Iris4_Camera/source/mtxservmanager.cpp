@@ -14,7 +14,9 @@ Abstract:
 Revision History:
 
 --*/
+#ifndef __linux__
 #include "stdafx.h"
+#endif
 #include "mtxservmanager.h"
 
 // now include directories depending on the OS and user or kernel mode

@@ -5,14 +5,10 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
+
 #include <mil.h>
-#include <process.h>
+//#include <process.h>
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"

@@ -12,14 +12,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-
-#include "stdafx.h"
-#include <conio.h> 
-#include <time.h>
-
-#include <Windows.h>
+#include "osincludes.h"
 
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
