@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\osfunctions.cpp" />
     <ClCompile Include="source\Pcie.cpp" />
     <ClCompile Include="Iris4_Camera.cpp" />
     <ClCompile Include="source\I2C.cpp" />
@@ -197,6 +198,8 @@
     <ClInclude Include="include\mbasictypes.h" />
     <ClInclude Include="include\MilLayer.h" />
     <ClInclude Include="include\mtxservmanager.h" />
+    <ClInclude Include="include\osfunctions.h" />
+    <ClInclude Include="include\osincludes.h" />
     <ClInclude Include="include\Pcie.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SystemTree.h" />

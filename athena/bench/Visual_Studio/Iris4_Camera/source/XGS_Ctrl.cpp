@@ -3,11 +3,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "stdafx.h"
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
+#include "osincludes.h"
 
 #include <string>
 using std::string;
@@ -43,8 +39,8 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 	GrabParams = {
 		0,              //TRIGGER_OVERLAP_BUFFn
 		1,              //TRIGGER OVERLAP 
-		NONE,           //TRIGGER_SRC;
-		RISING,         //TRIGGER_ACT;
+		NONE,           //TRIGGER_SOURCE;
+		RISING,         //TRIGGER_ACTIVATION;
 		EXP_TIMED_MODE, //EXPOSURE_LEV_MODE;
 
 		0x4c4b4,       //ExposureSS, 5us
@@ -507,17 +503,16 @@ void CXGS_Ctrl::PrintTime(void)
 {
 
 	time_t ltime;
-	wchar_t buf[26];
-	errno_t err;
+	char *buf;
 
 	time(&ltime);
 
-	err = _wctime_s(buf, 26, &ltime);
-	if (err != 0)
+	buf = ctime(&ltime);
+	if (!buf)
 	{
-		printf("Invalid Arguments for _wctime_s. Error Code: %d\n", err);
+		printf("Invalid Arguments for ctime.\n");
 	}
-	wprintf_s(L"Current time is %s", buf);
+	printf("Current time is %s", buf);
 
 }
 
@@ -644,8 +639,8 @@ void CXGS_Ctrl::setBlackRef(int value)
 //----------------------------------------------------
 void CXGS_Ctrl::SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTIVATION)
 {
-	GrabParams.TRIGGER_ACT = TRIGGER_ACTIVATION;
-	GrabParams.TRIGGER_SRC = TRIGGER_SOURCE;
+	GrabParams.TRIGGER_ACTIVATION = TRIGGER_ACTIVATION;
+	GrabParams.TRIGGER_SOURCE = TRIGGER_SOURCE;
 }
 
 //----------------------------------------------------
@@ -932,8 +927,8 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32 = sXGSptr.ACQ.SENSOR_SUBSAMPLING.u32;
 
 	//rXGSptr.ACQ.GRAB_CTRL.f.BUFFER_ID                     = GrabParams.GRAB_BUFFER_ID;
-	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_ACT                   = GrabParams.TRIGGER_ACT;
-	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_SRC                   = GrabParams.TRIGGER_SRC;
+	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_ACT                   = GrabParams.TRIGGER_ACTIVATION;
+	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_SRC                   = GrabParams.TRIGGER_SOURCE;
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP               = GrabParams.TRIGGER_OVERLAP;
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP_BUFFN         = GrabParams.TRIGGER_OVERLAP_BUFFN;
 	rXGSptr.ACQ.GRAB_CTRL.u32                             = sXGSptr.ACQ.GRAB_CTRL.u32;

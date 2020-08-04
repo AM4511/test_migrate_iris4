@@ -81,6 +81,9 @@
     <ClCompile Include="tests\test_0006_SWtrig_BlackCorr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\osfunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">
@@ -123,6 +126,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\osfunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\osincludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

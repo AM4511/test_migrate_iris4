@@ -5,12 +5,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
 
 #include <iostream>
 using namespace std;
@@ -261,8 +256,12 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 				FileDumpNum++;
 				MIL_TEXT_CHAR FileName[50];
-				MosSprintf(FileName, 50, MIL_TEXT(".\\Images_dump\\Image_Test0001_%d.tiff"), FileDumpNum);
+				MosSprintf(FileName, 50, MIL_TEXT("./Images_dump/Image_Test0001_%d.tiff"), FileDumpNum);
+#if M_MIL_UNICODE_API
 				printf("\nPrinting .tiff file: %S\n", FileName);
+#else
+				printf("\nPrinting .tiff file: %s\n", FileName);
+#endif
 				MbufSave(FileName, MilGrabBuffer);
 				break;
 

@@ -5,9 +5,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include "stdafx.h"
-#include <stdio.h> 
-#include <stdlib.h>
+#include "osincludes.h"
 
 #include "XGS_Ctrl.h"
 
