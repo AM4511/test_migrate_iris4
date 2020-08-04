@@ -137,12 +137,14 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	XGS_Ctrl->EnableRegUpdate();
 
-	
+	std::vector<int> ROI_Y_SIZE_vector;
+	if(XGS_Ctrl->SensorParams.SENSOR_TYPE==16000)
+	  ROI_Y_SIZE_vector = { 4000, 3072, 2048,1024, 512,256,128,64,32,16,8 };
+	else
+	  ROI_Y_SIZE_vector = { 3072, 2048,1024, 512,256,128,64,32,16,8 };
 
-	//std::vector<int> ROI_Y_SIZE_vector = { 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 3072 };
-	std::vector<int> ROI_Y_SIZE_vector = {3072, 2048,1024, 512,256,128,64,32,16,8 };
 
-	//std::vector<int> ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
+	//ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
 	
 	std::vector<int>::size_type vector_size = ROI_Y_SIZE_vector.size();
 	vector<double> ROI_Y_SIZE_vector_ExpMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
@@ -206,7 +208,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					double Sensor_FPS     = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
 					double Sensor_PRED    = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
 					double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-						                    - double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
+						                    - double(XGS_Ctrl->SensorParams.FOTn_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
 						                    //EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
 
 					if (OverrunPixel != 0)
@@ -264,7 +266,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
 						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
 						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
+							- double(XGS_Ctrl->SensorParams.FOTn_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
 						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
 
 						if (OverrunPixel != 0)
@@ -324,7 +326,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
 						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
 						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
+							- double(XGS_Ctrl->SensorParams.FOTn_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
 						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
 
 						if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)

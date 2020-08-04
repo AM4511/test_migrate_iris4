@@ -76,7 +76,7 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
-	M_UINT32 Trig_2_EXP;          // in ns
+	M_UINT32 FOTn_2_EXP;          // in ns
 	M_UINT32 ReadOutN_2_TrigN;    // in ns
 	M_UINT32 TrigN_2_FOT;         // in ns
 	M_UINT32 EXP_FOT;             // in ns

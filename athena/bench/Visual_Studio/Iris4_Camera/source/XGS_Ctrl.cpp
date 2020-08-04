@@ -482,6 +482,45 @@ void CXGS_Ctrl::InitXGS()
 		XGS12M_SetGrabParamsInit12000(6);
 		XGS12M_LoadDCF(6);
 	}
+
+	//16Mpix family
+	else if (DataRead == 0x0258) {
+		printf("XGS Model ID detected is 0x258, XGS16M\n");
+		DataRead = ReadSPI(0x2);
+		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
+
+		DataRead = ReadSPI(0x3012);
+
+		if (((DataRead & 0x3c) >> 2) == 0x10)
+			printf("XGS Resolution is 16Mp\n");
+
+		if (((DataRead & 0x60) >> 9) == 0)
+			printf("XGS Speedgrade is 24 ports\n");
+		if (((DataRead & 0x60) >> 9) == 1)
+			printf("XGS Speedgrade is 18 ports\n");
+		if (((DataRead & 0x60) >> 9) == 2)
+			printf("XGS Speedgrade is 12 ports\n");
+		if (((DataRead & 0x60) >> 9) == 3)
+			printf("XGS Speedgrade is 6 ports\n");
+
+		if (((DataRead & 0x180) >> 7) == 0)
+			printf("XGS Lens Shift is 0 degree\n");
+		if (((DataRead & 0x180) >> 7) == 1)
+			printf("XGS Lens Shift is 7.3 degree\n");
+
+		if ((DataRead & 0x3) == 1)
+			printf("XGS is COLOR\n");
+		if ((DataRead & 0x3) == 2)
+			printf("XGS is MONO\n");
+
+		XGS16M_SetGrabParamsInit16000(6);
+		XGS16M_LoadDCF(6);
+	}
+
+
+
+
+
 	else
 	{
 		printf("\n\nSenseur XGS id=0x%X non reconnu. EXIT \n\n", DataRead);

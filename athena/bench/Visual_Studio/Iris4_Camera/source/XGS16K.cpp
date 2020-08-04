@@ -28,21 +28,22 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
 
    SensorParams.XGS_X_START            = 84;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
    SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-
    SensorParams.XGS_X_SIZE             = 4176;   // FULL X, including everything
    SensorParams.XGS_Y_SIZE             = 4030;   // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
 
  
 	// This may depend on the configuration (Lanes+LineSize) 
-   SensorParams.ReadOutN_2_TrigN       = 0; //
+   SensorParams.FOTn_2_EXP             = 76800;
 
-   SensorParams.TrigN_2_FOT            = 0 * GrabParams.XGS_LINE_SIZE_FACTOR;
+   SensorParams.ReadOutN_2_TrigN       = 51200;
 
-   SensorParams.EXP_FOT                = 0;
+   SensorParams.TrigN_2_FOT            = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+   SensorParams.EXP_FOT                = 7120;
 
    SensorParams.EXP_FOT_TIME           = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 
-   SensorParams.KEEP_OUT_ZONE_START    = 0xffff;
+   SensorParams.KEEP_OUT_ZONE_START    = 0x2bf;
 
    GrabParams.FOT                      = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
