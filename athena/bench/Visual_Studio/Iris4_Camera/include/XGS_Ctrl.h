@@ -10,8 +10,8 @@ using namespace std;
 
 
 
-enum TRIGGER_SRC { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
-enum TRIGGER_ACT { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
+enum TRIGGER_SRC    { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
+enum TRIGGER_ACT    { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
 enum LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
 
 struct GrabParamStruct
@@ -151,6 +151,9 @@ public:
 	void StartHWTimerFPS(double FPS);
 	void StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION);
 	void StopHWTimer(void);
+
+	double Get_Sensor_FPS_PRED_MAX(void);
+	double Get_Sensor_EXP_PRED_MAX(void);
 
 	void setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo);
 	void enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32 STROBE_END_us, int PrintInfo);

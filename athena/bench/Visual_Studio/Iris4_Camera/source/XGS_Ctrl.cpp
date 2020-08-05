@@ -1116,8 +1116,45 @@ void CXGS_Ctrl::StopHWTimer(void) {
 	rXGSptr.ACQ.TIMER_CTRL.u32 = sXGSptr.ACQ.TIMER_CTRL.u32;
 	sXGSptr.ACQ.TIMER_CTRL.f.TIMERSTOP = 0;
 
-
 }
+
+
+//----------------------------------------------------
+//  FPS and EXP predictor MAX 
+//----------------------------------------------------
+
+// Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
+// Tfot fixe en nombre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
+double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(void) {
+	
+	// FOT ici
+	double Lines_In_Frame = double( (double)sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)( (4 * sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7);
+
+	double Sensor_FPS_PRED = 1.0 / (double(SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(SensorParams.TrigN_2_FOT / 1000000000.0) + double((sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000000000.0) * Lines_In_Frame)  );
+	
+	return (Sensor_FPS_PRED);
+}
+
+
+// Le exp_max pour fps max est un peu plus tricky a calculer.
+// Avec le Xcerelator j'utilise une exposure_synthetique qui ne reflete pas le timing exact du real_integration, 
+// alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
+// width minimum sur le signal trig0 du senseur.
+double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(void) {
+	
+	// Pas de FOT ici
+	double Lines_In_Frame = double( 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)((4 * sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7);
+
+	double Sensor_EXP_max = (Lines_In_Frame * (M_UINT64)sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0)
+		                    - double(SensorParams.FOTn_2_EXP / 1000) + double(SensorParams.ReadOutN_2_TrigN / 1000.0) + double(SensorParams.EXP_FOT_TIME / 1000.0);
+
+
+	//double Sensor_EXP_max = ((M_UINT64)(rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0)
+	//	                    - double(SensorParams.FOTn_2_EXP / 1000) + double(SensorParams.ReadOutN_2_TrigN / 1000.0) + double(SensorParams.EXP_FOT_TIME / 1000.0);
+	//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+	return (Sensor_EXP_max);
+}
+
 
 
 
