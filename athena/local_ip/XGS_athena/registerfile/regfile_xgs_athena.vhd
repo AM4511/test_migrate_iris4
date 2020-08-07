@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/07/10 10:58:08
+-- Created on          : 2020/08/06 15:59:28
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x666F4DEE
+-- Register file CRC32 : 0x5C41E12
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3181,11 +3181,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/07/10 10:58:08
+-- Created on          : 2020/08/06 15:59:28
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x666F4DEE
+-- Register file CRC32 : 0x5C41E12
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3201,19 +3201,29 @@ library work;
 entity regfile_xgs_athena is
    
    port (
-      resetN        : in    std_logic;                                               -- System reset
-      sysclk        : in    std_logic;                                               -- System clock
-      regfile       : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
+      resetN                      : in    std_logic;                                               -- System reset
+      sysclk                      : in    std_logic;                                               -- System clock
+      regfile                     : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE; -- Register file
       ------------------------------------------------------------------------------------
       -- Interface name: registerFileIF
       -- Description: 
       ------------------------------------------------------------------------------------
-      reg_read      : in    std_logic;                                               -- Read
-      reg_write     : in    std_logic;                                               -- Write
-      reg_addr      : in    std_logic_vector(10 downto 2);                           -- Address
-      reg_beN       : in    std_logic_vector(3 downto 0);                            -- Byte enable
-      reg_writedata : in    std_logic_vector(31 downto 0);                           -- Write data
-      reg_readdata  : out   std_logic_vector(31 downto 0)                            -- Read data
+      reg_wait                    : out   std_logic;                                               -- Wait
+      reg_read                    : in    std_logic;                                               -- Read
+      reg_write                   : in    std_logic;                                               -- Write
+      reg_addr                    : in    std_logic_vector(10 downto 2);                           -- Address
+      reg_beN                     : in    std_logic_vector(3 downto 0);                            -- Byte enable
+      reg_writedata               : in    std_logic_vector(31 downto 0);                           -- Write data
+      reg_readdatavalid           : out   std_logic;                                               -- Read data valid
+      reg_readdata                : out   std_logic_vector(31 downto 0);                           -- Read data
+      ------------------------------------------------------------------------------------
+      -- Interface name: SYSMONXIL
+      -- Description: 
+      ------------------------------------------------------------------------------------
+      ext_SYSMONXIL_addr          : out   std_logic_vector(5 downto 0);                            -- Address Bus for SYSMONXIL external section
+      ext_SYSMONXIL_readEn        : out   std_logic;                                               -- Read enable for SYSMONXIL external section
+      ext_SYSMONXIL_readDataValid : in    std_logic;                                               -- Read Data Valid for SYSMONXIL external section
+      ext_SYSMONXIL_readData      : in    std_logic_vector(31 downto 0)                            -- Read Data for the SYSMONXIL external section
    );
    
 end regfile_xgs_athena;
@@ -3223,7 +3233,7 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(75 downto 0);                   -- Address decode hit
+signal hit                                                         : std_logic_vector(76 downto 0);                   -- Address decode hit
 signal wEn                                                         : std_logic_vector(75 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
@@ -3446,6 +3456,9 @@ signal field_rw_HISPI_DEBUG_TAP_LANE_3                             : std_logic_v
 signal field_rw_HISPI_DEBUG_TAP_LANE_2                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_2
 signal field_rw_HISPI_DEBUG_TAP_LANE_1                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_1
 signal field_rw_HISPI_DEBUG_TAP_LANE_0                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_0
+signal ext_SYSMONXIL_readDataValid_FF                              : std_logic;                                       -- Pipelined version of ext_SYSMONXIL_readDataValid
+signal ext_SYSMONXIL_readData_FF                                   : std_logic_vector(31 downto 0);                   -- Pipelined version of ext_SYSMONXIL_readData
+signal ext_SYSMONXIL_readPending                                   : std_logic;                                       -- Read pending for the SYSMONXIL external section
 
 begin -- rtl
 
@@ -3543,6 +3556,7 @@ hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else 
 hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#458#,12)))	else '0'; -- Addr:  0x0458	LANE_PACKER_STATUS[2]
 hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#45c#,12)))	else '0'; -- Addr:  0x045C	DEBUG
 
+hit(76) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -3627,7 +3641,8 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_LANE_PACKER_STATUS_0,
                             rb_HISPI_LANE_PACKER_STATUS_1,
                             rb_HISPI_LANE_PACKER_STATUS_2,
-                            rb_HISPI_DEBUG
+                            rb_HISPI_DEBUG,
+                            ext_SYSMONXIL_readData_FF
                            )
 begin
    case fullAddrAsInt is
@@ -3934,6 +3949,10 @@ begin
       -- [0x45c]: /HISPI/DEBUG
       when 16#45C# =>
          readBackMux <= rb_HISPI_DEBUG;
+
+      -- [0x700:0x7fc] SYSMONXIL external section
+      when 16#700# to 16#7FC# =>
+         readBackMux <= ext_SYSMONXIL_readData_FF;
 
       -- Default value
       when others =>
@@ -8890,7 +8909,129 @@ begin
    end if;
 end process P_HISPI_DEBUG_TAP_LANE_0;
 
-ldData <= reg_read;
+------------------------------------------------------------------------------------------
+-- External section: SYSMONXIL
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Process: P_ext_SYSMONXIL_addr
+------------------------------------------------------------------------------------------
+P_ext_SYSMONXIL_addr : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         ext_SYSMONXIL_addr <= (others=>'0');
+      else
+         if (reg_write = '1' or reg_read = '1') then
+            ext_SYSMONXIL_addr <= reg_addr(7 downto 2);
+         end if;
+      end if;
+   end if;
+end process P_ext_SYSMONXIL_addr;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ext_SYSMONXIL_readEn
+------------------------------------------------------------------------------------------
+P_ext_SYSMONXIL_readEn : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         ext_SYSMONXIL_readEn <= '0';
+      else
+         ext_SYSMONXIL_readEn <= hit(76) and reg_read;
+      end if;
+   end if;
+end process P_ext_SYSMONXIL_readEn;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ext_SYSMONXIL_readDataValid_pipeline
+------------------------------------------------------------------------------------------
+P_ext_SYSMONXIL_readDataValid_pipeline : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         ext_SYSMONXIL_readDataValid_FF <= '0';
+      else
+         ext_SYSMONXIL_readDataValid_FF <= ext_SYSMONXIL_readDataValid;
+      end if;
+   end if;
+end process P_ext_SYSMONXIL_readDataValid_pipeline;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ext_SYSMONXIL_readData_pipeline
+------------------------------------------------------------------------------------------
+P_ext_SYSMONXIL_readData_pipeline : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         ext_SYSMONXIL_readData_FF <= (others=>'0');
+      else
+         ext_SYSMONXIL_readData_FF <= ext_SYSMONXIL_readData;
+      end if;
+   end if;
+end process P_ext_SYSMONXIL_readData_pipeline;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ext_SYSMONXIL_readPending
+------------------------------------------------------------------------------------------
+P_ext_SYSMONXIL_readPending : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         ext_SYSMONXIL_readPending <= '0';
+      else
+         if (reg_read = '1' and hit(76) = '1') then
+            ext_SYSMONXIL_readPending <= '1';
+
+         elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
+            ext_SYSMONXIL_readPending <= '0';
+
+         end if;
+      end if;
+   end if;
+end process P_ext_SYSMONXIL_readPending;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_reg_wait
+------------------------------------------------------------------------------------------
+P_reg_wait : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         reg_wait <= '0';
+      else
+         -- Wait signal is asserted
+         if(reg_read = '1' and ldData = '0') then
+            reg_wait <= '1';
+         -- Wait signal is deasserted
+         elsif(ldData = '1') then
+            reg_wait <= '0';
+         end if;
+      end if;
+   end if;
+end process P_reg_wait;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_reg_readdatavalid
+------------------------------------------------------------------------------------------
+P_reg_readdatavalid : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         reg_readdatavalid <= '0';
+      else
+         reg_readdatavalid <= ldData;
+      end if;
+   end if;
+end process P_reg_readdatavalid;
+
+
+ldData <= (reg_read and not(hit(76)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <com.matrox.fdk.editor.registerfile:RegisterFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:XMI="http://www.omg.org/XMI" xmlns:com.matrox.fdk.editor.registerfile="http:///com/matrox/fdk/editor/registerfile.ecore" hasGuiWarnings="false" registersDataBusWidth="32" registersAddressBusWidth="12" description="" name="regfile_i2c" XMI:version="2.0">
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="I2C" endAddress="14">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="I2C" endAddress="18">
     <registers name="I2C_ID" useReservedSpaceBelow="true">
       <fields name="CLOCK_STRETCHING" description="When this field is set to 1, the clock streching is supported by the I2C core." lsb="17" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clock stretching not supported&lt;/matrox_column_delimiter></possibleValues>
@@ -57,6 +57,9 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+    </registers>
+    <registers name="I2C_SEMAPHORE" description="" offsetFromParent="18">
+      <fields name="I2C_IN_USE" description="After a PCI reset, a read to this register returns 0. After a first read, subsequent reads will return a 1. A write of a 1 to this bit will reset the next read value to 0.  Software can poll this bit until it reads a 0, and will then own the usgae of the I2C controller. This bit has no other effect on the HW, and is only used as semaphore among various independent sw threads that may need to use the I2C logic." readWrite="false" readWriteToClear="true"/>
     </registers>
   </registerFileAbstractNodes>
   <vhdlGenerationPreferences>GENERATOR_VHDL_REGISTERFILE_PREFIX_PREF=&quot;&quot;</vhdlGenerationPreferences>

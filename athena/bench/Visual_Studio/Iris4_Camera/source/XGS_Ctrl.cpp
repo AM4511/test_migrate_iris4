@@ -19,10 +19,9 @@ using std::string;
 using namespace std;
 
 
-
-
-CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPerFs, double setSensorPerFs):
-	rXGSptr(i_rXGSptr)
+CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPerFs, double setSensorPerFs, volatile FPGA_REGFILE_I2C_TYPE& i_rI2Cptr) :
+	rXGSptr(i_rXGSptr),
+    rI2Cptr(i_rI2Cptr)
 {
 
 	SystemPeriodNanoSecond = setSysPerFs;
@@ -56,9 +55,11 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 
 		0,             //Y_START
 		480,           //Y_END	
+		480,           //Y_SIZE	
 
 		0,             //roi2 Y_START
 		480,           //roi2 Y_END	
+		480,           //roi2 Y_SIZE	
 
 		0x100,         //DataPedestal (pour l'instant je le mets pareils pour tous les pixels Gr+Gb+R+B)
 
@@ -888,16 +889,16 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_ROI_Y_START.f.Y_START = GrabParams.Y_START/4;
 	rXGSptr.ACQ.SENSOR_ROI_Y_START.u32 = sXGSptr.ACQ.SENSOR_ROI_Y_START.u32;
 	
-	sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE  = (GrabParams.Y_END - GrabParams.Y_START)/4;
-	rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32 = sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32;
+	sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE  = (GrabParams.Y_SIZE)/4;
+	rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32       = sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32;
 
 	if (sXGSptr.ACQ.GRAB_CTRL.f.GRAB_ROI2_EN == 1)
 	{
 		sXGSptr.ACQ.SENSOR_ROI2_Y_START.f.Y_START = GrabParams.Y_START_ROI2/4;
-		rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32 = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
+		rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32       = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
 
-		sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_END_ROI2 - GrabParams.Y_START_ROI2)/4;	
-		rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32 = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
+		sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_SIZE2)/4;	
+		rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32        = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
 	}
 	
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS       = GrabParams.Exposure;
@@ -909,11 +910,11 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 
 	sXGSptr.ACQ.STROBE_CTRL2.f.STROBE_END     = GrabParams.STROBE_END;
 	sXGSptr.ACQ.STROBE_CTRL2.f.STROBE_MODE    = GrabParams.STROBE_MODE;
-	rXGSptr.ACQ.STROBE_CTRL2.u32 = sXGSptr.ACQ.STROBE_CTRL2.u32;
+	rXGSptr.ACQ.STROBE_CTRL2.u32              = sXGSptr.ACQ.STROBE_CTRL2.u32;
 
 	sXGSptr.ACQ.STROBE_CTRL1.f.STROBE_START   = GrabParams.STROBE_START;
 	sXGSptr.ACQ.STROBE_CTRL1.f.STROBE_E       = GrabParams.STROBE_E;
-	rXGSptr.ACQ.STROBE_CTRL1.u32 = sXGSptr.ACQ.STROBE_CTRL1.u32;
+	rXGSptr.ACQ.STROBE_CTRL1.u32              = sXGSptr.ACQ.STROBE_CTRL1.u32;
 
 	//sDMA.GRAB_INIT_ADDR.u32 = GrabParams.FrameStart & 0xffffffff;                   // Lo DW ADD64
 	//rDMA.GRAB_INIT_ADDR.u32 = sDMA.GRAB_INIT_ADDR.u32;
@@ -1120,15 +1121,16 @@ void CXGS_Ctrl::StopHWTimer(void) {
 
 
 //----------------------------------------------------
-//  FPS and EXP predictor MAX 
+//  FPS_MAX and EXP_MAX predictor 
 //----------------------------------------------------
 
 // Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
 // Tfot fixe en nombre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
-double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(void) {
+// Y_SIZE must be 4 lines factor
+double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// FOT ici
-	double Lines_In_Frame = double( (double)sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)( (4 * sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7);
+	double Lines_In_Frame = double( (double)sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)( Y_SIZE / (1 + SUBSAMPLING_Y)) + 7 + 7);
 
 	double Sensor_FPS_PRED = 1.0 / (double(SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(SensorParams.TrigN_2_FOT / 1000000000.0) + double((sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000000000.0) * Lines_In_Frame)  );
 	
@@ -1140,18 +1142,16 @@ double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(void) {
 // Avec le Xcerelator j'utilise une exposure_synthetique qui ne reflete pas le timing exact du real_integration, 
 // alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
 // width minimum sur le signal trig0 du senseur.
-double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(void) {
+// Y_SIZE must be 4 lines factor
+double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// Pas de FOT ici
-	double Lines_In_Frame = double( 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)((4 * sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7);
+	double Lines_In_Frame = double( 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)(Y_SIZE / (1 + SUBSAMPLING_Y)) + 7 + 7);
 
 	double Sensor_EXP_max = (Lines_In_Frame * (M_UINT64)sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0)
 		                    - double(SensorParams.FOTn_2_EXP / 1000) + double(SensorParams.ReadOutN_2_TrigN / 1000.0) + double(SensorParams.EXP_FOT_TIME / 1000.0);
-
-
-	//double Sensor_EXP_max = ((M_UINT64)(rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0)
-	//	                    - double(SensorParams.FOTn_2_EXP / 1000) + double(SensorParams.ReadOutN_2_TrigN / 1000.0) + double(SensorParams.EXP_FOT_TIME / 1000.0);
 	//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+
 	return (Sensor_EXP_max);
 }
 
@@ -1205,7 +1205,46 @@ void CXGS_Ctrl::disableStrobe(void)
 
 
 
+//----------------------------------------------------
+//
+//  SYSTEM MONITOR FPGA
+//
+//----------------------------------------------------
+void CXGS_Ctrl::FPGASystemMon(void)
+{
+	int Sortie = 0;
+	//char ch;
+
+	double TCURR;
+	double VCC_INT;
+	double VCC_AUX;
+	double VCC_BRAM;
+	double TMAX;
+	double TMIN;
 
 
+	time_t t;
+	struct tm* now;
 
+	printf("\n\n************************************************************************");
+	printf("\n*  FPGA MONITOR   ");
+
+	t = time(0);   // get time now
+	now = localtime(&t);
+
+	printf("%d:%02d:%02d, %d/%d/%d\n*", now->tm_hour, now->tm_min, now->tm_sec, now->tm_mday, (now->tm_mon + 1), (now->tm_year + 1900));
+
+	printf("\n*   Tcurr     Tmax     Tmin  VCC_int  VCC_AUX   VCC_BRAM\n");
+
+	TCURR    = ((((rXGSptr.SYSMONXIL.TEMP.u16) & 0xfff0) >> 4) * 503.975 / 4096.0) - 273.15;
+	TMAX     = ((((rXGSptr.SYSMONXIL.TEMP_MAX.u16) & 0xfff0) >> 4) * 503.975 / 4096.0) - 273.15;
+	TMIN     = ((((rXGSptr.SYSMONXIL.TEMP_MIN.u16) & 0xfff0) >> 4) * 503.975 / 4096.0) - 273.15;
+	VCC_INT  = ((((rXGSptr.SYSMONXIL.VCCINT.u16) & 0xfff0) >> 4) / 4096.0) * 3.0;
+	VCC_AUX  = ((((rXGSptr.SYSMONXIL.VCCAUX.u16) & 0xfff0) >> 4) / 4096.0) * 3.0;
+	VCC_BRAM = ((((rXGSptr.SYSMONXIL.VCCBRAM.u16) & 0xfff0) >> 4) / 4096.0) * 3.0;
+
+	printf("\r*  %5.2fC   %5.2fC   %5.2fC   %5.2fV   %5.2fV     %5.2fV\n", TCURR, TMAX, TMIN, VCC_INT, VCC_AUX, VCC_BRAM);
+
+	printf("************************************************************************\n\n");
+}
 

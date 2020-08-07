@@ -77,7 +77,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -301,7 +301,9 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->WaitEndExpReadout();
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;                    //1-base Here - Dois etre multiple de 4
+				GrabParams->Y_END  = GrabParams->Y_START + XGSSize_Y;                    //1-base Here - Dois etre multiple de 4
+				GrabParams->Y_SIZE = GrabParams->Y_END - GrabParams->Y_START;            // 1-base Here - Dois etre multiple de 4
+
 				break;
 
 			case 's':

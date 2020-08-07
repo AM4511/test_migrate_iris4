@@ -96,7 +96,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -209,6 +210,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (r) Read current ROI configuration in XGS");
 	printf("\n  (S) Subsampling mode");
 	printf("\n  (D) Disable Image Display transfer (Max fps)");
+	printf("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -249,17 +251,13 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			printf("\r%dfps(%.2f), Calculated Max fps is %f @Exp_max=~%.0fus)        ",  XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
 				                                                                         XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS/10.0,
-				                                                                         XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(),
-				                                                                         XGS_Ctrl->Get_Sensor_EXP_PRED_MAX()
+				                                                                         XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
+				                                                                         XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y)
 			);
 		}
 
-
-		
-		XGS_Ctrl->Get_Sensor_EXP_PRED_MAX();
-
-
 	
+
 		if (DisplayOn)
 		//{
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
@@ -293,8 +291,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -463,6 +461,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					DisplayOn = FALSE;
 				else
 					DisplayOn = TRUE;
+				break;
+            
+			case 'T':
+				XGS_Ctrl->FPGASystemMon();
 				break;
 
 			}

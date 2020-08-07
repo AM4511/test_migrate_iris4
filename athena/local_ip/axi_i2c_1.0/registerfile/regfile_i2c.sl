@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_i2c module
 %
-%  FDK IDE Version: 4.7.0_beta3
-%  Build ID: I20191219-1127
+%  FDK IDE Version: 4.7.0_beta4
+%  Build ID: I20191220-1537
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -62,5 +62,8 @@ Register("i2c_ctrl1", 0x10, 4, "I2C Control Register 1");
 		Field("i2c_rw", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "I2C Read/Write");
 			FieldValue("Write cycle", 0);
 			FieldValue("Read cycle", 1);
+
+Register("i2c_semaphore", 0x18, 4, "null");
+		Field("i2c_in_use", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 

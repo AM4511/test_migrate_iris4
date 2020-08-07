@@ -78,6 +78,11 @@ module testbench();
 	parameter SPI_GENERAL_CONFIG0_REG      = 16'h3800;
 	parameter SPI_MONITOR_REG              = 16'h3806;
 
+	// I2C
+	parameter I2C_ID_OFFSET                       = 32'h00010000;	
+	parameter I2C_CTRL0_OFFSET                    = 32'h00010008;	
+	parameter I2C_CTRL1_OFFSET                    = 32'h00010010;	
+	parameter I2C_SEMAPHORE_OFFSET                = 32'h00010018;	
 
 	integer  address;
 	integer  data;
@@ -782,7 +787,20 @@ module testbench();
 				host.write(FRAME_CFG_OFFSET, 'h0c1e1050); // Pour XGS12M
 
 
-
+                ///////////////////////////////////////////////////
+				// TEST i2c SEMAPHORE
+				///////////////////////////////////////////////////
+                host.write(I2C_SEMAPHORE_OFFSET, 1);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+                host.write(I2C_SEMAPHORE_OFFSET, 1);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				
 				///////////////////////////////////////////////////
 				// XGS HiSPi : DEBUG Enable manual calibration
 				///////////////////////////////////////////////////

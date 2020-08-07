@@ -93,7 +93,7 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -205,8 +205,8 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			printf("\r%dfps(%.2f), Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
 				                                                                        XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0,
-				                                                                        XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(),
-				                                                                        XGS_Ctrl->Get_Sensor_EXP_PRED_MAX()
+				                                                                        XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
+				                                                                        XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y)
 			);
 
 		}
@@ -319,6 +319,8 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
 				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
+				GrabParams->Y_SIZE = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 				break;
 
 

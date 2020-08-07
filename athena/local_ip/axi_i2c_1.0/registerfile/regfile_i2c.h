@@ -1,16 +1,16 @@
 /**************************************************************************
 *
 * File name    :  regfile_i2c.h
-* Created by   : jmansill
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_i2c processing unit.
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version     : 4.7.0_beta3
-* Build ID            : I20191219-1127
-* Register file CRC32 : 0x5A5B9037
+* FDK IDE Version     : 4.7.0_beta4
+* Build ID            : I20191220-1537
+* Register file CRC32 : 0x8865ADCE
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -28,9 +28,10 @@
 /**************************************************************************
 * Register address defines
 ***************************************************************************/
-#define FPGA_REGFILE_I2C_I2C_I2C_ID_ADDRESS        0x000
-#define FPGA_REGFILE_I2C_I2C_I2C_CTRL0_ADDRESS     0x008
-#define FPGA_REGFILE_I2C_I2C_I2C_CTRL1_ADDRESS     0x010
+#define FPGA_REGFILE_I2C_I2C_I2C_ID_ADDRESS            0x000
+#define FPGA_REGFILE_I2C_I2C_I2C_CTRL0_ADDRESS         0x008
+#define FPGA_REGFILE_I2C_I2C_I2C_CTRL1_ADDRESS         0x010
+#define FPGA_REGFILE_I2C_I2C_I2C_SEMAPHORE_ADDRESS     0x018
 
 /**************************************************************************
 * Register name : I2C_ID
@@ -104,13 +105,32 @@ typedef union
 
 
 /**************************************************************************
+* Register name : I2C_SEMAPHORE
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 I2C_IN_USE : 1;   /* Bits(0:0), null */
+      M_UINT32 RSVD0      : 31;  /* Bits(31:1), Reserved */
+   } f;
+
+} FPGA_REGFILE_I2C_I2C_I2C_SEMAPHORE_TYPE;
+
+
+/**************************************************************************
 * Section name   : I2C
 ***************************************************************************/
 typedef struct
 {
-   FPGA_REGFILE_I2C_I2C_I2C_ID_TYPE    I2C_ID;     /* Address offset: 0x0 */
-   FPGA_REGFILE_I2C_I2C_I2C_CTRL0_TYPE I2C_CTRL0;  /* Address offset: 0x8 */
-   FPGA_REGFILE_I2C_I2C_I2C_CTRL1_TYPE I2C_CTRL1;  /* Address offset: 0x10 */
+   FPGA_REGFILE_I2C_I2C_I2C_ID_TYPE        I2C_ID;         /* Address offset: 0x0 */
+   FPGA_REGFILE_I2C_I2C_I2C_CTRL0_TYPE     I2C_CTRL0;      /* Address offset: 0x8 */
+   FPGA_REGFILE_I2C_I2C_I2C_CTRL1_TYPE     I2C_CTRL1;      /* Address offset: 0x10 */
+   FPGA_REGFILE_I2C_I2C_I2C_SEMAPHORE_TYPE I2C_SEMAPHORE;  /* Address offset: 0x18 */
 } FPGA_REGFILE_I2C_I2C_TYPE;
 
 /**************************************************************************

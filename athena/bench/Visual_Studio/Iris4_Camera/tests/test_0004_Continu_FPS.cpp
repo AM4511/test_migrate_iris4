@@ -91,7 +91,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -186,6 +186,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 					GrabParams->Y_START = 4;
 					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+					GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 
 					// Run each sequence for TimePerLoop seconds
 					auto start = std::chrono::system_clock::now();
@@ -206,8 +208,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					} //end while
 
 					double Sensor_FPS         = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-					double Sensor_FPS_PRED    = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX();
-					double Sensor_EXP_max     = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX();
+					double Sensor_FPS_PRED    = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+					double Sensor_EXP_max     = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 					if (OverrunPixel != 0)
 						break;
@@ -240,7 +242,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = 4;
-						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 						// Run each  for TimePesequencerLoop seconds
 						auto start = std::chrono::system_clock::now();
@@ -262,8 +265,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						} //end while
 
 						double Sensor_FPS      = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX();
-						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX();
+						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 						if (OverrunPixel != 0)
 							break;
@@ -299,7 +302,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = 4;
-						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 						// Run each sequence for TimePerLoop seconds
 						auto start = std::chrono::system_clock::now();
@@ -320,8 +324,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						} //end while
 
 						double Sensor_FPS      = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX();
-						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX();
+						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 						if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)
 							printf("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);

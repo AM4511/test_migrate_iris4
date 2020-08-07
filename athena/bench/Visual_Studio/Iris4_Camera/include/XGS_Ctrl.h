@@ -5,6 +5,8 @@
 #include <math.h>
 #include <vector>
 #include "../../../../local_ip/XGS_athena/registerfile/regfile_xgs_athena.h"
+#include "../../../../local_ip/axi_i2c_1.0/registerfile/regfile_i2c.h"
+
 using namespace std;
 
 
@@ -35,9 +37,11 @@ struct GrabParamStruct
 
 	M_UINT32 Y_START;
 	M_UINT32 Y_END;
+	M_UINT32 Y_SIZE;
 
 	M_UINT32 Y_START_ROI2;
 	M_UINT32 Y_END_ROI2;
+	M_UINT32 Y_SIZE2;
 
 	M_UINT32 BLACK_OFFSET;
 
@@ -97,7 +101,7 @@ class CXGS_Ctrl
 
 public:
 	
-	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPer, double setSensorPer);
+	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPer, double setSensorPer, volatile FPGA_REGFILE_I2C_TYPE& i_rI2Cptr);
 	~CXGS_Ctrl();
 
 	SensorParamStruct* getSensorParams(void);
@@ -116,6 +120,8 @@ public:
 
 	//Pointeur aux registres dans fpga 
 	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGSptr;
+	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr;
+
 	//Shadow registres  
 	FPGA_REGFILE_XGS_ATHENA_TYPE sXGSptr;
 
@@ -152,13 +158,14 @@ public:
 	void StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION);
 	void StopHWTimer(void);
 
-	double Get_Sensor_FPS_PRED_MAX(void);
-	double Get_Sensor_EXP_PRED_MAX(void);
+	double Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y);
+	double Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y);
 
 	void setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo);
 	void enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32 STROBE_END_us, int PrintInfo);
 	void disableStrobe(void);
 
+	void FPGASystemMon(void);
 
 private:
 	

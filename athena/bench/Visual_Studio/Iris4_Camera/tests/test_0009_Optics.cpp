@@ -102,7 +102,8 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;

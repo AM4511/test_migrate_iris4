@@ -66,11 +66,16 @@ DMAParamStruct* CXGS_Data::getDMAParams(void)
 void CXGS_Data::HiSpiClr(void)
 {
 	printf("HiSPI logic reseted\n");
+	sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH  = 0;
+	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
+	Sleep(100);
+
 	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI      = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 1;
 	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
+	
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
     rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
@@ -96,10 +101,10 @@ void CXGS_Data::HiSpiCalibrate(void)
 	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32  = 0xffffffff; //all flags are R or RWc2
 
 	printf("Starting HiSPI calibration...  ");
-	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI    = 1;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
-	rXGSptr.HISPI.CTRL.u32               = sXGSptr.HISPI.CTRL.u32;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
+	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 1;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 1;
+	rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 0;
 	
 	do 
 	{
