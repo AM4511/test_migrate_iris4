@@ -2,11 +2,11 @@
 -- File                : regfile_i2c.vhd
 -- Project             : FDK
 -- Module              : regfile_i2c_pack
--- Created on          : 2020/03/19 13:08:52
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0x5A5B9037
+-- Created on          : 2020/08/06 14:21:42
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x8865ADCE
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -18,9 +18,10 @@ package regfile_i2c_pack is
    --------------------------------------------------------------------------------
    -- Address constants
    --------------------------------------------------------------------------------
-   constant K_I2C_I2C_ID_ADDR   : natural := 16#0#;
-   constant K_I2C_I2C_CTRL0_ADDR : natural := 16#8#;
-   constant K_I2C_I2C_CTRL1_ADDR : natural := 16#10#;
+   constant K_I2C_I2C_ID_ADDR       : natural := 16#0#;
+   constant K_I2C_I2C_CTRL0_ADDR    : natural := 16#8#;
+   constant K_I2C_I2C_CTRL1_ADDR    : natural := 16#10#;
+   constant K_I2C_I2C_SEMAPHORE_ADDR : natural := 16#18#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: I2C_ID
@@ -92,18 +93,37 @@ package regfile_i2c_pack is
    function to_I2C_I2C_CTRL1_TYPE(stdlv : std_logic_vector(31 downto 0)) return I2C_I2C_CTRL1_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: I2C_SEMAPHORE
+   ------------------------------------------------------------------------------------------
+   type I2C_I2C_SEMAPHORE_TYPE is record
+      I2C_IN_USE     : std_logic;
+      I2C_IN_USE_set : std_logic;
+   end record I2C_I2C_SEMAPHORE_TYPE;
+
+   constant INIT_I2C_I2C_SEMAPHORE_TYPE : I2C_I2C_SEMAPHORE_TYPE := (
+      I2C_IN_USE      => 'Z',
+      I2C_IN_USE_set  => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : I2C_I2C_SEMAPHORE_TYPE) return std_logic_vector;
+   function to_I2C_I2C_SEMAPHORE_TYPE(stdlv : std_logic_vector(31 downto 0)) return I2C_I2C_SEMAPHORE_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Section Name: I2C
    ------------------------------------------------------------------------------------------
    type I2C_TYPE is record
       I2C_ID         : I2C_I2C_ID_TYPE;
       I2C_CTRL0      : I2C_I2C_CTRL0_TYPE;
       I2C_CTRL1      : I2C_I2C_CTRL1_TYPE;
+      I2C_SEMAPHORE  : I2C_I2C_SEMAPHORE_TYPE;
    end record I2C_TYPE;
 
    constant INIT_I2C_TYPE : I2C_TYPE := (
       I2C_ID          => INIT_I2C_I2C_ID_TYPE,
       I2C_CTRL0       => INIT_I2C_I2C_CTRL0_TYPE,
-      I2C_CTRL1       => INIT_I2C_I2C_CTRL1_TYPE
+      I2C_CTRL1       => INIT_I2C_I2C_CTRL1_TYPE,
+      I2C_SEMAPHORE   => INIT_I2C_I2C_SEMAPHORE_TYPE
    );
 
    ------------------------------------------------------------------------------------------
@@ -214,6 +234,29 @@ package body regfile_i2c_pack is
       return output;
    end to_I2C_I2C_CTRL1_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from I2C_I2C_SEMAPHORE_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : I2C_I2C_SEMAPHORE_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(0) := reg.I2C_IN_USE;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_I2C_I2C_SEMAPHORE_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to I2C_I2C_SEMAPHORE_TYPE
+   --------------------------------------------------------------------------------
+   function to_I2C_I2C_SEMAPHORE_TYPE(stdlv : std_logic_vector(31 downto 0)) return I2C_I2C_SEMAPHORE_TYPE is
+   variable output : I2C_I2C_SEMAPHORE_TYPE;
+   begin
+      output.I2C_IN_USE := stdlv(0);
+      return output;
+   end to_I2C_I2C_SEMAPHORE_TYPE;
+
    
 end package body;
 
@@ -222,11 +265,11 @@ end package body;
 -- File                : regfile_i2c.vhd
 -- Project             : FDK
 -- Module              : regfile_i2c
--- Created on          : 2020/03/19 13:08:52
--- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta3
--- Build ID            : I20191219-1127
--- Register file CRC32 : 0x5A5B9037
+-- Created on          : 2020/08/06 14:21:42
+-- Created by          : imaval
+-- FDK IDE Version     : 4.7.0_beta4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x8865ADCE
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -263,22 +306,24 @@ architecture rtl of regfile_i2c is
 ------------------------------------------------------------------------------------------
 -- Signals declaration
 ------------------------------------------------------------------------------------------
-signal readBackMux                           : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                   : std_logic_vector(2 downto 0);                    -- Address decode hit
-signal wEn                                   : std_logic_vector(2 downto 0);                    -- Write Enable
-signal fullAddr                              : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
-signal fullAddrAsInt                         : integer;                                        
-signal bitEnN                                : std_logic_vector(31 downto 0);                   -- Bits enable
-signal ldData                                : std_logic;                                      
-signal rb_I2C_I2C_ID                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_I2C_I2C_CTRL0                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_I2C_I2C_CTRL1                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal field_rw_I2C_I2C_CTRL0_I2C_INDEX      : std_logic_vector(7 downto 0);                    -- Field: I2C_INDEX
-signal field_rw_I2C_I2C_CTRL0_NI_ACC         : std_logic;                                       -- Field: NI_ACC
-signal field_wautoclr_I2C_I2C_CTRL0_TRIGGER  : std_logic;                                       -- Field: TRIGGER
-signal field_rw_I2C_I2C_CTRL0_I2C_DATA_WRITE : std_logic_vector(7 downto 0);                    -- Field: I2C_DATA_WRITE
-signal field_rw_I2C_I2C_CTRL1_I2C_DEVICE_ID  : std_logic_vector(6 downto 0);                    -- Field: I2C_DEVICE_ID
-signal field_rw_I2C_I2C_CTRL1_I2C_RW         : std_logic;                                       -- Field: I2C_RW
+signal readBackMux                             : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
+signal hit                                     : std_logic_vector(3 downto 0);                    -- Address decode hit
+signal wEn                                     : std_logic_vector(3 downto 0);                    -- Write Enable
+signal fullAddr                                : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
+signal fullAddrAsInt                           : integer;                                        
+signal bitEnN                                  : std_logic_vector(31 downto 0);                   -- Bits enable
+signal ldData                                  : std_logic;                                      
+signal rb_I2C_I2C_ID                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_I2C_I2C_CTRL0                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_I2C_I2C_CTRL1                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_I2C_I2C_SEMAPHORE                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal field_rw_I2C_I2C_CTRL0_I2C_INDEX        : std_logic_vector(7 downto 0);                    -- Field: I2C_INDEX
+signal field_rw_I2C_I2C_CTRL0_NI_ACC           : std_logic;                                       -- Field: NI_ACC
+signal field_wautoclr_I2C_I2C_CTRL0_TRIGGER    : std_logic;                                       -- Field: TRIGGER
+signal field_rw_I2C_I2C_CTRL0_I2C_DATA_WRITE   : std_logic_vector(7 downto 0);                    -- Field: I2C_DATA_WRITE
+signal field_rw_I2C_I2C_CTRL1_I2C_DEVICE_ID    : std_logic_vector(6 downto 0);                    -- Field: I2C_DEVICE_ID
+signal field_rw_I2C_I2C_CTRL1_I2C_RW           : std_logic;                                       -- Field: I2C_RW
+signal field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE : std_logic;                                       -- Field: I2C_IN_USE
 
 begin -- rtl
 
@@ -302,6 +347,7 @@ fullAddr(11 downto 2)<= reg_addr;
 hit(0) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#0#,12)))	else '0'; -- Addr:  0x0000	I2C_ID
 hit(1) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	I2C_CTRL0
 hit(2) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#10#,12)))	else '0'; -- Addr:  0x0010	I2C_CTRL1
+hit(3) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#18#,12)))	else '0'; -- Addr:  0x0018	I2C_SEMAPHORE
 
 
 
@@ -314,7 +360,8 @@ fullAddrAsInt <= CONV_integer(fullAddr);
 P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_I2C_I2C_ID,
                             rb_I2C_I2C_CTRL0,
-                            rb_I2C_I2C_CTRL1
+                            rb_I2C_I2C_CTRL1,
+                            rb_I2C_I2C_SEMAPHORE
                            )
 begin
    case fullAddrAsInt is
@@ -329,6 +376,10 @@ begin
       -- [0x010]: /I2C/I2C_CTRL1
       when 16#10# =>
          readBackMux <= rb_I2C_I2C_CTRL1;
+
+      -- [0x018]: /I2C/I2C_SEMAPHORE
+      when 16#18# =>
+         readBackMux <= rb_I2C_I2C_SEMAPHORE;
 
       -- Default value
       when others =>
@@ -584,6 +635,41 @@ begin
       end if;
    end if;
 end process P_I2C_I2C_CTRL1_I2C_RW;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: I2C_I2C_SEMAPHORE
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(3) <= (hit(3)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: I2C_IN_USE
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_I2C_I2C_SEMAPHORE(0) <= field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE;
+regfile.I2C.I2C_SEMAPHORE.I2C_IN_USE <= field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_I2C_I2C_SEMAPHORE_I2C_IN_USE
+------------------------------------------------------------------------------------------
+P_I2C_I2C_SEMAPHORE_I2C_IN_USE : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(3) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
+         -- Clear the field to '0'
+         field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE <= '0';
+      else
+         -- Set the field to '1'
+         field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE <= field_rw2c_I2C_I2C_SEMAPHORE_I2C_IN_USE or regfile.I2C.I2C_SEMAPHORE.I2C_IN_USE_set;
+      end if;
+   end if;
+end process P_I2C_I2C_SEMAPHORE_I2C_IN_USE;
 
 ldData <= reg_read;
 

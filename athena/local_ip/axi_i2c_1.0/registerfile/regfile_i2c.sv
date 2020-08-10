@@ -2,11 +2,11 @@
  ** File                : regfile_i2c.sv
  ** Project             : FDK
  ** Module              : regfile_i2c
- ** Created on          : 2020/03/19 13:08:52
- ** Created by          : jmansill
- ** FDK IDE Version     : 4.7.0_beta3
- ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0x5A5B9037
+ ** Created on          : 2020/08/06 14:21:42
+ ** Created by          : imaval
+ ** FDK IDE Version     : 4.7.0_beta4
+ ** Build ID            : I20191220-1537
+ ** Register file CRC32 : 0x8865ADCE
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -90,13 +90,32 @@ typedef union packed
 
 
 /**************************************************************************
+* Register name : I2C_SEMAPHORE
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic        I2C_IN_USE;  /* Bits(0:0), null */
+      logic [30:0] rsvd0;       /* Bits(31:1), Reserved */
+   } f;
+
+} fdk_regfile_i2c_I2C_I2C_SEMAPHORE_t;
+
+
+/**************************************************************************
 * Section name   : I2C
 ***************************************************************************/
 typedef struct packed
 {
-   fdk_regfile_i2c_I2C_I2C_ID_t    I2C_ID;     /* Address offset: 0x0 */
-   fdk_regfile_i2c_I2C_I2C_CTRL0_t I2C_CTRL0;  /* Address offset: 0x8 */
-   fdk_regfile_i2c_I2C_I2C_CTRL1_t I2C_CTRL1;  /* Address offset: 0x10 */
+   fdk_regfile_i2c_I2C_I2C_ID_t        I2C_ID;         /* Address offset: 0x0 */
+   fdk_regfile_i2c_I2C_I2C_CTRL0_t     I2C_CTRL0;      /* Address offset: 0x8 */
+   fdk_regfile_i2c_I2C_I2C_CTRL1_t     I2C_CTRL1;      /* Address offset: 0x10 */
+   fdk_regfile_i2c_I2C_I2C_SEMAPHORE_t I2C_SEMAPHORE;  /* Address offset: 0x18 */
 } fdk_regfile_i2c_I2C_t;
 
 

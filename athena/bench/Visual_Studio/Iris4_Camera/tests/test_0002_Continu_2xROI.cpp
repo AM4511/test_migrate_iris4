@@ -99,6 +99,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	//1-base Here - Dois etre multiple de 4										
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -188,7 +189,8 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			XGS_Ctrl->setAnalogGain(1);  //1-2-4
 			XGS_Ctrl->setExposure(20000);
 			GrabParams->Y_START = 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
-			GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
+			GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
+			GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 		} else 
 	  	  if (ROI_sel == 1)  {
@@ -204,8 +206,10 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			 XGS_Ctrl->setBlackRef(0);
 			 XGS_Ctrl->setAnalogGain(1);  //1-2-4
 			 XGS_Ctrl->setExposure(40000);
-			 GrabParams->Y_START = 4+SensorParams->Ysize_Full/4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+			 GrabParams->Y_START = 4+SensorParams->Ysize_Full/4;                        //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 			 GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full/4;	//1-base Here - Dois etre multiple de 4										
+			 GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;             //1-base Here - Dois etre multiple de 4
+
 		  } else
 			  if (ROI_sel == 2) {
 				  //---------------------
@@ -220,8 +224,10 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				  XGS_Ctrl->setBlackRef(0);
 				  XGS_Ctrl->setAnalogGain(1);  //1-2-4
 				  XGS_Ctrl->setExposure(60000);
-				  GrabParams->Y_START = 4 + SensorParams->Ysize_Full / 2;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
-				  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+				  GrabParams->Y_START = 4 + SensorParams->Ysize_Full / 2;                    //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+				  GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	 //1-base Here - Dois etre multiple de 4										
+				  GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;             //1-base Here - Dois etre multiple de 4
+
 			  }
 			  else
 				  if (ROI_sel ==  3) {
@@ -237,8 +243,10 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					  XGS_Ctrl->setBlackRef(0);
 					  XGS_Ctrl->setAnalogGain(1);  //1-2-4
 					  XGS_Ctrl->setExposure(80000);
-					  GrabParams->Y_START = 4 + SensorParams->Ysize_Full *3 / 4;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
-					  GrabParams->Y_END = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	//1-base Here - Dois etre multiple de 4										
+					  GrabParams->Y_START = 4 + SensorParams->Ysize_Full *3 / 4;                 //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+					  GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full / 4;	 //1-base Here - Dois etre multiple de 4										
+					  GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;             //1-base Here - Dois etre multiple de 4
+
 				  }
 				  else
 					  if (ROI_sel == 4) {
@@ -254,8 +262,10 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						  XGS_Ctrl->setBlackRef(0);
 						  XGS_Ctrl->setAnalogGain(1);  //1-2-4
 						  XGS_Ctrl->setExposure(30000);
-						  GrabParams->Y_START = 4 ;                   //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
-						  GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	//1-base Here - Dois etre multiple de 4										
+						  GrabParams->Y_START = 4 ;                                              //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+						  GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	 //1-base Here - Dois etre multiple de 4
+						  GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;         // 1-base Here - Dois etre multiple de 4
+
 					  }
 
 

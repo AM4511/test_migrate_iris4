@@ -245,6 +245,8 @@ architecture functionnal of axi_i2c is
   signal clk_stretch         : std_logic;
   signal non_index_access    : std_logic;
   
+  signal I2C_IN_USE_set      : std_logic :='0';
+  
 begin
 
     clk_stretch      <= '1' when (CLOCK_STRETCHING = true) else '0';
@@ -358,6 +360,27 @@ begin
 
     regfile             => regfile             -- Register file
   );
+
+  -------------------------------
+  -- I2C SW SEMAPHORE
+  -------------------------------  
+  process(S_AXI_ACLK)
+  begin
+    if(rising_edge(S_AXI_ACLK)) then
+      if(S_AXI_ARESETN='0') then
+        I2C_IN_USE_set <= '0';
+      else
+        if(reg_read='1' and reg_addr= std_logic_vector(conv_unsigned(6, C_S_AXI_ADDR_WIDTH-2) )	) then  -- Metaphore is located at addr=0x18
+		  I2C_IN_USE_set <= '1';
+		else
+		  I2C_IN_USE_set <= '0';
+		end if;		
+      end if;
+    end if;
+  end process;
+  
+  regfile.I2C.I2C_SEMAPHORE.I2C_IN_USE_set <= I2C_IN_USE_set;
+
 
 
 end functionnal;

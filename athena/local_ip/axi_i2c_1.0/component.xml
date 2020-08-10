@@ -288,7 +288,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>a0934a79</spirit:value>
+            <spirit:value>3e4e5355</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -304,7 +304,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>a0934a79</spirit:value>
+            <spirit:value>3e4e5355</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -764,7 +764,7 @@
       <spirit:file>
         <spirit:name>hdl/axi_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_0472bf0f</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_52129b51</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
@@ -804,7 +804,6 @@
       <spirit:file>
         <spirit:name>hdl/axi_i2c.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_89ca09e3</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>axi_i2c_lib</spirit:logicalName>
       </spirit:file>
@@ -945,11 +944,11 @@
       </xilinx:taxonomies>
       <xilinx:displayName>axi_i2c</xilinx:displayName>
       <xilinx:autoFamilySupportLevel>level_0</xilinx:autoFamilySupportLevel>
-      <xilinx:coreRevision>7</xilinx:coreRevision>
+      <xilinx:coreRevision>8</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:axi_i2c:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-05-04T17:58:50Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-08-06T18:19:02Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@347a1a46_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@19e81a3f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
@@ -1171,13 +1170,30 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@29030af7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@46157c48_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@2248b0de_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2855cb23_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68af235c_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@60e2d9f8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@14dd8be6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1189c254_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ae230ac_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17623631_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17eccbc1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40f1238d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@26279fcb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4f5ff879_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c049245_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@76578fda_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7605fbc3_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@8ad611d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5afade1e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5e7416a0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/axi_i2c_1.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="e15660e7"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="ef34abca"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="48673734"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="82f124fa"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="8fa36555"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="7c87e592"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="1845508a"/>
