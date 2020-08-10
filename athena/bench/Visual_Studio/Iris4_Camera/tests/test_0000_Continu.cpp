@@ -57,6 +57,11 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
+	//-------------------
+	// Reduce linerate
+	//-------------------
+	//XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 2;
+
 	//------------------------------
     // INITIALIZE XGS SENSOR
     //------------------------------
@@ -236,6 +241,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		//XGS_Ctrl->WaitEndExpReadout();
 
+		XGS_Data->HiSpiCheck();
 
 
 		if (FPS_On)
