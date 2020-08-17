@@ -45,7 +45,7 @@ set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 ####################################################
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
-set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {ares_pb_i/ares_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
+#set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {ares_pb_i/ares_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
