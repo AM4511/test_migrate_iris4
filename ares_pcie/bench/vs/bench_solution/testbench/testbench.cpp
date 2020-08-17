@@ -25,10 +25,17 @@ int main()
 	MIL_ID   MilSystem;
 
 
-	u64 PcieBAR0 = 0x80000000; //Axi system
-	u64 PcieBAR2 = 0x84000000; //Pcie2AxiMaster bridge
+	//u64 PcieBAR0 = 0x80000000; //Axi system
+	//u64 PcieBAR2 = 0x84000000; //Pcie2AxiMaster bridge
+	u64 PcieBAR0 = 0x88000000; //Axi system
+	u64 PcieBAR2 = 0x8C000000; //Pcie2AxiMaster bridge
 	int errCnt = 0;
 
+	// Print the PCIe BAR for sanity check in the console
+	cout << endl << "BAR0  : 0x" << hex << PcieBAR0 << endl;
+	cout << "BAR2  : 0x" << hex << PcieBAR2 << endl;
+	cout << "Press any key to continue..." << endl;
+	char c = getchar();
 
 	/* MIL Allocations */
 	MappAlloc(M_DEFAULT, &MilApplication);
@@ -57,5 +64,7 @@ int main()
 	cout << endl << "Total error count : " << errCnt << endl;
 	// End test
 	cout << endl << "Press any key to exit..." << endl;
-	char c = getchar();
+	
+	
+	c = getchar();
 }

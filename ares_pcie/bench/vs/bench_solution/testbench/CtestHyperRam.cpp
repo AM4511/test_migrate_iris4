@@ -33,13 +33,14 @@ u32 CtestHyperRam::run()
 
 	// Test a ramp
 	u32 start = 0x0;
-	u32 stop = 0x1000;
-	//u32 stop = 0;
+	u32 stop = 0x0400000; // 4MB
+	//stop = 0x1000000 - 1; // 4MB
 	u32 initValue = 0x0;
 	int32 increment = -1;
 	u32 clearBufferValue = 0xcafefade;
+	u32 numberIterations = 10000;
 
-	for (u32 j = 0; j < 10000; j++)
+	for (u32 j = 0; j < numberIterations; j++)
 	{
 		cout << "###################################################################" << endl;
 		cout << "###################################################################" << endl;
@@ -49,24 +50,17 @@ u32 CtestHyperRam::run()
 
 		for (u32 i = 0; i < 1; i++)
 		{
-
-			u32 ddrWindowSize = 0x02000000; // 32MB high
-			u32 zynqDDR2WindowOffset = 0x08000000 + (i * ddrWindowSize);
-
 			cout << endl;
 			cout << "###################################################################" << endl;
 			cout << "## BAR0 AXI window[" << std::dec << i << "] ramp test 32MB                     " << endl;
 			cout << "###################################################################" << endl;
-			//m_ares.setAxiWindowTranslationOffset(0, zynqDDR2WindowOffset);
 			clear32(start, stop, clearBufferValue);
 			//test_ramp_u8(start, stop - 4, (u8)initValue, (u8)increment);
 			//test_ramp_u16(start, stop - 4, (u16)initValue, (u16)increment);
 			test_ramp_u32(start, stop, initValue, increment);
 			//test_ramp_u64(start, stop, (u64)initValue, (u64)increment);
-			//software_trigger();
 			//test_ramp_u8_turbo(start, stop, (u8)initValue, (u8)increment);
 			//test_ramp_u16_turbo(start, stop, (u16)initValue, (u16)increment);
-
 		}
 	}
 	return status();
@@ -89,7 +83,7 @@ u32 CtestHyperRam::test_single_access()
 	// Compare result
 	if (readData != writeData)
 	{
-		sprintf_s(message, sizeof(message), "Error : @0x%x : write32 data = 0x%x; readData = 0x%x; ", address, writeData, readData);
+		sprintf_s(message, sizeof(message), "@0x%x : write32 data = 0x%x; readData = 0x%x; ", address, writeData, readData);
 		assert(true, message);
 	}
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
@@ -118,7 +112,7 @@ u32 CtestHyperRam::clear32(u32 start, u32 stop, u32 clearValue)
 		m_rpc2Ctrl->write_u32(address, clearValue);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -158,7 +152,7 @@ u32 CtestHyperRam::test_ramp_u8(u32 start, u32 stop, u8 initValue, u8 increment)
 		//m_rpc2Ctrl->write_u8(address, data);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -192,7 +186,7 @@ u32 CtestHyperRam::test_ramp_u8(u32 start, u32 stop, u8 initValue, u8 increment)
 		//readData = m_rpc2Ctrl->read_u8(address);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -203,7 +197,7 @@ u32 CtestHyperRam::test_ramp_u8(u32 start, u32 stop, u8 initValue, u8 increment)
 		if (readData != expectedData)
 		{
 			char message[256];
-			sprintf_s(message, sizeof(message), "\nError : @0x%x : write u8 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
+			sprintf_s(message, sizeof(message), "@0x%x : write u8 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
 			assert(true, message);
 		}
 
@@ -245,7 +239,7 @@ u32 CtestHyperRam::test_ramp_u16(u32 start, u32 stop, u16 initValue, u16 increme
 		//m_rpc2Ctrl->write_u16(address, data);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -279,7 +273,7 @@ u32 CtestHyperRam::test_ramp_u16(u32 start, u32 stop, u16 initValue, u16 increme
 		//readData = m_rpc2Ctrl->read_u16(address);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -290,7 +284,7 @@ u32 CtestHyperRam::test_ramp_u16(u32 start, u32 stop, u16 initValue, u16 increme
 		if (readData != expectedData)
 		{
 			char message[256];
-			sprintf_s(message, sizeof(message), "\nError : @0x%x : write u16 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
+			sprintf_s(message, sizeof(message), "@0x%x : write u16 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
 			assert(true, message);
 		}
 
@@ -329,7 +323,7 @@ u32 CtestHyperRam::test_ramp_u32(u32 start, u32 stop, u32 initValue, int32 incre
 		m_rpc2Ctrl->write_u32(address, data);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -363,7 +357,7 @@ u32 CtestHyperRam::test_ramp_u32(u32 start, u32 stop, u32 initValue, int32 incre
 		readData = m_rpc2Ctrl->read_u32(address);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -374,7 +368,7 @@ u32 CtestHyperRam::test_ramp_u32(u32 start, u32 stop, u32 initValue, int32 incre
 		if (readData != expectedData)
 		{
 			char message[256];
-			sprintf_s(message, sizeof(message), "Error : @0x%x : write32 data = 0x%x; readData = 0x%x; ", address, expectedData, readData);
+			sprintf_s(message, sizeof(message), "@0x%x : write32 data = 0x%x; readData = 0x%x; ", address, expectedData, readData);
 			assert(true, message);
 		}
 
@@ -413,7 +407,7 @@ u32 CtestHyperRam::test_ramp_u64(u32 start, u32 stop, u64 initValue, u64 increme
 		//m_rpc2Ctrl->write_u64(address, data);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -447,7 +441,7 @@ u32 CtestHyperRam::test_ramp_u64(u32 start, u32 stop, u64 initValue, u64 increme
 		//readData = m_rpc2Ctrl->read_u64(address);
 
 		// Monitor
-		if (stepCntr == monitorStep)
+		if (stepCntr > monitorStep)
 		{
 			stepCntr = 0;
 			percentage++;
@@ -458,7 +452,7 @@ u32 CtestHyperRam::test_ramp_u64(u32 start, u32 stop, u64 initValue, u64 increme
 		if (readData != expectedData)
 		{
 			char message[256];
-			sprintf_s(message, sizeof(message), "\nError : @0x%x : write u64 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
+			sprintf_s(message, sizeof(message), "@0x%x : write u64 data = 0x%x; read u8 data = 0x%x; ", address, expectedData, readData);
 			assert(true, message);
 		}
 

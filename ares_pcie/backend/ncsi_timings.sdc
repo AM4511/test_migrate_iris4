@@ -13,7 +13,6 @@
 ## inverted by 180 Deg. This will guarantee enough setup and hold on the interface.
 ###################################################################################
 #create_generated_clock -name ncsi_clk_io -source  [get_pins ncsi_clk_oddr/C] -invert -divide_by 1 [get_ports ncsi_clk]
-create_generated_clock -name ncsi_clk_io -source [get_pins ncsi_clk_oddr/C] -divide_by 1 [get_ports ncsi_clk]
 
 
 # NCSI internal derived clocks
@@ -34,21 +33,14 @@ create_generated_clock -name ncsi_tx_int_clk -source [get_pins -hierarchical -fi
 # ###################################################################################
 
 # Port ncsi_crs_dv
-set_input_delay -clock ncsi_clk_io -max 12.500 [get_ports ncsi_rx_crs_dv]
-set_input_delay -clock ncsi_clk_io -min 2.500 [get_ports ncsi_rx_crs_dv]
 
 
 ## Port profinet1_ncsi_rxd
-set_input_delay -clock ncsi_clk_io -max 12.500 [get_ports ncsi_rxd*]
-set_input_delay -clock ncsi_clk_io -min 2.500 [get_ports ncsi_rxd*]
 
 ## Port profinet1_ncsi_tx_en
-set_output_delay -clock ncsi_clk_io -max 3.000 [get_ports ncsi_tx_en]
-set_output_delay -clock ncsi_clk_io -min -1.000 [get_ports ncsi_tx_en]
 
 ## Port profinet1_ncsi_txd
-set_output_delay -clock ncsi_clk_io -max 3.000 [get_ports ncsi_txd*]
-set_output_delay -clock ncsi_clk_io -min -1.000 [get_ports ncsi_txd*]
+
 
 
 

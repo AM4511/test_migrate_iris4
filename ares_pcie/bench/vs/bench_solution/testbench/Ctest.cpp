@@ -47,8 +47,10 @@ void Ctest::assert(bool isError, string message)
 {
 	if (isError)
 	{
-		cerr << "### Error : " << message << endl;
+		cerr << endl << "### Error : " << message << endl;
 		errorCnt++;
+		cout << endl << "Press any key to continue..." << endl;
+		char c = getchar();
 	}
 }
 
