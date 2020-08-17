@@ -1,1 +1,4 @@
+.vs/*
 x64/*
+testbench/testbench.vcxproj.user
+testbench/x64/*
