@@ -24,6 +24,7 @@ set DUT_SRC_PATH           ${ROOT_PATH}/hdl
 set DMA_SRC_PATH           ${ROOT_PATH}/hdl/dma
 set DATA_SRC_PATH          ${ROOT_PATH}/hdl/data
 set CTRL_SRC_PATH          ${ROOT_PATH}/hdl/controller
+set SYSMON_SRC_PATH        ${ROOT_PATH}/hdl/system_monitor
 set REGISTERFILE_PATH      ${ROOT_PATH}/registerfile
 
 set MODELSIM_PROJECT_NAME  ${PROJECT_NAME}
@@ -82,6 +83,7 @@ ${DMA_SRC_PATH}/axi_stream_in.vhd \
 ${DMA_SRC_PATH}/dma_write.vhd \
 ${DMA_SRC_PATH}/regfile_dmawr2tlp.vhd \
 ${DMA_SRC_PATH}/dmawr2tlp.vhd \
+${SYSMON_SRC_PATH}/system_monitor.vhd \
 ${DUT_SRC_PATH}/XGS_athena.vhd
 }
 ]
@@ -109,7 +111,7 @@ ${TESTBENCH_SRC_PATH}/Cimage.sv \
 ${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/hispi_interface.sv \
 ${TESTBENCH_SRC_PATH}/tlp_interface.sv \
-${LOCAL_IP}/pcie2AxiMaster_v3.0/design/regfile_pcie2AxiMaster.vhd 
+${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd 
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd \
 ${TESTBENCH_SRC_PATH}/testbench.sv

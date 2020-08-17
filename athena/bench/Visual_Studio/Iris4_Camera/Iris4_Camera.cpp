@@ -12,14 +12,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-
-#include "stdafx.h"
-#include <conio.h> 
-#include <time.h>
-
-#include <Windows.h>
+#include "osincludes.h"
 
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
@@ -61,7 +54,7 @@ int main(void)
 
 	M_UINT32 address;
 	M_UINT32 data;
-
+	M_UINT32 I2C_semaphore;
 	//------------------------------
 	// Init ATHENA FPGAs, Regfile
 	//------------------------------
@@ -130,7 +123,7 @@ int main(void)
 	// Init class XGS CONTROLLER
 	//------------------------------
 	CXGS_Ctrl *XGS_Ctrl;
-	XGS_Ctrl = new CXGS_Ctrl(rXGS_Athena_ptr, 16.000000, 15.625);    //32Mhz
+	XGS_Ctrl = new CXGS_Ctrl(rXGS_Athena_ptr, 16.000000, 15.625, rI2Cptr);    //32Mhz
 
 	//------------------------------
     // Init class XGS DATAPATH
@@ -315,6 +308,35 @@ int main(void)
 				  printf ("0x%08X 0x%08X\n", i*4, Pcie->Read_QSPI_DW(i*4) );
 				break;
 
+			case '!':
+				// test i2c Semaphore			
+				printf("Reset semaphore bit\n");
+				rI2Cptr.I2C.I2C_SEMAPHORE.u32 = 1; // Clear semaphore bit
+				printf("Setting semaphore to 1 bit by reading from it\n ");
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("First read is %d  (Should be 0)\n", I2C_semaphore);
+
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("Second read is %d (Should be 1)\n", I2C_semaphore);
+
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("Third read is %d (Should be 1)\n", I2C_semaphore);
+
+
+				printf("Reset semaphore bit\n");
+				rI2Cptr.I2C.I2C_SEMAPHORE.u32 = 1; // Clear semaphore bit
+				printf("Setting semaphore to 1 bit by reading from it\n ");
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("First read is %d (Should be 0)\n", I2C_semaphore);
+
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("Second read is %d (Should be 1)\n", I2C_semaphore);
+
+				I2C_semaphore = rI2Cptr.I2C.I2C_SEMAPHORE.f.I2C_IN_USE;
+				printf("Third read is %d (Should be 1)\n", I2C_semaphore);
+
+				printf("Reset semaphore bit\n");
+				rI2Cptr.I2C.I2C_SEMAPHORE.u32 = 1; // Clear semaphore bit
 			}
 		}//KBhit
 	}//while

@@ -5,12 +5,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
 
 #include <string>
 #include <iostream>
@@ -107,7 +102,8 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -220,8 +216,14 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			XGS_Ctrl->WaitEndExpReadout();
 			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 
+#if M_MIL_UNICODE_API
 			MosSprintf(FileName, 50, MIL_TEXT("%S_%d.tiff"), cin_imagefilename.c_str(), exp_time);
 			printf("Printing .tiff file: %S\n\n", FileName);
+#else
+			MosSprintf(FileName, 50, MIL_TEXT("%s_%d.tiff"), cin_imagefilename.c_str(), exp_time);
+			printf("Printing .tiff file: %s\n\n", FileName);
+#endif
+
 			MbufSave(FileName, MilGrabBuffer);
 
 			exp_time = exp_time + ExposureIncr;

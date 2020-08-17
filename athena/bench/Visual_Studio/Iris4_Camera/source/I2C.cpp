@@ -3,11 +3,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "stdafx.h"
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
+#include "osincludes.h"
 
 #include <string>
 using std::string;

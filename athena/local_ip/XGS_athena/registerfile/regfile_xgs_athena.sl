@@ -539,4 +539,27 @@ Register("debug", 0x45c, 4, "null");
 		Field("tap_lane_1", 9, 5, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("tap_lane_0", 4, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+%=================================================================
+% EXTERNAL NAME	: SYSMONXIL
+%=================================================================
+Section("SYSMONXIL", 0, 0x700);
+
+Register("temp", 0x700, 4, "null");
+		Field("smtemp", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor TEMPerature");
+
+Register("vccint", 0x704, 4, "system monitor VCCINT");
+		Field("smvint", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor VCCINT");
+
+Register("vccaux", 0x708, 4, "system monitor VCCAUX");
+		Field("smvaux", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor VCCAUX");
+
+Register("vccbram", 0x718, 4, "system monitor VCCBRAM");
+		Field("smvbram", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor VCCBRAM");
+
+Register("temp_max", 0x780, 4, "system monitor Temperature MAXimum");
+		Field("smtmax", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor Temperature MAXimum");
+
+Register("temp_min", 0x790, 4, "system monitor Temperature MAXimum");
+		Field("smtmin", 15, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "System Monitor Temperature MINimum");
+
 

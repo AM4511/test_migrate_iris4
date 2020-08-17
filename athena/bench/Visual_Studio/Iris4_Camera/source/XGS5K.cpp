@@ -6,9 +6,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include "stdafx.h"
-#include <stdio.h> 
-#include <stdlib.h>
+#include "osincludes.h"
 
 #include "XGS_Ctrl.h"
 
@@ -54,7 +52,7 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
 
    // This may depend on the configuration (Lanes+LineSize) 
 
-   SensorParams.Trig_2_EXP          = 76800;
+   SensorParams.FOTn_2_EXP          = 76800;
 
    SensorParams.ReadOutN_2_TrigN    = 51200; 
 

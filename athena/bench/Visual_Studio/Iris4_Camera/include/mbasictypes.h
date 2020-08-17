@@ -1,13 +1,13 @@
-/************************************************************************/
+﻿/************************************************************************/
 /*
 *
 * Filename     :  mbasictypes.h
-* Revision     :  10.00.2564
+* Revision     :  10.40.0694
 * Content      :  This file contains the definitions of basic types 
 *                 for Matrox Imaging.
 *
 *
-* Copyright � Matrox Electronic Systems Ltd., 1992-2014.
+* Copyright © Matrox Electronic Systems Ltd., 1992-2020.
 * All Rights Reserved
 *************************************************************************/
 #ifndef __MATROX_IMAGING_BASIC_TYPES__
@@ -16,6 +16,8 @@
 
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
    typedef       unsigned __int64   M_UINT64;
+#elif defined(__linux__) && (defined(__x86_64__) || defined(__aarch64__))
+   typedef       unsigned long      M_UINT64;
 #else
    typedef       unsigned long long M_UINT64;
 #endif
@@ -25,6 +27,8 @@
 
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
    typedef       __int64            M_INT64;
+#elif defined(__linux__) && (defined(__x86_64__) || defined(__aarch64__))
+   typedef       long               M_INT64;
 #else
    typedef       long long          M_INT64;
 #endif

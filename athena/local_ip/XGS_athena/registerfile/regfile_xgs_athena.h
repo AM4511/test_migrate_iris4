@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x666F4DEE
+* Register file CRC32 : 0x5C41E12
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -92,6 +92,12 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x438
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x450
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x45C
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCBRAM_ADDRESS              0x718
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MAX_ADDRESS             0x780
+#define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MIN_ADDRESS             0x790
 
 /**************************************************************************
 * Register name : TAG
@@ -1404,6 +1410,123 @@ typedef union
 
 
 /**************************************************************************
+* Register name : TEMP
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0  : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMTEMP : 12;  /* Bits(15:4), System Monitor TEMPerature */
+      M_UINT32 RSVD1  : 16;  /* Bits(31:16), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_TYPE;
+
+
+/**************************************************************************
+* Register name : VCCINT
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0  : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMVINT : 12;  /* Bits(15:4), System Monitor VCCINT */
+      M_UINT32 RSVD1  : 16;  /* Bits(31:16), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_TYPE;
+
+
+/**************************************************************************
+* Register name : VCCAUX
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0                  : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMVAUX                 : 12;  /* Bits(15:4), System Monitor VCCAUX */
+      M_UINT32 RSVD1                  : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_TYPE;
+
+
+/**************************************************************************
+* Register name : VCCBRAM
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0                   : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMVBRAM                 : 12;  /* Bits(15:4), System Monitor VCCBRAM */
+      M_UINT32 RSVD1                   : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[25] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCBRAM_TYPE;
+
+
+/**************************************************************************
+* Register name : TEMP_MAX
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0                  : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMTMAX                 : 12;  /* Bits(15:4), System Monitor Temperature MAXimum */
+      M_UINT32 RSVD1                  : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MAX_TYPE;
+
+
+/**************************************************************************
+* Register name : TEMP_MIN
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0  : 4;   /* Bits(3:0), Reserved */
+      M_UINT32 SMTMIN : 12;  /* Bits(15:4), System Monitor Temperature MINimum */
+      M_UINT32 RSVD1  : 16;  /* Bits(31:16), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MIN_TYPE;
+
+
+/**************************************************************************
 * Section name   : SYSTEM
 ***************************************************************************/
 typedef struct
@@ -1496,17 +1619,34 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************
+* External section name   : SYSMONXIL
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_TYPE     TEMP;      /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_TYPE   VCCINT;    /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_TYPE   VCCAUX;    /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCBRAM_TYPE  VCCBRAM;   /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MAX_TYPE TEMP_MAX;  /* Address offset: 0x80 */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_MIN_TYPE TEMP_MIN;  /* Address offset: 0x90 */
+   M_UINT32                                        RSVD[27];  /* Reserved space (27 x M_UINT32) */
+} FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE;
+
+
+/**************************************************************************
 * Register file name : REGFILE_XGS_ATHENA
 ***************************************************************************/
 typedef struct
 {
-   FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE SYSTEM;     /* Section; Base address offset: 0x0 */
-   M_UINT32                            RSVD0[24];  /* Padding; Size (96 Bytes) */
-   FPGA_REGFILE_XGS_ATHENA_DMA_TYPE    DMA;        /* Section; Base address offset: 0x70 */
-   M_UINT32                            RSVD1[22];  /* Padding; Size (88 Bytes) */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE    ACQ;        /* Section; Base address offset: 0x100 */
-   M_UINT32                            RSVD2[73];  /* Padding; Size (292 Bytes) */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE  HISPI;      /* Section; Base address offset: 0x400 */
+   FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE    SYSTEM;      /* Section; Base address offset: 0x0 */
+   M_UINT32                               RSVD0[24];   /* Padding; Size (96 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_DMA_TYPE       DMA;         /* Section; Base address offset: 0x70 */
+   M_UINT32                               RSVD1[22];   /* Padding; Size (88 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE       ACQ;         /* Section; Base address offset: 0x100 */
+   M_UINT32                               RSVD2[73];   /* Padding; Size (292 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */
+   M_UINT32                               RSVD3[168];  /* Padding; Size (672 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 
 

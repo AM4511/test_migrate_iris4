@@ -5,14 +5,10 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
+#include "osfunctions.h"
+
 #include <mil.h>
-#include <process.h>
 
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
@@ -21,10 +17,14 @@
 extern int rand1(unsigned int val_max);
 extern void srand1(unsigned int seed);
 
-HANDLE AbortRunning_0005;
+OS_MUTEX AbortRunning_0005;
 bool StopAbortThread_0005;
 
+#ifdef __linux__
+void *AsyncAbortThread_0005(void* In)
+#else
 void AsyncAbortThread_0005(void* In)
+#endif
 {
 	int nb_aborts_ok = 0;
 	CXGS_Ctrl* XGS_Ctrl = (CXGS_Ctrl*)In;
@@ -34,18 +34,24 @@ void AsyncAbortThread_0005(void* In)
 
 	while (StopAbortThread_0005 == FALSE)
 	{
-		WaitForSingleObject(AbortRunning_0005, INFINITE);
+		if(!AcquireOsMutex(&AbortRunning_0005))
+			printf("\nError acquiring mutex.\n");
 
 		nb_aborts_ok = nb_aborts_ok + XGS_Ctrl->GrabAbort();                  // Abort in FPGA
 
-		printf(" NB Aborts: %d    ", nb_aborts_ok);
+		printf(" NB Aborts: %d    \r", nb_aborts_ok);
 
-		ReleaseMutex(AbortRunning_0005);
+		if(!ReleaseOsMutex(&AbortRunning_0005))
+			printf("\nError releasing mutex.\n");
 
 		//VarDelai = (rand1(750) + 250); // Delai entre 250ms et 1000 ms
 		VarDelai = rand1(250) + 500;
 		Sleep(VarDelai);
 	}
+
+	#ifdef __linux__
+	return NULL;
+	#endif
 }
 
 
@@ -55,8 +61,12 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	
 	srand1((unsigned)clock());
 
-	AbortRunning_0005 = CreateMutex(NULL, FALSE, NULL);
+	if(!CreateOsMutex(&AbortRunning_0005))
+		printf("\nError creating mutex.\n");
 
+	#ifdef __linux__
+	pthread_t pthreadid;
+	#endif
 
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
@@ -124,7 +134,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -183,9 +193,6 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (r) Start randomize");
 	printf("\n\n");
 
-	unsigned long fps_reg;
-	
-
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
 
@@ -199,7 +206,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 		// Waiting for second async thread to fininsh the grab abort before start another grab
-		WaitForSingleObject(AbortRunning_0005, INFINITE);
+		if(!AcquireOsMutex(&AbortRunning_0005))
+			printf("\nError acquiring mutex.\n");
 
 		if (random == 1)
 		{
@@ -213,16 +221,17 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->SW_snapshot(0);                 // Ici on poll trig_rdy avant d'envoyer le trigger
 
 		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END-GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
 		if (OverrunPixel != 0)
 		{
 			Overrun++;
 			printf("\rDMA Overflow detected: %d\n", Overrun);
-			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
 		}
 
 
-		ReleaseMutex(AbortRunning_0005);
+		if(!ReleaseOsMutex(&AbortRunning_0005))
+			printf("\nError releasing mutex.\n");
 
 		if (DisplayOn)
 		{
@@ -236,7 +245,12 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			{
 
 			case 'A':
+				#ifdef __linux__
+				if(pthread_create(&pthreadid, NULL, AsyncAbortThread_0005, XGS_Ctrl) != 0)
+					printf("\nError creating abort thread.\n");
+				#else
 				_beginthread(AsyncAbortThread_0005, NULL, XGS_Ctrl);
+				#endif
 				break;
 
 			case 'r':
@@ -279,7 +293,6 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-	fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
 	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
@@ -295,6 +308,11 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// Disable HW
 	//----------------------
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
+
+	StopAbortThread_0005 = TRUE;
+	Sleep(1500);
+	if(!DestroyOsMutex(&AbortRunning_0005))
+		printf("\nError destroying mutex.\n");
 
 	printf("\n\n********************************\n");
 	printf("*    End of Test0000.cpp    *\n");

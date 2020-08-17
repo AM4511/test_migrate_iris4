@@ -3,11 +3,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "stdafx.h"
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
+#include "osincludes.h"
 
 #include <string>
 using std::string;
@@ -70,11 +66,16 @@ DMAParamStruct* CXGS_Data::getDMAParams(void)
 void CXGS_Data::HiSpiClr(void)
 {
 	printf("HiSPI logic reseted\n");
+	sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH  = 0;
+	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
+	Sleep(100);
+
 	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI      = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 1;
 	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
+	
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
     rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
@@ -87,11 +88,23 @@ void CXGS_Data::HiSpiCalibrate(void)
 {
 	int count = 0;
 	
-	printf("HiSPI calibration...  ");
-	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI    = 1;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
-	rXGSptr.HISPI.CTRL.u32               = sXGSptr.HISPI.CTRL.u32;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
+	//clear old flags
+	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
+
+	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32  = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32  = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32  = 0xffffffff; //all flags are R or RWc2
+
+	printf("Starting HiSPI calibration...  ");
+	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 1;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 1;
+	rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
+	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 0;
 	
 	do 
 	{
@@ -112,6 +125,10 @@ void CXGS_Data::HiSpiCalibrate(void)
 		printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
 		printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
 		printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
+		printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
+		printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
+		printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+
 	}
 
 	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
@@ -199,4 +216,46 @@ void CXGS_Data::SetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_U
 	PixelAdd = (LINE_PITCH * ((M_UINT64)Y_POS)) + X_POS;    // Location in the image valid in memory
 	*(SrcImgPtr + PixelAdd)= PixelValue;                    // Write 8bit pixel from image
 
+}
+
+
+//---------------------------------------------------------------------------------------
+//
+// Check for HISPI errors
+//
+//---------------------------------------------------------------------------------------
+
+void CXGS_Data::HiSpiCheck(void)
+{
+	M_UINT32 Register;
+	M_UINT32 error_detect=0;
+
+	Register = rXGSptr.HISPI.STATUS.u32;
+	if ((Register & 0x00000002) == 0x002)  { printf("\nHISPI_STATUS, CALIBRATION ERROR");    error_detect = 1; }
+	if ( (Register & 0x00000004) == 0x004) { printf("\nHISPI_STATUS, FIFO ERROR");			 error_detect = 1; }
+	if ( (Register & 0x00000008) == 0x008) { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
+
+	for (int i = 0; i < 6; i++)
+	{
+		Register = rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32;
+		if ( (Register & 0x00000001)  == 0x001)  { printf("\nLANE_DECODER_STATUS_[%d], FIFO_OVERRUN", i);           error_detect = 1; } 
+		if ( (Register & 0x00000002)  == 0x002)  { printf("\nLANE_DECODER_STATUS_[%d], FIFO_UNDERRUN", i);			error_detect = 1; } 
+		if ( (Register & 0x00000008)  == 0x008)  { printf("\nLANE_DECODER_STATUS_[%d], CALIBRATION_ERROR", i);		error_detect = 1; } 
+		if ( (Register & 0x00002000)  == 0x2000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_BIT_LOCKED_ERROR", i);	error_detect = 1; }
+		if ( (Register & 0x00004000)  == 0x4000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_SYNC_ERROR", i);			error_detect = 1; }
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		Register = rXGSptr.HISPI.LANE_PACKER_STATUS[i].u32;
+		if ( (Register & 0x00000001) == 0x001) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_OVERRUN", i);              error_detect = 1; }
+		if ( (Register & 0x00000002) == 0x002) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_UNDERRUN", i);				error_detect = 1; }
+	}							   
+
+	if (error_detect == 1)
+	{
+		printf("\n\nPress any key to continue\n\n");
+		_getch();
+
+	}
 }

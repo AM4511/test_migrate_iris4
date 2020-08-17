@@ -143,6 +143,30 @@ end entity XGS_athena;
 architecture struct of XGS_athena is
 
 
+  ---------------------------------------------------------------------------
+  --  Xilinx SYSTEM MONITOR MODULE
+  ---------------------------------------------------------------------------
+  component system_monitor
+     port(
+       daddr_in        : in  STD_LOGIC_VECTOR (6 downto 0);     -- Address bus for the dynamic reconfiguration port
+       den_in          : in  STD_LOGIC;                         -- Enable Signal for the dynamic reconfiguration port
+       di_in           : in  STD_LOGIC_VECTOR (15 downto 0);    -- Input data bus for the dynamic reconfiguration port
+       dwe_in          : in  STD_LOGIC;                         -- Write Enable for the dynamic reconfiguration port
+       do_out          : out  STD_LOGIC_VECTOR (15 downto 0);   -- Output data bus for dynamic reconfiguration port
+       drdy_out        : out  STD_LOGIC;                        -- Data ready signal for the dynamic reconfiguration port
+       dclk_in         : in  STD_LOGIC;                         -- Clock input for the dynamic reconfiguration port
+       reset_in        : in  STD_LOGIC;                         -- Reset signal for the System Monitor control logic
+       busy_out        : out  STD_LOGIC;                        -- ADC Busy signal
+       channel_out     : out  STD_LOGIC_VECTOR (4 downto 0);    -- Channel Selection Outputs
+       eoc_out         : out  STD_LOGIC;                        -- End of Conversion Signal
+       eos_out         : out  STD_LOGIC;                        -- End of Sequence Signal
+       user_temp_alarm_out : out  STD_LOGIC;                        -- Temperature-sensor alarm output
+       alarm_out       : out STD_LOGIC;                         -- OR'ed output of all the Alarms
+       vp_in           : in  STD_LOGIC;                         -- Dedicated Analog Input Pair
+       vn_in           : in  STD_LOGIC
+    );
+  end component;
+
   component axiSlave2RegFile
     generic(
       -- Width of S_AXI data bus
@@ -224,7 +248,19 @@ architecture struct of XGS_athena is
       reg_addr      : in    std_logic_vector(10 downto 2);  -- Address
       reg_beN       : in    std_logic_vector(3 downto 0);   -- Byte enable
       reg_writedata : in    std_logic_vector(31 downto 0);  -- Write data
-      reg_readdata  : out   std_logic_vector(31 downto 0)   -- Read data
+      reg_readdata  : out   std_logic_vector(31 downto 0);   -- Read data
+      reg_readdatavalid : out   std_logic;                                               -- Read data valid
+	  
+	  ------------------------------------------------------------------------------------
+      -- Interface name: SYSMONXIL
+      -- Description: 
+      ------------------------------------------------------------------------------------
+      ext_SYSMONXIL_addr          : out   std_logic_vector(5 downto 0);                    -- Address Bus for SYSMONXIL external section
+      ext_SYSMONXIL_readEn        : out   std_logic;                                       -- Read enable for SYSMONXIL external section
+      ext_SYSMONXIL_readDataValid : in    std_logic;                                       -- Read Data Valid for SYSMONXIL external section
+      ext_SYSMONXIL_readData      : in    std_logic_vector(31 downto 0)                    -- Read Data for the SYSMONXIL external section
+
+	  
       );
   end component;
 
@@ -509,6 +545,8 @@ architecture struct of XGS_athena is
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
 
+  signal aclk_reset       : std_logic;
+
   signal regfile           : REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
   signal reg_read          : std_logic;
   signal reg_write         : std_logic;
@@ -517,6 +555,25 @@ architecture struct of XGS_athena is
   signal reg_writedata     : std_logic_vector(31 downto 0);
   signal reg_readdata      : std_logic_vector(31 downto 0);
   signal reg_readdatavalid : std_logic;
+
+  -- External SysMon
+  signal ext_SYSMONXIL_addr            : std_logic_vector(5 downto 0);
+  signal ext_SYSMONXIL_readEn          : std_logic;
+  signal ext_SYSMONXIL_readDataValid   : std_logic;
+  signal ext_SYSMONXIL_readData        : std_logic_vector(15 downto 0);
+
+  ----------------------------------------------------------------------
+  -- system_monitor
+  ----------------------------------------------------------------------
+  signal sysmon_dadddr                 : std_logic_vector(5 downto 0);
+  signal sysmon_readEn                 : std_logic;
+  signal sysmon_readData               : std_logic_vector(15 downto 0);
+  signal sysmon_readDataValid          : std_logic;
+  signal sysmon_busy                   : std_logic;
+  signal sysmon_reg_readEn             : std_logic;
+  signal ext_SYSMONXIL_readEn_ff       : std_logic;
+  signal ext_SYSMONXIL_addr_ff         : std_logic_vector(5 downto 0);
+
 
   signal aclk_tready : std_logic;
   signal aclk_tvalid : std_logic;
@@ -556,6 +613,8 @@ begin
   -----------------------------------------------------------------------------
   -- regfile.SYSTEM.VERSION.HW <= HW_VERSION; Assigned under xgs_hispi_top.vhd
 
+  --invert reset to sys monitor
+  aclk_reset <= not(aclk_reset_n);
 
   -----------------------------------------------------------------------------
   -- AXI Slave Interface
@@ -604,15 +663,26 @@ begin
   -----------------------------------------------------------------------------
   xregfile_xgs_athena : regfile_xgs_athena
     port map(
-      resetN        => aclk_reset_n,
-      sysclk        => aclk,
-      regfile       => regfile,
-      reg_read      => reg_read,
-      reg_write     => reg_write,
-      reg_addr      => reg_addr(C_S_AXI_ADDR_WIDTH-1 downto 2),
-      reg_beN       => reg_beN,
-      reg_writedata => reg_writedata,
-      reg_readdata  => reg_readdata
+      resetN             => aclk_reset_n,
+      sysclk             => aclk,
+      regfile            => regfile,
+      reg_read           => reg_read,
+      reg_write          => reg_write,
+      reg_addr           => reg_addr(C_S_AXI_ADDR_WIDTH-1 downto 2),
+      reg_beN            => reg_beN,
+      reg_writedata      => reg_writedata,
+      reg_readdata       => reg_readdata,
+	  reg_readdatavalid  => reg_readdatavalid,   
+      ------------------------------------------------------------------------------------
+      -- Interface name: SYSMONXIL
+      -- Description: 
+      ------------------------------------------------------------------------------------
+      ext_SYSMONXIL_addr                   => ext_SYSMONXIL_addr,                             -- Address Bus for SYSMONXIL external section
+      ext_SYSMONXIL_readEn                 => ext_SYSMONXIL_readEn,                           -- Read enable for SYSMONXIL external section
+      ext_SYSMONXIL_readDataValid          => ext_SYSMONXIL_readDataValid,
+      ext_SYSMONXIL_readData(31 downto 16) => X"0000",
+      ext_SYSMONXIL_readData(15 downto 0)  => ext_SYSMONXIL_readData
+       
       );
 
 
@@ -715,16 +785,18 @@ begin
   --               when an External section is declared. In case of regular
   --               FF register, the read latency is 1 clock cycle.
   -----------------------------------------------------------------------------
-  P_reg_readdatavalid : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset_n = '0') then
-        reg_readdatavalid <= '0';
-      else
-        reg_readdatavalid <= reg_read;
-      end if;
-    end if;
-  end process;
+  --a cause du external(sysmon) ca vient maintenant du regfile
+  
+  --P_reg_readdatavalid : process (aclk) is
+  --begin
+  --  if (rising_edge(aclk)) then
+  --    if (aclk_reset_n = '0') then
+  --      reg_readdatavalid <= '0';
+  --    else
+  --      reg_readdatavalid <= reg_read;
+  --   end if;
+  --  end if;
+  --end process;
 
 
   -----------------------------------------------------------------------------
@@ -851,6 +923,88 @@ begin
   irq(5) <= '0';
   irq(6) <= '0';
   irq(7) <= '0';
+
+
+  ----------------------------------------------------
+  -- System monitor
+  ----------------------------------------------------
+  process(aclk)
+  begin
+    if rising_edge(aclk) then
+      -- Hold address when read request is done
+      if ext_SYSMONXIL_readEn = '1' then
+        ext_SYSMONXIL_addr_ff <= ext_SYSMONXIL_addr;
+      end if;
+
+      -- Hold readdata when valid
+      if sysmon_readDataValid = '1' then
+        ext_SYSMONXIL_readData <= sysmon_readData;
+      end if;
+
+
+      if aclk_reset = '1' then
+        ext_SYSMONXIL_readEn_ff     <= '0';
+        ext_SYSMONXIL_readDataValid <= '0';
+        sysmon_busy                 <= '0';
+        sysmon_reg_readEn           <= '0';
+      else
+
+        ext_SYSMONXIL_readEn_ff <= ext_SYSMONXIL_readEn;
+        ext_SYSMONXIL_readDataValid <= sysmon_readDataValid;
+      
+        -- system monitor is busy until data valid is returned
+        if sysmon_readEn = '1' then
+          sysmon_busy <= '1';
+        elsif sysmon_readDataValid = '1' then
+          sysmon_busy <= '0';
+        end if;
+  
+        -- Hold read request from regfile until sysmon is not busy
+        if ext_SYSMONXIL_readEn_ff = '1' and sysmon_busy = '1' then
+          sysmon_reg_readEn <= '1';
+        elsif sysmon_busy = '0' then
+          sysmon_reg_readEn <= '0';
+        end if;
+
+      end if;
+
+    end if;
+  end process;
+  
+  sysmon_dadddr <= ext_SYSMONXIL_addr_ff when (ext_SYSMONXIL_readEn_ff = '1' or sysmon_reg_readEn = '1') else (others => '0');
+  sysmon_readEn <= (ext_SYSMONXIL_readEn_ff  or sysmon_reg_readEn) and not sysmon_busy;
+
+  xsystem_monitor : system_monitor 
+  -- generic map(
+  --    INIT_40             => SYSMON_INIT_40,
+  --    SIM_MONITOR_FILE    => "..\..\validation\images\system_monitor_sim.txt" --SIM_BASE_PATH & "/siminput/system_monitor_sim.txt"
+  -- )
+  port map ( 
+     -- dynamic reconfiguration port
+     daddr_in(6)          => '0',
+     daddr_in(5 downto 0) => sysmon_dadddr,        -- Address bus
+     den_in               => sysmon_readEn,        -- Enable Signal (*)
+     di_in                => (others => '0'),      -- Input data bus
+     dwe_in               => '0',                  -- Write Enable
+     do_out               => sysmon_readData,
+     drdy_out             => sysmon_readDataValid,    
+     dclk_in              => aclk,                 -- Clock input
+     --
+     reset_in             => aclk_reset,           -- Reset signal (active high)
+     -- output
+     busy_out             => open,                 -- ADC Busy signal
+     channel_out          => open,                 -- Channel Selection Outputs
+     eoc_out              => open,                 -- End of Conversion Signal
+     eos_out              => open,                 -- End of Sequence Signal
+     user_temp_alarm_out  => open,                 --sysmon_temp_alarm,  
+     alarm_out            => open,                 -- OR'ed output of all the Alarms
+     --                   
+     vp_in                => '1',--xadc_vp_in,           -- Dedicated Analog Input Pair
+     vn_in                => '0' --xadc_vn_in
+  );
+  -- (*) Would have to be ored with write enable if we ever support write to system monitor
+  
+
 
 
 end struct;

@@ -5,12 +5,7 @@
 //-----------------------------------------------
 
 /* Headers */
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <conio.h> 
-#include <time.h>
-#include <math.h>
-#include <Windows.h>
+#include "osincludes.h"
 
 #include <chrono>
 #include <iostream>
@@ -96,7 +91,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full frame ROI 
 	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	//GrabParams->Y_END   = 8;
+	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -142,12 +137,14 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	XGS_Ctrl->EnableRegUpdate();
 
-	
+	std::vector<int> ROI_Y_SIZE_vector;
+	if(XGS_Ctrl->SensorParams.SENSOR_TYPE==16000)
+	  ROI_Y_SIZE_vector = { 4000, 3072, 2048,1024, 512,256,128,64,32,16,8 };
+	else
+	  ROI_Y_SIZE_vector = { 3072, 2048,1024, 512,256,128,64,32,16,8 };
 
-	//std::vector<int> ROI_Y_SIZE_vector = { 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 3072 };
-	std::vector<int> ROI_Y_SIZE_vector = {3072, 2048,1024, 512,256,128,64,32,16,8 };
 
-	//std::vector<int> ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
+	//ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
 	
 	std::vector<int>::size_type vector_size = ROI_Y_SIZE_vector.size();
 	vector<double> ROI_Y_SIZE_vector_ExpMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
@@ -189,6 +186,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 					GrabParams->Y_START = 4;
 					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+					GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+
 
 					// Run each sequence for TimePerLoop seconds
 					auto start = std::chrono::system_clock::now();
@@ -208,19 +207,17 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 					} //end while
 
-					double Sensor_FPS     = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-					double Sensor_PRED    = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
-					double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-						                    - double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
-						                    //EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+					double Sensor_FPS         = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
+					double Sensor_FPS_PRED    = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+					double Sensor_EXP_max     = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 					if (OverrunPixel != 0)
 						break;
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
+					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 					ROI_Y_SIZE_vector_ExpMax[i] = Sensor_EXP_max;
-					ROI_Y_SIZE_vector_FPSMax[i] = Sensor_PRED;
+					ROI_Y_SIZE_vector_FPSMax[i] = Sensor_FPS_PRED;
 
 					XGS_Ctrl->WaitEndExpReadout();
 
@@ -245,9 +242,10 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = 4;
-						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
-						// Run each sequence for TimePerLoop seconds
+						// Run each  for TimePesequencerLoop seconds
 						auto start = std::chrono::system_clock::now();
 						auto end = std::chrono::system_clock::now();
 
@@ -266,16 +264,14 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 						} //end while
 
-						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
-						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
-						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+						double Sensor_FPS      = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
+						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 
@@ -306,7 +302,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = 4;
-						GrabParams->Y_END = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 						// Run each sequence for TimePerLoop seconds
 						auto start = std::chrono::system_clock::now();
@@ -326,11 +323,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 						} //end while
 
-						double Sensor_FPS = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
-						double Sensor_PRED = 1.0 / (double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000000000.0) + double(XGS_Ctrl->SensorParams.TrigN_2_FOT / 1000000000.0) + double((XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000000000.0) * (XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG1.f.FOT_LENGTH_LINE + 3 + XGS_Ctrl->sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + ((4 * XGS_Ctrl->sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE) / (1 + XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y)) + 7 + 7)));
-						double Sensor_EXP_max = ((M_UINT64)(XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES) * (M_UINT64)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)
-							- double(XGS_Ctrl->SensorParams.Trig_2_EXP / 1000) + double(XGS_Ctrl->SensorParams.ReadOutN_2_TrigN / 1000.0) + double(XGS_Ctrl->SensorParams.EXP_FOT_TIME / 1000.0);
-						//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
+						double Sensor_FPS      = (double)XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0;
+						double Sensor_FPS_PRED = XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
+						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 						if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)
 							printf("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);
@@ -338,7 +333,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_PRED, Sensor_EXP_max);
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 

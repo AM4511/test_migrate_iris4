@@ -5,21 +5,23 @@
 #include <math.h>
 #include <vector>
 #include "../../../../local_ip/XGS_athena/registerfile/regfile_xgs_athena.h"
+#include "../../../../local_ip/axi_i2c_1.0/registerfile/regfile_i2c.h"
+
 using namespace std;
 
 
 
 
-enum TRIGGER_SRC { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
-enum TRIGGER_ACT { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
+enum TRIGGER_SRC    { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
+enum TRIGGER_ACT    { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
 enum LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
 
 struct GrabParamStruct
 {
 	M_UINT32 TRIGGER_OVERLAP_BUFFN;
 	M_UINT32 TRIGGER_OVERLAP;
-	TRIGGER_SRC TRIGGER_SRC;
-	TRIGGER_ACT TRIGGER_ACT;
+	TRIGGER_SRC TRIGGER_SOURCE;
+	TRIGGER_ACT TRIGGER_ACTIVATION;
 	LEVEL_EXP_MODE EXPOSURE_LEV_MODE;
 
 	M_UINT32 Exposure;
@@ -35,9 +37,11 @@ struct GrabParamStruct
 
 	M_UINT32 Y_START;
 	M_UINT32 Y_END;
+	M_UINT32 Y_SIZE;
 
 	M_UINT32 Y_START_ROI2;
 	M_UINT32 Y_END_ROI2;
+	M_UINT32 Y_SIZE2;
 
 	M_UINT32 BLACK_OFFSET;
 
@@ -76,7 +80,7 @@ struct SensorParamStruct
 	M_UINT32 BL_LINES;
 	M_UINT32 EXP_DUMMY_LINES;
 
-	M_UINT32 Trig_2_EXP;          // in ns
+	M_UINT32 FOTn_2_EXP;          // in ns
 	M_UINT32 ReadOutN_2_TrigN;    // in ns
 	M_UINT32 TrigN_2_FOT;         // in ns
 	M_UINT32 EXP_FOT;             // in ns
@@ -97,7 +101,7 @@ class CXGS_Ctrl
 
 public:
 	
-	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPer, double setSensorPer);
+	CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double setSysPer, double setSensorPer, volatile FPGA_REGFILE_I2C_TYPE& i_rI2Cptr);
 	~CXGS_Ctrl();
 
 	SensorParamStruct* getSensorParams(void);
@@ -116,6 +120,8 @@ public:
 
 	//Pointeur aux registres dans fpga 
 	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGSptr;
+	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr;
+
 	//Shadow registres  
 	FPGA_REGFILE_XGS_ATHENA_TYPE sXGSptr;
 
@@ -152,10 +158,14 @@ public:
 	void StartHWTimer(M_UINT32 TIMERDELAY, M_UINT32 TIMERDURATION);
 	void StopHWTimer(void);
 
+	double Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y);
+	double Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y);
+
 	void setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo);
 	void enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32 STROBE_END_us, int PrintInfo);
 	void disableStrobe(void);
 
+	void FPGASystemMon(void);
 
 private:
 	
