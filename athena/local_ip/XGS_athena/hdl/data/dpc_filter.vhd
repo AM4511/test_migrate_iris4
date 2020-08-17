@@ -134,6 +134,8 @@ architecture functional of dpc_filter is
     end_of_frame_in                      : in    std_logic;
 
     m_axis_ack                           : in    std_logic; -- for last line read burst
+	m_axis_tvalid                        : in    std_logic; -- for last line read burst
+	m_axis_tready                        : in    std_logic; -- for last line read burst
 
     ---------------------------------------------------------------------
     -- Data and control out
@@ -790,6 +792,9 @@ begin
       end_of_frame_in                      => dpc_kernel_10x3_eof,
 
    	  m_axis_ack                           => m_axis_ack,
+      m_axis_tvalid                        => m_axis_tvalid_int,
+	  m_axis_tready                        => m_axis_tready,
+
       ---------------------------------------------------------------------
       -- Data and control out
       ---------------------------------------------------------------------

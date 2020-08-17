@@ -419,36 +419,62 @@ add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_tdata_int
 add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait_data
 add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait
 add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_col_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_line_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_col_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_frame_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_line_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_en
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_line_out
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_frame_out
+add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eof_os
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/m_axis_ack
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_started
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_prefetch
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_cntr
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P3
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P2
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_en
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eol_P1
+add wave -noupdate -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_cntr
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_first
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_second
+add wave -noupdate -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_line_length
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P1
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_empty
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P2
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P3
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P2
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P1
 add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol
 add wave -noupdate /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_1
-add wave -noupdate /testbench/DUT/tlp_transaction_id
-add wave -noupdate /testbench/DUT/tlp_req_to_send
-add wave -noupdate /testbench/DUT/tlp_grant
-add wave -noupdate /testbench/DUT/tlp_length_in_dw
-add wave -noupdate /testbench/DUT/tlp_byte_count
-add wave -noupdate /testbench/DUT/tlp_src_rdy_n
-add wave -noupdate /testbench/DUT/tlp_dst_rdy_n
-add wave -noupdate /testbench/DUT/tlp_data
-add wave -noupdate /testbench/DUT/tlp_lower_address
-add wave -noupdate /testbench/DUT/tlp_ldwbe_fdwbe
-add wave -noupdate /testbench/DUT/tlp_fmt_type
-add wave -noupdate /testbench/DUT/tlp_attr
-add wave -noupdate /testbench/DUT/tlp_address
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_empty
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_full
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_full
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_overflow
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_overflow
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_underflow
+add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_underflow
 add wave -noupdate -divider {New Divider}
+add wave -noupdate -group TLP /testbench/DUT/tlp_transaction_id
+add wave -noupdate -group TLP /testbench/DUT/tlp_req_to_send
+add wave -noupdate -group TLP /testbench/DUT/tlp_grant
+add wave -noupdate -group TLP /testbench/DUT/tlp_length_in_dw
+add wave -noupdate -group TLP /testbench/DUT/tlp_byte_count
+add wave -noupdate -group TLP /testbench/DUT/tlp_src_rdy_n
+add wave -noupdate -group TLP /testbench/DUT/tlp_dst_rdy_n
+add wave -noupdate -group TLP /testbench/DUT/tlp_data
+add wave -noupdate -group TLP /testbench/DUT/tlp_lower_address
+add wave -noupdate -group TLP /testbench/DUT/tlp_ldwbe_fdwbe
+add wave -noupdate -group TLP /testbench/DUT/tlp_fmt_type
+add wave -noupdate -group TLP /testbench/DUT/tlp_attr
+add wave -noupdate -group TLP /testbench/DUT/tlp_address
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 8} {1198976544 ps} 0}
+WaveRestoreCursors {{Cursor 8} {1543709737 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 186
-configure wave -valuecolwidth 184
+configure wave -valuecolwidth 171
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -461,4 +487,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1198594697 ps} {1199357553 ps}
+WaveRestoreZoom {1501559610 ps} {1714152871 ps}

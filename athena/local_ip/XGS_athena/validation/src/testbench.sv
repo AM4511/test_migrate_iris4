@@ -391,7 +391,7 @@ module testbench();
 		(
 			.sys_clk(pcie_clk),
 			.sys_reset_n(pcie_axi.reset_n),
-			.s_axis_tx_tready(tx_axis.tready),
+			.s_axis_tx_tready(tx_axis.tready), // No back pressure from PCIe
 			.s_axis_tx_tdata(tx_axis.tdata),
 			.s_axis_tx_tkeep(),
 			.s_axis_tx_tlast(tx_axis.tlast),
@@ -882,7 +882,9 @@ module testbench();
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
 				ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+			    ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+                //ROI_Y_START = 0;         // Doit etre multiple de 4 
+			    //ROI_Y_SIZE  = 1200;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
@@ -892,9 +894,9 @@ module testbench();
 
                 XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
-				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);		
-				
-				
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);					
+                
+                
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////

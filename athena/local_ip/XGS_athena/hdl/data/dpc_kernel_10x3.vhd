@@ -61,7 +61,8 @@ entity dpc_kernel_10x3 is
     end_of_frame_in                      : in    std_logic;
     
 	m_axis_ack                           : in    std_logic; -- for last line read burst
-	
+	m_axis_tvalid                        : in    std_logic; -- for last line read burst
+	m_axis_tready                        : in    std_logic; -- for last line read burst
     ---------------------------------------------------------------------
     -- Data and control out
     ---------------------------------------------------------------------
@@ -164,19 +165,27 @@ architecture functional of dpc_kernel_10x3 is
   signal eof_delaying_P1        : std_logic :='0';
   signal eof_delaying           : std_logic :='0';
   signal eof_cntr               : std_logic_vector(5 downto 0);
-  signal last_line_fifo_rd      : std_logic :='0';
+  
   signal lbuff_first_rden_OS    : std_logic :='0';
   signal lbuff_second_rden_OS   : std_logic :='0';
   
-  
-  signal last_line_fifo_rd_cntr    : std_logic_vector(9 downto 0);
-  signal last_line_fifo_rd_started : std_logic:='0';
-  signal lbuff_line_length         : std_logic_vector(9 downto 0);
-  
+  signal last_line_fifo_rd      : std_logic :='0';
   signal last_line_fifo_rd_P1   : std_logic :='0';
   signal last_line_fifo_rd_P2   : std_logic :='0';
   signal last_line_fifo_rd_P3   : std_logic :='0';
+   
+  signal last_line_fifo_en      : std_logic :='0';
+  signal last_line_fifo_en_P1   : std_logic :='0';
+  signal last_line_fifo_en_P2   : std_logic :='0';
 
+  signal last_line_fifo_rd_prefetch : std_logic :='0';
+  
+  signal last_line_fifo_rd_cntr    : std_logic_vector(9 downto 0);
+  signal last_line_fifo_rd_started    : std_logic:='0';
+  signal last_line_fifo_rd_started_P1 : std_logic:='0';
+
+  signal lbuff_line_length         : std_logic_vector(9 downto 0);
+  
   signal last_line_fifo_eol     : std_logic :='0';  -- for 480 support
   signal last_line_fifo_eol_P1  : std_logic :='0';  -- for 480 support
   signal last_line_fifo_eol_P2  : std_logic :='0';  -- for 480 support
@@ -428,82 +437,55 @@ begin
         end if;
       end if;
       
-      if(lvds_ch = 1) then  --P480, continuous data_val is not supported because LUT logic only proccess one pisel per clk
-        if (eof_delaying_P1='1' and eof_delaying = '0') then 
-          last_line_fifo_rd      <= '1';
-          last_line_fifo_rd_cntr <= "0000000001";
-          last_line_fifo_eol     <= '0';
-          
-        elsif(last_line_fifo_rd='1')then
-          if(last_line_fifo_rd_cntr=lbuff_line_length) then
-            last_line_fifo_rd      <= '0';
-            last_line_fifo_rd_cntr <= "0000000001";
-            last_line_fifo_eol     <= '1';
-
-          else
-            last_line_fifo_rd      <= '0';
-            last_line_fifo_rd_cntr <= last_line_fifo_rd_cntr;
-            last_line_fifo_eol     <= '0';
-          end if;
-          
-        elsif(last_line_fifo_rd_P3='1' and last_line_fifo_eol= '0') then
-          last_line_fifo_rd      <= '1';
-          last_line_fifo_rd_cntr <= last_line_fifo_rd_cntr+'1';
-          last_line_fifo_eol     <= '0';
-        end if;
-
-        last_line_fifo_rd_P3  <= last_line_fifo_rd_P2;
-        last_line_fifo_eol_P1 <= last_line_fifo_eol;
-        last_line_fifo_eol_P2 <= last_line_fifo_eol_P1;
-
-      else --for all other camera flavors, supporting continuous data_val='1' bursts
 	  
-	    -- The last line read need to be compatible with AXI waits, so do the same jobe here:
-		-- Read one data, then wait for axi master ack before continue
-		--
-	  
-        --if (eof_delaying_P1='1' and eof_delaying = '0') then 
-        --  last_line_fifo_rd      <= '1';
-        --  last_line_fifo_rd_cntr <= "0000000001";
-        --elsif(last_line_fifo_rd='1')then
-        --  if(last_line_fifo_rd_cntr=lbuff_line_length) then
-        --    last_line_fifo_rd      <= '0';
-        --    last_line_fifo_rd_cntr <= "0000000001";
-        --  else
-        --    last_line_fifo_rd      <= '1';
-        --    last_line_fifo_rd_cntr <= last_line_fifo_rd_cntr+'1';
-        --  end if;
-        --end if;
+	  -- The last line read need to be compatible with AXI waits, so do the same jobe here:
+	  -- Read one data, then wait for axi master ack before continue
+	  -- 
+      if (eof_delaying_P1='1' and eof_delaying = '0') then 
+        last_line_fifo_rd           <= '1';
+        last_line_fifo_en           <= '1'; 
+        last_line_fifo_rd_cntr      <= "0000000001";
+        last_line_fifo_rd_started   <= '1';
+        last_line_fifo_rd_prefetch  <= '1';
 
-        if (eof_delaying_P1='1' and eof_delaying = '0') then 
-          last_line_fifo_rd           <= '1';
-          last_line_fifo_rd_cntr      <= "0000000001";
-		  last_line_fifo_rd_started   <= '1';
-        elsif(last_line_fifo_rd_started='1' and last_line_fifo_rd='1' and last_line_fifo_rd_cntr="0000000001") then --exit one data, then wait for ack from axi
-          last_line_fifo_rd           <= '0';
-          last_line_fifo_rd_cntr      <= "0000000001";		
-		  last_line_fifo_rd_started   <= '1';
-        elsif(last_line_fifo_rd_started='1' and last_line_fifo_rd_cntr=lbuff_line_length) then
-          last_line_fifo_rd           <= '0';
-          last_line_fifo_rd_cntr      <= "0000000001";
-		  last_line_fifo_rd_started   <='0';		  
-		elsif(last_line_fifo_rd_started='1' and m_axis_ack='1') then
-          last_line_fifo_rd           <= '1';
-          last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr+'1';			
-		  last_line_fifo_rd_started   <= '1';
-		elsif(last_line_fifo_rd_started='1' and m_axis_ack='0') then
-          last_line_fifo_rd           <= '0';
-          last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr;			
-		  last_line_fifo_rd_started   <= '1';
-        end if; 
+      elsif(last_line_fifo_rd_started='1' and last_line_fifo_rd='1' and last_line_fifo_rd_prefetch='1' and last_line_fifo_rd_cntr="00000000001") then -- end of prefetch 1 data      
+        last_line_fifo_rd           <= '0';
+        last_line_fifo_en           <= '0'; 
+        last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr;		
+        last_line_fifo_rd_started   <= '1';
+        last_line_fifo_rd_prefetch  <= '0';
 
+      elsif(last_line_fifo_rd_started='1' and last_line_fifo_rd_cntr=lbuff_line_length) then
+        last_line_fifo_rd           <= '0';
+        last_line_fifo_en           <= '0';        
+        last_line_fifo_rd_cntr      <= "0000000001";
+        last_line_fifo_rd_started   <= '0';		  
+        last_line_fifo_rd_prefetch  <= '0';
+              
+      elsif(last_line_fifo_rd_started='1' and m_axis_ack='1' and last_line_fifo_rd_prefetch='0' ) then
+        last_line_fifo_rd           <= '1';
+        last_line_fifo_en           <= '1';          
+        last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr+'1';			
+        last_line_fifo_rd_started   <= '1';
+        last_line_fifo_rd_prefetch  <= '0';
 
+      elsif(last_line_fifo_rd_started='1' and m_axis_tready='1' and m_axis_tvalid='0' and last_line_fifo_rd_prefetch='0' and last_line_fifo_rd = '1') then -- Apres prefetch, avant burst
+        last_line_fifo_rd           <= '1';
+        last_line_fifo_en           <= '1';          
+        last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr+'1';			
+        last_line_fifo_rd_started   <= '1';
+        last_line_fifo_rd_prefetch  <= '0';
+        
+      end if; 
 
-      end if;
+      last_line_fifo_rd_started_P1 <= last_line_fifo_rd_started;
+
       
       last_line_fifo_rd_P1 <= last_line_fifo_rd;
       last_line_fifo_rd_P2 <= last_line_fifo_rd_P1;
 
+      last_line_fifo_en_P1 <= last_line_fifo_en;
+      last_line_fifo_en_P2 <= last_line_fifo_en_P1;
       
     end if;
   end process;
@@ -776,19 +758,19 @@ begin
       
       if(REG_dpc_enable_DB='1') then
         sol_P1      <= (start_of_line_in and first_line_done) or ( not(eof_delaying) and eof_delaying_P1);
-        enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_rd ;
+        --enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_rd ;
+        enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_en ;
         
-        if(lvds_ch=1) then   -- P480, continuous data_val is not supported because LUT logic only proccess one pixel per clk
-          eol_P1      <= (end_of_line_in   and first_line_done) or ( last_line_fifo_eol and not(last_line_fifo_eol_P1) );
-          eof_os      <= last_line_fifo_eol_P1 and not(last_line_fifo_eol_P2);
-        else                 -- For all other camera flavors, supporting continuous data_val='1' bursts
-          if( (end_of_line_in='1'   and first_line_done='1') or (last_line_fifo_rd_started='1' and last_line_fifo_rd_cntr=lbuff_line_length) ) then
-		    eol_P1      <= '1';
-          else
-		    eol_P1      <= '0';
-		  end if;
-		  eof_os      <= not(last_line_fifo_rd_P1) and last_line_fifo_rd_P2;
-        end if;     
+
+        if( (end_of_line_in='1'   and first_line_done='1') or (last_line_fifo_rd_started='0' and last_line_fifo_rd_started_P1='1') )then
+		  eol_P1      <= '1';
+        else
+		  eol_P1      <= '0';
+		end if;
+		
+        eof_os      <= eol_P1 and last_line_fifo_en_P1;
+        --eof_os      <= not(last_line_fifo_en_P1) and last_line_fifo_en_P2;
+   
         
         -- Identification du premier pixel (premier kernel)
         if(sol_P1='1' and first_line='0' and last_line='0') then
@@ -808,8 +790,7 @@ begin
   last_line_out         <= last_line;   
 
   first_col_out         <= first_col_out_int; 
-  last_col_out          <= (not(first_line) and not(last_line_P1)) and ( (end_of_line_in and first_line_done) or ( last_line_fifo_eol and not(last_line_fifo_eol_P1)) ) when (lvds_ch=1) else
-                           (not(first_line) and not(last_line_P1)) and ( (end_of_line_in and first_line_done) or ( not(last_line_fifo_rd) and last_line_fifo_rd_P1) );
+  last_col_out          <= (not(first_line) and not(last_line_P1)) and ( (end_of_line_in and first_line_done) or ( not(last_line_fifo_en) and last_line_fifo_en_P1) );
                            
   start_of_frame_out    <= start_of_line_in when (first_line_done='1' and second_line_done='0') else '0';   --ici je retarde le SOF d'une ligne
   start_of_line_out     <= sol_P1;
