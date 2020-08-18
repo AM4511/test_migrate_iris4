@@ -6,6 +6,7 @@ import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
 
+
 module testbench();
 	
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
@@ -17,7 +18,7 @@ module testbench();
 	parameter SYS_CLK_PERIOD= 16;
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
-
+        parameter EXPOSURE = 50;
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
 	parameter AXIS_DATA_WIDTH = 64;
@@ -487,7 +488,7 @@ module testbench();
 				int ROI_X_START;
 				int ROI_X_END;
 
-				int EXPOSURE=50;
+				// int EXPOSURE=50; -> now defined as a parameter
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
 				int MLines;
@@ -503,9 +504,10 @@ module testbench();
 				int monitor_0_reg;
 				int monitor_1_reg;
 				int monitor_2_reg;
+                                int test_nb_images;
 
-                int test_nb_images=0;
 
+			        test_nb_images =0;
 				fstart = 'hA0000000;
 				line_size = 'h1000;
 				line_pitch = 'h1000;
@@ -622,7 +624,7 @@ module testbench();
 					$display("XGS Model ID detected is 0x358, XGS5M");
 				end
 				else begin
-					$error("XGS Model ID detected is %d", data_rd);
+					$error("XGS Model ID detected is %0d", data_rd);
 				end
 
 
@@ -867,7 +869,7 @@ module testbench();
 				///////////////////////////////////////////////////
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				$display("IMAGE Trigger #0, Xstart=%0d, Xend=%0d (Xsize=%0d)), Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
@@ -883,7 +885,7 @@ module testbench();
 				///////////////////////////////////////////////////
 				ROI_Y_START = 3088;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				$display("IMAGE Trigger #1, Xstart=%0d, Xend=%0d (Xsize=%0d)), Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz

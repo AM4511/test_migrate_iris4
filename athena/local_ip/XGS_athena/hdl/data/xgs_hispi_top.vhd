@@ -21,7 +21,6 @@ use UNISIM.vcomponents.all;
 library work;
 use work.regfile_xgs_athena_pack.all;
 use work.mtx_types_pkg.all;
---use work.hispi_pack.all;
 
 
 entity xgs_hispi_top is
@@ -116,9 +115,8 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- sclk clock domain
       ---------------------------------------------------------------------------
-      sclk       : in std_logic;
-      sclk_reset : in std_logic;
-
+      sclk                   : in  std_logic;
+      sclk_reset             : in  std_logic;
       sclk_reset_phy         : in  std_logic;
       sclk_start_calibration : in  std_logic;
       sclk_calibration_done  : out std_logic;
@@ -382,12 +380,12 @@ architecture rtl of xgs_hispi_top is
   signal transfert_done : std_logic;
   signal init_frame     : std_logic;
 
-  signal lane_packer_ack   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_req   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_write : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_addr  : PACKER_ADDR_ARRAY_TYPE;
-  signal lane_packer_data  : PACKER_DATA_ARRAY_TYPE;
-  signal packer_enable     : std_logic;
+  signal lane_packer_ack    : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_req    : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_write  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_addr   : PACKER_ADDR_ARRAY_TYPE;
+  signal lane_packer_data   : PACKER_DATA_ARRAY_TYPE;
+  signal lane_packer_enable : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
 
   signal nxtBuffer         : std_logic;
   signal line_buffer_clr   : std_logic;
@@ -427,6 +425,7 @@ architecture rtl of xgs_hispi_top is
 
   signal aggregated_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal rclk_reset                : std_logic;
+  signal nb_lane_enabled           : std_logic_vector(2 downto 0);
 
 begin
 
@@ -437,7 +436,8 @@ begin
   -----------------------------------------------------------------------------
   sclk_reset <= (not sclk_reset_n) or regfile.HISPI.CTRL.SW_CLR_HISPI;
 
-  enable_hispi <= regfile.HISPI.CTRL.ENABLE_HISPI;
+  enable_hispi    <= regfile.HISPI.CTRL.ENABLE_HISPI;
+  nb_lane_enabled <= regfile.HISPI.CTRL.XGS_NB_LANES;
 
 
   sclk_calibration_req <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
@@ -510,7 +510,7 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-       x_row_stop <= (others => '0');
+        x_row_stop <= (others => '0');
       else
         if (state = S_SOF) then
           x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
@@ -988,25 +988,6 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_packer_enable : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        packer_enable <= '0';
-      else
-        if (state = S_INIT) then
-          packer_enable <= '1';
-        elsif (state = S_EOL or state = S_EOF or state = S_IDLE) then
-          packer_enable <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
   P_row_last : process (sclk) is
   begin
     if (rising_edge(sclk)) then
@@ -1117,6 +1098,39 @@ begin
   init_frame <= '1' when (state = S_SOF) else
                 '0';
 
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_lane_packer_enable : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        lane_packer_enable <= (others => '0');
+      else
+        -----------------------------------------------------------------------
+        -- In the init state we activate the required lane_packers
+        -----------------------------------------------------------------------
+        if (state = S_INIT) then
+          if (nb_lane_enabled = "100") then
+            -- 4 lanes enabled => 2 packers required
+            lane_packer_enable <= "011";
+          elsif (nb_lane_enabled = "110") then
+            -- 6 lanes enabled => 3 packers required
+            lane_packer_enable <= "111";
+          else
+            -- Others not supported case => all packers disabled
+            lane_packer_enable <= (others => '0');
+          end if;
+        -----------------------------------------------------------------------
+        -- At the end of line or end of frame, we disable all packers 
+        -----------------------------------------------------------------------
+        elsif (state = S_EOL or state = S_EOF or state = S_IDLE) then
+          lane_packer_enable <= (others => '0');
+        end if;
+      end if;
+    end if;
+  end process;
+
 
   G_lane_packer : for i in 0 to NUMB_LANE_PACKER - 1 generate
 
@@ -1141,7 +1155,7 @@ begin
         regfile                     => regfile,
         sclk                        => sclk,
         sclk_reset                  => sclk_reset,
-        enable                      => packer_enable,
+        enable                      => lane_packer_enable(i),
         init_packer                 => init_lane_packer,
         odd_line                    => row_id(0),
         line_valid                  => line_valid,
@@ -1179,15 +1193,11 @@ begin
   begin
     for i in 0 to NUMB_LANE_PACKER-1 loop
       if (lane_packer_ack(i) = '1') then
-        -- buff_info_en <= '0';
-        -- buff_info    <= (others => '0');
         buff_write <= lane_packer_write(i);
         buff_addr  <= lane_packer_addr(i);
         buff_data  <= lane_packer_data(i);
         exit;
       else
-        -- buff_info_en <= '0';
-        -- buff_info    <= (others => '0');
         buff_write <= '0';
         buff_addr  <= (others => '0');
         buff_data  <= (others => '0');
@@ -1256,7 +1266,7 @@ begin
       x_row_stop          => x_row_stop,
       y_row_start         => y_row_start,
       y_row_stop          => y_row_stop,
-      line_buffer_clr     => line_buffer_clr ,
+      line_buffer_clr     => line_buffer_clr,
       line_buffer_ready   => line_buffer_ready,
       line_buffer_read    => line_buffer_read,
       line_buffer_ptr     => line_buffer_ptr,

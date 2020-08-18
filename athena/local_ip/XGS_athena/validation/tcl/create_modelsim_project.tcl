@@ -55,7 +55,6 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 set technology_specific_fileset [join [list  [subst {
 ${XILINX_IP_PATH}/hispi_phy_xilinx/hispi_phy_xilinx_selectio_wiz.v
 ${XILINX_IP_PATH}/hispi_phy_xilinx/hispi_phy_xilinx.v
-${XILINX_IP_PATH}/hispi_serdes.vhd
 }
 ]
 ]

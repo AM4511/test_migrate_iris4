@@ -55,9 +55,8 @@ entity hispi_phy is
     ---------------------------------------------------------------------------
     -- sclk clock domain
     ---------------------------------------------------------------------------
-    sclk       : in std_logic;
-    sclk_reset : in std_logic;
-
+    sclk                   : in  std_logic;
+    sclk_reset             : in  std_logic;
     sclk_reset_phy         : in  std_logic;
     sclk_start_calibration : in  std_logic;
     sclk_calibration_done  : out std_logic;
@@ -81,25 +80,33 @@ end entity hispi_phy;
 architecture rtl of hispi_phy is
 
 
-  component hispi_serdes is
-    generic (
-      PHY_SERIAL_WIDTH   : integer := 1;
-      PHY_PARALLEL_WIDTH : integer := 6
-      );
-    port (
-      async_pll_reset : in  std_logic;
-      delay_reset     : in  std_logic;
-      delay_data_ce   : in  std_logic_vector(PHY_SERIAL_WIDTH-1 downto 0);
-      delay_data_inc  : in  std_logic_vector(PHY_SERIAL_WIDTH-1 downto 0);
-      delay_tap_in    : in  std_logic_vector((5*PHY_SERIAL_WIDTH)-1 downto 0);
-      delay_tap_out   : out std_logic_vector((5*PHY_SERIAL_WIDTH)-1 downto 0);
-      rx_in_clock_p   : in  std_logic;
-      rx_in_clock_n   : in  std_logic;
-      rx_in_p         : in  std_logic_vector (PHY_SERIAL_WIDTH-1 downto 0);
-      rx_in_n         : in  std_logic_vector (PHY_SERIAL_WIDTH-1 downto 0);
-      rx_out_clock    : out std_logic;
-      rx_out          : out std_logic_vector (PHY_PARALLEL_WIDTH-1 downto 0)
-      );
+  component hispi_phy_xilinx
+    generic
+      (
+        SYS_W : integer := 3;           -- width of the data for the system
+        DEV_W : integer := 18           -- width of the data for the device
+        );
+    port
+      (
+        -- From the system into the device
+        data_in_from_pins_p : in  std_logic_vector(SYS_W-1 downto 0);
+        data_in_from_pins_n : in  std_logic_vector(SYS_W-1 downto 0);
+        data_in_to_device   : out std_logic_vector(DEV_W-1 downto 0);
+        in_delay_reset      : in  std_logic;
+        in_delay_data_ce    : in  std_logic_vector(SYS_W-1 downto 0);
+        in_delay_data_inc   : in  std_logic_vector(SYS_W-1 downto 0);
+        in_delay_tap_in     : in  std_logic_vector((5*SYS_W)-1 downto 0);
+        in_delay_tap_out    : out std_logic_vector((5*SYS_W)-1 downto 0);
+
+        bitslip     : in  std_logic_vector(SYS_W-1 downto 0);  -- Bitslip module is enabled in NETWORKING mode
+        -- User should tie it to '0' if not needed
+        -- Clock and reset signals
+        clk_in_p    : in  std_logic;    -- Differential fast clock from IOB
+        clk_in_n    : in  std_logic;
+        clk_div_out : out std_logic;    -- Slow clock output
+        clk_reset   : in  std_logic;    -- Reset signal for Clock circuit
+        io_reset    : in  std_logic     -- Reset signal for IO circuit
+        );
   end component;
 
 
@@ -191,6 +198,7 @@ architecture rtl of hispi_phy is
   constant FIFO_ADDRESS_WIDTH : integer := 4;
   constant MUX_RATIO          : integer := 4;
   constant LANE_DATA_WIDTH    : integer := 32;
+  constant RESET_LENGTH       : integer := 8;
 
   type FSM_STATE_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_LOAD_DELAY, S_DONE);
 
@@ -198,17 +206,20 @@ architecture rtl of hispi_phy is
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
 
+  signal bitslip                      : std_logic_vector(LANE_PER_PHY-1 downto 0) := (others => '0');
   signal hclk                         : std_logic;
-  signal hclk_div2                    : std_logic      := '0';
+  signal hclk_div2                    : std_logic                                 := '0';
   signal hclk_reset_vect              : std_logic_vector(2 downto 0);
-  signal hclk_reset                   : std_logic      := '1';
-  signal hclk_state                   : FSM_STATE_TYPE := S_IDLE;
+  signal hclk_reset                   : std_logic                                 := '1';
+  signal hclk_state                   : FSM_STATE_TYPE                            := S_IDLE;
   signal hclk_start_calibration       : std_logic;
   signal hclk_calibration_done        : std_logic;
   signal hclk_serdes_data             : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
   signal hclk_lane_data               : LANE_DATA_ARRAY;
   signal hclk_manual_calibration_en   : std_logic;
   signal hclk_manual_calibration_load : std_logic;
+  signal hclk_lane_enabled            : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal hclk_lane_reset              : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal delay_reset    : std_logic                                     := '0';
   signal delay_tap_in   : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
@@ -225,6 +236,8 @@ architecture rtl of hispi_phy is
   signal rclk_latch_cal_status       : std_logic;
   signal rclk_manual_calibration_tap : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
   signal rclk_cal_tap_value          : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal rclk_nb_lanes               : std_logic_vector(2 downto 0);
+
 
   attribute mark_debug of hclk_reset_vect              : signal is "true";
   attribute mark_debug of hclk_reset                   : signal is "true";
@@ -248,7 +261,6 @@ architecture rtl of hispi_phy is
 
 begin
 
-
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!!
   -- sclk_reset re-synchronisation in the hclk clock domain
@@ -267,28 +279,27 @@ begin
   end process;
 
 
-
-
-  xhispi_serdes : hispi_serdes
-    generic map(
-      PHY_SERIAL_WIDTH   => LANE_PER_PHY,
-      PHY_PARALLEL_WIDTH => PHY_PARALLEL_WIDTH
+  xhispi_phy_xilinx : hispi_phy_xilinx
+    generic map (
+      SYS_W => LANE_PER_PHY,
+      DEV_W => PHY_PARALLEL_WIDTH
       )
-    port map(
-      async_pll_reset => sclk_reset_phy,
-      delay_reset     => delay_reset,
-      delay_data_ce   => delay_data_ce,
-      delay_data_inc  => delay_data_inc,
-      delay_tap_in    => delay_tap_in,
-      delay_tap_out   => delay_tap_out,
-      rx_in_clock_p   => hispi_serial_clk_p,
-      rx_in_clock_n   => hispi_serial_clk_n,
-      rx_in_p         => hispi_serial_input_p,
-      rx_in_n         => hispi_serial_input_n,
-      rx_out_clock    => hclk,
-      rx_out          => hclk_serdes_data
+    port map (
+      data_in_from_pins_p => hispi_serial_input_p,
+      data_in_from_pins_n => hispi_serial_input_n,
+      data_in_to_device   => hclk_serdes_data,
+      in_delay_reset      => delay_reset,
+      in_delay_data_ce    => delay_data_ce,
+      in_delay_data_inc   => delay_data_inc,
+      in_delay_tap_in     => delay_tap_in,
+      in_delay_tap_out    => delay_tap_out,
+      bitslip             => bitslip,
+      clk_in_p            => hispi_serial_clk_p,
+      clk_in_n            => hispi_serial_clk_n,
+      clk_div_out         => hclk,
+      clk_reset           => sclk_reset_phy,
+      io_reset            => hclk_reset
       );
-
 
   -----------------------------------------------------------------------------
   -- 
@@ -312,12 +323,58 @@ begin
       );
 
 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -- SRC CLK    : rclk
+  -- DST CLK    : hclk
+  -- CDC method : False path field from register file
+  -----------------------------------------------------------------------------
+  rclk_nb_lanes <= regfile.HISPI.CTRL.XGS_NB_LANES;
+  P_hclk_lane_enabled : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_lane_enabled <= (others => '0');
+      else
+        case(rclk_nb_lanes) is
+          -- 4 lanes enabled
+          when "100" =>
+            hclk_lane_enabled <= "011";
+
+          -- 6 lanes enabled
+          when "110" =>
+            hclk_lane_enabled <= "111";
+          -- Other cases all lanes disabled
+          when others =>
+            hclk_lane_enabled <= "000";
+        end case;
+      end if;
+    end if;
+  end process;
+
+
+
+
+
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
+    ---------------------------------------------------------------------------
+    -- Put the lane decoder in reset if not used (4 lanes sensors)
+    ---------------------------------------------------------------------------
+    hclk_lane_reset(i) <= '1' when (hclk_reset = '1' or hclk_lane_enabled(i) = '0') else
+                          '0';
+
+
+    ---------------------------------------------------------------------------
+    -- Route the data to the respective lane
+    ---------------------------------------------------------------------------
     G_parallel_data : for j in 0 to DESERIALIZATION_RATIO-1 generate
       hclk_lane_data(i)(DESERIALIZATION_RATIO-1-j) <= hclk_serdes_data(j *LANE_PER_PHY + i);
     end generate G_parallel_data;
 
+    ---------------------------------------------------------------------------
+    -- Lane decoder module
+    ---------------------------------------------------------------------------
     inst_lane_decoder : lane_decoder
       generic map(
         PHY_OUTPUT_WIDTH => DESERIALIZATION_RATIO,
@@ -327,7 +384,7 @@ begin
         )
       port map(
         hclk                      => hclk,
-        hclk_reset                => hclk_reset,
+        hclk_reset                => hclk_lane_reset(i),
         hclk_data_lane            => hclk_lane_data(i),
         pclk                      => pclk,
         pclk_cal_en               => pclk_cal_en,
@@ -397,7 +454,7 @@ begin
     rclk_manual_calibration_tap(4 downto 0)   <= regfile.HISPI.DEBUG.TAP_LANE_0;
     rclk_manual_calibration_tap(9 downto 5)   <= regfile.HISPI.DEBUG.TAP_LANE_2;
     rclk_manual_calibration_tap(14 downto 10) <= regfile.HISPI.DEBUG.TAP_LANE_4;
-   end generate;
+  end generate;
 
 
   G_BOTTOM_PHY_MAPPING : if (PHY_ID > 0) generate

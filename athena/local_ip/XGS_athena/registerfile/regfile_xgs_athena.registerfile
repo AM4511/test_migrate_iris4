@@ -570,8 +570,13 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="45C">
     <registers name="CTRL">
-      <fields name="XGS_MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera it should be always set to 4." lsb="12" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
-      <fields name="XGS_NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" lsb="8" size="3" valueAtReset="6"/>
+      <fields name="XGS_MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera the mux ratio is fixed and set to 4." lsb="12" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
+      <fields name="XGS_NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" lsb="8" size="3" valueAtReset="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>6 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved (All lanes are disabled)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset IDELAYCTRL&lt;/matrox_column_delimiter></possibleValues>
@@ -607,9 +612,21 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="PHY_BIT_LOCKED_ERROR" lsb="3" readWrite="false" readOnly="true"/>
-      <fields name="FIFO_ERROR" alias="Calibration active " lsb="2" readWrite="false" readOnly="true"/>
-      <fields name="CALIBRATION_ERROR" alias="Calibration active " lsb="1" readWrite="false" readOnly="true"/>
-      <fields name="CALIBRATION_DONE" alias="Calibration active " readWrite="false" readOnly="true"/>
+      <fields name="FIFO_ERROR" alias="Calibration active " lsb="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No FiFo error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>FiFo error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="CALIBRATION_ERROR" alias="Calibration error" lsb="1" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No calibration error&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>A calibration error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="CALIBRATION_DONE" alias="Calibration sequence completed" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Calibration sequence not completed&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Last calibration sequence completed successfully&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
     </registers>
     <registers name="IDELAYCTRL_STATUS" offsetFromParent="8">
       <fields name="PLL_LOCKED" alias="IDELAYCTRL PLL locked" readWrite="false" readOnly="true">

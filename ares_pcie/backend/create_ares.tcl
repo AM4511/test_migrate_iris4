@@ -50,7 +50,7 @@ set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
-set REPORT_POWER_FILE  ${BACKEND_DIR}/report_power.tcl
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -173,7 +173,7 @@ close_design
 # Run Backend script
 ################################################
 source  $FIRMWARE_SCRIPT
-source  $REPORT_POWER_FILE
+source  $REPORT_FILE
 
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {

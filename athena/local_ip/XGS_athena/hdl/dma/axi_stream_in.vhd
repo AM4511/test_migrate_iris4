@@ -244,6 +244,7 @@ begin
     end if;
   end process;
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_double_buffer_ptr
   -- Description : 
