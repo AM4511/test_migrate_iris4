@@ -244,6 +244,10 @@ architecture functional of dpc_filter is
   signal s_axis_prefetch       : std_logic :='0';
   signal s_axis_prefetch_done  : std_logic :='0';		
   signal s_axis_prefetch_cnt   : std_logic_vector(3 downto 0);			
+  signal s_axis_line_gap       : std_logic :='0';
+  signal s_axis_line_wait      : std_logic :='0';  
+  signal s_axis_frame_done     : std_logic :='1';  
+  
   
   signal curr_Xstart_integer     : integer range 0 to 8191;
   signal curr_Xend_integer       : integer range 0 to 8191;
@@ -365,6 +369,7 @@ architecture functional of dpc_filter is
 
   signal m_axis_tvalid_int        : std_logic :='0';
   signal m_axis_tdata_int         : std_logic_vector(79 downto 0);
+  signal m_axis_tuser_int         : std_logic_vector(3 downto 0);
   signal m_axis_ack               : std_logic :='0';
   signal m_axis_wait_data         : std_logic_vector(79 downto 0);
   signal m_axis_wait              : std_logic :='0';
@@ -422,34 +427,81 @@ begin
 
  
 		
-  process(pix_clk)  
+  process(pix_clk)   
   begin
     if (pix_clk'event and pix_clk='1') then
-      if(s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG 
+      --First line goes directly to the first fifo
+      if(s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '1'; 
 		s_axis_first_prefetch <= '0'; 		
-
-	  elsif(s_axis_first_line='1' and s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
+		s_axis_line_gap       <= '0';
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done     <= '0'; 
+	  elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 	  
 		s_axis_first_prefetch <= '0'; 
-		
+		s_axis_line_gap       <= '1';
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done      <= '1'; 
+      
+      elsif(s_axis_line_gap='1') then  --put a second wait at EOL, to let DPC absorb the stream(video syncs)
+	    s_axis_tready_int     <= '0';		
+	    s_axis_first_line     <= '0'; 	  
+		s_axis_first_prefetch <= '0'; 
+		s_axis_line_gap       <= '0';              
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done      <= '0'; 
+      
       elsif(s_axis_tvalid='1' and s_axis_tuser(2)='1' ) then --give one rdy at SOL detection, then wait for master interface
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= '1';
+		s_axis_line_gap       <= '0';
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done      <= '0'; 
 
-      elsif(s_axis_first_prefetch='1' and s_axis_tvalid='1' ) then -- remove rdy and then listen to master interface
+      elsif(s_axis_first_prefetch='1' and s_axis_tvalid='1' ) then -- remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= '0';  	  
-	  
-	  elsif( (m_axis_tready='1' and m_axis_tvalid_int='1') or s_axis_first_line='1') then --enter data to DCP pipeline till output
+		s_axis_line_gap       <= '0';
+        s_axis_line_wait      <= '1'; 	 
+        s_axis_frame_done      <= '0'; 
+
+      elsif(s_axis_first_prefetch='1' and m_axis_tvalid_int='1' and  m_axis_tuser_int(2)='1') then  -- wait for master present SOL on master to give slave ready to burst   
+	    s_axis_tready_int     <= '1';		
+	    s_axis_first_line     <= '0'; 
+	 	s_axis_first_prefetch <= '0';  	  
+		s_axis_line_gap       <= '0';      
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done      <= '0'; 
+       
+      elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(1)='1') then --@EOF put ready to 0 till next line/frame
+	    s_axis_tready_int     <= '0';		
+	    s_axis_first_line     <= '0'; 
+	 	s_axis_first_prefetch <= '0';  	  
+		s_axis_line_gap       <= '0';      
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done     <= '1'; 
+      
+	  elsif( (s_axis_line_wait='0' and s_axis_frame_done='0' and m_axis_tready='1' and m_axis_tvalid_int='1') or s_axis_first_line='1') then --enter data to DCP pipeline till output
 	    s_axis_tready_int     <= '1';	
         s_axis_first_line     <= s_axis_first_line;	
 		s_axis_first_prefetch <= '0';
+		s_axis_line_gap       <= '0';
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done     <= '0'; 
 
+	  elsif (m_axis_tready='0' and m_axis_tvalid_int='1') then -- si wait sur master, then wait the slave!
+	    s_axis_tready_int     <= '0';	
+        s_axis_first_line     <= s_axis_first_line;	
+		s_axis_first_prefetch <= '0';
+		s_axis_line_gap       <= '0';        
+        s_axis_line_wait      <= '0'; 
+        s_axis_frame_done     <= s_axis_frame_done; 
+        
 	  end if;	
     end if;
   end process;
@@ -1017,25 +1069,27 @@ begin
   begin
     if rising_edge(pix_clk) then
       if pix_reset = '1' then
-        m_axis_tuser(0) <= '0' after 1 ns;
+        m_axis_tuser_int(0) <= '0' after 1 ns;
       elsif Pix_corr_sof = '1' then      -- arrive une fois, au debut du frame avant le data
-        m_axis_tuser(0) <= '1' after 1 ns;
+        m_axis_tuser_int(0) <= '1' after 1 ns;
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser(0) <= '0' after 1 ns;
+        m_axis_tuser_int(0) <= '0' after 1 ns;
       end if;
     end if;
   end process;
+
+  m_axis_tuser <= m_axis_tuser_int;
 
   -- SOL 
   process(pix_clk)
   begin
     if rising_edge(pix_clk) then
       if pix_reset = '1' then
-        m_axis_tuser(2) <= '0' after 1 ns;
+        m_axis_tuser_int(2) <= '0' after 1 ns;
       elsif Pix_corr_sol = '1' and kernel_10x3_first_line='0' then      -- SOL
-        m_axis_tuser(2) <= '1' after 1 ns;      
+        m_axis_tuser_int(2) <= '1' after 1 ns;      
 	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser(2) <= '0' after 1 ns;
+        m_axis_tuser_int(2) <= '0' after 1 ns;
       end if;
     end if;
   end process;  
@@ -1098,11 +1152,11 @@ begin
   begin
     if rising_edge(pix_clk) then
       if pix_reset = '1' then
-        m_axis_tuser(3) <= '0' after 1 ns;
+        m_axis_tuser_int(3) <= '0' after 1 ns;
       elsif proc_eol = '1'  and kernel_10x3_last_line='0' then    -- dont put eol in last line of frame, only eof
-        m_axis_tuser(3) <= '1' after 1 ns;
+        m_axis_tuser_int(3) <= '1' after 1 ns;
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser(3) <= '0' after 1 ns;
+        m_axis_tuser_int(3) <= '0' after 1 ns;
       end if;
     end if;
   end process;    
@@ -1113,11 +1167,11 @@ begin
   begin
     if rising_edge(pix_clk) then
       if pix_reset = '1' then
-        m_axis_tuser(1) <= '0' after 1 ns;
+        m_axis_tuser_int(1) <= '0' after 1 ns;
       elsif proc_eol = '1' and kernel_10x3_last_line='1' then      
-        m_axis_tuser(1) <= '1' after 1 ns;
+        m_axis_tuser_int(1) <= '1' after 1 ns;
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser(1) <= '0' after 1 ns;
+        m_axis_tuser_int(1) <= '0' after 1 ns;
       end if;
     end if;
   end process;    
