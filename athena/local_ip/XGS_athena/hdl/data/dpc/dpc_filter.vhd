@@ -6,7 +6,7 @@
 --
 -- DESCRIPTION: 
 --
--- Top du filtre dpc pour corriger les pixels hot et cold sur GTX
+-- Top du filtre DPC (Dead Pixel Correction) pour corriger les pixels hot et cold sur GTX
 --
 -----------------------------------------------------------------------
 library ieee;
