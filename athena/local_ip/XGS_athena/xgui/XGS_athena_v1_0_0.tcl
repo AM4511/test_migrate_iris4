@@ -12,22 +12,19 @@ proc init_gui { IPINST } {
   set_property tooltip {Set the system clock period (units in ns)} ${SYS_CLK_PERIOD}
   set SENSOR_FREQ [ipgui::add_param $IPINST -name "SENSOR_FREQ" -parent ${Controller}]
   set_property tooltip {Sensor frequency (units in KHz)} ${SENSOR_FREQ}
-  ipgui::add_param $IPINST -name "SIMULATION" -parent ${Controller}
 
   #Adding Page
   set DMA [ipgui::add_page $IPINST -name "DMA"]
   set_property tooltip {DMA controller configuration} ${DMA}
   ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${DMA}
-  ipgui::add_param $IPINST -name "LINES_PER_FRAME" -parent ${DMA}
-  ipgui::add_param $IPINST -name "PIXELS_PER_LINE" -parent ${DMA}
-  ipgui::add_param $IPINST -name "PIXEL_SIZE" -parent ${DMA}
 
   #Adding Page
   set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {HiSPi}]
   set_property tooltip {HiSPi interface configuration} ${Page_0}
-  ipgui::add_param $IPINST -name "MUX_RATIO" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "NUMBER_OF_LANE" -parent ${Page_0} -widget comboBox
-  ipgui::add_param $IPINST -name "BOOL_ENABLE_IDELAYCTRL" -parent ${Page_0}
+  set NUMBER_OF_LANE [ipgui::add_param $IPINST -name "NUMBER_OF_LANE" -parent ${Page_0} -widget comboBox]
+  set_property tooltip {Number of physical lanes connected on the board} ${NUMBER_OF_LANE}
+  set BOOL_ENABLE_IDELAYCTRL [ipgui::add_param $IPINST -name "BOOL_ENABLE_IDELAYCTRL" -parent ${Page_0}]
+  set_property tooltip {Instantiate the Xilinx  Idelayctrl IP-Core} ${BOOL_ENABLE_IDELAYCTRL}
 
 
 }
@@ -55,24 +52,6 @@ proc validate_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELA
 	return true
 }
 
-proc update_PARAM_VALUE.KU706 { PARAM_VALUE.KU706 } {
-	# Procedure called to update KU706 when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.KU706 { PARAM_VALUE.KU706 } {
-	# Procedure called to validate KU706
-	return true
-}
-
-proc update_PARAM_VALUE.LINES_PER_FRAME { PARAM_VALUE.LINES_PER_FRAME } {
-	# Procedure called to update LINES_PER_FRAME when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.LINES_PER_FRAME { PARAM_VALUE.LINES_PER_FRAME } {
-	# Procedure called to validate LINES_PER_FRAME
-	return true
-}
-
 proc update_PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE { PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE } {
 	# Procedure called to update MAX_PCIE_PAYLOAD_SIZE when any of the dependent parameters in the arguments change
 }
@@ -82,39 +61,12 @@ proc validate_PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE { PARAM_VALUE.MAX_PCIE_PAYLOAD_S
 	return true
 }
 
-proc update_PARAM_VALUE.MUX_RATIO { PARAM_VALUE.MUX_RATIO } {
-	# Procedure called to update MUX_RATIO when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.MUX_RATIO { PARAM_VALUE.MUX_RATIO } {
-	# Procedure called to validate MUX_RATIO
-	return true
-}
-
 proc update_PARAM_VALUE.NUMBER_OF_LANE { PARAM_VALUE.NUMBER_OF_LANE } {
 	# Procedure called to update NUMBER_OF_LANE when any of the dependent parameters in the arguments change
 }
 
 proc validate_PARAM_VALUE.NUMBER_OF_LANE { PARAM_VALUE.NUMBER_OF_LANE } {
 	# Procedure called to validate NUMBER_OF_LANE
-	return true
-}
-
-proc update_PARAM_VALUE.PIXELS_PER_LINE { PARAM_VALUE.PIXELS_PER_LINE } {
-	# Procedure called to update PIXELS_PER_LINE when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.PIXELS_PER_LINE { PARAM_VALUE.PIXELS_PER_LINE } {
-	# Procedure called to validate PIXELS_PER_LINE
-	return true
-}
-
-proc update_PARAM_VALUE.PIXEL_SIZE { PARAM_VALUE.PIXEL_SIZE } {
-	# Procedure called to update PIXEL_SIZE when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.PIXEL_SIZE { PARAM_VALUE.PIXEL_SIZE } {
-	# Procedure called to validate PIXEL_SIZE
 	return true
 }
 
@@ -156,26 +108,6 @@ proc update_MODELPARAM_VALUE.NUMBER_OF_LANE { MODELPARAM_VALUE.NUMBER_OF_LANE PA
 	set_property value [get_property value ${PARAM_VALUE.NUMBER_OF_LANE}] ${MODELPARAM_VALUE.NUMBER_OF_LANE}
 }
 
-proc update_MODELPARAM_VALUE.MUX_RATIO { MODELPARAM_VALUE.MUX_RATIO PARAM_VALUE.MUX_RATIO } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.MUX_RATIO}] ${MODELPARAM_VALUE.MUX_RATIO}
-}
-
-proc update_MODELPARAM_VALUE.PIXELS_PER_LINE { MODELPARAM_VALUE.PIXELS_PER_LINE PARAM_VALUE.PIXELS_PER_LINE } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.PIXELS_PER_LINE}] ${MODELPARAM_VALUE.PIXELS_PER_LINE}
-}
-
-proc update_MODELPARAM_VALUE.LINES_PER_FRAME { MODELPARAM_VALUE.LINES_PER_FRAME PARAM_VALUE.LINES_PER_FRAME } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.LINES_PER_FRAME}] ${MODELPARAM_VALUE.LINES_PER_FRAME}
-}
-
-proc update_MODELPARAM_VALUE.PIXEL_SIZE { MODELPARAM_VALUE.PIXEL_SIZE PARAM_VALUE.PIXEL_SIZE } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.PIXEL_SIZE}] ${MODELPARAM_VALUE.PIXEL_SIZE}
-}
-
 proc update_MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE { MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE}] ${MODELPARAM_VALUE.MAX_PCIE_PAYLOAD_SIZE}
@@ -194,10 +126,5 @@ proc update_MODELPARAM_VALUE.SENSOR_FREQ { MODELPARAM_VALUE.SENSOR_FREQ PARAM_VA
 proc update_MODELPARAM_VALUE.SIMULATION { MODELPARAM_VALUE.SIMULATION PARAM_VALUE.SIMULATION } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.SIMULATION}] ${MODELPARAM_VALUE.SIMULATION}
-}
-
-proc update_MODELPARAM_VALUE.KU706 { MODELPARAM_VALUE.KU706 PARAM_VALUE.KU706 } {
-	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
-	set_property value [get_property value ${PARAM_VALUE.KU706}] ${MODELPARAM_VALUE.KU706}
 }
 

@@ -1,18 +1,29 @@
 ####################################################
 ## Pinout compatibility
 ####################################################
-set_property keep_compatible {xc7a35ticpg236}  [current_design]
 
 ####################################################
 ## Pin assignment
 ####################################################
-set_property PACKAGE_PIN M18  [get_ports ref_clk_100MHz]
-set_property PACKAGE_PIN J1   [get_ports sys_rst_in_n]
-set_property PACKAGE_PIN H1   [get_ports sys_rst_out_n]
-set_property PACKAGE_PIN U18  [get_ports {fpga_straps[3]}]
-set_property PACKAGE_PIN V17  [get_ports {fpga_straps[2]}]
-set_property PACKAGE_PIN W16  [get_ports {fpga_straps[1]}]
-set_property PACKAGE_PIN W17  [get_ports {fpga_straps[0]}]
+set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
+set_property PACKAGE_PIN J1 [get_ports sys_rst_in_n]
+set_property PACKAGE_PIN H1 [get_ports sys_rst_out_n]
+
+
+####################################################
+## FPGA straps
+####################################################
+set_property PACKAGE_PIN U18 [get_ports {fpga_straps[3]}]
+set_property PACKAGE_PIN V17 [get_ports {fpga_straps[2]}]
+set_property PACKAGE_PIN W16 [get_ports {fpga_straps[1]}]
+set_property PACKAGE_PIN W17 [get_ports {fpga_straps[0]}]
+
+
+set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[3]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[2]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[1]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[0]}]
+
 
 ####################################################
 ## eSPI interface
@@ -34,7 +45,7 @@ set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 ####################################################
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
-set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
+#set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {ares_pb_i/ares_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
@@ -84,9 +95,9 @@ set_property PACKAGE_PIN M2 [get_ports ncsi_rx_crs_dv]
 set_property PACKAGE_PIN N2 [get_ports ncsi_tx_en]
 
 ## Set the IOB property on IOs
-set_property IOB TRUE [get_ports ncsi_rxd[*]]
+set_property IOB TRUE [get_ports {ncsi_rxd[*]}]
 set_property IOB TRUE [get_ports ncsi_rx_crs_dv]
-set_property IOB TRUE [get_ports ncsi_txd[*]]
+set_property IOB TRUE [get_ports {ncsi_txd[*]}]
 set_property IOB TRUE [get_ports ncsi_tx_en]
 
 
@@ -121,8 +132,8 @@ set_property PACKAGE_PIN T17 [get_ports hb_cs_n]
 
 
 # ###################################################
-# This is the new Hyper bus pinout after the design 
-# review. The modifications were induced by the pin  
+# This is the new Hyper bus pinout after the design
+# review. The modifications were induced by the pin
 # swapping in the cad (Board layout). AM - 28/02/2020
 # ###################################################
 set_property PACKAGE_PIN V14 [get_ports {hb_dq[0]}]
@@ -187,55 +198,65 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[0]}]
 
-
+###############################################################
+# Hyperram
+###############################################################
 # set_property IOSTANDARD LVCMOS18 [get_ports hb_rsto_n]
 # set_property IOSTANDARD LVCMOS18 [get_ports hb_int_n]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[7]}]
-set_property DRIVE 4 [get_ports {hb_dq[7]}]
-set_property SLEW SLOW [get_ports {hb_dq[7]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[6]}]
-set_property DRIVE 4 [get_ports {hb_dq[6]}]
-set_property SLEW SLOW [get_ports {hb_dq[6]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[5]}]
-set_property DRIVE 4 [get_ports {hb_dq[5]}]
-set_property SLEW SLOW [get_ports {hb_dq[5]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[4]}]
-set_property DRIVE 4 [get_ports {hb_dq[4]}]
-set_property SLEW SLOW [get_ports {hb_dq[4]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[3]}]
-set_property DRIVE 4 [get_ports {hb_dq[3]}]
-set_property SLEW SLOW [get_ports {hb_dq[3]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[2]}]
-set_property DRIVE 4 [get_ports {hb_dq[2]}]
-set_property SLEW SLOW [get_ports {hb_dq[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[1]}]
-set_property DRIVE 4 [get_ports {hb_dq[1]}]
-set_property SLEW SLOW [get_ports {hb_dq[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[0]}]
-set_property DRIVE 4 [get_ports {hb_dq[0]}]
-set_property SLEW SLOW [get_ports {hb_dq[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports hb_ck]
+set_property IOSTANDARD LVCMOS18 [get_ports hb_ck_n]
+set_property IOSTANDARD LVCMOS18 [get_ports hb_cs_n]
+
+set_property DRIVE 12 [get_ports {hb_dq[7]}]
+set_property DRIVE 12 [get_ports {hb_dq[3]}]
+set_property DRIVE 12 [get_ports {hb_dq[6]}]
+set_property DRIVE 12 [get_ports {hb_dq[5]}]
+set_property DRIVE 12 [get_ports {hb_dq[4]}]
+set_property DRIVE 12 [get_ports {hb_dq[2]}]
+set_property DRIVE 12 [get_ports {hb_dq[1]}]
+set_property DRIVE 12 [get_ports {hb_dq[0]}]
+set_property DRIVE 12 [get_ports hb_ck]
+set_property DRIVE 12 [get_ports hb_ck_n]
+set_property DRIVE 12 [get_ports hb_cs_n]
+
+set_property SLEW FAST [get_ports {hb_dq[7]}]
+set_property SLEW FAST [get_ports {hb_dq[6]}]
+set_property SLEW FAST [get_ports {hb_dq[5]}]
+set_property SLEW FAST [get_ports {hb_dq[4]}]
+set_property SLEW FAST [get_ports {hb_dq[3]}]
+set_property SLEW FAST [get_ports {hb_dq[2]}]
+set_property SLEW FAST [get_ports {hb_dq[1]}]
+set_property SLEW FAST [get_ports {hb_dq[0]}]
+set_property SLEW FAST [get_ports hb_ck]
+set_property SLEW FAST [get_ports hb_ck_n]
+set_property SLEW FAST [get_ports hb_cs_n]
+
+
 set_property IOSTANDARD LVCMOS18 [get_ports acq_exposure]
 set_property IOSTANDARD LVCMOS18 [get_ports acq_strobe]
-set_property IOSTANDARD LVCMOS18 [get_ports hb_cs_n]
-set_property DRIVE 4 [get_ports hb_cs_n]
-set_property SLEW SLOW [get_ports hb_cs_n]
 set_property IOSTANDARD LVCMOS18 [get_ports acq_trigger_ready]
-set_property IOSTANDARD LVCMOS18 [get_ports hb_ck_n]
-set_property DRIVE 4 [get_ports hb_ck_n]
-set_property SLEW SLOW [get_ports hb_ck_n]
-set_property IOSTANDARD LVCMOS18 [get_ports hb_ck]
-set_property DRIVE 4 [get_ports hb_ck]
-set_property SLEW SLOW [get_ports hb_ck]
 # set_property IOSTANDARD LVCMOS18 [get_ports hb_wp_n]
 # set_property DRIVE 4 [get_ports hb_wp_n]
-# set_property SLEW SLOW [get_ports hb_wp_n]
+# set_property SLEW FAST [get_ports hb_wp_n]
+
+
+
+
 set_property IOSTANDARD LVCMOS18 [get_ports espi_clk]
 set_property IOSTANDARD LVCMOS18 [get_ports espi_cs_n]
 set_property IOSTANDARD LVCMOS18 [get_ports espi_reset_n]
 set_property IOSTANDARD LVCMOS18 [get_ports user_rled_soc]
 set_property IOSTANDARD LVCMOS18 [get_ports hb_rst_n]
 set_property DRIVE 4 [get_ports hb_rst_n]
-set_property SLEW SLOW [get_ports hb_rst_n]
+set_property SLEW FAST [get_ports hb_rst_n]
 set_property IOSTANDARD LVCMOS18 [get_ports spi_cs_n]
 set_property DRIVE 4 [get_ports spi_cs_n]
 set_property SLEW SLOW [get_ports spi_cs_n]
@@ -288,6 +309,10 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
+
+
+
 
 
 

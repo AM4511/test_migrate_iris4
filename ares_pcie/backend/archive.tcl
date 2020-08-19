@@ -7,9 +7,9 @@ set myself [info script]
 puts "Running ${myself}"
 
 # Extracting the Working directory
-set MYSELF_DIR [file dirname ${myself}]
-set ROOTDIR [file normalize "${MYSELF_DIR}/../.."]
-puts "ROOTDIR:  ${ROOTDIR}"
+#set MYSELF_DIR [file dirname ${myself}]
+#set ROOTDIR [file normalize "${MYSELF_DIR}/../.."]
+#puts "ROOTDIR:  ${ROOTDIR}"
 set WORKDIR                $env(IRIS4)/athena/ares_pcie
 set IPCORES_DIR            ${WORKDIR}/ipcores
 set LOCAL_IP_DIR           ${WORKDIR}/local_ip
@@ -61,71 +61,71 @@ cd $project_directory
 # Create the output dir
 set OUTPUT_BASE_DIR "${project_directory}/output"
 set OUTPUT_DIR $OUTPUT_BASE_DIR
-set id 0
-while {$id < 20} {
-	
-	set OUTPUT_DIR "${OUTPUT_BASE_DIR}/run_${id}"
-	if { [file exist $OUTPUT_DIR] } {
-		set id [expr $id + 1]
-		} else {
-		file mkdir ${OUTPUT_DIR}
-			puts "Creating $OUTPUT_DIR"
-			break
-		}
-} 
+#set id 0
+# while {$id < 20} {
+# 	
+# 	set OUTPUT_DIR "${OUTPUT_BASE_DIR}/run_${id}"
+# 	if { [file exist $OUTPUT_DIR] } {
+# 		set id [expr $id + 1]
+# 		} else {
+# 		file mkdir ${OUTPUT_DIR}
+# 			puts "Creating $OUTPUT_DIR"
+# 			break
+# 		}
+# } 
 
 #set GENERIC_LIST [get_property generic [current_fileset]]
 #set UPGRADE_OFFSET 0x400000
-set UPGRADE_OFFSET 0x000000
+#set UPGRADE_OFFSET 0x000000
 
 
-set UPGRADE_BASE_NAME             $OUTPUT_DIR/${design_name}
-set UPGRADE_BIT_FILENAME          ${UPGRADE_BASE_NAME}.bit
-set UPGRADE_BIN_FILENAME          ${UPGRADE_BASE_NAME}.bin
-set UPGRADE_MCS_FILENAME          ${UPGRADE_BASE_NAME}.mcs
-set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
-
+# set UPGRADE_BASE_NAME             $OUTPUT_DIR/${design_name}
+# set UPGRADE_BIT_FILENAME          ${UPGRADE_BASE_NAME}.bit
+# set UPGRADE_BIN_FILENAME          ${UPGRADE_BASE_NAME}.bin
+# set UPGRADE_MCS_FILENAME          ${UPGRADE_BASE_NAME}.mcs
+# set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
+# 
 
 # Create upgrade firmware
-write_bitstream -force $UPGRADE_BIT_FILENAME
+#write_bitstream -force $UPGRADE_BIT_FILENAME
 
 # Create the .mcs version
-write_cfgmem -force -format MCS -size 8 -interface SPIx2-checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
+#write_cfgmem -force -format MCS -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
 
 # Create the .bin version
-write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}
+#write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}
 
 
 # ####################################################################################
 # Generate .firmware
 # ####################################################################################
-set INFILE [open ${UPGRADE_MCS_FILENAME} r]
-set OUTFILE [open ${UPGRADE_FIRMWARE_FILENAME} w]
-
-puts $OUTFILE "Copyright (c) 1995-${YEAR} Matrox Electronic Systems Ltd."
-puts $OUTFILE "All Rights Reserved."
-puts $OUTFILE "";
-puts $OUTFILE "$FPGA_DESCRIPTION"
-puts $OUTFILE "FPGA Version   : $FPGA_VERSION"
-puts $OUTFILE "BuildID        : $buildid"
-puts $OUTFILE "Build date     : $BUILD_DATE"
-puts $OUTFILE "Vivado version : $VIVADO_SHORT_VERSION"
-puts $OUTFILE "Device         : $DEVICE"
-puts $OUTFILE "Firmware type  : UPGRADE"
-puts $OUTFILE "Flash offset   : ${UPGRADE_OFFSET}"
-
-
-# Generic section
-puts $OUTFILE "\n";
-puts $OUTFILE "MCS="
-
-while { [gets $INFILE line] >= 0 } {
-    puts $OUTFILE $line
-}
-
-close $INFILE
-close $OUTFILE
-
+# set INFILE [open ${UPGRADE_MCS_FILENAME} r]
+# set OUTFILE [open ${UPGRADE_FIRMWARE_FILENAME} w]
+# 
+# puts $OUTFILE "Copyright (c) 1995-${YEAR} Matrox Electronic Systems Ltd."
+# puts $OUTFILE "All Rights Reserved."
+# puts $OUTFILE "";
+# puts $OUTFILE "$FPGA_DESCRIPTION"
+# puts $OUTFILE "FPGA Version   : $FPGA_VERSION"
+# puts $OUTFILE "BuildID        : $buildid"
+# puts $OUTFILE "Build date     : $BUILD_DATE"
+# puts $OUTFILE "Vivado version : $VIVADO_SHORT_VERSION"
+# puts $OUTFILE "Device         : $DEVICE"
+# puts $OUTFILE "Firmware type  : UPGRADE"
+# puts $OUTFILE "Flash offset   : ${UPGRADE_OFFSET}"
+# 
+# 
+# # Generic section
+# puts $OUTFILE "\n";
+# puts $OUTFILE "MCS="
+# 
+# while { [gets $INFILE line] >= 0 } {
+#     puts $OUTFILE $line
+# }
+# 
+# close $INFILE
+# close $OUTFILE
+# 
 
 #--------------------------------------------
 # Create vivado archive project 

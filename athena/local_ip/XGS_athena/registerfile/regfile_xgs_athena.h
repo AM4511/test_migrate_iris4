@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : imaval
+* Created by   : amarchan
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x5C41E12
+* Register file CRC32 : 0xCF3DFC13
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -86,12 +86,13 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_ADDRESS                   0x404
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_ADDRESS        0x408
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_ADDRESS           0x40C
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_ADDRESS                0x410
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_ADDRESS        0x414
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x420
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x438
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x450
-#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x45C
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_PHY_ADDRESS                      0x410
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_ADDRESS                0x414
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_ADDRESS        0x418
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_ADDRESS      0x424
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x43C
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x454
+#define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x460
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -1214,11 +1215,7 @@ typedef union
       M_UINT32 SW_CALIB_SERDES   : 1;   /* Bits(2:2), Initiate the SERDES TAP calibrartion */
       M_UINT32 SW_CLR_HISPI      : 1;   /* Bits(3:3), null */
       M_UINT32 SW_CLR_IDELAYCTRL : 1;   /* Bits(4:4), Reset the Xilinx macro IDELAYCTRL */
-      M_UINT32 RSVD0             : 3;   /* Bits(7:5), Reserved */
-      M_UINT32 XGS_NB_LANES      : 3;   /* Bits(10:8), null */
-      M_UINT32 RSVD1             : 1;   /* Bits(11:11), Reserved */
-      M_UINT32 XGS_MUX_RATIO     : 3;   /* Bits(14:12), null */
-      M_UINT32 RSVD2             : 17;  /* Bits(31:15), Reserved */
+      M_UINT32 RSVD0             : 27;  /* Bits(31:5), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_CTRL_TYPE;
@@ -1235,8 +1232,8 @@ typedef union
 
    struct
    {
-      M_UINT32 CALIBRATION_DONE     : 1;   /* Bits(0:0), Calibration active */
-      M_UINT32 CALIBRATION_ERROR    : 1;   /* Bits(1:1), Calibration active */
+      M_UINT32 CALIBRATION_DONE     : 1;   /* Bits(0:0), Calibration sequence completed */
+      M_UINT32 CALIBRATION_ERROR    : 1;   /* Bits(1:1), Calibration error */
       M_UINT32 FIFO_ERROR           : 1;   /* Bits(2:2), Calibration active */
       M_UINT32 PHY_BIT_LOCKED_ERROR : 1;   /* Bits(3:3), null */
       M_UINT32 RSVD0                : 24;  /* Bits(27:4), Reserved */
@@ -1280,6 +1277,28 @@ typedef union
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE;
+
+
+/**************************************************************************
+* Register name : PHY
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), null */
+      M_UINT32 RSVD0          : 5;   /* Bits(7:3), Reserved */
+      M_UINT32 MUX_RATIO      : 3;   /* Bits(10:8), null */
+      M_UINT32 RSVD1          : 5;   /* Bits(15:11), Reserved */
+      M_UINT32 PIXEL_PER_LANE : 10;  /* Bits(25:16), Number of pixels per lanes */
+      M_UINT32 RSVD2          : 6;   /* Bits(31:26), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_HISPI_PHY_TYPE;
 
 
 /**************************************************************************
@@ -1610,12 +1629,13 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_HISPI_STATUS_TYPE              STATUS;                  /* Address offset: 0x4 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDELAYCTRL_STATUS_TYPE   IDELAYCTRL_STATUS;       /* Address offset: 0x8 */
    FPGA_REGFILE_XGS_ATHENA_HISPI_IDLE_CHARACTER_TYPE      IDLE_CHARACTER;          /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_TYPE           FRAME_CFG;               /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_TYPE   FRAME_CFG_X_VALID;       /* Address offset: 0x14 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x20 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[6];        /* Address offset: 0x38 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x50 */
-   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x5c */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_PHY_TYPE                 PHY;                     /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_TYPE           FRAME_CFG;               /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_FRAME_CFG_X_VALID_TYPE   FRAME_CFG_X_VALID;       /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE LANE_DECODER_STATUS[6];  /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_TYPE       TAP_HISTOGRAM[6];        /* Address offset: 0x3c */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_TYPE  LANE_PACKER_STATUS[3];   /* Address offset: 0x54 */
+   FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_TYPE               DEBUG;                   /* Address offset: 0x60 */
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************
@@ -1645,7 +1665,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE       ACQ;         /* Section; Base address offset: 0x100 */
    M_UINT32                               RSVD2[73];   /* Padding; Size (292 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */
-   M_UINT32                               RSVD3[168];  /* Padding; Size (672 Bytes) */
+   M_UINT32                               RSVD3[167];  /* Padding; Size (668 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

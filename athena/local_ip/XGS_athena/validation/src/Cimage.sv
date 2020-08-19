@@ -97,20 +97,20 @@ class CImage;
 		
         // le format est hardcode, le decodage qu'on en fait sera harcode aussi
         i = $fgets(chaine, fileId);        
-        //$display(" %d ",chaine.compare("P2\n") );
+        //$display(" %0d ",chaine.compare("P2\n") );
         if(chaine.compare("P2\n")) begin
             $display("Debut de fichier PGM imprevu: %s", chaine);
             $stop;
         end
         
-        i=$fscanf(fileId, "%d %d\n", this.pgm_size_x, this.pgm_size_y);    
+        i=$fscanf(fileId, "%0d %0d\n", this.pgm_size_x, this.pgm_size_y);    
 		
-        i=$fscanf(fileId, "%d", this.pgm_max);
+        i=$fscanf(fileId, "%0d", this.pgm_max);
         
         // patch pour que ca simule sur la PC a JF
         //if(pgm_size_y > 32) pgm_size_y = 32;
         
-        $display("XSize=%d, YSize=%d, Max Pixel Value=%d", this.pgm_size_x, this.pgm_size_y, this.pgm_max);    
+        $display("XSize=%0d, YSize=%0d, Max Pixel Value=%0d", this.pgm_size_x, this.pgm_size_y, this.pgm_max);    
         
         this.image = new[pgm_size_x * pgm_size_y];
        
@@ -230,16 +230,16 @@ class CImage;
     endfunction
     
     function void set_pixel(input int x, y, input shortint value);
-         //$display("Enter SetPixel  x=%d, y=%d value=%d", x, y, value );
-         //$display("Image pixel before wrote value=%d", image[y * pgm_size_x + x] );
+         //$display("Enter SetPixel  x=%0d, y=%0d value=%0d", x, y, value );
+         //$display("Image pixel before wrote value=%0d", image[y * pgm_size_x + x] );
          image[y * pgm_size_x + x]= value;
-         //$display("Image pixel after wrote value=%d", image[y * pgm_size_x + x] );        
+         //$display("Image pixel after wrote value=%0d", image[y * pgm_size_x + x] );        
     endfunction
 
     // c'est juste pour le debug
     task print_pixel(int X, int Y);
         int pixel;
-        $display("Pixel(%d,%d): 0x%h ", X, Y, get_pixel(X,Y));
+        $display("Pixel(%0d,%0d): 0x%h ", X, Y, get_pixel(X,Y));
     endtask : print_pixel
     
 endclass :  CImage    

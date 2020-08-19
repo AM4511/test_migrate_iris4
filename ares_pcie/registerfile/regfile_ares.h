@@ -1,16 +1,18 @@
 /**************************************************************************
 *
 * File name    :  regfile_ares.h
+* Created by   : amarchan
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_ares processing unit.
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version: 4.5.0_beta6
-* Build ID: I20160216-1844
+* FDK IDE Version     : 4.7.0_beta4
+* Build ID            : I20191220-1537
+* Register file CRC32 : 0xCC5990AA
 *
-* COPYRIGHT (c) 2008 Matrox Electronic Systems Ltd.
+* COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
 *
 ***************************************************************************/
@@ -91,7 +93,6 @@
 #define FPGA_REGFILE_ARES_PRODCONS_POINTERS_ADDRESS                           0x2000
 #define FPGA_REGFILE_ARES_PRODCONS_DPRAM_ADDRESS                              0x3000
 
-
 /**************************************************************************
 * Register name : intstat
 ***************************************************************************/
@@ -112,7 +113,6 @@ typedef union
       M_UINT32 irq_microblaze : 1;   /* Bits(6:6), null */
       M_UINT32 irq_tick_latch : 1;   /* Bits(7:7), null */
       M_UINT32 rsvd2          : 24;  /* Bits(31:8), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_INTSTAT_TYPE;
@@ -138,7 +138,6 @@ typedef union
       M_UINT32 irq_microblaze : 1;   /* Bits(6:6), null */
       M_UINT32 irq_tick_latch : 1;   /* Bits(7:7), null */
       M_UINT32 rsvd2          : 24;  /* Bits(31:8), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_INTMASKN_TYPE;
@@ -160,7 +159,6 @@ typedef union
       M_UINT32 irq_timer_end          : 8;  /* Bits(23:16), null */
       M_UINT32 rsvd1                  : 8;  /* Bits(31:24), Reserved */
       M_UINT32 rsvd_register_space[4] ;     /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_INTSTAT2_TYPE;
@@ -182,7 +180,6 @@ typedef union
       M_UINT32 date    : 8;  /* Bits(19:12), null */
       M_UINT32 month   : 4;  /* Bits(23:20), null */
       M_UINT32 year    : 8;  /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_BUILDID_TYPE;
@@ -205,7 +202,6 @@ typedef union
       M_UINT32 rsvd1        : 1;   /* Bits(11:11), Reserved */
       M_UINT32 profinet_led : 1;   /* Bits(12:12), null */
       M_UINT32 rsvd2        : 19;  /* Bits(31:13), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_FPGA_ID_TYPE;
@@ -226,7 +222,6 @@ typedef union
       M_UINT32 orange_off_flash : 1;   /* Bits(24:24), null */
       M_UINT32 red_orange_flash : 1;   /* Bits(25:25), null */
       M_UINT32 rsvd1            : 6;   /* Bits(31:26), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_LED_OVERRIDE_TYPE;
@@ -246,7 +241,6 @@ typedef union
       M_UINT32 enable : 1;   /* Bits(0:0), null */
       M_UINT32 rsvd0  : 23;  /* Bits(23:1), Reserved */
       M_UINT32 nb_dw  : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_CONTROL_TYPE;
@@ -265,7 +259,6 @@ typedef union
    {
       M_UINT32 cons_idx : 10;  /* Bits(9:0), null */
       M_UINT32 rsvd0    : 22;  /* Bits(31:10), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_CONS_IDX_TYPE;
@@ -283,7 +276,6 @@ typedef union
    struct
    {
       M_UINT32 addr : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_LOW_TYPE;
@@ -301,7 +293,6 @@ typedef union
    struct
    {
       M_UINT32 addr : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_HIGH_TYPE;
@@ -329,7 +320,6 @@ typedef union
       M_UINT32 rsvd1           : 4;  /* Bits(15:12), Reserved */
       M_UINT32 irq_timer_start : 8;  /* Bits(23:16), null */
       M_UINT32 irq_timer_end   : 8;  /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_MAPPING_TYPE;
@@ -358,7 +348,6 @@ typedef union
       M_UINT32 spi_enable             : 1;  /* Bits(24:24), SPI ENABLE */
       M_UINT32 rsvd4                  : 7;  /* Bits(31:25), Reserved */
       M_UINT32 rsvd_register_space[1] ;     /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_SPI_SPIREGIN_TYPE;
@@ -381,7 +370,6 @@ typedef union
       M_UINT32 spi_wb_cap             : 1;   /* Bits(17:17), SPI Write Burst CAPable */
       M_UINT32 rsvd1                  : 14;  /* Bits(31:18), Reserved */
       M_UINT32 rsvd_register_space[1] ;      /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_SPI_SPIREGOUT_TYPE;
@@ -404,7 +392,6 @@ typedef union
       M_UINT32 input  : 1;   /* Bits(18:18), null */
       M_UINT32 n_port : 5;   /* Bits(23:19), null */
       M_UINT32 io_id  : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_CAPABILITIES_IO_TYPE;
@@ -423,7 +410,6 @@ typedef union
    {
       M_UINT32 pin_value : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0     : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_PIN_TYPE;
@@ -442,7 +428,6 @@ typedef union
    {
       M_UINT32 out_value : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0     : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_OUT_TYPE;
@@ -461,7 +446,6 @@ typedef union
    {
       M_UINT32 dir   : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0 : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_DIR_TYPE;
@@ -480,7 +464,6 @@ typedef union
    {
       M_UINT32 in_pol : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0  : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_POL_TYPE;
@@ -499,7 +482,6 @@ typedef union
    {
       M_UINT32 intstat : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0   : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_INTSTAT_TYPE;
@@ -518,7 +500,6 @@ typedef union
    {
       M_UINT32 intmaskn : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0    : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_INTMASKN_TYPE;
@@ -537,7 +518,6 @@ typedef union
    {
       M_UINT32 in_anyedge : 4;   /* Bits(3:0), null */
       M_UINT32 rsvd0      : 28;  /* Bits(31:4), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_IO_IO_ANYEDGE_TYPE;
@@ -557,7 +537,6 @@ typedef union
       M_UINT32 rsvd0         : 20;  /* Bits(19:0), Reserved */
       M_UINT32 feature_rev   : 4;   /* Bits(23:20), null */
       M_UINT32 quadrature_id : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_CAPABILITIES_QUAD_TYPE;
@@ -578,7 +557,6 @@ typedef union
       M_UINT32 positionresetactivation : 1;   /* Bits(1:1), null */
       M_UINT32 positionresetsource     : 4;   /* Bits(5:2), null */
       M_UINT32 rsvd0                   : 26;  /* Bits(31:6), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_POSITIONRESET_TYPE;
@@ -599,7 +577,6 @@ typedef union
       M_UINT32 aselector : 3;   /* Bits(15:13), null */
       M_UINT32 rsvd1     : 13;  /* Bits(28:16), Reserved */
       M_UINT32 bselector : 3;   /* Bits(31:29), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERINPUT_TYPE;
@@ -620,7 +597,6 @@ typedef union
       M_UINT32 rsvd0         : 1;   /* Bits(1:1), Reserved */
       M_UINT32 decoutsource0 : 3;   /* Bits(4:2), null */
       M_UINT32 rsvd1         : 27;  /* Bits(31:5), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERCFG_TYPE;
@@ -638,7 +614,6 @@ typedef union
    struct
    {
       M_UINT32 positiontrigger : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERPOSTRIGGER_TYPE;
@@ -665,7 +640,6 @@ typedef union
       M_UINT32 decodercntrlatch_sw    : 1;  /* Bits(24:24), null */
       M_UINT32 rsvd4                  : 7;  /* Bits(31:25), Reserved */
       M_UINT32 rsvd_register_space[7] ;     /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERCNTRLATCH_CFG_TYPE;
@@ -683,7 +657,6 @@ typedef union
    struct
    {
       M_UINT32 decodercntr : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERCNTRLATCHED_SW_TYPE;
@@ -701,7 +674,6 @@ typedef union
    struct
    {
       M_UINT32 decodercntr : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_QUADRATURE_DECODERCNTRLATCHED_TYPE;
@@ -724,7 +696,6 @@ typedef union
       M_UINT32 rsvd1        : 3;  /* Bits(19:17), Reserved */
       M_UINT32 feature_rev  : 4;  /* Bits(23:20), null */
       M_UINT32 ticktable_id : 8;  /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_CAPABILITIES_TICKTBL_TYPE;
@@ -744,7 +715,6 @@ typedef union
       M_UINT32 table_width : 8;   /* Bits(7:0), null */
       M_UINT32 nb_latch    : 4;   /* Bits(11:8), null */
       M_UINT32 rsvd0       : 20;  /* Bits(31:12), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_CAPABILITIES_EXT1_TYPE;
@@ -763,7 +733,6 @@ typedef union
    {
       M_UINT32 period_ns : 8;   /* Bits(7:0), null */
       M_UINT32 rsvd0     : 24;  /* Bits(31:8), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_TICKTABLECLOCKPERIOD_TYPE;
@@ -792,7 +761,6 @@ typedef union
       M_UINT32 rsvd1               : 4;  /* Bits(27:24), Reserved */
       M_UINT32 clearticktable      : 1;  /* Bits(28:28), Clear command in Tick Table */
       M_UINT32 rsvd2               : 3;  /* Bits(31:29), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_TICKCONFIG_TYPE;
@@ -810,7 +778,6 @@ typedef union
    struct
    {
       M_UINT32 currentstamp : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_CURRENTSTAMPLATCHED_TYPE;
@@ -828,7 +795,6 @@ typedef union
    struct
    {
       M_UINT32 writetime : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_WRITETIME_TYPE;
@@ -855,7 +821,6 @@ typedef union
       M_UINT32 writestatus        : 1;   /* Bits(12:12), null */
       M_UINT32 writedone          : 1;   /* Bits(13:13), null */
       M_UINT32 rsvd3              : 18;  /* Bits(31:14), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_WRITECOMMAND_TYPE;
@@ -874,7 +839,6 @@ typedef union
    {
       M_UINT32 latchintstat : 2;   /* Bits(1:0), null */
       M_UINT32 rsvd0        : 30;  /* Bits(31:2), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_LATCHINTSTAT_TYPE;
@@ -899,7 +863,6 @@ typedef union
       M_UINT32 rsvd2                : 6;   /* Bits(15:10), Reserved */
       M_UINT32 inputstampsource     : 4;   /* Bits(19:16), null */
       M_UINT32 rsvd3                : 12;  /* Bits(31:20), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_INPUTSTAMP_TYPE;
@@ -918,7 +881,6 @@ typedef union
    {
       M_UINT32 reserved_for_extra_latch : 1;   /* Bits(0:0), null */
       M_UINT32 rsvd0                    : 31;  /* Bits(31:1), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_RESERVED_FOR_EXTRA_LATCH_TYPE;
@@ -936,7 +898,6 @@ typedef union
    struct
    {
       M_UINT32 inputstamp : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TICKTABLE_INPUTSTAMPLATCHED_TYPE;
@@ -959,7 +920,6 @@ typedef union
       M_UINT32 rsvd1        : 3;  /* Bits(19:17), Reserved */
       M_UINT32 feature_rev  : 4;  /* Bits(23:20), null */
       M_UINT32 inputcond_id : 8;  /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INPUTCONDITIONING_CAPABILITIES_INCOND_TYPE;
@@ -980,7 +940,6 @@ typedef union
       M_UINT32 inputfiltering  : 1;   /* Bits(1:1), null */
       M_UINT32 rsvd0           : 6;   /* Bits(7:2), Reserved */
       M_UINT32 debounceholdoff : 24;  /* Bits(31:8), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INPUTCONDITIONING_INPUTCONDITIONING_TYPE;
@@ -1002,7 +961,6 @@ typedef union
       M_UINT32 rsvd1         : 3;   /* Bits(19:17), Reserved */
       M_UINT32 feature_rev   : 4;   /* Bits(23:20), null */
       M_UINT32 outputcond_id : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_OUTPUTCONDITIONING_CAPABILITIES_OUTCOND_TYPE;
@@ -1025,7 +983,6 @@ typedef union
       M_UINT32 rsvd1     : 8;   /* Bits(15:8), Reserved */
       M_UINT32 outputval : 1;   /* Bits(16:16), Output Value */
       M_UINT32 rsvd2     : 15;  /* Bits(31:17), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_OUTPUTCONDITIONING_OUTPUTCOND_TYPE;
@@ -1045,7 +1002,6 @@ typedef union
       M_UINT32 reserved               : 8;   /* Bits(7:0), null */
       M_UINT32 rsvd0                  : 24;  /* Bits(31:8), Reserved */
       M_UINT32 rsvd_register_space[5] ;      /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_OUTPUTCONDITIONING_RESERVED_TYPE;
@@ -1066,7 +1022,6 @@ typedef union
       M_UINT32 rsvd0                   : 6;   /* Bits(15:10), Reserved */
       M_UINT32 output_holdoff_reg_en   : 1;   /* Bits(16:16), null */
       M_UINT32 rsvd1                   : 15;  /* Bits(31:17), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_OUTPUTCONDITIONING_OUTPUT_DEBOUNCE_TYPE;
@@ -1088,7 +1043,6 @@ typedef union
       M_UINT32 rsvd1        : 3;   /* Bits(19:17), Reserved */
       M_UINT32 feature_rev  : 4;   /* Bits(23:20), null */
       M_UINT32 int_input_id : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERNALINPUT_CAPABILITIES_INT_INP_TYPE;
@@ -1110,7 +1064,6 @@ typedef union
       M_UINT32 rsvd1         : 3;   /* Bits(19:17), Reserved */
       M_UINT32 feature_rev   : 4;   /* Bits(23:20), null */
       M_UINT32 int_output_id : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERNALOUTPUT_CAPABILITIES_INTOUT_TYPE;
@@ -1131,7 +1084,6 @@ typedef union
       M_UINT32 rsvd0     : 10;  /* Bits(15:6), Reserved */
       M_UINT32 outputval : 1;   /* Bits(16:16), Output Value */
       M_UINT32 rsvd1     : 15;  /* Bits(31:17), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_INTERNALOUTPUT_OUTPUTCOND_TYPE;
@@ -1153,7 +1105,6 @@ typedef union
       M_UINT32 rsvd1       : 8;  /* Bits(19:12), Reserved */
       M_UINT32 feature_rev : 4;  /* Bits(23:20), null */
       M_UINT32 timer_id    : 8;  /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_CAPABILITIES_TIMER_TYPE;
@@ -1172,7 +1123,6 @@ typedef union
    {
       M_UINT32 period_ns : 16;  /* Bits(15:0), null */
       M_UINT32 rsvd0     : 16;  /* Bits(31:16), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERCLOCKPERIOD_TYPE;
@@ -1202,7 +1152,6 @@ typedef union
       M_UINT32 timertriggeroverlap    : 2;  /* Bits(26:25), null */
       M_UINT32 rsvd1                  : 4;  /* Bits(30:27), Reserved */
       M_UINT32 soft_timerarm          : 1;  /* Bits(31:31), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERTRIGGERARM_TYPE;
@@ -1227,7 +1176,6 @@ typedef union
       M_UINT32 rsvd1                : 2;   /* Bits(15:14), Reserved */
       M_UINT32 intclock_sel         : 2;   /* Bits(17:16), null */
       M_UINT32 rsvd2                : 14;  /* Bits(31:18), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERCLOCKSOURCE_TYPE;
@@ -1245,7 +1193,6 @@ typedef union
    struct
    {
       M_UINT32 timerdelayvalue : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERDELAYVALUE_TYPE;
@@ -1263,7 +1210,6 @@ typedef union
    struct
    {
       M_UINT32 timerduration : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERDURATION_TYPE;
@@ -1281,7 +1227,6 @@ typedef union
    struct
    {
       M_UINT32 timerlatchedvalue : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERLATCHEDVALUE_TYPE;
@@ -1310,7 +1255,6 @@ typedef union
       M_UINT32 rsvd2               : 8;  /* Bits(25:18), Reserved */
       M_UINT32 timerstatus_latched : 3;  /* Bits(28:26), null */
       M_UINT32 timerstatus         : 3;  /* Bits(31:29), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_TIMER_TIMERSTATUS_TYPE;
@@ -1331,7 +1275,6 @@ typedef union
       M_UINT32 intnum      : 5;   /* Bits(19:15), null */
       M_UINT32 feature_rev : 4;   /* Bits(23:20), null */
       M_UINT32 micro_id    : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_MICROBLAZE_CAPABILITIES_MICRO_TYPE;
@@ -1351,7 +1294,6 @@ typedef union
       M_UINT32 offset     : 20;  /* Bits(19:0), null */
       M_UINT32 memorysize : 5;   /* Bits(24:20), null */
       M_UINT32 rsvd0      : 7;   /* Bits(31:25), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_MICROBLAZE_PRODCONS_TYPE;
@@ -1373,7 +1315,6 @@ typedef union
       M_UINT32 rsvd1       : 4;   /* Bits(19:16), Reserved */
       M_UINT32 feature_rev : 4;   /* Bits(23:20), null */
       M_UINT32 ana_out_id  : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_ANALOGOUTPUT_CAPABILITIES_ANA_OUT_TYPE;
@@ -1392,7 +1333,6 @@ typedef union
    {
       M_UINT32 outputval : 8;   /* Bits(7:0), */
       M_UINT32 rsvd0     : 24;  /* Bits(31:8), Reserved */
-
    } f;
 
 } FPGA_REGFILE_ARES_ANALOGOUTPUT_OUTPUTVALUE_TYPE;
@@ -1411,7 +1351,6 @@ typedef union
    {
       M_UINT32 rsvd0 : 24;  /* Bits(23:0), Reserved */
       M_UINT32 eofm  : 8;   /* Bits(31:24), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_EOFM_EOFM_TYPE;
@@ -1433,7 +1372,6 @@ typedef union
       M_UINT32 output_free_start         : 8;  /* Bits(23:16), */
       M_UINT32 output_free_end           : 8;  /* Bits(31:24), */
       M_UINT32 rsvd_register_space[1023] ;     /* Reserved space below */
-
    } f;
 
 } FPGA_REGFILE_ARES_PRODCONS_POINTERS_TYPE;
@@ -1451,7 +1389,6 @@ typedef union
    struct
    {
       M_UINT32 data : 32;  /* Bits(31:0), null */
-
    } f;
 
 } FPGA_REGFILE_ARES_PRODCONS_DPRAM_TYPE;
@@ -1468,9 +1405,7 @@ typedef struct
    FPGA_REGFILE_ARES_DEVICE_SPECIFIC_BUILDID_TYPE      buildid;       /* Address offset: 0x1c */
    FPGA_REGFILE_ARES_DEVICE_SPECIFIC_FPGA_ID_TYPE      fpga_id;       /* Address offset: 0x20 */
    FPGA_REGFILE_ARES_DEVICE_SPECIFIC_LED_OVERRIDE_TYPE led_override;  /* Address offset: 0x24 */
-
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_TYPE;
-
 
 /**************************************************************************
 * Section name   : interrupt_queue
@@ -1482,9 +1417,7 @@ typedef struct
    FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_LOW_TYPE  addr_low;   /* Address offset: 0x8 */
    FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_HIGH_TYPE addr_high;  /* Address offset: 0xc */
    FPGA_REGFILE_ARES_INTERRUPT_QUEUE_MAPPING_TYPE   mapping;    /* Address offset: 0x10 */
-
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_TYPE;
-
 
 /**************************************************************************
 * Section name   : spi
@@ -1493,9 +1426,7 @@ typedef struct
 {
    FPGA_REGFILE_ARES_SPI_SPIREGIN_TYPE  spiregin;   /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_SPI_SPIREGOUT_TYPE spiregout;  /* Address offset: 0x8 */
-
 } FPGA_REGFILE_ARES_SPI_TYPE;
-
 
 /**************************************************************************
 * Section name   : io
@@ -1511,9 +1442,7 @@ typedef struct
    FPGA_REGFILE_ARES_IO_IO_INTMASKN_TYPE     io_intmaskn;      /* Address offset: 0x18 */
    FPGA_REGFILE_ARES_IO_IO_ANYEDGE_TYPE      io_anyedge;       /* Address offset: 0x1c */
    M_UINT32                                  rsvd[24];         /* Reserved space (24 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_IO_TYPE;
-
 
 /**************************************************************************
 * Section name   : quadrature
@@ -1529,9 +1458,7 @@ typedef struct
    FPGA_REGFILE_ARES_QUADRATURE_DECODERCNTRLATCHED_SW_TYPE decodercntrlatched_sw;  /* Address offset: 0x34 */
    FPGA_REGFILE_ARES_QUADRATURE_DECODERCNTRLATCHED_TYPE    decodercntrlatched;     /* Address offset: 0x38 */
    M_UINT32                                                rsvd[17];               /* Reserved space (17 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_QUADRATURE_TYPE;
-
 
 /**************************************************************************
 * Section name   : ticktable
@@ -1550,9 +1477,7 @@ typedef struct
    FPGA_REGFILE_ARES_TICKTABLE_RESERVED_FOR_EXTRA_LATCH_TYPE reserved_for_extra_latch[10];  /* Address offset: 0x28 */
    FPGA_REGFILE_ARES_TICKTABLE_INPUTSTAMPLATCHED_TYPE        inputstamplatched[2];          /* Address offset: 0x50 */
    M_UINT32                                                  rsvd[10];                      /* Reserved space (10 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_TICKTABLE_TYPE;
-
 
 /**************************************************************************
 * Section name   : inputconditioning
@@ -1562,9 +1487,7 @@ typedef struct
    FPGA_REGFILE_ARES_INPUTCONDITIONING_CAPABILITIES_INCOND_TYPE capabilities_incond;   /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_INPUTCONDITIONING_INPUTCONDITIONING_TYPE   inputconditioning[4];  /* Address offset: 0x4 */
    M_UINT32                                                     rsvd[27];              /* Reserved space (27 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_INPUTCONDITIONING_TYPE;
-
 
 /**************************************************************************
 * Section name   : outputconditioning
@@ -1576,9 +1499,7 @@ typedef struct
    FPGA_REGFILE_ARES_OUTPUTCONDITIONING_RESERVED_TYPE             reserved;              /* Address offset: 0x14 */
    FPGA_REGFILE_ARES_OUTPUTCONDITIONING_OUTPUT_DEBOUNCE_TYPE      output_debounce;       /* Address offset: 0x2c */
    M_UINT32                                                       rsvd[20];              /* Reserved space (20 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_OUTPUTCONDITIONING_TYPE;
-
 
 /**************************************************************************
 * Section name   : internalinput
@@ -1587,9 +1508,7 @@ typedef struct
 {
    FPGA_REGFILE_ARES_INTERNALINPUT_CAPABILITIES_INT_INP_TYPE capabilities_int_inp;  /* Address offset: 0x0 */
    M_UINT32                                                  rsvd[31];              /* Reserved space (31 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_INTERNALINPUT_TYPE;
-
 
 /**************************************************************************
 * Section name   : internaloutput
@@ -1599,9 +1518,7 @@ typedef struct
    FPGA_REGFILE_ARES_INTERNALOUTPUT_CAPABILITIES_INTOUT_TYPE capabilities_intout;  /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_INTERNALOUTPUT_OUTPUTCOND_TYPE          outputcond[1];        /* Address offset: 0x4 */
    M_UINT32                                                  rsvd[30];             /* Reserved space (30 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_INTERNALOUTPUT_TYPE;
-
 
 /**************************************************************************
 * Section name   : timer
@@ -1617,9 +1534,7 @@ typedef struct
    FPGA_REGFILE_ARES_TIMER_TIMERLATCHEDVALUE_TYPE  timerlatchedvalue;   /* Address offset: 0x18 */
    FPGA_REGFILE_ARES_TIMER_TIMERSTATUS_TYPE        timerstatus;         /* Address offset: 0x1c */
    M_UINT32                                        rsvd[24];            /* Reserved space (24 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_TIMER_TYPE;
-
 
 /**************************************************************************
 * Section name   : microblaze
@@ -1629,9 +1544,7 @@ typedef struct
    FPGA_REGFILE_ARES_MICROBLAZE_CAPABILITIES_MICRO_TYPE capabilities_micro;  /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_MICROBLAZE_PRODCONS_TYPE           prodcons[2];         /* Address offset: 0x4 */
    M_UINT32                                             rsvd[29];            /* Reserved space (29 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_MICROBLAZE_TYPE;
-
 
 /**************************************************************************
 * Section name   : analogoutput
@@ -1641,9 +1554,7 @@ typedef struct
    FPGA_REGFILE_ARES_ANALOGOUTPUT_CAPABILITIES_ANA_OUT_TYPE capabilities_ana_out;  /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_ANALOGOUTPUT_OUTPUTVALUE_TYPE          outputvalue;           /* Address offset: 0x4 */
    M_UINT32                                                 rsvd[30];              /* Reserved space (30 x M_UINT32) */
-
 } FPGA_REGFILE_ARES_ANALOGOUTPUT_TYPE;
-
 
 /**************************************************************************
 * Section name   : eofm
@@ -1651,9 +1562,7 @@ typedef struct
 typedef struct
 {
    FPGA_REGFILE_ARES_EOFM_EOFM_TYPE eofm;  /* Address offset: 0x0 */
-
 } FPGA_REGFILE_ARES_EOFM_TYPE;
-
 
 /**************************************************************************
 * External section name   : PRODCONS
@@ -1662,7 +1571,6 @@ typedef struct
 {
    FPGA_REGFILE_ARES_PRODCONS_POINTERS_TYPE pointers;     /* Address offset: 0x0 */
    FPGA_REGFILE_ARES_PRODCONS_DPRAM_TYPE    dpram[1024];  /* Address offset: 0x1000 */
-
 } FPGA_REGFILE_ARES_PRODCONS_TYPE;
 
 
@@ -1690,7 +1598,6 @@ typedef struct
    FPGA_REGFILE_ARES_EOFM_TYPE               eofm;                /* Section; Base address offset: 0xb00 */
    M_UINT32                                  rsvd3[1343];         /* Padding; Size (5372 Bytes) */
    FPGA_REGFILE_ARES_PRODCONS_TYPE           prodcons[2];         /* External section; Base address offset: 0x2000 */
-
 } FPGA_REGFILE_ARES_TYPE;
 
 

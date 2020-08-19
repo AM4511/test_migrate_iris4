@@ -17,7 +17,7 @@ module testbench();
 	parameter SYS_CLK_PERIOD= 16;
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
-
+    parameter EXPOSURE=50;
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
 	parameter AXIS_DATA_WIDTH = 64;
@@ -61,11 +61,12 @@ module testbench();
 
 
 	// XGS_athena HiSPi
-	parameter HISPI_CTRL_OFFSET                = 'h0400;
-	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
-    parameter FRAME_CFG_OFFSET                 = 'h0410;	
-	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0414;
-	parameter HISPI_DEBUG_OFFSET               = 'h045C;
+	parameter HISPI_CTRL_OFFSET            = 'h0400;
+	parameter HISPI_IDLE_CHARACTER_OFFSET  = 'h040C;
+	parameter HISPI_PHY_OFFSET             = 'h0410;
+    parameter FRAME_CFG_OFFSET             = 'h0414;	
+	parameter FRAME_CFG_X_VALID_OFFSET     = 'h0418;
+	parameter HISPI_DEBUG_OFFSET           = 'h0460;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -79,10 +80,10 @@ module testbench();
 	parameter SPI_MONITOR_REG              = 16'h3806;
 
 	// I2C
-	parameter I2C_ID_OFFSET                       = 32'h00010000;	
-	parameter I2C_CTRL0_OFFSET                    = 32'h00010008;	
-	parameter I2C_CTRL1_OFFSET                    = 32'h00010010;	
-	parameter I2C_SEMAPHORE_OFFSET                = 32'h00010018;	
+	parameter I2C_ID_OFFSET                = 32'h00010000;	
+	parameter I2C_CTRL0_OFFSET             = 32'h00010008;	
+	parameter I2C_CTRL1_OFFSET             = 32'h00010010;	
+	parameter I2C_SEMAPHORE_OFFSET         = 32'h00010018;	
 
 	integer  address;
 	integer  data;
@@ -312,10 +313,6 @@ module testbench();
 	XGS_athena  #(
 			.ENABLE_IDELAYCTRL(),
 			.NUMBER_OF_LANE(NUMBER_OF_LANE),
-			.MUX_RATIO(MUX_RATIO),
-			.PIXELS_PER_LINE(PIXELS_PER_LINE),
-			.LINES_PER_FRAME(NUMBER_ACTIVE_LINES),
-			.PIXEL_SIZE(PIXEL_SIZE),
 			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
 			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
 			.SENSOR_FREQ(SENSOR_FREQ),
@@ -563,7 +560,7 @@ module testbench();
 				int ROI_X_START;
 				int ROI_X_END;
 
-				int EXPOSURE=50;
+				//int EXPOSURE=50;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
 				int MLines;
@@ -580,8 +577,9 @@ module testbench();
 				int monitor_1_reg;
 				int monitor_2_reg;
 
-                int test_nb_images=0;
+                int test_nb_images;
 
+                test_nb_images=0;
 				fstart = 'hA0000000;
 				line_size = 'h1000;
 				line_pitch = 'h1000;
@@ -849,8 +847,8 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control
 				///////////////////////////////////////////////////
-				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_CTRL_IDLE_CHARACTER_OFFSET);
-				host.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
+				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_IDLE_CHARACTER_OFFSET);
+				host.write(HISPI_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control, 6 lanes, mux 4

@@ -416,8 +416,6 @@ Register("timer_duration", 0x2d8, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
-		Field("xgs_mux_ratio", 14, 12, "rd", 0x0, 0x4, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("xgs_nb_lanes", 10, 8, "rd|wr", 0x0, 0x6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
 			FieldValue("No effect", 0);
 			FieldValue("Reset IDELAYCTRL", 1);
@@ -448,8 +446,14 @@ Register("status", 0x404, 4, "Global status register");
 			FieldValue("S_DONE", 15);
 		Field("phy_bit_locked_error", 3, 3, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_error", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
-		Field("calibration_error", 1, 1, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
-		Field("calibration_done", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
+			FieldValue("No FiFo error occured", 0);
+			FieldValue("FiFo error occured", 1);
+		Field("calibration_error", 1, 1, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration error");
+			FieldValue("No calibration error", 0);
+			FieldValue("A calibration error occured", 1);
+		Field("calibration_done", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration sequence completed");
+			FieldValue("Calibration sequence not completed", 0);
+			FieldValue("Last calibration sequence completed successfully", 1);
 
 Register("idelayctrl_status", 0x408, 4, "null");
 		Field("pll_locked", 0, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "IDELAYCTRL PLL locked");
@@ -459,11 +463,18 @@ Register("idelayctrl_status", 0x408, 4, "null");
 Register("idle_character", 0x40c, 4, "null");
 		Field("value", 11, 0, "rd|wr", 0x0, 0x3A6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("frame_cfg", 0x410, 4, "null");
+Register("phy", 0x410, 4, "null");
+		Field("pixel_per_lane", 25, 16, "rd|wr", 0x0, 0xAE, 0xffffffff, 0xffffffff, TEST, 0, 0, "Number of pixels per lanes");
+		Field("mux_ratio", 10, 8, "rd", 0x0, 0x4, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("nb_lanes", 2, 0, "rd|wr", 0x0, 0x6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("4 lanes enabled", 4);
+			FieldValue("6 lanes enabled", 6);
+
+Register("frame_cfg", 0x414, 4, "null");
 		Field("lines_per_frame", 27, 16, "rd|wr", 0x0, 0xc1e, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("pixels_per_line", 12, 0, "rd|wr", 0x0, 0x1050, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("frame_cfg_x_valid", 0x414, 4, "null");
+Register("frame_cfg_x_valid", 0x418, 4, "null");
 		Field("x_end", 28, 16, "rd|wr", 0x0, 0x1023, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x24, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
@@ -479,7 +490,7 @@ Group("lane_decoder_status", "DECTAG", lane_decoder_statusTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("lane_decoder_status", 0x420 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+	Register("lane_decoder_status", 0x424 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
 		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 			FieldValue("Pixel bit boundaries unlocked", 0);
 			FieldValue("Pixel bit boundaries locked", 1);
@@ -508,7 +519,7 @@ Group("tap_histogram", "DECTAG", tap_histogramTags);
 for(i = 0; i < 6; i++)
 {
 
-	Register("tap_histogram", 0x438 + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
+	Register("tap_histogram", 0x43c + i*0x4, 4, "tap_histogram*", "tap_histogram", i, "null");
 		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }
 
@@ -524,12 +535,12 @@ Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
 for(i = 0; i < 3; i++)
 {
 
-	Register("lane_packer_status", 0x450 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
+	Register("lane_packer_status", 0x454 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
 		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
-Register("debug", 0x45c, 4, "null");
+Register("debug", 0x460, 4, "null");
 		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

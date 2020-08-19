@@ -34,7 +34,7 @@ set MODELSIM_INI           ${MODELSIM_PROJECT_PATH}/modelsim.ini
 set LIBRARY_PATH           ${ROOT_PATH}/validation/mti/${LIBRARY_NAME}
 set TCL_PATH               ${ROOT_PATH}/validation/tcl
 
-set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy/xilinx   
+set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy   
 
 
 
@@ -55,7 +55,6 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 set technology_specific_fileset [join [list  [subst {
 ${XILINX_IP_PATH}/hispi_phy_xilinx/hispi_phy_xilinx_selectio_wiz.v
 ${XILINX_IP_PATH}/hispi_phy_xilinx/hispi_phy_xilinx.v
-${XILINX_IP_PATH}/hispi_serdes.vhd
 }
 ]
 ]

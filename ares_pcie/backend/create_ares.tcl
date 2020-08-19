@@ -47,8 +47,10 @@ set REG_DIR            ${WORKDIR}/registerfile
 set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -127,10 +129,15 @@ source ${FILESET_SCRIPT}
 set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
+
+## Touchup to patch 
+set_property is_enabled false [get_files  bd_a352_mac_0_clocks.xdc]
+
 ################################################
 # Generate synthesis run
 ################################################
 reset_run   ${SYNTH_RUN}
+set_property strategy Flow_PerfOptimized_high [get_runs ${SYNTH_RUN}]
 launch_runs ${SYNTH_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${SYNTH_RUN}
 
@@ -165,12 +172,14 @@ close_design
 ################################################
 # Run Backend script
 ################################################
+source  $FIRMWARE_SCRIPT
+source  $REPORT_FILE
+
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
-	 #source  $SDK_SCRIPT
  	 #source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"

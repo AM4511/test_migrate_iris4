@@ -13,10 +13,6 @@ entity XGS_athena is
   generic (
     ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;
     NUMBER_OF_LANE        : integer              := 6;
-    MUX_RATIO             : integer              := 4;
-    PIXELS_PER_LINE       : integer              := 4176;
-    LINES_PER_FRAME       : integer              := 3102;
-    PIXEL_SIZE            : integer              := 12;
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;
     SENSOR_FREQ           : integer              := 32400;
@@ -268,11 +264,11 @@ architecture struct of XGS_athena is
   component xgs_hispi_top is
     generic (
       HW_VERSION      : integer range 0 to 255 := 0;
-      NUMBER_OF_LANE  : integer                := 6;
-      MUX_RATIO       : integer                := 4;
-      PIXELS_PER_LINE : integer                := 4176;
-      LINES_PER_FRAME : integer                := 3102;
-      PIXEL_SIZE      : integer                := 12
+      NUMBER_OF_LANE  : integer                := 6
+      -- MUX_RATIO       : integer                := 4;
+      -- PIXELS_PER_LINE : integer                := 4176;
+      -- LINES_PER_FRAME : integer                := 3102;
+      --PIXEL_SIZE      : integer                := 12
       );
     port (
       ---------------------------------------------------------------------------
@@ -766,11 +762,7 @@ begin
   x_xgs_hispi_top : xgs_hispi_top
     generic map(
       HW_VERSION      => HW_VERSION,
-      NUMBER_OF_LANE  => NUMBER_OF_LANE,
-      MUX_RATIO       => MUX_RATIO,
-      PIXELS_PER_LINE => PIXELS_PER_LINE,
-      LINES_PER_FRAME => LINES_PER_FRAME,
-      PIXEL_SIZE      => PIXEL_SIZE
+      NUMBER_OF_LANE  => NUMBER_OF_LANE
       )
     port map(
       sclk                     => sclk,

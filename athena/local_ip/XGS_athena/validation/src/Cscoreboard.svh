@@ -96,7 +96,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 				
 				    tlp_length =this.axis.tdata[9:0];
 				    
-					//$display("New TLP : %d, tlp_length : %d ", tlp_id, tlp_length  );
+					//$display("New TLP : %0d, tlp_length : %0d ", tlp_id, tlp_length  );
 
 					// PCIE format
 					pcie_fmt_type = this.axis.tdata[30:24];
@@ -169,7 +169,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 					tlp_cntr = 0;
 					tlp_id++;
 					if(tlp_id%50 ==0)
-					  $display("TLP %d completed!", tlp_id);
+					  $display("TLP %0d completed!", tlp_id);
 				end
 			end
 		end while (1);
@@ -189,7 +189,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	   Pcie32_trans DW_pred;	   
 
    
-       $display ("Image %h Predictor, XGS Xsize=%d, XGS Ysize=%d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.pgm_size_x, Image.pgm_size_y, fstart, line_size, line_pitch);       
+       $display ("Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.pgm_size_x, Image.pgm_size_y, fstart, line_size, line_pitch);       
        
        for(int y = 0; y < Image.pgm_size_y; y = y+1)
 	     begin
@@ -210,7 +210,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 		 	 nbElements++;
            end       
          end
-	   $display ("NB_DW=%d", nbElements);       
+	   $display ("NB_DW=%0d", nbElements);       
 
        ImagePredicted++;
 
@@ -227,7 +227,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=2);
 	  
       Pcie32_trans DW_pred;
 	 	 	    
-	  //$display ("Queue have %d elements", this.Pcie32_queue.size() ); 
+	  //$display ("Queue have %0d elements", this.Pcie32_queue.size() ); 
 	  
 	  //Big Endian to Little endian
 	  data_LE[31:24] = data[7:0];

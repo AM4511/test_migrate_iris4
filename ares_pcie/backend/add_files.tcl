@@ -64,5 +64,5 @@ add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
 
 # Problem with a Xilinx constraint file
-set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
-set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
+#set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
+#set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
