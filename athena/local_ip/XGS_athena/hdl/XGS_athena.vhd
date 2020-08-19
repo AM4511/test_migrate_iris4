@@ -355,8 +355,78 @@ architecture struct of XGS_athena is
       aclk_tvalid : out std_logic;
       aclk_tuser  : out std_logic_vector(3 downto 0);
       aclk_tlast  : out std_logic;
-      aclk_tdata  : out std_logic_vector(63 downto 0)
+      aclk_tdata  : out std_logic_vector(79 downto 0)
       );
+  end component;
+
+
+  component dpc_filter is
+   port(
+
+
+    ---------------------------------------------------------------------
+    -- Pixel domain reset and clock signals
+    ---------------------------------------------------------------------
+    pix_clk                              : in    std_logic;
+    pix_reset_n                          : in    std_logic;
+
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals
+    ---------------------------------------------------------------------
+    sys_clk                              : in    std_logic;
+    sys_reset_n                          : in    std_logic;
+    
+    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');  --pixel
+    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');  --pixel
+    curr_Ystart                          : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
+    curr_Yend                            : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
+    
+    ---------------------------------------------------------------------
+    -- Registers
+    ---------------------------------------------------------------------
+    REG_color                            : in    std_logic :='0';    -- to bypass in color modes
+
+    REG_dpc_enable                       : in    std_logic :='1';
+
+    REG_dpc_pattern0_cfg                 : in    std_logic :='0';
+    
+    REG_dpc_fifo_rst                     : in    std_logic :='0';
+    REG_dpc_fifo_ovr                     : out   std_logic;
+    REG_dpc_fifo_und                     : out   std_logic;
+    
+    REG_dpc_list_wrn                     : in    std_logic; 
+    REG_dpc_list_add                     : in    std_logic_vector(5 downto 0); 
+    REG_dpc_list_ss                      : in    std_logic;
+    REG_dpc_list_count                   : in    std_logic_vector(5 downto 0);
+
+    REG_dpc_list_corr_pattern            : in    std_logic_vector(7 downto 0);
+    REG_dpc_list_corr_y                  : in    std_logic_vector(11 downto 0);
+    REG_dpc_list_corr_x                  : in    std_logic_vector(12 downto 0);
+    
+    REG_dpc_list_corr_rd                 : out   std_logic_vector(32 downto 0);   
+       
+    REG_dpc_firstlast_line_rem           : in    std_logic:='0';
+    
+    ---------------------------------------------------------------------
+    -- AXI in
+    ---------------------------------------------------------------------  
+    s_axis_tvalid                        : in   std_logic;
+	s_axis_tready                        : out  std_logic;    
+    s_axis_tuser                         : in   std_logic_vector(3 downto 0);
+    s_axis_tlast                         : in   std_logic;
+    s_axis_tdata                         : in   std_logic_vector;	
+	
+    ---------------------------------------------------------------------
+    -- AXI out
+    ---------------------------------------------------------------------
+	m_axis_tready                        : in  std_logic;
+    m_axis_tvalid                        : out std_logic;
+    m_axis_tuser                         : out std_logic_vector(3 downto 0);
+    m_axis_tlast                         : out std_logic;
+    m_axis_tdata                         : out std_logic_vector(79 downto 0)
+	
+  );
+  
   end component;
 
 
@@ -570,10 +640,17 @@ architecture struct of XGS_athena is
   signal ext_SYSMONXIL_readEn_ff       : std_logic;
   signal ext_SYSMONXIL_addr_ff         : std_logic_vector(5 downto 0);
 
+  signal dcp_tready : std_logic;
+  signal dcp_tvalid : std_logic;
+  signal dcp_tdata  : std_logic_vector(79 downto 0);
+  signal dcp_tuser  : std_logic_vector(3 downto 0);
+  signal dcp_tlast  : std_logic;
+
 
   signal aclk_tready : std_logic;
   signal aclk_tvalid : std_logic;
-  signal aclk_tdata  : std_logic_vector(63 downto 0);
+  signal aclk_tdata  : std_logic_vector(79 downto 0);
+  signal aclk_tdata64: std_logic_vector(63 downto 0);
   signal aclk_tuser  : std_logic_vector(3 downto 0);
   signal aclk_tlast  : std_logic;
 
@@ -725,16 +802,107 @@ begin
       sclk_tuser   => sclk_tuser,
       sclk_tlast   => sclk_tlast,
       sclk_tdata   => sclk_tdata,
-      aclk         => aclk,
+      
+	  aclk         => aclk,
       aclk_reset_n => aclk_reset_n,
-      aclk_tready  => aclk_tready,
-      aclk_tvalid  => aclk_tvalid,
-      aclk_tuser   => aclk_tuser,
-      aclk_tlast   => aclk_tlast,
-      aclk_tdata   => aclk_tdata
+      aclk_tready  => dcp_tready,
+      aclk_tvalid  => dcp_tvalid,
+      aclk_tuser   => dcp_tuser,
+      aclk_tlast   => dcp_tlast,
+      aclk_tdata   => dcp_tdata
       );
 
 
+  ----------------------------------
+  --
+  --
+  -- DCP
+  --
+  --
+  --
+  ----------------------------------
+
+   xdpc_filter : dpc_filter
+   port map(
+
+
+    ---------------------------------------------------------------------
+    -- Pixel domain reset and clock signals
+    ---------------------------------------------------------------------
+    pix_clk                              => aclk,
+    pix_reset_n                          => aclk_reset_n,
+
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals
+    ---------------------------------------------------------------------
+    sys_clk                              => aclk, 
+    sys_reset_n                          => aclk_reset_n,
+    
+    curr_Xstart                          => "0000000000000",  -- [0
+    curr_Xend                            => "0111111111111",  -- 4095]
+    curr_Ystart                          => "000000000000",   -- [0
+    curr_Yend                            => "000000000011",   --  3] 
+    
+    ---------------------------------------------------------------------
+    -- Registers
+    ---------------------------------------------------------------------
+    REG_color                            => '0',    -- to bypass in color modes
+
+    REG_dpc_enable                       => '1',
+
+    REG_dpc_pattern0_cfg                 => '0',
+    
+    REG_dpc_fifo_rst                     => '0',
+    REG_dpc_fifo_ovr                     => open,
+    REG_dpc_fifo_und                     => open,
+    
+    REG_dpc_list_wrn                     => '0',
+    REG_dpc_list_add                     => "000000",
+    REG_dpc_list_ss                      => '0',
+    REG_dpc_list_count                   => "000000",
+
+    REG_dpc_list_corr_pattern            => "00000000",
+    REG_dpc_list_corr_y                  => "000000000000",
+    REG_dpc_list_corr_x                  => "0000000000000",
+    
+    REG_dpc_list_corr_rd                 => open,
+       
+    REG_dpc_firstlast_line_rem           => '0',
+    
+    ---------------------------------------------------------------------
+    -- AXI in (SLAVE)
+    ---------------------------------------------------------------------  
+    s_axis_tvalid                        => dcp_tvalid,
+	s_axis_tready                        => dcp_tready,
+    s_axis_tuser                         => dcp_tuser,
+    s_axis_tlast                         => dcp_tlast,
+    s_axis_tdata                         => dcp_tdata,
+
+	
+    ---------------------------------------------------------------------
+    -- AXI out (MASTER)
+    ---------------------------------------------------------------------
+    m_axis_tvalid                        => aclk_tvalid,
+	m_axis_tready                        => aclk_tready,
+    m_axis_tuser                         => aclk_tuser,
+    m_axis_tlast                         => aclk_tlast,
+    m_axis_tdata                         => aclk_tdata
+
+	
+
+  );
+  
+
+  aclk_tdata64 <= aclk_tdata(79 downto 72) &
+                  aclk_tdata(69 downto 62) &
+				  aclk_tdata(59 downto 52) &
+				  aclk_tdata(49 downto 42) &
+				  aclk_tdata(39 downto 32) &
+				  aclk_tdata(29 downto 22) &
+				  aclk_tdata(19 downto 12) &
+				  aclk_tdata( 9 downto  2); 
+				  
+				  
   xdmawr2tlp : dmawr2tlp
     generic map(
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
@@ -747,7 +915,7 @@ begin
       regfile            => regfile,
       tready             => aclk_tready,
       tvalid             => aclk_tvalid,
-      tdata              => aclk_tdata,
+      tdata              => aclk_tdata64,
       tuser              => aclk_tuser,
       tlast              => aclk_tlast,
       cfg_bus_mast_en    => cfg_bus_mast_en,

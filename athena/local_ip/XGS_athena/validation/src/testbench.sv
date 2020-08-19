@@ -6,7 +6,6 @@ import xgs_athena_pkg::*;
 //import tests_pkg::*;
 
 
-
 module testbench();
 	
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
@@ -18,7 +17,7 @@ module testbench();
 	parameter SYS_CLK_PERIOD= 16;
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
-        parameter EXPOSURE = 50;
+
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
 	parameter AXIS_DATA_WIDTH = 64;
@@ -63,12 +62,10 @@ module testbench();
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
-	parameter HISPI_STATUS_OFFSET              = 'h0404;
-	parameter HISPI_IDLE_CHARACTER_OFFSET      = 'h040C;
-        parameter HISPI_PHY_OFFSET                 = 'h0410;	
-        parameter FRAME_CFG_OFFSET                 = 'h0414;	
-	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0418;
-	parameter HISPI_DEBUG_OFFSET               = 'h0460;
+	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
+    parameter FRAME_CFG_OFFSET                 = 'h0410;	
+	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0414;
+	parameter HISPI_DEBUG_OFFSET               = 'h045C;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -315,12 +312,10 @@ module testbench();
 	XGS_athena  #(
 			.ENABLE_IDELAYCTRL(),
 			.NUMBER_OF_LANE(NUMBER_OF_LANE),
-/* -----\/----- EXCLUDED -----\/-----
 			.MUX_RATIO(MUX_RATIO),
 			.PIXELS_PER_LINE(PIXELS_PER_LINE),
 			.LINES_PER_FRAME(NUMBER_ACTIVE_LINES),
 			.PIXEL_SIZE(PIXEL_SIZE),
- -----/\----- EXCLUDED -----/\----- */
 			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
 			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
 			.SENSOR_FREQ(SENSOR_FREQ),
@@ -396,7 +391,7 @@ module testbench();
 		(
 			.sys_clk(pcie_clk),
 			.sys_reset_n(pcie_axi.reset_n),
-			.s_axis_tx_tready(tx_axis.tready),
+			.s_axis_tx_tready(tx_axis.tready), // No back pressure from PCIe
 			.s_axis_tx_tdata(tx_axis.tdata),
 			.s_axis_tx_tkeep(),
 			.s_axis_tx_tlast(tx_axis.tlast),
@@ -435,7 +430,7 @@ module testbench();
 
 
 	assign cfg_bus_mast_en = 1'b1;
-	assign tx_axis.tready = 1'b1;
+	//assign tx_axis.tready = 1'b1;
 
 	//Connect the GPIO
 	assign if_gpio.input_io[0] = irq[0];
@@ -454,6 +449,82 @@ module testbench();
 		dma_irq_cntr++;
 	end
 
+    ///////////////////////////////////////////////
+	//
+	// Back pressure to AXI tready
+	//
+	/////////////////////////////////////////////// 
+    reg        tready_cntr_en;
+    reg [15:0] tready_cntr;
+  
+    reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+    reg        tready_packet_cntr_en;
+    reg [15:0] tready_packet_cntr;
+  
+  
+    always @(posedge pcie_clk)
+    if (pcie_axi.reset_n==0) begin
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 16'b0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+      
+    end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
+      tx_axis.tready         <= 1'b1 ;
+      
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+      
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+  
+    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+
+    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
+      tx_axis.tready         <= 1'b0 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 1;
+      tready_packet_cntr     <= 16'b0;
+      
+    //------------------------  
+    // inter packet delai  
+    //------------------------
+    end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
+    
+      tx_axis.tready         <= 1'b0 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 1;
+      tready_packet_cntr     <= tready_packet_cntr + 16'd1;
+  
+    end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
+    
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+  
+    end
+    
+    
 	// Clock and Reset generation
 	//always #5 axi_clk = ~axi_clk;
 
@@ -492,7 +563,7 @@ module testbench();
 				int ROI_X_START;
 				int ROI_X_END;
 
-				// int EXPOSURE=50; -> now defined as a parameter
+				int EXPOSURE=50;
 				int KEEP_OUT_TRIG_START_sysclk;
 				int KEEP_OUT_TRIG_END_sysclk;
 				int MLines;
@@ -508,10 +579,9 @@ module testbench();
 				int monitor_0_reg;
 				int monitor_1_reg;
 				int monitor_2_reg;
-                                int test_nb_images;
 
+                int test_nb_images=0;
 
-			        test_nb_images =0;
 				fstart = 'hA0000000;
 				line_size = 'h1000;
 				line_pitch = 'h1000;
@@ -628,7 +698,7 @@ module testbench();
 					$display("XGS Model ID detected is 0x358, XGS5M");
 				end
 				else begin
-					$error("XGS Model ID detected is %0d", data_rd);
+					$error("XGS Model ID detected is %d", data_rd);
 				end
 
 
@@ -779,8 +849,8 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control
 				///////////////////////////////////////////////////
-				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_IDLE_CHARACTER_OFFSET);
-				host.write(HISPI_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
+				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_CTRL_IDLE_CHARACTER_OFFSET);
+				host.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control, 6 lanes, mux 4
@@ -873,7 +943,7 @@ module testbench();
 				///////////////////////////////////////////////////
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #0, Xstart=%0d, Xend=%0d (Xsize=%0d)), Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
@@ -887,9 +957,11 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
-				ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #1, Xstart=%0d, Xend=%0d (Xsize=%0d)), Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
+			    //ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+                ROI_Y_START = 0;         // Doit etre multiple de 4 
+			    ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
@@ -898,9 +970,9 @@ module testbench();
 
                 XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
-				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);		
-				
-				
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);					
+                
+                
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
