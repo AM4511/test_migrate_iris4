@@ -77,6 +77,11 @@ ${DATA_SRC_PATH}/lane_packer.vhd \
 ${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
+${DATA_SRC_PATH}/dpc/Infered_RAM.vhd \
+${DATA_SRC_PATH}/dpc/dpc_package.vhd \
+${DATA_SRC_PATH}/dpc/dpc_kernel_10x3.vhd \
+${DATA_SRC_PATH}/dpc/dpc_kernel_proc.vhd \
+${DATA_SRC_PATH}/dpc/dpc_filter.vhd \
 ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \

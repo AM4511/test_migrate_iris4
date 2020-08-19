@@ -391,7 +391,7 @@ module testbench();
 		(
 			.sys_clk(pcie_clk),
 			.sys_reset_n(pcie_axi.reset_n),
-			.s_axis_tx_tready(tx_axis.tready),
+			.s_axis_tx_tready(tx_axis.tready), // No back pressure from PCIe
 			.s_axis_tx_tdata(tx_axis.tdata),
 			.s_axis_tx_tkeep(),
 			.s_axis_tx_tlast(tx_axis.tlast),
@@ -430,7 +430,7 @@ module testbench();
 
 
 	assign cfg_bus_mast_en = 1'b1;
-	assign tx_axis.tready = 1'b1;
+	//assign tx_axis.tready = 1'b1;
 
 	//Connect the GPIO
 	assign if_gpio.input_io[0] = irq[0];
@@ -449,6 +449,82 @@ module testbench();
 		dma_irq_cntr++;
 	end
 
+    ///////////////////////////////////////////////
+	//
+	// Back pressure to AXI tready
+	//
+	/////////////////////////////////////////////// 
+    reg        tready_cntr_en;
+    reg [15:0] tready_cntr;
+  
+    reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+    reg        tready_packet_cntr_en;
+    reg [15:0] tready_packet_cntr;
+  
+  
+    always @(posedge pcie_clk)
+    if (pcie_axi.reset_n==0) begin
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 16'b0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+      
+    end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
+      tx_axis.tready         <= 1'b1 ;
+      
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+      
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+  
+    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+
+    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
+      tx_axis.tready         <= 1'b0 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 1;
+      tready_packet_cntr     <= 16'b0;
+      
+    //------------------------  
+    // inter packet delai  
+    //------------------------
+    end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
+    
+      tx_axis.tready         <= 1'b0 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 1;
+      tready_packet_cntr     <= tready_packet_cntr + 16'd1;
+  
+    end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
+    
+      tx_axis.tready         <= 1'b1 ;
+  
+      tready_cntr_en         <= 0;
+      tready_cntr            <= 0;
+  
+      tready_packet_cntr_en  <= 0;
+      tready_packet_cntr     <= 16'b0;
+  
+    end
+    
+    
 	// Clock and Reset generation
 	//always #5 axi_clk = ~axi_clk;
 
@@ -881,8 +957,10 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
-				ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
+			    //ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+                ROI_Y_START = 0;         // Doit etre multiple de 4 
+			    ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
@@ -892,9 +970,9 @@ module testbench();
 
                 XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
-				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);		
-				
-				
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);					
+                
+                
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////

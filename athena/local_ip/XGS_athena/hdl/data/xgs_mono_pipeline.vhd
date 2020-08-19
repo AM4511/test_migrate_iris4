@@ -48,7 +48,7 @@ entity xgs_mono_pipeline is
     aclk_tvalid : out std_logic;
     aclk_tuser  : out std_logic_vector(3 downto 0);
     aclk_tlast  : out std_logic;
-    aclk_tdata  : out std_logic_vector(63 downto 0)
+    aclk_tdata  : out std_logic_vector(79 downto 0)
     );
 end xgs_mono_pipeline;
 
@@ -91,13 +91,13 @@ architecture rtl of xgs_mono_pipeline is
   -----------------------------------------------------------------------------
   signal sclk_reset         : std_logic;
   signal sclk_wen           : std_logic;
-  signal sclk_data          : std_logic_vector (71 downto 0) := (others => '0');
+  signal sclk_data          : std_logic_vector (87 downto 0) := (others => '0');
   signal sclk_full          : std_logic;
   signal sclk_data_phase    : std_logic;
   signal sclk_load_data     : std_logic;
   signal sclk_last_data     : std_logic;
   signal sclk_sync_packer   : std_logic_vector (3 downto 0);
-  signal sclk_data_packer   : std_logic_vector (63 downto 0);
+  signal sclk_data_packer   : std_logic_vector (79 downto 0);
   signal sclk_packer_valid  : std_logic;
   signal sclk_pix_cntr      : integer;
   signal sclk_pix_cntr_en   : std_logic;
@@ -108,7 +108,7 @@ architecture rtl of xgs_mono_pipeline is
   -- ACLK clock domain
   -----------------------------------------------------------------------------
   signal aclk_read            : std_logic;
-  signal aclk_read_data       : std_logic_vector (71 downto 0) := (others => '0');
+  signal aclk_read_data       : std_logic_vector (87 downto 0) := (others => '0');
   signal aclk_empty           : std_logic;
   signal aclk_tvalid_int      : std_logic;
   signal aclk_read_data_valid : std_logic;
@@ -206,16 +206,16 @@ begin
           --if (SIMULATION = 0) then
             -- Phase 0
             if (sclk_data_phase = '0') then
-              sclk_data_packer(7 downto 0)   <= sclk_tdata(11 downto 4);
-              sclk_data_packer(15 downto 8)  <= sclk_tdata(27 downto 20);
-              sclk_data_packer(23 downto 16) <= sclk_tdata(43 downto 36);
-              sclk_data_packer(31 downto 24) <= sclk_tdata(59 downto 52);
+              sclk_data_packer( 9 downto 0)  <= sclk_tdata(11 downto 2);
+              sclk_data_packer(19 downto 10) <= sclk_tdata(27 downto 18);
+              sclk_data_packer(29 downto 20) <= sclk_tdata(43 downto 34);
+              sclk_data_packer(39 downto 30) <= sclk_tdata(59 downto 50);
             -- Phase 1
             else
-              sclk_data_packer(39 downto 32) <= sclk_tdata(11 downto 4);
-              sclk_data_packer(47 downto 40) <= sclk_tdata(27 downto 20);
-              sclk_data_packer(55 downto 48) <= sclk_tdata(43 downto 36);
-              sclk_data_packer(63 downto 56) <= sclk_tdata(59 downto 52);
+              sclk_data_packer(49 downto 40) <= sclk_tdata(11 downto 2);
+              sclk_data_packer(59 downto 50) <= sclk_tdata(27 downto 18);
+              sclk_data_packer(69 downto 60) <= sclk_tdata(43 downto 34);
+              sclk_data_packer(79 downto 70) <= sclk_tdata(59 downto 50);
             end if;
           ---------------------------------------------------------------------
           -- Simulation packing (removed MSB to keep the ramp)
@@ -312,13 +312,13 @@ begin
   -----------------------------------------------------------------------------
   -- FiFo sclk_data bus agregation
   -----------------------------------------------------------------------------
-  sclk_data(63 downto 0)  <= sclk_data_packer;
-  sclk_data(67 downto 64) <= sclk_sync_packer;
-  sclk_data(68)           <= sclk_last_data;
+  sclk_data(79 downto 0)  <= sclk_data_packer;
+  sclk_data(83 downto 80) <= sclk_sync_packer;
+  sclk_data(84)           <= sclk_last_data;
 
   xoutput_fifo : mtxDCFIFO
     generic map (
-      DATAWIDTH => 72,
+      DATAWIDTH => 88,
       ADDRWIDTH => 10
       )
     port map(
@@ -374,7 +374,7 @@ begin
           -- S_TRANSFER
           ---------------------------------------------------------------------
           when S_TRANSFER =>
-            if (aclk_empty = '1' and aclk_read_data(68) = '1') then
+            if (aclk_empty = '1' and aclk_read_data(84) = '1') then
               aclk_state <= S_DONE;
             end if;
 
@@ -448,15 +448,15 @@ begin
         aclk_tdata <= (others => '0');
       else
         if ((aclk_tready = '1' or aclk_tvalid_int = '0')and aclk_read_data_valid = '1') then
-          aclk_tdata <= aclk_read_data(63 downto 0);
+          aclk_tdata <= aclk_read_data(79 downto 0);
         end if;
       end if;
     end if;
   end process;
 
 
-  aclk_sync_packer  <= aclk_read_data(67 downto 64);
-  aclk_tlast_packer <= aclk_read_data(68);
+  aclk_sync_packer  <= aclk_read_data(83 downto 80);
+  aclk_tlast_packer <= aclk_read_data(84);
 
 
   -----------------------------------------------------------------------------

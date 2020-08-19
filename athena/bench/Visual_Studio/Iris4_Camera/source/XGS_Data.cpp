@@ -70,12 +70,36 @@ void CXGS_Data::HiSpiClr(void)
 	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
 
+	// RESET HISPI
 	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI      = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 1;
 	rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
 	
+	// RESET all LANE_DECODER_STATUS ERRORS (R/W2C)
+	sXGSptr.HISPI.LANE_DECODER_STATUS[0].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[0].u32;
+	sXGSptr.HISPI.LANE_DECODER_STATUS[1].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[1].u32;
+	sXGSptr.HISPI.LANE_DECODER_STATUS[2].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[2].u32;
+	sXGSptr.HISPI.LANE_DECODER_STATUS[3].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[3].u32;
+	sXGSptr.HISPI.LANE_DECODER_STATUS[4].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[4].u32;
+	sXGSptr.HISPI.LANE_DECODER_STATUS[5].u32   = rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32;
+	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[5].u32;
+
+	// RESET all LANE_PACKER_STATUS ERRORS (R/W2C)
+	sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
+	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
+	sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
+	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
+	sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
+	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
+
+	// UN-RESET HISPI
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
     rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
 	Sleep(100);
@@ -225,19 +249,30 @@ void CXGS_Data::SetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_U
 //
 //---------------------------------------------------------------------------------------
 
-void CXGS_Data::HiSpiCheck(void)
+M_UINT32 CXGS_Data::HiSpiCheck(void)
 {
 	M_UINT32 Register;
-	M_UINT32 error_detect=0;
 
-	Register = rXGSptr.HISPI.STATUS.u32;
+	M_UINT32 Reg_HISPI_CTRL;
+	M_UINT32 Reg_HISPI_STATUS;
+	M_UINT32 Reg_HISPI_DEC_STATUS[6];
+	M_UINT32 Reg_HISPI_PACK_STATUS[3];
+	
+
+	M_UINT32 error_detect=0;
+	char ch;
+	M_UINT32 Stop_test = 0;
+
+	Register         = rXGSptr.HISPI.STATUS.u32;
+	Reg_HISPI_STATUS = Register;
 	if ((Register & 0x00000002) == 0x002)  { printf("\nHISPI_STATUS, CALIBRATION ERROR");    error_detect = 1; }
 	if ( (Register & 0x00000004) == 0x004) { printf("\nHISPI_STATUS, FIFO ERROR");			 error_detect = 1; }
 	if ( (Register & 0x00000008) == 0x008) { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
 
 	for (int i = 0; i < 6; i++)
 	{
-		Register = rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32;
+		Register                = rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32;
+		Reg_HISPI_DEC_STATUS[i] = Register;
 		if ( (Register & 0x00000001)  == 0x001)  { printf("\nLANE_DECODER_STATUS_[%d], FIFO_OVERRUN", i);           error_detect = 1; } 
 		if ( (Register & 0x00000002)  == 0x002)  { printf("\nLANE_DECODER_STATUS_[%d], FIFO_UNDERRUN", i);			error_detect = 1; } 
 		if ( (Register & 0x00000008)  == 0x008)  { printf("\nLANE_DECODER_STATUS_[%d], CALIBRATION_ERROR", i);		error_detect = 1; } 
@@ -247,15 +282,56 @@ void CXGS_Data::HiSpiCheck(void)
 
 	for (int i = 0; i < 3; i++)
 	{
-		Register = rXGSptr.HISPI.LANE_PACKER_STATUS[i].u32;
+		Register                 = rXGSptr.HISPI.LANE_PACKER_STATUS[i].u32;
+		Reg_HISPI_PACK_STATUS[i] = Register;
 		if ( (Register & 0x00000001) == 0x001) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_OVERRUN", i);              error_detect = 1; }
 		if ( (Register & 0x00000002) == 0x002) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_UNDERRUN", i);				error_detect = 1; }
 	}							   
 
 	if (error_detect == 1)
 	{
-		printf("\n\nPress any key to continue\n\n");
-		_getch();
+		printf("\n\n");
 
+		Reg_HISPI_CTRL = rXGSptr.HISPI.CTRL.u32;
+		printf("HISPI CTRL         : 0x%X\n",   Reg_HISPI_CTRL);
+		printf("HISPI STATUS       : 0x%X\n\n", Reg_HISPI_STATUS);
+
+		printf("HISPI DEC0_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[0]);
+		printf("HISPI DEC1_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[1]);
+		printf("HISPI DEC2_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[2]);
+		printf("HISPI DEC3_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[3]);
+		printf("HISPI DEC4_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[4]);
+		printf("HISPI DEC5_STATUS  : 0x%X\n\n", Reg_HISPI_DEC_STATUS[5]);
+
+		printf("HISPI PACK0_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[0]);
+		printf("HISPI PACK1_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[1]);
+		printf("HISPI PACK2_STATUS : 0x%X\n\n", Reg_HISPI_PACK_STATUS[2]);
+
+		printf("\nPress 'c' to continue without recover HI_SPI\n");
+		printf("Press 'r' to try to recover HI_SPI and continue this test\n");
+		printf("Press 'q' to quit this test and try to recover HI_SPI\n");
+
+		ch = _getch();
+
+		switch (ch)
+		{
+		case 'q':
+			Stop_test = 1;
+			HiSpiClr();
+			HiSpiCalibrate();
+			break;
+
+		case 'c':
+			Stop_test = 0;
+			break;
+
+		case 'r':
+			Stop_test = 0;
+			HiSpiClr();
+			HiSpiCalibrate();
+			break;
+		}
 	}
+
+	return Stop_test;
 }
