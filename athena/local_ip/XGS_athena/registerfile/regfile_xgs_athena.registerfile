@@ -568,15 +568,8 @@
       <fields name="VALUE" description="This register sets the timer duration. When the counter reaches the value programmed in this register the counter will be reseted to 0. The trigger will be generated when the counter reaches value 0x1. &#xD;&#xA;&#xD;&#xA;This register is double buffered with TIMERSTART register." size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="45C">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="460">
     <registers name="CTRL">
-      <fields name="XGS_MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera the mux ratio is fixed and set to 4." lsb="12" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
-      <fields name="XGS_NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" lsb="8" size="3" valueAtReset="6">
-        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>6 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved (All lanes are disabled)&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset IDELAYCTRL&lt;/matrox_column_delimiter></possibleValues>
@@ -641,11 +634,24 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="FRAME_CFG" offsetFromParent="10">
+    <registers name="PHY" offsetFromParent="10">
+      <fields name="PIXEL_PER_LANE" alias="Number of pixels per lanes" description="" lsb="16" size="10" valueAtReset="AE">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera the mux ratio is fixed and set to 4." lsb="8" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
+      <fields name="NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" size="3" valueAtReset="6">
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>6 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved (All lanes are disabled)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="FRAME_CFG" offsetFromParent="14">
       <fields name="LINES_PER_FRAME" description="This is the total number of lines in a frame including dummy, BL, Interpolation and valid pixels. Reset value is 3102 (XGS12M). The value may change depending on the Black Lines(BL) programmed in the M-LINES section of the frame.&#xD;&#xA;Reset value is 3102 (0xc1e, XGS12M)&#xD;&#xA;" lsb="16" size="12" valueAtReset="c1e"/>
       <fields name="PIXELS_PER_LINE" description="This is the total number of pixel in a line, including dummy, BL, Interpolation and valid pixels. Reset value is 4176 (0x1050, XGS12M)" size="13" valueAtReset="1050"/>
     </registers>
-    <registers name="FRAME_CFG_X_VALID" offsetFromParent="14" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+    <registers name="FRAME_CFG_X_VALID" offsetFromParent="18" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
       <fields name="X_END" description="This register defines the position of the last horizontal valid pixel (including initials dummy pixels, black reference pixels and interpolation pixels). The location of the last X valid pixel differs between XGS family members and configurations. The dcf will load the location of  the X end. It is defined as 1-based number&#xD;&#xA;&#xD;&#xA;For XGS12000, in a monochrome sensor the x end is 4132 (0x1024).&#xD;&#xA;For XGS12000, in a color sensor the x end is 4136 (0x1028). (For BAYER correction) " lsb="16" size="13" valueAtReset="1023">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -655,7 +661,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="LANE_DECODER_STATUS" offsetFromParent="20" useMultiples="true" numberOfMultiples="6">
+    <registers name="LANE_DECODER_STATUS" offsetFromParent="24" useMultiples="true" numberOfMultiples="6">
       <fields name="PHY_SYNC_ERROR" lsb="14" readWrite="false" readWriteToClear="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries unlocked&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries locked&lt;/matrox_column_delimiter></possibleValues>
@@ -677,14 +683,14 @@
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="TAP_HISTOGRAM" offsetFromParent="38" useMultiples="true" numberOfMultiples="6">
+    <registers name="TAP_HISTOGRAM" offsetFromParent="3C" useMultiples="true" numberOfMultiples="6">
       <fields name="VALUE" size="32" readWrite="false" readOnly="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="50" useMultiples="true" numberOfMultiples="3">
+    <registers name="LANE_PACKER_STATUS" offsetFromParent="54" useMultiples="true" numberOfMultiples="3">
       <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
       <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
     </registers>
-    <registers name="DEBUG" offsetFromParent="5C">
+    <registers name="DEBUG" offsetFromParent="60">
       <fields name="MANUAL_CALIB_EN" lsb="31"/>
       <fields name="LOAD_TAPS" lsb="30" readWrite="false" writeOnly="true"/>
       <fields name="TAP_LANE_5" lsb="25" size="5"/>

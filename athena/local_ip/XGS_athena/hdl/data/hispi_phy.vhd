@@ -329,7 +329,7 @@ begin
   -- DST CLK    : hclk
   -- CDC method : False path field from register file
   -----------------------------------------------------------------------------
-  rclk_nb_lanes <= regfile.HISPI.CTRL.XGS_NB_LANES;
+  rclk_nb_lanes <= regfile.HISPI.PHY.NB_LANES;
   P_hclk_lane_enabled : process (hclk) is
   begin
     if (rising_edge(hclk)) then

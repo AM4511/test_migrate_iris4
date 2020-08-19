@@ -11,6 +11,10 @@ add wave -noupdate -expand -group {Lane packer 0} /testbench/DUT/x_xgs_hispi_top
 add wave -noupdate -expand -group {Lane packer 0} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/line_valid
 add wave -noupdate -expand -group {Lane packer 0} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/busy
 add wave -noupdate -expand -group {Lane packer 0} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/line_buffer_id
+add wave -noupdate -expand -group {Lane packer 0} -radix decimal /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/rclk_pixel_mux_ratio
+add wave -noupdate -expand -group {Lane packer 0} -radix decimal /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/rclk_pixel_per_lane
+add wave -noupdate -expand -group {Lane packer 0} -radix decimal /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/rclk_pixel_per_stripe
+add wave -noupdate -expand -group {Lane packer 0} -radix decimal /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/rclk_pixel_per_packer
 add wave -noupdate -expand -group {Lane packer 0} -expand -group {top decoder I/F} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/top_sync
 add wave -noupdate -expand -group {Lane packer 0} -expand -group {top decoder I/F} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/top_fifo_read_en
 add wave -noupdate -expand -group {Lane packer 0} -expand -group {top decoder I/F} -color Magenta /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/top_fifo_empty
@@ -56,7 +60,7 @@ add wave -noupdate -expand -group {Lane packer 0} -expand -group {Line buffer I/
 add wave -noupdate -expand -group {Lane packer 0} -expand -group {Line buffer I/F} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/lane_packer_addr
 add wave -noupdate -expand -group {Lane packer 0} -expand -group {Line buffer I/F} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/lane_packer_data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {189440006 ps} 0} {{Cursor 2} {2315377857 ps} 0}
+WaveRestoreCursors {{Cursor 1} {250066765 ps} 0} {{Cursor 2} {671900581 ps} 0}
 quietly wave cursor active 2
 configure wave -namecolwidth 339
 configure wave -valuecolwidth 100
@@ -72,4 +76,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {5027176468 ps}
+WaveRestoreZoom {0 ps} {1100215923 ps}

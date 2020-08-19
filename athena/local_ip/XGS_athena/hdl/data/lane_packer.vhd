@@ -15,15 +15,9 @@ use work.regfile_xgs_athena_pack.all;
 
 entity lane_packer is
   generic (
-    LANE_PACKER_ID            : integer              := 0;
-    LINE_BUFFER_DATA_WIDTH    : integer              := 64;
-    LINE_BUFFER_ADDRESS_WIDTH : integer              := 11;
-    NUMBER_OF_LINE_BUFFER     : integer range 1 to 4 := 4;
-    NUMBER_OF_LANE            : integer              := 6;
-    MUX_RATIO                 : integer              := 4;
-    PIXELS_PER_LINE           : integer              := 4176;
-    LINES_PER_FRAME           : integer              := 3102;
-    PIXEL_SIZE                : integer              := 12
+    LANE_PACKER_ID            : integer := 0;
+    LINE_BUFFER_DATA_WIDTH    : integer := 64;
+    LINE_BUFFER_ADDRESS_WIDTH : integer := 11
     );
   port (
     ---------------------------------------------------------------------------
@@ -39,7 +33,7 @@ entity lane_packer is
     sclk       : in std_logic;
     sclk_reset : in std_logic;
 
-  
+
     enable         : in  std_logic;
     init_packer    : in  std_logic;
     odd_line       : in  std_logic;
@@ -62,13 +56,11 @@ entity lane_packer is
     bottom_fifo_read_data       : in  std_logic_vector(31 downto 0);
 
     -- Line buffer interface
-    -- lane_packer_info_en : out std_logic;
-    -- lane_packer_info    : out std_logic_vector(3 downto 0);
-    lane_packer_ack     : in  std_logic;
-    lane_packer_req     : out std_logic;
-    lane_packer_write   : out std_logic;
-    lane_packer_addr    : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    lane_packer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+    lane_packer_ack   : in  std_logic;
+    lane_packer_req   : out std_logic;
+    lane_packer_write : out std_logic;
+    lane_packer_addr  : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
+    lane_packer_data  : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
     );
 
 end entity lane_packer;
@@ -125,19 +117,14 @@ architecture rtl of lane_packer is
   end component;
 
 
-  constant LANE_WIDTH_IN_PIX  : natural := PIXELS_PER_LINE/(NUMBER_OF_LANE*MUX_RATIO);
   constant FIFO_ADDRESS_WIDTH : natural := 10;
-  --constant FIFO_ADDRESS_WIDTH : natural := 11; --jmansill 10 to 11
   constant FIFO_DATA_WIDTH    : natural := LINE_BUFFER_DATA_WIDTH + LINE_BUFFER_ADDRESS_WIDTH;
-  constant PIXEL_PER_STRIPE   : natural := (2*PIXELS_PER_LINE)/(NUMBER_OF_LANE*MUX_RATIO);
-  constant PIXEL_PER_PACKER   : natural := 4*PIXEL_PER_STRIPE;
 
 
-  type PACKER_CNTR_ARRAY_TYPE is array (0 to MUX_RATIO-1) of natural range 0 to 3;
   type PACKER_ADDRESS_ARRAY_TYPE is array (0 to 3) of natural;
   type INTEGER_ARRAY_TYPE is array (natural range <>) of natural;
 
-  type PACK_FSM_TYPE is (S_IDLE, S_INIT, S_PACK, S_SOF, S_EOF, S_EOL, S_FLUSH, S_DONE);
+  type PACK_FSM_TYPE is (S_IDLE, S_INIT, S_PACK, S_SOF, S_EOF, S_EOL, S_FLUSH, S_LINE_BUFFER_OVERFLOW, S_DONE);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_REQ, S_WRITE, S_DONE);
 
 
@@ -176,14 +163,23 @@ architecture rtl of lane_packer is
   signal rclk_packer_fifo_overrun  : std_logic;
   signal rclk_packer_fifo_underrun : std_logic;
 
+  signal rclk_pixel_per_lane   : natural;
+  signal rclk_pixel_mux_ratio  : natural;
+  signal rclk_pixel_per_packer : natural;
+  signal rclk_pixel_per_stripe : natural;
+
+
 begin
 
-  -- lane_packer_info    <= (others => '0');
-  -- lane_packer_info_en <= '0';
+  rclk_pixel_per_lane  <= to_integer(unsigned(regfile.HISPI.PHY.PIXEL_PER_LANE));
+  rclk_pixel_mux_ratio <= to_integer(unsigned(regfile.HISPI.PHY.MUX_RATIO));
+
+  rclk_pixel_per_stripe <= 2 * rclk_pixel_per_lane;
+  rclk_pixel_per_packer <= rclk_pixel_per_stripe*rclk_pixel_mux_ratio;
 
 
   -----------------------------------------------------------------------------
-  -- TBD
+  -- FiFo error flags
   -----------------------------------------------------------------------------
   packer_fifo_overrun <= '1' when(fifo_wr = '1' and fifo_full = '1') else
                          '0';
@@ -282,13 +278,16 @@ begin
             when S_PACK =>
               -- If EOL or EOF
               if (top_sync(1) = '1' or top_sync(3) = '1') then
-                state <= S_FLUSH;
+                if (pix_in_cntr = rclk_pixel_per_packer) then
+                  state <= S_FLUSH;
+                else
+                  state <= S_LINE_BUFFER_OVERFLOW;
+                end if;
               end if;
 
-
-            ---------------------------------------------------------------------
-            -- S_FLUSH : Flush process 
-            ---------------------------------------------------------------------
+           ---------------------------------------------------------------------
+           -- S_FLUSH : Flush process 
+           ---------------------------------------------------------------------
             when S_FLUSH =>
               if (output_state = S_DONE) then
                 state <= S_DONE;
@@ -297,15 +296,27 @@ begin
               end if;
 
             ---------------------------------------------------------------------
+            -- S_LINE_BUFFER_OVERFLOW : This is an error state. We should never
+            --                          arrive here. This means that the data
+            --                          is not evacuated fast enough from the
+            --                          line buffer.
+            ---------------------------------------------------------------------
+            when S_LINE_BUFFER_OVERFLOW =>
+              -- synthesis translate_off
+              assert (false) report "LINE buffer OVERFLOW" severity error;
+              -- synthesis translate_on
+              state <= S_FLUSH;
+
+            ---------------------------------------------------------------------
             -- S_DONE : Flush process is completed. The FSM can return in S_IDLE
             --          and wait for the current line.
             ---------------------------------------------------------------------
             when S_DONE =>
               state <= S_IDLE;
-
-            ---------------------------------------------------------------------
-            -- 
-            ---------------------------------------------------------------------
+              
+           ---------------------------------------------------------------------
+           -- 
+           ---------------------------------------------------------------------
             when others =>
               null;
           end case;
@@ -377,8 +388,6 @@ begin
 
 
 
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_pix_offset_stripe_[3:0]
   -- Description : Calculate the pixel offset in the line buffer 
@@ -402,10 +411,10 @@ begin
         -- Initialize the offset counter
         -----------------------------------------------------------------------
         if (state = S_INIT) then
-          pix_offset_stripe_0 <= (0*PIXEL_PER_STRIPE + (LANE_PACKER_ID*PIXEL_PER_PACKER))/4;
-          pix_offset_stripe_1 <= (1*PIXEL_PER_STRIPE + (LANE_PACKER_ID*PIXEL_PER_PACKER))/4;
-          pix_offset_stripe_2 <= (2*PIXEL_PER_STRIPE + (LANE_PACKER_ID*PIXEL_PER_PACKER))/4;
-          pix_offset_stripe_3 <= (3*PIXEL_PER_STRIPE + (LANE_PACKER_ID*PIXEL_PER_PACKER))/4;
+          pix_offset_stripe_0 <= (0*rclk_pixel_per_stripe + (LANE_PACKER_ID*rclk_pixel_per_packer))/4;
+          pix_offset_stripe_1 <= (1*rclk_pixel_per_stripe + (LANE_PACKER_ID*rclk_pixel_per_packer))/4;
+          pix_offset_stripe_2 <= (2*rclk_pixel_per_stripe + (LANE_PACKER_ID*rclk_pixel_per_packer))/4;
+          pix_offset_stripe_3 <= (3*rclk_pixel_per_stripe + (LANE_PACKER_ID*rclk_pixel_per_packer))/4;
 
         elsif (pix_packer_wren = '1') then
           ---------------------------------------------------------------------
@@ -528,9 +537,9 @@ begin
                 output_state <= S_REQ;
               end if;
 
-            ---------------------------------------------------------------------
-            -- S_WRITE : 
-            ---------------------------------------------------------------------
+           ---------------------------------------------------------------------
+           -- S_WRITE : 
+           ---------------------------------------------------------------------
             when S_WRITE =>
               if (fifo_empty = '1') then
                 output_state <= S_DONE;
@@ -598,15 +607,16 @@ begin
   lane_packer_addr <= fifo_rdata(fifo_wdata'left downto LINE_BUFFER_DATA_WIDTH);
   lane_packer_data <= fifo_rdata(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
+
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-  -- synthesis translate_off
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   P_pix_in_cntr : process (sclk) is
 
   begin
     if (rising_edge(sclk)) then
+
       if (sclk_reset = '1')then
         pix_in_cntr <= 0;
       else
@@ -615,18 +625,14 @@ begin
         elsif (fifo_wr = '1') then
           pix_in_cntr <= pix_in_cntr+4;
 
-          assert (pix_in_cntr <= PIXEL_PER_PACKER) report "LanePacker : WROTE TOO MANY PIXEL" severity error;
+          -- synthesis translate_off
+          assert (pix_in_cntr <= rclk_pixel_per_packer) report "LanePacker : WROTE TOO MANY PIXEL" severity error;
+          -- synthesis translate_on
 
         end if;
       end if;
     end if;
   end process;
 
-
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  -- synthesis translate_on
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-
+  
 end architecture rtl;

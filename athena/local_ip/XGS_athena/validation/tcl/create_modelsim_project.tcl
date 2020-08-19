@@ -34,7 +34,7 @@ set MODELSIM_INI           ${MODELSIM_PROJECT_PATH}/modelsim.ini
 set LIBRARY_PATH           ${ROOT_PATH}/validation/mti/${LIBRARY_NAME}
 set TCL_PATH               ${ROOT_PATH}/validation/tcl
 
-set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy/xilinx   
+set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy   
 
 
 

@@ -63,10 +63,12 @@ module testbench();
 
 	// XGS_athena HiSPi
 	parameter HISPI_CTRL_OFFSET                = 'h0400;
-	parameter HISPI_CTRL_IDLE_CHARACTER_OFFSET = 'h040C;
-    parameter FRAME_CFG_OFFSET                 = 'h0410;	
-	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0414;
-	parameter HISPI_DEBUG_OFFSET               = 'h045C;
+	parameter HISPI_STATUS_OFFSET              = 'h0404;
+	parameter HISPI_IDLE_CHARACTER_OFFSET      = 'h040C;
+        parameter HISPI_PHY_OFFSET                 = 'h0410;	
+        parameter FRAME_CFG_OFFSET                 = 'h0414;	
+	parameter FRAME_CFG_X_VALID_OFFSET         = 'h0418;
+	parameter HISPI_DEBUG_OFFSET               = 'h0460;
 
 	// XGS sensor SPI Parameters
 	parameter SPI_MODEL_ID_OFFSET          = 16'h000;
@@ -313,10 +315,12 @@ module testbench();
 	XGS_athena  #(
 			.ENABLE_IDELAYCTRL(),
 			.NUMBER_OF_LANE(NUMBER_OF_LANE),
+/* -----\/----- EXCLUDED -----\/-----
 			.MUX_RATIO(MUX_RATIO),
 			.PIXELS_PER_LINE(PIXELS_PER_LINE),
 			.LINES_PER_FRAME(NUMBER_ACTIVE_LINES),
 			.PIXEL_SIZE(PIXEL_SIZE),
+ -----/\----- EXCLUDED -----/\----- */
 			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
 			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
 			.SENSOR_FREQ(SENSOR_FREQ),
@@ -775,8 +779,8 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control
 				///////////////////////////////////////////////////
-				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_CTRL_IDLE_CHARACTER_OFFSET);
-				host.write(HISPI_CTRL_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
+				$display("  6.1 Write IDLE_CHARACTER register @0x%h", HISPI_IDLE_CHARACTER_OFFSET);
+				host.write(HISPI_IDLE_CHARACTER_OFFSET,  HISPI_IDLE_CHARACTER);
 
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control, 6 lanes, mux 4

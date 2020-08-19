@@ -26,11 +26,7 @@ use work.mtx_types_pkg.all;
 entity xgs_hispi_top is
   generic (
     HW_VERSION      : integer range 0 to 255 := 0;
-    NUMBER_OF_LANE  : integer                := 6;
-    MUX_RATIO       : integer                := 4;
-    PIXELS_PER_LINE : integer                := 4176;
-    LINES_PER_FRAME : integer                := 3102;
-    PIXEL_SIZE      : integer                := 12
+    NUMBER_OF_LANE  : integer                := 6
     );
   port (
     ---------------------------------------------------------------------------
@@ -140,13 +136,7 @@ architecture rtl of xgs_hispi_top is
     generic (
       LANE_PACKER_ID            : integer              := 0;
       LINE_BUFFER_DATA_WIDTH    : integer              := 64;
-      LINE_BUFFER_ADDRESS_WIDTH : integer              := 11;
-      NUMBER_OF_LINE_BUFFER     : integer range 1 to 4 := 4;
-      NUMBER_OF_LANE            : integer              := 6;
-      MUX_RATIO                 : integer              := 4;
-      PIXELS_PER_LINE           : integer              := 4176;
-      LINES_PER_FRAME           : integer              := 3102;
-      PIXEL_SIZE                : integer              := 12
+      LINE_BUFFER_ADDRESS_WIDTH : integer              := 11
       );
     port (
       ---------------------------------------------------------------------------
@@ -199,9 +189,7 @@ architecture rtl of xgs_hispi_top is
       LINE_BUFFER_PTR_WIDTH     : integer              := 1;
       LINE_BUFFER_ADDRESS_WIDTH : integer              := 11;
       LINE_BUFFER_DATA_WIDTH    : integer              := 64;
-      NUMB_LANE_PACKER          : integer              := 3;
-      PIXELS_PER_LINE           : integer              := 4176;
-      LINES_PER_FRAME           : integer              := 3102
+      NUMB_LANE_PACKER          : integer              := 3
       );
     port (
       sysclk : in std_logic;
@@ -309,6 +297,7 @@ architecture rtl of xgs_hispi_top is
   constant LINE_BUFFER_ADDRESS_WIDTH : integer := 11;
   constant LINE_BUFFER_PTR_WIDTH     : integer := 2;
   constant NUMB_LANE_PACKER          : integer := NUMBER_OF_LANE/2;
+  constant PIXEL_SIZE                : integer := 12;     -- Pixel size in bits
 
 
 
@@ -437,7 +426,7 @@ begin
   sclk_reset <= (not sclk_reset_n) or regfile.HISPI.CTRL.SW_CLR_HISPI;
 
   enable_hispi    <= regfile.HISPI.CTRL.ENABLE_HISPI;
-  nb_lane_enabled <= regfile.HISPI.CTRL.XGS_NB_LANES;
+  nb_lane_enabled <= regfile.HISPI.PHY.NB_LANES;
 
 
   sclk_calibration_req <= '1' when (regfile.HISPI.CTRL.SW_CALIB_SERDES = '1') else
@@ -643,12 +632,6 @@ begin
     end if;
   end process;
 
-
-
-  -- G_sclk_cal_error : for i in 0 to LANE_PER_PHY-1 generate
-  --   sclk_cal_error(2*i)   <= top_cal_error(i);
-  --   sclk_cal_error(2*i+1) <= bottom_cal_error(i);
-  -- end generate G_sclk_cal_error;
 
 
   -- TBD : manage line valid, RoI, embeded data
@@ -1142,12 +1125,7 @@ begin
       generic map(
         LANE_PACKER_ID            => i,
         LINE_BUFFER_DATA_WIDTH    => LINE_BUFFER_DATA_WIDTH,
-        LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH,
-        NUMBER_OF_LANE            => NUMBER_OF_LANE,
-        MUX_RATIO                 => MUX_RATIO,
-        PIXELS_PER_LINE           => PIXELS_PER_LINE,
-        LINES_PER_FRAME           => LINES_PER_FRAME,
-        PIXEL_SIZE                => PIXEL_SIZE
+        LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
         )
       port map(
         rclk                        => rclk,
@@ -1215,9 +1193,7 @@ begin
       LINE_BUFFER_PTR_WIDTH     => LINE_BUFFER_PTR_WIDTH,
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH,
       LINE_BUFFER_DATA_WIDTH    => LINE_BUFFER_DATA_WIDTH,
-      NUMB_LANE_PACKER          => NUMB_LANE_PACKER,
-      PIXELS_PER_LINE           => PIXELS_PER_LINE,
-      LINES_PER_FRAME           => LINES_PER_FRAME
+      NUMB_LANE_PACKER          => NUMB_LANE_PACKER
       )
     port map(
       sysclk              => sclk,
@@ -1282,7 +1258,7 @@ begin
 
 
   P_state_mapping : process (state) is
-  begin  -- process P_fsm_mapping
+  begin
     case state is
       when S_DISABLED          => state_mapping <= "0000";
       when S_IDLE              => state_mapping <= "0001";
