@@ -13,10 +13,6 @@ entity XGS_athena is
   generic (
     ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;
     NUMBER_OF_LANE        : integer              := 6;
-    --MUX_RATIO             : integer              := 4;
---    PIXELS_PER_LINE       : integer              := 4176;
---    LINES_PER_FRAME       : integer              := 3102;
---    PIXEL_SIZE            : integer              := 12;
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;
     SENSOR_FREQ           : integer              := 32400;
