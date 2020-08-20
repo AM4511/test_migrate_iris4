@@ -22,7 +22,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
-	unsigned long long ImageBufferAddr=0;
+	M_UINT64 ImageBufferAddr      = 0;
+	MIL_INT  ImageBufferLinePitch = 0;
+
 	int MonoType = 8;
 
 	int Sortie = 0;
@@ -52,7 +54,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 OverrunPixel = 0;
 
 	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0000.cpp    *\n");
+	printf(    "*    Executing Test0000.cpp    *\n"); 
 	printf(    "********************************\n\n");
 
 
@@ -78,9 +80,13 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr      = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
+	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
+	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+
 
 	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
 	//ch = _getch();
@@ -99,7 +105,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
-	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+	GrabParams->Y_START = 1;                                                // 1-base Here - Dois etre multiple de 4	
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
 	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
@@ -120,8 +126,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     // DMA PARAMETERS
     //---------------------
 	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = SensorParams->Xsize_Full; // Full window MIL display
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
+	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
+	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 
 
