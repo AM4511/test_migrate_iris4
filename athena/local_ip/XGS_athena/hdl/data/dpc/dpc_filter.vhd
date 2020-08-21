@@ -8,6 +8,9 @@
 --
 -- Top du filtre DPC (Dead Pixel Correction) pour corriger les pixels hot et cold sur GTX
 --
+-- Axi slave and master are on the same domain : system clock.
+-- Registers are in system clock.
+--
 -----------------------------------------------------------------------
 library ieee;
  use ieee.std_logic_1164.all;
@@ -21,25 +24,26 @@ library work;
 
 entity dpc_filter is
    port(
-
-
     ---------------------------------------------------------------------
-    -- Pixel domain reset and clock signals
+    -- Axi domain reset and clock signals
     ---------------------------------------------------------------------
-    pix_clk                              : in    std_logic;
-    pix_reset_n                          : in    std_logic;
+    axi_clk                              : in    std_logic;
+    axi_reset_n                          : in    std_logic;
 
     ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals
-    ---------------------------------------------------------------------
-    sys_clk                              : in    std_logic;
-    sys_reset_n                          : in    std_logic;
-    
+    -- Sys domain reset and clock signals : on axi_clk
+    ---------------------------------------------------------------------   
     curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
     curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel
+	
     curr_Ystart                          : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
     curr_Yend                            : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
+	
+    curr_Xsub                            : in    std_logic := '0';  
+    curr_Ysub                            : in    std_logic := '0';  
     
+	load_dma_context_EOFOT               : in    std_logic := '0';  -- in axi_clk
+	
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
@@ -116,9 +120,7 @@ architecture functional of dpc_filter is
 
     ---------------------------------------------------------------------
     -- Overrun registers
-    ---------------------------------------------------------------------
-    REG_dpc_enable_DB                    : in    std_logic;  --resync'ed and double buffered
-    
+    ---------------------------------------------------------------------   
     REG_dpc_fifo_rst                     : in    std_logic;
     REG_dpc_fifo_ovr                     : out   std_logic;
     REG_dpc_fifo_und                     : out   std_logic;
@@ -133,7 +135,6 @@ architecture functional of dpc_filter is
     pixel_in                             : in    std_logic_vector;
     end_of_frame_in                      : in    std_logic;
 
-    m_axis_ack                           : in    std_logic; -- for last line read burst
 	m_axis_tvalid                        : in    std_logic; -- for last line read burst
 	m_axis_tready                        : in    std_logic; -- for last line read burst
 
@@ -236,7 +237,7 @@ architecture functional of dpc_filter is
   
 
   
-  signal pix_reset               : std_logic;
+  signal axi_reset               : std_logic;
 
   signal s_axis_tready_int     : std_logic :='0';
   signal s_axis_first_line     : std_logic :='0';
@@ -248,15 +249,16 @@ architecture functional of dpc_filter is
   signal s_axis_line_wait      : std_logic :='0';  
   signal s_axis_frame_done     : std_logic :='1';  
   
+  signal curr_Xstart_corr      : std_logic_vector(12 downto 0):=(others=>'0');
+  signal curr_Xend_corr        : std_logic_vector(12 downto 0):=(others=>'1');
   
-  signal curr_Xstart_integer     : integer range 0 to 8191;
-  signal curr_Xend_integer       : integer range 0 to 8191;
+  signal curr_Xstart_integer   : integer range 0 to 8191;
+  signal curr_Xend_integer     : integer range 0 to 8191;
   
-  signal BAYER_Sensor            : std_logic;
+  signal BAYER_Sensor          : std_logic;
   
-  signal REG_dpc_enable_P1     : std_logic                    :='0';
-  signal REG_dpc_enable_P2     : std_logic                    :='0';
-  signal REG_dpc_enable_DB     : std_logic                    :='0';
+  signal REG_dpc_enable_P1     : std_logic :='0';
+  signal REG_dpc_enable_DB     : std_logic :='0';
 
   signal dpc_sol_P1            : std_logic:='0';
  
@@ -370,7 +372,6 @@ architecture functional of dpc_filter is
   signal m_axis_tvalid_int        : std_logic :='0';
   signal m_axis_tdata_int         : std_logic_vector(79 downto 0);
   signal m_axis_tuser_int         : std_logic_vector(3 downto 0);
-  signal m_axis_ack               : std_logic :='0';
   signal m_axis_wait_data         : std_logic_vector(79 downto 0);
   signal m_axis_wait              : std_logic :='0';
   
@@ -420,16 +421,31 @@ architecture functional of dpc_filter is
 begin
   
   
-  pix_reset  <= not(pix_reset_n);
+  axi_reset  <= not(axi_reset_n);
   
-  --s_axis_tready_int <='1';
-  s_axis_tready     <= s_axis_tready_int;
-
- 
-		
-  process(pix_clk)   
+  -------------------------------
+  -- Correct X_start and X_end
+  -------------------------------
+  curr_Xstart_corr <=  (others=>'0'); -- Xstart is always 0, since we always grag from interpolation pixel 0
+  
+  process(axi_clk)   
   begin
-    if (pix_clk'event and pix_clk='1') then
+    if (axi_clk'event and axi_clk='1') then
+      if(REG_dpc_enable='1' and REG_dpc_enable_P1='0') then -- this register is static, so load just one time after DPC pixels are programmed
+        curr_Xend_corr   <= curr_Xend-curr_Xstart;
+	  end if; 
+    end if;
+  end process;
+
+  
+  -------------------------------------------------
+  --
+  -- AXI SLAVE
+  --
+  -------------------------------------------------	
+  process(axi_clk)   
+  begin
+    if (axi_clk'event and axi_clk='1') then
       --First line goes directly to the first fifo
       if(s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
 	    s_axis_tready_int     <= '1';		
@@ -506,28 +522,7 @@ begin
     end if;
   end process;
 
---  process(pix_clk)  
---  begin
---    if (pix_clk'event and pix_clk='1') then
---      if(s_axis_tvalid='1' and s_axis_tuser(2)='1' ) then --give rdy at SOL
---	    s_axis_prefetch      <= '1';	
---        s_axis_prefetch_done <= '0';		
---		
---      elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser(1)='1' or s_axis_tuser(3)='1') ) then --reset at eol or eof
---	    s_axis_prefetch      <='0';	
---        s_axis_prefetch_done <= '0';		
---		
---	  --elsif(s_axis_prefetch='1' and s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_prefetch_cnt="1000") then --pipeline full!
---	  elsif(s_axis_prefetch='1' and  m_axis_tvalid_int='1') then --pipeline full!
---	    s_axis_prefetch      <= '0';	
---        s_axis_prefetch_done <= '1';		
---		
---	  elsif(s_axis_prefetch='1' and s_axis_tvalid='1' and s_axis_tready_int='1') then --enter 1 data to DCP pipeline
---	    s_axis_prefetch      <= '1';	
---        s_axis_prefetch_done <= '0';		
---      end if;
---    end if;
---  end process;
+  s_axis_tready     <= s_axis_tready_int;
 
    
   ------------------------------
@@ -544,7 +539,7 @@ begin
            C_RAM_DEPTH      => 6                                                 -- Specify RAM depth (bits de l'adresse de la ram)
            )
    port map (  
-           RAM_W_clk        => sys_clk,
+           RAM_W_clk        => axi_clk,
            RAM_W_WRn        => REG_dpc_list_wrn,                  -- Write cycle
            RAM_W_enable     => REG_dpc_list_ss,                   -- Write enable
            RAM_W_address    => REG_dpc_list_add,                  -- Write address bus, width determined from RAM_DEPTH
@@ -552,21 +547,25 @@ begin
            RAM_W_dataR      => REG_dpc_list_corr_rd,              -- RAM read data
            
            --This interface is for the DPC macro read 
-           RAM_R_clk        => pix_clk,
+           RAM_R_clk        => axi_clk,
            RAM_R_enable     => RAM_R_enable,     -- Write enable
            RAM_R_address    => RAM_R_address,    -- Read address bus, width determined from RAM_DEPTH
            RAM_R_data       => RAM_R_data        -- RAM output data
         );
    
  
-  ------------------------------
-  -- At SOF we will reset fifo and then read the DPC list RAM
-  ------------------------------  
+  -------------------------------------------------------------
+  -- At EOFOT we will reset fifo and then read the DPC list RAM
+  -- if dpc_enable is enable
+  --
+  -- We have one complete line to read the DPC pixels from fifo
+  --
+  -------------------------------------------------------------  
  
-  process(pix_clk)  -- On resete le fifo a chaque SOF pour etre sur qu'il reste pas de data , ALLONGE le RESeT A 5CLK
+  process(axi_clk)  -- On resete le fifo a chaque SOF pour etre sur qu'il reste pas de data , ALLONGE le RESeT A 5CLK
   begin
-    if (pix_clk'event and pix_clk='1') then
-      dpc_fifo_reset_P1  <= s_axis_tvalid and s_axis_tready_int and s_axis_tuser(0); --compte-tenu qu'on buff 3 lignes, on a le temps en masse!
+    if (axi_clk'event and axi_clk='1') then
+      dpc_fifo_reset_P1  <= s_axis_tvalid and s_axis_tready_int and s_axis_tuser(0); --compte-tenu qu'on buff 2 lignes, on a le temps en masse!
       dpc_fifo_reset_P2  <= dpc_fifo_reset_P1;
       dpc_fifo_reset_P3  <= dpc_fifo_reset_P2;
       dpc_fifo_reset_P4  <= dpc_fifo_reset_P3;
@@ -580,9 +579,9 @@ begin
   end process; 
  
  
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
+    if (axi_clk'event and axi_clk='1') then
       if(REG_dpc_enable_DB='1' and dpc_fifo_reset_P7='1' and REG_dpc_list_count/="000000" ) then
         RAM_R_address     <= (others=>'0');
         RAM_R_enable      <= '1';
@@ -614,14 +613,14 @@ begin
   -- le kernel_proc correspondant
   ------------------------------------------
 
-  curr_Xstart_integer <= conv_integer(curr_Xstart);
+  curr_Xstart_integer <= conv_integer(curr_Xstart_corr);
   
-  curr_Xend_integer   <= conv_integer(curr_Xend);
+  curr_Xend_integer   <= conv_integer(curr_Xend_corr);
     
   
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
+    if (axi_clk'event and axi_clk='1') then
       RAM_R_end_P1      <= RAM_R_end;
       dpc_fifo_list_rdy <= RAM_R_end_P1;
       
@@ -672,10 +671,10 @@ begin
   -------------------------------------------
   -- Bypass/Disable dpc with COLOR sensors
   -------------------------------------------
-  process(pix_clk)
+  process(axi_clk)
   begin      
-    if (pix_clk'event and pix_clk='1') then
-      if(pix_reset_n='0') then
+    if (axi_clk'event and axi_clk='1') then
+      if(axi_reset_n='0') then
         BAYER_Sensor    <= '0';
       else
         if( REG_color='1') then
@@ -689,18 +688,16 @@ begin
   
   
   -------------------------------------------------------
-  -- dpc Enable DB, synchronize register from sys clk
+  -- dpc Enable DB 
   -------------------------------------------------------
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
+    if (axi_clk'event and axi_clk='1') then
       
-      REG_dpc_enable_P1     <= REG_dpc_enable;     -- resync froom sysclk
-      REG_dpc_enable_P2     <= REG_dpc_enable_P1;  -- resync'ed
-
-      --if(dpc_sof_in='1') then
-        REG_dpc_enable_DB     <= REG_dpc_enable_P2 and not(BAYER_Sensor);
-      --end if;
+	  REG_dpc_enable_P1 <= REG_dpc_enable;
+      if(load_dma_context_EOFOT='1') then
+        REG_dpc_enable_DB     <= REG_dpc_enable and not(BAYER_Sensor);
+      end if;
       
     end if;
   end process;
@@ -716,80 +713,75 @@ begin
   --  par les fifos, les 8 engins n'aient pas a se soucier des overscans horizontaux
   --
   ---------------------------------------------------------------------------------------
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
+    if (axi_clk'event and axi_clk='1') then
       
-      if(REG_dpc_enable_DB='1') then  --to reduce power if disable
+      if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then --sof+sol
+        dpc_sol_P1 <= '1';
+      else
+        dpc_sol_P1 <= '0';
+      end if;        		
+		
+	  if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="1000" or s_axis_tuser="0010") ) then --eof+eol
+	    dpc_data_enable_stop <= '1';
+	  else
+	    dpc_data_enable_stop <= '0';
+	  end if;
+		
+      if(dpc_data_enable_stop='1') then 
+        dpc_data_enable_start <= '0';
+      elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then --sof+sol
+        dpc_data_enable_start <= '1';
+      end if; 
+      
+      dpc_data_enable_P1 <= ( (s_axis_tvalid and s_axis_tready_int) and dpc_data_enable_start) or dpc_data_enable_stop;
 
-        
-        if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then --sof+sol
-          dpc_sol_P1 <= '1';
-        else
-          dpc_sol_P1 <= '0';
-        end if;        		
+      
+	  if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="1000" or s_axis_tuser="0010") ) then
+        dpc_eol_P1       <= '1';
+	  else
+        dpc_eol_P1       <= '0';
+      end if;		
+      dpc_eol_P2         <= dpc_eol_P1;
+      dpc_eol_P3         <= dpc_eol_P2;        
 		
-		if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="1000" or s_axis_tuser="0010") ) then --eof+eol
-		  dpc_data_enable_stop <= '1';
-		else
-		  dpc_data_enable_stop <= '0';
-		end if;
-		
-        if(dpc_data_enable_stop='1') then 
-          dpc_data_enable_start <= '0';
-        elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then --sof+sol
-          dpc_data_enable_start <= '1';
-        end if; 
-        
-        dpc_data_enable_P1 <= ( (s_axis_tvalid and s_axis_tready_int) and dpc_data_enable_start) or dpc_data_enable_stop;
+	  if(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser="0010") then
+        dpc_eof_P1         <= '1';
+      else
+        dpc_eof_P1         <= '0';
+      end if;		
+  	  dpc_eof_P2         <= dpc_eof_P1;
+      dpc_eof_P3         <= dpc_eof_P2;        
+      dpc_eof_P4         <= dpc_eof_P3;        
 
-        
-		if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="1000" or s_axis_tuser="0010") ) then
-          dpc_eol_P1       <= '1';
-		else
-          dpc_eol_P1       <= '0';
-        end if;		
-        dpc_eol_P2         <= dpc_eol_P1;
-        dpc_eol_P3         <= dpc_eol_P2;        
+      -- data_valid
+      if(s_axis_tvalid='1' and s_axis_tready_int='1') then 
+        dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto 10) <= s_axis_tdata((10*nb_pixels)+9 downto 0); -- P1[89:10] <= P0[79:0]
+      end if;
+      
+	  if( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
+        dpc_data_in_100_P2((10*nb_pixels)+9 downto 10) <= dpc_data_in_100_P1((10*nb_pixels)+9 downto 10);  --P2[79:10] <= P1[79:10]
+      end if; 
 		
-		if(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser="0010") then
-          dpc_eof_P1         <= '1';
-        else
-          dpc_eof_P1         <= '0';
-        end if;		
-  	    dpc_eof_P2         <= dpc_eof_P1;
-        dpc_eof_P3         <= dpc_eof_P2;        
-        dpc_eof_P4         <= dpc_eof_P3;        
-
-        -- data_valid
-        if(s_axis_tvalid='1' and s_axis_tready_int='1') then 
-          dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto 10) <= s_axis_tdata((10*nb_pixels)+9 downto 0); -- P1[89:10] <= P0[79:0]
-        end if;
-        
-		if( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
-          dpc_data_in_100_P2((10*nb_pixels)+9 downto 10) <= dpc_data_in_100_P1((10*nb_pixels)+9 downto 10);  --P2[79:10] <= P1[79:10]
-        end if; 
-		
-        if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then  --sol_p1=1
-          dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))) <= s_axis_tdata(9 downto 0); -- P2[89:80] <= P0[9:0] : ON SOL : overscan repeat first pixel of the line : utilise plus tard ds : overscan low
-        elsif( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
-          dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))) <= dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))); -- P2[89:80] <= P1[89:80]
-        end if;
-        
+      if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then  --sol_p1=1
+        dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))) <= s_axis_tdata(9 downto 0); -- P2[89:80] <= P0[9:0] : ON SOL : overscan repeat first pixel of the line : utilise plus tard ds : overscan low
+      elsif( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
+        dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))) <= dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1))); -- P2[89:80] <= P1[89:80]
+      end if;
+      
    
-        
-        --Overscan LOW
-        if( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
-          dpc_data_in_100_P2(9 downto  0) <= dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1)));  -- P2[9:0] <= P2[89:80]
-        end if;
-        
-        --Overscan HI
-        if(dpc_data_enable_stop='1') then
-          dpc_data_in_100_P2((10*(nb_pixels+2))+9 downto (10*(nb_pixels+2))) <= dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1)));  --99:90<=89:80 : ON EOL : overscan repeat last pixel of the line
-        elsif( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') then
-          dpc_data_in_100_P2((10*(nb_pixels+2))+9 downto (10*(nb_pixels+2))) <= s_axis_tdata(9 downto 0);           --99:90<=9:0
-        end if;
       
+      --Overscan LOW
+      if( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') or (dpc_data_enable_stop='1') then
+        dpc_data_in_100_P2(9 downto  0) <= dpc_data_in_100_P2((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1)));  -- P2[9:0] <= P2[89:80]
+      end if;
+      
+      --Overscan HI
+      if(dpc_data_enable_stop='1') then
+        dpc_data_in_100_P2((10*(nb_pixels+2))+9 downto (10*(nb_pixels+2))) <= dpc_data_in_100_P1((10*(nb_pixels+1))+9 downto (10*(nb_pixels+1)));  --99:90<=89:80 : ON EOL : overscan repeat last pixel of the line
+      elsif( (s_axis_tvalid='1' and s_axis_tready_int='1') and dpc_data_enable_start='1') then
+        dpc_data_in_100_P2((10*(nb_pixels+2))+9 downto (10*(nb_pixels+2))) <= s_axis_tdata(9 downto 0);           --99:90<=9:0
       end if;
       
     end if;
@@ -821,14 +813,12 @@ begin
       ---------------------------------------------------------------------
       -- Pixel domain reset and clock signals
       ---------------------------------------------------------------------
-      pix_clk                              => pix_clk,
-      pix_reset                            => pix_reset,
+      pix_clk                              => axi_clk,
+      pix_reset                            => axi_reset,
   
       ---------------------------------------------------------------------
       -- Overrun registers
       ---------------------------------------------------------------------
-      REG_dpc_enable_DB                    => REG_dpc_enable_DB,
-     
       REG_dpc_fifo_rst                     => REG_dpc_fifo_rst,
       REG_dpc_fifo_ovr                     => REG_dpc_fifo_ovr,
       REG_dpc_fifo_und                     => REG_dpc_fifo_und,
@@ -843,7 +833,6 @@ begin
       end_of_line_in                       => dpc_kernel_10x3_eol,
       end_of_frame_in                      => dpc_kernel_10x3_eof,
 
-   	  m_axis_ack                           => m_axis_ack,
       m_axis_tvalid                        => m_axis_tvalid_int,
 	  m_axis_tready                        => m_axis_tready,
 
@@ -866,27 +855,24 @@ begin
   --
   -- generer la position du pixel (kernel) courant
   --
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
-      if(REG_dpc_enable_DB='1') then    
+    if (axi_clk'event and axi_clk='1') then
         
-        --X registers in sensor are pixel based 
-        if(kernel_10x3_sof='1' or kernel_10x3_eol='1') then
-           kernel_10x3_curr.X_pos(12 downto 0) <= curr_Xstart;                   
-        elsif(kernel_10x3_en='1') then
-          kernel_10x3_curr.X_pos <= kernel_10x3_curr.X_pos + conv_std_logic_vector(nb_pixels+1,4);   --7+1 for GTX
-        end if;
-        
-        --Y registers are line based in sensor
-        if(kernel_10x3_sof='1') then
-          kernel_10x3_curr.Y_pos(11 downto 0) <= curr_Ystart;
-        elsif(kernel_10x3_eol='1') then
-          kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + '1';
-        end if;         
-
-        
+      --X registers in sensor are pixel based 
+      if(kernel_10x3_sof='1' or kernel_10x3_eol='1') then
+         kernel_10x3_curr.X_pos(12 downto 0) <= curr_Xstart_corr;                   
+      elsif(kernel_10x3_en='1') then
+        kernel_10x3_curr.X_pos <= kernel_10x3_curr.X_pos + conv_std_logic_vector(nb_pixels+1,4);   --7+1 for GTX
       end if;
+      
+      --Y registers are line based in sensor
+      if(kernel_10x3_sof='1') then
+        kernel_10x3_curr.Y_pos(11 downto 0) <= curr_Ystart;
+      elsif(kernel_10x3_eol='1') then
+        kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + '1';
+      end if;                
+
     end if;
   end process;
     
@@ -916,8 +902,8 @@ begin
       ---------------------------------------------------------------------
       -- Pixel domain reset and clock signals
       ---------------------------------------------------------------------
-      pix_clk                              => pix_clk,
-      pix_reset                            => pix_reset,
+      pix_clk                              => axi_clk,
+      pix_reset                            => axi_reset,
   
       proc_X_pix_curr                      => proc_X_pix_curr(i),
       proc_Y_pix_curr                      => kernel_10x3_curr.Y_pos,
@@ -986,52 +972,47 @@ begin
   ------------------------------------
   -- Pipeline pour les signaux de sync
   ------------------------------------  
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if (pix_clk'event and pix_clk='1') then
-      if(REG_dpc_enable_DB='1') then
-        kernel_10x3_sol_P1  <= kernel_10x3_sol;
-        kernel_10x3_en_P1   <= kernel_10x3_en;
-        kernel_10x3_eol_P1  <= kernel_10x3_eol;
-        kernel_10x3_eof_P1  <= kernel_10x3_eof;
-        
-        kernel_10x3_sol_P2  <= kernel_10x3_sol_P1;
-        kernel_10x3_en_P2   <= kernel_10x3_en_P1;
-        kernel_10x3_eol_P2  <= kernel_10x3_eol_P1;
-        kernel_10x3_eof_P2  <= kernel_10x3_eof_P1;
-        
-        kernel_10x3_sol_P3  <= kernel_10x3_sol_P2;
-        kernel_10x3_en_P3   <= kernel_10x3_en_P2;
-        kernel_10x3_eol_P3  <= kernel_10x3_eol_P2;
-        kernel_10x3_eof_P3  <= kernel_10x3_eof_P2;
-        
-        kernel_10x3_sol_P4  <= kernel_10x3_sol_P3;
-        kernel_10x3_en_P4   <= kernel_10x3_en_P3;
-        kernel_10x3_eol_P4  <= kernel_10x3_eol_P3;
-        kernel_10x3_eof_P4  <= kernel_10x3_eof_P3;
-              
-        proc_sol            <= kernel_10x3_sol_P4;
-        proc_en             <= kernel_10x3_en_P4;
-        proc_eol            <= kernel_10x3_eol_P4;
-        proc_eof            <= kernel_10x3_eof_P4;
-      end if;
+    if (axi_clk'event and axi_clk='1') then
+      kernel_10x3_sol_P1  <= kernel_10x3_sol;
+      kernel_10x3_en_P1   <= kernel_10x3_en;
+      kernel_10x3_eol_P1  <= kernel_10x3_eol;
+      kernel_10x3_eof_P1  <= kernel_10x3_eof;
+      
+      kernel_10x3_sol_P2  <= kernel_10x3_sol_P1;
+      kernel_10x3_en_P2   <= kernel_10x3_en_P1;
+      kernel_10x3_eol_P2  <= kernel_10x3_eol_P1;
+      kernel_10x3_eof_P2  <= kernel_10x3_eof_P1;
+      
+      kernel_10x3_sol_P3  <= kernel_10x3_sol_P2;
+      kernel_10x3_en_P3   <= kernel_10x3_en_P2;
+      kernel_10x3_eol_P3  <= kernel_10x3_eol_P2;
+      kernel_10x3_eof_P3  <= kernel_10x3_eof_P2;
+      
+      kernel_10x3_sol_P4  <= kernel_10x3_sol_P3;
+      kernel_10x3_en_P4   <= kernel_10x3_en_P3;
+      kernel_10x3_eol_P4  <= kernel_10x3_eol_P3;
+      kernel_10x3_eof_P4  <= kernel_10x3_eof_P3;
+            
+      proc_sol            <= kernel_10x3_sol_P4;
+      proc_en             <= kernel_10x3_en_P4;
+      proc_eol            <= kernel_10x3_eol_P4;
+      proc_eof            <= kernel_10x3_eof_P4;
     end if;
   end process;
   
   
 
   
---  
---  
 --  ---------------------------------------------------------------------------------------
 --  -- Selection du data a sortir 
 --  ---------------------------------------------------------------------------------------  
---
   Conditional_muxoutput: for i in 0 to nb_pixels generate
    
-    process(pix_clk)
+    process(axi_clk)
     begin
-      if (pix_clk'event and pix_clk='1') then
+      if (axi_clk'event and axi_clk='1') then
 
         Pix_corr(i) <= proc_data(i);
 
@@ -1060,15 +1041,15 @@ begin
   ----------------------------------------------
   -- STEP 4
   --
-  -- AXI OUT (MASTER)
+  -- AXI MASTER
   --
   ----------------------------------------------   
   
   -- SOF : le protocol Axi-Video demande a mettre un flag SOF actif pour le premier transfert du frame. Ca sort sur le Tuser0
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
         m_axis_tuser_int(0) <= '0' after 1 ns;
       elsif Pix_corr_sof = '1' then      -- arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;
@@ -1078,13 +1059,11 @@ begin
     end if;
   end process;
 
-  m_axis_tuser <= m_axis_tuser_int;
-
   -- SOL 
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
         m_axis_tuser_int(2) <= '0' after 1 ns;
       elsif Pix_corr_sol = '1' and kernel_10x3_first_line='0' then      -- SOL
         m_axis_tuser_int(2) <= '1' after 1 ns;      
@@ -1094,11 +1073,43 @@ begin
     end if;
   end process;  
 
-  -- VALID 
-  process(pix_clk)
+  -- EOL
+  process(axi_clk)
   begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
+        m_axis_tuser_int(3) <= '0' after 1 ns;
+      elsif proc_eol = '1'  and kernel_10x3_last_line='0' then    -- dont put eol in last line of frame, only eof
+        m_axis_tuser_int(3) <= '1' after 1 ns;
+  	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
+        m_axis_tuser_int(3) <= '0' after 1 ns;
+      end if;
+    end if;
+  end process;    
+  
+  
+  -- EOF 
+  process(axi_clk)
+  begin
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
+        m_axis_tuser_int(1) <= '0' after 1 ns;
+      elsif proc_eol = '1' and kernel_10x3_last_line='1' then      
+        m_axis_tuser_int(1) <= '1' after 1 ns;
+      elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
+        m_axis_tuser_int(1) <= '0' after 1 ns;
+      end if;
+    end if;
+  end process;    
+
+  m_axis_tuser <= m_axis_tuser_int;
+
+
+  -- VALID 
+  process(axi_clk)
+  begin
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
         m_axis_tvalid_int <= '0' after 1 ns;
       elsif(Pix_corr_en='1') then
         m_axis_tvalid_int <= '1';
@@ -1112,10 +1123,10 @@ begin
   
   -- AXIs peux nous mettre en wait state, ce proccess sert a enregistrer un data venant du revx lors du wait, et le remettre lorsque
   -- on aura sorti du waitstate
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if rising_edge(pix_clk) then
-       if pix_reset = '1' then
+    if rising_edge(axi_clk) then
+       if axi_reset_n = '0' then
         m_axis_wait       <= '0';
       elsif(m_axis_wait='0' and m_axis_tvalid_int = '1' and m_axis_tready = '0') then 
         m_axis_wait       <= '1';
@@ -1139,48 +1150,16 @@ begin
     end if;
   end process;  
   
-  --Pix_corr64 <= Pix_corr(7)(9 downto 2) & Pix_corr(6)(9 downto 2) & Pix_corr(5)(9 downto 2) & Pix_corr(4)(9 downto 2) & Pix_corr(3)(9 downto 2) & Pix_corr(2)(9 downto 2) & Pix_corr(1)(9 downto 2) & Pix_corr(0)(9 downto 2);
-
-
-  
-  
+ 
   m_axis_tdata <= m_axis_tdata_int after 1 ns;
   
   
-  -- EOL
-  process(pix_clk)
-  begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
-        m_axis_tuser_int(3) <= '0' after 1 ns;
-      elsif proc_eol = '1'  and kernel_10x3_last_line='0' then    -- dont put eol in last line of frame, only eof
-        m_axis_tuser_int(3) <= '1' after 1 ns;
-  	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser_int(3) <= '0' after 1 ns;
-      end if;
-    end if;
-  end process;    
-  
-  
-  -- EOF 
-  process(pix_clk)
-  begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
-        m_axis_tuser_int(1) <= '0' after 1 ns;
-      elsif proc_eol = '1' and kernel_10x3_last_line='1' then      
-        m_axis_tuser_int(1) <= '1' after 1 ns;
-      elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
-        m_axis_tuser_int(1) <= '0' after 1 ns;
-      end if;
-    end if;
-  end process;    
  
   -- tlast
-  process(pix_clk)
+  process(axi_clk)
   begin
-    if rising_edge(pix_clk) then
-      if pix_reset = '1' then
+    if rising_edge(axi_clk) then
+      if axi_reset_n = '0' then
 		m_axis_tlast    <= '0' after 1 ns;		
       elsif proc_eol = '1' then   
 		m_axis_tlast    <= '1' after 1 ns;
@@ -1191,7 +1170,6 @@ begin
   end process;    
 
 
-  m_axis_ack <= m_axis_tvalid_int and m_axis_tready;
   
   
 end functional;

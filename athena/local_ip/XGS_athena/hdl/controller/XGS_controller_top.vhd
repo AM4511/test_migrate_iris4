@@ -74,10 +74,12 @@ entity XGS_controller_top is
         curr_db_GRAB_ROI2_EN            : out   std_logic := '0';
         
         curr_db_y_start_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
-        curr_db_nblines_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+        curr_db_y_end_ROI1              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+        curr_db_y_size_ROI1             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base    
                  
         curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
-        curr_db_nblines_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+        curr_db_y_end_ROI2              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+        curr_db_y_size_ROI2             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
 
         curr_db_subsampling_X           : out   std_logic:='0';
         curr_db_subsampling_Y           : out   std_logic:='0';
@@ -192,10 +194,12 @@ architecture arch_imp of XGS_controller_top is
            curr_db_GRAB_ROI2_EN            : out std_logic;
                       
            curr_db_y_start_ROI1            : out std_logic_vector;     -- 1-base
-           curr_db_nblines_ROI1            : out std_logic_vector;     -- 1-base  
+           curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
+           curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
            curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
-           curr_db_nblines_ROI2            : out std_logic_vector;     -- 1-base
+           curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
+           curr_db_y_size_ROI2             : out std_logic_vector;     -- 1-base  
 
            curr_db_subsampling_X           : out std_logic;
            curr_db_subsampling_Y           : out std_logic;
@@ -390,10 +394,12 @@ begin
            curr_db_GRAB_ROI2_EN            => curr_db_GRAB_ROI2_EN,
           
            curr_db_y_start_ROI1            => curr_db_y_start_ROI1,     -- 1-base
-           curr_db_nblines_ROI1            => curr_db_nblines_ROI1,     -- 1-base  
+           curr_db_y_end_ROI1              => curr_db_y_end_ROI1,       -- 1-base  
+           curr_db_y_size_ROI1             => curr_db_y_size_ROI1,      -- 1-base
                     
            curr_db_y_start_ROI2            => curr_db_y_start_ROI2,     -- 1-base  
-           curr_db_nblines_ROI2            => curr_db_nblines_ROI2,     -- 1-base
+           curr_db_y_end_ROI2              => curr_db_y_end_ROI2,       -- 1-base  
+           curr_db_y_size_ROI2             => curr_db_y_size_ROI2,      -- 1-base
 
            curr_db_subsampling_X           => curr_db_subsampling_X,
            curr_db_subsampling_Y           => curr_db_subsampling_Y,

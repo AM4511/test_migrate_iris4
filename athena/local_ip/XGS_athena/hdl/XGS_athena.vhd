@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.std_logic_arith.all;
+ use IEEE.std_logic_unsigned.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
@@ -367,20 +369,21 @@ architecture struct of XGS_athena is
     ---------------------------------------------------------------------
     -- Pixel domain reset and clock signals
     ---------------------------------------------------------------------
-    pix_clk                              : in    std_logic;
-    pix_reset_n                          : in    std_logic;
+    axi_clk                              : in    std_logic;
+    axi_reset_n                          : in    std_logic;
 
     ---------------------------------------------------------------------
     -- Sys domain reset and clock signals
     ---------------------------------------------------------------------
-    sys_clk                              : in    std_logic;
-    sys_reset_n                          : in    std_logic;
-    
-    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');  --pixel
-    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');  --pixel
+    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
+    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel
+	
     curr_Ystart                          : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
     curr_Yend                            : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
     
+	curr_Xsub                            : in    std_logic := '0';  
+    curr_Ysub                            : in    std_logic := '0';  
+
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
@@ -568,11 +571,13 @@ architecture struct of XGS_athena is
 
       curr_db_GRAB_ROI2_EN : out std_logic := '0';
 
-      curr_db_y_start_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
-      curr_db_nblines_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-
-      curr_db_y_start_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-      curr_db_nblines_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
+      curr_db_y_start_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+      curr_db_y_end_ROI1              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_size_ROI1             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base    
+               
+      curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_end_ROI2              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_size_ROI2             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
 
       curr_db_subsampling_X : out std_logic := '0';
       curr_db_subsampling_Y : out std_logic := '0';
@@ -674,7 +679,10 @@ architecture struct of XGS_athena is
   signal hispi_pix_clk            : std_logic;
   signal hispi_eof                : std_logic;
   signal hispi_ystart             : std_logic_vector(11 downto 0);
+  signal hispi_yend               : std_logic_vector(11 downto 0);
   signal hispi_ysize              : std_logic_vector(11 downto 0);
+  signal hispi_subX               : std_logic;
+  signal hispi_subY               : std_logic;
   signal first_lines_mask_cnt     : std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
   signal dma_idle : std_logic := '1';
@@ -821,28 +829,27 @@ begin
   --
   --
   ----------------------------------
-
    xdpc_filter : dpc_filter
    port map(
 
+    ---------------------------------------------------------------------
+    -- System and Pixel domain reset and clock signals
+    ---------------------------------------------------------------------
+    axi_clk                              => aclk,
+    axi_reset_n                          => aclk_reset_n,
 
     ---------------------------------------------------------------------
-    -- Pixel domain reset and clock signals
+    -- 
     ---------------------------------------------------------------------
-    pix_clk                              => aclk,
-    pix_reset_n                          => aclk_reset_n,
+    curr_Xstart                          => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+    curr_Xend                            => regfile.HISPI.FRAME_CFG_X_VALID.X_END,    -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+    
+	curr_Ystart                          => hispi_ystart,  
+    curr_Yend                            => hispi_yend,     
+    
+    curr_Xsub                            => hispi_subX,  
+    curr_Ysub                            => hispi_subY,  
 
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals
-    ---------------------------------------------------------------------
-    sys_clk                              => aclk, 
-    sys_reset_n                          => aclk_reset_n,
-    
-    curr_Xstart                          => "0000000000000",  -- [0
-    curr_Xend                            => "0111111111111",  -- 4095]
-    curr_Ystart                          => "000000000000",   -- [0
-    curr_Yend                            => "000000000011",   --  3] 
-    
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
@@ -851,7 +858,7 @@ begin
     REG_dpc_enable                       => '1',
 
     REG_dpc_pattern0_cfg                 => '0',
-    
+
     REG_dpc_fifo_rst                     => '0',
     REG_dpc_fifo_ovr                     => open,
     REG_dpc_fifo_und                     => open,
@@ -1031,30 +1038,32 @@ begin
       start_calibration => hispi_start_calibration,
       -- calibration_active => hispi_calibration_active, TBD
 
-      HISPI_pix_clk => hispi_pix_clk,
+      HISPI_pix_clk          => hispi_pix_clk,
 
-      DEC_EOF => hispi_eof,
+      DEC_EOF                => hispi_eof,
 
       abort_readout_datapath => open,
       dma_idle               => dma_idle,
 
-      strobe_DMA_P1 => load_dma_context(0),
-      strobe_DMA_P2 => load_dma_context(1),
+      strobe_DMA_P1          => load_dma_context(0),
+      strobe_DMA_P2          => load_dma_context(1),
 
-      curr_db_GRAB_ROI2_EN => open,
+      curr_db_GRAB_ROI2_EN   => open,
+						     
+      curr_db_y_start_ROI1   => hispi_ystart,
+	  curr_db_y_end_ROI1     => hispi_yend,
+      curr_db_y_size_ROI1    => hispi_ysize,
+						     
+      curr_db_y_start_ROI2   => open,
+	  curr_db_y_end_ROI2     => open,
+      curr_db_y_size_ROI2    => open,
+	  
+      curr_db_subsampling_X  => hispi_subX,
+      curr_db_subsampling_Y  => hispi_subY,
 
-      curr_db_y_start_ROI1 => hispi_ystart,
-      curr_db_nblines_ROI1 => hispi_ysize,
+      curr_db_BUFFER_ID      => open,
 
-      curr_db_y_start_ROI2 => open,
-      curr_db_nblines_ROI2 => open,
-
-      curr_db_subsampling_X => open,
-      curr_db_subsampling_Y => open,
-
-      curr_db_BUFFER_ID => open,
-
-      first_lines_mask_cnt  => first_lines_mask_cnt, -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
+      first_lines_mask_cnt   => first_lines_mask_cnt, -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
       ---------------------------------------------------------------------------
       --  IRQ to system

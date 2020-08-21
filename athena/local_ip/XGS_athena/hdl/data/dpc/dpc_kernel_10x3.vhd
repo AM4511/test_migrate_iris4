@@ -44,8 +44,6 @@ entity dpc_kernel_10x3 is
     ---------------------------------------------------------------------
     -- Overrun registers
     ---------------------------------------------------------------------
-    REG_dpc_enable_DB                  : in    std_logic;
-
     REG_dpc_fifo_rst                   : in    std_logic;
     REG_dpc_fifo_ovr                   : out   std_logic;
     REG_dpc_fifo_und                   : out   std_logic;
@@ -60,7 +58,6 @@ entity dpc_kernel_10x3 is
     pixel_in                             : in    std_logic_vector;
     end_of_frame_in                      : in    std_logic;
     
-	m_axis_ack                           : in    std_logic; -- for last line read burst
 	m_axis_tvalid                        : in    std_logic; -- for last line read burst
 	m_axis_tready                        : in    std_logic; -- for last line read burst
     ---------------------------------------------------------------------
@@ -301,7 +298,7 @@ begin
                                
       if(fifo_rst='1') then
         rst_fifo_5cc <= '1';
-      elsif(REG_dpc_fifo_rst_P7='1' or REG_dpc_enable_DB='0') then
+      elsif(REG_dpc_fifo_rst_P7='1' ) then
         rst_fifo_5cc <= '1';
       else
         rst_fifo_5cc <= '0';
@@ -317,7 +314,7 @@ begin
   process(pix_clk)
   begin
     if (pix_clk'event and pix_clk='1') then
-      if (start_of_frame_in = '1'  or REG_dpc_enable_DB='0') then -- reset condition
+      if (start_of_frame_in = '1' ) then -- reset condition
         cntr_firsts_lines <= (others => '0');
       elsif ((cntr_firsts_lines /= "11") and end_of_line_in= '1')then
         cntr_firsts_lines <= cntr_firsts_lines + 1;
@@ -334,7 +331,7 @@ begin
   process(pix_clk)
   begin
     if (pix_clk'event and pix_clk='1') then
-      if (start_of_frame_in = '1'  or REG_dpc_enable_DB='0') then -- reset condition
+      if (start_of_frame_in = '1') then -- reset condition
         first_line_done  <= '0';
         second_line_done <= '0';
       else
@@ -377,7 +374,7 @@ begin
   lbuff_wren_pro: process(pix_clk)
   begin
     if (pix_clk'event and pix_clk='1') then    
-      if (REG_dpc_enable_DB='1' and pixel_in_en = '1') then
+      if (pixel_in_en = '1') then
         lbuff_wren_first <= '1';
       else
         lbuff_wren_first <= '0';
@@ -385,7 +382,7 @@ begin
     end if;
     
     if (pix_clk'event and pix_clk='1') then    
-      if (REG_dpc_enable_DB='1' and pixel_in_en = '1' and first_line_done = '1') then
+      if (pixel_in_en = '1' and first_line_done = '1') then
         lbuff_wren_second <= '1';
       else
         lbuff_wren_second <= '0';
@@ -400,7 +397,7 @@ begin
   process(pix_clk)
   begin
     if (pix_clk'event and pix_clk='1') then    
-      if (pix_reset = '1'  or REG_dpc_enable_DB='0' or (start_of_line_in='1' and first_line_done = '1' and second_line_done = '0') ) then
+      if (pix_reset = '1'  or (start_of_line_in='1' and first_line_done = '1' and second_line_done = '0') ) then
         lbuff_line_length <= (others=>'0');
       elsif (pixel_in_en = '1' and first_line_done = '1' and second_line_done = '0') then -- count only in second line : the first line will erase the old value if 2 ROI are setted
         lbuff_line_length <= lbuff_line_length +'1';
@@ -462,7 +459,7 @@ begin
         last_line_fifo_rd_started   <= '0';		  
         last_line_fifo_rd_prefetch  <= '0';
               
-      elsif(last_line_fifo_rd_started='1' and m_axis_ack='1' and last_line_fifo_rd_prefetch='0' ) then
+      elsif(last_line_fifo_rd_started='1' and m_axis_tready='1' and m_axis_tvalid='1' and last_line_fifo_rd_prefetch='0' ) then
         last_line_fifo_rd           <= '1';
         last_line_fifo_en           <= '1';          
         last_line_fifo_rd_cntr      <= last_line_fifo_rd_cntr+'1';			
@@ -496,18 +493,18 @@ begin
   --
   -- We always read all buffers after the first line is all received.
   ----------------------------------------------------------------------  
-  lbuff_rden_1: process(REG_dpc_enable_DB, first_line_done, pixel_in_en)
+  lbuff_rden_1: process(first_line_done, pixel_in_en)
   begin
-    if (REG_dpc_enable_DB='1' and first_line_done = '1' and pixel_in_en = '1')  then
+    if (first_line_done = '1' and pixel_in_en = '1')  then
       lbuff_first_rden <= '1';
     else
       lbuff_first_rden <= '0';
     end if;
   end process;
 
-  lbuff_rden_2: process(REG_dpc_enable_DB, second_line_done, pixel_in_en)
+  lbuff_rden_2: process(second_line_done, pixel_in_en)
   begin
-    if (REG_dpc_enable_DB='1' and second_line_done = '1' and pixel_in_en = '1')  then
+    if (second_line_done = '1' and pixel_in_en = '1')  then
       lbuff_second_rden <= '1';
     else
       lbuff_second_rden <= '0';
@@ -520,10 +517,8 @@ begin
   process(pix_clk)
   begin
     if (pix_clk'event and pix_clk='1') then
-      if(REG_dpc_enable_DB='1') then
-        if(pixel_in_en='1') then 
-          pixel_in_P1 <= pixel_in;
-        end if;
+      if(pixel_in_en='1') then 
+        pixel_in_P1 <= pixel_in;
       end if;
     end if;
   end process;
@@ -741,45 +736,39 @@ begin
     
       start_of_frame_in_P1 <= start_of_frame_in;
       
-      if(REG_dpc_enable_DB='1' and start_of_frame_in_P1='1') then 
+      if(start_of_frame_in_P1='1') then 
         first_line <= '1';
       elsif(start_of_line_in='1' and second_line_done='1') then
         first_line <= '0';
       end if;
       
-      if(REG_dpc_enable_DB='1' and eof_delaying='0' and eof_delaying_P1='1') then
+      if(eof_delaying='0' and eof_delaying_P1='1') then
         last_line <= '1'; 
       elsif(start_of_frame_in='1') then   
         last_line <= '0';
       end if;
       
-      last_line_P1 <= last_line;
-       
+      last_line_P1 <= last_line;       
       
-      if(REG_dpc_enable_DB='1') then
-        sol_P1      <= (start_of_line_in and first_line_done) or ( not(eof_delaying) and eof_delaying_P1);
-        --enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_rd ;
-        enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_en ;
-        
+      sol_P1      <= (start_of_line_in and first_line_done) or ( not(eof_delaying) and eof_delaying_P1);
+      enable_P1   <= (pixel_in_en      and first_line_done) or  last_line_fifo_en ;
+      
 
-        if( (end_of_line_in='1'   and first_line_done='1') or (last_line_fifo_rd_started='0' and last_line_fifo_rd_started_P1='1') )then
-		  eol_P1      <= '1';
-        else
-		  eol_P1      <= '0';
-		end if;
+      if( (end_of_line_in='1'   and first_line_done='1') or (last_line_fifo_rd_started='0' and last_line_fifo_rd_started_P1='1') )then
+		eol_P1      <= '1';
+      else
+		eol_P1      <= '0';
+	  end if;
 		
-        eof_os      <= eol_P1 and last_line_fifo_en_P1;
-        --eof_os      <= not(last_line_fifo_en_P1) and last_line_fifo_en_P2;
-   
-        
-        -- Identification du premier pixel (premier kernel)
-        if(sol_P1='1' and first_line='0' and last_line='0') then
-          first_col_out_int <= '1';
-        elsif(enable_P1='1') then
-          first_col_out_int <= '0';
-        end if;
-        
+      eof_os      <= eol_P1 and last_line_fifo_en_P1;  
+      
+      -- Identification du premier pixel (premier kernel)
+      if(sol_P1='1' and first_line='0' and last_line='0') then
+        first_col_out_int <= '1';
+      elsif(enable_P1='1') then
+        first_col_out_int <= '0';
       end if;
+      
     end if;
   end process;
 
