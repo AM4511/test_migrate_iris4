@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : amarchan
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xCF3DFC13
+* Register file CRC32 : 0x330D7E3D
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -93,6 +93,12 @@
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_TAP_HISTOGRAM_ADDRESS            0x43C
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_PACKER_STATUS_ADDRESS       0x454
 #define FPGA_REGFILE_XGS_ATHENA_HISPI_DEBUG_ADDRESS                    0x460
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_CTRL_ADDRESS              0x480
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_STAT_ADDRESS              0x484
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_ADDRESS             0x488
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_ADDRESS             0x48C
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_RD_ADDRESS          0x490
+#define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_RD_ADDRESS          0x494
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -1429,6 +1435,126 @@ typedef union
 
 
 /**************************************************************************
+* Register name : DPC_LIST_CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DPC_LIST_ADD           : 12;  /* Bits(11:0), null */
+      M_UINT32 DPC_LIST_SS            : 1;   /* Bits(12:12), null */
+      M_UINT32 DPC_LIST_WRN           : 1;   /* Bits(13:13), null */
+      M_UINT32 DPC_ENABLE             : 1;   /* Bits(14:14), null */
+      M_UINT32 DPC_PATTERN0_CFG       : 1;   /* Bits(15:15), null */
+      M_UINT32 DPC_LIST_COUNT         : 12;  /* Bits(27:16), null */
+      M_UINT32 DPC_FIRSTLAST_LINE_REM : 1;   /* Bits(28:28), null */
+      M_UINT32 DPC_FIFO_RESET         : 1;   /* Bits(29:29), null */
+      M_UINT32 RSVD0                  : 2;   /* Bits(31:30), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : DPC_LIST_STAT
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 RSVD0             : 30;  /* Bits(29:0), Reserved */
+      M_UINT32 DPC_FIFO_OVERRUN  : 1;   /* Bits(30:30), null */
+      M_UINT32 DPC_FIFO_UNDERRUN : 1;   /* Bits(31:31), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_STAT_TYPE;
+
+
+/**************************************************************************
+* Register name : DPC_LIST_DATA1
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DPC_LIST_CORR_X : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0           : 3;   /* Bits(15:13), Reserved */
+      M_UINT32 DPC_LIST_CORR_Y : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1           : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_TYPE;
+
+
+/**************************************************************************
+* Register name : DPC_LIST_DATA2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DPC_LIST_CORR_PATTERN : 8;   /* Bits(7:0), null */
+      M_UINT32 RSVD0                 : 24;  /* Bits(31:8), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_TYPE;
+
+
+/**************************************************************************
+* Register name : DPC_LIST_DATA1_RD
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DPC_LIST_CORR_X : 13;  /* Bits(12:0), null */
+      M_UINT32 RSVD0           : 3;   /* Bits(15:13), Reserved */
+      M_UINT32 DPC_LIST_CORR_Y : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1           : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_RD_TYPE;
+
+
+/**************************************************************************
+* Register name : DPC_LIST_DATA2_RD
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DPC_LIST_CORR_PATTERN : 8;   /* Bits(7:0), null */
+      M_UINT32 RSVD0                 : 24;  /* Bits(31:8), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_RD_TYPE;
+
+
+/**************************************************************************
 * Register name : TEMP
 ***************************************************************************/
 typedef union
@@ -1639,6 +1765,19 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE;
 
 /**************************************************************************
+* Section name   : DPC
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_CTRL_TYPE     DPC_LIST_CTRL;      /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_STAT_TYPE     DPC_LIST_STAT;      /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_TYPE    DPC_LIST_DATA1;     /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_TYPE    DPC_LIST_DATA2;     /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_RD_TYPE DPC_LIST_DATA1_RD;  /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_RD_TYPE DPC_LIST_DATA2_RD;  /* Address offset: 0x14 */
+} FPGA_REGFILE_XGS_ATHENA_DPC_TYPE;
+
+/**************************************************************************
 * External section name   : SYSMONXIL
 ***************************************************************************/
 typedef struct
@@ -1665,7 +1804,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE       ACQ;         /* Section; Base address offset: 0x100 */
    M_UINT32                               RSVD2[73];   /* Padding; Size (292 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */
-   M_UINT32                               RSVD3[167];  /* Padding; Size (668 Bytes) */
+   M_UINT32                               RSVD3[7];    /* Padding; Size (28 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_DPC_TYPE       DPC;         /* Section; Base address offset: 0x480 */
+   M_UINT32                               RSVD4[154];  /* Padding; Size (616 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

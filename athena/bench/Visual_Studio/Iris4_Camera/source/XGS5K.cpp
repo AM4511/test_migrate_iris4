@@ -42,12 +42,13 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.XGS_HiSPI_Ch_used   = 4;
    SensorParams.XGS_HiSPI_mux       = 4;
 
-   SensorParams.Ysize_Full          = 2048;                                                //+8;
-   SensorParams.Xsize_Full          = 2592;                                                //+8; //8 Interpolation
+   SensorParams.Xsize_Full          = 2600;                                                // Interpolation INCLUDED
+   SensorParams.Ysize_Full          = 2056;                                                // Interpolation INCLUDED
    
-   SensorParams.XGS_X_START         = 90;                                                  // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_START         = 88;                                                  // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
    SensorParams.XGS_X_END           = SensorParams.XGS_X_START+ SensorParams.Xsize_Full-1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_SIZE          = 2688;                                                // FULL X, including everything
+   
+   SensorParams.XGS_X_SIZE          = 2784;                                                // FULL X, including everything
    SensorParams.XGS_Y_SIZE          = 2078;                                                // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
 
    // This may depend on the configuration (Lanes+LineSize) 

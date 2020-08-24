@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use IEEE.std_logic_arith.all;
+ use IEEE.std_logic_unsigned.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
@@ -361,26 +363,29 @@ architecture struct of XGS_athena is
 
 
   component dpc_filter is
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 6 );   --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+
    port(
 
 
     ---------------------------------------------------------------------
     -- Pixel domain reset and clock signals
     ---------------------------------------------------------------------
-    pix_clk                              : in    std_logic;
-    pix_reset_n                          : in    std_logic;
+    axi_clk                              : in    std_logic;
+    axi_reset_n                          : in    std_logic;
 
     ---------------------------------------------------------------------
     -- Sys domain reset and clock signals
     ---------------------------------------------------------------------
-    sys_clk                              : in    std_logic;
-    sys_reset_n                          : in    std_logic;
-    
-    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');  --pixel
-    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');  --pixel
+    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
+    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel
+	
     curr_Ystart                          : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
     curr_Yend                            : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
     
+	curr_Xsub                            : in    std_logic := '0';  
+    curr_Ysub                            : in    std_logic := '0';  
+
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
@@ -395,9 +400,9 @@ architecture struct of XGS_athena is
     REG_dpc_fifo_und                     : out   std_logic;
     
     REG_dpc_list_wrn                     : in    std_logic; 
-    REG_dpc_list_add                     : in    std_logic_vector(5 downto 0); 
+    REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
     REG_dpc_list_ss                      : in    std_logic;
-    REG_dpc_list_count                   : in    std_logic_vector(5 downto 0);
+    REG_dpc_list_count                   : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
 
     REG_dpc_list_corr_pattern            : in    std_logic_vector(7 downto 0);
     REG_dpc_list_corr_y                  : in    std_logic_vector(11 downto 0);
@@ -568,11 +573,13 @@ architecture struct of XGS_athena is
 
       curr_db_GRAB_ROI2_EN : out std_logic := '0';
 
-      curr_db_y_start_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
-      curr_db_nblines_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-
-      curr_db_y_start_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-      curr_db_nblines_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
+      curr_db_y_start_ROI1            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base
+      curr_db_y_end_ROI1              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_size_ROI1             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base    
+               
+      curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_end_ROI2              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
+      curr_db_y_size_ROI2             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
 
       curr_db_subsampling_X : out std_logic := '0';
       curr_db_subsampling_Y : out std_logic := '0';
@@ -610,6 +617,17 @@ architecture struct of XGS_athena is
 
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
+
+
+  -- Nombre de pixels maximum a corriger
+  -- DPC_CORR_PIXELS_DEPTH=6  =>   64 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=7  =>  128 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=8  =>  256 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=9  =>  512 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=10 => 1024 pixels, 6+1+8: 15 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=11 => 2048 pixels, 6++ : RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=12 => 4096 pixels, 6++ : RAM36K 
+  constant DPC_CORR_PIXELS_DEPTH  : integer := 9;   
 
   signal aclk_reset       : std_logic;
 
@@ -674,10 +692,18 @@ architecture struct of XGS_athena is
   signal hispi_pix_clk            : std_logic;
   signal hispi_eof                : std_logic;
   signal hispi_ystart             : std_logic_vector(11 downto 0);
+  signal hispi_yend               : std_logic_vector(11 downto 0);
   signal hispi_ysize              : std_logic_vector(11 downto 0);
+  signal hispi_subX               : std_logic;
+  signal hispi_subY               : std_logic;
   signal first_lines_mask_cnt     : std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
   signal dma_idle : std_logic := '1';
+
+  signal REG_DPC_FIFO_OVR          : std_logic :='0';
+  signal REG_DPC_FIFO_UND          : std_logic :='0';
+  signal REG_dpc_list_corr_rd      : std_logic_vector(32 downto 0) := (others=>'0');
+
 
 begin
 
@@ -821,54 +847,55 @@ begin
   --
   --
   ----------------------------------
-
    xdpc_filter : dpc_filter
+   generic map ( DPC_CORR_PIXELS_DEPTH       => DPC_CORR_PIXELS_DEPTH )    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+
    port map(
 
+    ---------------------------------------------------------------------
+    -- System and Pixel domain reset and clock signals
+    ---------------------------------------------------------------------
+    axi_clk                              => aclk,
+    axi_reset_n                          => aclk_reset_n,
 
     ---------------------------------------------------------------------
-    -- Pixel domain reset and clock signals
+    -- 
     ---------------------------------------------------------------------
-    pix_clk                              => aclk,
-    pix_reset_n                          => aclk_reset_n,
+    curr_Xstart                          => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+    curr_Xend                            => regfile.HISPI.FRAME_CFG_X_VALID.X_END,    -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+    
+	curr_Ystart                          => hispi_ystart,  
+    curr_Yend                            => hispi_yend,     
+    
+    curr_Xsub                            => hispi_subX,  
+    curr_Ysub                            => hispi_subY,  
 
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals
-    ---------------------------------------------------------------------
-    sys_clk                              => aclk, 
-    sys_reset_n                          => aclk_reset_n,
-    
-    curr_Xstart                          => "0000000000000",  -- [0
-    curr_Xend                            => "0111111111111",  -- 4095]
-    curr_Ystart                          => "000000000000",   -- [0
-    curr_Yend                            => "000000000011",   --  3] 
-    
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
     REG_color                            => '0',    -- to bypass in color modes
 
-    REG_dpc_enable                       => '1',
+    REG_dpc_enable                       => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
 
-    REG_dpc_pattern0_cfg                 => '0',
-    
-    REG_dpc_fifo_rst                     => '0',
-    REG_dpc_fifo_ovr                     => open,
-    REG_dpc_fifo_und                     => open,
-    
-    REG_dpc_list_wrn                     => '0',
-    REG_dpc_list_add                     => "000000",
-    REG_dpc_list_ss                      => '0',
-    REG_dpc_list_count                   => "000000",
+    REG_dpc_pattern0_cfg                 => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
 
-    REG_dpc_list_corr_pattern            => "00000000",
-    REG_dpc_list_corr_y                  => "000000000000",
-    REG_dpc_list_corr_x                  => "0000000000000",
+    REG_dpc_fifo_rst                     => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
+    REG_dpc_fifo_ovr                     => REG_DPC_FIFO_OVR,
+    REG_dpc_fifo_und                     => REG_DPC_FIFO_UND,
     
-    REG_dpc_list_corr_rd                 => open,
+    REG_dpc_list_wrn                     => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+    REG_dpc_list_add                     => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),   
+    REG_dpc_list_ss                      => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,                                      
+    REG_dpc_list_count                   => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0), 
+
+    REG_dpc_list_corr_pattern            => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+    REG_dpc_list_corr_y                  => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+    REG_dpc_list_corr_x                  => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
+    
+    REG_dpc_list_corr_rd                 => REG_dpc_list_corr_rd,
        
-    REG_dpc_firstlast_line_rem           => '0',
-    
+    REG_dpc_firstlast_line_rem           => regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem,
+	
     ---------------------------------------------------------------------
     -- AXI in (SLAVE)
     ---------------------------------------------------------------------  
@@ -888,10 +915,17 @@ begin
     m_axis_tlast                         => aclk_tlast,
     m_axis_tdata                         => aclk_tdata
 
-	
 
   );
-  
+
+  --DCP REGISTERS  
+  regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;     
+  regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;   	
+  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);     --13 bits
+  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);    --12 bits
+  regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);    --8 bits
+
+
 
   aclk_tdata64 <= aclk_tdata(79 downto 72) &
                   aclk_tdata(69 downto 62) &
@@ -1031,30 +1065,32 @@ begin
       start_calibration => hispi_start_calibration,
       -- calibration_active => hispi_calibration_active, TBD
 
-      HISPI_pix_clk => hispi_pix_clk,
+      HISPI_pix_clk          => hispi_pix_clk,
 
-      DEC_EOF => hispi_eof,
+      DEC_EOF                => hispi_eof,
 
       abort_readout_datapath => open,
       dma_idle               => dma_idle,
 
-      strobe_DMA_P1 => load_dma_context(0),
-      strobe_DMA_P2 => load_dma_context(1),
+      strobe_DMA_P1          => load_dma_context(0),
+      strobe_DMA_P2          => load_dma_context(1),
 
-      curr_db_GRAB_ROI2_EN => open,
+      curr_db_GRAB_ROI2_EN   => open,
+						     
+      curr_db_y_start_ROI1   => hispi_ystart,
+	  curr_db_y_end_ROI1     => hispi_yend,
+      curr_db_y_size_ROI1    => hispi_ysize,
+						     
+      curr_db_y_start_ROI2   => open,
+	  curr_db_y_end_ROI2     => open,
+      curr_db_y_size_ROI2    => open,
+	  
+      curr_db_subsampling_X  => hispi_subX,
+      curr_db_subsampling_Y  => hispi_subY,
 
-      curr_db_y_start_ROI1 => hispi_ystart,
-      curr_db_nblines_ROI1 => hispi_ysize,
+      curr_db_BUFFER_ID      => open,
 
-      curr_db_y_start_ROI2 => open,
-      curr_db_nblines_ROI2 => open,
-
-      curr_db_subsampling_X => open,
-      curr_db_subsampling_Y => open,
-
-      curr_db_BUFFER_ID => open,
-
-      first_lines_mask_cnt  => first_lines_mask_cnt, -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
+      first_lines_mask_cnt   => first_lines_mask_cnt, -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
       ---------------------------------------------------------------------------
       --  IRQ to system
