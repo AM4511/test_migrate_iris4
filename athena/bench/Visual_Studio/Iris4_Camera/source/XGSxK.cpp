@@ -139,9 +139,11 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	rXGSptr.HISPI.FRAME_CFG.u32                   = sXGSptr.HISPI.FRAME_CFG.u32;
 
 	// Set FPGA MUX ratio and HiSPI number of lanes used
-	sXGSptr.HISPI.CTRL.f.XGS_MUX_RATIO            = SensorParams.XGS_HiSPI_mux;   //static register for the moment
-	sXGSptr.HISPI.CTRL.f.XGS_NB_LANES             = SensorParams.XGS_HiSPI_Ch_used; 
-	rXGSptr.HISPI.CTRL.u32                        = sXGSptr.HISPI.CTRL.u32;
+	sXGSptr.HISPI.PHY.f.MUX_RATIO            = SensorParams.XGS_HiSPI_mux;   //static register for the moment
+	sXGSptr.HISPI.PHY.f.NB_LANES             = SensorParams.XGS_HiSPI_Ch_used;
+	sXGSptr.HISPI.PHY.f.PIXEL_PER_LANE       = SensorParams.XGS_X_SIZE / SensorParams.XGS_HiSPI_Ch;
+	rXGSptr.HISPI.CTRL.u32                   = sXGSptr.HISPI.CTRL.u32;
+
 
 
 

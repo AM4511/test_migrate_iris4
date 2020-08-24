@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/08/19 14:03:35
--- Created by          : amarchan
+-- Created on          : 2020/08/24 15:42:06
+-- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xCF3DFC13
+-- Register file CRC32 : 0x330D7E3D
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -95,6 +95,12 @@ package regfile_xgs_athena_pack is
    constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#458#;
    constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#45c#;
    constant K_HISPI_DEBUG_ADDR                : natural := 16#460#;
+   constant K_DPC_DPC_LIST_CTRL_ADDR          : natural := 16#480#;
+   constant K_DPC_DPC_LIST_STAT_ADDR          : natural := 16#484#;
+   constant K_DPC_DPC_LIST_DATA1_ADDR         : natural := 16#488#;
+   constant K_DPC_DPC_LIST_DATA2_ADDR         : natural := 16#48c#;
+   constant K_DPC_DPC_LIST_DATA1_RD_ADDR      : natural := 16#490#;
+   constant K_DPC_DPC_LIST_DATA2_RD_ADDR      : natural := 16#494#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1317,6 +1323,116 @@ package regfile_xgs_athena_pack is
    function to_HISPI_DEBUG_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_DEBUG_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_CTRL
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_CTRL_TYPE is record
+      dpc_fifo_reset : std_logic;
+      dpc_firstlast_line_rem: std_logic;
+      dpc_list_count : std_logic_vector(11 downto 0);
+      dpc_pattern0_cfg: std_logic;
+      dpc_enable     : std_logic;
+      dpc_list_WRn   : std_logic;
+      dpc_list_ss    : std_logic;
+      dpc_list_add   : std_logic_vector(11 downto 0);
+   end record DPC_DPC_LIST_CTRL_TYPE;
+
+   constant INIT_DPC_DPC_LIST_CTRL_TYPE : DPC_DPC_LIST_CTRL_TYPE := (
+      dpc_fifo_reset  => 'Z',
+      dpc_firstlast_line_rem => 'Z',
+      dpc_list_count  => (others=> 'Z'),
+      dpc_pattern0_cfg => 'Z',
+      dpc_enable      => 'Z',
+      dpc_list_WRn    => 'Z',
+      dpc_list_ss     => 'Z',
+      dpc_list_add    => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_CTRL_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_CTRL_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_STAT
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_STAT_TYPE is record
+      dpc_fifo_underrun: std_logic;
+      dpc_fifo_overrun: std_logic;
+   end record DPC_DPC_LIST_STAT_TYPE;
+
+   constant INIT_DPC_DPC_LIST_STAT_TYPE : DPC_DPC_LIST_STAT_TYPE := (
+      dpc_fifo_underrun => 'Z',
+      dpc_fifo_overrun => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_STAT_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_STAT_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_STAT_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_DATA1
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_DATA1_TYPE is record
+      dpc_list_corr_y: std_logic_vector(11 downto 0);
+      dpc_list_corr_x: std_logic_vector(12 downto 0);
+   end record DPC_DPC_LIST_DATA1_TYPE;
+
+   constant INIT_DPC_DPC_LIST_DATA1_TYPE : DPC_DPC_LIST_DATA1_TYPE := (
+      dpc_list_corr_y => (others=> 'Z'),
+      dpc_list_corr_x => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA1_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_DATA1_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_DATA2
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_DATA2_TYPE is record
+      dpc_list_corr_pattern: std_logic_vector(7 downto 0);
+   end record DPC_DPC_LIST_DATA2_TYPE;
+
+   constant INIT_DPC_DPC_LIST_DATA2_TYPE : DPC_DPC_LIST_DATA2_TYPE := (
+      dpc_list_corr_pattern => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA2_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_DATA2_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA2_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_DATA1_RD
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_DATA1_RD_TYPE is record
+      dpc_list_corr_y: std_logic_vector(11 downto 0);
+      dpc_list_corr_x: std_logic_vector(12 downto 0);
+   end record DPC_DPC_LIST_DATA1_RD_TYPE;
+
+   constant INIT_DPC_DPC_LIST_DATA1_RD_TYPE : DPC_DPC_LIST_DATA1_RD_TYPE := (
+      dpc_list_corr_y => (others=> 'Z'),
+      dpc_list_corr_x => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA1_RD_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_DATA1_RD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA1_RD_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_LIST_DATA2_RD
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_LIST_DATA2_RD_TYPE is record
+      dpc_list_corr_pattern: std_logic_vector(7 downto 0);
+   end record DPC_DPC_LIST_DATA2_RD_TYPE;
+
+   constant INIT_DPC_DPC_LIST_DATA2_RD_TYPE : DPC_DPC_LIST_DATA2_RD_TYPE := (
+      dpc_list_corr_pattern => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA2_RD_TYPE) return std_logic_vector;
+   function to_DPC_DPC_LIST_DATA2_RD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA2_RD_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Section Name: SYSTEM
    ------------------------------------------------------------------------------------------
    type SYSTEM_TYPE is record
@@ -1483,6 +1599,27 @@ package regfile_xgs_athena_pack is
    );
 
    ------------------------------------------------------------------------------------------
+   -- Section Name: DPC
+   ------------------------------------------------------------------------------------------
+   type DPC_TYPE is record
+      DPC_LIST_CTRL  : DPC_DPC_LIST_CTRL_TYPE;
+      DPC_LIST_STAT  : DPC_DPC_LIST_STAT_TYPE;
+      DPC_LIST_DATA1 : DPC_DPC_LIST_DATA1_TYPE;
+      DPC_LIST_DATA2 : DPC_DPC_LIST_DATA2_TYPE;
+      DPC_LIST_DATA1_RD: DPC_DPC_LIST_DATA1_RD_TYPE;
+      DPC_LIST_DATA2_RD: DPC_DPC_LIST_DATA2_RD_TYPE;
+   end record DPC_TYPE;
+
+   constant INIT_DPC_TYPE : DPC_TYPE := (
+      DPC_LIST_CTRL   => INIT_DPC_DPC_LIST_CTRL_TYPE,
+      DPC_LIST_STAT   => INIT_DPC_DPC_LIST_STAT_TYPE,
+      DPC_LIST_DATA1  => INIT_DPC_DPC_LIST_DATA1_TYPE,
+      DPC_LIST_DATA2  => INIT_DPC_DPC_LIST_DATA2_TYPE,
+      DPC_LIST_DATA1_RD => INIT_DPC_DPC_LIST_DATA1_RD_TYPE,
+      DPC_LIST_DATA2_RD => INIT_DPC_DPC_LIST_DATA2_RD_TYPE
+   );
+
+   ------------------------------------------------------------------------------------------
    -- Register file name: regfile_xgs_athena
    ------------------------------------------------------------------------------------------
    type REGFILE_XGS_ATHENA_TYPE is record
@@ -1490,13 +1627,15 @@ package regfile_xgs_athena_pack is
       DMA            : DMA_TYPE;
       ACQ            : ACQ_TYPE;
       HISPI          : HISPI_TYPE;
+      DPC            : DPC_TYPE;
    end record REGFILE_XGS_ATHENA_TYPE;
 
    constant INIT_REGFILE_XGS_ATHENA_TYPE : REGFILE_XGS_ATHENA_TYPE := (
       SYSTEM          => INIT_SYSTEM_TYPE,
       DMA             => INIT_DMA_TYPE,
       ACQ             => INIT_ACQ_TYPE,
-      HISPI           => INIT_HISPI_TYPE
+      HISPI           => INIT_HISPI_TYPE,
+      DPC             => INIT_DPC_TYPE
    );
 
    
@@ -3214,6 +3353,164 @@ package body regfile_xgs_athena_pack is
       return output;
    end to_HISPI_DEBUG_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_CTRL_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_CTRL_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(29) := reg.dpc_fifo_reset;
+      output(28) := reg.dpc_firstlast_line_rem;
+      output(27 downto 16) := reg.dpc_list_count;
+      output(15) := reg.dpc_pattern0_cfg;
+      output(14) := reg.dpc_enable;
+      output(13) := reg.dpc_list_WRn;
+      output(12) := reg.dpc_list_ss;
+      output(11 downto 0) := reg.dpc_list_add;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_CTRL_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_CTRL_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_CTRL_TYPE is
+   variable output : DPC_DPC_LIST_CTRL_TYPE;
+   begin
+      output.dpc_fifo_reset := stdlv(29);
+      output.dpc_firstlast_line_rem := stdlv(28);
+      output.dpc_list_count := stdlv(27 downto 16);
+      output.dpc_pattern0_cfg := stdlv(15);
+      output.dpc_enable := stdlv(14);
+      output.dpc_list_WRn := stdlv(13);
+      output.dpc_list_ss := stdlv(12);
+      output.dpc_list_add := stdlv(11 downto 0);
+      return output;
+   end to_DPC_DPC_LIST_CTRL_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_STAT_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_STAT_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.dpc_fifo_underrun;
+      output(30) := reg.dpc_fifo_overrun;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_STAT_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_STAT_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_STAT_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_STAT_TYPE is
+   variable output : DPC_DPC_LIST_STAT_TYPE;
+   begin
+      output.dpc_fifo_underrun := stdlv(31);
+      output.dpc_fifo_overrun := stdlv(30);
+      return output;
+   end to_DPC_DPC_LIST_STAT_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_DATA1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.dpc_list_corr_y;
+      output(12 downto 0) := reg.dpc_list_corr_x;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_DATA1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_DATA1_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_DATA1_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA1_TYPE is
+   variable output : DPC_DPC_LIST_DATA1_TYPE;
+   begin
+      output.dpc_list_corr_y := stdlv(27 downto 16);
+      output.dpc_list_corr_x := stdlv(12 downto 0);
+      return output;
+   end to_DPC_DPC_LIST_DATA1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_DATA2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(7 downto 0) := reg.dpc_list_corr_pattern;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_DATA2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_DATA2_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_DATA2_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA2_TYPE is
+   variable output : DPC_DPC_LIST_DATA2_TYPE;
+   begin
+      output.dpc_list_corr_pattern := stdlv(7 downto 0);
+      return output;
+   end to_DPC_DPC_LIST_DATA2_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_DATA1_RD_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA1_RD_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.dpc_list_corr_y;
+      output(12 downto 0) := reg.dpc_list_corr_x;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_DATA1_RD_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_DATA1_RD_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_DATA1_RD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA1_RD_TYPE is
+   variable output : DPC_DPC_LIST_DATA1_RD_TYPE;
+   begin
+      output.dpc_list_corr_y := stdlv(27 downto 16);
+      output.dpc_list_corr_x := stdlv(12 downto 0);
+      return output;
+   end to_DPC_DPC_LIST_DATA1_RD_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_LIST_DATA2_RD_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_LIST_DATA2_RD_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(7 downto 0) := reg.dpc_list_corr_pattern;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_LIST_DATA2_RD_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_LIST_DATA2_RD_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_LIST_DATA2_RD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA2_RD_TYPE is
+   variable output : DPC_DPC_LIST_DATA2_RD_TYPE;
+   begin
+      output.dpc_list_corr_pattern := stdlv(7 downto 0);
+      return output;
+   end to_DPC_DPC_LIST_DATA2_RD_TYPE;
+
    
 end package body;
 
@@ -3222,11 +3519,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/08/19 14:03:35
--- Created by          : amarchan
+-- Created on          : 2020/08/24 15:42:06
+-- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xCF3DFC13
+-- Register file CRC32 : 0x330D7E3D
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3274,8 +3571,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(77 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(76 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(83 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(82 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3357,6 +3654,12 @@ signal rb_HISPI_LANE_PACKER_STATUS_0                               : std_logic_v
 signal rb_HISPI_LANE_PACKER_STATUS_1                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_2                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_DEBUG                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_STAT                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_DATA1                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_DATA2                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_DATA1_RD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_LIST_DATA2_RD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_SYSTEM_SCRATCHPAD_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                             : std_logic;                                       -- Field: GRAB_QUEUE_EN
 signal field_rw_DMA_FSTART_VALUE                                   : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -3499,6 +3802,17 @@ signal field_rw_HISPI_DEBUG_TAP_LANE_3                             : std_logic_v
 signal field_rw_HISPI_DEBUG_TAP_LANE_2                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_2
 signal field_rw_HISPI_DEBUG_TAP_LANE_1                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_1
 signal field_rw_HISPI_DEBUG_TAP_LANE_0                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_0
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset                   : std_logic;                                       -- Field: dpc_fifo_reset
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem           : std_logic;                                       -- Field: dpc_firstlast_line_rem
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_count                   : std_logic_vector(11 downto 0);                   -- Field: dpc_list_count
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg                 : std_logic;                                       -- Field: dpc_pattern0_cfg
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_enable                       : std_logic;                                       -- Field: dpc_enable
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn                     : std_logic;                                       -- Field: dpc_list_WRn
+signal field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss                : std_logic;                                       -- Field: dpc_list_ss
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_add                     : std_logic_vector(11 downto 0);                   -- Field: dpc_list_add
+signal field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y                 : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
+signal field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x                 : std_logic_vector(12 downto 0);                   -- Field: dpc_list_corr_x
+signal field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern           : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
 signal ext_SYSMONXIL_readDataValid_FF                              : std_logic;                                       -- Pipelined version of ext_SYSMONXIL_readDataValid
 signal ext_SYSMONXIL_readData_FF                                   : std_logic_vector(31 downto 0);                   -- Pipelined version of ext_SYSMONXIL_readData
 signal ext_SYSMONXIL_readPending                                   : std_logic;                                       -- Read pending for the SYSMONXIL external section
@@ -3599,8 +3913,14 @@ hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else 
 hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#458#,12)))	else '0'; -- Addr:  0x0458	LANE_PACKER_STATUS[1]
 hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#45c#,12)))	else '0'; -- Addr:  0x045C	LANE_PACKER_STATUS[2]
 hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#460#,12)))	else '0'; -- Addr:  0x0460	DEBUG
+hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_LIST_CTRL
+hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_STAT
+hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_DATA1
+hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA2
+hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA1_RD
+hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA2_RD
 
-hit(77) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(83) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -3687,6 +4007,12 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_LANE_PACKER_STATUS_1,
                             rb_HISPI_LANE_PACKER_STATUS_2,
                             rb_HISPI_DEBUG,
+                            rb_DPC_DPC_LIST_CTRL,
+                            rb_DPC_DPC_LIST_STAT,
+                            rb_DPC_DPC_LIST_DATA1,
+                            rb_DPC_DPC_LIST_DATA2,
+                            rb_DPC_DPC_LIST_DATA1_RD,
+                            rb_DPC_DPC_LIST_DATA2_RD,
                             ext_SYSMONXIL_readData_FF
                            )
 begin
@@ -3998,6 +4324,30 @@ begin
       -- [0x460]: /HISPI/DEBUG
       when 16#460# =>
          readBackMux <= rb_HISPI_DEBUG;
+
+      -- [0x480]: /DPC/DPC_LIST_CTRL
+      when 16#480# =>
+         readBackMux <= rb_DPC_DPC_LIST_CTRL;
+
+      -- [0x484]: /DPC/DPC_LIST_STAT
+      when 16#484# =>
+         readBackMux <= rb_DPC_DPC_LIST_STAT;
+
+      -- [0x488]: /DPC/DPC_LIST_DATA1
+      when 16#488# =>
+         readBackMux <= rb_DPC_DPC_LIST_DATA1;
+
+      -- [0x48c]: /DPC/DPC_LIST_DATA2
+      when 16#48C# =>
+         readBackMux <= rb_DPC_DPC_LIST_DATA2;
+
+      -- [0x490]: /DPC/DPC_LIST_DATA1_RD
+      when 16#490# =>
+         readBackMux <= rb_DPC_DPC_LIST_DATA1_RD;
+
+      -- [0x494]: /DPC/DPC_LIST_DATA2_RD
+      when 16#494# =>
+         readBackMux <= rb_DPC_DPC_LIST_DATA2_RD;
 
       -- [0x700:0x7fc] SYSMONXIL external section
       when 16#700# to 16#7FC# =>
@@ -8993,6 +9343,371 @@ begin
    end if;
 end process P_HISPI_DEBUG_TAP_LANE_0;
 
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_CTRL
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(77) <= (hit(77)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_fifo_reset
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(29) <= field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset;
+regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset <= field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_fifo_reset
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_fifo_reset : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(29) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= reg_writedata(29);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_fifo_reset;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_firstlast_line_rem
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(28) <= field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem;
+regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem <= field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(28) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= reg_writedata(28);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_count(27 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(27 downto 16) <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_count(11 downto 0);
+regfile.DPC.DPC_LIST_CTRL.dpc_list_count <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_count(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_list_count
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_list_count : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_list_count <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  27 downto 16  loop
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
+               field_rw_DPC_DPC_LIST_CTRL_dpc_list_count(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_list_count;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_pattern0_cfg
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(15) <= field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg;
+regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg <= field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(15) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= reg_writedata(15);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_enable
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(14) <= field_rw_DPC_DPC_LIST_CTRL_dpc_enable;
+regfile.DPC.DPC_LIST_CTRL.dpc_enable <= field_rw_DPC_DPC_LIST_CTRL_dpc_enable;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_enable
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_enable : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(14) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= reg_writedata(14);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_enable;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_WRn
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(13) <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn;
+regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_list_WRn
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_list_WRn : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(13) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= reg_writedata(13);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_list_WRn;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_ss
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(12) <= '0';
+regfile.DPC.DPC_LIST_CTRL.dpc_list_ss <= field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_list_ss
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_list_ss : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
+      else
+         if(wEn(77) = '1' and bitEnN(12) = '0') then
+            field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= reg_writedata(12);
+         else
+            field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_list_ss;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_add(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(11 downto 0) <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_add(11 downto 0);
+regfile.DPC.DPC_LIST_CTRL.dpc_list_add <= field_rw_DPC_DPC_LIST_CTRL_dpc_list_add(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_list_add
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_list_add : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_list_add <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
+               field_rw_DPC_DPC_LIST_CTRL_dpc_list_add(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_list_add;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_STAT
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(78) <= (hit(78)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_fifo_underrun
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_STAT(31) <= regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_fifo_overrun
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_STAT(30) <= regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_DATA1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(79) <= (hit(79)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_y(27 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA1(27 downto 16) <= field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y(11 downto 0);
+regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y <= field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_DATA1_dpc_list_corr_y
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_DATA1_dpc_list_corr_y : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  27 downto 16  loop
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
+               field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_DATA1_dpc_list_corr_y;
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_x(12 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA1(12 downto 0) <= field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x(12 downto 0);
+regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x <= field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_DATA1_dpc_list_corr_x
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_DATA1_dpc_list_corr_x : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x <= std_logic_vector(to_unsigned(integer(0),13));
+      else
+         for j in  12 downto 0  loop
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
+               field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_DATA1_dpc_list_corr_x;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_DATA2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(80) <= (hit(80)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_pattern(7 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA2(7 downto 0) <= field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern(7 downto 0);
+regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern <= field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern(7 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern <= std_logic_vector(to_unsigned(integer(0),8));
+      else
+         for j in  7 downto 0  loop
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
+               field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_DATA1_RD
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(81) <= (hit(81)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_y(11 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA1_RD(27 downto 16) <= regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_x(12 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA1_RD(12 downto 0) <= regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_DATA2_RD
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(82) <= (hit(82)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_list_corr_pattern(7 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_DATA2_RD(7 downto 0) <= regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern;
+
+
 ------------------------------------------------------------------------------------------
 -- External section: SYSMONXIL
 ------------------------------------------------------------------------------------------
@@ -9022,7 +9737,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(77) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(83) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -9067,7 +9782,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(77) = '1') then
+         if (reg_read = '1' and hit(83) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -9115,7 +9830,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(77)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(83)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

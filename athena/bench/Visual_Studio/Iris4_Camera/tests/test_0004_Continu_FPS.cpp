@@ -23,7 +23,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_ID MilGrabBuffer;
 	//MIL_ID MilDisplay;
 
-	M_UINT64 ImageBufferAddr     =0;
+	M_UINT64 ImageBufferAddr=0;
+	M_UINT64 ImageBufferLinePitch = 0;
+
 	int MonoType = 8;
 	M_UINT32 i = 0;
 	int Sortie = 0;
@@ -78,8 +80,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //---------------------
     // Init Display with correct X-Y parameters 
 	ImageBufferAddr     = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
-	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
-
+	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 	//LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 
@@ -89,7 +92,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setExposure(10000);
 
 	// For a full frame ROI 
-	GrabParams->Y_START = 4;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
+	GrabParams->Y_START = 0;                                                // 1-base Here - Dois etre multiple de 4 
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
 	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
@@ -110,8 +113,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     // DMA PARAMETERS
     //---------------------
 	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = SensorParams->Xsize_Full; // Full window MIL display
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;
+	DMAParams->LINE_PITCH = (M_UINT32) ImageBufferLinePitch;
+	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 
 
@@ -184,7 +187,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					XGS_Ctrl->setExposure_(100);
 					GrabCmdCnt = 0;
 					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
-					GrabParams->Y_START = 4;
+					GrabParams->Y_START = 0;
 					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 					GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
@@ -241,7 +244,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						XGS_Ctrl->setExposure_((M_UINT32)(ROI_Y_SIZE_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)));
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
-						GrabParams->Y_START = 4;
+						GrabParams->Y_START = 0;
 						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
@@ -301,7 +304,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
-						GrabParams->Y_START = 4;
+						GrabParams->Y_START = 0;
 						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
 						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 

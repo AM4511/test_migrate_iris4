@@ -101,10 +101,12 @@ entity xgs_ctrl is
            curr_db_GRAB_ROI2_EN            : out std_logic;
                       
            curr_db_y_start_ROI1            : out std_logic_vector;     -- 1-base
-           curr_db_nblines_ROI1            : out std_logic_vector;     -- 1-base  
+           curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
+           curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
            curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
-           curr_db_nblines_ROI2            : out std_logic_vector;     -- 1-base
+           curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
+           curr_db_y_size_ROI2             : out std_logic_vector;     -- 1-base
              
            curr_db_subsampling_X           : out std_logic;
            curr_db_subsampling_Y           : out std_logic;
@@ -1009,11 +1011,13 @@ BEGIN
      
       
       if(EO_FOT='1') then
-        curr_db_y_start_ROI1       <= curr_y_start;                 --Only used in Bayer
-        curr_db_nblines_ROI1       <= curr_y_size;
+        curr_db_y_start_ROI1       <= curr_y_start;                           --Only used in Bayer/dcp
+        curr_db_y_end_ROI1         <= curr_y_start+curr_y_size-'1';           --Only used in Bayer/dcp
+        curr_db_y_size_ROI1        <= curr_y_size;                            --Only used in Bayer/dcp 
 
-        curr_db_y_start_ROI2       <= curr_y_start_ROI2;
-        curr_db_nblines_ROI2       <= curr_y_size_ROI2;
+        curr_db_y_start_ROI2       <= curr_y_start_ROI2;                      --Only used in Bayer/dcp
+        curr_db_y_end_ROI2         <= curr_y_start_ROI2+curr_y_size_ROI2-'1'; --Only used in Bayer/dcp		
+        curr_db_y_size_ROI2        <= curr_y_size_ROI2;                       --Only used in Bayer/dcp
         
         curr_db_GRAB_ROI2_EN       <= curr_GRAB_ROI2_EN;
         

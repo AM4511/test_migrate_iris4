@@ -551,6 +551,55 @@ Register("debug", 0x460, 4, "null");
 		Field("tap_lane_0", 4, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
+% SECTION NAME	: DPC
+%=================================================================
+Section("DPC", 0, 0x480);
+
+Register("dpc_list_ctrl", 0x480, 4, "null");
+		Field("dpc_fifo_reset", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Fifo in normal operation", 0);
+			FieldValue("Fifo in reset State", 1);
+		Field("dpc_firstlast_line_rem", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Do not remove any lines of the image received", 0);
+			FieldValue("Remove first and last line of the image received", 1);
+		Field("dpc_list_count", 27, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dpc_pattern0_cfg", 15, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Do not correct current pixel", 0);
+			FieldValue("Replace current pixel by a white pixel (0x3ff)", 1);
+		Field("dpc_enable", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("DPC logic is bypassed", 0);
+			FieldValue("DPC logic is enabled", 1);
+		Field("dpc_list_wrn", 13, 13, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Read list operation", 0);
+			FieldValue("Write list operation", 1);
+		Field("dpc_list_ss", 12, 12, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Do nothing", 0);
+			FieldValue("Start the READ/WRITE transaction", 1);
+		Field("dpc_list_add", 11, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dpc_list_stat", 0x484, 4, "null");
+		Field("dpc_fifo_underrun", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Underrun not detected", 0);
+			FieldValue("Underrun detected", 1);
+		Field("dpc_fifo_overrun", 30, 30, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Overrun not detected", 0);
+			FieldValue("Overrun detected", 1);
+
+Register("dpc_list_data1", 0x488, 4, "null");
+		Field("dpc_list_corr_y", 27, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dpc_list_corr_x", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dpc_list_data2", 0x48c, 4, "");
+		Field("dpc_list_corr_pattern", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("dpc_list_data1_rd", 0x490, 4, "null");
+		Field("dpc_list_corr_y", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("dpc_list_corr_x", 12, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("dpc_list_data2_rd", 0x494, 4, "");
+		Field("dpc_list_corr_pattern", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+%=================================================================
 % EXTERNAL NAME	: SYSMONXIL
 %=================================================================
 Section("SYSMONXIL", 0, 0x700);

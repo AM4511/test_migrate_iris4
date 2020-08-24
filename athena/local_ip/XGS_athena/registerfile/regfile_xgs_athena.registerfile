@@ -701,6 +701,70 @@
       <fields name="TAP_LANE_0" size="5"/>
     </registers>
   </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DPC" baseAddress="480" endAddress="494">
+    <registers name="DPC_LIST_CTRL">
+      <fields name="dpc_fifo_reset" description="Write '1' then '0' to field dpcL_FIFO_RST to reset overrun/underrun flags of the line buffers and reset the Fifo logic.&#xD;&#xA;&#xD;&#xA;The DPC dual port ram  is not SW reset .&#xD;&#xA;&#xD;&#xA;The fifo in each  processing DPC unit is HW reset at each SOF. " lsb="29">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in normal operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in reset State&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_firstlast_line_rem" description="When this register is set to 1, the DPC macro will remove the first and last line of the image corrected.&#xD;&#xA;This can be usefull if we want to correct the 4 pixels in the corners of the image. The SW can program two more lines in the frame so the DPC macro can have enough pixels to correct the 4 pixel coners." lsb="28">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not remove any lines of the image received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Remove first and last line of the image received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. Up to X pixels can be corrected. The value 0 is allowed and when set to 0 no pixel will be corrected." lsb="16" size="12"/>
+      <fields name="dpc_pattern0_cfg" description="This field configures the behabieur of the correction pattern 0x0. If this field is set to 0x0 then the current pixel will not be corrected. If this field is set to 0x1 then the current pixel will be replaced by the value 0x3ff (white pixel)" lsb="15">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not correct current pixel&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Replace current pixel by a white pixel (0x3ff)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_enable" description="Dead Pixel Correction core Enable, when this field is set to 1, the DPC logic will correct all the dead pixels that are listed in the DPC list.&#xD;&#xA;&#xD;&#xA;The grab must be idle when changing this register." lsb="14">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>DPC logic is bypassed&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>DPC logic is enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_WRn" description="This is the Write/ReadN flag. To write to the DPC list set this bit to 1 and start the transaction with the dpc_list_ss field. To read from the DPC list set this bit to 0 and start the transaction with the dpc_list_ss field. " lsb="13">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read list operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write list operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_ss" description="This is the DPC snapshot. In order to start a write or read transaction the snapsot needs to be writen to '1'. This bit is a auto clear regsiter. " lsb="12" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start the READ/WRITE transaction&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address b000000. Since the dpc_list_count field is also 6 bit wide, address 0 to 62 of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x3f cannot be used. This DPC location will not be corrected." size="12">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Valid DPC adress&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DPC_LIST_STAT" offsetFromParent="4">
+      <fields name="dpc_fifo_underrun" description="This is the fifo underrun status of the 2 linebuffers in the dpc macro. Write '1' then '0' to field dpc_FIFO_RST to reset this flag and reset the Fifo logic. " lsb="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun not detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="dpc_fifo_overrun" description="This is the fifo overrun status of the 2 linebuffers in the dpc macro.&#xD;&#xA;Write '1' then '0' to field dpc_FIFO_RST to reset this flag and reset the Fifo logic. " lsb="30" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Overrun not detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Overrun detected&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DPC_LIST_DATA1" offsetFromParent="8">
+      <fields name="dpc_list_corr_y" description="This is Y location of the pixel to be corrected when executing a write to the DPC list." lsb="16" size="12"/>
+      <fields name="dpc_list_corr_x" description="This is X location of the pixel to be corrected when executing a write to the DPC list." size="13"/>
+    </registers>
+    <registers name="DPC_LIST_DATA2" alias="" description="" offsetFromParent="C">
+      <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8"/>
+    </registers>
+    <registers name="DPC_LIST_DATA1_RD" offsetFromParent="10">
+      <fields name="dpc_list_corr_y" description="This is Y location of the pixel to be corrected when executing a write to the DPC list." lsb="16" size="12" readWrite="false" readOnly="true"/>
+      <fields name="dpc_list_corr_x" description="This is X location of the pixel to be corrected when executing a write to the DPC list." size="13" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="DPC_LIST_DATA2_RD" alias="" description="" offsetFromParent="14">
+      <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8" readWrite="false" readOnly="true"/>
+    </registers>
+  </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">
     <registers name="TEMP">
       <fields name="SMTEMP" alias="System Monitor TEMPerature" description="This field reports the temperature of the die. Maximum-measurement error is ±4 degC. The temperature in Celcius = (SMTEMP*503.975/4096) – 273.15." lsb="4" size="12" readWrite="false" readOnly="true">
