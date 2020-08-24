@@ -612,10 +612,11 @@ begin
 
 
           -------------------------------------------------------------------
-          -- S_INIT : 
+          -- S_INIT : hclk_lane_enabled
           -------------------------------------------------------------------
           when S_INIT =>
-            if (pclk_cal_busy = (pclk_cal_busy'range => '1')) then
+            --if (pclk_cal_busy = (pclk_cal_busy'range => '1')) then
+            if (pclk_cal_busy = hclk_lane_enabled) then
               hclk_state <= S_CALIBRATE;
             else
               hclk_state <= S_INIT;

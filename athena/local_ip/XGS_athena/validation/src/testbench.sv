@@ -17,7 +17,8 @@ module testbench();
 	parameter SYS_CLK_PERIOD= 16;
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
-    parameter EXPOSURE=50;
+	parameter EXPOSURE=50;
+   
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
 	parameter AXIS_DATA_WIDTH = 64;
@@ -64,7 +65,7 @@ module testbench();
 	parameter HISPI_CTRL_OFFSET            = 'h0400;
 	parameter HISPI_IDLE_CHARACTER_OFFSET  = 'h040C;
 	parameter HISPI_PHY_OFFSET             = 'h0410;
-    parameter FRAME_CFG_OFFSET             = 'h0414;	
+	parameter FRAME_CFG_OFFSET             = 'h0414;	
 	parameter FRAME_CFG_X_VALID_OFFSET     = 'h0418;
 	parameter HISPI_DEBUG_OFFSET           = 'h0460;
 
@@ -92,7 +93,6 @@ module testbench();
 
 	//clock and reset signal declaration
 	bit 	    idelay_clk=1'b0;
-	//bit 	    axi_clk=1'b0;
 	bit 	    sclk=1'b0;
 	bit 	    sclk_reset_n;
 	bit 	    pcie_clk=1'b0;
@@ -105,10 +105,7 @@ module testbench();
 	bit [7:0] 	   irq;
 	bit 	      XGS_MODEL_EXTCLK  = 0;
 
-	//	reg 	      XGS_MODEL_SCLK;
-	//	reg 	      XGS_MODEL_SDATA;
-	//	reg 	      XGS_MODEL_CS;
-	//	reg 	      XGS_MODEL_SDATAOUT;
+	bit [31:0] register_data;
 
 
 	logic 	      xgs_power_good;
@@ -142,15 +139,87 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
+	`define _XGS5M_
+  
+	////////////////////////////////////////////////////////////
+	// XGS 5000 Sensor parameter definitions
+	////////////////////////////////////////////////////////////
+	`ifdef _XGS5M_
+		parameter P_MODEL_ID       =  16'h0358;
+		parameter P_REV_ID         =  16'h0000;
+		parameter P_NUM_LANES      =  4;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  2078;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  50;
+		parameter P_LEFT_BLACKREF  =  34;
+		parameter P_LEFT_DUMMY_1   =  4;
+		parameter P_ROI_WIDTH      =  2592;
+		parameter P_RIGHT_DUMMY_0  =  4;
+		parameter P_RIGHT_BLACKREF =  42;
+		parameter P_RIGHT_DUMMY_1  =  50;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  8;
+		parameter P_BOTTOM_DUMMY_1  =  3;
 
+    ////////////////////////////////////////////////////////////
+    // XGS 12000 Sensor parameter definitions
+    ////////////////////////////////////////////////////////////
+	`elsif _XGS12M_
+		parameter P_MODEL_ID       =  16'h0058;
+		parameter P_REV_ID         =  16'h0002;
+		parameter P_NUM_LANES      =  6;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  3102;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  4;
+		parameter P_LEFT_BLACKREF  =  24;
+		parameter P_LEFT_DUMMY_1   =  4;
+		parameter P_ROI_WIDTH      =  4096;
+		parameter P_RIGHT_DUMMY_0  =  4;
+		parameter P_RIGHT_BLACKREF =  24;
+		parameter P_RIGHT_DUMMY_1  =  4;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  24;
+		parameter P_BOTTOM_DUMMY_1  =  3;
+		
+    ////////////////////////////////////////////////////////////
+    // XGS 12000 Sensor parameter definitions
+    ////////////////////////////////////////////////////////////
+	`elsif _XGS16M_
+		parameter P_MODEL_ID       =  16'h0258;
+		parameter P_REV_ID         =  16'h0000;
+		parameter P_NUM_LANES      =  6;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  4030;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  4;
+		parameter P_LEFT_BLACKREF  =  24;
+		parameter P_LEFT_DUMMY_1   =  52;
+		parameter P_ROI_WIDTH      =  4000;
+		parameter P_RIGHT_DUMMY_0  =  52;
+		parameter P_RIGHT_BLACKREF =  32;
+		parameter P_RIGHT_DUMMY_1  =  4;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  8;
+		parameter P_BOTTOM_DUMMY_1  =  3;
 
-	
-	
+    `endif
+	 
 
 	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) host;
 	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
-    CImage XGS_imageSRC;
-    CImage XGS_image;
+	CImage XGS_imageSRC;
+	CImage XGS_image;
 	
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) pcie_axi(pcie_clk);
@@ -163,27 +232,15 @@ module testbench();
 
 	xgs12m_chip
 		#(
-			//----------------------------------------------
-			// Configuration for XGS12M with 24 HiSPI LANES
-			//----------------------------------------------
-			.G_MODEL_ID         (16'h0058),     // XGS12M
-			.G_REV_ID           (16'h0002),     // XGS12M
-			.G_NUM_PHY          (6),            // XGS12M
-			.G_PXL_PER_COLRAM   (174),          // XGS12M (4176)
-			.G_PXL_ARRAY_ROWS   (3100)          // XGS12M
-
-			//----------------------------------------------
-			// Configuration for XGS5M with 16 HiSPI LANES
-			//----------------------------------------------
-			//.G_MODEL_ID         (16'h0358),     // XGS5M
-			//.G_REV_ID           (16'h0000),     // XGS5M
-			//.G_NUM_PHY          (4),            // XGS5M
-			//.G_PXL_PER_COLRAM   (174),          // XGS5M
-			//.G_PXL_ARRAY_ROWS   (2056)          // XGS5M  only active (2048+8=2056)
+			.G_MODEL_ID         (P_MODEL_ID),
+			.G_REV_ID           (P_REV_ID),
+			.G_NUM_PHY          (P_NUM_LANES),
+			.G_PXL_PER_COLRAM   (P_PXL_PER_COLRAM),      
+			.G_PXL_ARRAY_ROWS   (P_PXL_ARRAY_ROWS)
 		)
 		XGS_MODEL
 		(
-		    .xgs_model_GenImage(xgs_model_GenImage), 
+			.xgs_model_GenImage(xgs_model_GenImage), 
 			 
 			.VAAHV_NPIX(),
 			.VREF1_BOT_0(),
@@ -416,9 +473,9 @@ module testbench();
 
 	// System clock (100 MHz)
 	always #5 sclk = ~sclk;
-	// PCIe clk (62.5MHz)
+			// PCIe clk (62.5MHz)
 	always #8 pcie_clk = ~pcie_clk;
-	// HiSPi reference clock (32.4Mhz)
+			// HiSPi reference clock (32.4Mhz)
 	always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;
 
 
@@ -446,92 +503,92 @@ module testbench();
 		dma_irq_cntr++;
 	end
 
-    ///////////////////////////////////////////////
+	///////////////////////////////////////////////
 	//
 	// Back pressure to AXI tready
 	//
 	/////////////////////////////////////////////// 
-    reg        tready_cntr_en;
-    reg [15:0] tready_cntr;
+	reg        tready_cntr_en;
+	reg [15:0] tready_cntr;
   
-    reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
-    reg        tready_packet_cntr_en;
-    reg [15:0] tready_packet_cntr;
+	reg [15:0] tready_packet_delai   = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg        tready_packet_cntr_en;
+	reg [15:0] tready_packet_cntr;
   
   
-    always @(posedge pcie_clk)
-    if (pcie_axi.reset_n==0) begin
-      tx_axis.tready         <= 1'b1 ;
+	always @(posedge pcie_clk)
+		if (pcie_axi.reset_n==0) begin
+			tx_axis.tready         <= 1'b1 ;
   
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 16'b0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 16'b0;
   
-      tready_packet_cntr_en  <= 0;
-      tready_packet_cntr     <= 16'b0;
+			tready_packet_cntr_en  <= 0;
+			tready_packet_cntr     <= 16'b0;
       
-    end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
-      tx_axis.tready         <= 1'b1 ;
+		end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
+			tx_axis.tready         <= 1'b1 ;
       
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 0;
       
-      tready_packet_cntr_en  <= 0;
-      tready_packet_cntr     <= 16'b0;
+			tready_packet_cntr_en  <= 0;
+			tready_packet_cntr     <= 16'b0;
   
-    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
-      tx_axis.tready         <= 1'b1 ;
+		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
+			tx_axis.tready         <= 1'b1 ;
   
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 0;
   
-      tready_packet_cntr_en  <= 0;
-      tready_packet_cntr     <= 16'b0;
+			tready_packet_cntr_en  <= 0;
+			tready_packet_cntr     <= 16'b0;
 
-    end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
-      tx_axis.tready         <= 1'b0 ;
+		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
+			tx_axis.tready         <= 1'b0 ;
   
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 0;
   
-      tready_packet_cntr_en  <= 1;
-      tready_packet_cntr     <= 16'b0;
+			tready_packet_cntr_en  <= 1;
+			tready_packet_cntr     <= 16'b0;
       
-    //------------------------  
-    // inter packet delai  
-    //------------------------
-    end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
+			//------------------------  
+			// inter packet delay  
+			//------------------------
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
     
-      tx_axis.tready         <= 1'b0 ;
+			tx_axis.tready         <= 1'b0 ;
   
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 0;
   
-      tready_packet_cntr_en  <= 1;
-      tready_packet_cntr     <= tready_packet_cntr + 16'd1;
+			tready_packet_cntr_en  <= 1;
+			tready_packet_cntr     <= tready_packet_cntr + 16'd1;
   
-    end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
     
-      tx_axis.tready         <= 1'b1 ;
+			tx_axis.tready         <= 1'b1 ;
   
-      tready_cntr_en         <= 0;
-      tready_cntr            <= 0;
+			tready_cntr_en         <= 0;
+			tready_cntr            <= 0;
   
-      tready_packet_cntr_en  <= 0;
-      tready_packet_cntr     <= 16'b0;
+			tready_packet_cntr_en  <= 0;
+			tready_packet_cntr     <= 16'b0;
   
-    end
+		end
     
     
-	// Clock and Reset generation
-	//always #5 axi_clk = ~axi_clk;
+		// Clock and Reset generation
+		//always #5 axi_clk = ~axi_clk;
 
 	initial begin
 
 		// Initialize classes
 		host = new(pcie_axi, if_gpio);
 		scoreboard = new(tx_axis);
-        XGS_imageSRC   = new();
-        XGS_image      = new();
+		XGS_imageSRC   = new();
+		XGS_image      = new();
 	
 		
 		fork
@@ -553,7 +610,8 @@ module testbench();
 				real xgs_ctrl_period;
 				real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
 				int EXP_FOT_TIME;
-				
+				int reg_value;
+
 				int ROI_Y_START;
 				int ROI_Y_SIZE;
 
@@ -577,12 +635,12 @@ module testbench();
 				int monitor_1_reg;
 				int monitor_2_reg;
 
-                int test_nb_images;
+				int test_nb_images;
 
-                test_nb_images=0;
+				test_nb_images=0;
 				fstart = 'hA0000000;
-				line_size = 'h1000;
-				line_pitch = 'h1000;
+				line_size = P_ROI_WIDTH;
+				line_pitch = 'h2000;
 
 
 
@@ -597,9 +655,9 @@ module testbench();
 				#160ns
 					pcie_reset_n = 1'b1;
 
-				///////////////////////////////////////////////////
-				// Start setting up registers
-				///////////////////////////////////////////////////
+					///////////////////////////////////////////////////
+					// Start setting up registers
+					///////////////////////////////////////////////////
 				$display("2. Starting XGS_athena register file accesses");
 
 
@@ -716,7 +774,7 @@ module testbench();
 
 				//- Wait at least 500us for the PLL to start and all clocks to be stable.
 				#500us;
-				//- REG Write = 0x3E3E, 0x0001
+					//- REG Write = 0x3E3E, 0x0001
 				$display("  4.4 SPI write XGS UNKNOWN register @0x%h", SPI_UNKNOWN_REGISTER_REG);
 				XGS_WriteSPI(SPI_UNKNOWN_REGISTER_REG, 16'h0001);
 
@@ -736,7 +794,7 @@ module testbench();
 				// XGS model : Set line time (for 6 lanes)
 				///////////////////////////////////////////////////
 				$display("  4.7 SPI write XGS set line time @0x%h", SPI_LINE_TIME_REG);
-				line_time             = 'h02dc;                  // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+				line_time = 'h02dc;                              // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
 				XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
 
 
@@ -833,11 +891,7 @@ module testbench();
 				$display("  5.7 Write SENSOR_GAIN_ANA register @0x%h", SENSOR_GAIN_ANA_OFFSET);
 				host.write(SENSOR_GAIN_ANA_OFFSET, 2<<8);
 
-
-
-
-
-
+				
 				///////////////////////////////////////////////////
 				// PROGRAM XGS HiSPi interface
 				///////////////////////////////////////////////////
@@ -853,32 +907,28 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control, 6 lanes, mux 4
 				///////////////////////////////////////////////////
-				$display("  6.1 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				$display("  6.2 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
 				host.write(HISPI_CTRL_OFFSET, 'h4603);
 
 
-                $display("  6.1 Write FRAME_CFG register @0x%h", FRAME_CFG_OFFSET);
-				host.write(FRAME_CFG_OFFSET, 'h0c1e1050); // Pour XGS12M
-
-
-                ///////////////////////////////////////////////////
-				// TEST i2c SEMAPHORE
 				///////////////////////////////////////////////////
-                host.write(I2C_SEMAPHORE_OFFSET, 1);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-                host.write(I2C_SEMAPHORE_OFFSET, 1);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
-				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				// XGS HiSPi : Control, 6 lanes, mux 4
+				///////////////////////////////////////////////////
+				$display("  6.3 Write PHY register @0x%h", HISPI_PHY_OFFSET);
+				register_data = 0;
+				register_data[25:16] =  P_PXL_PER_COLRAM;
+				register_data[2:0]   =  P_NUM_LANES;
+				
+				host.write(HISPI_PHY_OFFSET, register_data);
+
+
+				$display("  6.4 Write FRAME_CFG register @0x%h", FRAME_CFG_OFFSET);
+				host.write(FRAME_CFG_OFFSET, 'h0c1e1050); // Pour XGS12M
 				
 				///////////////////////////////////////////////////
 				// XGS HiSPi : DEBUG Enable manual calibration
 				///////////////////////////////////////////////////
-				$display("  6.2 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
+				$display("  6.5 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
 				manual_calib[4:0] = 5'b10101; // TAP lane 0
 				manual_calib[9:5] = 5'b10101; // TAP lane 1
 				manual_calib[14:10] = 5'b10101; // TAP lane 2
@@ -890,26 +940,40 @@ module testbench();
 				manual_calib[31] = 1'b1; // Manual calib enable
 
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
-
-
+				#100ns;
 				///////////////////////////////////////////////////
 				// XGS HiSPi : DEBUG Disable manual calibration
 				///////////////////////////////////////////////////
-				$display("  6.3 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
+				$display("  6.6 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
 				manual_calib = 'hC0000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
+				#100ns;
 				manual_calib = 'h00000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
+				#100ns;
 
 
 				///////////////////////////////////////////////////
 				// XGS HiSPi : Control Start a calibration
 				///////////////////////////////////////////////////
-				$display("  6.4 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
+				$display("  6.7 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
 				host.write(HISPI_CTRL_OFFSET, 'h4607);
+
+				
+				///////////////////////////////////////////////////
+				// TEST i2c SEMAPHORE
+				///////////////////////////////////////////////////
+				$display("7. Test I2C semaphore read register");
+				host.write(I2C_SEMAPHORE_OFFSET, 1);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.write(I2C_SEMAPHORE_OFFSET, 1);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
+				host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
 
 
 				//-------------------------------------------------
@@ -917,24 +981,25 @@ module testbench();
 				//
 				// XGS Image Pattern : 
 				//   0 : Random 12 bpp
-                //   1 : Ramp 12bpp
-                //   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
-                //				
+				//   1 : Ramp 12bpp
+				//   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
+				//				
 				//--------------------------------------------------
 				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_imageSRC.load_image;                                // Load le .pgm dans la class SystemVerilog
-        		XGS_imageSRC.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
+				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog
+				XGS_imageSRC.reduce_bit_depth();                     // Converti Image 14bpp a 8bpp (LSR 4)        		
 				
-				
-				
+
 				///////////////////////////////////////////////////
 				// Program X Origin of valid data, in HiSPI
 				///////////////////////////////////////////////////
-                // X origin 
-				ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
-                ROI_X_END    = ROI_X_START+4096-1;              			
-				
-				host.write(FRAME_CFG_X_VALID_OFFSET,  (ROI_X_END<<16)+ ROI_X_START);	
+				// X origin 
+				//ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
+				//ROI_X_END    = ROI_X_START+4096-1;              			
+				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
+				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
+				reg_value = (ROI_X_END<<16) + ROI_X_START;
+				host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
@@ -946,9 +1011,9 @@ module testbench();
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
-                test_nb_images++;
+				test_nb_images++;
 
-                XGS_image = XGS_imageSRC.copy;
+				XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
 
@@ -956,17 +1021,17 @@ module testbench();
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
 				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
-			    //ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-                ROI_Y_START = 0;         // Doit etre multiple de 4 
-			    ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_START = 0;         // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
-                test_nb_images++;
+				test_nb_images++;
 
-                XGS_image = XGS_imageSRC.copy;
+				XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);					
                 
@@ -990,7 +1055,7 @@ module testbench();
 		///////////////////////////////////////////////////
 		// Terminate the successfull simulation
 		///////////////////////////////////////////////////
-		#1us;
+			#1us;
 		$display("######################################################");
 		$display("###         Simulation completed successfully      ###");
 		$display("###                                                ###");
@@ -1034,17 +1099,17 @@ module testbench();
 
 
 	////////////////////////////////////////////////////////////////
-	// Task : XGS_ReadSPI
+	// Task : GenImage_XGS
 	////////////////////////////////////////////////////////////////
 	task automatic GenImage_XGS(input int ImgPattern);
 		xgs_model_GenImage = 1'b0;      
-	    XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
+		XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
 		host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!  
-	    #1ns;
+		#1ns;
 		xgs_model_GenImage = 1'b1;      // Cree le .pgm et loade le modele XGS vhdl
-	    #1ns;
+		#1ns;
 		xgs_model_GenImage = 1'b0;     
-	    #1ns;		
+		#1ns;		
 	endtask : GenImage_XGS	
 	
 

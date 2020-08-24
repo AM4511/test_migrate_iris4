@@ -176,7 +176,8 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  write(row_dec, string'("4095"));
 	  writeline(xgs_image_file_dec, row_dec);	  
 	  
-      for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
+      --for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
+      for line_count in 0 to (G_PXL_ARRAY_ROWS-1) loop -- Fixed by AM
       
 	    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
           if(j<4) then                 --DUMMY

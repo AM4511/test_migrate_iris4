@@ -58,8 +58,8 @@ class CImage;
 
     //int i;
     //int pixel;
+	integer pgm_size_x, pgm_size_y, pgm_max;
     shortint image[];
-    integer pgm_size_x, pgm_size_y, pgm_max;
 
 	
 	function new();
