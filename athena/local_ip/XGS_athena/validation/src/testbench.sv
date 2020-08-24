@@ -139,24 +139,82 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _4_LANES_
-   
-	`ifdef _4_LANES_
-		parameter P_MODEL_ID       =  16'h0358;     // XGS12M
-		parameter P_REV_ID         =  16'h0000;     // XGS12M
-		parameter P_NUM_LANES      =  4;            // XGS12M
-		parameter P_PXL_PER_COLRAM =  174;          // XGS12M (4176)
-		parameter P_PXL_ARRAY_ROWS =  2078;         // XGS12M
-	`elsif _6_LANES_
-		parameter P_MODEL_ID       =  16'h0058;     // XGS12M
-		parameter P_REV_ID         =  16'h0002;     // XGS12M
-		parameter P_NUM_LANES      =  6;            // XGS12M
-		parameter P_PXL_PER_COLRAM =  174;          // XGS12M (4176)
-		parameter P_PXL_ARRAY_ROWS =  3102;         // XGS12M
-	`endif
-	 
+	`define _XGS12M_
+  
+	////////////////////////////////////////////////////////////
+	// XGS 5000 Sensor parameter definitions
+	////////////////////////////////////////////////////////////
+	`ifdef _XGS5M_
+		parameter P_MODEL_ID       =  16'h0358;
+		parameter P_REV_ID         =  16'h0000;
+		parameter P_NUM_LANES      =  4;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  2078;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  50;
+		parameter P_LEFT_BLACKREF  =  34;
+		parameter P_LEFT_DUMMY_1   =  4;
+		parameter P_ROI_WIDTH      =  2592;
+		parameter P_RIGHT_DUMMY_0  =  4;
+		parameter P_RIGHT_BLACKREF =  42;
+		parameter P_RIGHT_DUMMY_1  =  50;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  8;
+		parameter P_BOTTOM_DUMMY_1  =  3;
 
-	
+    ////////////////////////////////////////////////////////////
+    // XGS 12000 Sensor parameter definitions
+    ////////////////////////////////////////////////////////////
+	`elsif _XGS12M_
+		parameter P_MODEL_ID       =  16'h0058;
+		parameter P_REV_ID         =  16'h0002;
+		parameter P_NUM_LANES      =  6;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  3102;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  4;
+		parameter P_LEFT_BLACKREF  =  24;
+		parameter P_LEFT_DUMMY_1   =  4;
+		parameter P_ROI_WIDTH      =  4096;
+		parameter P_RIGHT_DUMMY_0  =  4;
+		parameter P_RIGHT_BLACKREF =  24;
+		parameter P_RIGHT_DUMMY_1  =  4;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  24;
+		parameter P_BOTTOM_DUMMY_1  =  3;
+		
+    ////////////////////////////////////////////////////////////
+    // XGS 12000 Sensor parameter definitions
+    ////////////////////////////////////////////////////////////
+	`elsif _XGS16M_
+		parameter P_MODEL_ID       =  16'h0258;
+		parameter P_REV_ID         =  16'h0000;
+		parameter P_NUM_LANES      =  6;
+		parameter P_PXL_PER_COLRAM =  174;
+		parameter P_PXL_ARRAY_ROWS =  4030;
+		
+		parameter P_INTERPOLATION  =  4;
+		parameter P_LEFT_DUMMY_0   =  4;
+		parameter P_LEFT_BLACKREF  =  24;
+		parameter P_LEFT_DUMMY_1   =  52;
+		parameter P_ROI_WIDTH      =  4000;
+		parameter P_RIGHT_DUMMY_0  =  52;
+		parameter P_RIGHT_BLACKREF =  32;
+		parameter P_RIGHT_DUMMY_1  =  4;
+		
+		parameter P_TOP_DUMMY       =  7;
+		parameter P_BOTTOM_DUMMY_0  =  4;
+		parameter P_BOTTOM_BLACKREF =  8;
+		parameter P_BOTTOM_DUMMY_1  =  3;
+
+    `endif
+	 
 
 	Cdriver_axil #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) host;
 	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
@@ -178,24 +236,7 @@ module testbench();
 			.G_REV_ID           (P_REV_ID),
 			.G_NUM_PHY          (P_NUM_LANES),
 			.G_PXL_PER_COLRAM   (P_PXL_PER_COLRAM),      
-			.G_PXL_ARRAY_ROWS   (P_PXL_ARRAY_ROWS)      
-			//----------------------------------------------
-			// Configuration for XGS12M with 24 HiSPI LANES
-			//----------------------------------------------
-			//.G_MODEL_ID         (16'h0058),     // XGS12M
-			//.G_REV_ID           (16'h0002),     // XGS12M
-			//.G_NUM_PHY          (6),            // XGS12M
-			//.G_PXL_PER_COLRAM   (174),          // XGS12M (4176)
-			//.G_PXL_ARRAY_ROWS   (3100)          // XGS12M only active
-
-			//----------------------------------------------
-			// Configuration for XGS5M with 16 HiSPI LANES
-			//----------------------------------------------
-			//.G_MODEL_ID         (16'h0358),     // XGS5M
-			//.G_REV_ID           (16'h0000),     // XGS5M
-			//.G_NUM_PHY          (4),            // XGS5M
-			//.G_PXL_PER_COLRAM   (174),          // XGS5M
-			//.G_PXL_ARRAY_ROWS   (2056)          // XGS5M  only active (2048+8=2056)
+			.G_PXL_ARRAY_ROWS   (P_PXL_ARRAY_ROWS)
 		)
 		XGS_MODEL
 		(
@@ -569,7 +610,8 @@ module testbench();
 				real xgs_ctrl_period;
 				real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
 				int EXP_FOT_TIME;
-				
+				int reg_value;
+
 				int ROI_Y_START;
 				int ROI_Y_SIZE;
 
@@ -597,8 +639,8 @@ module testbench();
 
 				test_nb_images=0;
 				fstart = 'hA0000000;
-				line_size = 'h1000;
-				line_pitch = 'h1000;
+				line_size = P_ROI_WIDTH;
+				line_pitch = 'h2000;
 
 
 
@@ -611,11 +653,11 @@ module testbench();
 				host.wait_n(1000);
 
 				#160ns
-				pcie_reset_n = 1'b1;
+					pcie_reset_n = 1'b1;
 
-				///////////////////////////////////////////////////
-				// Start setting up registers
-				///////////////////////////////////////////////////
+					///////////////////////////////////////////////////
+					// Start setting up registers
+					///////////////////////////////////////////////////
 				$display("2. Starting XGS_athena register file accesses");
 
 
@@ -898,19 +940,17 @@ module testbench();
 				manual_calib[31] = 1'b1; // Manual calib enable
 
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
-
-
+				#100ns;
 				///////////////////////////////////////////////////
 				// XGS HiSPi : DEBUG Disable manual calibration
 				///////////////////////////////////////////////////
 				$display("  6.6 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
 				manual_calib = 'hC0000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
+				#100ns;
 				manual_calib = 'h00000000; // Manual calib enable
 				host.write(HISPI_DEBUG_OFFSET, manual_calib);
-				#100ns
+				#100ns;
 
 
 				///////////////////////////////////////////////////
@@ -946,19 +986,20 @@ module testbench();
 				//				
 				//--------------------------------------------------
 				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_imageSRC.load_image;                                // Load le .pgm dans la class SystemVerilog
-				XGS_imageSRC.reduce_bit_depth();                        // Converti Image 14bpp a 8bpp (LSR 4)        		
+				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog
+				XGS_imageSRC.reduce_bit_depth();                     // Converti Image 14bpp a 8bpp (LSR 4)        		
 				
-				
-				
+
 				///////////////////////////////////////////////////
 				// Program X Origin of valid data, in HiSPI
 				///////////////////////////////////////////////////
 				// X origin 
-				ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
-				ROI_X_END    = ROI_X_START+4096-1;              			
-				
-				host.write(FRAME_CFG_X_VALID_OFFSET,  (ROI_X_END<<16)+ ROI_X_START);	
+				//ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
+				//ROI_X_END    = ROI_X_START+4096-1;              			
+				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
+				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
+				reg_value = (ROI_X_END<<16) + ROI_X_START;
+				host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
@@ -1058,7 +1099,7 @@ module testbench();
 
 
 	////////////////////////////////////////////////////////////////
-	// Task : XGS_ReadSPI
+	// Task : GenImage_XGS
 	////////////////////////////////////////////////////////////////
 	task automatic GenImage_XGS(input int ImgPattern);
 		xgs_model_GenImage = 1'b0;      
