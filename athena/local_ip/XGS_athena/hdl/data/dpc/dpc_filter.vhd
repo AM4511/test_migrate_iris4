@@ -23,6 +23,7 @@ library work;
  use work.dpc_package.all;
 
 entity dpc_filter is
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 6 );   --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
    port(
     ---------------------------------------------------------------------
     -- Axi domain reset and clock signals
@@ -58,9 +59,9 @@ entity dpc_filter is
     REG_dpc_fifo_und                     : out   std_logic;
     
     REG_dpc_list_wrn                     : in    std_logic; 
-    REG_dpc_list_add                     : in    std_logic_vector(5 downto 0); 
+    REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
     REG_dpc_list_ss                      : in    std_logic;
-    REG_dpc_list_count                   : in    std_logic_vector(5 downto 0);
+    REG_dpc_list_count                   : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
 
     REG_dpc_list_corr_pattern            : in    std_logic_vector(7 downto 0);
     REG_dpc_list_corr_y                  : in    std_logic_vector(11 downto 0);
@@ -157,7 +158,8 @@ architecture functional of dpc_filter is
 
   
   component dpc_kernel_proc is
-
+  generic( DPC_CORR_PIXELS_DEPTH         : integer := 6    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024    
+  );
   port(
     ---------------------------------------------------------------------
     -- Pixel domain reset and clock signals
@@ -234,10 +236,8 @@ architecture functional of dpc_filter is
   
   
   constant nb_pixels  : integer := ((s_axis_tdata'high+1)/10)-1;      -- 0 base!   3=>4 pixels(32/40 bus)   7=>8 pixels(64/80 bus)
-  
-
-  
-  signal axi_reset               : std_logic;
+   
+  signal axi_reset             : std_logic;
 
   signal s_axis_tready_int     : std_logic :='0';
   signal s_axis_first_line     : std_logic :='0';
@@ -349,7 +349,7 @@ architecture functional of dpc_filter is
 
   signal RAM_R_enable             : std_logic:='0';
   signal RAM_R_enable_P1          : std_logic:='0';
-  signal RAM_R_address            : std_logic_vector(5 downto 0);
+  signal RAM_R_address            : std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
   signal RAM_R_data               : std_logic_vector(32 downto 0);  --Pattern=8 y=12bits x=13bits
   signal RAM_R_end                : std_logic:='0'; 
   signal RAM_R_end_P1             : std_logic:='0'; 
@@ -536,7 +536,7 @@ begin
   Xdpc_ram : Infered_RAM
    generic map(
            C_RAM_WIDTH      => 33,                                               -- Specify data width 
-           C_RAM_DEPTH      => 6                                                 -- Specify RAM depth (bits de l'adresse de la ram)
+           C_RAM_DEPTH      => DPC_CORR_PIXELS_DEPTH                                 -- Specify RAM depth (bits de l'adresse de la ram)
            )
    port map (  
            RAM_W_clk        => axi_clk,
@@ -582,7 +582,7 @@ begin
   process(axi_clk)
   begin
     if (axi_clk'event and axi_clk='1') then
-      if(REG_dpc_enable_DB='1' and dpc_fifo_reset_P7='1' and REG_dpc_list_count/="000000" ) then
+      if(REG_dpc_enable_DB='1' and dpc_fifo_reset_P7='1' and REG_dpc_list_count/= conv_std_logic_vector(0, DPC_CORR_PIXELS_DEPTH)  ) then
         RAM_R_address     <= (others=>'0');
         RAM_R_enable      <= '1';
         RAM_R_end         <= '0';
@@ -898,7 +898,8 @@ begin
    
     
     Xdpc_kernel_proc : dpc_kernel_proc
-    port map(
+    generic map( DPC_CORR_PIXELS_DEPTH         => DPC_CORR_PIXELS_DEPTH )	
+	port map(
       ---------------------------------------------------------------------
       -- Pixel domain reset and clock signals
       ---------------------------------------------------------------------

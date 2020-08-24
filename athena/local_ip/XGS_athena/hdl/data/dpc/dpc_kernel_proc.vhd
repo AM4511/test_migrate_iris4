@@ -15,7 +15,8 @@ library ieee;
  use IEEE.std_logic_unsigned.all;
  use ieee.numeric_std.all;
  use std.textio.all ; 
-
+ use IEEE.math_real.all;
+ 
 library work;
  use work.dpc_package.all;
 
@@ -41,7 +42,9 @@ Library xpm;
   
   
 entity dpc_kernel_proc is
-
+  generic( DPC_CORR_PIXELS_DEPTH         : integer := 6    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+    
+  );
   port(
     ---------------------------------------------------------------------
     -- Pixel domain reset and clock signals
@@ -236,7 +239,7 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
       ECC_MODE            => "no_ecc",  -- String
       FIFO_MEMORY_TYPE    => "auto",    -- String
       FIFO_READ_LATENCY   => 1,         -- DECIMAL ****
-      FIFO_WRITE_DEPTH    => 64,        -- DECIMAL ****
+      FIFO_WRITE_DEPTH    => 2**DPC_CORR_PIXELS_DEPTH, 
       FULL_RESET_VALUE    => 0,         -- DECIMAL
       PROG_EMPTY_THRESH   => 10,        -- DECIMAL
       PROG_FULL_THRESH    => 10,        -- DECIMAL

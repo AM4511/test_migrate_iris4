@@ -363,6 +363,8 @@ architecture struct of XGS_athena is
 
 
   component dpc_filter is
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 6 );   --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+
    port(
 
 
@@ -398,9 +400,9 @@ architecture struct of XGS_athena is
     REG_dpc_fifo_und                     : out   std_logic;
     
     REG_dpc_list_wrn                     : in    std_logic; 
-    REG_dpc_list_add                     : in    std_logic_vector(5 downto 0); 
+    REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
     REG_dpc_list_ss                      : in    std_logic;
-    REG_dpc_list_count                   : in    std_logic_vector(5 downto 0);
+    REG_dpc_list_count                   : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
 
     REG_dpc_list_corr_pattern            : in    std_logic_vector(7 downto 0);
     REG_dpc_list_corr_y                  : in    std_logic_vector(11 downto 0);
@@ -616,6 +618,17 @@ architecture struct of XGS_athena is
   constant C_S_AXI_DATA_WIDTH : integer := 32;
   constant C_S_AXI_ADDR_WIDTH : integer := 11;
 
+
+  -- Nombre de pixels maximum a corriger
+  -- DPC_CORR_PIXELS_DEPTH=6  =>   64 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=7  =>  128 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=8  =>  256 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=9  =>  512 pixels, 6+1+4: 11 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=10 => 1024 pixels, 6+1+8: 15 RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=11 => 2048 pixels, 6++ : RAM36K 
+  -- DPC_CORR_PIXELS_DEPTH=12 => 4096 pixels, 6++ : RAM36K 
+  constant DPC_CORR_PIXELS_DEPTH  : integer := 9;   
+
   signal aclk_reset       : std_logic;
 
   signal regfile           : REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
@@ -686,6 +699,11 @@ architecture struct of XGS_athena is
   signal first_lines_mask_cnt     : std_logic_vector(9 downto 0);    -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
 
   signal dma_idle : std_logic := '1';
+
+  signal REG_DPC_FIFO_OVR          : std_logic :='0';
+  signal REG_DPC_FIFO_UND          : std_logic :='0';
+  signal REG_dpc_list_corr_rd      : std_logic_vector(32 downto 0) := (others=>'0');
+
 
 begin
 
@@ -830,6 +848,8 @@ begin
   --
   ----------------------------------
    xdpc_filter : dpc_filter
+   generic map ( DPC_CORR_PIXELS_DEPTH       => DPC_CORR_PIXELS_DEPTH )    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+
    port map(
 
     ---------------------------------------------------------------------
@@ -855,27 +875,27 @@ begin
     ---------------------------------------------------------------------
     REG_color                            => '0',    -- to bypass in color modes
 
-    REG_dpc_enable                       => '1',
+    REG_dpc_enable                       => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
 
-    REG_dpc_pattern0_cfg                 => '0',
+    REG_dpc_pattern0_cfg                 => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
 
-    REG_dpc_fifo_rst                     => '0',
-    REG_dpc_fifo_ovr                     => open,
-    REG_dpc_fifo_und                     => open,
+    REG_dpc_fifo_rst                     => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
+    REG_dpc_fifo_ovr                     => REG_DPC_FIFO_OVR,
+    REG_dpc_fifo_und                     => REG_DPC_FIFO_UND,
     
-    REG_dpc_list_wrn                     => '0',
-    REG_dpc_list_add                     => "000000",
-    REG_dpc_list_ss                      => '0',
-    REG_dpc_list_count                   => "000000",
+    REG_dpc_list_wrn                     => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+    REG_dpc_list_add                     => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),   
+    REG_dpc_list_ss                      => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,                                      
+    REG_dpc_list_count                   => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0), 
 
-    REG_dpc_list_corr_pattern            => "00000000",
-    REG_dpc_list_corr_y                  => "000000000000",
-    REG_dpc_list_corr_x                  => "0000000000000",
+    REG_dpc_list_corr_pattern            => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+    REG_dpc_list_corr_y                  => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+    REG_dpc_list_corr_x                  => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
     
-    REG_dpc_list_corr_rd                 => open,
+    REG_dpc_list_corr_rd                 => REG_dpc_list_corr_rd,
        
-    REG_dpc_firstlast_line_rem           => '0',
-    
+    REG_dpc_firstlast_line_rem           => regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem,
+	
     ---------------------------------------------------------------------
     -- AXI in (SLAVE)
     ---------------------------------------------------------------------  
@@ -895,10 +915,17 @@ begin
     m_axis_tlast                         => aclk_tlast,
     m_axis_tdata                         => aclk_tdata
 
-	
 
   );
-  
+
+  --DCP REGISTERS  
+  regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;     
+  regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;   	
+  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);     --13 bits
+  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);    --12 bits
+  regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);    --8 bits
+
+
 
   aclk_tdata64 <= aclk_tdata(79 downto 72) &
                   aclk_tdata(69 downto 62) &
