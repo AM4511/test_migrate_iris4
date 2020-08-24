@@ -12,7 +12,7 @@ use work.regfile_xgs_athena_pack.all;
 entity XGS_athena is
   generic (
     ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;
-    NUMBER_OF_LANE        : integer              := 6;
+    NUMBER_OF_LANE        : integer              := 6; -- 4 or 6 lanes only
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;
     SENSOR_FREQ           : integer              := 32400;
