@@ -139,7 +139,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS12M_
+	`define _XGS5M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
