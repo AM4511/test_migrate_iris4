@@ -511,7 +511,7 @@ module testbench();
 	reg        tready_cntr_en;
 	reg [15:0] tready_cntr;
   
-	reg [15:0] tready_packet_delai   = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
 	reg        tready_packet_cntr_en;
 	reg [15:0] tready_packet_cntr;
   

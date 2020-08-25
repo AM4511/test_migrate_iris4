@@ -25,8 +25,8 @@ use work.mtx_types_pkg.all;
 
 entity xgs_hispi_top is
   generic (
-    HW_VERSION      : integer range 0 to 255 := 0;
-    NUMBER_OF_LANE  : integer                := 6 -- 4 or 6 lanes supported
+    HW_VERSION     : integer range 0 to 255 := 0;
+    NUMBER_OF_LANE : integer                := 6  -- 4 or 6 lanes supported
     );
   port (
     ---------------------------------------------------------------------------
@@ -39,9 +39,10 @@ entity xgs_hispi_top is
     ---------------------------------------------------------------------------
     -- Registerfile clock domain
     ---------------------------------------------------------------------------
-    rclk         : in    std_logic;
-    rclk_reset_n : in    std_logic;
-    regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
+    rclk           : in    std_logic;
+    rclk_reset_n   : in    std_logic;
+    regfile        : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
+    rclk_irq_error : out   std_logic;
 
 
     ---------------------------------------------------------------------------
@@ -134,9 +135,9 @@ architecture rtl of xgs_hispi_top is
 
   component lane_packer is
     generic (
-      LANE_PACKER_ID            : integer              := 0;
-      LINE_BUFFER_DATA_WIDTH    : integer              := 64;
-      LINE_BUFFER_ADDRESS_WIDTH : integer              := 11
+      LANE_PACKER_ID            : integer := 0;
+      LINE_BUFFER_DATA_WIDTH    : integer := 64;
+      LINE_BUFFER_ADDRESS_WIDTH : integer := 11
       );
     port (
       ---------------------------------------------------------------------------
@@ -297,7 +298,7 @@ architecture rtl of xgs_hispi_top is
   constant LINE_BUFFER_ADDRESS_WIDTH : integer := 11;
   constant LINE_BUFFER_PTR_WIDTH     : integer := 2;
   constant NUMB_LANE_PACKER          : integer := NUMBER_OF_LANE/2;
-  constant PIXEL_SIZE                : integer := 12;     -- Pixel size in bits
+  constant PIXEL_SIZE                : integer := 12;  -- Pixel size in bits
 
 
 
@@ -308,10 +309,11 @@ architecture rtl of xgs_hispi_top is
 
   type PACKER_INFO_ARRAY_TYPE is array (NUMB_LANE_PACKER-1 downto 0) of std_logic_vector(3 downto 0);
 
-
-  signal sclk_reset        : std_logic;
-  signal new_line_pending  : std_logic;
-  signal new_frame_pending : std_logic;
+  signal rclk_reset          : std_logic;
+  signal rclk_irq_error_vect : std_logic_vector(3 downto 0);
+  signal sclk_reset          : std_logic;
+  signal new_line_pending    : std_logic;
+  signal new_frame_pending   : std_logic;
 
   signal sclk_reset_phy : std_logic;
 
@@ -413,7 +415,6 @@ architecture rtl of xgs_hispi_top is
   signal fifo_error                      : std_logic;
 
   signal aggregated_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  signal rclk_reset                : std_logic;
   signal nb_lane_enabled           : std_logic_vector(2 downto 0);
 
 begin
@@ -450,6 +451,37 @@ begin
   end generate G_lane_packer_status;
 
 
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_rclk_irq_error_vect
+  -- Description : Pulse genertor using the shift left vector technic
+  -----------------------------------------------------------------------------
+  P_rclk_irq_error_vect : process (rclk) is
+    variable left : integer := rclk_irq_error_vect'left;
+  begin
+    if (rising_edge(rclk)) then
+      if (rclk_reset = '1') then
+        rclk_irq_error_vect <= (others => '0');
+      else
+        if ((regfile.HISPI.STATUS.FIFO_ERROR = '1') or
+            (regfile.HISPI.STATUS.CALIBRATION_ERROR = '1') or
+            (regfile.HISPI.STATUS.PHY_BIT_LOCKED_ERROR = '1'))
+        then
+          -- Set the pulse vect
+          rclk_irq_error_vect <= (others => '1');
+        else
+          -- Shift '0' left
+          rclk_irq_error_vect <= rclk_irq_error_vect(left-1 downto 0) & '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  rclk_irq_error <= rclk_irq_error_vect(rclk_irq_error_vect'left);
+
+
+
   fifo_error <= '1' when (aggregated_fifo_overrun /= (aggregated_fifo_overrun'range => '0')) else
                 '1' when (aggregated_fifo_underrun /= (aggregated_fifo_underrun'range               => '0')) else
                 '1' when (aggregated_packer_fifo_overrun /= (aggregated_packer_fifo_overrun'range   => '0')) else
@@ -471,7 +503,6 @@ begin
 
   regfile.HISPI.STATUS.FSM <= state_mapping;
 
-  --sclk_manual_calibration <= to_std_logic_vector(regfile.HISPI.DEBUG);
   -----------------------------------------------------------------------------
   -- Process     : P_x_row_start
   -- Description : Units in pixels
