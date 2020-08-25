@@ -282,6 +282,13 @@ int main(void)
 				Help(XGS_Ctrl);
 				break;
 
+			case '7':
+				test_0007_Continu(Pcie, XGS_Ctrl, XGS_Data);
+				printf("\n\n");
+				Help(XGS_Ctrl);
+				break;
+				
+
 			case '9':
 				test_0009_Optics(XGS_Ctrl, XGS_Data);
 				printf("\n\n");

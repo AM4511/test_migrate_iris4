@@ -210,31 +210,45 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 80;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 80;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 2;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 81;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 81;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 3;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 82;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 82;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 4;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 4;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 83;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 83;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT         = 4;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 1;
+
+	for (int i = 0; i < 200; i++)
+	{
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 1;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 0;
+
+	}
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = 200;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE     = 1;
 
 
 
