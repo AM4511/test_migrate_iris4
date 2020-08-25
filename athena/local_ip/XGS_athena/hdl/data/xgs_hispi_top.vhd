@@ -26,7 +26,7 @@ use work.mtx_types_pkg.all;
 entity xgs_hispi_top is
   generic (
     HW_VERSION      : integer range 0 to 255 := 0;
-    NUMBER_OF_LANE  : integer                := 6
+    NUMBER_OF_LANE  : integer                := 6 -- 4 or 6 lanes supported
     );
   port (
     ---------------------------------------------------------------------------

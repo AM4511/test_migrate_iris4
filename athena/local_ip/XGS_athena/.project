@@ -5,8 +5,21 @@
 	<projects>
 	</projects>
 	<buildSpec>
+		<buildCommand>
+			<name>net.sf.sveditor.core.SVProjectBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.matrox.fdk.core.project.matroxNature</nature>
+		<nature>net.sf.sveditor.core.SVNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>External SV Files</name>
+			<type>2</type>
+			<locationURI>svext://XGS_athena</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

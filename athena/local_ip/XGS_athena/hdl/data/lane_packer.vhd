@@ -303,7 +303,7 @@ begin
             ---------------------------------------------------------------------
             when S_LINE_BUFFER_OVERFLOW =>
               -- synthesis translate_off
-              assert (false) report "LINE BUFFER OVERFLOW. XGS sent new line before line_packer module flushed the lane decoder FiFo" severity failure;
+              assert (false) report "LINE BUFFER OVERFLOW. XGS sent new line before line_packer module flushed the lane decoder FiFo" severity error;
               -- synthesis translate_on
               state <= S_FLUSH;
 
