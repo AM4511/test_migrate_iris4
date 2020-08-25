@@ -128,7 +128,6 @@ matrox.com:Imaging:XGS_athena:1.0.0\
 xilinx.com:ip:clk_wiz:6.0\
 matrox.com:Imaging:pcie2AxiMaster:3.0\
 xilinx.com:ip:proc_sys_reset:5.0\
-xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -270,13 +269,6 @@ proc create_root_design { parentCell } {
   # Create instance: sys_reset_0, and set properties
   set sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 sys_reset_0 ]
 
-  # Create instance: xlconstant_0, and set properties
-  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
-   CONFIG.CONST_WIDTH {8} \
- ] $xlconstant_0
-
   # Create interface connections
   connect_bd_intf_net -intf_net AXI_i2c_Matrox_0_I2C_interface [get_bd_intf_ports I2C_if] [get_bd_intf_pins AXI_i2c_Matrox_0/I2C_interface]
   connect_bd_intf_net -intf_net XGS_athena_0_Athena2Anput [get_bd_intf_ports Anput] [get_bd_intf_pins XGS_athena_0/Athena2Anput]
@@ -293,6 +285,7 @@ proc create_root_design { parentCell } {
   # Create port connections
   connect_bd_net -net ARESETN_1 [get_bd_pins AXI_i2c_Matrox_0/s_axi_aresetn] [get_bd_pins XGS_athena_0/aclk_reset_n] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
   connect_bd_net -net XGS_athena_0_debug_out [get_bd_ports debug_out] [get_bd_pins XGS_athena_0/debug_out]
+  connect_bd_net -net XGS_athena_0_irq [get_bd_pins XGS_athena_0/irq] [get_bd_pins pcie2AxiMaster_0/irq_event]
   connect_bd_net -net XGS_athena_0_led_out [get_bd_ports led_out] [get_bd_pins XGS_athena_0/led_out]
   connect_bd_net -net clk_wiz_0_clk_out2 [get_bd_pins XGS_athena_0/sclk] [get_bd_pins clk_wiz_0/sclk100MHz] [get_bd_pins sys_reset_0/slowest_sync_clk]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins sys_reset_0/dcm_locked]
@@ -302,7 +295,6 @@ proc create_root_design { parentCell } {
   connect_bd_net -net pcie_sys_rst_n_1 [get_bd_ports pcie_sys_rst_n] [get_bd_pins clk_wiz_0/resetn] [get_bd_pins pcie2AxiMaster_0/pcie_sys_rst_n] [get_bd_pins sys_reset_0/ext_reset_in]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins XGS_athena_0/sclk_reset_n] [get_bd_pins sys_reset_0/peripheral_aresetn]
   connect_bd_net -net ref_clk_1 [get_bd_ports ref_clk] [get_bd_pins clk_wiz_0/clk_in1]
-  connect_bd_net -net xlconstant_0_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_0/dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00001000 -offset 0x40010000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs AXI_i2c_Matrox_0/S_AXI/S_AXI_reg] SEG_AXI_i2c_Matrox_0_S_AXI_reg
@@ -312,6 +304,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -323,6 +316,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

@@ -51,8 +51,10 @@ set SRC_DIR     ${WORKDIR}/design
 set XDC_DIR     ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -69,10 +71,8 @@ puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR      ${PROJECT_DIR}/board_level
 
 file mkdir $PROJECT_DIR
-file mkdir $PCB_DIR
 
 cd $PROJECT_DIR
 file delete -force ${PROJECT_NAME}.xpr
@@ -167,13 +167,19 @@ wait_on_run ${IMPL_RUN}
 ################################################
 # Export board level info
 ################################################
-open_run ${IMPL_RUN}
-write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
-write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
-report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
-report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
+#open_run ${IMPL_RUN}
+#write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
+#write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
+#report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
+#report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 
- 	
+ 
+################################################
+# Run Backend script
+################################################
+source  $FIRMWARE_SCRIPT
+source  $REPORT_FILE
+	
 ################################################
 # Run archive script
 ################################################
@@ -183,15 +189,6 @@ set TOTAL_FAILED_NETS          [get_property  STATS.FAILED_NETS [get_runs $IMPL_
 set ROUTE_STATUS               [get_property  STATUS [get_runs $IMPL_RUN]]
 
 if {$TOTAL_FAILED_NETS > 0} {
-     # temporairement on genere toujours le .bit et .mcs (meme s'il y a des erreurs de timing)
-     # .bit + .MCS : Version SINGLE boot
-	 set UNSAFE_OUTPUT_DIR ./unsafe_output
-	 set UNSAFE_FIRMWARE   $UNSAFE_OUTPUT_DIR/unsafe_${PROJECT_NAME}
-	 file mkdir ${UNSAFE_OUTPUT_DIR}
-
-     write_bitstream -force ${UNSAFE_FIRMWARE}.bit
-     write_cfgmem -force -format MCS -size 8 -interface SPIx4 -checksum  -loadbit "up 0x0 ${UNSAFE_FIRMWARE}.bit" ${UNSAFE_FIRMWARE}.bit.mcs
-
 	 puts "** Compilation contains timing errors. You have to source $ARCHIVE_SCRIPT manually"
      close_design
 	 
