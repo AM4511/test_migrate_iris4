@@ -31,6 +31,9 @@ set IMPL_RUN  [current_run -implementation]
 
 open_run $IMPL_RUN
 
+set project_directory [get_property  DIRECTORY [current_project]]
+cd $project_directory
+
 #--------------------------------------------
 # Create vivado archive project 
 #--------------------------------------------
