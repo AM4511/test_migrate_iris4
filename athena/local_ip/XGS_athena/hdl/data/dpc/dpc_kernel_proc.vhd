@@ -458,12 +458,19 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
   begin
     if (pix_clk'event and pix_clk='1') then
  
-      if(proc_enable='1' and deadpix_exist='1' and proc_X_pix_curr = proc_nxt_X_pix_corr and proc_Y_pix_curr = proc_nxt_Y_pix_corr ) then
-      
-        
+      if(proc_enable='1' and deadpix_exist='1' and proc_X_pix_curr = proc_nxt_X_pix_corr and proc_Y_pix_curr = proc_nxt_Y_pix_corr ) then       
         Print("--------------------------------------------------------------------------------------------------------");
         Print("DPC GAIA: Correcting Pixel position: x=" & INTEGER'IMAGE(to_integer(unsigned(proc_X_pix_curr))) & ", y=" & INTEGER'IMAGE(to_integer(unsigned(proc_Y_pix_curr))) &" Pattern Mode #" & INTEGER'IMAGE(to_integer(unsigned(proc_nxt_pattern_corr))) );         
-        Print(" ");   
+        
+		if(proc_nxt_pattern_corr=X"00") then
+		  if(REG_dpc_pattern0_cfg='0' ) then		  
+		    Print("DPC GAIA: Pattern 0x00, Current pixel is bypassed (not corrected, dpc_pattern0_cfg=0) ");
+		  else
+		  	Print("DPC GAIA: Pattern 0x00, Current pixel is set to 0xff (dpc_pattern0_cfg=1) ");
+          end if; 	
+        end if; 	
+		  
+		Print(" ");   
         Print("3 2 1 ");
         Print("4 8 0 ");
         Print("5 6 7 ");

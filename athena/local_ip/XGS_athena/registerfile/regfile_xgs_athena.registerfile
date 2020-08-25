@@ -701,8 +701,15 @@
       <fields name="TAP_LANE_0" size="5"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DPC" baseAddress="480" endAddress="494">
-    <registers name="DPC_LIST_CTRL">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DPC" baseAddress="480" endAddress="498">
+    <registers name="DPC_CAPABILITIES">
+      <fields name="DPC_LIST_LENGTH" description="This register defines the maximum number of pixels that can be corrected by the DPC module. (ONE-based).&#xD;&#xA;This register is calculated with formula : (2^DPC_CORR_PIXELS_DEPTH)-1 , where DPC_CORR_PIXELS_DEPTH is a generic to the DPC module.&#xD;&#xA;&#xD;&#xA;" lsb="16" size="12" readWrite="false" readOnly="true"/>
+      <fields name="DPC_VER" description="Implemented version of the DPC module" size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial monochrone correction only, 2 lines buffered.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="DPC_LIST_CTRL" offsetFromParent="4">
       <fields name="dpc_fifo_reset" description="Write '1' then '0' to field dpcL_FIFO_RST to reset overrun/underrun flags of the line buffers and reset the Fifo logic.&#xD;&#xA;&#xD;&#xA;The DPC dual port ram  is not SW reset .&#xD;&#xA;&#xD;&#xA;The fifo in each  processing DPC unit is HW reset at each SOF. " lsb="29">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in normal operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in reset State&lt;/matrox_column_delimiter></possibleValues>
@@ -713,7 +720,10 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Remove first and last line of the image received&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. Up to X pixels can be corrected. The value 0 is allowed and when set to 0 no pixel will be corrected." lsb="16" size="12"/>
+      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. The value 0 is allowed and when set to 0 no pixel will be corrected.  Up to (2^DPC_CORR_PIXELS_DEPTH)-1 pixels can be corrected. &#xD;&#xA;If generic DPC_CORR_PIXELS_DEPTH in XGS_Athena module is set to 9, up to 511 pixels may be corrected." lsb="16" size="12">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>0 to 2^DPC_CORR_PIXELS_DEPTH&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="dpc_pattern0_cfg" description="This field configures the behabieur of the correction pattern 0x0. If this field is set to 0x0 then the current pixel will not be corrected. If this field is set to 0x1 then the current pixel will be replaced by the value 0x3ff (white pixel)" lsb="15">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not correct current pixel&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Replace current pixel by a white pixel (0x3ff)&lt;/matrox_column_delimiter></possibleValues>
@@ -738,7 +748,7 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Valid DPC adress&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="DPC_LIST_STAT" offsetFromParent="4">
+    <registers name="DPC_LIST_STAT" offsetFromParent="8">
       <fields name="dpc_fifo_underrun" description="This is the fifo underrun status of the 2 linebuffers in the dpc macro. Write '1' then '0' to field dpc_FIFO_RST to reset this flag and reset the Fifo logic. " lsb="31" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun not detected&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Underrun detected&lt;/matrox_column_delimiter></possibleValues>
@@ -750,18 +760,18 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="DPC_LIST_DATA1" offsetFromParent="8">
+    <registers name="DPC_LIST_DATA1" offsetFromParent="C">
       <fields name="dpc_list_corr_y" description="This is Y location of the pixel to be corrected when executing a write to the DPC list." lsb="16" size="12"/>
       <fields name="dpc_list_corr_x" description="This is X location of the pixel to be corrected when executing a write to the DPC list." size="13"/>
     </registers>
-    <registers name="DPC_LIST_DATA2" alias="" description="" offsetFromParent="C">
+    <registers name="DPC_LIST_DATA2" alias="" description="" offsetFromParent="10">
       <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8"/>
     </registers>
-    <registers name="DPC_LIST_DATA1_RD" offsetFromParent="10">
+    <registers name="DPC_LIST_DATA1_RD" offsetFromParent="14">
       <fields name="dpc_list_corr_y" description="This is Y location of the pixel to be corrected when executing a write to the DPC list." lsb="16" size="12" readWrite="false" readOnly="true"/>
       <fields name="dpc_list_corr_x" description="This is X location of the pixel to be corrected when executing a write to the DPC list." size="13" readWrite="false" readOnly="true"/>
     </registers>
-    <registers name="DPC_LIST_DATA2_RD" alias="" description="" offsetFromParent="14">
+    <registers name="DPC_LIST_DATA2_RD" alias="" description="" offsetFromParent="18">
       <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>

@@ -144,7 +144,13 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	if(XGS_Ctrl->SensorParams.SENSOR_TYPE==16000)
 	  ROI_Y_SIZE_vector = { 4000, 3072, 2048,1024, 512,256,128,64,32,16,8 };
 	else
-	  ROI_Y_SIZE_vector = { 3072, 2048,1024, 512,256,128,64,32,16,8 };
+	  if (XGS_Ctrl->SensorParams.SENSOR_TYPE == 12000)
+		ROI_Y_SIZE_vector = { 3072, 2048,1024, 512,256,128,64,32,16,8 }; 
+	  else
+		if (XGS_Ctrl->SensorParams.SENSOR_TYPE == 5000)
+		  ROI_Y_SIZE_vector = { 2048,1024, 512,256,128,64,32,16,8 };
+		else
+		{ }
 
 
 	//ROI_Y_SIZE_vector = { 1024, 2048, 3072 };

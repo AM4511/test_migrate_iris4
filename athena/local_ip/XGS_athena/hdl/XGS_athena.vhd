@@ -386,9 +386,14 @@ architecture struct of XGS_athena is
 	curr_Xsub                            : in    std_logic := '0';  
     curr_Ysub                            : in    std_logic := '0';  
 
+	load_dma_context_EOFOT               : in    std_logic := '0';  -- in axi_clk
+
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
+    REG_dpc_list_length                  : out   std_logic_vector(11 downto 0);
+	REG_dpc_ver                          : out   std_logic_vector(3 downto 0);
+
     REG_color                            : in    std_logic :='0';    -- to bypass in color modes
 
     REG_dpc_enable                       : in    std_logic :='1';
@@ -703,6 +708,8 @@ architecture struct of XGS_athena is
   signal REG_DPC_FIFO_OVR          : std_logic :='0';
   signal REG_DPC_FIFO_UND          : std_logic :='0';
   signal REG_dpc_list_corr_rd      : std_logic_vector(32 downto 0) := (others=>'0');
+  signal REG_dpc_list_length       : std_logic_vector(11 downto 0);
+  signal REG_dpc_ver               : std_logic_vector(3 downto 0);
 
 
 begin
@@ -870,9 +877,15 @@ begin
     curr_Xsub                            => hispi_subX,  
     curr_Ysub                            => hispi_subY,  
 
+	load_dma_context_EOFOT               => load_dma_context(1),
+
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
+    REG_dpc_list_length                  => REG_dpc_list_length,
+	REG_dpc_ver                          => REG_dpc_ver,        
+
+
     REG_color                            => '0',    -- to bypass in color modes
 
     REG_dpc_enable                       => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
@@ -919,12 +932,15 @@ begin
   );
 
   --DCP REGISTERS  
+  regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH        <= REG_dpc_list_length;
+  regfile.DPC.DPC_CAPABILITIES.DPC_VER                <= REG_dpc_ver;        
+  
   regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;     
   regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;   	
   regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);     --13 bits
   regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);    --12 bits
   regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);    --8 bits
-
+  
 
 
   aclk_tdata64 <= aclk_tdata(79 downto 72) &
@@ -1110,13 +1126,15 @@ begin
       );
 
 
-
-  irq(0) <= irq_dma;
-  irq(1) <= irq_soe;
-  irq(2) <= irq_eoe;
-  irq(3) <= irq_sos;
-  irq(4) <= irq_eos;
-  irq(5) <= '0';
+  -------------------
+  --  IRQ to system
+  -------------------        
+  irq(0) <= irq_dma;               -- End of DMA 
+  irq(1) <= irq_soe;               -- Start of Exposure
+  irq(2) <= irq_eoe;               -- End of Exposure 
+  irq(3) <= irq_sos;               -- Start of Strobe  
+  irq(4) <= irq_eos;               -- End of Strobe 
+  irq(5) <= load_dma_context(1);   -- End Of FOT (START OF GRAB)
   irq(6) <= '0';
   irq(7) <= '0';
 
