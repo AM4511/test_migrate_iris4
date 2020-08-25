@@ -48,7 +48,10 @@ entity dpc_filter is
     ---------------------------------------------------------------------
     -- Registers
     ---------------------------------------------------------------------
-    REG_color                            : in    std_logic :='0';    -- to bypass in color modes
+    REG_dpc_list_length                  : out   std_logic_vector(11 downto 0);
+	REG_dpc_ver                          : out   std_logic_vector(3 downto 0);
+	
+	REG_color                            : in    std_logic :='0';    -- to bypass in color modes
 
     REG_dpc_enable                       : in    std_logic :='1';
 
@@ -421,6 +424,13 @@ architecture functional of dpc_filter is
 begin
   
   
+  -------------------------------
+  -- DPC configuration register
+  -------------------------------   
+  REG_dpc_ver           <= "0000"; -- v0 : Initial monochrone correction only, 2 lines buffered.
+  REG_dpc_list_length   <= conv_std_logic_vector(conv_integer(2**DPC_CORR_PIXELS_DEPTH)-1 , 12);
+  
+  -- Invert reset
   axi_reset  <= not(axi_reset_n);
   
   -------------------------------
@@ -548,7 +558,7 @@ begin
            
            --This interface is for the DPC macro read 
            RAM_R_clk        => axi_clk,
-           RAM_R_enable     => RAM_R_enable,     -- Write enable
+           RAM_R_enable     => RAM_R_enable,     -- Read enable
            RAM_R_address    => RAM_R_address,    -- Read address bus, width determined from RAM_DEPTH
            RAM_R_data       => RAM_R_data        -- RAM output data
         );

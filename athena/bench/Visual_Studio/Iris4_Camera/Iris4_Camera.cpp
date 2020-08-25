@@ -392,6 +392,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (4) Grag Test FPSmax, EXPmax");
 	printf("\n  (5) Grag Test SW trig - Random");	
 	printf("\n  (6) Grag Test SW trig - Stats on the PD and SN Black lines");
+	printf("\n  (7) Grag Test Continu - DPC");
 	printf("\n");
 	printf("\n  (9) Grab Optics");
 	printf("\n");

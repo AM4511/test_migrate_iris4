@@ -204,39 +204,13 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//--------------------------------------
 	// DPC
 	//--------------------------------------
+	printf("DPC module version is %d, Maximum pixels corrections is %d (ONE-Based) \n", XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_VER, XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH);
+	 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 0;
-
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG       = 1;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
 
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 80;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 80;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 81;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 81;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 82;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 82;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 83;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 83;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT         = 4;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 1;
-
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
 	{
 		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
 		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;
@@ -247,7 +221,7 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = 200;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE     = 1;
 
 

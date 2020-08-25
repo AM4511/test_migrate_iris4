@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/08/24 15:42:06
+-- Created on          : 2020/08/25 11:23:14
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x330D7E3D
+-- Register file CRC32 : 0x9F527437
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -95,12 +95,13 @@ package regfile_xgs_athena_pack is
    constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#458#;
    constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#45c#;
    constant K_HISPI_DEBUG_ADDR                : natural := 16#460#;
-   constant K_DPC_DPC_LIST_CTRL_ADDR          : natural := 16#480#;
-   constant K_DPC_DPC_LIST_STAT_ADDR          : natural := 16#484#;
-   constant K_DPC_DPC_LIST_DATA1_ADDR         : natural := 16#488#;
-   constant K_DPC_DPC_LIST_DATA2_ADDR         : natural := 16#48c#;
-   constant K_DPC_DPC_LIST_DATA1_RD_ADDR      : natural := 16#490#;
-   constant K_DPC_DPC_LIST_DATA2_RD_ADDR      : natural := 16#494#;
+   constant K_DPC_DPC_CAPABILITIES_ADDR       : natural := 16#480#;
+   constant K_DPC_DPC_LIST_CTRL_ADDR          : natural := 16#484#;
+   constant K_DPC_DPC_LIST_STAT_ADDR          : natural := 16#488#;
+   constant K_DPC_DPC_LIST_DATA1_ADDR         : natural := 16#48c#;
+   constant K_DPC_DPC_LIST_DATA2_ADDR         : natural := 16#490#;
+   constant K_DPC_DPC_LIST_DATA1_RD_ADDR      : natural := 16#494#;
+   constant K_DPC_DPC_LIST_DATA2_RD_ADDR      : natural := 16#498#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1323,6 +1324,23 @@ package regfile_xgs_athena_pack is
    function to_HISPI_DEBUG_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_DEBUG_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: DPC_CAPABILITIES
+   ------------------------------------------------------------------------------------------
+   type DPC_DPC_CAPABILITIES_TYPE is record
+      DPC_LIST_LENGTH: std_logic_vector(11 downto 0);
+      DPC_VER        : std_logic_vector(3 downto 0);
+   end record DPC_DPC_CAPABILITIES_TYPE;
+
+   constant INIT_DPC_DPC_CAPABILITIES_TYPE : DPC_DPC_CAPABILITIES_TYPE := (
+      DPC_LIST_LENGTH => (others=> 'Z'),
+      DPC_VER         => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : DPC_DPC_CAPABILITIES_TYPE) return std_logic_vector;
+   function to_DPC_DPC_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_CAPABILITIES_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: DPC_LIST_CTRL
    ------------------------------------------------------------------------------------------
    type DPC_DPC_LIST_CTRL_TYPE is record
@@ -1602,6 +1620,7 @@ package regfile_xgs_athena_pack is
    -- Section Name: DPC
    ------------------------------------------------------------------------------------------
    type DPC_TYPE is record
+      DPC_CAPABILITIES: DPC_DPC_CAPABILITIES_TYPE;
       DPC_LIST_CTRL  : DPC_DPC_LIST_CTRL_TYPE;
       DPC_LIST_STAT  : DPC_DPC_LIST_STAT_TYPE;
       DPC_LIST_DATA1 : DPC_DPC_LIST_DATA1_TYPE;
@@ -1611,6 +1630,7 @@ package regfile_xgs_athena_pack is
    end record DPC_TYPE;
 
    constant INIT_DPC_TYPE : DPC_TYPE := (
+      DPC_CAPABILITIES => INIT_DPC_DPC_CAPABILITIES_TYPE,
       DPC_LIST_CTRL   => INIT_DPC_DPC_LIST_CTRL_TYPE,
       DPC_LIST_STAT   => INIT_DPC_DPC_LIST_STAT_TYPE,
       DPC_LIST_DATA1  => INIT_DPC_DPC_LIST_DATA1_TYPE,
@@ -3355,6 +3375,31 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from DPC_DPC_CAPABILITIES_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : DPC_DPC_CAPABILITIES_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.DPC_LIST_LENGTH;
+      output(3 downto 0) := reg.DPC_VER;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_DPC_DPC_CAPABILITIES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to DPC_DPC_CAPABILITIES_TYPE
+   --------------------------------------------------------------------------------
+   function to_DPC_DPC_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_CAPABILITIES_TYPE is
+   variable output : DPC_DPC_CAPABILITIES_TYPE;
+   begin
+      output.DPC_LIST_LENGTH := stdlv(27 downto 16);
+      output.DPC_VER := stdlv(3 downto 0);
+      return output;
+   end to_DPC_DPC_CAPABILITIES_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from DPC_DPC_LIST_CTRL_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : DPC_DPC_LIST_CTRL_TYPE) return std_logic_vector is
@@ -3519,11 +3564,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/08/24 15:42:06
+-- Created on          : 2020/08/25 11:23:14
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x330D7E3D
+-- Register file CRC32 : 0x9F527437
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3571,8 +3616,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(83 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(82 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(84 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(83 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3654,6 +3699,7 @@ signal rb_HISPI_LANE_PACKER_STATUS_0                               : std_logic_v
 signal rb_HISPI_LANE_PACKER_STATUS_1                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_LANE_PACKER_STATUS_2                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_DEBUG                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_DPC_DPC_CAPABILITIES                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_STAT                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_DATA1                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -3913,14 +3959,15 @@ hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else 
 hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#458#,12)))	else '0'; -- Addr:  0x0458	LANE_PACKER_STATUS[1]
 hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#45c#,12)))	else '0'; -- Addr:  0x045C	LANE_PACKER_STATUS[2]
 hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#460#,12)))	else '0'; -- Addr:  0x0460	DEBUG
-hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_LIST_CTRL
-hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_STAT
-hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_DATA1
-hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA2
-hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA1_RD
-hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA2_RD
+hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_CAPABILITIES
+hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_CTRL
+hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_STAT
+hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA1
+hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
+hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
+hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
 
-hit(83) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(84) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4007,6 +4054,7 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_LANE_PACKER_STATUS_1,
                             rb_HISPI_LANE_PACKER_STATUS_2,
                             rb_HISPI_DEBUG,
+                            rb_DPC_DPC_CAPABILITIES,
                             rb_DPC_DPC_LIST_CTRL,
                             rb_DPC_DPC_LIST_STAT,
                             rb_DPC_DPC_LIST_DATA1,
@@ -4325,28 +4373,32 @@ begin
       when 16#460# =>
          readBackMux <= rb_HISPI_DEBUG;
 
-      -- [0x480]: /DPC/DPC_LIST_CTRL
+      -- [0x480]: /DPC/DPC_CAPABILITIES
       when 16#480# =>
+         readBackMux <= rb_DPC_DPC_CAPABILITIES;
+
+      -- [0x484]: /DPC/DPC_LIST_CTRL
+      when 16#484# =>
          readBackMux <= rb_DPC_DPC_LIST_CTRL;
 
-      -- [0x484]: /DPC/DPC_LIST_STAT
-      when 16#484# =>
+      -- [0x488]: /DPC/DPC_LIST_STAT
+      when 16#488# =>
          readBackMux <= rb_DPC_DPC_LIST_STAT;
 
-      -- [0x488]: /DPC/DPC_LIST_DATA1
-      when 16#488# =>
+      -- [0x48c]: /DPC/DPC_LIST_DATA1
+      when 16#48C# =>
          readBackMux <= rb_DPC_DPC_LIST_DATA1;
 
-      -- [0x48c]: /DPC/DPC_LIST_DATA2
-      when 16#48C# =>
+      -- [0x490]: /DPC/DPC_LIST_DATA2
+      when 16#490# =>
          readBackMux <= rb_DPC_DPC_LIST_DATA2;
 
-      -- [0x490]: /DPC/DPC_LIST_DATA1_RD
-      when 16#490# =>
+      -- [0x494]: /DPC/DPC_LIST_DATA1_RD
+      when 16#494# =>
          readBackMux <= rb_DPC_DPC_LIST_DATA1_RD;
 
-      -- [0x494]: /DPC/DPC_LIST_DATA2_RD
-      when 16#494# =>
+      -- [0x498]: /DPC/DPC_LIST_DATA2_RD
+      when 16#498# =>
          readBackMux <= rb_DPC_DPC_LIST_DATA2_RD;
 
       -- [0x700:0x7fc] SYSMONXIL external section
@@ -9347,10 +9399,33 @@ end process P_HISPI_DEBUG_TAP_LANE_0;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: DPC_DPC_LIST_CTRL
+-- Register name: DPC_DPC_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(77) <= (hit(77)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: DPC_LIST_LENGTH(11 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_CAPABILITIES(27 downto 16) <= regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DPC_VER(3 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_CAPABILITIES(3 downto 0) <= regfile.DPC.DPC_CAPABILITIES.DPC_VER;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: DPC_DPC_LIST_CTRL
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(78) <= (hit(78)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_reset
@@ -9369,7 +9444,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(29) = '0') then
+         if(wEn(78) = '1' and bitEnN(29) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= reg_writedata(29);
          end if;
       end if;
@@ -9393,7 +9468,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(28) = '0') then
+         if(wEn(78) = '1' and bitEnN(28) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= reg_writedata(28);
          end if;
       end if;
@@ -9418,7 +9493,7 @@ begin
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_count <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  27 downto 16  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(78) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_CTRL_dpc_list_count(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -9443,7 +9518,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(15) = '0') then
+         if(wEn(78) = '1' and bitEnN(15) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= reg_writedata(15);
          end if;
       end if;
@@ -9467,7 +9542,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(14) = '0') then
+         if(wEn(78) = '1' and bitEnN(14) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= reg_writedata(14);
          end if;
       end if;
@@ -9491,7 +9566,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(13) = '0') then
+         if(wEn(78) = '1' and bitEnN(13) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= reg_writedata(13);
          end if;
       end if;
@@ -9515,7 +9590,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
       else
-         if(wEn(77) = '1' and bitEnN(12) = '0') then
+         if(wEn(78) = '1' and bitEnN(12) = '0') then
             field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= reg_writedata(12);
          else
             field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
@@ -9542,7 +9617,7 @@ begin
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_add <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(78) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_CTRL_dpc_list_add(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9557,7 +9632,7 @@ end process P_DPC_DPC_LIST_CTRL_dpc_list_add;
 -- Register name: DPC_DPC_LIST_STAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(78) <= (hit(78)) and (reg_write);
+wEn(79) <= (hit(79)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_underrun
@@ -9580,7 +9655,7 @@ rb_DPC_DPC_LIST_STAT(30) <= regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun;
 -- Register name: DPC_DPC_LIST_DATA1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(79) <= (hit(79)) and (reg_write);
+wEn(80) <= (hit(80)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_y(27 downto 16)
@@ -9600,7 +9675,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  27 downto 16  loop
-            if(wEn(79) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -9626,7 +9701,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x <= std_logic_vector(to_unsigned(integer(0),13));
       else
          for j in  12 downto 0  loop
-            if(wEn(79) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9641,7 +9716,7 @@ end process P_DPC_DPC_LIST_DATA1_dpc_list_corr_x;
 -- Register name: DPC_DPC_LIST_DATA2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(80) <= (hit(80)) and (reg_write);
+wEn(81) <= (hit(81)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_pattern(7 downto 0)
@@ -9661,7 +9736,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  7 downto 0  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(81) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9676,7 +9751,7 @@ end process P_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern;
 -- Register name: DPC_DPC_LIST_DATA1_RD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(81) <= (hit(81)) and (reg_write);
+wEn(82) <= (hit(82)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_y(11 downto 0)
@@ -9699,7 +9774,7 @@ rb_DPC_DPC_LIST_DATA1_RD(12 downto 0) <= regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_
 -- Register name: DPC_DPC_LIST_DATA2_RD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(82) <= (hit(82)) and (reg_write);
+wEn(83) <= (hit(83)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_pattern(7 downto 0)
@@ -9737,7 +9812,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(83) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(84) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -9782,7 +9857,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(83) = '1') then
+         if (reg_read = '1' and hit(84) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -9830,7 +9905,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(83)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(84)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

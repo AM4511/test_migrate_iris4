@@ -142,7 +142,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.HISPI.PHY.f.MUX_RATIO            = SensorParams.XGS_HiSPI_mux;   //static register for the moment
 	sXGSptr.HISPI.PHY.f.NB_LANES             = SensorParams.XGS_HiSPI_Ch_used;
 	sXGSptr.HISPI.PHY.f.PIXEL_PER_LANE       = SensorParams.XGS_X_SIZE / SensorParams.XGS_HiSPI_Ch;
-	rXGSptr.HISPI.CTRL.u32                   = sXGSptr.HISPI.CTRL.u32;
+	rXGSptr.HISPI.PHY.u32                    = sXGSptr.HISPI.PHY.u32;
 
 
 
