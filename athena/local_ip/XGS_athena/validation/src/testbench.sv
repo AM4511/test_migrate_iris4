@@ -80,6 +80,15 @@ module testbench();
 	parameter SPI_GENERAL_CONFIG0_REG      = 16'h3800;
 	parameter SPI_MONITOR_REG              = 16'h3806;
 
+    // DPC
+    parameter DPC_CAPABILITIES             = 16'h480;
+	parameter DPC_LIST_CTRL                = 16'h484;
+    parameter DPC_LIST_STAT                = 16'h488; 
+    parameter DPC_LIST_DATA1               = 16'h48c; 
+    parameter DPC_LIST_DATA2               = 16'h490; 
+    parameter DPC_LIST_DATA1_RD            = 16'h494;    
+    parameter DPC_LIST_DATA2_RD            = 16'h498;     
+
 	// I2C
 	parameter I2C_ID_OFFSET                = 32'h00010000;	
 	parameter I2C_CTRL0_OFFSET             = 32'h00010008;	
@@ -90,6 +99,7 @@ module testbench();
 	integer  data;
 	integer  ben;
 	integer  dma_irq_cntr = 0;
+	integer  i;
 
 	//clock and reset signal declaration
 	bit 	    idelay_clk=1'b0;
@@ -1000,6 +1010,29 @@ module testbench();
 				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
 				reg_value = (ROI_X_END<<16) + ROI_X_START;
 				host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
+
+
+                ///////////////////////////////////////////////////
+				// DPC
+				///////////////////////////////////////////////////
+	            host.write(DPC_LIST_CTRL, 0);
+				host.write(DPC_LIST_CTRL, (0<<15)+(1<<13) );     //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
+            
+
+                for (i = 0; i < 8; i++)
+	            begin
+	            	host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
+	            	host.write(DPC_LIST_DATA1, (i<<16)+i);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            	host.write(DPC_LIST_DATA2,  0);                              // DPC_LIST_CORR_PATTERN = 0;
+	            	host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
+				end
+                host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<13) +  i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
+                host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<14) + (1<<13) +  i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
+
+	            
+
+
+
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0

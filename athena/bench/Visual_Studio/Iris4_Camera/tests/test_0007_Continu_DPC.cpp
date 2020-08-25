@@ -204,37 +204,25 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//--------------------------------------
 	// DPC
 	//--------------------------------------
+	printf("DPC module version is %d, Maximum pixels corrections is %d (ONE-Based) \n", XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_VER, XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH);
+	 
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 0;
-
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG       = 1;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
 
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+	for (int i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
+	{
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 1;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 0;
 
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+	}
 
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 2;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 3;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 4;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 4;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
-
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT         = 4;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE     = 1;
 
 
 
@@ -263,9 +251,9 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
 
-	// For debug DMA overrun with full 12Mpix sensor
-	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = 0x10000080;
-	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = 0x10c00080;
+	// For debug DMA overrun with any sensor
+	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                  
+	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);
 
 	//---------------------
 	// Give SPI control to FPGA
@@ -316,14 +304,14 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
 		if (OverrunPixel != 0)
 		{
 			Overrun++;
 			printf(" DMA Overflow detected: %d\n", Overrun);
 			//printf("Press enter to continue...\n");
 			//_getch();
-			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
 
 		}
 
@@ -419,9 +407,13 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'y':
-				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
+				printf("\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
+				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
+				GrabParams->Y_SIZE = XGSSize_Y;
+				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
+				Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);    // 0x10c00080;
+				MbufClear(MilGrabBuffer, 0);
 				break;
 
 			case 'S':

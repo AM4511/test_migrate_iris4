@@ -320,11 +320,12 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'y':
-				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
+				printf("\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
-				GrabParams->Y_SIZE = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
-
+				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
+				GrabParams->Y_SIZE = XGSSize_Y;
+				MbufClear(MilGrabBuffer, 0);
+				break;
 				break;
 
 

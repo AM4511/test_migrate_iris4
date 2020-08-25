@@ -555,7 +555,11 @@ Register("debug", 0x460, 4, "null");
 %=================================================================
 Section("DPC", 0, 0x480);
 
-Register("dpc_list_ctrl", 0x480, 4, "null");
+Register("dpc_capabilities", 0x480, 4, "null");
+		Field("dpc_list_length", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("dpc_ver", 3, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("dpc_list_ctrl", 0x484, 4, "null");
 		Field("dpc_fifo_reset", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Fifo in normal operation", 0);
 			FieldValue("Fifo in reset State", 1);
@@ -577,7 +581,7 @@ Register("dpc_list_ctrl", 0x480, 4, "null");
 			FieldValue("Start the READ/WRITE transaction", 1);
 		Field("dpc_list_add", 11, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("dpc_list_stat", 0x484, 4, "null");
+Register("dpc_list_stat", 0x488, 4, "null");
 		Field("dpc_fifo_underrun", 31, 31, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 			FieldValue("Underrun not detected", 0);
 			FieldValue("Underrun detected", 1);
@@ -585,18 +589,18 @@ Register("dpc_list_stat", 0x484, 4, "null");
 			FieldValue("Overrun not detected", 0);
 			FieldValue("Overrun detected", 1);
 
-Register("dpc_list_data1", 0x488, 4, "null");
+Register("dpc_list_data1", 0x48c, 4, "null");
 		Field("dpc_list_corr_y", 27, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("dpc_list_corr_x", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("dpc_list_data2", 0x48c, 4, "");
+Register("dpc_list_data2", 0x490, 4, "");
 		Field("dpc_list_corr_pattern", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("dpc_list_data1_rd", 0x490, 4, "null");
+Register("dpc_list_data1_rd", 0x494, 4, "null");
 		Field("dpc_list_corr_y", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("dpc_list_corr_x", 12, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
-Register("dpc_list_data2_rd", 0x494, 4, "");
+Register("dpc_list_data2_rd", 0x498, 4, "");
 		Field("dpc_list_corr_pattern", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 %=================================================================
