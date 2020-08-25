@@ -251,9 +251,9 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
 
-	// For debug DMA overrun with full 12Mpix sensor
-	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = 0x10000080;
-	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = 0x10c00080;
+	// For debug DMA overrun with any sensor
+	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                  
+	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);
 
 	//---------------------
 	// Give SPI control to FPGA
@@ -304,14 +304,14 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
 		if (OverrunPixel != 0)
 		{
 			Overrun++;
 			printf(" DMA Overflow detected: %d\n", Overrun);
 			//printf("Press enter to continue...\n");
 			//_getch();
-			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_END - GrabParams->Y_START, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
 
 		}
 
@@ -407,9 +407,13 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'y':
-				printf("\nEnter the new Size Y (1-based) (Current is: %d) ", GrabParams->Y_END);
+				printf("\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END = GrabParams->Y_START + XGSSize_Y;
+				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
+				GrabParams->Y_SIZE = XGSSize_Y;
+				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
+				Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);    // 0x10c00080;
+				MbufClear(MilGrabBuffer, 0);
 				break;
 
 			case 'S':
