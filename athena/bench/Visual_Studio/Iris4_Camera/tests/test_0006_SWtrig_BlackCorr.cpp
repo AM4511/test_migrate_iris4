@@ -86,7 +86,6 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(30000);
 	XGS_Ctrl->setBlackRef(BlackOffset);
 
 	// For a full frame ROI 
@@ -97,6 +96,8 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
+
+	XGS_Ctrl->setExposure( (M_UINT32) XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG

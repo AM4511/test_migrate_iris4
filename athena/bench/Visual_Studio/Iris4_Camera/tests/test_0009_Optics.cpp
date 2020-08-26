@@ -100,7 +100,6 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                // 1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
@@ -115,6 +114,9 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setBlackRef(0);
 	XGS_Ctrl->setAnalogGain(1);
 	XGS_Ctrl->setDigitalGain(0x20);  // gain= 1/32 *32
+
+	XGS_Ctrl->setExposure( (M_UINT32) XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
+
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG

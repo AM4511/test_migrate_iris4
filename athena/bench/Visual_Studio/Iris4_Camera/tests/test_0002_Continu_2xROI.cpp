@@ -101,7 +101,6 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(30000);
 
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	:  skip : 4 Interpolation (center image) 
@@ -113,6 +112,8 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
+
+	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
@@ -187,7 +188,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
             // DMA PARAMETERS 1/4 frame (SANS LIGNES INTERPOLATIONS)
             //---------------------
 			DMAParams->FSTART                = ImageBufferAddr;          // Adresse Mono pour DMA
-			DMAParams->LINE_PITCH            = ImageBufferLinePitch;
+			DMAParams->LINE_PITCH            = (M_UINT32) ImageBufferLinePitch;
 			DMAParams->LINE_SIZE             = SensorParams->Xsize_Full; // Full window MIL display
 			GrabParams->SUBSAMPLING_X        = 0;
 			GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -205,7 +206,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
              // DMA PARAMETERS 1/4 frame (SANS LIGNES INTERPOLATIONS)
              //---------------------
 			 DMAParams->FSTART                = ImageBufferAddr+(ImageBufferLinePitch * (SensorParams->Ysize_Full-8) / 4);          // Adresse Mono pour DMA
-			 DMAParams->LINE_PITCH            = ImageBufferLinePitch;
+			 DMAParams->LINE_PITCH            = (M_UINT32) ImageBufferLinePitch;
 			 DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;  // Full window MIL display
 			 GrabParams->SUBSAMPLING_X        = 0;
 			 GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -223,7 +224,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				  // DMA PARAMETERS  1/4 frame (SANS LIGNES INTERPOLATIONS)
 				  //---------------------
 				  DMAParams->FSTART                = ImageBufferAddr + (ImageBufferLinePitch * (SensorParams->Ysize_Full-8) / 2);          // Adresse Mono pour DMA
-				  DMAParams->LINE_PITCH            = ImageBufferLinePitch;  
+				  DMAParams->LINE_PITCH            = (M_UINT32) ImageBufferLinePitch;
 				  DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;// Full window MIL display
 				  GrabParams->SUBSAMPLING_X        = 0;
 				  GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -242,7 +243,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					  // DMA PARAMETERS  1/4 frame (SANS LIGNES INTERPOLATIONS)
 					  //---------------------
 					  DMAParams->FSTART                = ImageBufferAddr + (ImageBufferLinePitch * (SensorParams->Ysize_Full-8) * 3 / 4);          // Adresse Mono pour DMA
-					  DMAParams->LINE_PITCH            = ImageBufferLinePitch;  
+					  DMAParams->LINE_PITCH            = (M_UINT32) ImageBufferLinePitch;
 					  DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;// Full window MIL display
 					  GrabParams->SUBSAMPLING_X        = 0;
 					  GrabParams->M_SUBSAMPLING_Y      = 0;
@@ -261,7 +262,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						  // DMA PARAMETERS 1 full frame
 						  //---------------------
 						  DMAParams->FSTART                = ImageBufferAddr2;            // Adresse Mono pour DMA
-						  DMAParams->LINE_PITCH            = ImageBufferLinePitch2;  
+						  DMAParams->LINE_PITCH            = (M_UINT32) ImageBufferLinePitch2;
 						  DMAParams->LINE_SIZE             = SensorParams->Xsize_Full;    // Full window MIL display
 						  GrabParams->SUBSAMPLING_X        = 0;
 						  GrabParams->M_SUBSAMPLING_Y      = 0;
