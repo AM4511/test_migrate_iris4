@@ -179,6 +179,27 @@ int main(void)
 	//Print build ID
 	printf("\n\nFPGA Build is ID is %d (0x%X), ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
 
+	// Generate a ERROR if FPGA is lower than a particular buildID
+	M_UINT32 MinBuildID = 0x5F457019;
+	if (Pcie->rPcie_ptr.fpga.build_id.f.value < MinBuildID)
+	{
+		printf("\n\n");
+		printf("***************************************************************************************************\n"); 
+		printf(" This build of JDK needs at least FPGA version %d (0x%X), program a new bitstream!\n", MinBuildID, MinBuildID); 
+		printf("***************************************************************************************************\n");
+
+		printf("\n\nPress any key to exit");
+		_getch();
+		delete XGS_Ctrl;
+		delete XGS_Data;
+		delete I2C;
+		delete Pcie;
+		IrisMilFree();
+		exit(0);
+
+	}
+
+
 	//Epoch to human understandable time
 	time_t rawtime = Pcie->rPcie_ptr.fpga.build_id.f.value;
 	struct tm  ts;
