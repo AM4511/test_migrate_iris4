@@ -145,6 +145,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	XGS_Ctrl->setBlackRef(0);
 
+	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
+
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 

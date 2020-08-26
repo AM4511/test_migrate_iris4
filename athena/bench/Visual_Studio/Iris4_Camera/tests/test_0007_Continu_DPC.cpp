@@ -102,8 +102,6 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setExposure(30000);
-
 	// For a full frame ROI 
 	GrabParams->Y_START = 1;                                                // 1-base Here - Dois etre multiple de 4	
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
@@ -115,6 +113,8 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
+
+	XGS_Ctrl->setExposure((M_UINT32) XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
@@ -210,7 +210,7 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG       = 1;
 	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
 
-	for (int i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
+	for (M_UINT32 i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
 	{
 		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
 		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;

@@ -269,7 +269,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if ( (Register & 0x00000004) == 0x004)  { printf("\nHISPI_STATUS, FIFO ERROR");			  error_detect = 1; }
 	if ( (Register & 0x00000008) == 0x008)  { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
 
-	for (int i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
+	for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
 	{
 		Register                = rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32;
 		Reg_HISPI_DEC_STATUS[i] = Register;
@@ -280,7 +280,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		if ( (Register & 0x00004000)  == 0x4000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_SYNC_ERROR", i);			error_detect = 1; }
 	}
 
-	for (int i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
+	for (M_UINT32 i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
 	{
 		Register                 = rXGSptr.HISPI.LANE_PACKER_STATUS[i].u32;
 		Reg_HISPI_PACK_STATUS[i] = Register;
