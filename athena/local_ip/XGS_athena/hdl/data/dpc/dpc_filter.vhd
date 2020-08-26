@@ -188,6 +188,7 @@ architecture functional of dpc_filter is
     dpc_fifo_data_in                     : in    std_logic_vector(32 downto 0);
     dpc_fifo_write_in                    : in    std_logic;    
     dpc_fifo_list_rdy                    : in    std_logic; --write logic has finish write to fifo, we can start prefetch
+	dpc_fifo_reset_done                  : out   std_logic;
 
     ---------
     -- 3 2 1 
@@ -364,13 +365,11 @@ architecture functional of dpc_filter is
   signal dpc_fifo_reset_P3        : std_logic :='1';
   signal dpc_fifo_reset_P4        : std_logic :='1';
   signal dpc_fifo_reset_P5        : std_logic :='1';
-  signal dpc_fifo_reset_P6        : std_logic :='1';
-  signal dpc_fifo_reset_P7        : std_logic :='1';
 
   signal dpc_fifo_data            : std_logic_vector(32 downto 0);
   signal dpc_fifo_write           : std_logic_vector(nb_pixels downto 0) := (others=>'0');
   signal dpc_fifo_list_rdy        : std_logic:='0'; --write logic has finish write to fifo, we can start prefetch
- 
+  signal dpc_fifo_reset_done      : std_logic_vector(nb_pixels downto 0);
 
   signal m_axis_tvalid_int        : std_logic :='0';
   signal m_axis_tdata_int         : std_logic_vector(79 downto 0);
@@ -580,8 +579,6 @@ begin
       dpc_fifo_reset_P3  <= dpc_fifo_reset_P2;
       dpc_fifo_reset_P4  <= dpc_fifo_reset_P3;
       dpc_fifo_reset_P5  <= dpc_fifo_reset_P4; 
-      dpc_fifo_reset_P6  <= dpc_fifo_reset_P5; 
-      dpc_fifo_reset_P7  <= dpc_fifo_reset_P6; 
 
       dpc_fifo_reset     <= dpc_fifo_reset_P5 or dpc_fifo_reset_P4 or dpc_fifo_reset_P3 or dpc_fifo_reset_P2 or dpc_fifo_reset_P1 ;
 
@@ -589,10 +586,11 @@ begin
   end process; 
  
  
+ 
   process(axi_clk)
   begin
     if (axi_clk'event and axi_clk='1') then
-      if(REG_dpc_enable_DB='1' and dpc_fifo_reset_P7='1' and REG_dpc_list_count/= conv_std_logic_vector(0, DPC_CORR_PIXELS_DEPTH)  ) then
+      if(REG_dpc_enable_DB='1' and dpc_fifo_reset_done(0)='1' and REG_dpc_list_count/= conv_std_logic_vector(0, DPC_CORR_PIXELS_DEPTH)  ) then
         RAM_R_address     <= (others=>'0');
         RAM_R_enable      <= '1';
         RAM_R_end         <= '0';
@@ -925,7 +923,8 @@ begin
       dpc_fifo_data_in                     => dpc_fifo_data,
       dpc_fifo_write_in                    => dpc_fifo_write(i),
       dpc_fifo_list_rdy                    => dpc_fifo_list_rdy,         --write logic has finish write to fifo, we can start prefetch
-      
+      dpc_fifo_reset_done                  => dpc_fifo_reset_done(i),
+
       ---------------------------------------------------------------------
       -- Data IN
       ---------------------------------------------------------------------   

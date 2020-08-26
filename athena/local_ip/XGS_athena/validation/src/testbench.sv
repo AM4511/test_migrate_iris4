@@ -1028,7 +1028,14 @@ module testbench();
 				end
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<13) +  i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<14) + (1<<13) +  i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
-
+                 
+				// Sigle pixel correction (bypassed) 
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + 0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
+	            //host.write(DPC_LIST_DATA1, (2<<16)+2);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            //host.write(DPC_LIST_DATA2,  85);                             // DPC_LIST_CORR_PATTERN = 0;
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + 0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<13) +  0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<14) + (1<<13) +  0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
 	            
 
 
