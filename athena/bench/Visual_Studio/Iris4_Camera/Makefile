@@ -10,7 +10,6 @@ SRC_SOURCES = source/osfunctions.cpp \
               source/I2C.cpp \
               source/MilLayer.cpp \
 			  source/mtxservmanager.cpp \
-			  source/mtxservmanager.cpp \
 			  source/Pcie.cpp \
 			  source/Random.cpp \
 			  source/SystemTree.cpp \
@@ -27,6 +26,7 @@ SRC_TESTS = tests/test_0000_Continu.cpp \
 			tests/test_0004_Continu_FPS.cpp \
 			tests/test_0005_SWtrig_Random.cpp \
 			tests/test_0006_SWtrig_BlackCorr.cpp \
+			tests/test_0007_Continu_DPC.cpp \
 			tests/test_0009_Optics.cpp
 
 all: $(TARGET)
