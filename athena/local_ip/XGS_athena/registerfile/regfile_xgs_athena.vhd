@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/08/25 11:23:14
--- Created by          : imaval
+-- Created on          : 2020/08/28 15:29:33
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9F527437
+-- Register file CRC32 : 0x1A9D160D
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1103,6 +1103,7 @@ package regfile_xgs_athena_pack is
    ------------------------------------------------------------------------------------------
    type HISPI_STATUS_TYPE is record
       FSM            : std_logic_vector(3 downto 0);
+      CRC_ERROR      : std_logic;
       PHY_BIT_LOCKED_ERROR: std_logic;
       FIFO_ERROR     : std_logic;
       CALIBRATION_ERROR: std_logic;
@@ -1111,6 +1112,7 @@ package regfile_xgs_athena_pack is
 
    constant INIT_HISPI_STATUS_TYPE : HISPI_STATUS_TYPE := (
       FSM             => (others=> 'Z'),
+      CRC_ERROR       => 'Z',
       PHY_BIT_LOCKED_ERROR => 'Z',
       FIFO_ERROR      => 'Z',
       CALIBRATION_ERROR => 'Z',
@@ -1208,6 +1210,8 @@ package regfile_xgs_athena_pack is
    -- Register Name: LANE_DECODER_STATUS
    ------------------------------------------------------------------------------------------
    type HISPI_LANE_DECODER_STATUS_TYPE is record
+      CRC_ERROR      : std_logic;
+      CRC_ERROR_set  : std_logic;
       PHY_SYNC_ERROR : std_logic;
       PHY_SYNC_ERROR_set: std_logic;
       PHY_BIT_LOCKED_ERROR: std_logic;
@@ -1224,6 +1228,8 @@ package regfile_xgs_athena_pack is
    end record HISPI_LANE_DECODER_STATUS_TYPE;
 
    constant INIT_HISPI_LANE_DECODER_STATUS_TYPE : HISPI_LANE_DECODER_STATUS_TYPE := (
+      CRC_ERROR       => 'Z',
+      CRC_ERROR_set   => 'Z',
       PHY_SYNC_ERROR  => 'Z',
       PHY_SYNC_ERROR_set => 'Z',
       PHY_BIT_LOCKED_ERROR => 'Z',
@@ -3106,6 +3112,7 @@ package body regfile_xgs_athena_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(31 downto 28) := reg.FSM;
+      output(4) := reg.CRC_ERROR;
       output(3) := reg.PHY_BIT_LOCKED_ERROR;
       output(2) := reg.FIFO_ERROR;
       output(1) := reg.CALIBRATION_ERROR;
@@ -3121,6 +3128,7 @@ package body regfile_xgs_athena_pack is
    variable output : HISPI_STATUS_TYPE;
    begin
       output.FSM := stdlv(31 downto 28);
+      output.CRC_ERROR := stdlv(4);
       output.PHY_BIT_LOCKED_ERROR := stdlv(3);
       output.FIFO_ERROR := stdlv(2);
       output.CALIBRATION_ERROR := stdlv(1);
@@ -3259,6 +3267,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(15) := reg.CRC_ERROR;
       output(14) := reg.PHY_SYNC_ERROR;
       output(13) := reg.PHY_BIT_LOCKED_ERROR;
       output(12) := reg.PHY_BIT_LOCKED;
@@ -3277,6 +3286,7 @@ package body regfile_xgs_athena_pack is
    function to_HISPI_LANE_DECODER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_DECODER_STATUS_TYPE is
    variable output : HISPI_LANE_DECODER_STATUS_TYPE;
    begin
+      output.CRC_ERROR := stdlv(15);
       output.PHY_SYNC_ERROR := stdlv(14);
       output.PHY_BIT_LOCKED_ERROR := stdlv(13);
       output.PHY_BIT_LOCKED := stdlv(12);
@@ -3564,11 +3574,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/08/25 11:23:14
--- Created by          : imaval
+-- Created on          : 2020/08/28 15:29:33
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9F527437
+-- Register file CRC32 : 0x1A9D160D
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3804,31 +3814,37 @@ signal field_rw_HISPI_FRAME_CFG_LINES_PER_FRAME                    : std_logic_v
 signal field_rw_HISPI_FRAME_CFG_PIXELS_PER_LINE                    : std_logic_vector(12 downto 0);                   -- Field: PIXELS_PER_LINE
 signal field_rw_HISPI_FRAME_CFG_X_VALID_X_END                      : std_logic_vector(12 downto 0);                   -- Field: X_END
 signal field_rw_HISPI_FRAME_CFG_X_VALID_X_START                    : std_logic_vector(12 downto 0);                   -- Field: X_START
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
+signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR            : std_logic;                                       -- Field: CRC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_SYNC_ERROR       : std_logic;                                       -- Field: PHY_SYNC_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_BIT_LOCKED_ERROR : std_logic;                                       -- Field: PHY_BIT_LOCKED_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
@@ -7600,6 +7616,13 @@ rb_HISPI_STATUS(31 downto 28) <= regfile.HISPI.STATUS.FSM;
 
 
 ------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_HISPI_STATUS(4) <= regfile.HISPI.STATUS.CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
 -- Field name: PHY_BIT_LOCKED_ERROR
 -- Field type: RO
 ------------------------------------------------------------------------------------------
@@ -7879,6 +7902,34 @@ end process P_HISPI_FRAME_CFG_X_VALID_X_START;
 wEn(61) <= (hit(61)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_0(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(0).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR <= '0';
+      else
+         if(wEn(61) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(0).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_0_CRC_ERROR;
+
+------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
 -- Field type: RW2C
 ------------------------------------------------------------------------------------------
@@ -8047,6 +8098,34 @@ end process P_HISPI_LANE_DECODER_STATUS_0_FIFO_OVERRUN;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(62) <= (hit(62)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_1(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(1).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR <= '0';
+      else
+         if(wEn(62) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(1).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_1_CRC_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -8219,6 +8298,34 @@ end process P_HISPI_LANE_DECODER_STATUS_1_FIFO_OVERRUN;
 wEn(63) <= (hit(63)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_2(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(2).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR <= '0';
+      else
+         if(wEn(63) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(2).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_2_CRC_ERROR;
+
+------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
 -- Field type: RW2C
 ------------------------------------------------------------------------------------------
@@ -8387,6 +8494,34 @@ end process P_HISPI_LANE_DECODER_STATUS_2_FIFO_OVERRUN;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(64) <= (hit(64)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_3(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(3).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR <= '0';
+      else
+         if(wEn(64) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(3).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_3_CRC_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
@@ -8559,6 +8694,34 @@ end process P_HISPI_LANE_DECODER_STATUS_3_FIFO_OVERRUN;
 wEn(65) <= (hit(65)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_4(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(4).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR <= '0';
+      else
+         if(wEn(65) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(4).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_4_CRC_ERROR;
+
+------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR
 -- Field type: RW2C
 ------------------------------------------------------------------------------------------
@@ -8727,6 +8890,34 @@ end process P_HISPI_LANE_DECODER_STATUS_4_FIFO_OVERRUN;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(66) <= (hit(66)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: CRC_ERROR
+-- Field type: RW2C
+------------------------------------------------------------------------------------------
+rb_HISPI_LANE_DECODER_STATUS_5(15) <= field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR;
+regfile.HISPI.LANE_DECODER_STATUS(5).CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR
+------------------------------------------------------------------------------------------
+P_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR <= '0';
+      else
+         if(wEn(66) = '1' and reg_writedata(15) = '1' and bitEnN(15) = '0') then
+            -- Clear the field to '0'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR <= '0';
+         else
+            -- Set the field to '1'
+            field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR <= field_rw2c_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR or regfile.HISPI.LANE_DECODER_STATUS(5).CRC_ERROR_set;
+         end if;
+      end if;
+   end if;
+end process P_HISPI_LANE_DECODER_STATUS_5_CRC_ERROR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: PHY_SYNC_ERROR

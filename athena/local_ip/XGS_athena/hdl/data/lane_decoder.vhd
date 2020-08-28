@@ -123,6 +123,22 @@ architecture rtl of lane_decoder is
   end component;
 
 
+  component hispi_crc is
+    generic (
+      PIXEL_SIZE : integer := 12        -- Pixel size in bits
+      );
+    port (
+      pclk          : in  std_logic;
+      pclk_reset    : in  std_logic;
+      pclk_crc_init : in  std_logic;
+      pclk_crc_en   : in  std_logic;
+      pclk_crc_data : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_crc1     : out std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_crc2     : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+      );
+  end component;
+
+
   component mtxDCFIFO is
     generic
       (
@@ -207,7 +223,12 @@ architecture rtl of lane_decoder is
   signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
   signal pclk_crc_enable         : std_logic                                     := '1';
   signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
-  signal pclk_idle_detect_en     : std_logic := '1';
+  signal pclk_idle_detect_en     : std_logic                                     := '1';
+  signal pclk_crc_init           : std_logic;
+  signal pclk_crc_en             : std_logic;
+  signal pclk_crc_error          : std_logic;
+  signal pclk_computed_crc1      : std_logic_vector(11 downto 0);
+  signal pclk_computed_crc2      : std_logic_vector(11 downto 0);
 
   signal sclk_fifo_empty_int : std_logic;
   signal sclk_fifo_underrun  : std_logic;
@@ -224,6 +245,7 @@ architecture rtl of lane_decoder is
   signal rclk_cal_error       : std_logic;
   signal rclk_bit_locked      : std_logic;
   signal rclk_bit_locked_fall : std_logic;
+  signal rclk_crc_error       : std_logic;
 
   signal async_idle_character : std_logic_vector(PIXEL_SIZE-1 downto 0);
 
@@ -280,6 +302,9 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_crc_enable         : signal is "true";
   attribute mark_debug of pclk_tap_histogram      : signal is "true";
   attribute mark_debug of pclk_idle_detect_en     : signal is "true";
+  attribute mark_debug of pclk_crc_error          : signal is "true";
+  attribute mark_debug of pclk_computed_crc1      : signal is "true";
+  attribute mark_debug of pclk_computed_crc2      : signal is "true";
 
   attribute mark_debug of sclk_reset                : signal is "true";
   attribute mark_debug of sclk_fifo_empty_int       : signal is "true";
@@ -394,6 +419,35 @@ begin
       );
 
   pclk_cal_busy <= pclk_cal_busy_int;
+
+
+  -----------------------------------------------------------------------------
+  -- Module      : xhispi_crc
+  -- Description : Calculate the data CRC on the lane
+  -----------------------------------------------------------------------------
+  xhispi_crc : hispi_crc
+    generic map(
+      PIXEL_SIZE => PIXEL_SIZE
+      )
+    port map(
+      pclk          => pclk,
+      pclk_reset    => pclk_reset,
+      pclk_crc_init => pclk_crc_init,
+      pclk_crc_en   => pclk_crc_en,
+      pclk_crc_data => pclk_data_p1,
+      pclk_crc1     => pclk_computed_crc1,
+      pclk_crc2     => pclk_computed_crc2
+      );
+
+
+  pclk_crc_init <= '1' when (pclk_state = S_IDLE) else
+                   '0';
+
+
+  pclk_crc_en <= '1' when (pclk_state = S_AIL) else
+                 '1' when (pclk_state = S_EOL) else
+                 '1' when (pclk_state = S_EOF) else
+                 '0';
 
 
   -----------------------------------------------------------------------------
@@ -760,6 +814,14 @@ begin
   end process P_pclk_state;
 
 
+  -----------------------------------------------------------------------------
+  -- Detect CRC error
+  -----------------------------------------------------------------------------
+  pclk_crc_error <= '1' when (pclk_state = S_CRC1 and pclk_computed_crc1 /= pclk_data_p1) else
+                    '1' when (pclk_state = S_CRC2 and pclk_computed_crc2 /= pclk_data_p1) else
+                    '0';
+
+
   pclk_sof_flag <= '1' when (pclk_state = S_SOF) else '0';
   pclk_eof_flag <= '1' when (pclk_state = S_EOF) else '0';
   pclk_sol_flag <= '1' when (pclk_state = S_SOL) else '0';
@@ -1070,6 +1132,28 @@ begin
   regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_BIT_LOCKED_ERROR_set <= '1' when (rclk_bit_locked_fall = '1' and rclk_enable_hispi = '1') else
                                                                          '0';
 
+
+
+  -----------------------------------------------------------------------------
+  -- Resync rclk_sync_error
+  -----------------------------------------------------------------------------
+  M_rclk_crc_error : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_crc_error,
+      bclk  => rclk,
+      bclr  => rclk_reset,
+      bDout => open,
+      bRise => rclk_crc_error,
+      bFall => open
+      );
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).CRC_ERROR_set <= rclk_crc_error;
+  -- synthesis translate_off
+  assert (not(rising_edge(rclk_crc_error))) report "Detected CRC error on lane_decoder" severity error;
+  -- synthesis translate_on
 
 
   -----------------------------------------------------------------------------
