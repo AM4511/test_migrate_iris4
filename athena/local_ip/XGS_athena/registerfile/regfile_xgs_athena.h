@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : imaval
+* Created by   : amarchan
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x9F527437
+* Register file CRC32 : 0x1A9D160D
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1243,7 +1243,8 @@ typedef union
       M_UINT32 CALIBRATION_ERROR    : 1;   /* Bits(1:1), Calibration error */
       M_UINT32 FIFO_ERROR           : 1;   /* Bits(2:2), Calibration active */
       M_UINT32 PHY_BIT_LOCKED_ERROR : 1;   /* Bits(3:3), null */
-      M_UINT32 RSVD0                : 24;  /* Bits(27:4), Reserved */
+      M_UINT32 CRC_ERROR            : 1;   /* Bits(4:4), Lane CRC error */
+      M_UINT32 RSVD0                : 23;  /* Bits(27:5), Reserved */
       M_UINT32 FSM                  : 4;   /* Bits(31:28), HISPI  finite state machine status */
    } f;
 
@@ -1369,7 +1370,8 @@ typedef union
       M_UINT32 PHY_BIT_LOCKED        : 1;   /* Bits(12:12), null */
       M_UINT32 PHY_BIT_LOCKED_ERROR  : 1;   /* Bits(13:13), null */
       M_UINT32 PHY_SYNC_ERROR        : 1;   /* Bits(14:14), null */
-      M_UINT32 RSVD1                 : 17;  /* Bits(31:15), Reserved */
+      M_UINT32 CRC_ERROR             : 1;   /* Bits(15:15), CRC Error */
+      M_UINT32 RSVD1                 : 16;  /* Bits(31:16), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_HISPI_LANE_DECODER_STATUS_TYPE;

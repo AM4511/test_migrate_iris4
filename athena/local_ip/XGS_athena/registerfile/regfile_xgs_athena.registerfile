@@ -604,6 +604,11 @@
         <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>S_DONE&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+      <fields name="CRC_ERROR" alias="Lane CRC error" lsb="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No lane CRC error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Lane CRC error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="PHY_BIT_LOCKED_ERROR" lsb="3" readWrite="false" readOnly="true"/>
       <fields name="FIFO_ERROR" alias="Calibration active " lsb="2" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No FiFo error occured&lt;/matrox_column_delimiter></possibleValues>
@@ -662,6 +667,11 @@
       </fields>
     </registers>
     <registers name="LANE_DECODER_STATUS" offsetFromParent="24" useMultiples="true" numberOfMultiples="6">
+      <fields name="CRC_ERROR" alias="CRC Error" lsb="15" readWrite="false" readWriteToClear="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>CRC no error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>CRC error occured&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="PHY_SYNC_ERROR" lsb="14" readWrite="false" readWriteToClear="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries unlocked&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Pixel bit boundaries locked&lt;/matrox_column_delimiter></possibleValues>

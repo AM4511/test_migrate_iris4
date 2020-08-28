@@ -408,11 +408,13 @@ architecture rtl of xgs_hispi_top is
   signal aggregated_fifo_underrun : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal aggregated_cal_error     : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal aggregated_sync_error    : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal aggregated_crc_error     : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
 
   -- Status lane packer (slpack)
   signal aggregated_packer_fifo_overrun  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal aggregated_packer_fifo_underrun : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal fifo_error                      : std_logic;
+  signal crc_error                       : std_logic;
 
   signal aggregated_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
   signal nb_lane_enabled           : std_logic_vector(2 downto 0);
@@ -442,6 +444,7 @@ begin
     aggregated_fifo_underrun(i)  <= regfile.HISPI.LANE_DECODER_STATUS(i).FIFO_UNDERRUN;
     aggregated_cal_error(i)      <= regfile.HISPI.LANE_DECODER_STATUS(i).CALIBRATION_ERROR;
     aggregated_bit_lock_error(i) <= regfile.HISPI.LANE_DECODER_STATUS(i).PHY_BIT_LOCKED_ERROR;
+    aggregated_crc_error(i)      <= regfile.HISPI.LANE_DECODER_STATUS(i).CRC_ERROR;
   end generate G_lane_decoder_status;
 
 
@@ -478,8 +481,15 @@ begin
   end process;
 
 
+  
   rclk_irq_error <= rclk_irq_error_vect(rclk_irq_error_vect'left);
 
+
+  crc_error <=  '1' when (aggregated_crc_error /= (aggregated_crc_error'range => '0')) else
+                '0';
+
+  
+  regfile.HISPI.STATUS.CRC_ERROR <= crc_error;
 
 
   fifo_error <= '1' when (aggregated_fifo_overrun /= (aggregated_fifo_overrun'range => '0')) else
@@ -487,6 +497,7 @@ begin
                 '1' when (aggregated_packer_fifo_overrun /= (aggregated_packer_fifo_overrun'range   => '0')) else
                 '1' when (aggregated_packer_fifo_underrun /= (aggregated_packer_fifo_underrun'range => '0')) else
                 '0';
+
 
   regfile.HISPI.STATUS.FIFO_ERROR <= fifo_error;
 
