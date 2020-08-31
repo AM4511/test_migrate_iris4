@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x9F527437
+* Register file CRC32 : 0x173FB51F
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -100,6 +100,8 @@
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_ADDRESS             0x490
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_RD_ADDRESS          0x494
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_RD_ADDRESS          0x498
+#define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_ADDRESS                   0x4B0
+#define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_ADDRESS                     0x4B4
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -1576,6 +1578,48 @@ typedef union
 
 
 /**************************************************************************
+* Register name : LUT_CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 LUT_ADD    : 10;  /* Bits(9:0), null */
+      M_UINT32 LUT_SS     : 1;   /* Bits(10:10), LUT SnapShot */
+      M_UINT32 LUT_WRN    : 1;   /* Bits(11:11), LUT Write ReadNot */
+      M_UINT32 LUT_SEL    : 4;   /* Bits(15:12), LUT SELection */
+      M_UINT32 LUT_DATA_W : 8;   /* Bits(23:16), LUT DATA to Write */
+      M_UINT32 RSVD0      : 4;   /* Bits(27:24), Reserved */
+      M_UINT32 LUT_BYPASS : 1;   /* Bits(28:28), LUT BYPASS */
+      M_UINT32 RSVD1      : 3;   /* Bits(31:29), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : LUT_RB
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 LUT_RB : 8;   /* Bits(7:0), null */
+      M_UINT32 RSVD0  : 24;  /* Bits(31:8), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_TYPE;
+
+
+/**************************************************************************
 * Register name : TEMP
 ***************************************************************************/
 typedef union
@@ -1800,6 +1844,15 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_DPC_TYPE;
 
 /**************************************************************************
+* Section name   : LUT
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_TYPE LUT_CTRL;  /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_TYPE   LUT_RB;    /* Address offset: 0x4 */
+} FPGA_REGFILE_XGS_ATHENA_LUT_TYPE;
+
+/**************************************************************************
 * External section name   : SYSMONXIL
 ***************************************************************************/
 typedef struct
@@ -1828,7 +1881,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */
    M_UINT32                               RSVD3[7];    /* Padding; Size (28 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DPC_TYPE       DPC;         /* Section; Base address offset: 0x480 */
-   M_UINT32                               RSVD4[153];  /* Padding; Size (612 Bytes) */
+   M_UINT32                               RSVD4[5];    /* Padding; Size (20 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_LUT_TYPE       LUT;         /* Section; Base address offset: 0x4b0 */
+   M_UINT32                               RSVD5[146];  /* Padding; Size (584 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

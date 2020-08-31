@@ -775,6 +775,23 @@
       <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="LUT" baseAddress="4B0" endAddress="4B4">
+    <registers name="LUT_CTRL">
+      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT logic will not be used, and the 10 bits data will en send to the DMA. This register is used for optical test usage since the Perceptron/N3 have only 10 to 8 bits LUT only. The DMA must be configured in synthesys to be able to transfert 10bpp images. " lsb="28"/>
+      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT." lsb="16" size="8"/>
+      <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;The Color and Mono shares the same 8 physical LUT. " lsb="12" size="4"/>
+      <fields name="LUT_WRN" alias="LUT Write ReadNot" description="LUT Write mode" lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_SS" alias="LUT SnapShot" description="Start the LUT READ or WRITE OPERATION " lsb="10" readWrite="false" writeOnly="true"/>
+      <fields name="LUT_ADD" size="10"/>
+    </registers>
+    <registers name="LUT_RB" offsetFromParent="4">
+      <fields name="LUT_RB" description="Not Implemented to save FPGA ressources" size="8" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">
     <registers name="TEMP">
       <fields name="SMTEMP" alias="System Monitor TEMPerature" description="This field reports the temperature of the die. Maximum-measurement error is ±4 degC. The temperature in Celcius = (SMTEMP*503.975/4096) – 273.15." lsb="4" size="12" readWrite="false" readOnly="true">

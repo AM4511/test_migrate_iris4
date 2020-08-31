@@ -76,6 +76,10 @@ ${DATA_SRC_PATH}/lane_packer.vhd \
 ${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
+
+${DATA_SRC_PATH}/lut/Infered_RAM_lut.vhd \
+${DATA_SRC_PATH}/lut/axi_lut.vhd \
+
 ${DATA_SRC_PATH}/dpc/Infered_RAM.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_package.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_kernel_10x3.vhd \

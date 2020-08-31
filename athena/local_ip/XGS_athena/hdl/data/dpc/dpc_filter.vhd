@@ -11,6 +11,18 @@
 -- Axi slave and master are on the same domain : system clock.
 -- Registers are in system clock.
 --
+--
+--
+-- Nombre de pixels maximum a corriger :
+--
+-- DPC_CORR_PIXELS_DEPTH=6  =>   63 pixels, 6+1+4:  11 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=7  =>  127 pixels, 6+1+4:  11 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=8  =>  255 pixels, 6+1+4:  11 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 6+1+4:  11 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=10 => 1023 pixels, 6+1+8:  15 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=11 => 2047 pixels, 6+2+16: 24 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=12 => 4095 pixels, 6+4+32: 42 RAM36K   
+--
 -----------------------------------------------------------------------
 library ieee;
  use ieee.std_logic_1164.all;

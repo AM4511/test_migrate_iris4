@@ -558,6 +558,7 @@ Section("DPC", 0, 0x480);
 Register("dpc_capabilities", 0x480, 4, "null");
 		Field("dpc_list_length", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("dpc_ver", 3, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Initial monochrone correction only, 2 lines buffered.", 0);
 
 Register("dpc_list_ctrl", 0x484, 4, "null");
 		Field("dpc_fifo_reset", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -602,6 +603,24 @@ Register("dpc_list_data1_rd", 0x494, 4, "null");
 
 Register("dpc_list_data2_rd", 0x498, 4, "");
 		Field("dpc_list_corr_pattern", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+%=================================================================
+% SECTION NAME	: LUT
+%=================================================================
+Section("LUT", 0, 0x4b0);
+
+Register("lut_ctrl", 0x4b0, 4, "null");
+		Field("lut_bypass", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS");
+		Field("lut_data_w", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT DATA to Write");
+		Field("lut_sel", 15, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT SELection");
+		Field("lut_wrn", 11, 11, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT Write ReadNot");
+			FieldValue("Read operation", 0);
+			FieldValue("Write operation", 1);
+		Field("lut_ss", 10, 10, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LUT SnapShot");
+		Field("lut_add", 9, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("lut_rb", 0x4b4, 4, "null");
+		Field("lut_rb", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 %=================================================================
 % EXTERNAL NAME	: SYSMONXIL
