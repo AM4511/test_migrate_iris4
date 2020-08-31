@@ -15,9 +15,10 @@ puts "Running ${myself}"
 # 0.0.3 : New XGS_athena ip-core
 # 0.0.5 : First version that grab frames
 # 0.0.6 : XGS_athena now support 4 and 6 lanes sensors through DCF
+# 0.0.7 : XGS_athena now report CRC errors
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 6
+set FPGA_SUB_MINOR_VERSION 7
 
 
 set BASE_NAME athena

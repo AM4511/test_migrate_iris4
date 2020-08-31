@@ -444,6 +444,9 @@ Register("status", 0x404, 4, "Global status register");
 			FieldValue("Reserved", 13);
 			FieldValue("FSM error (Unknown state)", 14);
 			FieldValue("S_DONE", 15);
+		Field("crc_error", 4, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Lane CRC error");
+			FieldValue("No lane CRC error occured", 0);
+			FieldValue("Lane CRC error occured", 1);
 		Field("phy_bit_locked_error", 3, 3, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("fifo_error", 2, 2, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Calibration active ");
 			FieldValue("No FiFo error occured", 0);
@@ -491,6 +494,9 @@ for(i = 0; i < 6; i++)
 {
 
 	Register("lane_decoder_status", 0x424 + i*0x4, 4, "lane_decoder_status*", "lane_decoder_status", i, "null");
+		Field("crc_error", 15, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "CRC Error");
+			FieldValue("CRC no error occured", 0);
+			FieldValue("CRC error occured", 1);
 		Field("phy_sync_error", 14, 14, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 			FieldValue("Pixel bit boundaries unlocked", 0);
 			FieldValue("Pixel bit boundaries locked", 1);
