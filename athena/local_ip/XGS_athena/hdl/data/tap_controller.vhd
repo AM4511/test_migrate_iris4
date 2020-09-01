@@ -391,11 +391,10 @@ begin
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
-        --tap_histogram <= (others => '0');
-        tap_histogram <= X"AAAAAAAA";
+        tap_histogram <= (others => '0');
       else
         if (state = S_INIT) then
-          tap_histogram <= (others => '0');
+          tap_histogram <= X"AAAAAAAA";
         elsif (state = S_EVALUATE) then
           tap_histogram(31)          <= valid_idle_sequence;
           tap_histogram(30 downto 0) <= tap_histogram(31 downto 1);
