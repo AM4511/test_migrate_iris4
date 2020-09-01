@@ -34,14 +34,18 @@ entity lane_decoder is
     hclk           : in std_logic;
     hclk_reset     : in std_logic;
     hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+    hclk_tap_cntr  : in unsigned(4 downto 0);
 
-
-    -- calibration
-    pclk               : in  std_logic;
-    pclk_cal_en        : in  std_logic;
-    pclk_cal_busy      : out std_logic;
-    pclk_cal_load_tap  : out std_logic;
-    pclk_cal_tap_value : out std_logic_vector(4 downto 0);
+    ---------------------------------------------------------------------------
+    -- Lane calibration
+    ---------------------------------------------------------------------------
+    pclk                   : in  std_logic;
+    pclk_cal_en            : in  std_logic;
+    pclk_cal_start_monitor : in  std_logic;
+    pclk_cal_monitor_done  : out std_logic;
+    pclk_cal_busy          : out std_logic;
+    pclk_cal_tap_value     : out std_logic_vector(4 downto 0);
+    pclk_tap_histogram     : out std_logic_vector(31 downto 0);
 
     ---------------------------------------------------------------------------
     -- Registerfile  clock domain
@@ -109,16 +113,21 @@ architecture rtl of lane_decoder is
       PIXEL_SIZE : integer := 12
       );
     port (
-      pclk                : in  std_logic;
-      pclk_reset          : in  std_logic;
-      pclk_pixel          : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      pclk_idle_character : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
-      pclk_cal_en         : in  std_logic;
-      pclk_cal_busy       : out std_logic;
-      pclk_cal_error      : out std_logic;
-      pclk_cal_load_tap   : out std_logic;
-      pclk_cal_tap_value  : out std_logic_vector(4 downto 0);
-      pclk_tap_histogram  : out std_logic_vector(31 downto 0)
+      hclk_tap_cntr          : in  unsigned(4 downto 0);
+      ---------------------------------------------------------------------------
+      -- Pixel clock domain (pclk)
+      ---------------------------------------------------------------------------
+      pclk                   : in  std_logic;
+      pclk_reset             : in  std_logic;
+      pclk_pixel             : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_idle_character    : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_cal_en            : in  std_logic;
+      pclk_cal_start_monitor : in  std_logic;
+      pclk_cal_monitor_done  : out std_logic;
+      pclk_cal_busy          : out std_logic;
+      pclk_cal_error         : out std_logic;
+      pclk_cal_tap_value     : out std_logic_vector(4 downto 0);
+      pclk_tap_histogram     : out std_logic_vector(31 downto 0)
       );
   end component;
 
@@ -222,7 +231,7 @@ architecture rtl of lane_decoder is
   signal pclk_packer_2           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
   signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
   signal pclk_crc_enable         : std_logic                                     := '1';
-  signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
+  --signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
   signal pclk_idle_detect_en     : std_logic                                     := '1';
   signal pclk_crc_init           : std_logic;
   signal pclk_crc_en             : std_logic;
@@ -300,7 +309,7 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_packer_2           : signal is "true";
   attribute mark_debug of pclk_packer_3           : signal is "true";
   attribute mark_debug of pclk_crc_enable         : signal is "true";
-  attribute mark_debug of pclk_tap_histogram      : signal is "true";
+ -- attribute mark_debug of pclk_tap_histogram      : signal is "true";
   attribute mark_debug of pclk_idle_detect_en     : signal is "true";
   attribute mark_debug of pclk_crc_error          : signal is "true";
   attribute mark_debug of pclk_computed_crc1      : signal is "true";
@@ -406,16 +415,18 @@ begin
       PIXEL_SIZE => PIXEL_SIZE
       )
     port map(
-      pclk                => pclk,
-      pclk_reset          => pclk_reset,
-      pclk_pixel          => pclk_data,
-      pclk_idle_character => async_idle_character,  -- Falsepath
-      pclk_cal_en         => pclk_cal_en,
-      pclk_cal_busy       => pclk_cal_busy_int,
-      pclk_cal_error      => pclk_cal_error,
-      pclk_cal_load_tap   => pclk_cal_load_tap,
-      pclk_cal_tap_value  => pclk_cal_tap_value,
-      pclk_tap_histogram  => pclk_tap_histogram
+      hclk_tap_cntr          => hclk_tap_cntr,
+      pclk                   => pclk,
+      pclk_reset             => pclk_reset,
+      pclk_pixel             => pclk_data,
+      pclk_idle_character    => async_idle_character,  -- Falsepath
+      pclk_cal_en            => pclk_cal_en,
+      pclk_cal_start_monitor => pclk_cal_start_monitor,
+      pclk_cal_monitor_done  => pclk_cal_monitor_done,
+      pclk_cal_busy          => pclk_cal_busy_int,
+      pclk_cal_error         => pclk_cal_error,
+      pclk_cal_tap_value     => pclk_cal_tap_value,
+      pclk_tap_histogram     => pclk_tap_histogram
       );
 
   pclk_cal_busy <= pclk_cal_busy_int;
@@ -1182,21 +1193,21 @@ begin
   -- Process     : P_rclk_tap_histogram
   -- Description : 
   -----------------------------------------------------------------------------
-  P_rclk_tap_histogram : process (rclk) is
-  begin
-    if (rising_edge(rclk)) then
-      if (rclk_reset = '1') then
-        rclk_tap_histogram <= (others => '0');
-      else
-        if (rclk_cal_busy_fall = '1') then
-          rclk_tap_histogram <= pclk_tap_histogram;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_rclk_tap_histogram : process (rclk) is
+  -- begin
+  --   if (rising_edge(rclk)) then
+  --     if (rclk_reset = '1') then
+  --       rclk_tap_histogram <= (others => '0');
+  --     else
+  --       if (rclk_cal_busy_fall = '1') then
+  --         rclk_tap_histogram <= pclk_tap_histogram;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
-  regfile.HISPI.TAP_HISTOGRAM(LANE_ID).VALUE <= rclk_tap_histogram;
+  -- regfile.HISPI.TAP_HISTOGRAM(LANE_ID).VALUE <= rclk_tap_histogram;
 
 
 
