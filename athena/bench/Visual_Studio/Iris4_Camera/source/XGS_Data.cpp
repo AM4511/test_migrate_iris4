@@ -348,12 +348,13 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 //---------------------------------------------------------------------------------------
 void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 {
-	rXGSptr.LUT.LUT_CTRL.f.LUT_SEL = 8; // All LUT
-	rXGSptr.LUT.LUT_CTRL.f.LUT_WRN = 1; // WRITE LUT
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1; // bypass
+	rXGSptr.LUT.LUT_CTRL.f.LUT_SEL    = 8; // All LUT
+	rXGSptr.LUT.LUT_CTRL.f.LUT_WRN    = 1; // WRITE LUT
 	
 	//Transparent 10 a 8 (Compression 10 a 8) 
 	if (LUT_TYPE == 0) { 
-		printf("LUT is now 10 to 8 bits Compression (Transparent)\n");
+		printf("\nLUT is now 10 to 8 bits Compression (Transparent)\n");
 		for (int i = 0; i < 1024; i++) {
 			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
 			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i>>2;
@@ -362,7 +363,7 @@ void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 	}
 	//Inverted 10 a 8 (8 MSB) 
 	else if (LUT_TYPE == 1) {
-		printf("LUT is now 10 to 8 bits Compression (Inverted)\n");
+		printf("\nLUT is now 10 to 8 bits Compression (Inverted)\n");
 		for (int i = 0; i < 1024; i++) {
 			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;
 			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = 255-(i >> 2);
@@ -371,7 +372,7 @@ void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 	}
 	//Transparent 10 a 8 (8 LSB  of 10 bits) 
 	else if (LUT_TYPE == 2) {
-		printf("LUT is now 10 to 8 bits, 8LSB bits of 10 bits\n");
+		printf("\nLUT is now 10 to 8 bits, 8LSB bits of 10 bits\n");
 		for (int i = 0; i < 256; i++) {
 			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
 			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i ;
