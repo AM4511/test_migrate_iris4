@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/08/31 09:01:01
+-- Created on          : 2020/09/01 14:59:58
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xF69E93DF
+-- Register file CRC32 : 0x7CBE3186
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -102,8 +102,9 @@ package regfile_xgs_athena_pack is
    constant K_DPC_DPC_LIST_DATA2_ADDR         : natural := 16#490#;
    constant K_DPC_DPC_LIST_DATA1_RD_ADDR      : natural := 16#494#;
    constant K_DPC_DPC_LIST_DATA2_RD_ADDR      : natural := 16#498#;
-   constant K_LUT_LUT_CTRL_ADDR               : natural := 16#4b0#;
-   constant K_LUT_LUT_RB_ADDR                 : natural := 16#4b4#;
+   constant K_LUT_LUT_CAPABILITIES_ADDR       : natural := 16#4b0#;
+   constant K_LUT_LUT_CTRL_ADDR               : natural := 16#4b4#;
+   constant K_LUT_LUT_RB_ADDR                 : natural := 16#4b8#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1459,6 +1460,23 @@ package regfile_xgs_athena_pack is
    function to_DPC_DPC_LIST_DATA2_RD_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_DATA2_RD_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: LUT_CAPABILITIES
+   ------------------------------------------------------------------------------------------
+   type LUT_LUT_CAPABILITIES_TYPE is record
+      LUT_SIZE_CONFIG: std_logic_vector(11 downto 0);
+      LUT_VER        : std_logic_vector(3 downto 0);
+   end record LUT_LUT_CAPABILITIES_TYPE;
+
+   constant INIT_LUT_LUT_CAPABILITIES_TYPE : LUT_LUT_CAPABILITIES_TYPE := (
+      LUT_SIZE_CONFIG => (others=> 'Z'),
+      LUT_VER         => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : LUT_LUT_CAPABILITIES_TYPE) return std_logic_vector;
+   function to_LUT_LUT_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return LUT_LUT_CAPABILITIES_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Register Name: LUT_CTRL
    ------------------------------------------------------------------------------------------
    type LUT_LUT_CTRL_TYPE is record
@@ -1691,11 +1709,13 @@ package regfile_xgs_athena_pack is
    -- Section Name: LUT
    ------------------------------------------------------------------------------------------
    type LUT_TYPE is record
+      LUT_CAPABILITIES: LUT_LUT_CAPABILITIES_TYPE;
       LUT_CTRL       : LUT_LUT_CTRL_TYPE;
       LUT_RB         : LUT_LUT_RB_TYPE;
    end record LUT_TYPE;
 
    constant INIT_LUT_TYPE : LUT_TYPE := (
+      LUT_CAPABILITIES => INIT_LUT_LUT_CAPABILITIES_TYPE,
       LUT_CTRL        => INIT_LUT_LUT_CTRL_TYPE,
       LUT_RB          => INIT_LUT_LUT_RB_TYPE
    );
@@ -3625,6 +3645,31 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from LUT_LUT_CAPABILITIES_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : LUT_LUT_CAPABILITIES_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.LUT_SIZE_CONFIG;
+      output(3 downto 0) := reg.LUT_VER;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_LUT_LUT_CAPABILITIES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to LUT_LUT_CAPABILITIES_TYPE
+   --------------------------------------------------------------------------------
+   function to_LUT_LUT_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return LUT_LUT_CAPABILITIES_TYPE is
+   variable output : LUT_LUT_CAPABILITIES_TYPE;
+   begin
+      output.LUT_SIZE_CONFIG := stdlv(27 downto 16);
+      output.LUT_VER := stdlv(3 downto 0);
+      return output;
+   end to_LUT_LUT_CAPABILITIES_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from LUT_LUT_CTRL_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : LUT_LUT_CTRL_TYPE) return std_logic_vector is
@@ -3687,11 +3732,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/08/31 09:01:01
+-- Created on          : 2020/09/01 14:59:58
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xF69E93DF
+-- Register file CRC32 : 0x7CBE3186
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3739,8 +3784,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(86 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(85 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(87 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(86 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3829,6 +3874,7 @@ signal rb_DPC_DPC_LIST_DATA1                                       : std_logic_v
 signal rb_DPC_DPC_LIST_DATA2                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_DATA1_RD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_DATA2_RD                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_LUT_LUT_CAPABILITIES                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_CTRL                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_RB                                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_SYSTEM_SCRATCHPAD_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -4103,10 +4149,11 @@ hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else 
 hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
 hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
 hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
-hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CTRL
-hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_RB
+hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
+hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
+hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
 
-hit(86) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(87) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4200,6 +4247,7 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_DPC_DPC_LIST_DATA2,
                             rb_DPC_DPC_LIST_DATA1_RD,
                             rb_DPC_DPC_LIST_DATA2_RD,
+                            rb_LUT_LUT_CAPABILITIES,
                             rb_LUT_LUT_CTRL,
                             rb_LUT_LUT_RB,
                             ext_SYSMONXIL_readData_FF
@@ -4542,12 +4590,16 @@ begin
       when 16#498# =>
          readBackMux <= rb_DPC_DPC_LIST_DATA2_RD;
 
-      -- [0x4b0]: /LUT/LUT_CTRL
+      -- [0x4b0]: /LUT/LUT_CAPABILITIES
       when 16#4B0# =>
+         readBackMux <= rb_LUT_LUT_CAPABILITIES;
+
+      -- [0x4b4]: /LUT/LUT_CTRL
+      when 16#4B4# =>
          readBackMux <= rb_LUT_LUT_CTRL;
 
-      -- [0x4b4]: /LUT/LUT_RB
-      when 16#4B4# =>
+      -- [0x4b8]: /LUT/LUT_RB
+      when 16#4B8# =>
          readBackMux <= rb_LUT_LUT_RB;
 
       -- [0x700:0x7fc] SYSMONXIL external section
@@ -10111,10 +10163,33 @@ rb_DPC_DPC_LIST_DATA2_RD(7 downto 0) <= regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_c
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: LUT_LUT_CTRL
+-- Register name: LUT_LUT_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(84) <= (hit(84)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: LUT_SIZE_CONFIG(11 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_LUT_LUT_CAPABILITIES(27 downto 16) <= regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: LUT_VER(3 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_LUT_LUT_CAPABILITIES(3 downto 0) <= regfile.LUT.LUT_CAPABILITIES.LUT_VER;
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: LUT_LUT_CTRL
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(85) <= (hit(85)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LUT_BYPASS
@@ -10133,7 +10208,7 @@ begin
       if (resetN = '0') then
          field_rw_LUT_LUT_CTRL_LUT_BYPASS <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(28) = '0') then
+         if(wEn(85) = '1' and bitEnN(28) = '0') then
             field_rw_LUT_LUT_CTRL_LUT_BYPASS <= reg_writedata(28);
          end if;
       end if;
@@ -10158,7 +10233,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_DATA_W <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  23 downto 16  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(85) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_DATA_W(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10184,7 +10259,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_SEL <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  15 downto 12  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(85) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_SEL(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -10209,7 +10284,7 @@ begin
       if (resetN = '0') then
          field_rw_LUT_LUT_CTRL_LUT_WRN <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(11) = '0') then
+         if(wEn(85) = '1' and bitEnN(11) = '0') then
             field_rw_LUT_LUT_CTRL_LUT_WRN <= reg_writedata(11);
          end if;
       end if;
@@ -10233,7 +10308,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_LUT_LUT_CTRL_LUT_SS <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(10) = '0') then
+         if(wEn(85) = '1' and bitEnN(10) = '0') then
             field_wautoclr_LUT_LUT_CTRL_LUT_SS <= reg_writedata(10);
          else
             field_wautoclr_LUT_LUT_CTRL_LUT_SS <= '0';
@@ -10260,7 +10335,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_ADD <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(85) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_ADD(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10275,7 +10350,7 @@ end process P_LUT_LUT_CTRL_LUT_ADD;
 -- Register name: LUT_LUT_RB
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(85) <= (hit(85)) and (reg_write);
+wEn(86) <= (hit(86)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LUT_RB
@@ -10314,7 +10389,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(86) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(87) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -10359,7 +10434,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(86) = '1') then
+         if (reg_read = '1' and hit(87) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -10407,7 +10482,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(86)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(87)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

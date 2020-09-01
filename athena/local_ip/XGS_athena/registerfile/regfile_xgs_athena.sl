@@ -615,7 +615,14 @@ Register("dpc_list_data2_rd", 0x498, 4, "");
 %=================================================================
 Section("LUT", 0, 0x4b0);
 
-Register("lut_ctrl", 0x4b0, 4, "null");
+Register("lut_capabilities", 0x4b0, 4, "null");
+		Field("lut_size_config", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Reserved", 0);
+			FieldValue("10 to 8 bits LUT", 1);
+		Field("lut_ver", 3, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Initial monochrone LUT", 0);
+
+Register("lut_ctrl", 0x4b4, 4, "null");
 		Field("lut_bypass", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS");
 		Field("lut_data_w", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT DATA to Write");
 		Field("lut_sel", 15, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT SELection");
@@ -625,7 +632,7 @@ Register("lut_ctrl", 0x4b0, 4, "null");
 		Field("lut_ss", 10, 10, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "LUT SnapShot");
 		Field("lut_add", 9, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
-Register("lut_rb", 0x4b4, 4, "null");
+Register("lut_rb", 0x4b8, 4, "null");
 		Field("lut_rb", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 %=================================================================

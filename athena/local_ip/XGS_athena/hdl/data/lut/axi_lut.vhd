@@ -127,7 +127,7 @@ signal RAM_R_data       : LUT_DATxCH_type;
 
 
 
-type AXI_FSM_TYPE is (S_IDLE, FIRST_PREFETCH, FIRST_TRANSFER, WAIT_SLV_BURST, SLV_BURST, SLV_BURST_END);
+type AXI_FSM_TYPE is (S_IDLE, FIRST_PREFETCH, FIRST_TRANSFER, FIRST_TRANSFER_DONE, WAIT_SLV_BURST, SLV_BURST, SLV_BURST_END);
 signal axi_state : AXI_FSM_TYPE;
 
 signal m_axis_tuser_int  : std_logic_vector(s_axis_tuser'range);
@@ -137,7 +137,8 @@ signal m_axis_tuser_int  : std_logic_vector(s_axis_tuser'range);
 BEGIN
 
 
-
+regfile.LUT.LUT_CAPABILITIES.LUT_VER          <= conv_std_logic_vector(0 , regfile.LUT.LUT_CAPABILITIES.LUT_VER'LENGTH );
+regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG  <= conv_std_logic_vector(1 , regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG'LENGTH );
 
 
 --------------------------------------------------------------------
@@ -202,142 +203,168 @@ end generate;
 --                   s_axis_tdata(39 downto 32) & s_axis_tdata(29 downto 22) & s_axis_tdata(19 downto 12) & s_axis_tdata(9 downto 2);  
 --
 
-RAM_R_enable_ored <= '1' when (RAM_R_enable='1' or (axi_state=SLV_BURST and s_axis_tvalid='1' and RAM_R_enable='0') or (axi_state=WAIT_SLV_BURST and s_axis_tvalid='1') ) else '0';
+RAM_R_enable_ored <= '1' when (regfile.LUT.LUT_CTRL.LUT_BYPASS='0' and (RAM_R_enable='1' or (axi_state=SLV_BURST and s_axis_tvalid='1' and RAM_R_enable='0') or (axi_state=WAIT_SLV_BURST and s_axis_tvalid='1') ) ) else '0';
 
 
-  process (axi_clk) is
-  begin
-    if (rising_edge(axi_clk)) then
-      if (axi_reset_n = '0') then
-        axi_state         <= S_IDLE;
-        s_axis_tready     <= '0';		
-		m_axis_tuser_int  <= (others=>'0');
-		m_axis_tvalid     <= '0';
-  		m_axis_tlast      <= '0';			
-		RAM_R_enable      <= '0'; 
+process (axi_clk) is
+begin
+  if (rising_edge(axi_clk)) then
+    if (axi_reset_n = '0') then
+      axi_state         <= S_IDLE;
+      s_axis_tready     <= '0';
+      m_axis_tuser_int  <= (others=>'0');
+      m_axis_tvalid     <= '0';
+      m_axis_tlast      <= '0';
+      RAM_R_enable      <= '0'; 
 
-      else
-        case axi_state is
+    else
+      case axi_state is
 
-          ---------------------------------------------------------------------
-          -- S_IDLE : 
-          ---------------------------------------------------------------------
-          when S_IDLE =>
-            if (s_axis_tvalid = '1') then
-              axi_state         <= FIRST_PREFETCH;
-              s_axis_tready     <= '1';				
-              m_axis_tuser_int  <= s_axis_tuser;  			  
-			  m_axis_tvalid     <= '0';
-     		  m_axis_tlast      <= '0';						 
-			  RAM_R_enable      <= '1'; 
-            else
-              axi_state         <= S_IDLE;
-              s_axis_tready     <= '0';	
-			  m_axis_tuser_int  <= (others=>'0');
-			  m_axis_tvalid     <= '0';
-  		      m_axis_tlast      <= '0';			
-			  RAM_R_enable      <= '0'; 
-
-            end if;
- 
-          ---------------------------------------------------------------------
-          -- S_PREFETCH : 
-          ---------------------------------------------------------------------
-          when FIRST_PREFETCH =>
-            axi_state         <= FIRST_TRANSFER;
-            s_axis_tready     <= '1';			
-			m_axis_tuser_int      <= m_axis_tuser_int;			
-  		    m_axis_tvalid     <= '1';
-  		    m_axis_tlast      <= '0';			
-			RAM_R_enable      <= '0'; 
-
-          ---------------------------------------------------------------------
-          -- First S_TRANSFER
-          ---------------------------------------------------------------------
-          when FIRST_TRANSFER =>
-            if (m_axis_tready = '1') then
-              axi_state         <= WAIT_SLV_BURST;
-              s_axis_tready     <= '1';					  
-  			  m_axis_tuser_int  <= (others=>'0');			
-   		      m_axis_tvalid     <= '0';
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '0'; 
-            else
-              axi_state         <= FIRST_TRANSFER;
-              s_axis_tready     <= '1';			
-			  m_axis_tuser_int  <= m_axis_tuser_int;			
-  		      m_axis_tvalid     <= '1';
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '0'; 			
-            end if;
-
-          ---------------------------------------------------------------------
-          -- WAIT BURST SLAVE
-          ---------------------------------------------------------------------
-          when WAIT_SLV_BURST =>
-            if (s_axis_tvalid = '1') then
-              axi_state         <= SLV_BURST;
-              s_axis_tready     <= '1';	
-  			  m_axis_tuser_int  <= (others=>'0');			  
-			  m_axis_tvalid     <= '1';  -- la lecture est comb
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '1'; 
-            else
-              axi_state         <= WAIT_SLV_BURST;
-              s_axis_tready     <= '1';				
-  			  m_axis_tuser_int  <= (others=>'0');			  
-   		      m_axis_tvalid     <= '0';
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '0'; 
-            end if;
-
-          ---------------------------------------------------------------------
-          -- SLV_BURST
-          ---------------------------------------------------------------------
-          when SLV_BURST =>
-            
-			if (s_axis_tvalid = '1' and s_axis_tlast='1') then
-              axi_state         <= SLV_BURST_END;
-              s_axis_tready     <= '0';
-  			  m_axis_tuser_int  <= s_axis_tuser;			  
-			  m_axis_tvalid     <= '1';
-			  m_axis_tlast      <= '1';			  
-			  RAM_R_enable      <= '0'; 
-            elsif(s_axis_tvalid = '0') then 
-			  axi_state         <= SLV_BURST;
-              s_axis_tready     <= '1';
-  			  m_axis_tuser_int  <= (others=>'0');			  
-			  m_axis_tvalid     <= '0';
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '0'; 					
-			else			  
-			  axi_state         <= SLV_BURST;
-              s_axis_tready     <= '1';
-  			  m_axis_tuser_int  <= (others=>'0');			  
-			  m_axis_tvalid     <= '1';
-			  m_axis_tlast      <= '0';			  
-			  RAM_R_enable      <= '1'; 
-            end if;
-		  
-          ---------------------------------------------------------------------
-          -- SLV_BURST_END
-          ---------------------------------------------------------------------
-          when SLV_BURST_END =>           
-            axi_state         <= S_IDLE;
+        ---------------------------------------------------------------------
+        -- S_IDLE : 
+        ---------------------------------------------------------------------
+        when S_IDLE =>
+          if (s_axis_tvalid = '1') then
+            axi_state         <= FIRST_PREFETCH;
             s_axis_tready     <= '0';
+            m_axis_tuser_int  <= s_axis_tuser;  
+            m_axis_tvalid     <= '0';
+            m_axis_tlast      <= '0'; 
+            RAM_R_enable      <= '1'; 
+          else
+            axi_state         <= S_IDLE;
+            s_axis_tready     <= '0';	
             m_axis_tuser_int  <= (others=>'0');
-			m_axis_tvalid     <= '0';
-			m_axis_tlast      <= '0';			  
-			RAM_R_enable      <= '0'; 
-	  		    
-        end case;
-      end if;
+            m_axis_tvalid     <= '0';
+            m_axis_tlast      <= '0';
+            RAM_R_enable      <= '0'; 
+          end if;
+
+        ---------------------------------------------------------------------
+        -- S_PREFETCH : 
+        ---------------------------------------------------------------------
+        when FIRST_PREFETCH =>
+          axi_state         <= FIRST_TRANSFER;
+          s_axis_tready     <= '0';
+          m_axis_tuser_int  <= m_axis_tuser_int;
+          m_axis_tvalid     <= '1';
+          m_axis_tlast      <= '0';
+          RAM_R_enable      <= '0'; 
+
+        ---------------------------------------------------------------------
+        -- FIRST_TRANSFER
+        ---------------------------------------------------------------------
+        when FIRST_TRANSFER =>
+          if (m_axis_tready = '1') then
+            axi_state         <= FIRST_TRANSFER_DONE;
+            s_axis_tready     <= '1';  
+            m_axis_tuser_int  <= (others=>'0');
+            m_axis_tvalid     <= '0';
+            m_axis_tlast      <= '0';  
+            RAM_R_enable      <= '0'; 
+          else
+            axi_state         <= FIRST_TRANSFER;
+            s_axis_tready     <= '0';
+            m_axis_tuser_int  <= m_axis_tuser_int;
+            m_axis_tvalid     <= '1';
+            m_axis_tlast      <= '0';			  
+            RAM_R_enable      <= '0'; 			
+          end if;
+
+        ---------------------------------------------------------------------
+        -- FIRST_TRANSFER_DONE
+        ---------------------------------------------------------------------
+        when FIRST_TRANSFER_DONE =>
+          axi_state         <= WAIT_SLV_BURST;
+          s_axis_tready     <= '1';  
+          m_axis_tuser_int  <= (others=>'0');
+          m_axis_tvalid     <= '0';
+          m_axis_tlast      <= '0';  
+          RAM_R_enable      <= '0'; 
+
+        ---------------------------------------------------------------------
+        -- WAIT BURST SLAVE
+        ---------------------------------------------------------------------
+        when WAIT_SLV_BURST =>
+          if (s_axis_tvalid = '1' ) then
+            axi_state         <= SLV_BURST;
+            s_axis_tready     <= '1';	
+            m_axis_tuser_int  <= (others=>'0');			  
+            m_axis_tvalid     <= '1';  -- la lecture est comb
+            m_axis_tlast      <= '0';			  
+            RAM_R_enable      <= '1'; 
+          else
+            axi_state         <= WAIT_SLV_BURST;
+            s_axis_tready     <= '1';				
+            m_axis_tuser_int  <= (others=>'0');			  
+            m_axis_tvalid     <= '0';
+            m_axis_tlast      <= '0';			  
+            RAM_R_enable      <= '0'; 
+          end if;
+
+        ---------------------------------------------------------------------
+        -- SLV_BURST
+        ---------------------------------------------------------------------
+        when SLV_BURST =>
+          
+          if (s_axis_tvalid = '1' and s_axis_tlast='1') then
+            axi_state         <= SLV_BURST_END;
+            s_axis_tready     <= '0';
+            m_axis_tuser_int  <= s_axis_tuser;			  
+            m_axis_tvalid     <= '1';
+            m_axis_tlast      <= '1';			  
+            RAM_R_enable      <= '0'; 
+          elsif(s_axis_tvalid = '0') then 
+            axi_state         <= SLV_BURST;
+            s_axis_tready     <= '1';
+            m_axis_tuser_int  <= (others=>'0');			  
+            m_axis_tvalid     <= '0';
+            m_axis_tlast      <= '0';			  
+            RAM_R_enable      <= '0'; 					
+          else 
+            axi_state         <= SLV_BURST;
+            s_axis_tready     <= '1';
+            m_axis_tuser_int  <= (others=>'0');			  
+            m_axis_tvalid     <= '1';
+            m_axis_tlast      <= '0';			  
+            RAM_R_enable      <= '1'; 
+          end if;
+
+        ---------------------------------------------------------------------
+        -- SLV_BURST_END
+        ---------------------------------------------------------------------
+        when SLV_BURST_END =>           
+          axi_state         <= S_IDLE;
+          s_axis_tready     <= '0';
+          m_axis_tuser_int  <= (others=>'0');
+          m_axis_tvalid     <= '0';
+          m_axis_tlast      <= '0';			  
+          RAM_R_enable      <= '0'; 
+
+      end case;
     end if;
-  end process;
+  end if;
+end process;
 
 
 
 m_axis_tuser    <= m_axis_tuser_int; 
+
+
+
+---------------
+-- Bypass RAM
+---------------
+process (axi_clk) is
+begin
+  if (rising_edge(axi_clk)) then
+    if(regfile.LUT.LUT_CTRL.LUT_BYPASS='1' and (RAM_R_enable='1' or (axi_state=SLV_BURST and s_axis_tvalid='1' and RAM_R_enable='0') or (axi_state=WAIT_SLV_BURST and s_axis_tvalid='1') ) ) then
+      s_axis_tdata_p1 <= s_axis_tdata;
+    end if;
+  end if;	
+end process;
+
+
 
 Gen_mux_data : for ch in 0 to LUT_number-1 generate
   m_axis_tdata( (C_RAM_WIDTH*(ch+1))-1 downto C_RAM_WIDTH*ch)     <=  RAM_R_DATA(ch)  when (regfile.LUT.LUT_CTRL.LUT_BYPASS='0') else  s_axis_tdata_p1( (Input_Pix_type*(ch+1)) -1 downto (Input_Pix_type*ch)+2);
