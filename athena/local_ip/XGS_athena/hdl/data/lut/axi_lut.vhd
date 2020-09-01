@@ -109,6 +109,9 @@ constant Input_Pix_type         : integer := 10;
 
 constant LUT_number             : integer := (s_axis_tdata'high+1)/Input_Pix_type;
 
+
+signal s_axis_tdata_p1  : std_logic_vector(s_axis_tdata'range);
+
 signal RAM_W_enable     : std_logic:='0';                                               -- Write enable
 signal RAM_W_address    : std_logic_vector(C_RAM_DEPTH-1 downto 0);                     -- Write address bus, width determined from RAM_DEPTH
 signal RAM_W_data       : std_logic_vector(C_RAM_WIDTH-1 downto 0);                     -- RAM input data
@@ -117,29 +120,18 @@ signal RAM_W_data       : std_logic_vector(C_RAM_WIDTH-1 downto 0);             
 type LUT_ADDxCH_type is array (0 to LUT_number-1) of std_logic_vector(C_RAM_DEPTH-1 downto 0);
 type LUT_DATxCH_type is array (0 to LUT_number-1) of std_logic_vector(C_RAM_WIDTH-1 downto 0);
 
-signal RAM_R_enable     : std_logic:='0';                                               -- Write enable
+signal RAM_R_enable     : std_logic:='0'; 
+signal RAM_R_enable_ored: std_logic;                                              -- Write enable
 signal RAM_R_address    : LUT_ADDxCH_type;
 signal RAM_R_data       : LUT_DATxCH_type;
 
-signal s_axis_tdata_p1  : std_logic_vector(s_axis_tdata'range);
 
 
+type AXI_FSM_TYPE is (S_IDLE, FIRST_PREFETCH, FIRST_TRANSFER, WAIT_SLV_BURST, SLV_BURST, SLV_BURST_END);
+signal axi_state : AXI_FSM_TYPE;
 
-signal s_axis_tready_int : std_logic;
-
-signal m_axis_tvalid_int : std_logic;
-
-signal m_axis_tdata_int  : std_logic_vector(m_axis_tdata'range);
 signal m_axis_tuser_int  : std_logic_vector(s_axis_tuser'range);
-signal m_axis_tlast_int  : std_logic;
 
-signal axi_pipeline      : std_logic_vector(1 downto 0);
-signal buffer_tdata      : std_logic_vector(m_axis_tdata'range);
-signal buffer_tuser      : std_logic_vector(s_axis_tuser'range);
-signal buffer_tlast      : std_logic;
-
-signal  axis_firstdata_done : std_logic;
-signal  axis_line_done      : std_logic;
 
 
 BEGIN
@@ -159,9 +151,7 @@ BEGIN
 RAM_W_enable             <= '1' when  (regfile.LUT.LUT_CTRL.LUT_SEL(3)='1' and regfile.LUT.LUT_CTRL.LUT_SS='1' and regfile.LUT.LUT_CTRL.LUT_WRN='1') else '0';
 RAM_W_address            <=  regfile.LUT.LUT_CTRL.LUT_ADD;
 RAM_W_data               <=  regfile.LUT.LUT_CTRL.LUT_DATA_W; --LUT is only 8 bits! (driver is program MSB bits when LUT 8 bits)
-
-RAM_R_enable             <= s_axis_tvalid and not(regfile.LUT.LUT_CTRL.LUT_BYPASS);  --to save power if bypass
-                            
+                         
                             
 --Readback of LUT not supported to remove logic, see LUT_WRN in condition for the enable.
 regfile.LUT.LUT_RB.LUT_RB  <= (others=>'0'); 
@@ -189,7 +179,7 @@ begin
            RAM_W_dataR      =>  open,                          -- RAM read data
 
            RAM_R_clk        =>  axi_clk,
-           RAM_R_enable     =>  RAM_R_enable,                  -- Read enable
+           RAM_R_enable     =>  RAM_R_enable_ored,             -- Read enable
            RAM_R_address    =>  RAM_R_address(ch),             -- Read address bus, width determined from RAM_DEPTH
            RAM_R_data       =>  RAM_R_DATA(ch)                 -- RAM output data
         );
@@ -197,153 +187,164 @@ begin
 end generate;
 
 
---------------------------------------
-----   AXI SLAVE OUTPUT
---------------------------------------
---s_axis_tready <= m_axis_tready;
---
---
---
---------------------------------------
-----   AXI MASTER OUTPUTS
---------------------------------------
---process(axi_clk)
---begin      
---  if (axi_clk'event and axi_clk='1') then
---    if(axi_reset_n='0') then
---      m_axis_tvalid     <='0';
---	  m_axis_tuser      <=(others=>'0');
---	  m_axis_tlast      <='0';
---    else
---	  
---	  m_axis_tvalid   <= s_axis_tvalid; 
---	  
---	  if(s_axis_tvalid='1') then      
---		s_axis_tdata_p1 <= s_axis_tdata;			          
---        m_axis_tuser    <= s_axis_tuser;            
---        m_axis_tlast    <= s_axis_tlast;
---      end if;		
---    end if;
---  end if;  
---end process;
---  
---
---Gen_mux_data : for ch in 0 to LUT_number-1 generate
---  m_axis_tdata( (C_RAM_WIDTH*(ch+1))-1 downto C_RAM_WIDTH*ch)     <=  RAM_R_DATA(ch)  when (regfile.LUT.LUT_CTRL.LUT_BYPASS='0') else  s_axis_tdata_p1( (Input_Pix_type*(ch+1)) -1 downto (Input_Pix_type*ch)+2);
---end generate;
 
-
-
-
-
-
-
---process(axi_clk)
---begin
---
---
---  if (axi_clk'event and axi_clk='1') then
---
---    if (axi_reset_n='0') then
---      s_axis_tready_int <='0';                   --jmansill
---	  m_axis_tvalid_int <='0';
---      m_axis_tuser_int  <= (others=>'0');
---      m_axis_tlast_int  <='0';
---	  
---	  axis_firstdata_done <='0';
---	  axis_line_done      <='1';
---    else
---      if(axis_line_done='0' and m_axis_tvalid_int='1' and m_axis_tready='0') then
---        m_axis_tdata_int <= m_axis_tdata_int;
---        m_axis_tuser_int <= m_axis_tuser_int;
---        m_axis_tlast_int <= m_axis_tlast_int;
---      elsif(axis_line_done='0' and axis_firstdata_done='1' and s_axis_tready_int ='0') then
---        m_axis_tdata_int <= buffer_tdata;
---        m_axis_tuser_int <= buffer_tuser;
---        m_axis_tlast_int <= buffer_tlast;
---      else  
---        m_axis_tdata_int <= s_axis_tdata(79 downto 72) & s_axis_tdata(69 downto 62) & s_axis_tdata(59 downto 52) & s_axis_tdata(49 downto 42) &
---                            s_axis_tdata(39 downto 32) & s_axis_tdata(29 downto 22) & s_axis_tdata(19 downto 12) & s_axis_tdata(9 downto 2);
---        m_axis_tuser_int <= s_axis_tuser;
---        m_axis_tlast_int <= s_axis_tlast;
---      end if;    
---	  
---	  if(axis_firstdata_done='0' and m_axis_tvalid_int='1' and m_axis_tready='1') or (axis_firstdata_done='0' and s_axis_tvalid='1' and s_axis_tready_int='1') then
---	    m_axis_tvalid_int <= '0';
---	  elsif((m_axis_tvalid_int='1' and m_axis_tready='0' ) or  (s_axis_tvalid='1') )then 
---        m_axis_tvalid_int <= '1';
---      else
---        m_axis_tvalid_int <= '0';
---	  end if;
---	    
---	  if(s_axis_tvalid='1' and s_axis_tready_int='1'and s_axis_tlast='1') or (m_axis_tvalid_int='1' and m_axis_tready='1'and m_axis_tlast_int='1')then
---	    s_axis_tready_int <=   '0';
---	  elsif( m_axis_tready='1' or (s_axis_tready_int='1' and s_axis_tvalid='0') ) then 
---	    s_axis_tready_int <=   '1'; 
---	  else
---	    s_axis_tready_int <= s_axis_tready_int;
---	  end if;
---     
---	  if(s_axis_tvalid='1' and s_axis_tready_int='1')then
---	    axis_firstdata_done <= '1';
---	  elsif(m_axis_tvalid_int='1' and m_axis_tready='1'and m_axis_tlast_int='1') then
---	    axis_firstdata_done <= '0';
---      end if;	  
---	 
---	  if(m_axis_tvalid_int='1' and m_axis_tready='1'and m_axis_tlast_int='1')then
---	    axis_line_done <=   '1';
---	  elsif(s_axis_tvalid='1') then
---        axis_line_done <= '0';
---      end if;		
---
---
---    end if;
---	
---    if(s_axis_tready_int ='0' and m_axis_tready='0') then
---      buffer_tdata <= buffer_tdata;
---      buffer_tuser <= buffer_tuser;
---      buffer_tlast <= buffer_tlast;	  
---    else
---      buffer_tdata <= s_axis_tdata(79 downto 72) & s_axis_tdata(69 downto 62) & s_axis_tdata(59 downto 52) & s_axis_tdata(49 downto 42) &
---                      s_axis_tdata(39 downto 32) & s_axis_tdata(29 downto 22) & s_axis_tdata(19 downto 12) & s_axis_tdata(9 downto 2);
---      buffer_tuser <= s_axis_tuser;
---      buffer_tlast <= s_axis_tlast;	  
---    end if;
---  
---
---  end if;
---end process;
---
---
----- Internal signals to output
---s_axis_tready <= s_axis_tready_int;
---
---m_axis_tvalid <= m_axis_tvalid_int;
---m_axis_tdata  <= m_axis_tdata_int;
---m_axis_tuser  <= m_axis_tuser_int;
---m_axis_tlast  <= m_axis_tlast_int;
---
---
---axi_pipeline(0) <= s_axis_tready_int and m_axis_tvalid_int;
---axi_pipeline(1) <= not(s_axis_tready_int);
---
 
 
 
 ---------------------
 -- BYPASS
 ---------------------
-s_axis_tready   <= m_axis_tready;
-m_axis_tvalid   <= s_axis_tvalid; 
-m_axis_tuser    <= s_axis_tuser; 
-m_axis_tlast    <= s_axis_tlast;  
-m_axis_tdata    <= s_axis_tdata(79 downto 72) & s_axis_tdata(69 downto 62) & s_axis_tdata(59 downto 52) & s_axis_tdata(49 downto 42) &
-                   s_axis_tdata(39 downto 32) & s_axis_tdata(29 downto 22) & s_axis_tdata(19 downto 12) & s_axis_tdata(9 downto 2);  
+--s_axis_tready   <= m_axis_tready;
+--m_axis_tvalid   <= s_axis_tvalid; 
+--m_axis_tuser    <= s_axis_tuser; 
+--m_axis_tlast    <= s_axis_tlast;  
+--m_axis_tdata    <= s_axis_tdata(79 downto 72) & s_axis_tdata(69 downto 62) & s_axis_tdata(59 downto 52) & s_axis_tdata(49 downto 42) &
+--                   s_axis_tdata(39 downto 32) & s_axis_tdata(29 downto 22) & s_axis_tdata(19 downto 12) & s_axis_tdata(9 downto 2);  
+--
+
+RAM_R_enable_ored <= '1' when (RAM_R_enable='1' or (axi_state=SLV_BURST and s_axis_tvalid='1' and RAM_R_enable='0') or (axi_state=WAIT_SLV_BURST and s_axis_tvalid='1') ) else '0';
+
+
+  process (axi_clk) is
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0') then
+        axi_state         <= S_IDLE;
+        s_axis_tready     <= '0';		
+		m_axis_tuser_int  <= (others=>'0');
+		m_axis_tvalid     <= '0';
+  		m_axis_tlast      <= '0';			
+		RAM_R_enable      <= '0'; 
+
+      else
+        case axi_state is
+
+          ---------------------------------------------------------------------
+          -- S_IDLE : 
+          ---------------------------------------------------------------------
+          when S_IDLE =>
+            if (s_axis_tvalid = '1') then
+              axi_state         <= FIRST_PREFETCH;
+              s_axis_tready     <= '1';				
+              m_axis_tuser_int  <= s_axis_tuser;  			  
+			  m_axis_tvalid     <= '0';
+     		  m_axis_tlast      <= '0';						 
+			  RAM_R_enable      <= '1'; 
+            else
+              axi_state         <= S_IDLE;
+              s_axis_tready     <= '0';	
+			  m_axis_tuser_int  <= (others=>'0');
+			  m_axis_tvalid     <= '0';
+  		      m_axis_tlast      <= '0';			
+			  RAM_R_enable      <= '0'; 
+
+            end if;
+ 
+          ---------------------------------------------------------------------
+          -- S_PREFETCH : 
+          ---------------------------------------------------------------------
+          when FIRST_PREFETCH =>
+            axi_state         <= FIRST_TRANSFER;
+            s_axis_tready     <= '1';			
+			m_axis_tuser_int      <= m_axis_tuser_int;			
+  		    m_axis_tvalid     <= '1';
+  		    m_axis_tlast      <= '0';			
+			RAM_R_enable      <= '0'; 
+
+          ---------------------------------------------------------------------
+          -- First S_TRANSFER
+          ---------------------------------------------------------------------
+          when FIRST_TRANSFER =>
+            if (m_axis_tready = '1') then
+              axi_state         <= WAIT_SLV_BURST;
+              s_axis_tready     <= '1';					  
+  			  m_axis_tuser_int  <= (others=>'0');			
+   		      m_axis_tvalid     <= '0';
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '0'; 
+            else
+              axi_state         <= FIRST_TRANSFER;
+              s_axis_tready     <= '1';			
+			  m_axis_tuser_int  <= m_axis_tuser_int;			
+  		      m_axis_tvalid     <= '1';
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '0'; 			
+            end if;
+
+          ---------------------------------------------------------------------
+          -- WAIT BURST SLAVE
+          ---------------------------------------------------------------------
+          when WAIT_SLV_BURST =>
+            if (s_axis_tvalid = '1') then
+              axi_state         <= SLV_BURST;
+              s_axis_tready     <= '1';	
+  			  m_axis_tuser_int  <= (others=>'0');			  
+			  m_axis_tvalid     <= '1';  -- la lecture est comb
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '1'; 
+            else
+              axi_state         <= WAIT_SLV_BURST;
+              s_axis_tready     <= '1';				
+  			  m_axis_tuser_int  <= (others=>'0');			  
+   		      m_axis_tvalid     <= '0';
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '0'; 
+            end if;
+
+          ---------------------------------------------------------------------
+          -- SLV_BURST
+          ---------------------------------------------------------------------
+          when SLV_BURST =>
+            
+			if (s_axis_tvalid = '1' and s_axis_tlast='1') then
+              axi_state         <= SLV_BURST_END;
+              s_axis_tready     <= '0';
+  			  m_axis_tuser_int  <= s_axis_tuser;			  
+			  m_axis_tvalid     <= '1';
+			  m_axis_tlast      <= '1';			  
+			  RAM_R_enable      <= '0'; 
+            elsif(s_axis_tvalid = '0') then 
+			  axi_state         <= SLV_BURST;
+              s_axis_tready     <= '1';
+  			  m_axis_tuser_int  <= (others=>'0');			  
+			  m_axis_tvalid     <= '0';
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '0'; 					
+			else			  
+			  axi_state         <= SLV_BURST;
+              s_axis_tready     <= '1';
+  			  m_axis_tuser_int  <= (others=>'0');			  
+			  m_axis_tvalid     <= '1';
+			  m_axis_tlast      <= '0';			  
+			  RAM_R_enable      <= '1'; 
+            end if;
+		  
+          ---------------------------------------------------------------------
+          -- SLV_BURST_END
+          ---------------------------------------------------------------------
+          when SLV_BURST_END =>           
+            axi_state         <= S_IDLE;
+            s_axis_tready     <= '0';
+            m_axis_tuser_int  <= (others=>'0');
+			m_axis_tvalid     <= '0';
+			m_axis_tlast      <= '0';			  
+			RAM_R_enable      <= '0'; 
+	  		    
+        end case;
+      end if;
+    end if;
+  end process;
 
 
 
---https://www.itdev.co.uk/blog/pipelining-axi-buses-registered-ready-signals
---https://github.com/alexforencich/verilog-axis/blob/master/rtl/axis_register.v
+m_axis_tuser    <= m_axis_tuser_int; 
+
+Gen_mux_data : for ch in 0 to LUT_number-1 generate
+  m_axis_tdata( (C_RAM_WIDTH*(ch+1))-1 downto C_RAM_WIDTH*ch)     <=  RAM_R_DATA(ch)  when (regfile.LUT.LUT_CTRL.LUT_BYPASS='0') else  s_axis_tdata_p1( (Input_Pix_type*(ch+1)) -1 downto (Input_Pix_type*ch)+2);
+end generate;
+
+
+
 
 
 End functional;

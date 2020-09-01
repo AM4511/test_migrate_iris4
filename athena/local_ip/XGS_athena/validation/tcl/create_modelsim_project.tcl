@@ -68,6 +68,7 @@ ${CTRL_SRC_PATH}/xgs_spi.vhd \
 ${CTRL_SRC_PATH}/xgs_ctrl.vhd \
 ${CTRL_SRC_PATH}/XGS_controller_top.vhd \
 ${DATA_SRC_PATH}/hispi_pack.vhd \
+${DATA_SRC_PATH}/hispi_crc.vhd \
 ${DATA_SRC_PATH}/bit_split.vhd \
 ${DATA_SRC_PATH}/tap_controller.vhd \
 ${DATA_SRC_PATH}/lane_decoder.vhd \

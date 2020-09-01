@@ -521,7 +521,7 @@ module testbench();
 	reg        tready_cntr_en;
 	reg [15:0] tready_cntr;
   
-	reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg [15:0] tready_packet_delai   = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
 	reg        tready_packet_cntr_en;
 	reg [15:0] tready_packet_cntr;
   
@@ -1044,6 +1044,7 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
 				///////////////////////////////////////////////////
+                tready_packet_delai = 12;
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1059,11 +1060,9 @@ module testbench();
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
-				///////////////////////////////////////////////////
+				///////////////////////////////////////////////////	
 				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				
-			
+				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!					
 				ROI_Y_START = 0;         // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1081,10 +1080,16 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
-				while (dma_irq_cntr != test_nb_images) begin
+				while (dma_irq_cntr != 1) begin
 					#1us;
 				end
 				
+				// Changeons le backpressure apres la premiere image
+				tready_packet_delai = 16;
+				while (dma_irq_cntr != test_nb_images) begin
+					#1us;
+				end
+
 				
 				// Terminate the simulation
 				///////////////////////////////////////////////////
