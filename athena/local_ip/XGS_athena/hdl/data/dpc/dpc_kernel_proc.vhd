@@ -67,6 +67,7 @@ entity dpc_kernel_proc is
     REG_dpc_pattern0_cfg                 : in    std_logic:='0';
  
     dpc_fifo_reset                       : in    std_logic;
+	dpc_fifo_reset_done                  : out   std_logic;
     dpc_fifo_data_in                     : in    std_logic_vector(32 downto 0);
     dpc_fifo_write_in                    : in    std_logic;
     dpc_fifo_list_rdy                    : in    std_logic; --write logic has finish write to fifo, we can start prefetch
@@ -132,6 +133,8 @@ architecture functional of dpc_kernel_proc is
   signal dpc_fifo_dout   : std_logic_vector(32 downto 0); 
   signal dpc_fifo_full   : std_logic;
   signal dpc_fifo_empty  : std_logic; 
+  signal dpc_rst_busy    : std_logic; 
+  signal dpc_rst_busy_P1 : std_logic:='0'; 
   
   signal deadpix_exist   : std_logic:= '0';
   
@@ -287,7 +290,7 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
       wr_data_count => open,              -- WR_DATA_COUNT_WIDTH-bit output: Write Data Count: This bus indicates
                                           -- the number of words written into the FIFO.
 									      
-      wr_rst_busy   => open,              -- 1-bit output: Write Reset Busy: Active-High indicator that the FIFO write domain is currently in a reset state.
+      wr_rst_busy   => dpc_rst_busy,      -- 1-bit output: Write Reset Busy: Active-High indicator that the FIFO write domain is currently in a reset state.
 									      
       din           => dpc_fifo_data_in,  -- WRITE_DATA_WIDTH-bit input: Write Data: The input data bus used when writing the FIFO.
 									      
@@ -313,7 +316,19 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
 
    );  
 
- 
+  
+  process(pix_clk)
+  begin
+    if (pix_clk'event and pix_clk='1') then
+	dpc_rst_busy_P1 <= dpc_rst_busy;
+      if(dpc_rst_busy='0' and dpc_rst_busy_P1='1') then
+        dpc_fifo_reset_done <= '1';
+	  else	
+	    dpc_fifo_reset_done <= '0';
+	  end if;
+	end if;
+  end process;
+  
   
   dpc_fifo_rd_en <= '1' when (dpc_fifo_empty='0' and ( dpc_fifo_list_rdy='1' or (proc_enable='1' and proc_X_pix_curr = proc_nxt_X_pix_corr and proc_Y_pix_curr = proc_nxt_Y_pix_corr))  )  else  '0';
    

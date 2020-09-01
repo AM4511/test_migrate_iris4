@@ -89,6 +89,11 @@ module testbench();
     parameter DPC_LIST_DATA1_RD            = 16'h494;    
     parameter DPC_LIST_DATA2_RD            = 16'h498;     
 
+    // LUT
+    parameter LUT_CAPABILITIES             = 16'h4B0;
+	parameter LUT_CTRL                     = 16'h4B4;
+	parameter LUT_RB                       = 16'h4B8;
+
 	// I2C
 	parameter I2C_ID_OFFSET                = 32'h00010000;	
 	parameter I2C_CTRL0_OFFSET             = 32'h00010008;	
@@ -521,7 +526,7 @@ module testbench();
 	reg        tready_cntr_en;
 	reg [15:0] tready_cntr;
   
-	reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg [15:0] tready_packet_delai   = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
 	reg        tready_packet_cntr_en;
 	reg [15:0] tready_packet_cntr;
   
@@ -1028,15 +1033,21 @@ module testbench();
 				end
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<13) +  i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<14) + (1<<13) +  i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
-
+                 
+				// Sigle pixel correction (bypassed) 
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + 0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
+	            //host.write(DPC_LIST_DATA1, (2<<16)+2);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            //host.write(DPC_LIST_DATA2,  85);                             // DPC_LIST_CORR_PATTERN = 0;
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + 0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<13) +  0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<14) + (1<<13) +  0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
 	            
-
-
 
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
 				///////////////////////////////////////////////////
+                tready_packet_delai = 0;
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1052,11 +1063,9 @@ module testbench();
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
-				///////////////////////////////////////////////////
+				///////////////////////////////////////////////////	
 				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				
-			
+				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!					
 				ROI_Y_START = 0;         // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1074,10 +1083,17 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
-				while (dma_irq_cntr != test_nb_images) begin
+				while (dma_irq_cntr != 1) begin
 					#1us;
 				end
 				
+				// Changeons le backpressure apres la premiere image
+				tready_packet_delai = 27; //ok
+				//tready_packet_delai = 28; //overrun				
+				while (dma_irq_cntr != test_nb_images) begin
+					#1us;
+				end
+
 				
 				// Terminate the simulation
 				///////////////////////////////////////////////////

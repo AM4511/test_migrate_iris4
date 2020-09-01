@@ -53,6 +53,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 Overrun      = 0;
 	M_UINT32 OverrunPixel = 0;
 
+	M_UINT32 LUT_PATTERN = 0;
+
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0000.cpp    *\n"); 
 	printf(    "********************************\n\n");
@@ -131,6 +133,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 
+	//Transparent LUTs
+	XGS_Data->ProgramLUT(LUT_PATTERN); 
 
 	printf("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
@@ -223,6 +227,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (S) Subsampling mode");
 	printf("\n  (D) Disable Image Display transfer (Max fps)");
 	printf("\n  (T) Fpga Monitor(Temp and Supplies)");
+	printf("\n  (l) Program LUT");
 	printf("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -231,6 +236,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For debug DMA overrun with any 12Mpix sensor
 	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
 	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);    // 0x10c00080;
+
 
 	//---------------------
 	// Give SPI control to FPGA
@@ -484,9 +490,16 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->FPGASystemMon();
 				break;
 
+			case 'l':	
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				LUT_PATTERN++;
+				if (LUT_PATTERN == 3) LUT_PATTERN = 0;
+				XGS_Data->ProgramLUT(LUT_PATTERN);
+
+				break;
+
 			}
-
-
 
 		}
 

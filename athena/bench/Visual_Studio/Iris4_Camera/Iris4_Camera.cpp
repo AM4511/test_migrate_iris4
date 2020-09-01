@@ -332,6 +332,16 @@ int main(void)
 				XGS_Data->HiSpiCalibrate();
 				break;
             
+			case '#':
+				for (int i= 0; i < 1000000; i++)
+				{
+					XGS_Data->HiSpiCalibrate();	
+					printf("%d\n", i);
+				}
+				break;
+
+
+
 			case 's':
 				Pcie->Read_QSPI_ID();
 				for(int i=0; i<16; i++)
