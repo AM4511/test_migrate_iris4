@@ -206,26 +206,75 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//--------------------------------------
 	printf("DPC module version is %d, Maximum pixels corrections is %d (ONE-Based) \n", XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_VER, XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH);
 	
-	// Ligne oblique blanche a partir du coin haut droite de 511 pixels
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 0;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG       = 1;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
+	//-----------------------------------------------------------------
+    // Ligne oblique blanche a partir du coin haut droite de 511 pixels
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 0;
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG       = 1;
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN           = 1;  //replace pixel by 0xff
+	//
+	//for (M_UINT32 i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
+	//{
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = i;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 1;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 0;
+	//
+	//}
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH;
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE     = 1;
 
-	for (M_UINT32 i = 0; i < XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH; i++)
-	{
-		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
-		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;
-		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = i;
+	//-----------------------------------------------------------------
+	// Ligne oblique blanche de 100 pixels a partir des 4 coins 
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE       = 0;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_PATTERN0_CFG = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN     = 1;  //replace pixel by 0xff
+	int j = 0;
+	for (M_UINT32 i = 0; i < 200; i=i+2)
+	{   
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = j;
 		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
-		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 1;
-		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
 
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = i+1;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = (SensorParams->Xsize_Full-1)-j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+		j++;
 	}
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = XGS_Data->rXGSptr.DPC.DPC_CAPABILITIES.f.DPC_LIST_LENGTH;
-	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE     = 1;
+	j = 0;
+	for (M_UINT32 i = 200; i < 400; i = i + 2)
+	{
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = i;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 100-j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = (SensorParams->Ysize_Full-1-100) + j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = i + 1;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = (SensorParams->Xsize_Full-1-100)+j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = (SensorParams->Ysize_Full-1-100)+j;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0;
+		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+		j++;
+	}
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT         = 400;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 1;
 
 
-
+	//-----------------------------------------------------------------
+	// Correct one single pixel
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD           = 0;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X       = 3899;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y       = 3641;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 85;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS            = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT         = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE             = 1;
 
 
 

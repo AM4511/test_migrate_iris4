@@ -138,7 +138,8 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 	} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0)
+
+	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR==1 ||  rXGSptr.HISPI.STATUS.f.CRC_ERROR==1)
 	{
 		printf("Calibration ERROR\n");
 		printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
@@ -156,7 +157,7 @@ void CXGS_Data::HiSpiCalibrate(void)
 	}
 
 	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
-		printf("Calibration OK\n");
+		printf("Calibration OK ");
 		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 		rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
 	}
@@ -268,6 +269,8 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if ( (Register & 0x00000002) == 0x002)  { printf("\nHISPI_STATUS, CALIBRATION ERROR");    error_detect = 1; }
 	if ( (Register & 0x00000004) == 0x004)  { printf("\nHISPI_STATUS, FIFO ERROR");			  error_detect = 1; }
 	if ( (Register & 0x00000008) == 0x008)  { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
+	if ( (Register & 0x00000010) == 0x010)  { printf("\nHISPI_STATUS, CRC_ERROR");   error_detect = 1; }
+
 
 	for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
 	{
@@ -278,6 +281,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		if ( (Register & 0x00000008)  == 0x008)  { printf("\nLANE_DECODER_STATUS_[%d], CALIBRATION_ERROR", i);		error_detect = 1; } 
 		if ( (Register & 0x00002000)  == 0x2000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_BIT_LOCKED_ERROR", i);	error_detect = 1; }
 		if ( (Register & 0x00004000)  == 0x4000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_SYNC_ERROR", i);			error_detect = 1; }
+		if ( (Register & 0x00008000)  == 0x8000) { printf("\nLANE_DECODER_STATUS_[%d], CRC_ERROR", i);			    error_detect = 1; }
 	}
 
 	for (M_UINT32 i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
@@ -294,18 +298,18 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 
 		Reg_HISPI_CTRL = rXGSptr.HISPI.CTRL.u32;
 		printf("HISPI CTRL         : 0x%X\n",   Reg_HISPI_CTRL);
-		printf("HISPI STATUS       : 0x%X\n\n", Reg_HISPI_STATUS);
-
+		printf("HISPI STATUS       : 0x%X\n",   Reg_HISPI_STATUS);
 		printf("HISPI DEC0_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[0]);
 		printf("HISPI DEC1_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[1]);
 		printf("HISPI DEC2_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[2]);
 		printf("HISPI DEC3_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[3]);
 		printf("HISPI DEC4_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[4]);
-		printf("HISPI DEC5_STATUS  : 0x%X\n\n", Reg_HISPI_DEC_STATUS[5]);
-
+		printf("HISPI DEC5_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[5]);
 		printf("HISPI PACK0_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[0]);
 		printf("HISPI PACK1_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[1]);
-		printf("HISPI PACK2_STATUS : 0x%X\n\n", Reg_HISPI_PACK_STATUS[2]);
+		printf("HISPI PACK2_STATUS : 0x%X\n", Reg_HISPI_PACK_STATUS[2]);
+		for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
+			printf("TAP_HISTOGRAM_%d : 0x%X\n", i, rXGSptr.HISPI.TAP_HISTOGRAM[i].u32);
 
 		printf("\nPress 'c' to continue without recover HI_SPI\n");
 		printf("Press 'r' to try to recover HI_SPI and continue this test\n");
@@ -334,4 +338,55 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	}
 
 	return Stop_test;
+}
+
+
+//---------------------------------------------------------------------------------------
+//
+// Program LUTs
+//
+//---------------------------------------------------------------------------------------
+void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1; // bypass
+	rXGSptr.LUT.LUT_CTRL.f.LUT_SEL    = 8; // All LUT
+	rXGSptr.LUT.LUT_CTRL.f.LUT_WRN    = 1; // WRITE LUT
+	
+	//Transparent 10 a 8 (Compression 10 a 8) 
+	if (LUT_TYPE == 0) { 
+		printf("\nLUT is now 10 to 8 bits Compression (Transparent)\n");
+		for (int i = 0; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i>>2;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+	}
+	//Inverted 10 a 8 (8 MSB) 
+	else if (LUT_TYPE == 1) {
+		printf("\nLUT is now 10 to 8 bits Compression (Inverted)\n");
+		for (int i = 0; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = 255-(i >> 2);
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS = 1;
+		}
+	}
+	//Transparent 10 a 8 (8 LSB  of 10 bits) 
+	else if (LUT_TYPE == 2) {
+		printf("\nLUT is now 10 to 8 bits, 8LSB bits of 10 bits\n");
+		for (int i = 0; i < 256; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i ;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+		for (int i = 256; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = 0xff;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+
+	}
+
+
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 0;
+
 }
