@@ -124,15 +124,18 @@ architecture rtl of hispi_phy is
       hclk           : in std_logic;
       hclk_reset     : in std_logic;
       hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+      hclk_tap_cntr  : in unsigned(4 downto 0);
 
-
-      -- calibration
-      pclk               : in  std_logic;
-      pclk_cal_en        : in  std_logic;
-      pclk_cal_busy      : out std_logic;
-      pclk_cal_load_tap  : out std_logic;
-      pclk_cal_tap_value : out std_logic_vector(4 downto 0);
-
+      ---------------------------------------------------------------------------
+      -- Lane calibration
+      ---------------------------------------------------------------------------
+      pclk                   : in  std_logic;
+      pclk_cal_en            : in  std_logic;
+      pclk_cal_start_monitor : in  std_logic;
+      pclk_cal_monitor_done  : out std_logic;
+      pclk_cal_busy          : out std_logic;
+      pclk_cal_tap_value     : out std_logic_vector(4 downto 0);
+      pclk_tap_histogram     : out std_logic_vector(31 downto 0);
 
       ---------------------------------------------------------------------------
       -- Registerfile  clock domain
@@ -146,7 +149,6 @@ architecture rtl of hispi_phy is
       ---------------------------------------------------------------------------
       sclk       : in std_logic;
       sclk_reset : in std_logic;
-
 
       -- Read fifo interface
       sclk_fifo_read_en         : in  std_logic;
@@ -200,18 +202,18 @@ architecture rtl of hispi_phy is
   constant LANE_DATA_WIDTH    : integer := 32;
   constant RESET_LENGTH       : integer := 8;
 
-  type FSM_STATE_TYPE is (S_IDLE, S_INIT, S_CALIBRATE, S_LOAD_DELAY, S_DONE);
+  type FSM_STATE_TYPE is (S_IDLE, S_INIT, S_LOAD_TAP_CNTR, S_RESET_PIX_CNTR, S_MONITOR, S_INCR_TAP_CNTR, S_WAIT_RESULT, S_LOAD_RESULT, S_DONE);
 
   type SHIFT_REG_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (HISPI_SHIFT_REGISTER_SIZE - 1 downto 0);
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
 
-  signal bitslip                      : std_logic_vector(LANE_PER_PHY-1 downto 0) := (others => '0');
+  signal bitslip                      : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
   signal hclk                         : std_logic;
-  signal hclk_div2                    : std_logic                                 := '0';
+  signal hclk_div2                    : std_logic                                     := '0';
   signal hclk_reset_vect              : std_logic_vector(2 downto 0);
-  signal hclk_reset                   : std_logic                                 := '1';
-  signal hclk_state                   : FSM_STATE_TYPE                            := S_IDLE;
+  signal hclk_reset                   : std_logic                                     := '1';
+  signal hclk_state                   : FSM_STATE_TYPE                                := S_IDLE;
   signal hclk_start_calibration       : std_logic;
   signal hclk_calibration_done        : std_logic;
   signal hclk_serdes_data             : std_logic_vector(PHY_PARALLEL_WIDTH - 1 downto 0);
@@ -220,23 +222,28 @@ architecture rtl of hispi_phy is
   signal hclk_manual_calibration_load : std_logic;
   signal hclk_lane_enabled            : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal hclk_lane_reset              : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal hclk_tap_cntr                : unsigned(4 downto 0)                          := (others => '0');
+  signal hclk_cal_start_monitor_pulse : unsigned(2 downto 0);
+  signal hclk_delay_reset             : std_logic                                     := '0';
+  signal hclk_delay_tap_in            : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
+  signal hclk_delay_tap_out           : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal hclk_delay_data_ce           : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
+  signal hclk_delay_data_inc          : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
+  signal hclk_latch_cal_status        : std_logic;
 
-  signal delay_reset    : std_logic                                     := '0';
-  signal delay_tap_in   : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
-  signal delay_tap_out  : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
-  signal delay_data_ce  : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
-  signal delay_data_inc : std_logic_vector(LANE_PER_PHY-1 downto 0)     := (others => '0');
-
-  signal pclk               : std_logic;
-  signal pclk_cal_en        : std_logic;
-  signal pclk_cal_busy      : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal pclk_cal_load_tap  : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal pclk_cal_tap_value : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal pclk                   : std_logic;
+  signal pclk_cal_en            : std_logic;
+  signal pclk_cal_start_monitor : std_logic;
+  signal pclk_cal_monitor_done  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal pclk_cal_busy          : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal pclk_cal_tap_value     : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal pclk_tap_histogram     : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal rclk_latch_cal_status       : std_logic;
   signal rclk_manual_calibration_tap : std_logic_vector((5*LANE_PER_PHY)-1 downto 0) := (others => '0');
   signal rclk_cal_tap_value          : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
   signal rclk_nb_lanes               : std_logic_vector(2 downto 0);
+  signal rclk_tap_histogram          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
   attribute mark_debug of hclk_reset_vect              : signal is "true";
@@ -248,15 +255,15 @@ architecture rtl of hispi_phy is
 
   attribute mark_debug of pclk_cal_en        : signal is "true";
   attribute mark_debug of pclk_cal_busy      : signal is "true";
-  attribute mark_debug of pclk_cal_load_tap  : signal is "true";
+--  attribute mark_debug of pclk_cal_load_tap  : signal is "true";
   attribute mark_debug of pclk_cal_tap_value : signal is "true";
 
   attribute mark_debug of rclk_latch_cal_status : signal is "true";
-  attribute mark_debug of delay_reset           : signal is "true";
-  attribute mark_debug of delay_tap_in          : signal is "true";
-  attribute mark_debug of delay_tap_out         : signal is "true";
-  attribute mark_debug of delay_data_ce         : signal is "true";
-  attribute mark_debug of delay_data_inc        : signal is "true";
+  attribute mark_debug of hclk_delay_reset      : signal is "true";
+  attribute mark_debug of hclk_delay_tap_in     : signal is "true";
+  attribute mark_debug of hclk_delay_tap_out    : signal is "true";
+  attribute mark_debug of hclk_delay_data_ce    : signal is "true";
+  attribute mark_debug of hclk_delay_data_inc   : signal is "true";
 
 
 begin
@@ -288,11 +295,11 @@ begin
       data_in_from_pins_p => hispi_serial_input_p,
       data_in_from_pins_n => hispi_serial_input_n,
       data_in_to_device   => hclk_serdes_data,
-      in_delay_reset      => delay_reset,
-      in_delay_data_ce    => delay_data_ce,
-      in_delay_data_inc   => delay_data_inc,
-      in_delay_tap_in     => delay_tap_in,
-      in_delay_tap_out    => delay_tap_out,
+      in_delay_reset      => hclk_delay_reset,
+      in_delay_data_ce    => hclk_delay_data_ce,
+      in_delay_data_inc   => hclk_delay_data_inc,
+      in_delay_tap_in     => hclk_delay_tap_in,
+      in_delay_tap_out    => hclk_delay_tap_out,
       bitslip             => bitslip,
       clk_in_p            => hispi_serial_clk_p,
       clk_in_n            => hispi_serial_clk_n,
@@ -336,18 +343,21 @@ begin
       if (hclk_reset = '1') then
         hclk_lane_enabled <= (others => '0');
       else
-        case(rclk_nb_lanes) is
-          -- 4 lanes enabled
-          when "100" =>
-            hclk_lane_enabled <= "011";
+        -- Make sure we do not change value during calibration
+        if (hclk_state = S_IDLE) then
+          case(rclk_nb_lanes) is
+            -- 4 lanes enabled
+            when "100" =>
+              hclk_lane_enabled <= "011";
 
-          -- 6 lanes enabled
-          when "110" =>
-            hclk_lane_enabled <= "111";
-          -- Other cases all lanes disabled
-          when others =>
-            hclk_lane_enabled <= "000";
-        end case;
+            -- 6 lanes enabled
+            when "110" =>
+              hclk_lane_enabled <= "111";
+            -- Other cases all lanes disabled
+            when others =>
+              hclk_lane_enabled <= "000";
+          end case;
+        end if;
       end if;
     end if;
   end process;
@@ -373,6 +383,12 @@ begin
     end generate G_parallel_data;
 
     ---------------------------------------------------------------------------
+    -- Connect the histogram to the registerfile
+    ---------------------------------------------------------------------------
+    regfile.HISPI.TAP_HISTOGRAM((2*i) + PHY_ID).VALUE <= pclk_tap_histogram(i);
+
+    
+    ---------------------------------------------------------------------------
     -- Lane decoder module
     ---------------------------------------------------------------------------
     inst_lane_decoder : lane_decoder
@@ -386,11 +402,14 @@ begin
         hclk                      => hclk,
         hclk_reset                => hclk_lane_reset(i),
         hclk_data_lane            => hclk_lane_data(i),
+        hclk_tap_cntr             => hclk_tap_cntr,
         pclk                      => pclk,
         pclk_cal_en               => pclk_cal_en,
+        pclk_cal_start_monitor    => pclk_cal_start_monitor,
+        pclk_cal_monitor_done     => pclk_cal_monitor_done(i),
         pclk_cal_busy             => pclk_cal_busy(i),
-        pclk_cal_load_tap         => pclk_cal_load_tap(i),
-        pclk_cal_tap_value        => pclk_cal_tap_value((i*5) + 4 downto (i*5)),
+        pclk_cal_tap_value        => pclk_cal_tap_value((5*i)+4 downto (5*i)),
+        pclk_tap_histogram        => pclk_tap_histogram(i),
         rclk                      => rclk,
         rclk_reset                => rclk_reset,
         regfile                   => regfile,
@@ -405,7 +424,12 @@ begin
         sclk_sol_flag             => sclk_sol_flag(i),
         sclk_eol_flag             => sclk_eol_flag(i)
         );
+
+
   end generate G_lane_decoder;
+
+
+
 
 
   -----------------------------------------------------------------------------
@@ -464,16 +488,36 @@ begin
   end generate;
 
 
-  delay_tap_in((5*LANE_PER_PHY)-1 downto 0) <= rclk_manual_calibration_tap((5*LANE_PER_PHY)-1 downto 0) when (hclk_manual_calibration_en = '1') else
-                                               pclk_cal_tap_value;
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_hclk_delay_tap_in : process (hclk_manual_calibration_en,
+                                 hclk_state,
+                                 rclk_manual_calibration_tap,
+                                 pclk_cal_tap_value,
+                                 hclk_tap_cntr
+                                 ) is
+  begin
+    for i in 0 to (LANE_PER_PHY)-1 loop
+      if (hclk_manual_calibration_en = '1') then
+        hclk_delay_tap_in <= rclk_manual_calibration_tap;
+      elsif (hclk_state = S_LOAD_RESULT) then
+        hclk_delay_tap_in <= pclk_cal_tap_value;
+      else
+        hclk_delay_tap_in((5*i)+4 downto (5*i)) <= std_logic_vector(hclk_tap_cntr);
+      end if;
+    end loop;
+  end process P_hclk_delay_tap_in;
 
 
-  delay_reset <= '1' when (hclk_manual_calibration_en = '0' and pclk_cal_load_tap(0) = '1') else
-                 '1' when (hclk_manual_calibration_en = '1' and hclk_manual_calibration_load = '1') else
-                 '0';
+  hclk_delay_reset <= '1' when (hclk_manual_calibration_en = '0' and hclk_state = S_LOAD_TAP_CNTR) else
+                      '1' when (hclk_manual_calibration_en = '0' and hclk_state = S_LOAD_RESULT) else
+                      '1' when (hclk_manual_calibration_en = '1' and hclk_manual_calibration_load = '1') else
+                      '0';
 
 
-  pclk_cal_en <= '1' when (hclk_state = S_INIT) else
+  pclk_cal_en <= '1' when (hclk_state /= S_IDLE) else
                  '0';
 
 
@@ -524,7 +568,7 @@ begin
     port map (
       aclk  => hclk,
       aClr  => hclk_reset,
-      aDin  => delay_reset,
+      aDin  => hclk_latch_cal_status,
       bClk  => rclk,
       bClr  => rclk_reset,
       bDout => open,
@@ -548,7 +592,7 @@ begin
         rclk_cal_tap_value <= (others => '0');
       else
         if (rclk_latch_cal_status = '1') then
-          rclk_cal_tap_value <= delay_tap_out;  -- Assume to be stable
+          rclk_cal_tap_value <= hclk_delay_tap_out;  -- Assume to be stable
         end if;
       end if;
     end if;
@@ -589,6 +633,47 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- Process     : P_hclk_tap_cntr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_hclk_tap_cntr : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_tap_cntr <= (others => '0');
+      else
+        if (hclk_state = S_INIT) then
+          hclk_tap_cntr <= (others => '0');
+        elsif (hclk_state = S_INCR_TAP_CNTR) then
+          hclk_tap_cntr <= hclk_tap_cntr+1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_cal_start_monitor_pulse
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_hclk_cal_start_monitor_pulse : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1') then
+        hclk_cal_start_monitor_pulse <= (others => '0');
+      else
+        if (hclk_state = S_RESET_PIX_CNTR) then
+          hclk_cal_start_monitor_pulse <= (others => '1');
+        else
+          hclk_cal_start_monitor_pulse <= shift_right(hclk_cal_start_monitor_pulse, 1);
+        end if;
+      end if;
+    end if;
+  end process;
+
+  pclk_cal_start_monitor <= hclk_cal_start_monitor_pulse(0);
+
+
+  -----------------------------------------------------------------------------
   -- Process     : P_hclk_state
   -- Description : Calibration FSM
   -----------------------------------------------------------------------------
@@ -612,31 +697,67 @@ begin
 
 
           -------------------------------------------------------------------
-          -- S_INIT : hclk_lane_enabled
+          -- S_INIT : 
           -------------------------------------------------------------------
           when S_INIT =>
             --if (pclk_cal_busy = (pclk_cal_busy'range => '1')) then
-            if (pclk_cal_busy = hclk_lane_enabled) then
-              hclk_state <= S_CALIBRATE;
+            -- if (pclk_cal_busy = (pclk_cal_busy'range => '0')) then
+            hclk_state <= S_LOAD_TAP_CNTR;
+            -- else
+            --   hclk_state <= S_INIT;
+            -- end if;
+
+          -------------------------------------------------------------------
+          -- S_RESET_TAP_CNTR : 
+          -------------------------------------------------------------------
+          when S_LOAD_TAP_CNTR =>
+            if ((pclk_cal_monitor_done and hclk_lane_enabled) = (hclk_lane_enabled'range => '0')) then
+              hclk_state <= S_RESET_PIX_CNTR;
             else
-              hclk_state <= S_INIT;
+              hclk_state <= S_LOAD_TAP_CNTR;
+            end if;
+
+
+          -------------------------------------------------------------------
+          -- S_RESET_PIX_CNTR : 
+          -------------------------------------------------------------------
+          when S_RESET_PIX_CNTR =>
+            hclk_state <= S_MONITOR;
+
+          -------------------------------------------------------------------
+          -- S_MONITOR : 
+          -------------------------------------------------------------------
+          when S_MONITOR =>
+            -- When all enabled lanes done monitoring valid pixel count for
+            -- this tap value
+            if ((pclk_cal_monitor_done and hclk_lane_enabled) = hclk_lane_enabled) then
+              -- Still some tap values to evaluate
+              if (hclk_tap_cntr /= "11111") then
+                hclk_state <= S_INCR_TAP_CNTR;
+              -- Else done; go load the best tap value in the phy
+              else
+                hclk_state <= S_WAIT_RESULT;
+              end if;
             end if;
 
           -------------------------------------------------------------------
-          -- S_CALIBRATE : 
+          -- S_INCR_TAP : 
           -------------------------------------------------------------------
-          when S_CALIBRATE =>
-            if (pclk_cal_busy = (pclk_cal_busy'range => '0')) then
-              hclk_state <= S_LOAD_DELAY;
+          when S_INCR_TAP_CNTR =>
+            hclk_state <= S_LOAD_TAP_CNTR;
 
-            else
-              hclk_state <= S_CALIBRATE;
+          -------------------------------------------------------------------
+          -- S_WAIT_RESULT : 
+          -------------------------------------------------------------------
+          when S_WAIT_RESULT =>
+            if ((pclk_cal_monitor_done and hclk_lane_enabled) = (hclk_lane_enabled'range => '0')) then
+              hclk_state <= S_LOAD_RESULT;
             end if;
 
           -------------------------------------------------------------------
-          -- S_LOAD_DELAY : 
+          -- S_LOAD_RESULT : 
           -------------------------------------------------------------------
-          when S_LOAD_DELAY =>
+          when S_LOAD_RESULT =>
             hclk_state <= S_DONE;
 
           -------------------------------------------------------------------
@@ -655,6 +776,9 @@ begin
     end if;
   end process;
 
+
+  hclk_latch_cal_status <= '1' when (hclk_state = S_LOAD_RESULT)else
+                           '0';
 
   hispi_pix_clk <= pclk;
 
