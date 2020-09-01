@@ -81,6 +81,8 @@ pcie_7x_0 your_instance_name (
   .m_axis_rx_tuser(m_axis_rx_tuser),                                                        // output wire [21 : 0] m_axis_rx_tuser
   .rx_np_ok(rx_np_ok),                                                                      // input wire rx_np_ok
   .rx_np_req(rx_np_req),                                                                    // input wire rx_np_req
+  .cfg_mgmt_do(cfg_mgmt_do),                                                                // output wire [31 : 0] cfg_mgmt_do
+  .cfg_mgmt_rd_wr_done(cfg_mgmt_rd_wr_done),                                                // output wire cfg_mgmt_rd_wr_done
   .cfg_status(cfg_status),                                                                  // output wire [15 : 0] cfg_status
   .cfg_command(cfg_command),                                                                // output wire [15 : 0] cfg_command
   .cfg_dstatus(cfg_dstatus),                                                                // output wire [15 : 0] cfg_dstatus
@@ -93,6 +95,12 @@ pcie_7x_0 your_instance_name (
   .cfg_pmcsr_powerstate(cfg_pmcsr_powerstate),                                              // output wire [1 : 0] cfg_pmcsr_powerstate
   .cfg_pmcsr_pme_status(cfg_pmcsr_pme_status),                                              // output wire cfg_pmcsr_pme_status
   .cfg_received_func_lvl_rst(cfg_received_func_lvl_rst),                                    // output wire cfg_received_func_lvl_rst
+  .cfg_mgmt_di(cfg_mgmt_di),                                                                // input wire [31 : 0] cfg_mgmt_di
+  .cfg_mgmt_byte_en(cfg_mgmt_byte_en),                                                      // input wire [3 : 0] cfg_mgmt_byte_en
+  .cfg_mgmt_dwaddr(cfg_mgmt_dwaddr),                                                        // input wire [9 : 0] cfg_mgmt_dwaddr
+  .cfg_mgmt_wr_en(cfg_mgmt_wr_en),                                                          // input wire cfg_mgmt_wr_en
+  .cfg_mgmt_rd_en(cfg_mgmt_rd_en),                                                          // input wire cfg_mgmt_rd_en
+  .cfg_mgmt_wr_readonly(cfg_mgmt_wr_readonly),                                              // input wire cfg_mgmt_wr_readonly
   .cfg_err_ecrc(cfg_err_ecrc),                                                              // input wire cfg_err_ecrc
   .cfg_err_ur(cfg_err_ur),                                                                  // input wire cfg_err_ur
   .cfg_err_cpl_timeout(cfg_err_cpl_timeout),                                                // input wire cfg_err_cpl_timeout
@@ -138,6 +146,7 @@ pcie_7x_0 your_instance_name (
   .cfg_ds_bus_number(cfg_ds_bus_number),                                                    // input wire [7 : 0] cfg_ds_bus_number
   .cfg_ds_device_number(cfg_ds_device_number),                                              // input wire [4 : 0] cfg_ds_device_number
   .cfg_ds_function_number(cfg_ds_function_number),                                          // input wire [2 : 0] cfg_ds_function_number
+  .cfg_mgmt_wr_rw1c_as_rw(cfg_mgmt_wr_rw1c_as_rw),                                          // input wire cfg_mgmt_wr_rw1c_as_rw
   .cfg_bridge_serr_en(cfg_bridge_serr_en),                                                  // output wire cfg_bridge_serr_en
   .cfg_slot_control_electromech_il_ctl_pulse(cfg_slot_control_electromech_il_ctl_pulse),    // output wire cfg_slot_control_electromech_il_ctl_pulse
   .cfg_root_control_syserr_corr_err_en(cfg_root_control_syserr_corr_err_en),                // output wire cfg_root_control_syserr_corr_err_en

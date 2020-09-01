@@ -446,7 +446,8 @@ begin
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
-        tap_histogram <= (others => '0');
+        --tap_histogram <= (others => '0');
+        tap_histogram <= X"AAAAAAAA";
       else
         if (state = S_RESET_TAP_CNTR) then
           tap_histogram <= (others => '0');

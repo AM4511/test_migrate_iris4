@@ -416,7 +416,7 @@ module pcie_7x_0_core_top # (
   parameter         PCIE_ASYNC_EN  = "FALSE",
   parameter         PCIE_TXBUF_EN  = "FALSE",
   parameter         PL_INTERFACE = "FALSE",
-  parameter         CFG_MGMT_IF = "FALSE",
+  parameter         CFG_MGMT_IF = "TRUE",
   parameter         CFG_CTL_IF = "TRUE",
   parameter         CFG_STATUS_IF = "TRUE",
   parameter         RCV_MSG_IF = "FALSE",
