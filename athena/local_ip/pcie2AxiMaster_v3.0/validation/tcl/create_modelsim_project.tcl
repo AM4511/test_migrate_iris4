@@ -1,14 +1,15 @@
 # Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
-# source $env(IPCORES)/pcie2AxiMaster_v3.0/validation/tcl/create_modelsim_project.tcl
+# source $env(IRIS4)/athena/local_ip/pcie2AxiMaster_v3.0/validation/tcl/create_modelsim_project.tcl
 #
 set IRIS4                $env(IRIS4)
-set IPCORES              ${IRIS4}/athena/local_ip
+set IPCORES              ${IRIS4}/athena/ipcores
+set LOCAL_IP             ${IRIS4}/athena/local_ip
 set MTI_LIB_XILINX_PATH  $env(MTI_LIB_XILINX_PATH)
 set MTI_LIB_MATROX_PATH  $env(MTI_LIB_MATROX_PATH)
 
-set ROOT_PATH  ${IPCORES}/pcie2AxiMaster_v3.0
+set ROOT_PATH    ${LOCAL_IP}/pcie2AxiMaster_v3.0
 set PROJECT_NAME pcie2AxiMaster_v3.0  
 set LIBRARY_NAME ${PROJECT_NAME}.lib
 
@@ -20,11 +21,11 @@ set XIL_PCIE_FIFO          ${ROOT_PATH}/cores/xil_pcie_reg_fifo
 set INTERFACES_SRC_PATH    ${IPCORES}/interfaces/sv
 set VLIB_PATH              ${IPCORES}/vlib       
 
-set AXI_MODEL_SLAVE_LITE      ${IPCORES}/axiModelSlaveLite
+set AXI_MODEL_SLAVE_LITE   ${IPCORES}/axiModelSlaveLite
 set TESTBENCH_SRC_PATH     ${ROOT_PATH}/validation/src
 set TEST_PATH              ${ROOT_PATH}/validation/src/tests
 set DUT_SRC_PATH           ${ROOT_PATH}/design
-
+set REGFILE_PATH           ${ROOT_PATH}/registerfile
 set MODELSIM_PROJECT_NAME  "${PROJECT_NAME}"
 set MODELSIM_PROJECT_PATH  ${ROOT_PATH}/validation/mti
 set MODELSIM_INI           ${MODELSIM_PROJECT_PATH}/../modelsim.ini
@@ -78,7 +79,7 @@ ${XIL_PCIE_ENDPOINT}/sim/pcie_7x_0.v
 ]
 
 set pcie_fifo_fileset [join [list  [subst {
-${XIL_PCIE_FIFO}/hdl/fifo_generator_v13_4_rfs.v
+${XIL_PCIE_FIFO}/hdl/fifo_generator_v13_2_rfs.v
 ${XIL_PCIE_FIFO}/simulation/fifo_generator_vlog_beh.v 
 ${XIL_PCIE_FIFO}/sim/xil_pcie_reg_fifo.v
 }
@@ -88,7 +89,7 @@ ${XIL_PCIE_FIFO}/sim/xil_pcie_reg_fifo.v
 
 set dut_fileset [join [list  [subst { 
 ${COMMON_SRC_PATH}/mtxSCFIFO.vhd
-${DUT_SRC_PATH}/regfile_pcie2AxiMaster.vhd
+${REGFILE_PATH}/regfile_pcie2AxiMaster.vhd
 ${DUT_SRC_PATH}/spi_if.vhd
 ${DUT_SRC_PATH}/int_queue_pak.vhd
 ${DUT_SRC_PATH}/pciepack.vhd      

@@ -80,6 +80,8 @@ COMPONENT pcie_7x_0
     m_axis_rx_tuser : OUT STD_LOGIC_VECTOR(21 DOWNTO 0);
     rx_np_ok : IN STD_LOGIC;
     rx_np_req : IN STD_LOGIC;
+    cfg_mgmt_do : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    cfg_mgmt_rd_wr_done : OUT STD_LOGIC;
     cfg_status : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
     cfg_command : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
     cfg_dstatus : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -92,6 +94,12 @@ COMPONENT pcie_7x_0
     cfg_pmcsr_powerstate : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
     cfg_pmcsr_pme_status : OUT STD_LOGIC;
     cfg_received_func_lvl_rst : OUT STD_LOGIC;
+    cfg_mgmt_di : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    cfg_mgmt_byte_en : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+    cfg_mgmt_dwaddr : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+    cfg_mgmt_wr_en : IN STD_LOGIC;
+    cfg_mgmt_rd_en : IN STD_LOGIC;
+    cfg_mgmt_wr_readonly : IN STD_LOGIC;
     cfg_err_ecrc : IN STD_LOGIC;
     cfg_err_ur : IN STD_LOGIC;
     cfg_err_cpl_timeout : IN STD_LOGIC;
@@ -137,6 +145,7 @@ COMPONENT pcie_7x_0
     cfg_ds_bus_number : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
     cfg_ds_device_number : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
     cfg_ds_function_number : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+    cfg_mgmt_wr_rw1c_as_rw : IN STD_LOGIC;
     cfg_bridge_serr_en : OUT STD_LOGIC;
     cfg_slot_control_electromech_il_ctl_pulse : OUT STD_LOGIC;
     cfg_root_control_syserr_corr_err_en : OUT STD_LOGIC;
@@ -193,6 +202,8 @@ your_instance_name : pcie_7x_0
     m_axis_rx_tuser => m_axis_rx_tuser,
     rx_np_ok => rx_np_ok,
     rx_np_req => rx_np_req,
+    cfg_mgmt_do => cfg_mgmt_do,
+    cfg_mgmt_rd_wr_done => cfg_mgmt_rd_wr_done,
     cfg_status => cfg_status,
     cfg_command => cfg_command,
     cfg_dstatus => cfg_dstatus,
@@ -205,6 +216,12 @@ your_instance_name : pcie_7x_0
     cfg_pmcsr_powerstate => cfg_pmcsr_powerstate,
     cfg_pmcsr_pme_status => cfg_pmcsr_pme_status,
     cfg_received_func_lvl_rst => cfg_received_func_lvl_rst,
+    cfg_mgmt_di => cfg_mgmt_di,
+    cfg_mgmt_byte_en => cfg_mgmt_byte_en,
+    cfg_mgmt_dwaddr => cfg_mgmt_dwaddr,
+    cfg_mgmt_wr_en => cfg_mgmt_wr_en,
+    cfg_mgmt_rd_en => cfg_mgmt_rd_en,
+    cfg_mgmt_wr_readonly => cfg_mgmt_wr_readonly,
     cfg_err_ecrc => cfg_err_ecrc,
     cfg_err_ur => cfg_err_ur,
     cfg_err_cpl_timeout => cfg_err_cpl_timeout,
@@ -250,6 +267,7 @@ your_instance_name : pcie_7x_0
     cfg_ds_bus_number => cfg_ds_bus_number,
     cfg_ds_device_number => cfg_ds_device_number,
     cfg_ds_function_number => cfg_ds_function_number,
+    cfg_mgmt_wr_rw1c_as_rw => cfg_mgmt_wr_rw1c_as_rw,
     cfg_bridge_serr_en => cfg_bridge_serr_en,
     cfg_slot_control_electromech_il_ctl_pulse => cfg_slot_control_electromech_il_ctl_pulse,
     cfg_root_control_syserr_corr_err_en => cfg_root_control_syserr_corr_err_en,

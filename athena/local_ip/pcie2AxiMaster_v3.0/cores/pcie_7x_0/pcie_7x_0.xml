@@ -1979,7 +1979,7 @@
       <spirit:vendorExtensions>
         <xilinx:busInterfaceInfo>
           <xilinx:enablement>
-            <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="BUSIF_ENABLEMENT.pcie_cfg_mgmt" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+            <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="BUSIF_ENABLEMENT.pcie_cfg_mgmt" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
           </xilinx:enablement>
         </xilinx:busInterfaceInfo>
       </spirit:vendorExtensions>
@@ -3330,7 +3330,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:c2f842dd</spirit:value>
+            <spirit:value>9:65b31a40</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3345,11 +3345,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:39:56 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:39 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1771e65f</spirit:value>
+            <spirit:value>9:c0c6f529</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3365,11 +3365,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:40:01 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1771e65f</spirit:value>
+            <spirit:value>9:c0c6f529</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3380,7 +3380,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1771e65f</spirit:value>
+            <spirit:value>9:c0c6f529</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3396,11 +3396,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:40:01 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1771e65f</spirit:value>
+            <spirit:value>9:c0c6f529</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3416,11 +3416,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:40:01 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:8bb3b57e</spirit:value>
+            <spirit:value>9:2714a939</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3436,11 +3436,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:40:01 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:8bb3b57e</spirit:value>
+            <spirit:value>9:2714a939</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3454,11 +3454,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Aug 25 12:40:02 UTC 2020</spirit:value>
+            <spirit:value>Mon Aug 31 21:14:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1771e65f</spirit:value>
+            <spirit:value>9:c0c6f529</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -4626,7 +4626,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_do" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_do" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -4646,7 +4646,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_rd_wr_done" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_rd_wr_done" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -4949,7 +4949,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_di" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_di" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -4976,7 +4976,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_byte_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_byte_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -5003,7 +5003,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_dwaddr" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_dwaddr" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -5026,7 +5026,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -5049,7 +5049,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_rd_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_rd_en" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -5072,7 +5072,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_readonly" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_readonly" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -6072,7 +6072,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_rw1c_as_rw" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.cfg_mgmt_wr_rw1c_as_rw" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.CFG_MGMT_IF&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -10734,7 +10734,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>CFG_MGMT_IF</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.CFG_MGMT_IF">FALSE</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.CFG_MGMT_IF">TRUE</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>CFG_CTL_IF</spirit:name>
@@ -12447,7 +12447,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>cfg_mgmt_if</spirit:name>
-      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.cfg_mgmt_if" spirit:order="2051">false</spirit:value>
+      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.cfg_mgmt_if" spirit:order="2051">true</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>cfg_ctl_if</spirit:name>
