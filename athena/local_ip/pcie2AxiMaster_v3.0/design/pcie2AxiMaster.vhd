@@ -180,7 +180,7 @@ architecture struct of pcie2AxiMaster is
 
   constant C_DATA_WIDTH   : integer := 64;
   constant NB_PCIE_AGENTS : integer := 3 + ENABLE_DMA;  -- number of BAR agents + number of master agents
-  constant DMA_AGENT_ID : integer := NB_PCIE_AGENTS-1;
+  constant DMA_AGENT_ID   : integer := NB_PCIE_AGENTS-1;
 
   component spi_if is
 
@@ -258,8 +258,8 @@ architecture struct of pcie2AxiMaster is
       m_axis_rx_tuser                            : out std_logic_vector(21 downto 0);
       rx_np_ok                                   : in  std_logic;
       rx_np_req                                  : in  std_logic;
-      -- cfg_mgmt_do                                : out std_logic_vector(31 downto 0);
-      -- cfg_mgmt_rd_wr_done                        : out std_logic;
+      cfg_mgmt_do                                : out std_logic_vector(31 downto 0);
+      cfg_mgmt_rd_wr_done                        : out std_logic;
       cfg_status                                 : out std_logic_vector(15 downto 0);
       cfg_command                                : out std_logic_vector(15 downto 0);
       cfg_dstatus                                : out std_logic_vector(15 downto 0);
@@ -272,12 +272,12 @@ architecture struct of pcie2AxiMaster is
       cfg_pmcsr_powerstate                       : out std_logic_vector(1 downto 0);
       cfg_pmcsr_pme_status                       : out std_logic;
       cfg_received_func_lvl_rst                  : out std_logic;
-      -- cfg_mgmt_di                                : in  std_logic_vector(31 downto 0);
-      -- cfg_mgmt_byte_en                           : in  std_logic_vector(3 downto 0);
-      -- cfg_mgmt_dwaddr                            : in  std_logic_vector(9 downto 0);
-      -- cfg_mgmt_wr_en                             : in  std_logic;
-      -- cfg_mgmt_rd_en                             : in  std_logic;
-      -- cfg_mgmt_wr_readonly                       : in  std_logic;
+      cfg_mgmt_di                                : in  std_logic_vector(31 downto 0);
+      cfg_mgmt_byte_en                           : in  std_logic_vector(3 downto 0);
+      cfg_mgmt_dwaddr                            : in  std_logic_vector(9 downto 0);
+      cfg_mgmt_wr_en                             : in  std_logic;
+      cfg_mgmt_rd_en                             : in  std_logic;
+      cfg_mgmt_wr_readonly                       : in  std_logic;
       cfg_err_ecrc                               : in  std_logic;
       cfg_err_ur                                 : in  std_logic;
       cfg_err_cpl_timeout                        : in  std_logic;
@@ -323,7 +323,7 @@ architecture struct of pcie2AxiMaster is
       cfg_ds_bus_number                          : in  std_logic_vector(7 downto 0);
       cfg_ds_device_number                       : in  std_logic_vector(4 downto 0);
       cfg_ds_function_number                     : in  std_logic_vector(2 downto 0);
-      --     cfg_mgmt_wr_rw1c_as_rw                     : in  std_logic;
+      cfg_mgmt_wr_rw1c_as_rw                     : in  std_logic;
       cfg_bridge_serr_en                         : out std_logic;
       cfg_slot_control_electromech_il_ctl_pulse  : out std_logic;
       cfg_root_control_syserr_corr_err_en        : out std_logic;
@@ -785,6 +785,7 @@ architecture struct of pcie2AxiMaster is
   --  Xilinx PCIe core
   ---------------------------------------------------------------------------
   attribute mark_debug : string;
+  constant MAX_NUM_IRQ : integer   := 32; -- 64 ALSO possible  
   constant PCI_BAR0    : integer   := 0;
   constant PCI_BAR2    : integer   := 2;
   constant NO_PCI_BAR  : integer   := 7;
@@ -828,8 +829,8 @@ architecture struct of pcie2AxiMaster is
   signal m_axis_rx_tuser                            : std_logic_vector(21 downto 0);
   signal rx_np_ok                                   : std_logic;
   signal rx_np_req                                  : std_logic;
-  -- signal cfg_mgmt_do                                : std_logic_vector(31 downto 0);
-  -- signal cfg_mgmt_rd_wr_done                        : std_logic;
+  signal cfg_mgmt_do                                : std_logic_vector(31 downto 0);
+  signal cfg_mgmt_rd_wr_done                        : std_logic;
   signal cfg_status                                 : std_logic_vector(15 downto 0);
   signal cfg_command                                : std_logic_vector(15 downto 0);
   signal cfg_dstatus                                : std_logic_vector(15 downto 0);
@@ -842,12 +843,12 @@ architecture struct of pcie2AxiMaster is
   signal cfg_pmcsr_powerstate                       : std_logic_vector(1 downto 0);
   signal cfg_pmcsr_pme_status                       : std_logic;
   signal cfg_received_func_lvl_rst                  : std_logic;
-  -- signal cfg_mgmt_di                                : std_logic_vector(31 downto 0);
-  -- signal cfg_mgmt_byte_en                           : std_logic_vector(3 downto 0);
-  -- signal cfg_mgmt_dwaddr                            : std_logic_vector(9 downto 0);
-  -- signal cfg_mgmt_wr_en                             : std_logic;
-  -- signal cfg_mgmt_rd_en                             : std_logic;
-  -- signal cfg_mgmt_wr_readonly                       : std_logic;
+  signal cfg_mgmt_di                                : std_logic_vector(31 downto 0);
+  signal cfg_mgmt_byte_en                           : std_logic_vector(3 downto 0);
+  signal cfg_mgmt_dwaddr                            : std_logic_vector(9 downto 0);
+  signal cfg_mgmt_wr_en                             : std_logic;
+  signal cfg_mgmt_rd_en                             : std_logic;
+  signal cfg_mgmt_wr_readonly                       : std_logic;
   signal cfg_err_ecrc                               : std_logic;
   signal cfg_err_ur                                 : std_logic;
   signal cfg_err_cpl_timeout                        : std_logic;
@@ -981,24 +982,24 @@ architecture struct of pcie2AxiMaster is
   signal debug_in_sig      : std_logic_vector(31 downto 0) := (others => '0');
   signal debug_out_sig     : std_logic_vector(31 downto 0) := (others => '0');
 
-  type type_debug_dma_state is (  idle,
-                                  header,
-                                  tlp_ok,   
-                                  error,    
-                                  overrun,      
-                                  wait_sof1,          
-                                  wait_sof2
-                              );
-  signal  curr_debug_dma_state   :  type_debug_dma_state;  
+  type type_debug_dma_state is (idle,
+                                header,
+                                tlp_ok,
+                                error,
+                                overrun,
+                                wait_sof1,
+                                wait_sof2
+                                );
+  signal curr_debug_dma_state : type_debug_dma_state;
 
-  signal tlp_error_add        : std_logic:=	'0';
-  signal tlp_error_overrun    : std_logic:=	'0';								
-  signal tlp_next_address     : std_logic_vector(regfile.debug.DMA_DEBUG1.ADD_START'range);
+  signal tlp_error_add     : std_logic := '0';
+  signal tlp_error_overrun : std_logic := '0';
+  signal tlp_next_address  : std_logic_vector(regfile.debug.DMA_DEBUG1.ADD_START'range);
 
-  attribute mark_debug of curr_debug_dma_state   : signal is "true";
-  attribute mark_debug of tlp_error_add          : signal is "true";
-  attribute mark_debug of tlp_error_overrun      : signal is "true";
-  attribute mark_debug of tlp_next_address       : signal is "true";
+  attribute mark_debug of curr_debug_dma_state : signal is "true";
+  attribute mark_debug of tlp_error_add        : signal is "true";
+  attribute mark_debug of tlp_error_overrun    : signal is "true";
+  attribute mark_debug of tlp_next_address     : signal is "true";
 
 
 
@@ -1011,13 +1012,13 @@ begin
 
   -- Derived from pcie_sys_rst_n
   sys_reset_n <= not sys_reset;
-  
+
   -- Connecting DMA requester   
   cfg_no_snoop_en  <= cfg_dcommand(11);
   cfg_relax_ord_en <= cfg_dcommand(4);
 
-  cfg_bus_mast_en  <= cfg_command(2);
-  cfg_setmaxpld    <= cfg_dcommand(7 downto 5);
+  cfg_bus_mast_en <= cfg_command(2);
+  cfg_setmaxpld   <= cfg_dcommand(7 downto 5);
 
 
   -- cfg_no_snoop_en  <= '0';
@@ -1132,7 +1133,7 @@ begin
   cfg_ds_bus_number             <= x"00";
   cfg_ds_device_number          <= "00000";
   cfg_ds_function_number        <= "000";
---  cfg_mgmt_wr_rw1c_as_rw        <= '0';
+  cfg_mgmt_wr_rw1c_as_rw        <= '0';
   cfg_err_aer_headerlog         <= x"00000000000000000000000000000000";  -- AER non-utilise
   cfg_aer_interrupt_msgnum      <= "00000";  -- AER non-utilise
 
@@ -1184,8 +1185,8 @@ begin
       m_axis_rx_tuser                            => m_axis_rx_tuser,  -- pcie_rx_axi
       rx_np_ok                                   => rx_np_ok,    -- pcie_rx_axi
       rx_np_req                                  => rx_np_req,   -- pcie_rx_axi
-      -- cfg_mgmt_do                                => cfg_mgmt_do,  -- pcie_irq_axi
-      -- cfg_mgmt_rd_wr_done                        => cfg_mgmt_rd_wr_done,  -- pcie_irq_axi
+      cfg_mgmt_do                                => cfg_mgmt_do,  -- pcie_irq_axi
+      cfg_mgmt_rd_wr_done                        => cfg_mgmt_rd_wr_done,  -- pcie_irq_axi
       cfg_status                                 => cfg_status,  -- Out unused
       cfg_command                                => cfg_command,  -- Out unused
       cfg_dstatus                                => cfg_dstatus,  -- Out unused
@@ -1198,12 +1199,12 @@ begin
       cfg_pmcsr_powerstate                       => cfg_pmcsr_powerstate,  -- Out unused
       cfg_pmcsr_pme_status                       => cfg_pmcsr_pme_status,  -- Out unused
       cfg_received_func_lvl_rst                  => cfg_received_func_lvl_rst,  -- Out unused
-      -- cfg_mgmt_di                                => cfg_mgmt_di,  -- pcie_irq_axi
-      -- cfg_mgmt_byte_en                           => cfg_mgmt_byte_en,  -- pcie_irq_axi
-      -- cfg_mgmt_dwaddr                            => cfg_mgmt_dwaddr,  -- pcie_irq_axi
-      -- cfg_mgmt_wr_en                             => cfg_mgmt_wr_en,  -- pcie_irq_axi
-      -- cfg_mgmt_rd_en                             => cfg_mgmt_rd_en,  -- pcie_irq_axi
-      -- cfg_mgmt_wr_readonly                       => cfg_mgmt_wr_readonly,  -- pcie_irq_axi
+      cfg_mgmt_di                                => cfg_mgmt_di,  -- pcie_irq_axi
+      cfg_mgmt_byte_en                           => cfg_mgmt_byte_en,  -- pcie_irq_axi
+      cfg_mgmt_dwaddr                            => cfg_mgmt_dwaddr,  -- pcie_irq_axi
+      cfg_mgmt_wr_en                             => cfg_mgmt_wr_en,  -- pcie_irq_axi
+      cfg_mgmt_rd_en                             => cfg_mgmt_rd_en,  -- pcie_irq_axi
+      cfg_mgmt_wr_readonly                       => cfg_mgmt_wr_readonly,  -- pcie_irq_axi
       cfg_err_ecrc                               => cfg_err_ecrc,  -- static '0'
       cfg_err_ur                                 => cfg_err_ur,  -- pcie_rx_axi
       cfg_err_cpl_timeout                        => cfg_err_cpl_timeout,  -- static '0'
@@ -1249,7 +1250,7 @@ begin
       cfg_ds_bus_number                          => cfg_ds_bus_number,  -- static '0'
       cfg_ds_device_number                       => cfg_ds_device_number,  -- static '0'
       cfg_ds_function_number                     => cfg_ds_function_number,  -- static '0'
-      -- cfg_mgmt_wr_rw1c_as_rw                     => cfg_mgmt_wr_rw1c_as_rw,  -- static '0'
+      cfg_mgmt_wr_rw1c_as_rw                     => cfg_mgmt_wr_rw1c_as_rw,  -- static '0'
       cfg_bridge_serr_en                         => cfg_bridge_serr_en,  -- Out unused
       cfg_slot_control_electromech_il_ctl_pulse  => cfg_slot_control_electromech_il_ctl_pulse,  -- Out unused
       cfg_root_control_syserr_corr_err_en        => cfg_root_control_syserr_corr_err_en,  -- Out unused
@@ -1298,7 +1299,7 @@ begin
 
     tlp_grant     <= tlp_out_grant(DMA_AGENT_ID);
     tlp_dst_rdy_n <= tlp_out_dst_rdy_n(DMA_AGENT_ID);
-    
+
   end generate;
 
 
@@ -1313,10 +1314,10 @@ begin
   xpcie_rx : pcie_rx_axi
     generic map(
       NB_PCIE_AGENTS  => NB_PCIE_AGENTS,
-      AGENT_TO_BAR(0) => PCI_BAR0,   -- AXI master interface
-      AGENT_TO_BAR(1) => PCI_BAR2,   -- pcie2aximaster register file
-      AGENT_TO_BAR(2) => NO_PCI_BAR, -- IRQ queue
-      AGENT_TO_BAR(3) => NO_PCI_BAR, -- DMA to host
+      AGENT_TO_BAR(0) => PCI_BAR0,      -- AXI master interface
+      AGENT_TO_BAR(1) => PCI_BAR2,      -- pcie2aximaster register file
+      AGENT_TO_BAR(2) => NO_PCI_BAR,    -- IRQ queue
+      AGENT_TO_BAR(3) => NO_PCI_BAR,    -- DMA to host
       C_DATA_WIDTH    => C_DATA_WIDTH
       )
     port map (
@@ -1512,14 +1513,14 @@ begin
       int_status               => queue_irq_masked,
       msi_req                  => msi_req_masked,
       msi_ack                  => msi_ack,
-      cfg_mgmt_do              => (others => '0'),
-      cfg_mgmt_rd_wr_done      => '0',
-      cfg_mgmt_di              => open,
-      cfg_mgmt_byte_en         => open,
-      cfg_mgmt_dwaddr          => open,
-      cfg_mgmt_wr_en           => open,
-      cfg_mgmt_rd_en           => open,
-      cfg_mgmt_wr_readonly     => open,
+      cfg_mgmt_do              => cfg_mgmt_do,
+      cfg_mgmt_rd_wr_done      => cfg_mgmt_rd_wr_done,
+      cfg_mgmt_di              => cfg_mgmt_di,
+      cfg_mgmt_byte_en         => cfg_mgmt_byte_en,
+      cfg_mgmt_dwaddr          => cfg_mgmt_dwaddr,
+      cfg_mgmt_wr_en           => cfg_mgmt_wr_en,
+      cfg_mgmt_rd_en           => cfg_mgmt_rd_en,
+      cfg_mgmt_wr_readonly     => cfg_mgmt_wr_readonly,
       cfg_interrupt_rdy        => cfg_interrupt_rdy,
       cfg_interrupt_msienable  => cfg_interrupt_msienable,
       cfg_interrupt_mmenable   => cfg_interrupt_mmenable,
@@ -1784,104 +1785,104 @@ begin
   process(sys_clk)
   begin
     if rising_edge(sys_clk) then
-      if (sys_reset_n='0') then 
+      if (sys_reset_n = '0') then
         curr_debug_dma_state <= idle;
-        tlp_error_add        <=	'0';
-        tlp_error_overrun    <=	'0';								
-        tlp_next_address     <= (others =>'0');
+        tlp_error_add        <= '0';
+        tlp_error_overrun    <= '0';
+        tlp_next_address     <= (others => '0');
       else
-    
+
         case curr_debug_dma_state is
- 		
-          when  idle            =>  tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'0';	
-									tlp_next_address     <= tlp_next_address;
-		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='0') then
-                                      if(s_axis_tx_tdata(9 downto 0)= "0000100000") then  --0x20 DW
-									    curr_debug_dma_state <= header; 
-                                      else
-                                        curr_debug_dma_state <= idle;
-									  end if;
-									else
-                                        curr_debug_dma_state <= idle;	
-                                    end if;
- 
-          when  header          =>  tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'0';	
-		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='0') then
-                                      if(s_axis_tx_tdata(31 downto 0)= regfile.debug.DMA_DEBUG1.ADD_START) then   --Start of frame
-									    tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000"; -- nxt is SOF+0x80
-									    curr_debug_dma_state <= tlp_ok;
-									  elsif(s_axis_tx_tdata(31 downto 0)/=tlp_next_address) then  	-- suite pas ok	(erreur d'adresse)							    
-										curr_debug_dma_state <= error; 
-										tlp_next_address     <= tlp_next_address;
-									  elsif(s_axis_tx_tdata(31 downto 0)=regfile.debug.DMA_DEBUG2.ADD_OVERRUN) then  	--on depasse l'image
-										curr_debug_dma_state <= overrun;
-										tlp_next_address     <= tlp_next_address;
-									  elsif(s_axis_tx_tdata(31 downto 0)=tlp_next_address) then
-                                        tlp_next_address <= tlp_next_address + "10000000";                               -- ok , nxt is curr+0x80								  
-										curr_debug_dma_state <= tlp_ok;	
-                                      end if;
-									else
-                                        curr_debug_dma_state <= header;	
-                                    end if; 
-									
-		  when  tlp_ok          =>  tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'0';	
-		                            tlp_next_address     <= tlp_next_address;
-									if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1' and s_axis_tx_tlast='1') then
-                                      curr_debug_dma_state <= idle;
-									else
-                                      curr_debug_dma_state <= tlp_ok;	
-                                    end if; 							
-									
-                                    
-		  when  error           =>  curr_debug_dma_state <= wait_sof1;
-                                    tlp_error_add        <=	'1';
-                                    tlp_error_overrun    <=	'0';
- 									tlp_next_address     <= tlp_next_address;
 
-          when  overrun         =>  curr_debug_dma_state <= wait_sof1;	
-                                    tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'1';
-                                    tlp_next_address     <= tlp_next_address;									
+          when idle => tlp_error_add <= '0';
+                       tlp_error_overrun <= '0';
+                       tlp_next_address  <= tlp_next_address;
+                       if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
+                         if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 DW
+                           curr_debug_dma_state <= header;
+                         else
+                           curr_debug_dma_state <= idle;
+                         end if;
+                       else
+                         curr_debug_dma_state <= idle;
+                       end if;
 
-		  when  wait_sof1        => tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'0';	
-                                    tlp_next_address     <= tlp_next_address;																		
-		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1') then
-                                      if(s_axis_tx_tdata(9 downto 0)= "0000100000") then  --0x20 dw
-									    curr_debug_dma_state <= wait_sof2; 
-                                      else
-                                        curr_debug_dma_state <= wait_sof1;
-									  end if;	
-									else
-                                        curr_debug_dma_state <= wait_sof1;	
-                                    end if;
+          when header => tlp_error_add <= '0';
+                         tlp_error_overrun <= '0';
+                         if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
+                           if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
+                             tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- nxt is SOF+0x80
+                             curr_debug_dma_state <= tlp_ok;
+                           elsif(s_axis_tx_tdata(31 downto 0) /= tlp_next_address) then  -- suite pas ok        (erreur d'adresse)                                                          
+                             curr_debug_dma_state <= error;
+                             tlp_next_address     <= tlp_next_address;
+                           elsif(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG2.ADD_OVERRUN) then  --on depasse l'image
+                             curr_debug_dma_state <= overrun;
+                             tlp_next_address     <= tlp_next_address;
+                           elsif(s_axis_tx_tdata(31 downto 0) = tlp_next_address) then
+                             tlp_next_address     <= tlp_next_address + "10000000";  -- ok , nxt is curr+0x80                                                                 
+                             curr_debug_dma_state <= tlp_ok;
+                           end if;
+                         else
+                           curr_debug_dma_state <= header;
+                         end if;
 
-          when  wait_sof2       =>  tlp_error_add        <=	'0';
-                                    tlp_error_overrun    <=	'0';	
-		                            if(s_axis_tx_tready='1' and s_axis_tx_tvalid='1') then
-                                      if(s_axis_tx_tdata(31 downto 0)= regfile.debug.DMA_DEBUG1.ADD_START) then   --Start of frame
-									    tlp_next_address <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000"; -- +0x80
-									    curr_debug_dma_state <= tlp_ok;
-									  else  									    
-										curr_debug_dma_state <= wait_sof1; 
-                                        tlp_next_address     <= tlp_next_address;									
-									  end if;
-									else
-                                      curr_debug_dma_state   <= wait_sof1;	
-                                      tlp_next_address       <= tlp_next_address;																  
-                                    end if; 
-								
-        end case;      
+          when tlp_ok => tlp_error_add <= '0';
+                         tlp_error_overrun <= '0';
+                         tlp_next_address  <= tlp_next_address;
+                         if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '1') then
+                           curr_debug_dma_state <= idle;
+                         else
+                           curr_debug_dma_state <= tlp_ok;
+                         end if;
+
+
+          when error => curr_debug_dma_state <= wait_sof1;
+                        tlp_error_add     <= '1';
+                        tlp_error_overrun <= '0';
+                        tlp_next_address  <= tlp_next_address;
+
+          when overrun => curr_debug_dma_state <= wait_sof1;
+                          tlp_error_add     <= '0';
+                          tlp_error_overrun <= '1';
+                          tlp_next_address  <= tlp_next_address;
+
+          when wait_sof1 => tlp_error_add <= '0';
+                            tlp_error_overrun <= '0';
+                            tlp_next_address  <= tlp_next_address;
+                            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
+                              if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 dw
+                                curr_debug_dma_state <= wait_sof2;
+                              else
+                                curr_debug_dma_state <= wait_sof1;
+                              end if;
+                            else
+                              curr_debug_dma_state <= wait_sof1;
+                            end if;
+
+          when wait_sof2 => tlp_error_add <= '0';
+                            tlp_error_overrun <= '0';
+                            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
+                              if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
+                                tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- +0x80
+                                curr_debug_dma_state <= tlp_ok;
+                              else
+                                curr_debug_dma_state <= wait_sof1;
+                                tlp_next_address     <= tlp_next_address;
+                              end if;
+                            else
+                              curr_debug_dma_state <= wait_sof1;
+                              tlp_next_address     <= tlp_next_address;
+                            end if;
+
+        end case;
       end if;
-    end if;   
+    end if;
   end process;
 
 
-regfile.debug.DMA_DEBUG3.DMA_ADD_ERROR <= tlp_error_add;
-regfile.debug.DMA_DEBUG3.DMA_OVERRUN   <= tlp_error_overrun;
+  regfile.debug.DMA_DEBUG3.DMA_ADD_ERROR <= tlp_error_add;
+  regfile.debug.DMA_DEBUG3.DMA_OVERRUN   <= tlp_error_overrun;
 
 
 end struct;
