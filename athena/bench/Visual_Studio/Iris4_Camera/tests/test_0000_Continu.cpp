@@ -135,6 +135,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	//Transparent LUTs
 	XGS_Data->ProgramLUT(LUT_PATTERN); 
+	XGS_Data->EnableLUT();
 
 	printf("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
@@ -496,7 +497,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				LUT_PATTERN++;
 				if (LUT_PATTERN == 3) LUT_PATTERN = 0;
 				XGS_Data->ProgramLUT(LUT_PATTERN);
-
+				XGS_Data->EnableLUT();
 				break;
 
 			}
