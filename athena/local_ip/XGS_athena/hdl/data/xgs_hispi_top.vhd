@@ -468,7 +468,8 @@ begin
       else
         if ((regfile.HISPI.STATUS.FIFO_ERROR = '1') or
             (regfile.HISPI.STATUS.CALIBRATION_ERROR = '1') or
-            (regfile.HISPI.STATUS.PHY_BIT_LOCKED_ERROR = '1'))
+            (regfile.HISPI.STATUS.PHY_BIT_LOCKED_ERROR = '1')or
+            (regfile.HISPI.STATUS.CRC_ERROR = '1'))
         then
           -- Set the pulse vect
           rclk_irq_error_vect <= (others => '1');
