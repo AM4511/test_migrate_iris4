@@ -387,6 +387,17 @@ void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 	}
 
 
-	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 0;
-
 }
+
+
+void CXGS_Data::EnableLUT(void)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 0;
+}
+
+
+void CXGS_Data::DisableLUT(void)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1;
+}
+

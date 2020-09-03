@@ -43,6 +43,8 @@ public:
 	void     SetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_UINT32 Y_POS, M_UINT64 LINE_PITCH, M_UINT32 PixelValue);
 
 	void ProgramLUT(M_UINT32 LUT_TYPE);
+	void EnableLUT(void);
+	void DisableLUT(void);
 
 	//Pointeur aux registres dans fpga 
 	volatile FPGA_REGFILE_XGS_ATHENA_TYPE& rXGSptr;
