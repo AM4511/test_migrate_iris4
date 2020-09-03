@@ -309,7 +309,7 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_packer_2           : signal is "true";
   attribute mark_debug of pclk_packer_3           : signal is "true";
   attribute mark_debug of pclk_crc_enable         : signal is "true";
- -- attribute mark_debug of pclk_tap_histogram      : signal is "true";
+  -- attribute mark_debug of pclk_tap_histogram      : signal is "true";
   attribute mark_debug of pclk_idle_detect_en     : signal is "true";
   attribute mark_debug of pclk_crc_error          : signal is "true";
   attribute mark_debug of pclk_computed_crc1      : signal is "true";
@@ -1161,7 +1161,10 @@ begin
       bFall => open
       );
 
-  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).CRC_ERROR_set <= rclk_crc_error;
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).CRC_ERROR_set <= '1' when (rclk_crc_error = '1' and rclk_enable_hispi = '1') else
+                                                              '0';
+
   -- synthesis translate_off
   assert (not(rising_edge(rclk_crc_error))) report "Detected CRC error on lane_decoder" severity error;
   -- synthesis translate_on
