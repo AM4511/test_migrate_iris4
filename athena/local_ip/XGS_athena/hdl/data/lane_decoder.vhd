@@ -231,7 +231,6 @@ architecture rtl of lane_decoder is
   signal pclk_packer_2           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"20000000";
   signal pclk_packer_3           : std_logic_vector (LANE_DATA_WIDTH-1 downto 0) := X"30000000";
   signal pclk_crc_enable         : std_logic                                     := '1';
-  --signal pclk_tap_histogram      : std_logic_vector (31 downto 0);
   signal pclk_idle_detect_en     : std_logic                                     := '1';
   signal pclk_crc_init           : std_logic;
   signal pclk_crc_en             : std_logic;
@@ -309,7 +308,6 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_packer_2           : signal is "true";
   attribute mark_debug of pclk_packer_3           : signal is "true";
   attribute mark_debug of pclk_crc_enable         : signal is "true";
-  -- attribute mark_debug of pclk_tap_histogram      : signal is "true";
   attribute mark_debug of pclk_idle_detect_en     : signal is "true";
   attribute mark_debug of pclk_crc_error          : signal is "true";
   attribute mark_debug of pclk_computed_crc1      : signal is "true";
@@ -1190,27 +1188,6 @@ begin
   regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_SYNC_ERROR_set <= '1' when (rclk_sync_error = '1' and rclk_enable_hispi = '1') else
                                                                    '0';
 
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_rclk_tap_histogram
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_rclk_tap_histogram : process (rclk) is
-  -- begin
-  --   if (rising_edge(rclk)) then
-  --     if (rclk_reset = '1') then
-  --       rclk_tap_histogram <= (others => '0');
-  --     else
-  --       if (rclk_cal_busy_fall = '1') then
-  --         rclk_tap_histogram <= pclk_tap_histogram;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -- regfile.HISPI.TAP_HISTOGRAM(LANE_ID).VALUE <= rclk_tap_histogram;
 
 
 
