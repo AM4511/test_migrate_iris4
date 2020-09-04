@@ -523,74 +523,85 @@ module testbench();
 	// Back pressure to AXI tready
 	//
 	/////////////////////////////////////////////// 
-	reg        tready_cntr_en;
-	reg [15:0] tready_cntr;
-  
-	reg [15:0] tready_packet_delai   = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	// For in-packet Back pressure (on est assure que le PCI va rentrer le TLP sans wait PG054):
+    //   If the core transmit AXI4-Stream interface accepts the start of a TLP by asserting
+    //   s_axis_tx_tready, it is guaranteed to accept the complete TLP with a size up to the
+    //   value contained in the Max_Payload_Size field of the PCI Express Device Capability Register
+    //   (offset 04H)
+
+    //For inter packet Back pressure
+    reg        tx_axis_done;
+	reg        tready_packet_delai_cfg = 0;  // 0=Static, 1=random
+	reg [15:0] tready_packet_delai     = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg [15:0] tready_packet_delai_db  = 0;  
 	reg        tready_packet_cntr_en;
 	reg [15:0] tready_packet_cntr;
-  
-  
+	bit [31:0] tready_packet_random; 
+	bit [31:0] tready_packet_random_min=1; 
+	bit [31:0] tready_packet_random_max=15;      
+
 	always @(posedge pcie_clk)
 		if (pcie_axi.reset_n==0) begin
 			tx_axis.tready         <= 1'b1 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 16'b0;
-  
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
+
+            tx_axis_done           <= 1;
       
-		end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
+		end else if (tx_axis.tvalid==1 && tx_axis_done==1) begin  //first data of burst of 16x Qwords
 			tx_axis.tready         <= 1'b1 ;
-      
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-      
+                     
+			if (tready_packet_delai_cfg==0) begin
+			  tready_packet_delai_db = tready_packet_delai;
+			end else begin
+			  tready_packet_random   = $urandom_range(tready_packet_random_max, tready_packet_random_min);				
+			  tready_packet_delai_db = tready_packet_random;
+			end
+
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
+
+            tx_axis_done           <= 0;
   
-		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
+		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai_db==0) begin
 			tx_axis.tready         <= 1'b1 ;
-  
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
   
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
 
+            tx_axis_done           <= 1;
+
 		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
 			tx_axis.tready         <= 1'b0 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
 			tready_packet_cntr_en  <= 1;
 			tready_packet_cntr     <= 16'b0;
-      
+
+            tx_axis_done           <= 1;
+
+
 			//------------------------  
 			// inter packet delay  
 			//------------------------
-		end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai_db-1))  begin    
     
 			tx_axis.tready         <= 1'b0 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
 			tready_packet_cntr_en  <= 1;
 			tready_packet_cntr     <= tready_packet_cntr + 16'd1;
-  
-		end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
+
+            tx_axis_done           <= tx_axis_done;
+
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai_db-1))  begin    
     
 			tx_axis.tready         <= 1'b1 ;
-  
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
+			
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
-  
+
+            tx_axis_done           <= tx_axis_done;
+
 		end
     
     
@@ -1047,7 +1058,10 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
 				///////////////////////////////////////////////////
-                tready_packet_delai = 0;
+                tready_packet_delai_cfg    = 1; //random backpressure
+				tready_packet_random_min   = 1; 
+	            tready_packet_random_max   = 31;				
+
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1087,9 +1101,12 @@ module testbench();
 					#1us;
 				end
 				
-				// Changeons le backpressure apres la premiere image
-				tready_packet_delai = 27; //ok
-				//tready_packet_delai = 28; //overrun				
+				// Changeons le backpressure apres la premiere image								
+                tready_packet_delai_cfg = 0;   // Static backpressure
+				tready_packet_delai     = 27;  // ok
+				//tready_packet_delai   = 28;  // overrun	
+
+
 				while (dma_irq_cntr != test_nb_images) begin
 					#1us;
 				end

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_i2c" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="ade2075e-08ce-4009-8bf2-2f7d4203eaa1" VersionGuid="01102724-7ba4-46c9-8499-422d83e63c4f">
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_i2c" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="88a673cb-616f-4dfb-9cf6-0190cee2317e" VersionGuid="c64a9f9f-0743-489c-ad45-a1df0bad2b6d">
 	<Group Comment="RootCategoryGroup">
 		<Category Name="Root">
 			<Visibility>Beginner</Visibility>
@@ -19,7 +19,6 @@
 				<pFeature>REGISTER_regfile_i2c_i2c_i2c_id</pFeature>
 				<pFeature>REGISTER_regfile_i2c_i2c_i2c_ctrl0</pFeature>
 				<pFeature>REGISTER_regfile_i2c_i2c_i2c_ctrl1</pFeature>
-				<pFeature>REGISTER_regfile_i2c_i2c_i2c_semaphore</pFeature>
 			</Category>
 			<Integer Name="OFFSET_regfile_i2c_i2c">
 				<DisplayName>Offset:</DisplayName>
@@ -377,49 +376,6 @@
 					<ImposedAccessMode>RO</ImposedAccessMode>
 					<pVariable Name="ParentOffset">OFFSET_regfile_i2c_i2c</pVariable>
 					<pVariable Name="RegisterOffset">OFFSET_regfile_i2c_i2c_i2c_ctrl1</pVariable>
-					<Formula>ParentOffset+RegisterOffset</Formula>
-					<Representation>HexNumber</Representation>
-				</IntSwissKnife>
-			</Group>
-			<!--Register : I2C_SEMAPHORE-->
-			<Group Comment="GROUP_regfile_i2c_i2c_i2c_semaphore">
-				<Category Name="REGISTER_regfile_i2c_i2c_i2c_semaphore">
-					<DisplayName>I2C_SEMAPHORE</DisplayName>
-					<Visibility>Beginner</Visibility>
-					<pFeature>OFFSET_regfile_i2c_i2c_i2c_semaphore</pFeature>
-					<pFeature>ADDRESS_regfile_i2c_i2c_i2c_semaphore</pFeature>
-					<pFeature>FIELD_regfile_i2c_i2c_i2c_semaphore_i2c_in_use</pFeature>
-				</Category>
-				<Integer Name="OFFSET_regfile_i2c_i2c_i2c_semaphore">
-					<DisplayName>Offset:</DisplayName>
-					<Visibility>Guru</Visibility>
-					<ImposedAccessMode>RO</ImposedAccessMode>
-					<Value>24</Value>
-					<Representation>HexNumber</Representation>
-				</Integer>
-				<Integer Name="FIELD_regfile_i2c_i2c_i2c_semaphore_i2c_in_use">
-					<DisplayName>I2C_IN_USE</DisplayName>
-					<Visibility>Beginner</Visibility>
-					<pValue>MASKEDINTREG_regfile_i2c_i2c_i2c_semaphore_i2c_in_use</pValue>
-					<Representation>HexNumber</Representation>
-				</Integer>
-				<MaskedIntReg Name="MASKEDINTREG_regfile_i2c_i2c_i2c_semaphore_i2c_in_use">
-					<Visibility>Invisible</Visibility>
-					<pAddress>ADDRESS_regfile_i2c_i2c_i2c_semaphore</pAddress>
-					<Length>4</Length>
-					<AccessMode>RW</AccessMode>
-					<pPort>Device</pPort>
-					<Cachable>NoCache</Cachable>
-					<Bit>0</Bit>
-					<Endianess>LittleEndian</Endianess>
-					<Representation>HexNumber</Representation>
-				</MaskedIntReg>
-				<IntSwissKnife Name="ADDRESS_regfile_i2c_i2c_i2c_semaphore">
-					<DisplayName>Address:</DisplayName>
-					<Visibility>Guru</Visibility>
-					<ImposedAccessMode>RO</ImposedAccessMode>
-					<pVariable Name="ParentOffset">OFFSET_regfile_i2c_i2c</pVariable>
-					<pVariable Name="RegisterOffset">OFFSET_regfile_i2c_i2c_i2c_semaphore</pVariable>
 					<Formula>ParentOffset+RegisterOffset</Formula>
 					<Representation>HexNumber</Representation>
 				</IntSwissKnife>

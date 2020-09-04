@@ -30,6 +30,7 @@ public:
 	void InitBar0Window(void);
 	M_UINT32 Read_QSPI_ID(void);
 	M_UINT32 Read_QSPI_DW(M_UINT32 address);
+	void ArbiterTest(void);
 
 private:
 	

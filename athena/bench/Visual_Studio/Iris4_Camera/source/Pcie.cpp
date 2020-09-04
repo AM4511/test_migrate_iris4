@@ -185,3 +185,123 @@ M_UINT32 CPcie::Read_QSPI_DW(M_UINT32 address)
 
 }
 
+
+
+//-----------------------
+// test general arbiter
+//-----------------------
+void CPcie::ArbiterTest(void)
+{
+    // REQ0 -> DONE0
+    rPcie_ptr.arbiter.agent[0].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+
+    // REQ1 -> DONE1
+    rPcie_ptr.arbiter.agent[1].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+
+    //REQ0->REQ1->DONE0 ->DONE1
+    rPcie_ptr.arbiter.agent[0].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    rPcie_ptr.arbiter.agent[1].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+
+    //REQ0->REQ1->DONE1 ->DONE0 (cancel req1 during req0 )
+    rPcie_ptr.arbiter.agent[0].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+
+    //REQ1->REQ0->DONE1->DONE0
+    rPcie_ptr.arbiter.agent[1].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 0) printf("Arbiter ERROR: ACK_0 dois etre a 1\n");
+    rPcie_ptr.arbiter.agent[0].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+
+    //REQ1->REQ0->DONE0->DONE1
+    rPcie_ptr.arbiter.agent[1].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.req = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 0) printf("Arbiter ERROR: REC_0 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[0].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 0) printf("Arbiter ERROR: REC_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 0) printf("Arbiter ERROR: ACK_1 dois etre a 1\n");
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    rPcie_ptr.arbiter.agent[1].f.done = 1;
+    if (rPcie_ptr.arbiter.agent[0].f.rec == 1) printf("Arbiter ERROR: REC_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[0].f.ack == 1) printf("Arbiter ERROR: ACK_0 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.rec == 1) printf("Arbiter ERROR: REC_1 dois etre a 0\n");
+    if (rPcie_ptr.arbiter.agent[1].f.ack == 1) printf("Arbiter ERROR: ACK_1 dois etre a 0\n");
+
+}
