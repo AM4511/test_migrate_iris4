@@ -2,11 +2,11 @@
 ** File                : Cregfile_pcie2AxiMaster.cpp
 ** Project             : FDK
 ** Module              : regfile_pcie2AxiMaster
-** Created on          : 2020/06/29 12:06:56
+** Created on          : 2020/09/04 14:04:14
 ** Created by          : imaval
 ** FDK IDE Version     : 4.7.0_beta4
 ** Build ID            : I20191220-1537
-** Register file CRC32 : 0x482014AC
+** Register file CRC32 : 0xB9E8A643
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -378,6 +378,68 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pRegister->addField(createField(pRegister, "SPI_WB_CAP", 17, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // SPIREGOUT(17)
    pRegister->addField(createField(pRegister, "SPIWRTD", 16, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // SPIREGOUT(16)
    pRegister->addField(createField(pRegister, "SPIDATARD", 0, 8, CfdkField::RO, 0x0, 0x0, 0xff)); // SPIREGOUT(7:0)
+
+
+   /******************************************************************
+   * Section: /regfile_pcie2AxiMaster/arbiter
+   * Offset: 0xf0
+   *******************************************************************/
+   pSection = createSection(this, "arbiter", 0xf0);
+   this->addSection(pSection);
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/arbiter/ARBITER_CAPABILITIES(31:0)
+   * Offset: 0x0
+   * Address: 0xf0
+   *******************************************************************/
+   pRegister = createRegister(pSection, "ARBITER_CAPABILITIES", 0x0, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "AGENT_NB", 16, 2, CfdkField::STATIC, 0x2, 0x0, 0x3)); // ARBITER_CAPABILITIES(17:16)
+   pRegister->addField(createField(pRegister, "TAG", 0, 12, CfdkField::STATIC, 0xaab, 0x0, 0xfff)); // ARBITER_CAPABILITIES(11:0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/arbiter/AGENT[0](31:0)
+   * Offset: 0x4
+   * Address: 0xf4
+   *******************************************************************/
+   pRegister = createRegister(pSection, "AGENT[0]", 0x4, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "ACK", 9, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[0](9)
+   pRegister->addField(createField(pRegister, "REC", 8, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[0](8)
+   pRegister->addField(createField(pRegister, "DONE", 4, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[0](4)
+   pRegister->addField(createField(pRegister, "REQ", 0, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[0](0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/arbiter/AGENT[1](31:0)
+   * Offset: 0x8
+   * Address: 0xf8
+   *******************************************************************/
+   pRegister = createRegister(pSection, "AGENT[1]", 0x8, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "ACK", 9, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[1](9)
+   pRegister->addField(createField(pRegister, "REC", 8, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[1](8)
+   pRegister->addField(createField(pRegister, "DONE", 4, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[1](4)
+   pRegister->addField(createField(pRegister, "REQ", 0, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[1](0)
+
+   /******************************************************************
+   * Register: /regfile_pcie2AxiMaster/arbiter/AGENT[1](31:0)
+   * Offset: 0x4
+   * Address: 0xf4
+   *******************************************************************/
+   pRegister = createRegister(pSection, "AGENT[1]", 0x4, 4, true);
+   pSection->addRegister(pRegister);
+
+   //Fields:
+   pRegister->addField(createField(pRegister, "ACK", 9, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[](9)
+   pRegister->addField(createField(pRegister, "REC", 8, 1, CfdkField::RO, 0x0, 0x0, 0x1)); // AGENT[](8)
+   pRegister->addField(createField(pRegister, "DONE", 4, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[](4)
+   pRegister->addField(createField(pRegister, "REQ", 0, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // AGENT[](0)
 
 
    /******************************************************************

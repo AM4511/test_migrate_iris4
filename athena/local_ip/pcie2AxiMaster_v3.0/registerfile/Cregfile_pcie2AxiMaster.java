@@ -303,6 +303,38 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
 
 
       /***************************************************************
+      * Section: arbiter
+      * Offset: 0xf0
+      ****************************************************************/
+      section = new CSection(this, "arbiter", "null", 0xf0);
+      super.childrenList.add(section);
+
+      /***************************************************************
+      * Register: ARBITER_CAPABILITIES
+      * Offset: 0x0
+      ****************************************************************/
+      register = new CRegister(section, "ARBITER_CAPABILITIES", "null", 0x0);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "AGENT_NB", "null", CField.FieldType.STATIC, 16, 2, 0x2));
+      register.addField(new CField(register, "TAG", "null", CField.FieldType.STATIC, 0, 12, 0xaab));
+
+      /***************************************************************
+      * Register: AGENT
+      * Offset: 0x4
+      ****************************************************************/
+      register = new CRegister(section, "AGENT", "null", 0x4);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "ACK", "master request ACKnoledge", CField.FieldType.RO, 9, 1, 0x0));
+      register.addField(new CField(register, "REC", "master request RECeived", CField.FieldType.RO, 8, 1, 0x0));
+      register.addField(new CField(register, "DONE", "transaction DONE ", CField.FieldType.WO, 4, 1, 0x0));
+      register.addField(new CField(register, "REQ", "REQuest resource", CField.FieldType.WO, 0, 1, 0x0));
+
+
+      /***************************************************************
       * Section: axi_window[3:0]
       * Offset: 0x100 + (i * 0x10) 
       ****************************************************************/

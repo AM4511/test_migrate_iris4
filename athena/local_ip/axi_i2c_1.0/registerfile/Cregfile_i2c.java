@@ -77,16 +77,6 @@ public class Cregfile_i2c  extends CRegisterFile {
       register.addField(new CField(register, "I2C_DEVICE_ID", "I2C Device ID", CField.FieldType.RW, 1, 7, 0x44));
       register.addField(new CField(register, "I2C_RW", "I2C Read/Write", CField.FieldType.RW, 0, 1, 0x1));
 
-      /***************************************************************
-      * Register: I2C_SEMAPHORE
-      * Offset: 0x18
-      ****************************************************************/
-      register = new CRegister(section, "I2C_SEMAPHORE", "null", 0x18);
-      section.addRegister(register);
-
-      //Fields:
-      register.addField(new CField(register, "I2C_IN_USE", "null", CField.FieldType.RW2CLR, 0, 1, 0x0));
-
 
  }
 

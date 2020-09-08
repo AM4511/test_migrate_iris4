@@ -269,7 +269,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if ( (Register & 0x00000002) == 0x002)  { printf("\nHISPI_STATUS, CALIBRATION ERROR");    error_detect = 1; }
 	if ( (Register & 0x00000004) == 0x004)  { printf("\nHISPI_STATUS, FIFO ERROR");			  error_detect = 1; }
 	if ( (Register & 0x00000008) == 0x008)  { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
-	if ( (Register & 0x00000010) == 0x010)  { printf("\nHISPI_STATUS, CRC_ERROR");   error_detect = 1; }
+	if ( (Register & 0x00000010) == 0x010)  { printf("\nHISPI_STATUS, CRC_ERROR");            error_detect = 1; }
 
 
 	for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)

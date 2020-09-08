@@ -191,6 +191,42 @@ Register("spiregout", 0xe8, 4, "SPI Register Out");
 		Field("spidatard", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SPI DATA  Read byte OUTput ");
 
 %=================================================================
+% SECTION NAME	: ARBITER
+%=================================================================
+Section("arbiter", 0, 0xf0);
+
+Register("arbiter_capabilities", 0xf0, 4, "null");
+		Field("agent_nb", 17, 16, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("tag", 11, 0, "rd", 0x0, 0xAAB, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+variable agentTags = UChar_Type[2];
+
+for(i = 0; i < 2; i++)
+{
+	agentTags[i] = i;
+}
+
+Group("agent", "DECTAG", agentTags);
+
+for(i = 0; i < 2; i++)
+{
+
+	Register("agent", 0xf4 + i*0x4, 4, "agent*", "agent", i, "null");
+		Field("ack", 9, 9, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request ACKnoledge");
+			FieldValue(" The resource is NOT ready to be used.", 0);
+			FieldValue(" The resource is ready to be used.", 1);
+		Field("rec", 8, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request RECeived");
+			FieldValue(" Master request not received", 0);
+			FieldValue("Master request has been received", 1);
+		Field("done", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "transaction DONE ");
+			FieldValue("Nothing", 0);
+			FieldValue("Master requester transaction done", 1);
+		Field("req", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "REQuest resource");
+			FieldValue("Nothing", 0);
+			FieldValue("Ask for a device resource", 1);
+}
+
+%=================================================================
 % SECTION NAME	: AXI_WINDOW
 %=================================================================
 Section("axi_window", 0, 0x100);
