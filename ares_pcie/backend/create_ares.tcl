@@ -67,20 +67,26 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
 set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
 
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
+set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
+set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
+set RUN_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.runs
+set XPR_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.xpr
 
-file mkdir $PROJECT_DIR
-file mkdir $PCB_DIR
+###################################################################################
+# Create the project directories
+###################################################################################
+file mkdir      $PROJECT_DIR
+file mkdir      $PCB_DIR
 
-cd $PROJECT_DIR
-file delete -force ${PROJECT_NAME}.xpr
-file delete -force ${PROJECT_NAME}.runs
+file delete -force ${XPR_DIR}
+file delete -force ${RUN_DIR}
 
 
 ###################################################################################
 # Create the Xilinx project
 ###################################################################################
+cd $PROJECT_DIR
 create_project -force ${PROJECT_NAME} -part ${DEVICE}
 
 set_property target_language VHDL [current_project]
@@ -154,7 +160,7 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
+launch_runs ${IMPL_RUN} -to_step write_bitstream -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
 
 
@@ -170,10 +176,30 @@ close_design
 
 
 ################################################
+# Generate hdf file
+################################################
+set top_entity_name [get_property top [current_fileset]]
+set SYSDEF_FILE ${RUN_DIR}/${IMPL_RUN}/${top_entity_name}.sysdef
+set HDF_FILE    ${SDK_DIR}/${top_entity_name}.hdf
+file mkdir      $SDK_DIR
+
+if { [file exists $SYSDEF_FILE] } {               
+  if { [file exists $SDK_DIR] } {
+      file copy -force ${SYSDEF_FILE} ${HDF_FILE}
+      puts "copy ${SYSDEF_FILE} to ${HDF_FILE}"
+  } else {
+       puts "$SDK_DIR does not exist"
+  }
+} else {
+  puts "$SYSDEF_FILE does not exist"
+}
+
+
+################################################
 # Run Backend script
 ################################################
-source  $FIRMWARE_SCRIPT
-source  $REPORT_FILE
+#source  $FIRMWARE_SCRIPT
+#source  $REPORT_FILE
 
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
