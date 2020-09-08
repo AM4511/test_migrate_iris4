@@ -58,19 +58,16 @@ cd $project_directory
 # Create the output dir
 set OUTPUT_BASE_DIR "${project_directory}/output"
 set OUTPUT_DIR $OUTPUT_BASE_DIR
-
-
-#--------------------------------------------
-# Create vivado archive project 
-#--------------------------------------------
-set VIVADO_PROJECT_DIR        [get_property DIRECTORY ${design_name}]
-set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
+set SDK_DIR  $project_directory/${design_name}.sdk
+set RUNS_DIR $project_directory/${design_name}.runs
+set IMPL_DIR ${RUNS_DIR}/${IMPL_RUN}
 
 
 #--------------------------------------------
 # On cree les repertoires du nouveau build   
 #--------------------------------------------
-set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/ares/prerelease/${VIVADO_PROJECT_DIR_NAME}"
+set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/ares/prerelease/${design_name}"
+set pre_release_sdk_dir          $pre_release_dir/sdk
 set pre_release_rpt_dir          $pre_release_dir/rpt
 set pre_release_registerfile_dir $pre_release_dir/registerfile
 set pre_release_vivado_dir       $pre_release_dir/vivado
@@ -80,8 +77,8 @@ file mkdir $pre_release_rpt_dir
 file mkdir $pre_release_registerfile_dir
 file mkdir $pre_release_vivado_dir
 
-file copy   -force  $OUTPUT_DIR $pre_release_dir
-file copy   -force  $SDK_DIR    $pre_release_dir
+# Copy SDK dir
+file copy   -force  $SDK_DIR $pre_release_sdk_dir
 
 # Copie du fichier de probe 
 set probe_file "$project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx"

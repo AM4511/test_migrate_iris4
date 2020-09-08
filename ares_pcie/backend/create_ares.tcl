@@ -11,9 +11,10 @@ puts "Running ${myself}"
 
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
+# 0.0.2 : Set HyperRam freq to 125MHz, automatically generate HDF file
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 2
 
 
 set BASE_NAME  ares_xc7a50t
@@ -198,15 +199,14 @@ if { [file exists $SYSDEF_FILE] } {
 ################################################
 # Run Backend script
 ################################################
-#source  $FIRMWARE_SCRIPT
-#source  $REPORT_FILE
+source  $REPORT_FILE
 
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
- 	 #source  $ARCHIVE_SCRIPT
+ 	 source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"
  }
