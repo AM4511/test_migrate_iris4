@@ -488,6 +488,27 @@ architecture functional of ares_pcie is
       );
   end component ares_pb_wrapper;
 
+
+  component arbiter is
+   port(
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals (regfile domain)
+    ---------------------------------------------------------------------
+	axi_clk	    : in std_logic;
+	axi_reset_n	: in std_logic;
+	
+	---------------------------------------------------------------------
+    -- Regsiters
+    ---------------------------------------------------------------------
+    AGENT_REQ                            : in    std_logic_vector(1 downto 0);  -- Write-Only register
+    AGENT_REC                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
+    AGENT_ACK                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
+    AGENT_DONE                           : in    std_logic_vector(1 downto 0)   -- Write-Only register
+
+  );  
+  end component;  
+
+
   constant CLOCK_PERIOD : integer := 16;
 
   -- pour faire suite a une discussion avec Sebastien, la tick-table doit avoir 4 bits de large sur Ares.
@@ -611,6 +632,13 @@ architecture functional of ares_pcie is
   signal cfgmclk_pb         : std_logic;  -- version qui sort du Microblaze
   signal ncsi_clk_phase_0   : std_logic;
   signal ncsi_clk_phase_180 : std_logic;
+
+  -- Arbiter signals
+  signal AGENT_REQ  : std_logic_vector(1 downto 0);
+  signal AGENT_REC  : std_logic_vector(1 downto 0); 
+  signal AGENT_ACK  : std_logic_vector(1 downto 0);
+  signal AGENT_DONE : std_logic_vector(1 downto 0);
+
 
   
 begin
@@ -1284,5 +1312,41 @@ begin
   -- Field type: RO
   ------------------------------------------------------------------------------------------
   regfile.Device_specific.FPGA_ID.FPGA_ID <= conv_std_logic_vector(FPGA_ID, regfile.Device_specific.FPGA_ID.FPGA_ID'length);
+
+
+
+  -----------------------------------------------------------------------------
+  -- Arbitre pour utilisation generale
+  -----------------------------------------------------------------------------
+  Xarbiter : arbiter
+   port map(
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals (regfile domain)
+    ---------------------------------------------------------------------
+	axi_clk	      => pclk,
+	axi_reset_n	  => preset_n,
+
+	---------------------------------------------------------------------
+    -- Regsiters
+    ---------------------------------------------------------------------
+    AGENT_REQ     => AGENT_REQ,  -- Write-Only register
+    AGENT_REC     => AGENT_REC,  -- Read-Only register
+    AGENT_ACK     => AGENT_ACK,  -- Read-Only register
+    AGENT_DONE    => AGENT_DONE  -- Write-Only register
+
+  );  
+
+  -- Write-Only registers
+  AGENT_REQ  <= regfile.arbiter.AGENT(1).REQ  & regfile.arbiter.AGENT(0).REQ;
+  AGENT_DONE <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
+  -- Read-Only registers
+  regfile.arbiter.AGENT(0).REC <= AGENT_REC(0);
+  regfile.arbiter.AGENT(0).ACK <= AGENT_ACK(0);
+  regfile.arbiter.AGENT(1).REC <= AGENT_REC(1);
+  regfile.arbiter.AGENT(1).ACK <= AGENT_ACK(1);
+
+
+
+
 
 end functional;

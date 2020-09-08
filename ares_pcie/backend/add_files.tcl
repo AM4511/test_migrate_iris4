@@ -5,7 +5,7 @@ set FILE_LIST [list \
   [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
   [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
   [file normalize "${SRC_DIR}/osirispak.vhd"]\
-  [file normalize "${SRC_DIR}/regfile_ares.vhd"]\
+  [file normalize "${REG_DIR}/regfile_ares.vhd"]\
   [file normalize "${SRC_DIR}/mem_util_pkg.vhd"]\
   [file normalize "${SRC_DIR}/spider_pak.vhd"]\
   [file normalize "${SRC_DIR}/Input_Conditioning.vhd"]\
@@ -24,6 +24,7 @@ set FILE_LIST [list \
   [file normalize "${SRC_DIR}/timer.vhd"]\
   [file normalize "${SRC_DIR}/userio_bank.vhd"]\
   [file normalize "${SRC_DIR}/xil_ticktable.vhd"]\
+  [file normalize "${SRC_DIR}/arbiter.vhd"]\
   [file normalize "${SRC_DIR}/ares_pcie.vhd"]
 ]
 
