@@ -55,7 +55,9 @@ open_run $IMPL_RUN
 set project_directory [get_property  DIRECTORY [current_project]]
 cd $project_directory
 
+#--------------------------------------------
 # Create the output dir
+#--------------------------------------------
 set OUTPUT_BASE_DIR "${project_directory}/output"
 set OUTPUT_DIR $OUTPUT_BASE_DIR
 set SDK_DIR  $project_directory/${design_name}.sdk
@@ -79,6 +81,7 @@ file mkdir $pre_release_vivado_dir
 
 # Copy SDK dir
 file copy   -force  $SDK_DIR $pre_release_sdk_dir
+file copy   -force  $OUTPUT_DIR $pre_release_dir
 
 # Copie du fichier de probe 
 set probe_file "$project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx"
@@ -86,7 +89,27 @@ if [file exist $probe_file] {
 	file copy -force $project_directory/${design_name}.runs/${IMPL_RUN}/debug_nets.ltx  $pre_release_dir
 }
 
+
+#--------------------------------------------
+# Copie les fichiers du registerfile
+#--------------------------------------------
+set ARES_REGFILE_DIR  ${WORKDIR}/registerfile
+set RPC_REGFILE_DIR   ${IPCORES_DIR}/rpc2_ctrl_controller/registerfile
+
+file copy -force ${ARES_REGFILE_DIR}/regfile_ares.registerfile     $pre_release_registerfile_dir
+file copy -force ${ARES_REGFILE_DIR}/regfile_ares.h                $pre_release_registerfile_dir
+file copy -force ${ARES_REGFILE_DIR}/regfile_ares.sl               $pre_release_registerfile_dir
+file copy -force ${ARES_REGFILE_DIR}/regfile_ares.pdf              $pre_release_registerfile_dir
+
+file copy -force ${RPC_REGFILE_DIR}/rpc2_ctrl_regfile.registerfile $pre_release_registerfile_dir
+file copy -force ${RPC_REGFILE_DIR}/output/rpc2_ctrl_regfile.h     $pre_release_registerfile_dir
+file copy -force ${RPC_REGFILE_DIR}/output/rpc2_ctrl_regfile.sl    $pre_release_registerfile_dir
+file copy -force ${RPC_REGFILE_DIR}/output/rpc2_ctrl_regfile.pdf   $pre_release_registerfile_dir
+
+
+#--------------------------------------------
 # Copie de qques rapports importants
+#--------------------------------------------
 file copy -force $project_directory/${design_name}.runs/${SYNTH_RUN}/${top_entity_name}_utilization_synth.rpt        $pre_release_rpt_dir
 file copy -force $project_directory/${design_name}.runs/${IMPL_RUN}/${top_entity_name}_utilization_placed.rpt        $pre_release_rpt_dir
 file copy -force $project_directory/${design_name}.runs/${IMPL_RUN}/${top_entity_name}_timing_summary_routed.rpt     $pre_release_rpt_dir
