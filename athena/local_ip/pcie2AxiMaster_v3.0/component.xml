@@ -767,7 +767,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>db791b6d</spirit:value>
+            <spirit:value>6ad3fe16</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -807,7 +807,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>db791b6d</spirit:value>
+            <spirit:value>6ad3fe16</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -2160,6 +2160,12 @@
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>design/arbiter.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>registerfile/regfile_pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
@@ -2233,7 +2239,7 @@
       <spirit:file>
         <spirit:name>design/pcie2AxiMaster.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_4191707a</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_fb681b07</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
@@ -2280,6 +2286,12 @@
       <spirit:file>
         <spirit:name>design/pcie_7x_0_mtx_wrapper.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+        <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>design/arbiter.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>lib_pcie2AxiMaster</spirit:logicalName>
       </spirit:file>
@@ -2503,13 +2515,13 @@
       </xilinx:xpmLibraries>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>http://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>44</xilinx:coreRevision>
+      <xilinx:coreRevision>49</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster:2.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3.0:3.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>matrox.com:Imaging:pcie2AxiMaster_v3_0:3.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-08-31T21:39:01Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-09-04T18:04:42Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="matrox.com:ConcordG2:pcie2AxiMaster:1.0_ARCHIVE_LOCATION">d:/git/gitlab/ipcores/pcie2AxiMaster</xilinx:tag>
@@ -3354,13 +3366,87 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@c8f7b4f_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@40d5cabb_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@e6e41e4_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@e384644_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5eb05909_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3c5629f4_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@95ffadd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1db52a35_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ac73c8d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@26108d15_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2323dccd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4181bfef_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c91b88f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4520e57b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ede3e0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@612d5c09_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b716acc_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1096c478_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6c350197_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@9950c3e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@e9f3af0_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61878832_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6cd550d9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@781fd855_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@79ec1b9b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40493a7f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@55e85ab2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6fc4c82b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2da74bc2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@71cc0f96_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@356588c5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@47e8a1db_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c683b26_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70fa0620_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5e9ebb08_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e90a94f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2dba64a1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@129539f7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6bdeec72_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@138fb5da_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@78369782_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53603be5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@683e197d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1b7712ae_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c2c6d99_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@768ccb73_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75543854_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18a25704_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ddaedad_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@62d1ae62_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7824df81_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3cf41c04_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@48ff6ed5_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@69a3f564_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24dd9ffa_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61f43cec_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6fec9dcf_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a838a44_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4763891d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7fedc767_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ab5284_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@25e5b86a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@29e5cef6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2dc756c6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@72e90920_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7ad5ac94_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@91871fa_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6641dec_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ae0e837_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@123ea16a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75b1e1fe_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7b2b9c8b_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@77c46fdb_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bc0e46f_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75f95af2_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@180d071a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1f0844cd_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/pcie2AxiMaster_v3.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="9c8c3f99"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="dab0a384"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="3c6e04c8"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="16c7abd2"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="c4739fe3"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="efaa5a27"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="5451f2a2"/>

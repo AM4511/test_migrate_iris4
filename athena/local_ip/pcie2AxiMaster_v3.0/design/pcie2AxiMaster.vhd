@@ -781,6 +781,26 @@ architecture struct of pcie2AxiMaster is
       );
   end component;
 
+  component arbiter is
+   port(
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals (regfile domain)
+    ---------------------------------------------------------------------
+	axi_clk	    : in std_logic;
+	axi_reset_n	: in std_logic;
+	
+	---------------------------------------------------------------------
+    -- Regsiters
+    ---------------------------------------------------------------------
+    AGENT_REQ                            : in    std_logic_vector(1 downto 0);  -- Write-Only register
+    AGENT_REC                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
+    AGENT_ACK                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
+    AGENT_DONE                           : in    std_logic_vector(1 downto 0)   -- Write-Only register
+
+  );  
+  end component;  
+
+
   ---------------------------------------------------------------------------
   --  Xilinx PCIe core
   ---------------------------------------------------------------------------
@@ -1001,6 +1021,11 @@ architecture struct of pcie2AxiMaster is
   attribute mark_debug of tlp_error_overrun    : signal is "true";
   attribute mark_debug of tlp_next_address     : signal is "true";
 
+  -- Arbiter signals
+  signal AGENT_REQ  : std_logic_vector(1 downto 0);
+  signal AGENT_REC  : std_logic_vector(1 downto 0); 
+  signal AGENT_ACK  : std_logic_vector(1 downto 0);
+  signal AGENT_DONE : std_logic_vector(1 downto 0);
 
 
 
@@ -1883,6 +1908,38 @@ begin
 
   regfile.debug.DMA_DEBUG3.DMA_ADD_ERROR <= tlp_error_add;
   regfile.debug.DMA_DEBUG3.DMA_OVERRUN   <= tlp_error_overrun;
+
+
+
+  -----------------------------------------------------------------------------
+  -- Arbitre pour utilisation generale
+  -----------------------------------------------------------------------------
+  Xarbiter : arbiter
+   port map(
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals (regfile domain)
+    ---------------------------------------------------------------------
+	axi_clk	      => sys_clk,
+	axi_reset_n	  => sys_reset_n,
+	
+	---------------------------------------------------------------------
+    -- Regsiters
+    ---------------------------------------------------------------------
+    AGENT_REQ     => AGENT_REQ,  -- Write-Only register
+    AGENT_REC     => AGENT_REC,  -- Read-Only register
+    AGENT_ACK     => AGENT_ACK,  -- Read-Only register
+    AGENT_DONE    => AGENT_DONE  -- Write-Only register
+
+  );  
+
+  -- Write-Only registers
+  AGENT_REQ  <= regfile.arbiter.AGENT(1).REQ  & regfile.arbiter.AGENT(0).REQ;
+  AGENT_DONE <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
+  -- Read-Only registers
+  regfile.arbiter.AGENT(0).REC <= AGENT_REC(0);
+  regfile.arbiter.AGENT(0).ACK <= AGENT_ACK(0);
+  regfile.arbiter.AGENT(1).REC <= AGENT_REC(1);
+  regfile.arbiter.AGENT(1).ACK <= AGENT_ACK(1);
 
 
 end struct;

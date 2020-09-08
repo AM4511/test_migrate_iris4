@@ -63,7 +63,4 @@ Register("i2c_ctrl1", 0x10, 4, "I2C Control Register 1");
 			FieldValue("Write cycle", 0);
 			FieldValue("Read cycle", 1);
 
-Register("i2c_semaphore", 0x18, 4, "null");
-		Field("i2c_in_use", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-
 

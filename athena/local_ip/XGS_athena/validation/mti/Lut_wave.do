@@ -23,10 +23,23 @@ add wave -noupdate /testbench/DUT/xaxi_lut/RAM_W_address
 add wave -noupdate /testbench/DUT/xaxi_lut/RAM_W_data
 add wave -noupdate -color Cyan /testbench/DUT/xaxi_lut/RAM_R_address
 add wave -noupdate -color Cyan /testbench/DUT/xaxi_lut/RAM_R_data
+add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tvalid
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tready
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tlast
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tuser
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tkeep
+add wave -noupdate /testbench/inst_pcie_tx_axi/s_axis_tx_tdata
+add wave -noupdate /testbench/tready_cntr_en
+add wave -noupdate /testbench/tready_cntr_int
+add wave -noupdate /testbench/tready_cntr
+add wave -noupdate /testbench/tready_packet_delai
+add wave -noupdate /testbench/tready_packet_cntr_en
+add wave -noupdate /testbench/tready_packet_cntr
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1209727699 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1215856396 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 150
+configure wave -namecolwidth 179
 configure wave -valuecolwidth 148
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
@@ -40,4 +53,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1209446191 ps} {1209809716 ps}
+WaveRestoreZoom {1215243212 ps} {1219972229 ps}
