@@ -161,6 +161,7 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+set_msg_config -id {Vivado 12-1790} -new_severity {WARNING}
 launch_runs ${IMPL_RUN} -to_step write_bitstream -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
 
