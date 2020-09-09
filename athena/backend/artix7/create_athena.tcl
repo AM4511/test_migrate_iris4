@@ -16,9 +16,10 @@ puts "Running ${myself}"
 # 0.0.5 : First version that grab frames
 # 0.0.6 : XGS_athena now support 4 and 6 lanes sensors through DCF
 # 0.0.7 : XGS_athena now report CRC errors, implements LUT, implements MSI IRQ, Fix a HiSPi calibration issue
+# 0.0.8 : XGS_athena no HiSPI differential termination resistor on fpga, added General Arbiter to Logic
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 7
+set FPGA_SUB_MINOR_VERSION 8
 
 
 set BASE_NAME athena
