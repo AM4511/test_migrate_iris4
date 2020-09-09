@@ -23,7 +23,7 @@
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
-
+#define bitstream_BuildID_min         0x5F58D07F
 
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
@@ -180,7 +180,7 @@ int main(void)
 	printf("\n\nFPGA Build is ID is %d (0x%X), ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
 
 	// Generate a ERROR if FPGA is lower than a particular buildID
-	M_UINT32 MinBuildID = 0x5F457019;
+	M_UINT32 MinBuildID = (M_UINT32) bitstream_BuildID_min;
 	if (Pcie->rPcie_ptr.fpga.build_id.f.value < MinBuildID)
 	{
 		printf("\n\n");
