@@ -38,14 +38,24 @@ CPcie::~CPcie()
 
 void CPcie::InitBar0Window(void)
 {
-	//------------------------------
-	// Program Maio PCIe window 0
-	//------------------------------	
+	//----------------------------------
+	// Program Maio PCIe window 0 and 1
+	//----------------------------------
 	rPcie_ptr.axi_window[0].ctrl.f.enable       = 0;           //pci_bar0_disable           
 	rPcie_ptr.axi_window[0].pci_bar0_start.u32  = 0;		   //pci_bar0_start
-	rPcie_ptr.axi_window[0].pci_bar0_stop.u32   = 0x20000;	   //pci_bar0_End (8k)
-	rPcie_ptr.axi_window[0].axi_translation.u32 = 0x40000000;  //pci_bar0_size 
+	rPcie_ptr.axi_window[0].pci_bar0_stop.u32   = 0xfff;	   //pci_bar0_End (4k)
+	rPcie_ptr.axi_window[0].axi_translation.u32 = 0x40000000;  //pci_bar0_translation
 	rPcie_ptr.axi_window[0].ctrl.f.enable       = 1;           //pci_bar0_enable
+
+    rPcie_ptr.axi_window[1].ctrl.f.enable       = 0;           //pci_bar0_disable           
+    rPcie_ptr.axi_window[1].pci_bar0_start.u32  = 0x1000;	   //pci_bar0_start
+    rPcie_ptr.axi_window[1].pci_bar0_stop.u32   = 0x1fff;	   //pci_bar0_End (4k)
+    rPcie_ptr.axi_window[1].axi_translation.u32 = 0x40010000;  //pci_bar0_translation
+    rPcie_ptr.axi_window[1].ctrl.f.enable       = 1;           //pci_bar0_enable
+    
+    printf("\n");
+    printf("Athena PCie Window[0] is range 0x%08X-0x%08X,  System translation 0x%08X\n", rPcie_ptr.axi_window[0].pci_bar0_start.u32, rPcie_ptr.axi_window[0].pci_bar0_stop.u32, rPcie_ptr.axi_window[0].axi_translation.u32);
+    printf("Athena PCie Window[1] is range 0x%08X-0x%08X,  System translation 0x%08X\n", rPcie_ptr.axi_window[1].pci_bar0_start.u32, rPcie_ptr.axi_window[1].pci_bar0_stop.u32, rPcie_ptr.axi_window[1].axi_translation.u32);
 }
 
 M_UINT32 CPcie::Read_QSPI_ID(void)

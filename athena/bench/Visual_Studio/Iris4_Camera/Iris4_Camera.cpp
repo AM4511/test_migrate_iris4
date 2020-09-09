@@ -27,7 +27,7 @@
 
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
-#define regfile_I2C_ADD_OFFSET        0x00010000  //
+#define regfile_I2C_ADD_OFFSET        0x00001000  // addresse reelle est 0x10000, mais on map la window2 PCIe sur 0x10000, avec un start a 0x1000
 
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
@@ -56,7 +56,7 @@ int main(void)
 
 	M_UINT32 address;
 	M_UINT32 data;
-	M_UINT32 I2C_semaphore;
+
 	//------------------------------
 	// Init ATHENA FPGAs, Regfile
 	//------------------------------
