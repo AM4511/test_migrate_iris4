@@ -1061,7 +1061,8 @@ module testbench();
                 tready_packet_delai_cfg    = 1; //random backpressure
 				tready_packet_random_min   = 1; 
 	            tready_packet_random_max   = 31;				
-
+	            tready_packet_random_max   = 10;				
+	            /*
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1074,7 +1075,7 @@ module testbench();
 				XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
-
+	*/
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////	

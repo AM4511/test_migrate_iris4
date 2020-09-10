@@ -15,7 +15,7 @@ class Cscoreboard_tlp;
 	task init ();
 		dataBuffer={};
 		this.number_of_errors=0;
-		#100
+		#100;
 			//this.axi_strm.tready = 1'b1;
 	endtask
 

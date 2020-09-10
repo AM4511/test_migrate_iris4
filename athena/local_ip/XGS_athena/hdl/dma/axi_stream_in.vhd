@@ -13,7 +13,7 @@ entity axi_stream_in is
   generic (
     AXIS_DATA_WIDTH   : integer := 64;
     AXIS_USER_WIDTH   : integer := 4;
-    BUFFER_ADDR_WIDTH : integer := 10
+    BUFFER_ADDR_WIDTH : integer := 11   -- in bits
     );
   port (
     ---------------------------------------------------------------------
@@ -34,6 +34,11 @@ entity axi_stream_in is
     s_axis_tdata  : in  std_logic_vector(AXIS_DATA_WIDTH-1 downto 0);
     s_axis_tlast  : in  std_logic;
     s_axis_tuser  : in  std_logic_vector(AXIS_USER_WIDTH-1 downto 0);
+
+    ----------------------------------------------------
+    -- Line buffer config
+    ----------------------------------------------------
+    numb_line_buffer : in std_logic_vector(3 downto 0);
 
     ----------------------------------------------------
     -- Line buffer I/F
@@ -75,12 +80,14 @@ architecture rtl of axi_stream_in is
         );
   end component;
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_WAIT_LINE_FLUSHED, S_TOGGLE_BUFFER, S_INIT_HOST_TRANSFER, S_DONE);
-  type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_TRANSFER, S_END_OF_DMA, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_INIT, S_LOAD_LINE, S_WAIT_LINE_FLUSHED, S_TOGGLE_BUFFER, S_PCI_BACK_PRESSURE, S_INIT_HOST_TRANSFER, S_EOF, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER,  S_EOL, S_END_OF_DMA, S_DONE);
 
-  constant C_S_AXI_ADDR_WIDTH : integer := 8;
-  constant C_S_AXI_DATA_WIDTH : integer := 32;
-  constant BUFFER_DATA_WIDTH  : integer := 64;
+  constant C_S_AXI_ADDR_WIDTH    : integer := 8;
+  constant C_S_AXI_DATA_WIDTH    : integer := 32;
+  constant BUFFER_DATA_WIDTH     : integer := 72;
+  constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
+  constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
 
   constant CONT : std_logic_vector(1 downto 0) := "00";
   constant SOF  : std_logic_vector(1 downto 0) := "01";
@@ -90,22 +97,32 @@ architecture rtl of axi_stream_in is
   signal state        : FSM_TYPE        := S_IDLE;
   signal output_state : OUTPUT_FSM_TYPE := S_IDLE;
 
-  signal buffer_rdy           : std_logic_vector(1 downto 0);
-  signal buffer_empty         : std_logic_vector(1 downto 0);
   signal buffer_write_en      : std_logic;
-  signal buffer_write_address : std_logic_vector(BUFFER_ADDR_WIDTH downto 0);
+  signal buffer_write_address : unsigned(BUFFER_ADDR_WIDTH - 1 downto 0);
   signal buffer_write_ptr     : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
   signal buffer_read_en      : std_logic;
-  signal buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH downto 0);
+  signal buffer_read_address : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
-  signal last_row_output     : std_logic;
-  signal double_buffer_ptr   : std_logic;
   signal wait_line_flushed   : std_logic;
   signal back_pressure_cntr  : integer;
   signal max_back_pressure   : integer;
+  signal read_sync           : std_logic_vector(3 downto 0);
+
+  signal init_line_ptr     : std_logic;
+  signal incr_wr_line_ptr  : std_logic;
+  signal incr_rd_line_ptr  : std_logic;
+  signal wr_line_ptr       : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
+  signal rd_line_ptr       : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
+  signal line_ptr_mask     : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
+  signal distance_cntr     : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
+  
+  signal wr_word_ptr       : unsigned(BUFFER_WORD_PTR_WIDTH-1 downto 0);
+  signal rd_word_ptr       : unsigned(BUFFER_WORD_PTR_WIDTH-1 downto 0);
+  signal line_buffer_full  : std_logic;
+  signal line_buffer_empty : std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -117,7 +134,6 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of buffer_read_address      : signal is "true";
   attribute mark_debug of buffer_read_data         : signal is "true";
   attribute mark_debug of last_row                 : signal is "true";
-  attribute mark_debug of last_row_output          : signal is "true";
   attribute mark_debug of s_axis_tready            : signal is "true";
   attribute mark_debug of s_axis_tvalid            : signal is "true";
   attribute mark_debug of s_axis_tdata             : signal is "true";
@@ -131,143 +147,108 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of line_buffer_read_address : signal is "true";
   attribute mark_debug of line_buffer_read_data    : signal is "true";
 
-  attribute mark_debug of state                    : signal is "true"; 
-  attribute mark_debug of output_state             : signal is "true";
-  attribute mark_debug of buffer_empty             : signal is "true";
-  attribute mark_debug of buffer_rdy               : signal is "true";
-  attribute mark_debug of buffer_write_ptr         : signal is "true";
-  attribute mark_debug of double_buffer_ptr        : signal is "true";
-  attribute mark_debug of wait_line_flushed        : signal is "true";
-  attribute mark_debug of back_pressure_cntr       : signal is "true";
-  attribute mark_debug of max_back_pressure        : signal is "true";
+  attribute mark_debug of state              : signal is "true";
+  attribute mark_debug of output_state       : signal is "true";
+  attribute mark_debug of buffer_write_ptr   : signal is "true";
+  attribute mark_debug of wait_line_flushed  : signal is "true";
+  attribute mark_debug of back_pressure_cntr : signal is "true";
+  attribute mark_debug of max_back_pressure  : signal is "true";
 
 
 begin
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_rdy
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_buffer_rdy : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        buffer_rdy <= (others => '0');
-      else
-        -----------------------------------------------------------------------
-        -- Store data in buffer 0; Read from buffer 1
-        -----------------------------------------------------------------------
-        if (double_buffer_ptr = '0') then
-          if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
-            buffer_rdy(0) <= '1';
-          end if;
-          if (line_transfered = '1') then
-            buffer_rdy(1) <= '0';
-          end if;
-
-        -----------------------------------------------------------------------
-        -- Store data in buffer 1; Read from buffer 0
-        -----------------------------------------------------------------------
-        else
-          if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
-            buffer_rdy(1) <= '1';
-          end if;
-          if (line_transfered = '1') then
-            buffer_rdy(0) <= '0';
-          end if;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_empty
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_buffer_empty : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        buffer_empty <= (others => '1');
-      else
-        -----------------------------------------------------------------------
-        -- Store data in buffer 0; Read from buffer 1
-        -----------------------------------------------------------------------
-        if (double_buffer_ptr = '0') then
-          if (s_axis_tvalid = '1') then
-            buffer_empty(0) <= '0';
-          end if;
-          if (line_transfered = '1') then
-            buffer_empty(1) <= '1';
-          end if;
-
-        -----------------------------------------------------------------------
-        -- Store data in buffer 1; Read from buffer 0
-        -----------------------------------------------------------------------
-        else
-          if (s_axis_tvalid = '1') then
-            buffer_empty(1) <= '0';
-          end if;
-          if (line_transfered = '1') then
-            buffer_empty(0) <= '1';
-          end if;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-
-  s_axis_tready <= '1' when (state = S_LOAD_LINE and double_buffer_ptr = '0' and buffer_rdy(0) = '0') else
-                   '1' when (state = S_LOAD_LINE and double_buffer_ptr = '1' and buffer_rdy(1) = '0') else
+  s_axis_tready <= '1' when (state = S_LOAD_LINE) else
                    '0';
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_last_row
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_last_row : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        last_row <= '0';
-      else
-        if (state = S_LOAD_LINE and s_axis_tlast = '1' and s_axis_tvalid = '1' and s_axis_tuser(1) = '1') then
-          last_row <= '1';
-        elsif (output_state = S_END_OF_DMA) then
-          last_row <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
+  init_line_ptr <= '1' when (state = S_SOF) else
+                   '0';
 
-  
+  incr_wr_line_ptr <= '1' when (state = S_TOGGLE_BUFFER or state = S_EOF) else
+                      '0';
+
+  incr_rd_line_ptr <= '1' when (output_state = S_EOL or output_state = S_END_OF_DMA) else
+                      '0';
+
+
   -----------------------------------------------------------------------------
-  -- Process     : P_double_buffer_ptr
+  -- Process     : P_wr_line_ptr
   -- Description : 
   -----------------------------------------------------------------------------
-  P_double_buffer_ptr : process (sclk) is
+  P_wr_line_ptr : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        double_buffer_ptr <= '0';
+        wr_line_ptr <= (others => '0');
       else
-        if (state = S_SOF) then
-          double_buffer_ptr <= '0';
-        elsif (state = S_TOGGLE_BUFFER) then
-          double_buffer_ptr <= not double_buffer_ptr;
+        if (init_line_ptr = '1') then
+          wr_line_ptr <= (others => '0');
+        elsif (incr_wr_line_ptr = '1') then
+          wr_line_ptr <= (line_ptr_mask and (wr_line_ptr + 1));
         end if;
       end if;
     end if;
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_rd_line_ptr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_rd_line_ptr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        rd_line_ptr <= (others => '0');
+      else
+        if (init_line_ptr = '1') then
+          rd_line_ptr <= (others => '0');
+        elsif (incr_rd_line_ptr = '1') then
+          rd_line_ptr <= (line_ptr_mask and (rd_line_ptr + 1));
+        end if;
+      end if;
+    end if;
+  end process;
+
+  line_ptr_mask <= "111" when (numb_line_buffer > "0111") else  -- 8 Buffer mask, hence 3 bits
+                   "011" when (numb_line_buffer = "0100") else
+                   "001";
+
+                   
+  -----------------------------------------------------------------------------
+  -- Process     : P_distance_cntr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_distance_cntr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        distance_cntr <= (others => '0');
+      else
+        if (init_line_ptr = '1') then
+          distance_cntr <= (others => '0');
+        elsif (incr_wr_line_ptr = '1' and incr_rd_line_ptr = '0') then
+          distance_cntr <= distance_cntr + 1;
+        elsif (incr_wr_line_ptr = '0' and incr_rd_line_ptr = '1') then
+          distance_cntr <= distance_cntr - 1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  line_buffer_full <= '1' when (distance_cntr = unsigned(numb_line_buffer)) else
+                      '0';
+
+
+  line_buffer_empty <= '1' when (distance_cntr = (distance_cntr'range=>'0')) else
+                      '0';
+
+
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_state
+  -- Process     : P_write_state
   -- Description : Decode the hispi protocol state
   -----------------------------------------------------------------------------
   P_state : process (sclk) is
@@ -311,38 +292,38 @@ begin
           --  S_LOAD_LINE : 
           -------------------------------------------------------------------
           when S_LOAD_LINE =>
+            -- If a end of line is detected
             if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
-              -- If output_state is IDLE we toggle the buffers and we
-              -- can start to flush this new available line
-              if (output_state = S_IDLE) then
-                state <= S_TOGGLE_BUFFER;
+              -- If a End of frame
+              if (s_axis_tuser(1) = '1') then
+                state <= S_EOF;
+              -- 
+              elsif (line_buffer_full = '1') then
+                state <= S_PCI_BACK_PRESSURE;
               else
-                -- We go and wait for the current line to be flushed
-                state <= S_WAIT_LINE_FLUSHED;
+                state <= S_TOGGLE_BUFFER;
               end if;
             else
               state <= S_LOAD_LINE;
             end if;
 
+
           -------------------------------------------------------------------
-          -- S_WAIT_LINE_FLUSHED : 
+          -- S_PCI_BACK_PRESSURE : 
           -------------------------------------------------------------------
-          when S_WAIT_LINE_FLUSHED =>
-            -- If output_state is IDLE we toggle the buffers and we
-            -- can start to flush this new available line
-            if (output_state = S_IDLE) then
-              state <= S_TOGGLE_BUFFER;
+          when S_PCI_BACK_PRESSURE =>
+            if (line_buffer_full = '1') then
+              state <= S_PCI_BACK_PRESSURE;
             else
-              -- We go and wait for the current line to be flushed
-              state <= S_WAIT_LINE_FLUSHED;
+              state <= S_TOGGLE_BUFFER;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_TRANSFER : 
           -------------------------------------------------------------------
           when S_TOGGLE_BUFFER =>
-            state <= S_INIT_HOST_TRANSFER;
+            state <= S_INIT;
 
           -------------------------------------------------------------------
           -- S_TRANSFER : 
@@ -353,6 +334,12 @@ begin
             else
               state <= S_INIT_HOST_TRANSFER;
             end if;
+
+          -------------------------------------------------------------------
+          -- S_EOF : 
+          -------------------------------------------------------------------
+          when S_EOF =>
+            state <= S_DONE;
 
           -------------------------------------------------------------------
           -- S_DONE : 
@@ -371,12 +358,12 @@ begin
     end if;
   end process P_state;
 
-  
 
-  wait_line_flushed <= '1' when (state = S_WAIT_LINE_FLUSHED) else
-                       '0';
 
-    
+   wait_line_flushed <= '1' when (state = S_WAIT_LINE_FLUSHED) else
+                        '0';
+
+
   -----------------------------------------------------------------------------
   -- Process     : P_back_pressure_cntr
   -- Description : Debug flag for chipscope to indicate back pressure
@@ -396,7 +383,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_max_back_pressure
   -- Description : Debug flag for chipscope to indicate back pressure
@@ -414,12 +401,11 @@ begin
     end if;
   end process;
 
-  
+
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
-  buffer_write_en <= '1' when (state = S_LOAD_LINE and double_buffer_ptr = '0' and buffer_rdy(0) = '0' and s_axis_tvalid = '1') else
-                     '1' when (state = S_LOAD_LINE and double_buffer_ptr = '1' and buffer_rdy(1) = '0' and s_axis_tvalid = '1') else
+  buffer_write_en <= '1' when (state = S_LOAD_LINE and s_axis_tvalid = '1') else
                      '0';
 
 
@@ -442,8 +428,35 @@ begin
   end process;
 
 
-  buffer_write_address <= (double_buffer_ptr) & std_logic_vector(buffer_write_ptr);
-  buffer_write_data    <= s_axis_tdata;
+  P_buffer_write_address : process (numb_line_buffer, wr_line_ptr, buffer_write_ptr) is
+  begin
+    case numb_line_buffer is
+      -------------------------------------------------------------------------
+      -- 8 Line buffers
+      -------------------------------------------------------------------------
+      when "1000" =>
+        buffer_write_address <= wr_line_ptr(2 downto 0) & buffer_write_ptr(buffer_write_address'left - 3 downto 0);
+      -------------------------------------------------------------------------
+      -- 4 Line buffers
+      -------------------------------------------------------------------------
+      when "0100" =>
+        buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
+      -------------------------------------------------------------------------
+      -- 2 Line buffers
+      -------------------------------------------------------------------------
+      when "0010" =>
+        buffer_write_address <= wr_line_ptr(0 downto 0) & buffer_write_ptr(buffer_write_address'left - 1 downto 0);
+
+      -------------------------------------------------------------------------
+      -- 2 Line buffers
+      -------------------------------------------------------------------------
+      when others =>
+        buffer_write_address <= buffer_write_ptr;
+    end case;
+  end process;
+
+
+  buffer_write_data <= "0000" & s_axis_tuser & s_axis_tdata;
 
 
   -----------------------------------------------------------------------------
@@ -452,23 +465,48 @@ begin
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
-      ADDRWIDTH => BUFFER_ADDR_WIDTH+1
+      ADDRWIDTH => BUFFER_ADDR_WIDTH
       )
     port map(
       data      => buffer_write_data,
-      rdaddress => buffer_read_address,
+      rdaddress => std_logic_vector(buffer_read_address),
       rdclock   => sclk,
       rden      => buffer_read_en,
-      wraddress => buffer_write_address,
+      wraddress => std_logic_vector(buffer_write_address),
       wrclock   => sclk,
       wren      => buffer_write_en,
       q         => buffer_read_data
       );
 
   buffer_read_en        <= line_buffer_read_en;
-  buffer_read_address   <= not(double_buffer_ptr) & line_buffer_read_address;
-  line_buffer_read_data <= buffer_read_data;
 
+
+  P_buffer_read_address : process (numb_line_buffer, rd_line_ptr, line_buffer_read_address) is
+  begin
+    case numb_line_buffer is
+      -------------------------------------------------------------------------
+      -- 8 Line buffers
+      -------------------------------------------------------------------------
+      when "1000" =>
+        buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 3 downto 0));
+      -------------------------------------------------------------------------
+      -- 4 Line buffers
+      -------------------------------------------------------------------------
+      when "0100" =>
+        buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 2 downto 0));
+      -------------------------------------------------------------------------
+      -- 2 Line buffers
+      -------------------------------------------------------------------------
+      when "0010" =>
+        buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 1 downto 0));
+
+      -------------------------------------------------------------------------
+      -- 2 Line buffers
+      -------------------------------------------------------------------------
+      when others =>
+        buffer_read_address <= unsigned(line_buffer_read_address);
+    end case;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -487,8 +525,18 @@ begin
           -- S_IDLE : 
           -------------------------------------------------------------------
           when S_IDLE =>
-            if (state = S_INIT_HOST_TRANSFER) then
+            if (state = S_SOF) then
+              output_state <= S_WAIT_LINE;
+            end if;
+
+          -------------------------------------------------------------------
+          -- S_WAIT_LINE : Wait for a new line to transfer
+          -------------------------------------------------------------------
+          when S_WAIT_LINE =>
+            if (distance_cntr > (distance_cntr'range => '0') and line_transfered = '0') then
               output_state <= S_INIT;
+            else
+              output_state <= S_WAIT_LINE;
             end if;
 
           -------------------------------------------------------------------
@@ -497,18 +545,23 @@ begin
           when S_INIT =>
             output_state <= S_TRANSFER;
 
-
           -------------------------------------------------------------------
           --  S_LOAD_LINE : 
           -------------------------------------------------------------------
           when S_TRANSFER =>
             if (line_transfered = '1') then
-              if (last_row_output = '1') then
+              if (last_row = '1') then
                 output_state <= S_END_OF_DMA;
               else
-                output_state <= S_DONE;
+                output_state <= S_EOL;
               end if;
             end if;
+            
+          -------------------------------------------------------------------
+          -- S_EOL : 
+          -------------------------------------------------------------------
+          when S_EOL =>
+                output_state <= S_WAIT_LINE;
 
           -------------------------------------------------------------------
           -- S_END_OF_DMA : 
@@ -516,13 +569,11 @@ begin
           when S_END_OF_DMA =>
             output_state <= S_DONE;
 
-
           -------------------------------------------------------------------
           -- S_DONE : 
           -------------------------------------------------------------------
           when S_DONE =>
             output_state <= S_IDLE;
-
 
           -------------------------------------------------------------------
           -- 
@@ -541,16 +592,36 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        line_ready <= '0';
-		last_row_output <='0';
+        line_ready      <= '0';
+        --last_row_output <= '0';
       else
         if (output_state = S_INIT) then
-          line_ready <= '1';
-		  last_row_output <= last_row;
+          line_ready      <= '1';
+          --last_row_output <= last_row;
         elsif (line_transfered = '1') then
-          line_ready <= '0';
-		  last_row_output<='0';
+          line_ready      <= '0';
+          --last_row_output <= '0';
 
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_last_row
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_last_row : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        last_row <= '0';
+      else
+        -- If we detect an end of frame
+        if (output_state = S_TRANSFER and read_sync(1) = '1') then
+          last_row <= '1';
+        elsif (output_state = S_END_OF_DMA) then
+          last_row <= '0';
         end if;
       end if;
     end if;
@@ -560,7 +631,8 @@ begin
   start_of_frame <= '1' when (state = S_SOF) else
                     '0';
 
-  line_buffer_read_data <= buffer_read_data;
+  line_buffer_read_data <= buffer_read_data(63 downto 0);
+  read_sync             <= buffer_read_data(67 downto 64);
 
   end_of_dma <= '1' when (output_state = S_END_OF_DMA) else
                 '0';

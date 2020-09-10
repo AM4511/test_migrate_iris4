@@ -32,12 +32,12 @@ entity dmawr2tlp is
     ---------------------------------------------------------------------
     -- System I/F
     ---------------------------------------------------------------------
-    context_strb : in std_logic_vector(1 downto 0);
+    context_strb : in    std_logic_vector(1 downto 0);
     --load_dma_context
     ---------------------------------------------------------------------
     -- RegisterFile I/F
     ---------------------------------------------------------------------
-    regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
+    regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
 
     ----------------------------------------------------
     -- AXI stream interface (Slave port)
@@ -87,9 +87,9 @@ architecture rtl of dmawr2tlp is
 
   component axi_stream_in is
     generic (
-      AXIS_DATA_WIDTH   : integer := 64;
-      AXIS_USER_WIDTH   : integer := 4;
-      BUFFER_ADDR_WIDTH : integer := 10
+      AXIS_DATA_WIDTH       : integer := 64;
+      AXIS_USER_WIDTH       : integer := 4;
+      BUFFER_ADDR_WIDTH     : integer := 11  -- in bits
       );
     port (
       ---------------------------------------------------------------------
@@ -110,6 +110,11 @@ architecture rtl of dmawr2tlp is
       s_axis_tdata  : in  std_logic_vector(AXIS_DATA_WIDTH-1 downto 0);
       s_axis_tlast  : in  std_logic;
       s_axis_tuser  : in  std_logic_vector(AXIS_USER_WIDTH-1 downto 0);
+
+      ----------------------------------------------------
+      -- Line buffer config
+      ----------------------------------------------------
+      numb_line_buffer : in std_logic_vector(3 downto 0);
 
       ----------------------------------------------------
       -- Line buffer I/F
@@ -214,6 +219,7 @@ architecture rtl of dmawr2tlp is
   signal line_buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal line_buffer_read_data    : std_logic_vector(63 downto 0);
   signal color_space              : std_logic_vector(2 downto 0);
+  signal  numb_line_buffer        : std_logic_vector(3 downto 0) := "0100";
 
 
   -----------------------------------------------------------------------------
@@ -237,8 +243,8 @@ begin
   dma_context_mapping.line_pitch     <= regfile.DMA.LINE_PITCH.VALUE;
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
-  
-  dma_context_mapping.numb_plane     <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
+
+  dma_context_mapping.numb_plane <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
                                     3;
 
 
@@ -284,6 +290,7 @@ begin
       s_axis_tdata             => tdata,
       s_axis_tlast             => tlast,
       s_axis_tuser             => tuser,
+      numb_line_buffer         => numb_line_buffer,
       start_of_frame           => start_of_frame,
       line_ready               => line_ready,
       line_transfered          => line_transfered,
@@ -337,7 +344,7 @@ begin
   -----------------------------------------------------------------------------
   -- End of DMA transfer
   -----------------------------------------------------------------------------
-  intevent <= end_of_dma; 
+  intevent <= end_of_dma;
 
 end rtl;
 
