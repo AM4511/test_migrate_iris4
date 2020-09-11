@@ -43,7 +43,8 @@ module testbench();
 	parameter FSTART_R_OFFSET_HIGH  = 'h08C;
 	parameter LINE_PITCH_OFFSET     = 'h090;
 	parameter LINE_SIZE_OFFSET      = 'h094;
-
+	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
+	
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
 	parameter READOUT_CFG3_OFFSET       = 'h0120;
@@ -154,7 +155,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS5M_
+	`define _XGS12M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
@@ -179,7 +180,8 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  8;
 		parameter P_BOTTOM_DUMMY_1  =  3;
-
+		parameter P_LINE_PTR_WIDTH  =  3;
+		 
     ////////////////////////////////////////////////////////////
     // XGS 12000 Sensor parameter definitions
     ////////////////////////////////////////////////////////////
@@ -203,9 +205,10 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  24;
 		parameter P_BOTTOM_DUMMY_1  =  3;
+		parameter P_LINE_PTR_WIDTH  =  2;
 		
     ////////////////////////////////////////////////////////////
-    // XGS 12000 Sensor parameter definitions
+    // XGS 16000 Sensor parameter definitions
     ////////////////////////////////////////////////////////////
 	`elsif _XGS16M_
 		parameter P_MODEL_ID       =  16'h0258;
@@ -227,6 +230,7 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  8;
 		parameter P_BOTTOM_DUMMY_1  =  3;
+		parameter P_LINE_PTR_WIDTH  =  2;
 
     `endif
 	 
@@ -655,6 +659,7 @@ module testbench();
 				longint fstart;
 				int line_size;
 				int line_pitch;
+				int output_buffer_value;
 
 				int line_time;
 				int monitor_0_reg;
@@ -733,6 +738,13 @@ module testbench();
 				host.write(LINE_PITCH_OFFSET, line_pitch);
 				host.wait_n(10);
 
+				///////////////////////////////////////////////////
+				// DMA output buffer configuration
+				///////////////////////////////////////////////////
+				$display("  2.6 Write OUTPUT_BUFFER register @0x%h", OUTPUT_BUFFER_OFFSET);
+				output_buffer_value =  P_LINE_PTR_WIDTH << 24;
+				host.write(OUTPUT_BUFFER_OFFSET, output_buffer_value);
+				host.wait_n(10);
 
 				///////////////////////////////////////////////////
 				// XGS Controller wakes up sensor
@@ -1061,8 +1073,7 @@ module testbench();
                 tready_packet_delai_cfg    = 1; //random backpressure
 				tready_packet_random_min   = 1; 
 	            tready_packet_random_max   = 31;				
-	            tready_packet_random_max   = 10;				
-	            /*
+	           
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1075,7 +1086,7 @@ module testbench();
 				XGS_image = XGS_imageSRC.copy;
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
-	*/
+
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////	
@@ -1104,8 +1115,8 @@ module testbench();
 				
 				// Changeons le backpressure apres la premiere image								
                 tready_packet_delai_cfg = 0;   // Static backpressure
-				tready_packet_delai     = 27;  // ok
-				//tready_packet_delai   = 28;  // overrun	
+                tready_packet_delai     = 0;  // ok
+                //tready_packet_delai   = 28;  // overrun	
 
 
 				while (dma_irq_cntr != test_nb_images) begin
