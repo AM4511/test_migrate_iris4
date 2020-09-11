@@ -500,6 +500,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Data->EnableLUT();
 				break;
 
+
 			}
 
 		}

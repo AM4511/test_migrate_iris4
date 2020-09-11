@@ -17,6 +17,7 @@
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
 #include "Pcie.h"
+#include "flashupdate.h"
 
 #include "I2C.h"
 
@@ -139,7 +140,15 @@ int main(void)
 	CI2C *I2C;
 	I2C = new CI2C(rI2Cptr);
 
+	
+	//------------------------------
+	// Init class Flash
+	//------------------------------
+	CFpgaEeprom* FpgaEeprom;
+	FpgaEeprom = new CFpgaEeprom(fpga_bar1_add, 0x3F0000);
 
+	string imagename = "athena_1599656063.firmware";
+	FpgaEeprom->FPGAROMApiFlashFromFile(imagename);
 
 	//-----------------------------------------------------
     // If PCIe x1 detected, reduce Framerate of the sensor
