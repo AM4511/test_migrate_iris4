@@ -87,6 +87,9 @@
     <ClCompile Include="tests\test_0007_Continu_DPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\flashupdate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">
@@ -135,6 +138,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\osincludes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\flashupdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IntelHexFormatDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\milstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

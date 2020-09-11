@@ -34,6 +34,8 @@ public:
 	DMAParamStruct DMAParams;
 	DMAParamStruct* getDMAParams(void);
 
+	void PrintTime();
+
 	void HiSpiClr();
 	void HiSpiCalibrate();
 	void SetDMA();
