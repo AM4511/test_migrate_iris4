@@ -97,15 +97,15 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="enable" alias="Interrupt enable register" offsetFromParent="C" useMultiples="true">
+    <registers name="enable" alias="Interrupt status enable" description="Enable the the interrupt status register. If an enable bit is set to 1, the detection of an event is latch in the  associated status reister bit." offsetFromParent="C" useMultiples="true">
       <fields name="value" size="32">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="mask" alias="Interrupt mask register" offsetFromParent="14" useMultiples="true">
-      <fields name="value" size="32">
+    <registers name="mask" alias="Interrupt event mask" description="Mask the interrupt event at the source. A masked interrupt is not latched in the status register in legacy interrupt mode, neither is it forwarded to the host by the interrupt queue mechanism." offsetFromParent="14" useMultiples="true">
+      <fields name="value" size="32" valueAtReset="ffffffff">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

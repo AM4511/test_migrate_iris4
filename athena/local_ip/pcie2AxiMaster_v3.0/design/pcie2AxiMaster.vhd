@@ -782,30 +782,30 @@ architecture struct of pcie2AxiMaster is
   end component;
 
   component arbiter is
-   port(
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals (regfile domain)
-    ---------------------------------------------------------------------
-	axi_clk	    : in std_logic;
-	axi_reset_n	: in std_logic;
-	
-	---------------------------------------------------------------------
-    -- Regsiters
-    ---------------------------------------------------------------------
-    AGENT_REQ                            : in    std_logic_vector(1 downto 0);  -- Write-Only register
-    AGENT_REC                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
-    AGENT_ACK                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
-    AGENT_DONE                           : in    std_logic_vector(1 downto 0)   -- Write-Only register
+    port(
+      ---------------------------------------------------------------------
+      -- Sys domain reset and clock signals (regfile domain)
+      ---------------------------------------------------------------------
+      axi_clk     : in std_logic;
+      axi_reset_n : in std_logic;
 
-  );  
-  end component;  
+      ---------------------------------------------------------------------
+      -- Regsiters
+      ---------------------------------------------------------------------
+      AGENT_REQ  : in  std_logic_vector(1 downto 0);  -- Write-Only register
+      AGENT_REC  : out std_logic_vector(1 downto 0);  -- Read-Only register
+      AGENT_ACK  : out std_logic_vector(1 downto 0);  -- Read-Only register
+      AGENT_DONE : in  std_logic_vector(1 downto 0)   -- Write-Only register
+
+      );
+  end component;
 
 
   ---------------------------------------------------------------------------
   --  Xilinx PCIe core
   ---------------------------------------------------------------------------
   attribute mark_debug : string;
-  constant MAX_NUM_IRQ : integer   := 32; -- 64 ALSO possible  
+  constant MAX_NUM_IRQ : integer   := 32;  -- 64 ALSO possible  
   constant PCI_BAR0    : integer   := 0;
   constant PCI_BAR2    : integer   := 2;
   constant NO_PCI_BAR  : integer   := 7;
@@ -1023,7 +1023,7 @@ architecture struct of pcie2AxiMaster is
 
   -- Arbiter signals
   signal AGENT_REQ  : std_logic_vector(1 downto 0);
-  signal AGENT_REC  : std_logic_vector(1 downto 0); 
+  signal AGENT_REC  : std_logic_vector(1 downto 0);
   signal AGENT_ACK  : std_logic_vector(1 downto 0);
   signal AGENT_DONE : std_logic_vector(1 downto 0);
 
@@ -1719,16 +1719,21 @@ begin
   -- IRQ Mapping
   -----------------------------------------------------------------------------
   G_irq_mapping_low : for i in 0 to 31 generate
-    regfile.interrupts.status(0).value_set(i) <= irq_event_resync(i) and regfile.interrupts.enable(0).value(i);
-    int_status(i)                             <= regfile.interrupts.status(0).value(i) and (not regfile.interrupts.mask(0).value(i));
-    int_event(i)                              <= irq_event_resync(i) and regfile.interrupts.enable(0).value(i);
+    -- The event can be masked
+    int_event(i) <= irq_event_resync(i) and (not regfile.interrupts.mask(0).value(i));
+
+    -- The event is store in a status register (Must be cleared by software) in IRQ legacy mode
+    regfile.interrupts.status(0).value_set(i) <= irq_event(i) and regfile.interrupts.enable(0).value(i);
+    int_status(i)                             <= regfile.interrupts.status(0).value(i);
   end generate G_irq_mapping_low;
 
 
   G_irq_mapping_high : for i in 0 to 31 generate
-    regfile.interrupts.status(1).value_set(i) <= irq_event_resync(32+i) and regfile.interrupts.enable(1).value(i);
-    int_status(32+i)                          <= regfile.interrupts.status(1).value(i) and (not regfile.interrupts.mask(1).value(i));
-    int_event(32+i)                           <= irq_event_resync(32+i) and regfile.interrupts.enable(1).value(i);
+    -- The event can be masked
+    int_event(32+i)                           <= irq_event_resync(32+i) and (not regfile.interrupts.mask(1).value(i));
+    -- The event is store in a status register (Must be cleared by software) in IRQ legacy mode
+    regfile.interrupts.status(1).value_set(i) <= irq_event(32+i) and regfile.interrupts.enable(1).value(i);
+    int_status(32+i)                          <= regfile.interrupts.status(1).value(i);
   end generate G_irq_mapping_high;
 
   -- Mask Legacy IRQ  
@@ -1819,86 +1824,94 @@ begin
 
         case curr_debug_dma_state is
 
-          when idle => tlp_error_add <= '0';
-                       tlp_error_overrun <= '0';
-                       tlp_next_address  <= tlp_next_address;
-                       if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
-                         if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 DW
-                           curr_debug_dma_state <= header;
-                         else
-                           curr_debug_dma_state <= idle;
-                         end if;
-                       else
-                         curr_debug_dma_state <= idle;
-                       end if;
+          when idle =>
+            tlp_error_add     <= '0';
+            tlp_error_overrun <= '0';
+            tlp_next_address  <= tlp_next_address;
+            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
+              if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 DW
+                curr_debug_dma_state <= header;
+              else
+                curr_debug_dma_state <= idle;
+              end if;
+            else
+              curr_debug_dma_state <= idle;
+            end if;
 
-          when header => tlp_error_add <= '0';
-                         tlp_error_overrun <= '0';
-                         if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
-                           if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
-                             tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- nxt is SOF+0x80
-                             curr_debug_dma_state <= tlp_ok;
-                           elsif(s_axis_tx_tdata(31 downto 0) /= tlp_next_address) then  -- suite pas ok        (erreur d'adresse)                                                          
-                             curr_debug_dma_state <= error;
-                             tlp_next_address     <= tlp_next_address;
-                           elsif(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG2.ADD_OVERRUN) then  --on depasse l'image
-                             curr_debug_dma_state <= overrun;
-                             tlp_next_address     <= tlp_next_address;
-                           elsif(s_axis_tx_tdata(31 downto 0) = tlp_next_address) then
-                             tlp_next_address     <= tlp_next_address + "10000000";  -- ok , nxt is curr+0x80                                                                 
-                             curr_debug_dma_state <= tlp_ok;
-                           end if;
-                         else
-                           curr_debug_dma_state <= header;
-                         end if;
+          when header =>
+            tlp_error_add     <= '0';
+            tlp_error_overrun <= '0';
+            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '0') then
+              if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
+                tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- nxt is SOF+0x80
+                curr_debug_dma_state <= tlp_ok;
+              elsif(s_axis_tx_tdata(31 downto 0) /= tlp_next_address) then  -- suite pas ok        (erreur d'adresse)                                                          
+                curr_debug_dma_state <= error;
+                tlp_next_address     <= tlp_next_address;
+              elsif(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG2.ADD_OVERRUN) then  --on depasse l'image
+                curr_debug_dma_state <= overrun;
+                tlp_next_address     <= tlp_next_address;
+              elsif(s_axis_tx_tdata(31 downto 0) = tlp_next_address) then
+                tlp_next_address     <= tlp_next_address + "10000000";  -- ok , nxt is curr+0x80                                                                 
+                curr_debug_dma_state <= tlp_ok;
+              end if;
+            else
+              curr_debug_dma_state <= header;
+            end if;
 
-          when tlp_ok => tlp_error_add <= '0';
-                         tlp_error_overrun <= '0';
-                         tlp_next_address  <= tlp_next_address;
-                         if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '1') then
-                           curr_debug_dma_state <= idle;
-                         else
-                           curr_debug_dma_state <= tlp_ok;
-                         end if;
+          when tlp_ok =>
+            tlp_error_add     <= '0';
+            tlp_error_overrun <= '0';
+            tlp_next_address  <= tlp_next_address;
+            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1' and s_axis_tx_tlast = '1') then
+              curr_debug_dma_state <= idle;
+            else
+              curr_debug_dma_state <= tlp_ok;
+            end if;
 
 
-          when error => curr_debug_dma_state <= wait_sof1;
-                        tlp_error_add     <= '1';
-                        tlp_error_overrun <= '0';
-                        tlp_next_address  <= tlp_next_address;
+          when error =>
+            curr_debug_dma_state <= wait_sof1;
+            tlp_error_add        <= '1';
+            tlp_error_overrun    <= '0';
+            tlp_next_address     <= tlp_next_address;
 
-          when overrun => curr_debug_dma_state <= wait_sof1;
-                          tlp_error_add     <= '0';
-                          tlp_error_overrun <= '1';
-                          tlp_next_address  <= tlp_next_address;
+          when overrun =>
+            curr_debug_dma_state <= wait_sof1;
+            tlp_error_add        <= '0';
+            tlp_error_overrun    <= '1';
+            tlp_next_address     <= tlp_next_address;
 
-          when wait_sof1 => tlp_error_add <= '0';
-                            tlp_error_overrun <= '0';
-                            tlp_next_address  <= tlp_next_address;
-                            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
-                              if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 dw
-                                curr_debug_dma_state <= wait_sof2;
-                              else
-                                curr_debug_dma_state <= wait_sof1;
-                              end if;
-                            else
-                              curr_debug_dma_state <= wait_sof1;
-                            end if;
+          when wait_sof1 =>
+            tlp_error_add     <= '0';
+            tlp_error_overrun <= '0';
+            tlp_next_address  <= tlp_next_address;
+            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
+              if(s_axis_tx_tdata(9 downto 0) = "0000100000") then  --0x20 dw
+                curr_debug_dma_state <= wait_sof2;
+              else
+                curr_debug_dma_state <= wait_sof1;
+              end if;
+            else
+              curr_debug_dma_state <= wait_sof1;
+            end if;
 
-          when wait_sof2 => tlp_error_add <= '0';
-                            tlp_error_overrun <= '0';
-                            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
-                              if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
-                                tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- +0x80
-                                curr_debug_dma_state <= tlp_ok;
-                              else
-                                curr_debug_dma_state <= wait_sof1;
-                                tlp_next_address     <= tlp_next_address;
-                              end if;
-                            else
-                              curr_debug_dma_state <= wait_sof1;
-                              tlp_next_address     <= tlp_next_address;
-                            end if;
+          when wait_sof2 =>
+            tlp_error_add <= '0';
+
+            tlp_error_overrun <= '0';
+            if(s_axis_tx_tready = '1' and s_axis_tx_tvalid = '1') then
+              if(s_axis_tx_tdata(31 downto 0) = regfile.debug.DMA_DEBUG1.ADD_START) then  --Start of frame
+                tlp_next_address     <= regfile.debug.DMA_DEBUG1.ADD_START + "10000000";  -- +0x80
+                curr_debug_dma_state <= tlp_ok;
+              else
+                curr_debug_dma_state <= wait_sof1;
+                tlp_next_address     <= tlp_next_address;
+              end if;
+            else
+              curr_debug_dma_state <= wait_sof1;
+              tlp_next_address     <= tlp_next_address;
+            end if;
 
         end case;
       end if;
@@ -1915,26 +1928,26 @@ begin
   -- Arbitre pour utilisation generale
   -----------------------------------------------------------------------------
   Xarbiter : arbiter
-   port map(
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals (regfile domain)
-    ---------------------------------------------------------------------
-	axi_clk	      => sys_clk,
-	axi_reset_n	  => sys_reset_n,
-	
-	---------------------------------------------------------------------
-    -- Regsiters
-    ---------------------------------------------------------------------
-    AGENT_REQ     => AGENT_REQ,  -- Write-Only register
-    AGENT_REC     => AGENT_REC,  -- Read-Only register
-    AGENT_ACK     => AGENT_ACK,  -- Read-Only register
-    AGENT_DONE    => AGENT_DONE  -- Write-Only register
+    port map(
+      ---------------------------------------------------------------------
+      -- Sys domain reset and clock signals (regfile domain)
+      ---------------------------------------------------------------------
+      axi_clk     => sys_clk,
+      axi_reset_n => sys_reset_n,
 
-  );  
+      ---------------------------------------------------------------------
+      -- Regsiters
+      ---------------------------------------------------------------------
+      AGENT_REQ  => AGENT_REQ,          -- Write-Only register
+      AGENT_REC  => AGENT_REC,          -- Read-Only register
+      AGENT_ACK  => AGENT_ACK,          -- Read-Only register
+      AGENT_DONE => AGENT_DONE          -- Write-Only register
+
+      );
 
   -- Write-Only registers
-  AGENT_REQ  <= regfile.arbiter.AGENT(1).REQ  & regfile.arbiter.AGENT(0).REQ;
-  AGENT_DONE <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
+  AGENT_REQ                    <= regfile.arbiter.AGENT(1).REQ & regfile.arbiter.AGENT(0).REQ;
+  AGENT_DONE                   <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
   -- Read-Only registers
   regfile.arbiter.AGENT(0).REC <= AGENT_REC(0);
   regfile.arbiter.AGENT(0).ACK <= AGENT_ACK(0);
