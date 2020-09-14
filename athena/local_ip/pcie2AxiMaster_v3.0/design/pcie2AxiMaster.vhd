@@ -1577,8 +1577,8 @@ begin
       ---------------------------------------------------------------------
       -- single interrupt OUT
       ---------------------------------------------------------------------
-      queue_int_out => queue_irq(0),
-      msi_req       => msi_req(0),
+      queue_int_out => queue_irq(0), -- Legacy IRQ
+      msi_req       => msi_req(0),   -- MSI IRQ
       msi_ack       => msi_ack(0),
 
       regfile => regfile.INTERRUPT_QUEUE,
@@ -1723,7 +1723,7 @@ begin
     int_event(i) <= irq_event_resync(i) and (not regfile.interrupts.mask(0).value(i));
 
     -- The event is store in a status register (Must be cleared by software) in IRQ legacy mode
-    regfile.interrupts.status(0).value_set(i) <= irq_event(i) and regfile.interrupts.enable(0).value(i);
+    regfile.interrupts.status(0).value_set(i) <= int_event(i) and regfile.interrupts.enable(0).value(i);
     int_status(i)                             <= regfile.interrupts.status(0).value(i);
   end generate G_irq_mapping_low;
 
@@ -1732,7 +1732,7 @@ begin
     -- The event can be masked
     int_event(32+i)                           <= irq_event_resync(32+i) and (not regfile.interrupts.mask(1).value(i));
     -- The event is store in a status register (Must be cleared by software) in IRQ legacy mode
-    regfile.interrupts.status(1).value_set(i) <= irq_event(32+i) and regfile.interrupts.enable(1).value(i);
+    regfile.interrupts.status(1).value_set(i) <= int_event(32+i) and regfile.interrupts.enable(1).value(i);
     int_status(32+i)                          <= regfile.interrupts.status(1).value(i);
   end generate G_irq_mapping_high;
 
