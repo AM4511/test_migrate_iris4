@@ -8,6 +8,29 @@
 // COPYRIGHT (c) Matrox Electronic Systems Ltd.
 // All Rights Reserved
 //==============================================================================
+#include <locale>
+#include <map>
+#include <set>
+#include <memory>
+#include <queue>
+#include <stdexcept>      // std::out_of_range
+#include <array>
+#include <map>
+#include <list>
+#include <array>
+#include <vector>
+#include <exception>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+#include <atomic>
+#include <iostream>
+#include <iomanip>
+#include <mutex>
+#include <thread>
+#include <future>
+
 #include "mbasictypes.h"
 #include "Mil.h"
 #include "milstring.h"
@@ -16,6 +39,7 @@
 #include <math.h>
 #include <vector>
 #include "../../../../local_ip/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.h"
+
 using namespace std;
 
 

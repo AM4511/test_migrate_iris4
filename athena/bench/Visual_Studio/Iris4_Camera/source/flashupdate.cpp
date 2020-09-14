@@ -9,31 +9,6 @@
 // COPYRIGHT (c) Matrox Electronic Systems Ltd.
 // All Rights Reserved
 //==============================================================================
-//#include <includes.h>
-
-#include <locale>
-#include <map>
-#include <set>
-#include <memory>
-#include <queue>
-#include <stdexcept>      // std::out_of_range
-#include <array>
-#include <map>
-#include <list>
-#include <array>
-#include <vector>
-#include <exception>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <algorithm>
-#include <atomic>
-#include <iostream>
-#include <iomanip>
-#include <mutex>
-#include <thread>
-#include <future>
-
 
 #include "osincludes.h"
 #include "mil.h"
@@ -46,9 +21,6 @@
 #if M_MIL_USE_WINDOWS
 #include <tchar.h>
 #endif
-
-
-//#include "../../frameworkuser/text/encodings/TextEncoding.h"
 
 
 /**************************************************************************************************

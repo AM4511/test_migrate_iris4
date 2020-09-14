@@ -151,7 +151,7 @@ int main(void)
 	// Init class Flash
 	//------------------------------
 	CFpgaEeprom* FpgaEeprom;
-	FpgaEeprom = new CFpgaEeprom(fpga_bar1_add, 0x3F0000);
+	FpgaEeprom = new CFpgaEeprom(fpga_bar1_add, 0x3F0000); //32Mb flash (we have 64Mb installed)
 
 
 	//-----------------------------------------------------

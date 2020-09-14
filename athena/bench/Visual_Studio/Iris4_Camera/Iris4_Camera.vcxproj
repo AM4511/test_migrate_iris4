@@ -220,9 +220,6 @@
   <ItemGroup>
     <Image Include="Camera.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.registerfile" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
