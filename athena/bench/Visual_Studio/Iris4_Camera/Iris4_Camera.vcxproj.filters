@@ -87,6 +87,9 @@
     <ClCompile Include="tests\test_0007_Continu_DPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\flashupdate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mbasictypes.h">
@@ -137,6 +140,15 @@
     <ClInclude Include="include\osincludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\flashupdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IntelHexFormatDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\milstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Iris4_Camera.rc">
@@ -147,8 +159,5 @@
     <Image Include="Camera.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\local_ip\pcie2AxiMaster_v3.0\registerfile\regfile_pcie2AxiMaster.registerfile" />
   </ItemGroup>
 </Project>

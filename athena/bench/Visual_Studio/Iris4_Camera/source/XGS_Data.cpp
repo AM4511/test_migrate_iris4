@@ -59,6 +59,27 @@ DMAParamStruct* CXGS_Data::getDMAParams(void)
 }
 
 
+//----------------------------------------------------
+//
+//  Print Time
+//
+//----------------------------------------------------
+void CXGS_Data::PrintTime(void)
+{
+
+	time_t ltime;
+	char* buf;
+
+	time(&ltime);
+
+	buf = ctime(&ltime);
+	if (!buf)
+	{
+		printf("Invalid Arguments for ctime.\n");
+	}
+	printf("Current time is %s", buf);
+
+}
 
 //--------------------------------------------------------------------
 // Cette fonction Reset l'interface HiSPI
@@ -310,6 +331,9 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		printf("HISPI PACK2_STATUS : 0x%X\n", Reg_HISPI_PACK_STATUS[2]);
 		for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
 			printf("TAP_HISTOGRAM_%d : 0x%X\n", i, rXGSptr.HISPI.TAP_HISTOGRAM[i].u32);
+
+		printf("\n\nError detected at : ");
+		PrintTime();
 
 		printf("\nPress 'c' to continue without recover HI_SPI\n");
 		printf("Press 'r' to try to recover HI_SPI and continue this test\n");

@@ -237,6 +237,13 @@ add wave -noupdate -group mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/ac
 add wave -noupdate -group mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_pix_cntr_en
 add wave -noupdate -group mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_pix_cntr_init
 add wave -noupdate -group mono_pipeline /testbench/DUT/xgs_mono_pipeline_inst/aclk_tuser_int
+add wave -noupdate /testbench/DUT/regfile.HISPI.STATUS.FIFO_ERROR
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_OVERRUN
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_UNDERRUN
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_OVERRUN
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_UNDERRUN
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_OVERRUN
+add wave -noupdate /testbench/DUT/regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_UNDERRUN
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/pix_reset_n
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/sys_clk
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/sys_reset_n
@@ -362,153 +369,190 @@ add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/alias_dpc_data_
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_3
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_2
 add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_0
-add wave -noupdate -divider {AXI SLAVE}
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tvalid
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tready
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tuser
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tdata
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_tdata64
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tlast
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_tready_int
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_line_gap
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_first_line
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_first_prefetch
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_prefetch
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_prefetch_done
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_prefetch_cnt
-add wave -noupdate -divider {Kernel 10x3 IN}
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_kernel_10x3_sof
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_kernel_10x3_sol
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_data_enable_P1
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_data_in_100_P2
-add wave -noupdate /testbench/DUT/xdpc_filter/dcp_data_in_100_P2_64
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_kernel_10x3_eol
-add wave -noupdate /testbench/DUT/xdpc_filter/dpc_kernel_10x3_eof
-add wave -noupdate -divider {Kernel 10x3 OUT}
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_sof
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_sol
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_en
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_out
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_out_Center64
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_eol
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_eof
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_first_line
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_last_line
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_first_col
-add wave -noupdate /testbench/DUT/xdpc_filter/kernel_10x3_last_col
-add wave -noupdate -divider {PROC OUT}
-add wave -noupdate /testbench/DUT/xdpc_filter/proc_sol
-add wave -noupdate /testbench/DUT/xdpc_filter/proc_en
-add wave -noupdate -expand /testbench/DUT/xdpc_filter/proc_data
-add wave -noupdate /testbench/DUT/xdpc_filter/proc_eol
-add wave -noupdate /testbench/DUT/xdpc_filter/proc_eof
+add wave -noupdate -expand -group dcp -divider {AXI SLAVE}
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tvalid
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tready
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tuser
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tdata
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_tdata64
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tlast
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_tready_int
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_line_gap
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_first_line
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_first_prefetch
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_prefetch
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_prefetch_done
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_prefetch_cnt
+add wave -noupdate -expand -group dcp -divider {Kernel 10x3 IN}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_kernel_10x3_sof
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_kernel_10x3_sol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_data_enable_P1
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_data_in_100_P2
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dcp_data_in_100_P2_64
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_kernel_10x3_eol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/dpc_kernel_10x3_eof
+add wave -noupdate -expand -group dcp -divider {Kernel 10x3 OUT}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_sof
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_sol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_en
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_out_Center64
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_eol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_eof
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_first_line
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_last_line
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_first_col
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/kernel_10x3_last_col
+add wave -noupdate -expand -group dcp -divider {PROC OUT}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_sol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_en
+add wave -noupdate -expand -group dcp -expand /testbench/DUT/xdpc_filter/proc_data
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(7)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(6)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(5)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(4)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(3)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(2)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(1)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_data(0)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_eol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/proc_eof
+add wave -noupdate -expand -group dcp -divider {New Divider}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr_sof
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr_sol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr_en
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(7)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(6)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(5)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(4)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(3)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(2)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(1)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr(0)
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr_eol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Pix_corr_eof
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_wait
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_wait_data
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_tvalid_int
+add wave -noupdate -expand -group dcp -divider {New Divider}
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tvalid
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tready
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tuser
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tdata
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_tdata64
+add wave -noupdate -expand -group dcp -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tlast
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_first_prefetch
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_line_gap
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/s_axis_line_wait
+add wave -noupdate -expand -group dcp -divider {AXI MASTER}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/pix_clk
+add wave -noupdate -expand -group dcp -color Yellow /testbench/DUT/xdpc_filter/m_axis_tvalid
+add wave -noupdate -expand -group dcp -color Yellow /testbench/DUT/xdpc_filter/m_axis_tready
+add wave -noupdate -expand -group dcp -color Yellow /testbench/DUT/xdpc_filter/m_axis_tlast
+add wave -noupdate -expand -group dcp -color Yellow /testbench/DUT/xdpc_filter/m_axis_tuser
+add wave -noupdate -expand -group dcp -color Yellow /testbench/DUT/xdpc_filter/m_axis_tdata
+add wave -noupdate -expand -group dcp -color Yellow -label m_axis_tdata64 /testbench/DUT/aclk_tdata64
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_tdata_int
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_wait
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_wait_data64
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/m_axis_wait_data
+add wave -noupdate -expand -group dcp -divider {New Divider}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_col_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_line_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_col_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_frame_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_line_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_en
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_line_out
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_frame_out
+add wave -noupdate -expand -group dcp -divider {New Divider}
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eof_os
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/m_axis_ack
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_started
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_prefetch
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_en
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eol_P1
+add wave -noupdate -expand -group dcp -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_cntr
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_first
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_second
+add wave -noupdate -expand -group dcp -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_line_length
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P1
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_empty
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P2
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P3
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P2
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P1
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_1
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_empty
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_full
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_full
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_overflow
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_overflow
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_underflow
+add wave -noupdate -expand -group dcp /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_underflow
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/back_pressure_cntr
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_empty
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_rdy
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_address
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_data
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_en
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_ptr
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/CONT
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/double_buffer_ptr
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/end_of_dma
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/state
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/EOF
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/EOL
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/last_row
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/last_row_output
+add wave -noupdate -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_en
+add wave -noupdate -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_data
+add wave -noupdate -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_address
+add wave -noupdate -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_en
+add wave -noupdate -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_data
+add wave -noupdate -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_address
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_ready
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_transfered
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/max_back_pressure
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/output_state
+add wave -noupdate -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tvalid
+add wave -noupdate -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tready
+add wave -noupdate -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tdata
+add wave -noupdate -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tuser
+add wave -noupdate -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tlast
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/sclk
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/SOF
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/srst_n
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/start_of_frame
+add wave -noupdate -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/wait_line_flushed
 add wave -noupdate -divider {New Divider}
-add wave -noupdate /testbench/DUT/xdpc_filter/Pix_corr_sof
-add wave -noupdate /testbench/DUT/xdpc_filter/Pix_corr_sol
-add wave -noupdate /testbench/DUT/xdpc_filter/Pix_corr_en
-add wave -noupdate -expand /testbench/DUT/xdpc_filter/Pix_corr
-add wave -noupdate /testbench/DUT/xdpc_filter/Pix_corr_eol
-add wave -noupdate /testbench/DUT/xdpc_filter/Pix_corr_eof
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait_data
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_tvalid_int
-add wave -noupdate -divider {New Divider}
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tvalid
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tready
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tuser
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tdata
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_tdata64
-add wave -noupdate -color {Medium Violet Red} /testbench/DUT/xdpc_filter/s_axis_tlast
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_first_prefetch
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_line_gap
-add wave -noupdate /testbench/DUT/xdpc_filter/s_axis_line_wait
-add wave -noupdate -divider {AXI MASTER}
-add wave -noupdate /testbench/DUT/xdpc_filter/pix_clk
-add wave -noupdate -color Yellow /testbench/DUT/xdpc_filter/m_axis_tvalid
-add wave -noupdate -color Yellow /testbench/DUT/xdpc_filter/m_axis_tready
-add wave -noupdate -color Yellow /testbench/DUT/xdpc_filter/m_axis_tlast
-add wave -noupdate -color Yellow /testbench/DUT/xdpc_filter/m_axis_tuser
-add wave -noupdate -color Yellow /testbench/DUT/xdpc_filter/m_axis_tdata
-add wave -noupdate -color Yellow -label m_axis_tdata64 /testbench/DUT/aclk_tdata64
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_tdata_int
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait_data64
-add wave -noupdate /testbench/DUT/xdpc_filter/m_axis_wait_data
-add wave -noupdate -divider {New Divider}
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_col_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/first_line_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_col_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_frame_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/start_of_line_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_en
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/neighbor_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_line_out
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/end_of_frame_out
-add wave -noupdate -divider {New Divider}
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eof_os
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/m_axis_ack
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_started
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_prefetch
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_en
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/eol_P1
-add wave -noupdate -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_cntr
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_first
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_wren_second
-add wave -noupdate -radix unsigned /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_line_length
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P1
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_empty
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P2
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_rd_P3
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P2
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol_P1
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/last_line_fifo_eol
-add wave -noupdate /testbench/DUT/xdpc_filter/alias_fpnprnu_corr_data_1
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_empty
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_full
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_full
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_overflow
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_overflow
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_first_underflow
-add wave -noupdate /testbench/DUT/xdpc_filter/Xdpc_kernel_10x3/lbuff_second_underflow
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/back_pressure_cntr
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_empty
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_rdy
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_address
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_data
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_read_en
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_ptr
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/CONT
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/double_buffer_ptr
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/end_of_dma
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/state
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/EOF
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/EOL
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/last_row
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/last_row_output
-add wave -noupdate -expand -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_en
-add wave -noupdate -expand -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_data
-add wave -noupdate -expand -group Axi_Stream_IN -color Gold /testbench/DUT/xdmawr2tlp/xaxi_stream_in/buffer_write_address
-add wave -noupdate -expand -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_en
-add wave -noupdate -expand -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_data
-add wave -noupdate -expand -group Axi_Stream_IN -color Magenta /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_buffer_read_address
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_ready
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/line_transfered
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/max_back_pressure
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/output_state
-add wave -noupdate -expand -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tvalid
-add wave -noupdate -expand -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tready
-add wave -noupdate -expand -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tdata
-add wave -noupdate -expand -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tuser
-add wave -noupdate -expand -group Axi_Stream_IN -color {Orange Red} /testbench/DUT/xdmawr2tlp/xaxi_stream_in/s_axis_tlast
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/sclk
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/SOF
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/srst_n
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/start_of_frame
-add wave -noupdate -expand -group Axi_Stream_IN /testbench/DUT/xdmawr2tlp/xaxi_stream_in/wait_line_flushed
-add wave -noupdate /testbench/DUT/xdmawr2tlp/xaxi_stream_in/xdual_port_ram/mem
-add wave -noupdate -divider {New Divider}
+add wave -noupdate -group LANE_PACKERS -color {Medium Violet Red} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/xoutput_fifo/wren
+add wave -noupdate -group LANE_PACKERS -color {Medium Violet Red} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/xoutput_fifo/wren
+add wave -noupdate -group LANE_PACKERS -color {Medium Violet Red} /testbench/DUT/x_xgs_hispi_top/G_lane_packer(2)/xlane_packer/xoutput_fifo/wren
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/xoutput_fifo/rden
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/xoutput_fifo/rden
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(2)/xlane_packer/xoutput_fifo/rden
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/xoutput_fifo/full
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/xoutput_fifo/full
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(2)/xlane_packer/xoutput_fifo/full
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/xoutput_fifo/empty
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/xoutput_fifo/empty
+add wave -noupdate -group LANE_PACKERS /testbench/DUT/x_xgs_hispi_top/G_lane_packer(2)/xlane_packer/xoutput_fifo/empty
+add wave -noupdate -group LANE_PACKERS -radix unsigned /testbench/DUT/x_xgs_hispi_top/G_lane_packer(0)/xlane_packer/xoutput_fifo/usedw
+add wave -noupdate -group LANE_PACKERS -radix unsigned /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/xoutput_fifo/usedw
+add wave -noupdate -group LANE_PACKERS -radix unsigned /testbench/DUT/x_xgs_hispi_top/G_lane_packer(2)/xlane_packer/xoutput_fifo/usedw
+add wave -noupdate -group LANE_PACKERS -radix unsigned /testbench/DUT/x_xgs_hispi_top/G_lane_packer(1)/xlane_packer/pix_in_cntr
+add wave -noupdate -group LINE_BUFFER -expand /testbench/DUT/x_xgs_hispi_top/xline_buffer/lane_packer_ack
+add wave -noupdate -group LINE_BUFFER -expand /testbench/DUT/x_xgs_hispi_top/xline_buffer/lane_packer_req
+add wave -noupdate -group LINE_BUFFER /testbench/DUT/x_xgs_hispi_top/xline_buffer/xdual_port_ram/wrclock
+add wave -noupdate -group LINE_BUFFER /testbench/DUT/x_xgs_hispi_top/xline_buffer/xdual_port_ram/wren
+add wave -noupdate -group LINE_BUFFER /testbench/DUT/x_xgs_hispi_top/xline_buffer/xdual_port_ram/rdclock
+add wave -noupdate -group LINE_BUFFER /testbench/DUT/x_xgs_hispi_top/xline_buffer/xdual_port_ram/rden
 add wave -noupdate -group TLP /testbench/DUT/tlp_transaction_id
 add wave -noupdate -group TLP /testbench/DUT/tlp_req_to_send
 add wave -noupdate -group TLP /testbench/DUT/tlp_grant
@@ -522,24 +566,24 @@ add wave -noupdate -group TLP /testbench/DUT/tlp_ldwbe_fdwbe
 add wave -noupdate -group TLP /testbench/DUT/tlp_fmt_type
 add wave -noupdate -group TLP /testbench/DUT/tlp_attr
 add wave -noupdate -group TLP /testbench/DUT/tlp_address
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/sys_reset_n
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/sys_clk
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tvalid
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tready
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} -expand /testbench/inst_pcie_tx_axi/s_axis_tx_tuser
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tdata
-add wave -noupdate -expand -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tlast
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/sys_reset_n
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/sys_clk
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tvalid
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tready
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} -expand /testbench/inst_pcie_tx_axi/s_axis_tx_tuser
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tdata
+add wave -noupdate -group {PCIE_TX_AXI : BUS AXI} /testbench/inst_pcie_tx_axi/s_axis_tx_tlast
 add wave -noupdate /testbench/tready_cntr
 add wave -noupdate /testbench/tready_cntr_en
 add wave -noupdate /testbench/tready_packet_cntr
 add wave -noupdate /testbench/tready_packet_cntr_en
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 8} {1208984000 ps} 0} {{Cursor 2} {179443 ps} 0}
+WaveRestoreCursors {{Cursor 8} {1347172105 ps} 0} {{Cursor 2} {292745288 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 186
-configure wave -valuecolwidth 218
+configure wave -namecolwidth 495
+configure wave -valuecolwidth 120
 configure wave -justifyvalue left
-configure wave -signalnamewidth 1
+configure wave -signalnamewidth 0
 configure wave -snapdistance 10
 configure wave -datasetprefix 0
 configure wave -rowmargin 4
@@ -550,4 +594,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1499225479 ps} {1745645137 ps}
+WaveRestoreZoom {0 ps} {1918350 ns}
