@@ -16,7 +16,7 @@ proc init_gui { IPINST } {
   #Adding Page
   set DMA [ipgui::add_page $IPINST -name "DMA"]
   set_property tooltip {DMA controller configuration} ${DMA}
-  ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${DMA}
+  ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${DMA} -widget comboBox
 
   #Adding Page
   set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {HiSPi}]

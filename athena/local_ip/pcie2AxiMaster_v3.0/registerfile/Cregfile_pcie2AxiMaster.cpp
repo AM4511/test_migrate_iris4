@@ -2,11 +2,11 @@
 ** File                : Cregfile_pcie2AxiMaster.cpp
 ** Project             : FDK
 ** Module              : regfile_pcie2AxiMaster
-** Created on          : 2020/09/04 14:04:14
-** Created by          : imaval
+** Created on          : 2020/09/14 14:50:04
+** Created by          : amarchan
 ** FDK IDE Version     : 4.7.0_beta4
 ** Build ID            : I20191220-1537
-** Register file CRC32 : 0xB9E8A643
+** Register file CRC32 : 0x9CA38D67
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -233,7 +233,7 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[0](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0xffffffff, 0xffffffff, 0xffffffff)); // mask[0](31:0)
 
    /******************************************************************
    * Register: /regfile_pcie2AxiMaster/interrupts/mask[1](31:0)
@@ -244,7 +244,7 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[1](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0xffffffff, 0xffffffff, 0xffffffff)); // mask[1](31:0)
 
    /******************************************************************
    * Register: /regfile_pcie2AxiMaster/interrupts/mask[1](31:0)
@@ -255,7 +255,7 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0x0, 0xffffffff, 0xffffffff)); // mask[](31:0)
+   pRegister->addField(createField(pRegister, "value", 0, 32, CfdkField::RW, 0xffffffff, 0xffffffff, 0xffffffff)); // mask[](31:0)
 
 
    /******************************************************************

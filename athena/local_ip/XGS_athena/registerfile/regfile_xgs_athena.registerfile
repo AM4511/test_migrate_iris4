@@ -19,7 +19,7 @@
       <fields name="VALUE" size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="A4">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="A8">
     <registers name="CTRL" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" useReservedSpaceBelow="true" address="108">
       <fields name="GRAB_QUEUE_EN" alias="" description="" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -96,6 +96,31 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="REVERSE_X" lsb="8"/>
+    </registers>
+    <registers name="OUTPUT_BUFFER" alias="Output line buffer" offsetFromParent="38">
+      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LINE_PTR_WIDTH" alias="Line pointer size (in bits)" description="Set the line pointer size (in bits)&#xD;&#xA; 3 = 3 bits wide : The full memory buffer is divided in 8 sub line buffers " lsb="24" size="2" valueAtReset="2" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not valid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 2 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 4 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 8 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="" lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Back pressure detected on PCIe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="CLR_MAX_LINE_BUFF_CNT" alias="Clear maximum line buffer count" description="" readWrite="false" writeOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clear the max count&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2D8">

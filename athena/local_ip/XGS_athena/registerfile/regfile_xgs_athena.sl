@@ -92,6 +92,21 @@ Register("csc", 0x98, 4, "null");
 			FieldValue("Top to bottom readout", 1);
 		Field("reverse_x", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+Register("output_buffer", 0xa8, 4, "Output line buffer");
+		Field("max_line_buff_cnt", 31, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Maximum line buffer count");
+		Field("line_ptr_width", 25, 24, "rd|wr", 0x0, 0x2, 0xffffffff, 0xffffffff, TEST, 0, 0, "Line pointer size (in bits)");
+			FieldValue("Not valid", 0);
+			FieldValue("The buffer is divided in 2 line buffers", 1);
+			FieldValue("The buffer is divided in 4 line buffers", 2);
+			FieldValue("The buffer is divided in 8 line buffers", 3);
+		Field("address_bus_width", 23, 20, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Line buffer address size in bits");
+		Field("pcie_back_pressure", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "PCIE link back pressure detected");
+			FieldValue("No effect", 0);
+			FieldValue("Back pressure detected on PCIe", 1);
+		Field("clr_max_line_buff_cnt", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Clear maximum line buffer count");
+			FieldValue("No effect", 0);
+			FieldValue("Clear the max count", 1);
+
 %=================================================================
 % SECTION NAME	: ACQ
 %=================================================================

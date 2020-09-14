@@ -109,7 +109,7 @@ Group("enable", "DECTAG", enableTags);
 for(i = 0; i < 2; i++)
 {
 
-	Register("enable", 0x4c + i*0x4, 4, "enable*", "enable", i, "Interrupt enable register");
+	Register("enable", 0x4c + i*0x4, 4, "enable*", "enable", i, "Interrupt status enable");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 }
 
@@ -125,8 +125,8 @@ Group("mask", "DECTAG", maskTags);
 for(i = 0; i < 2; i++)
 {
 
-	Register("mask", 0x54 + i*0x4, 4, "mask*", "mask", i, "Interrupt mask register");
-		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+	Register("mask", 0x54 + i*0x4, 4, "mask*", "mask", i, "Interrupt event mask");
+		Field("value", 31, 0, "rd|wr", 0x0, 0xffffffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 }
 
 %=================================================================
