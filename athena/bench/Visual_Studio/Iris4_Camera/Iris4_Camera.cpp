@@ -24,6 +24,12 @@
 #include "SystemTree.h" 
 #include "MilLayer.h"
 
+#include <string>
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+
 #define bitstream_BuildID_min         0x5F58D07F
 
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
@@ -147,8 +153,6 @@ int main(void)
 	CFpgaEeprom* FpgaEeprom;
 	FpgaEeprom = new CFpgaEeprom(fpga_bar1_add, 0x3F0000);
 
-	string imagename = "athena_1599656063.firmware";
-	FpgaEeprom->FPGAROMApiFlashFromFile(imagename);
 
 	//-----------------------------------------------------
     // If PCIe x1 detected, reduce Framerate of the sensor
@@ -363,6 +367,19 @@ int main(void)
 				  printf ("0x%08X 0x%08X\n", i*4, Pcie->Read_QSPI_DW(i*4) );
 				break;
 
+			case 'F':
+				printf("\n----------------------------");
+				printf("\n    FPGA Firmware update    ");
+				printf("\n----------------------------");
+				// Get the File name and location
+				string cin_imagefilename;
+				std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
+				cin >> cin_imagefilename;
+				FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
+				printf("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new fpga firmware\n\n");
+				break;
+
+
 			}
 		}//KBhit
 	}//while
@@ -370,7 +387,7 @@ int main(void)
 	printf("\n\nPress any key to exit");
 	_getch();
 	
-
+	delete FpgaEeprom;
 	delete XGS_Ctrl;
 	delete XGS_Data;
 	delete I2C;
@@ -422,6 +439,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf("\n  (w) Write XGS sensor register");
 	printf("\n");
 	printf("\n  (s) Read QSPI identification");
+	printf("\n  (F) Program Flash SPI firmware");
 	printf("\n------------------------------------------------------------------------------\n\n");
 
 }

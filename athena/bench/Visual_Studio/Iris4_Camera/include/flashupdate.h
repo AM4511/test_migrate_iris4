@@ -125,7 +125,7 @@ private:
 #endif
 
    // Indicates if we want to show or not the progress
-   bool m_bShowProgress;
+   //bool m_bShowProgress;
 
    MIL_INT m_ShowGraphicProgressBar;
    MIL_INT m_ShowTextProgressBar;

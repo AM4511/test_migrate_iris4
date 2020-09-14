@@ -62,7 +62,7 @@
 CFpgaEeprom::CFpgaEeprom(unsigned long long dwPhyAddress, DWORD dwEprSize)
    {
 
-   m_bShowProgress = false;
+   //m_bShowProgress = false;
    m_dwPhyAddr = 0;
 //   m_pEepromCtrl = NULL;
    ProgressBar = NULL;
@@ -123,6 +123,8 @@ Notes: Retrun TRUE for success, else FALSE
 BOOL CFpgaEeprom::FPGAROMApiFlashFromFile(string &ImageFileName)
    {
    BOOL bRetVal;
+
+   printf("\nNow Loading Bitstream file from firmware file, please wait... ");
 
    //auto File = UTF8Encoding::FromMilString(ImageFileName);
    auto File = ImageFileName;
@@ -429,7 +431,7 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
    SendEpromCommand(EPR_READ_SILICON_ID, 0, (BYTE *)&dwSiliconId, 0);
    do
       {
-      //UpdateProgressText(MT("Now clearing the grab flash eeprom, please wait..."));
+      printf("\nNow clearing the grab flash eeprom, please wait...");
       DWORD lFlashOffset = 0;
       while (lFlashOffset < dwAlignedImageSize)
          {
@@ -444,12 +446,13 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
          WaitForWriteInProgress(150, 1, TRUE);
 
          dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
+         if (dwProgressPercent > 100)
+             dwProgressPercent = 100;
+         if (dwProgressPercent <= 100)
+             printf("\rNow clearing the grab flash eeprom, please wait... %d%% ", dwProgressPercent);
          }
 
-      if (dwProgressPercent != 100)
-
-
-      //UpdateProgressText(MT("Now writing the FPGA file in the grab flash eeprom, please wait..."));
+      printf("\nNow writing the FPGA file in the grab flash eeprom, please wait...");
       lFlashOffset = 0;
       while (lFlashOffset < dwAlignedImageSize)
          {
@@ -463,13 +466,12 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
          // Write bytes cycle time: 5 ms max
          WaitForWriteInProgress(5, 1, TRUE);
          dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
+         if (dwProgressPercent <= 100)
+             printf("\rNow writing the FPGA file in the grab flash eeprom, please wait... %d%% ", dwProgressPercent);
          }
-      //if (dwProgressPercent != 100)
-      //   UpdateProgressWindow(100);
-
+ 
       // Verify data
-      //UpdateProgressText(MT("Now verifying the FPGA file in the grab flash eeprom, please wait..."));
-      //UpdateProgressWindow(0);
+      printf("\nNow verifying the FPGA file in the grab flash eeprom, please wait...");
       BYTE * pbyRdBckData = (BYTE *)malloc(m_dwFlashSize);
       if (pbyRdBckData)
          {
@@ -488,11 +490,12 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
                }
             lFlashOffset += EEPROM_PAGE_SIZE;
             dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
-            //UpdateProgressWindow(dwProgressPercent);
+            if (dwProgressPercent <= 100)
+                printf("\rNow verifying the FPGA file in the grab flash eeprom, please wait... %d%% ", dwProgressPercent);
             }
 
-         if (dwProgressPercent != 100)
-            //UpdateProgressWindow(100);
+         //if (dwProgressPercent != 100)
+         //  UpdateProgressWindow(100);
          free(pbyRdBckData);
          }
       } while ((retry++ < 3) && (byRetVal == FPGA_ERR_BADRDBACK));
@@ -500,5 +503,6 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
       m_EepromCtrlValue.spiregin.f.spi_enable = 0;
       m_pEepromCtrl->spiregin.u32 = m_EepromCtrlValue.spiregin.u32;
 
+      printf("\n");
       return byRetVal;
    }
