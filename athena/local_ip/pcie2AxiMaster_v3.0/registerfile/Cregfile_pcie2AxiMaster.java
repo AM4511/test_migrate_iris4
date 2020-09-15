@@ -171,7 +171,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       * Register: enable
       * Offset: 0xc
       ****************************************************************/
-      register = new CRegister(section, "enable", "Interrupt enable register", 0xc);
+      register = new CRegister(section, "enable", "Interrupt status enable", 0xc);
       section.addRegister(register);
 
       //Fields:
@@ -181,11 +181,11 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       * Register: mask
       * Offset: 0x14
       ****************************************************************/
-      register = new CRegister(section, "mask", "Interrupt mask register", 0x14);
+      register = new CRegister(section, "mask", "Interrupt event mask", 0x14);
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "value", "null", CField.FieldType.RW, 0, 32, 0x0));
+      register.addField(new CField(register, "value", "null", CField.FieldType.RW, 0, 32, 0xffffffff));
 
 
       /***************************************************************

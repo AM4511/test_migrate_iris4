@@ -1,0 +1,2110 @@
+<?xml version="1.0"?>
+<RegisterDescription xmlns="http://www.genicam.org/GenApi/Version_1_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ModelName="regfile_pcie2AxiMaster" VendorName="MatroxElectronicSystemsLtd" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="1" SchemaSubMinorVersion="0" MajorVersion="1" MinorVersion="0" SubMinorVersion="0" ProductGuid="2416b190-761f-41f4-ae14-1ccffcac34c6" VersionGuid="729d4c3d-ed78-46bc-8e68-b53e6f0f2822">
+	<Group Comment="RootCategoryGroup">
+		<Category Name="Root">
+			<Visibility>Beginner</Visibility>
+			<pFeature>SECTION_regfile_pcie2aximaster_info</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_fpga</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_interrupts</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_interrupt_queue</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_tlp</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_spi</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_arbiter</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_axi_window</pFeature>
+			<pFeature>SECTION_regfile_pcie2aximaster_debug</pFeature>
+		</Category>
+		<Integer Name="ROOT_ADDRESS">
+			<Visibility>Beginner</Visibility>
+			<Value>0</Value>
+			<Representation>HexNumber</Representation>
+		</Integer>
+		<!--Section : info-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_info">
+			<Category Name="SECTION_regfile_pcie2aximaster_info">
+				<Description>PCIe2AxiMaster IP-Core general information</Description>
+				<DisplayName>info</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_info</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_info_tag</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_info_fid</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_info_version</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_info_capability</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_info_scratchpad</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_info">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>0</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : tag-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_info_tag">
+				<Category Name="REGISTER_regfile_pcie2aximaster_info_tag">
+					<Description>Matrox Tag Identifier</Description>
+					<DisplayName>tag</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_info_tag</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_info_tag</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_tag_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_info_tag">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_tag_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_tag_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_tag_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_tag</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>23</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_info_tag">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_info</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_info_tag</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : fid-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_info_fid">
+				<Category Name="REGISTER_regfile_pcie2aximaster_info_fid">
+					<Description>Matrox IP-Core Function ID</Description>
+					<DisplayName>fid</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_info_fid</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_info_fid</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_fid_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_info_fid">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_fid_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_fid_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_fid_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_fid</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_info_fid">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_info</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_info_fid</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : version-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_info_version">
+				<Category Name="REGISTER_regfile_pcie2aximaster_info_version">
+					<Description>Register file version</Description>
+					<DisplayName>version</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_info_version</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_info_version</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_version_major</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_version_minor</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_version_sub_minor</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_info_version">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_version_major">
+					<DisplayName>major</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_version_major</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_version_major">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>16</LSB>
+					<MSB>23</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_version_minor">
+					<DisplayName>minor</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_version_minor</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_version_minor">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>8</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_version_sub_minor">
+					<DisplayName>sub_minor</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_version_sub_minor</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_version_sub_minor">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_info_version">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_info</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_info_version</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : capability-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_info_capability">
+				<Category Name="REGISTER_regfile_pcie2aximaster_info_capability">
+					<Description>Register file version</Description>
+					<DisplayName>capability</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_info_capability</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_info_capability</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_capability_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_info_capability">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_capability_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_capability_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_capability_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_capability</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_info_capability">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_info</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_info_capability</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : scratchpad-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_info_scratchpad">
+				<Category Name="REGISTER_regfile_pcie2aximaster_info_scratchpad">
+					<Description>Scratch pad</Description>
+					<DisplayName>scratchpad</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_info_scratchpad</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_info_scratchpad</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_info_scratchpad_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_info_scratchpad">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_info_scratchpad_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_info_scratchpad_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_info_scratchpad_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_info_scratchpad</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_info_scratchpad">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_info</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_info_scratchpad</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : fpga-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_fpga">
+			<Category Name="SECTION_regfile_pcie2aximaster_fpga">
+				<Description>FPGA informations</Description>
+				<DisplayName>fpga</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_fpga</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_fpga_version</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_fpga_build_id</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_fpga_device</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_fpga_board_info</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_fpga">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>32</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : version-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_fpga_version">
+				<Category Name="REGISTER_regfile_pcie2aximaster_fpga_version">
+					<Description>Register file version</Description>
+					<DisplayName>version</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_fpga_version</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_fpga_version</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_version_firmware_type</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_version_major</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_version_minor</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_version_sub_minor</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_fpga_version">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_version_firmware_type">
+					<DisplayName>firmware_type</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_version_firmware_type</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_version_firmware_type">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>24</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_version_major">
+					<DisplayName>major</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_version_major</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_version_major">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>16</LSB>
+					<MSB>23</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_version_minor">
+					<DisplayName>minor</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_version_minor</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_version_minor">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>8</LSB>
+					<MSB>15</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_version_sub_minor">
+					<DisplayName>sub_minor</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_version_sub_minor</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_version_sub_minor">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_version</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_fpga_version">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_fpga</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_fpga_version</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : build_id-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_fpga_build_id">
+				<Category Name="REGISTER_regfile_pcie2aximaster_fpga_build_id">
+					<Description>Firmware build id</Description>
+					<DisplayName>build_id</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_fpga_build_id</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_fpga_build_id</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_build_id_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_fpga_build_id">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_build_id_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_build_id_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_build_id_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_build_id</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_fpga_build_id">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_fpga</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_fpga_build_id</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : device-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_fpga_device">
+				<Category Name="REGISTER_regfile_pcie2aximaster_fpga_device">
+					<DisplayName>device</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_fpga_device</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_fpga_device</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_device_id</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_fpga_device">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_device_id">
+					<DisplayName>id</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_device_id</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_device_id">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_device</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_fpga_device">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_fpga</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_fpga_device</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : board_info-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_fpga_board_info">
+				<Category Name="REGISTER_regfile_pcie2aximaster_fpga_board_info">
+					<Description>Board information</Description>
+					<DisplayName>board_info</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_fpga_board_info</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_fpga_board_info</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_fpga_board_info_capability</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_fpga_board_info">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_fpga_board_info_capability">
+					<DisplayName>capability</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_fpga_board_info_capability</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_fpga_board_info_capability">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_fpga_board_info</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>3</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_fpga_board_info">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_fpga</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_fpga_board_info</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : interrupts-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_interrupts">
+			<Category Name="SECTION_regfile_pcie2aximaster_interrupts">
+				<DisplayName>interrupts</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_interrupts</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupts_ctrl</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupts_status</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupts_enable</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupts_mask</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_interrupts">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>64</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : ctrl-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupts_ctrl">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupts_ctrl">
+					<DisplayName>ctrl</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupts_ctrl</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupts_ctrl</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupts_ctrl_num_irq</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupts_ctrl_global_mask</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupts_ctrl">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupts_ctrl_num_irq">
+					<DisplayName>num_irq</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupts_ctrl_num_irq</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupts_ctrl_num_irq">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupts_ctrl</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>1</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupts_ctrl_global_mask">
+					<DisplayName>global_mask</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupts_ctrl_global_mask</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupts_ctrl_global_mask">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupts_ctrl</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupts_ctrl">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupts</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupts_ctrl</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Array of register : status[1:0]-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupts_status">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupts_status">
+					<Description>Interrupt status register</Description>
+					<DisplayName>status[1:0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>SELECTOR_regfile_pcie2aximaster_interrupts_status</pFeature>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupts_status</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupts_status</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupts_status_value</pFeature>
+				</Category>
+				<Enumeration Name="SELECTOR_regfile_pcie2aximaster_interrupts_status">
+					<ToolTip>Select the array element</ToolTip>
+					<Description>Select the array element</Description>
+					<DisplayName>selector</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<ImposedAccessMode>RW</ImposedAccessMode>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_status_0">
+						<DisplayName>status[0]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>4</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_status_1">
+						<DisplayName>status[1]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>8</Value>
+					</EnumEntry>
+					<Value>4</Value>
+				</Enumeration>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupts_status">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pValue>SELECTOR_regfile_pcie2aximaster_interrupts_status</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupts_status_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupts_status_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupts_status_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupts_status</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupts_status">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupts</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupts_status</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Array of register : enable[1:0]-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupts_enable">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupts_enable">
+					<Description>Interrupt status enable</Description>
+					<DisplayName>enable[1:0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>SELECTOR_regfile_pcie2aximaster_interrupts_enable</pFeature>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupts_enable</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupts_enable</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupts_enable_value</pFeature>
+				</Category>
+				<Enumeration Name="SELECTOR_regfile_pcie2aximaster_interrupts_enable">
+					<ToolTip>Select the array element</ToolTip>
+					<Description>Select the array element</Description>
+					<DisplayName>selector</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<ImposedAccessMode>RW</ImposedAccessMode>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_enable_0">
+						<DisplayName>enable[0]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>12</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_enable_1">
+						<DisplayName>enable[1]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>16</Value>
+					</EnumEntry>
+					<Value>12</Value>
+				</Enumeration>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupts_enable">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pValue>SELECTOR_regfile_pcie2aximaster_interrupts_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupts_enable_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupts_enable_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupts_enable_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupts_enable</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupts_enable">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupts</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupts_enable</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Array of register : mask[1:0]-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupts_mask">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupts_mask">
+					<Description>Interrupt event mask</Description>
+					<DisplayName>mask[1:0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>SELECTOR_regfile_pcie2aximaster_interrupts_mask</pFeature>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupts_mask</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupts_mask</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupts_mask_value</pFeature>
+				</Category>
+				<Enumeration Name="SELECTOR_regfile_pcie2aximaster_interrupts_mask">
+					<ToolTip>Select the array element</ToolTip>
+					<Description>Select the array element</Description>
+					<DisplayName>selector</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<ImposedAccessMode>RW</ImposedAccessMode>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_mask_0">
+						<DisplayName>mask[0]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>20</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_interrupts_mask_1">
+						<DisplayName>mask[1]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>24</Value>
+					</EnumEntry>
+					<Value>20</Value>
+				</Enumeration>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupts_mask">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pValue>SELECTOR_regfile_pcie2aximaster_interrupts_mask</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupts_mask_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupts_mask_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupts_mask_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupts_mask</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupts_mask">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupts</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupts_mask</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : interrupt_queue-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_interrupt_queue">
+			<Category Name="SECTION_regfile_pcie2aximaster_interrupt_queue">
+				<DisplayName>interrupt_queue</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_interrupt_queue</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupt_queue_control</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupt_queue_cons_idx</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupt_queue_addr_low</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_interrupt_queue_addr_high</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_interrupt_queue">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>96</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : control-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupt_queue_control">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupt_queue_control">
+					<DisplayName>control</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupt_queue_control</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupt_queue_control</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupt_queue_control_nb_dw</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupt_queue_control_enable</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupt_queue_control">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupt_queue_control_nb_dw">
+					<DisplayName>nb_dw</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_control_nb_dw</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_control_nb_dw">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupt_queue_control</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>24</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupt_queue_control_enable">
+					<DisplayName>enable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_control_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_control_enable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupt_queue_control</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupt_queue_control">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue_control</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : cons_idx-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupt_queue_cons_idx">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupt_queue_cons_idx">
+					<Description>Consumer Index</Description>
+					<DisplayName>cons_idx</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupt_queue_cons_idx</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupt_queue_cons_idx</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupt_queue_cons_idx_cons_idx</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupt_queue_cons_idx">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupt_queue_cons_idx_cons_idx">
+					<DisplayName>cons_idx</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_cons_idx_cons_idx</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_cons_idx_cons_idx">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupt_queue_cons_idx</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>9</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupt_queue_cons_idx">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue_cons_idx</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : addr_low-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupt_queue_addr_low">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupt_queue_addr_low">
+					<DisplayName>addr_low</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_low</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_low</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupt_queue_addr_low_addr</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_low">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupt_queue_addr_low_addr">
+					<DisplayName>addr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_addr_low_addr</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_addr_low_addr">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_low</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_low">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_low</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : addr_high-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_interrupt_queue_addr_high">
+				<Category Name="REGISTER_regfile_pcie2aximaster_interrupt_queue_addr_high">
+					<DisplayName>addr_high</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_high</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_high</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_interrupt_queue_addr_high_addr</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_high">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_interrupt_queue_addr_high_addr">
+					<DisplayName>addr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_addr_high_addr</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_interrupt_queue_addr_high_addr">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_high</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_interrupt_queue_addr_high">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_interrupt_queue_addr_high</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : tlp-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_tlp">
+			<Category Name="SECTION_regfile_pcie2aximaster_tlp">
+				<Description>Transaction Layer protocol</Description>
+				<DisplayName>tlp</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_tlp</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_tlp_timeout</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_tlp">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>112</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : timeout-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_tlp_timeout">
+				<Category Name="REGISTER_regfile_pcie2aximaster_tlp_timeout">
+					<Description>TLP transaction timeout value</Description>
+					<DisplayName>timeout</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_tlp_timeout</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_tlp_timeout</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_tlp_timeout_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_tlp_timeout">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_tlp_timeout_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_tlp_timeout_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_tlp_timeout_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_tlp_timeout</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_tlp_timeout">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_tlp</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_tlp_timeout</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : transaction_abort_cntr-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_tlp_transaction_abort_cntr">
+				<Category Name="REGISTER_regfile_pcie2aximaster_tlp_transaction_abort_cntr">
+					<Description>TLP transaction abort counter</Description>
+					<DisplayName>transaction_abort_cntr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_tlp_transaction_abort_cntr_clr</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_tlp_transaction_abort_cntr_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_tlp_transaction_abort_cntr">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_tlp_transaction_abort_cntr_clr">
+					<DisplayName>clr</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_tlp_transaction_abort_cntr_clr</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_tlp_transaction_abort_cntr_clr">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>31</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_tlp_transaction_abort_cntr_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_tlp_transaction_abort_cntr_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_tlp_transaction_abort_cntr_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>30</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_tlp_transaction_abort_cntr">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_tlp</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_tlp_transaction_abort_cntr</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : spi-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_spi">
+			<Category Name="SECTION_regfile_pcie2aximaster_spi">
+				<DisplayName>spi</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_spi</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_spi_spiregin</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_spi_spiregout</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_spi">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>224</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : SPIREGIN-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_spi_spiregin">
+				<Category Name="REGISTER_regfile_pcie2aximaster_spi_spiregin">
+					<Description>SPI Register In</Description>
+					<DisplayName>SPIREGIN</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_spi_spiregin</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spi_old_enable</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spi_enable</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spirw</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spicmddone</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spisel</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spitxst</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregin_spidataw</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_spi_spiregin">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spi_old_enable">
+					<DisplayName>SPI_OLD_ENABLE</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spi_old_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spi_old_enable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>25</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spi_enable">
+					<DisplayName>SPI_ENABLE</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spi_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spi_enable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>24</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spirw">
+					<DisplayName>SPIRW</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spirw</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spirw">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>22</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spicmddone">
+					<DisplayName>SPICMDDONE</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spicmddone</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spicmddone">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>21</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spisel">
+					<DisplayName>SPISEL</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spisel</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spisel">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>18</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spitxst">
+					<DisplayName>SPITXST</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spitxst</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spitxst">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>16</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregin_spidataw">
+					<DisplayName>SPIDATAW</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spidataw</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregin_spidataw">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregin</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_spi_spiregin">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_spi</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_spi_spiregin</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : SPIREGOUT-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_spi_spiregout">
+				<Category Name="REGISTER_regfile_pcie2aximaster_spi_spiregout">
+					<Description>SPI Register Out</Description>
+					<DisplayName>SPIREGOUT</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_spi_spiregout</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_spi_spiregout</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregout_spi_wb_cap</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregout_spiwrtd</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_spi_spiregout_spidatard</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_spi_spiregout">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregout_spi_wb_cap">
+					<DisplayName>SPI_WB_CAP</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spi_wb_cap</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spi_wb_cap">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregout</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>17</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregout_spiwrtd">
+					<DisplayName>SPIWRTD</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spiwrtd</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spiwrtd">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregout</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>16</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_spi_spiregout_spidatard">
+					<DisplayName>SPIDATARD</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spidatard</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_spi_spiregout_spidatard">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_spi_spiregout</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>7</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_spi_spiregout">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_spi</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_spi_spiregout</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : arbiter-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_arbiter">
+			<Category Name="SECTION_regfile_pcie2aximaster_arbiter">
+				<DisplayName>arbiter</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_arbiter</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_arbiter_agent</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_arbiter">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>240</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : ARBITER_CAPABILITIES-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_arbiter_arbiter_capabilities">
+				<Category Name="REGISTER_regfile_pcie2aximaster_arbiter_arbiter_capabilities">
+					<DisplayName>ARBITER_CAPABILITIES</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_arbiter_capabilities_agent_nb</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_arbiter_capabilities_tag</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_arbiter_arbiter_capabilities">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_arbiter_capabilities_agent_nb">
+					<DisplayName>AGENT_NB</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_arbiter_capabilities_agent_nb</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_arbiter_capabilities_agent_nb">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>16</LSB>
+					<MSB>17</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_arbiter_capabilities_tag">
+					<DisplayName>TAG</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_arbiter_capabilities_tag</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_arbiter_capabilities_tag">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>11</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_arbiter_arbiter_capabilities">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_arbiter</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_arbiter_arbiter_capabilities</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Array of register : AGENT[1:0]-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_arbiter_agent">
+				<Category Name="REGISTER_regfile_pcie2aximaster_arbiter_agent">
+					<DisplayName>AGENT[1:0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>SELECTOR_regfile_pcie2aximaster_arbiter_agent</pFeature>
+					<pFeature>OFFSET_regfile_pcie2aximaster_arbiter_agent</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_arbiter_agent</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_agent_ack</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_agent_rec</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_agent_done</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_arbiter_agent_req</pFeature>
+				</Category>
+				<Enumeration Name="SELECTOR_regfile_pcie2aximaster_arbiter_agent">
+					<ToolTip>Select the array element</ToolTip>
+					<Description>Select the array element</Description>
+					<DisplayName>selector</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<ImposedAccessMode>RW</ImposedAccessMode>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_arbiter_agent_0">
+						<DisplayName>AGENT[0]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>4</Value>
+					</EnumEntry>
+					<EnumEntry Name="ENTRY_regfile_pcie2aximaster_arbiter_agent_1">
+						<DisplayName>AGENT[1]</DisplayName>
+						<Visibility>Beginner</Visibility>
+						<Value>8</Value>
+					</EnumEntry>
+					<Value>4</Value>
+				</Enumeration>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_arbiter_agent">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pValue>SELECTOR_regfile_pcie2aximaster_arbiter_agent</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_agent_ack">
+					<DisplayName>ACK</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_ack</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_ack">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_agent</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>9</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_agent_rec">
+					<DisplayName>REC</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_rec</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_rec">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_agent</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>8</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_agent_done">
+					<DisplayName>DONE</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_done</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_done">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_agent</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_arbiter_agent_req">
+					<DisplayName>REQ</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_req</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_arbiter_agent_req">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_arbiter_agent</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_arbiter_agent">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_arbiter</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_arbiter_agent</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Array of Section : axi_window[3:0]-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_axi_window">
+			<Category Name="SECTION_regfile_pcie2aximaster_axi_window">
+				<DisplayName>axi_window[3:0]</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>SELECTOR_regfile_pcie2aximaster_axi_window</pFeature>
+				<pFeature>OFFSET_regfile_pcie2aximaster_axi_window</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_axi_window_ctrl</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_axi_window_pci_bar0_start</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_axi_window_pci_bar0_stop</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_axi_window_axi_translation</pFeature>
+			</Category>
+			<Enumeration Name="SELECTOR_regfile_pcie2aximaster_axi_window">
+				<ToolTip>Select the array element</ToolTip>
+				<Description>Select the array element</Description>
+				<DisplayName>selector</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<ImposedAccessMode>RW</ImposedAccessMode>
+				<EnumEntry Name="ENTRY_regfile_pcie2aximaster_axi_window_0">
+					<DisplayName>axi_window[0]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<Value>256</Value>
+				</EnumEntry>
+				<EnumEntry Name="ENTRY_regfile_pcie2aximaster_axi_window_1">
+					<DisplayName>axi_window[1]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<Value>272</Value>
+				</EnumEntry>
+				<EnumEntry Name="ENTRY_regfile_pcie2aximaster_axi_window_2">
+					<DisplayName>axi_window[2]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<Value>288</Value>
+				</EnumEntry>
+				<EnumEntry Name="ENTRY_regfile_pcie2aximaster_axi_window_3">
+					<DisplayName>axi_window[3]</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<Value>304</Value>
+				</EnumEntry>
+				<Value>256</Value>
+			</Enumeration>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_axi_window">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<pValue>SELECTOR_regfile_pcie2aximaster_axi_window</pValue>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : ctrl-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_axi_window_ctrl">
+				<Category Name="REGISTER_regfile_pcie2aximaster_axi_window_ctrl">
+					<Description>PCIe Bar 0 start address</Description>
+					<DisplayName>ctrl</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_axi_window_ctrl</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_axi_window_ctrl</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_axi_window_ctrl_enable</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_axi_window_ctrl">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_axi_window_ctrl_enable">
+					<DisplayName>enable</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_axi_window_ctrl_enable</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_axi_window_ctrl_enable">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_axi_window_ctrl</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_axi_window_ctrl">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_axi_window</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_axi_window_ctrl</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : pci_bar0_start-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_axi_window_pci_bar0_start">
+				<Category Name="REGISTER_regfile_pcie2aximaster_axi_window_pci_bar0_start">
+					<Description>PCIe Bar 0 window start offset</Description>
+					<DisplayName>pci_bar0_start</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_start</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_start</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_axi_window_pci_bar0_start_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_start">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_axi_window_pci_bar0_start_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_axi_window_pci_bar0_start_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_axi_window_pci_bar0_start_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_start</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>25</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_start">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_axi_window</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_start</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : pci_bar0_stop-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_axi_window_pci_bar0_stop">
+				<Category Name="REGISTER_regfile_pcie2aximaster_axi_window_pci_bar0_stop">
+					<Description>PCIe Bar 0 window stop offset</Description>
+					<DisplayName>pci_bar0_stop</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_stop</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_stop</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_axi_window_pci_bar0_stop_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_stop">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_axi_window_pci_bar0_stop_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_axi_window_pci_bar0_stop_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_axi_window_pci_bar0_stop_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_stop</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>25</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_axi_window_pci_bar0_stop">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_axi_window</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_axi_window_pci_bar0_stop</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : axi_translation-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_axi_window_axi_translation">
+				<Category Name="REGISTER_regfile_pcie2aximaster_axi_window_axi_translation">
+					<Description>Axi offset translation</Description>
+					<DisplayName>axi_translation</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_axi_window_axi_translation</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_axi_window_axi_translation</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_axi_window_axi_translation_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_axi_window_axi_translation">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_axi_window_axi_translation_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_axi_window_axi_translation_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_axi_window_axi_translation_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_axi_window_axi_translation</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_axi_window_axi_translation">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_axi_window</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_axi_window_axi_translation</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+		<!--Section : debug-->
+		<Group Comment="GROUP_regfile_pcie2aximaster_debug">
+			<Category Name="SECTION_regfile_pcie2aximaster_debug">
+				<DisplayName>debug</DisplayName>
+				<Visibility>Beginner</Visibility>
+				<pFeature>OFFSET_regfile_pcie2aximaster_debug</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_debug_input</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_debug_output</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_debug_dma_debug1</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_debug_dma_debug2</pFeature>
+				<pFeature>REGISTER_regfile_pcie2aximaster_debug_dma_debug3</pFeature>
+			</Category>
+			<Integer Name="OFFSET_regfile_pcie2aximaster_debug">
+				<DisplayName>Offset:</DisplayName>
+				<Visibility>Guru</Visibility>
+				<ImposedAccessMode>RO</ImposedAccessMode>
+				<Value>512</Value>
+				<Representation>HexNumber</Representation>
+			</Integer>
+			<!--Register : input-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_debug_input">
+				<Category Name="REGISTER_regfile_pcie2aximaster_debug_input">
+					<Description>debug input signals</Description>
+					<DisplayName>input</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_debug_input</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_debug_input</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_input_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_debug_input">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>0</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_input_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_input_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_input_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_input</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_debug_input">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_debug</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_debug_input</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : output-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_debug_output">
+				<Category Name="REGISTER_regfile_pcie2aximaster_debug_output">
+					<DisplayName>output</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_debug_output</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_debug_output</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_output_value</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_debug_output">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>4</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_output_value">
+					<DisplayName>value</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_output_value</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_output_value">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_output</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_debug_output">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_debug</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_debug_output</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : DMA_DEBUG1-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_debug_dma_debug1">
+				<Category Name="REGISTER_regfile_pcie2aximaster_debug_dma_debug1">
+					<DisplayName>DMA_DEBUG1</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_debug_dma_debug1</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_debug_dma_debug1</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_dma_debug1_add_start</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_debug_dma_debug1">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>8</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_dma_debug1_add_start">
+					<DisplayName>ADD_START</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug1_add_start</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug1_add_start">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_dma_debug1</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_debug_dma_debug1">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_debug</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_debug_dma_debug1</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : DMA_DEBUG2-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_debug_dma_debug2">
+				<Category Name="REGISTER_regfile_pcie2aximaster_debug_dma_debug2">
+					<DisplayName>DMA_DEBUG2</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_debug_dma_debug2</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_debug_dma_debug2</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_dma_debug2_add_overrun</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_debug_dma_debug2">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>12</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_dma_debug2_add_overrun">
+					<DisplayName>ADD_OVERRUN</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug2_add_overrun</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug2_add_overrun">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_dma_debug2</pAddress>
+					<Length>4</Length>
+					<AccessMode>RW</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<LSB>0</LSB>
+					<MSB>31</MSB>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_debug_dma_debug2">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_debug</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_debug_dma_debug2</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+			<!--Register : DMA_DEBUG3-->
+			<Group Comment="GROUP_regfile_pcie2aximaster_debug_dma_debug3">
+				<Category Name="REGISTER_regfile_pcie2aximaster_debug_dma_debug3">
+					<DisplayName>DMA_DEBUG3</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pFeature>OFFSET_regfile_pcie2aximaster_debug_dma_debug3</pFeature>
+					<pFeature>ADDRESS_regfile_pcie2aximaster_debug_dma_debug3</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_dma_debug3_dma_add_error</pFeature>
+					<pFeature>FIELD_regfile_pcie2aximaster_debug_dma_debug3_dma_overrun</pFeature>
+				</Category>
+				<Integer Name="OFFSET_regfile_pcie2aximaster_debug_dma_debug3">
+					<DisplayName>Offset:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<Value>16</Value>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_dma_debug3_dma_add_error">
+					<DisplayName>DMA_ADD_ERROR</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug3_dma_add_error</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug3_dma_add_error">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_dma_debug3</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>4</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<Integer Name="FIELD_regfile_pcie2aximaster_debug_dma_debug3_dma_overrun">
+					<DisplayName>DMA_OVERRUN</DisplayName>
+					<Visibility>Beginner</Visibility>
+					<pValue>MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug3_dma_overrun</pValue>
+					<Representation>HexNumber</Representation>
+				</Integer>
+				<MaskedIntReg Name="MASKEDINTREG_regfile_pcie2aximaster_debug_dma_debug3_dma_overrun">
+					<Visibility>Invisible</Visibility>
+					<pAddress>ADDRESS_regfile_pcie2aximaster_debug_dma_debug3</pAddress>
+					<Length>4</Length>
+					<AccessMode>RO</AccessMode>
+					<pPort>Device</pPort>
+					<Cachable>NoCache</Cachable>
+					<Bit>0</Bit>
+					<Endianess>LittleEndian</Endianess>
+					<Representation>HexNumber</Representation>
+				</MaskedIntReg>
+				<IntSwissKnife Name="ADDRESS_regfile_pcie2aximaster_debug_dma_debug3">
+					<DisplayName>Address:</DisplayName>
+					<Visibility>Guru</Visibility>
+					<ImposedAccessMode>RO</ImposedAccessMode>
+					<pVariable Name="ParentOffset">OFFSET_regfile_pcie2aximaster_debug</pVariable>
+					<pVariable Name="RegisterOffset">OFFSET_regfile_pcie2aximaster_debug_dma_debug3</pVariable>
+					<Formula>ParentOffset+RegisterOffset</Formula>
+					<Representation>HexNumber</Representation>
+				</IntSwissKnife>
+			</Group>
+		</Group>
+	</Group>
+	<Port Name="Device" NameSpace="Standard">
+		<Visibility>Invisible</Visibility>
+	</Port>
+</RegisterDescription>

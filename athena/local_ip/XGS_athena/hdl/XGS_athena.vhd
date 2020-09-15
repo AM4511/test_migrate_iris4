@@ -512,8 +512,6 @@ architecture struct of XGS_athena is
   end component;
 
 
-
-
   component dmawr2tlp is
     generic (
       MAX_PCIE_PAYLOAD_SIZE : integer := 128
@@ -1057,8 +1055,6 @@ begin
     ---------------------------------------------------------------------------
     regfile                           => regfile
   );
-  
-
 
 
   xdmawr2tlp : dmawr2tlp
@@ -1092,7 +1088,6 @@ begin
       tlp_byte_count     => tlp_byte_count,
       tlp_lower_address  => tlp_lower_address
       );
-
 
 
   -----------------------------------------------------------------------------
@@ -1273,6 +1268,7 @@ begin
     end if;
   end process;
 
+  
   sysmon_dadddr <= ext_SYSMONXIL_addr_ff when (ext_SYSMONXIL_readEn_ff = '1' or sysmon_reg_readEn = '1') else (others => '0');
   sysmon_readEn <= (ext_SYSMONXIL_readEn_ff or sysmon_reg_readEn) and not sysmon_busy;
 

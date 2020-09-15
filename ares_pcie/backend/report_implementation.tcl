@@ -6,6 +6,16 @@
 set myself [info script]
 puts "Running ${myself}"
 
+set design_name [current_project]
+set project_directory [get_property  DIRECTORY [current_project]]
+
+
+set IMPL_RUN  [current_run -implementation]
+
+open_run $IMPL_RUN
+
+
+set OUTPUT_DIR ${project_directory}/output
 set REPORT_DIR ${OUTPUT_DIR}/reports
 file mkdir ${REPORT_DIR}
 
