@@ -1,5 +1,7 @@
 -----------------------------------------------------------------------
+-- MODULE        : axi_stream_in
 -- 
+-- DESCRIPTION   : AXI stream input interface
 --              
 -----------------------------------------------------------------------
 library ieee;
@@ -37,10 +39,6 @@ entity axi_stream_in is
     s_axis_tdata  : in  std_logic_vector(AXIS_DATA_WIDTH-1 downto 0);
     s_axis_tlast  : in  std_logic;
     s_axis_tuser  : in  std_logic_vector(AXIS_USER_WIDTH-1 downto 0);
-
-    ----------------------------------------------------
-    -- Line buffer config
-    ----------------------------------------------------
 
     ----------------------------------------------------
     -- Line buffer I/F
@@ -85,19 +83,12 @@ architecture rtl of axi_stream_in is
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_PCI_BACK_PRESSURE, S_EOF);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
 
-  constant C_S_AXI_ADDR_WIDTH    : integer := 8;
-  constant C_S_AXI_DATA_WIDTH    : integer := 32;
   constant BUFFER_DATA_WIDTH     : integer := 72;
   constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
   constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
 
-  constant CONT : std_logic_vector(1 downto 0) := "00";
-  constant SOF  : std_logic_vector(1 downto 0) := "01";
-  constant EOL  : std_logic_vector(1 downto 0) := "10";
-  constant EOF  : std_logic_vector(1 downto 0) := "11";
-
-  signal state        : FSM_TYPE        := S_IDLE;
-  signal output_state : OUTPUT_FSM_TYPE := S_IDLE;
+  signal wr_state : FSM_TYPE        := S_IDLE;
+  signal rd_state : OUTPUT_FSM_TYPE := S_IDLE;
 
   signal buffer_write_en      : std_logic;
   signal buffer_write_address : unsigned(BUFFER_ADDR_WIDTH - 1 downto 0);
@@ -108,7 +99,6 @@ architecture rtl of axi_stream_in is
   signal buffer_read_address : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
-  signal back_pressure_cntr  : integer;
   signal read_sync           : std_logic_vector(3 downto 0);
 
   signal init_line_ptr    : std_logic;
@@ -120,22 +110,36 @@ architecture rtl of axi_stream_in is
   signal distance_cntr    : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
   signal max_distance     : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
 
-  signal wr_word_ptr       : unsigned(BUFFER_WORD_PTR_WIDTH-1 downto 0);
-  signal rd_word_ptr       : unsigned(BUFFER_WORD_PTR_WIDTH-1 downto 0);
   signal line_buffer_full  : std_logic;
   signal line_buffer_empty : std_logic;
   signal numb_line_buffer  : std_logic_vector(3 downto 0);
 
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
+  attribute mark_debug of wr_state                 : signal is "true";
+  attribute mark_debug of rd_state                 : signal is "true";
   attribute mark_debug of buffer_write_en          : signal is "true";
   attribute mark_debug of buffer_write_address     : signal is "true";
+  attribute mark_debug of buffer_write_ptr         : signal is "true";
   attribute mark_debug of buffer_write_data        : signal is "true";
   attribute mark_debug of buffer_read_en           : signal is "true";
   attribute mark_debug of buffer_read_address      : signal is "true";
   attribute mark_debug of buffer_read_data         : signal is "true";
   attribute mark_debug of last_row                 : signal is "true";
+  attribute mark_debug of read_sync                : signal is "true";
+  attribute mark_debug of init_line_ptr            : signal is "true";
+  attribute mark_debug of incr_wr_line_ptr         : signal is "true";
+  attribute mark_debug of incr_rd_line_ptr         : signal is "true";
+  attribute mark_debug of wr_line_ptr              : signal is "true";
+  attribute mark_debug of rd_line_ptr              : signal is "true";
+  attribute mark_debug of line_ptr_mask            : signal is "true";
+  attribute mark_debug of distance_cntr            : signal is "true";
+  attribute mark_debug of max_distance             : signal is "true";
+  attribute mark_debug of line_buffer_full         : signal is "true";
+  attribute mark_debug of line_buffer_empty        : signal is "true";
+  attribute mark_debug of numb_line_buffer         : signal is "true";
   attribute mark_debug of s_axis_tready            : signal is "true";
   attribute mark_debug of s_axis_tvalid            : signal is "true";
   attribute mark_debug of s_axis_tdata             : signal is "true";
@@ -149,26 +153,26 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of line_buffer_read_address : signal is "true";
   attribute mark_debug of line_buffer_read_data    : signal is "true";
 
-  attribute mark_debug of state              : signal is "true";
-  attribute mark_debug of output_state       : signal is "true";
-  attribute mark_debug of buffer_write_ptr   : signal is "true";
-  attribute mark_debug of back_pressure_cntr : signal is "true";
-
 
 begin
 
 
-  s_axis_tready <= '1' when (state = S_WRITE) else
+  -----------------------------------------------------------------------------
+  -- AXI stream flow control. When asserted it means we can accept a full line
+  -----------------------------------------------------------------------------
+  s_axis_tready <= '1' when (wr_state = S_WRITE) else
                    '0';
 
-
-  init_line_ptr <= '1' when (state = S_SOF) else
+  -----------------------------------------------------------------------------
+  -- Flag used to initialize line pointers on both side of the buffer (Write/Read)
+  -----------------------------------------------------------------------------
+  init_line_ptr <= '1' when (wr_state = S_SOF) else
                    '0';
 
-  incr_wr_line_ptr <= '1' when (state = S_TOGGLE_BUFFER or state = S_EOF) else
+  incr_wr_line_ptr <= '1' when (wr_state = S_TOGGLE_BUFFER or wr_state = S_EOF) else
                       '0';
 
-  incr_rd_line_ptr <= '1' when (output_state = S_EOL or output_state = S_END_OF_DMA) else
+  incr_rd_line_ptr <= '1' when (rd_state = S_EOL or rd_state = S_END_OF_DMA) else
                       '0';
 
 
@@ -179,9 +183,10 @@ begin
                    "001";
 
 
-  numb_line_buffer <= "1000" when (line_ptr_width = "11") else
-                      "0100" when (line_ptr_width = "10") else
-                      "0010";
+  -- Indicates the output buffer configuration vs line_ptr_width
+  numb_line_buffer <= "1000" when (line_ptr_width = "11") else  -- 3 bits; 8 buffers
+                      "0100" when (line_ptr_width = "10") else  -- 2 bits; 4 buffers
+                      "0010";                                   -- Else; 2 buffers
 
 
   -----------------------------------------------------------------------------
@@ -298,42 +303,43 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_state
+  -- Process     : P_wr_state
   -- Description : Line buffer write side state machine
   -----------------------------------------------------------------------------
-  P_state : process (sclk) is
+  P_wr_state : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        state <= S_IDLE;
+        wr_state <= S_IDLE;
       else
 
-        case state is
+        case wr_state is
           -------------------------------------------------------------------
           -- S_IDLE : Parking state
           -------------------------------------------------------------------
           when S_IDLE =>
             if (s_axis_tvalid = '1') then
               if (s_axis_tuser(0) = '1') then
-                state <= S_SOF;
+                wr_state <= S_SOF;
               end if;
             else
-              state <= S_IDLE;
+              wr_state <= S_IDLE;
             end if;
 
 
           -------------------------------------------------------------------
-          -- S_SOF : Start of frame detected
+          -- S_SOF : Start of frame detected on the AXIS I/F
           -------------------------------------------------------------------
           when S_SOF =>
-            state <= S_SOL;
+            wr_state <= S_SOL;
 
 
           -------------------------------------------------------------------
-          -- S_SOL : Start of line; initialize the current buffer
+          -- S_SOL : Start of line; initialize the current buffer for a new
+          --         line storage
           -------------------------------------------------------------------
           when S_SOL =>
-            state <= S_WRITE;
+            wr_state <= S_WRITE;
 
 
           -------------------------------------------------------------------
@@ -344,16 +350,16 @@ begin
             if (s_axis_tvalid = '1' and s_axis_tlast = '1') then
               -- If a End of frame is detected
               if (s_axis_tuser(1) = '1') then
-                state <= S_EOF;
+                wr_state <= S_EOF;
               -- No end of frame but cant store next line : buffer full!
               elsif (line_buffer_full = '1') then
-                state <= S_PCI_BACK_PRESSURE;
+                wr_state <= S_PCI_BACK_PRESSURE;
               -- Line buffer full, go switch to next line buffer
               else
-                state <= S_TOGGLE_BUFFER;
+                wr_state <= S_TOGGLE_BUFFER;
               end if;
             else
-              state <= S_WRITE;
+              wr_state <= S_WRITE;
             end if;
 
 
@@ -363,13 +369,13 @@ begin
           -------------------------------------------------------------------
           when S_PCI_BACK_PRESSURE =>
             if (line_buffer_full = '1') then
-              state <= S_PCI_BACK_PRESSURE;
+              wr_state <= S_PCI_BACK_PRESSURE;
               -- synthesis translate_off
               assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
               -- synthesis translate_on
 
             else
-              state <= S_TOGGLE_BUFFER;
+              wr_state <= S_TOGGLE_BUFFER;
             end if;
 
 
@@ -377,14 +383,14 @@ begin
           -- S_TOGGLE_BUFFER : Switch line buffer
           -------------------------------------------------------------------
           when S_TOGGLE_BUFFER =>
-            state <= S_SOL;
+            wr_state <= S_SOL;
 
 
           -------------------------------------------------------------------
           -- S_EOF : End of frame encounter. Go back in S_IDLE state
           -------------------------------------------------------------------
           when S_EOF =>
-            state <= S_IDLE;
+            wr_state <= S_IDLE;
 
 
           -------------------------------------------------------------------
@@ -395,17 +401,20 @@ begin
         end case;
       end if;
     end if;
-  end process P_state;
+  end process P_wr_state;
 
 
-  pcie_back_pressure_detected <= '1' when (state = S_PCI_BACK_PRESSURE) else
+  -----------------------------------------------------------------------------
+  -- Status flag for the register file. Connected in the parent file
+  -----------------------------------------------------------------------------
+  pcie_back_pressure_detected <= '1' when (wr_state = S_PCI_BACK_PRESSURE) else
                                  '0';
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Buffer write en 
   -----------------------------------------------------------------------------
-  buffer_write_en <= '1' when (state = S_WRITE and s_axis_tvalid = '1') else
+  buffer_write_en <= '1' when (wr_state = S_WRITE and s_axis_tvalid = '1') else
                      '0';
 
 
@@ -418,7 +427,7 @@ begin
       if (srst_n = '0')then
         buffer_write_ptr <= (others => '0');
       else
-        if (state = S_SOL) then
+        if (wr_state = S_SOL) then
           buffer_write_ptr <= (others => '0');
         elsif (buffer_write_en = '1') then
           buffer_write_ptr <= buffer_write_ptr + 1;
@@ -488,23 +497,26 @@ begin
   -- 
   -----------------------------------------------------------------------------
   P_buffer_read_address : process (numb_line_buffer, rd_line_ptr, line_buffer_read_address) is
+    variable msb : integer := buffer_read_address'left;
   begin
     case numb_line_buffer is
       -------------------------------------------------------------------------
       -- 8 Line buffers
       -------------------------------------------------------------------------
       when "1000" =>
-        buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 3 downto 0));
+        buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
+
       -------------------------------------------------------------------------
       -- 4 Line buffers
       -------------------------------------------------------------------------
       when "0100" =>
-        buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 2 downto 0));
+        buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(msb - 2 downto 0));
+
       -------------------------------------------------------------------------
       -- 2 Line buffers
       -------------------------------------------------------------------------
       when "0010" =>
-        buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(buffer_read_address'left - 1 downto 0));
+        buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(msb - 1 downto 0));
 
       -------------------------------------------------------------------------
       -- 2 Line buffers
@@ -516,70 +528,70 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hispi_output_state
-  -- Description : Decode the hispi protocol output_state
+  -- Process     : P_rd_state
+  -- Description : Read side FSM
   -----------------------------------------------------------------------------
-  P_output_state : process (sclk) is
+  P_rd_state : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        output_state <= S_IDLE;
+        rd_state <= S_IDLE;
       else
 
-        case output_state is
+        case rd_state is
           -------------------------------------------------------------------
-          -- S_IDLE : 
+          -- S_IDLE : Parking state
           -------------------------------------------------------------------
           when S_IDLE =>
-            if (state = S_SOF) then
-              output_state <= S_WAIT_LINE;
+            if (wr_state = S_SOF) then
+              rd_state <= S_WAIT_LINE;
             end if;
 
           -------------------------------------------------------------------
-          -- S_WAIT_LINE : Wait for a new line to transfer
+          -- S_WAIT_LINE : Wait for a new line available for transfer
           -------------------------------------------------------------------
           when S_WAIT_LINE =>
             if (distance_cntr > (distance_cntr'range => '0') and line_transfered = '0') then
-              output_state <= S_INIT;
+              rd_state <= S_INIT;
             else
-              output_state <= S_WAIT_LINE;
+              rd_state <= S_WAIT_LINE;
             end if;
 
           -------------------------------------------------------------------
-          -- S_INIT : 
+          -- S_INIT : Initialize the DMA transfer
           -------------------------------------------------------------------
           when S_INIT =>
-            output_state <= S_TRANSFER;
+            rd_state <= S_TRANSFER;
 
           -------------------------------------------------------------------
-          --  S_TRANSFER : 
+          --  S_TRANSFER : the DMA transfer occurs in this state
           -------------------------------------------------------------------
           when S_TRANSFER =>
             if (line_transfered = '1') then
               if (last_row = '1') then
-                output_state <= S_END_OF_DMA;
+                rd_state <= S_END_OF_DMA;
               else
-                output_state <= S_EOL;
+                rd_state <= S_EOL;
               end if;
             end if;
 
           -------------------------------------------------------------------
-          -- S_EOL : 
+          -- S_EOL : Indicates a full line transfer has completed
           -------------------------------------------------------------------
           when S_EOL =>
-            output_state <= S_WAIT_LINE;
+            rd_state <= S_WAIT_LINE;
 
           -------------------------------------------------------------------
-          -- S_END_OF_DMA : 
+          -- S_END_OF_DMA : Indicates a full frame transfer has completed
           -------------------------------------------------------------------
           when S_END_OF_DMA =>
-            output_state <= S_DONE;
+            rd_state <= S_DONE;
 
           -------------------------------------------------------------------
-          -- S_DONE : 
+          -- S_DONE : What more to say? When we are done,... yes we are!
           -------------------------------------------------------------------
           when S_DONE =>
-            output_state <= S_IDLE;
+            rd_state <= S_IDLE;
 
           -------------------------------------------------------------------
           -- 
@@ -593,27 +605,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- line_ready
-  -----------------------------------------------------------------------------
-  P_line_ready : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        line_ready <= '0';
-      else
-        if (output_state = S_INIT) then
-          line_ready <= '1';
-        elsif (line_transfered = '1') then
-          line_ready <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
   -- Process     : P_last_row
-  -- Description : 
+  -- Description : Flag used to indicate to rd_state we are evacuating the 
+  --               last row of the frame.
   -----------------------------------------------------------------------------
   P_last_row : process (sclk) is
   begin
@@ -622,9 +616,10 @@ begin
         last_row <= '0';
       else
         -- If we detect an end of frame
-        if (output_state = S_TRANSFER and read_sync(1) = '1') then
+        if (rd_state = S_TRANSFER and read_sync(1) = '1') then
           last_row <= '1';
-        elsif (output_state = S_END_OF_DMA) then
+        -- Cleared once the frame completely evacuated
+        elsif (rd_state = S_END_OF_DMA) then
           last_row <= '0';
         end if;
       end if;
@@ -632,13 +627,37 @@ begin
   end process;
 
 
-  start_of_frame <= '1' when (state = S_SOF) else
+  -----------------------------------------------------------------------------
+  -- DMA write I/F 
+  -----------------------------------------------------------------------------
+  
+
+  -----------------------------------------------------------------------------
+  -- line_ready
+  -----------------------------------------------------------------------------
+  P_line_ready : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        line_ready <= '0';
+      else
+        if (rd_state = S_INIT) then
+          line_ready <= '1';
+        elsif (line_transfered = '1') then
+          line_ready <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  read_sync             <= buffer_read_data(67 downto 64);
+  line_buffer_read_data <= buffer_read_data(63 downto 0);
+
+  start_of_frame <= '1' when (wr_state = S_SOF) else
                     '0';
 
-  line_buffer_read_data <= buffer_read_data(63 downto 0);
-  read_sync             <= buffer_read_data(67 downto 64);
 
-  end_of_dma <= '1' when (output_state = S_END_OF_DMA) else
+  end_of_dma <= '1' when (rd_state = S_END_OF_DMA) else
                 '0';
 
 end rtl;

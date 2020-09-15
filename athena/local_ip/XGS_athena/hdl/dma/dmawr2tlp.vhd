@@ -248,7 +248,9 @@ begin
 
   dma_context_mapping.numb_plane <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
                                     3;
-
+  
+  regfile.DMA.TLP.MAX_PAYLOAD <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
+  regfile.DMA.TLP.CFG_MAX_PLD <= cfg_setmaxpld;
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline

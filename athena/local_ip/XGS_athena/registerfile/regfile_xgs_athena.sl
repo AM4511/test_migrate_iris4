@@ -107,6 +107,11 @@ Register("output_buffer", 0xa8, 4, "Output line buffer");
 			FieldValue("No effect", 0);
 			FieldValue("Clear the max count", 1);
 
+Register("tlp", 0xac, 4, "null");
+		Field("max_payload", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("bus_master_en", 3, 3, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("cfg_max_pld", 2, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
 %=================================================================
 % SECTION NAME	: ACQ
 %=================================================================

@@ -21,6 +21,7 @@ puts "Running ${myself}"
 #         XGS_athena/DMA, output line buffer structure now configurable (Fix PCIe back pressure problem); 
 #         Augmented PCIe max payload size to 1024
 #         Fixed IRQ masking/enabling in the Queue mechanism (PCIE2AXIMASTER)
+#         Added SW interrupt in pcie2aximaster
 
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0

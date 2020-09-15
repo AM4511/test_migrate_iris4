@@ -79,6 +79,11 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupts" description="&#xD;&#xA;Mapping provided in the system instantiating this IP." baseAddress="40" endAddress="58">
     <registers name="ctrl">
+      <fields name="sw_irq" alias="Software IRQ" description="Used to test software IRQ mechanism. The mapping of this bit is application dependant" lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Create an Irq event (pluse)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="num_irq" alias="Number of IRQ" description="Indicated the total number of IRQ connected to the pcie2AxiMaster" lsb="1" size="7" valueAtReset="1" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
