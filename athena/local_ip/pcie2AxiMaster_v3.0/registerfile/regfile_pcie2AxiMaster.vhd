@@ -2,11 +2,11 @@
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster_pack
--- Created on          : 2020/09/15 11:12:30
+-- Created on          : 2020/09/15 18:41:27
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xED0AC2B9
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1582,11 +1582,11 @@ end package body;
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster
--- Created on          : 2020/09/15 11:12:30
+-- Created on          : 2020/09/15 18:41:27
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xED0AC2B9
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -2549,7 +2549,7 @@ wEn(16) <= (hit(16)) and (reg_write);
 -- Field name: nb_dw
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(2),8));
 regfile.interrupt_queue.control.nb_dw <= rb_interrupt_queue_control(31 downto 24);
 
 
