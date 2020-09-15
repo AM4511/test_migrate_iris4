@@ -373,7 +373,6 @@ int main(void)
 				printf("\n----------------------------");
 				printf("\n    FPGA Firmware update    ");
 				printf("\n----------------------------");
-				Pcie->Read_QSPI_ID();
 				// Get the File name and location
 				string cin_imagefilename;
 				std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
