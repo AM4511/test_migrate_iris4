@@ -61,7 +61,8 @@ void CPcie::InitBar0Window(void)
 M_UINT32 CPcie::Read_QSPI_ID(void)
 {
 
-    M_UINT32 qspiID = 0;
+    M_UINT32 qspiID   = 0;
+    M_UINT32 qspiManu = 0;
     //---------------------------------
     // SPI READ IDENTIFICATION ID Jedec command 0x9f
     //---------------------------------
@@ -80,8 +81,17 @@ M_UINT32 CPcie::Read_QSPI_ID(void)
     rPcie_ptr.spi.spiregin.f.spisel     = 0x0;
     rPcie_ptr.spi.spiregin.f.spitxst    = 0x1;
     while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
-    printf("QSPI Manufacturer ID is 0x%X\n", rPcie_ptr.spi.spiregout.f.spidatard);
-    qspiID = rPcie_ptr.spi.spiregout.f.spidatard;
+    printf("QSPI Manufacturer ID is 0x%X  ", rPcie_ptr.spi.spiregout.f.spidatard);
+    qspiManu = rPcie_ptr.spi.spiregout.f.spidatard;
+    
+    if (qspiManu == 0xd5 || qspiManu == 0x90 || qspiManu == 0x9D) printf("Flash SPI is ISSI\n");   
+    else if (qspiManu == 0xc2) printf("Flash SPI is MACRONIX\n");    
+    else if (qspiManu == 0x01) printf("Flash SPI is SPANSION\n");   
+    else if (qspiManu == 0xef) printf("Flash SPI is WINDBOND\n");    
+    else if (qspiManu == 0xC8) printf("Flash SPI is GIGADEVICE\n");
+    else { printf("\n"); }
+
+    qspiID = 0;
 
     // byte 1 : device identification
     rPcie_ptr.spi.spiregin.f.spidataw   = 0x0;
@@ -101,6 +111,12 @@ M_UINT32 CPcie::Read_QSPI_ID(void)
     rPcie_ptr.spi.spiregin.f.spitxst    = 0x1;
     while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
     printf("QSPI Memory Capacity is 0x%X\n\n", rPcie_ptr.spi.spiregout.f.spidatard);
+    qspiID = qspiID + (rPcie_ptr.spi.spiregout.f.spidatard & 0xff);
+
+    if (qspiManu == 0xc2 && qspiID == 0x2537) printf("SPI device is MX25U6435E\n\n");
+    if ((qspiManu == 0xd5 || qspiManu == 0x90 || qspiManu == 0x9D) && (qspiID == 0x7017)) printf("SPI device is IS25WP064\n\n");    
+    if (qspiManu == 0xC8 && qspiID == 0x6017) printf("SPI device is GD25LB64\n\n");
+    if(qspiManu == 0xef && qspiID == 0x6017) printf("SPI device is W25Q64\n\n");
 
     //SPI disable
     rPcie_ptr.spi.spiregin.f.spi_enable = 0x0;

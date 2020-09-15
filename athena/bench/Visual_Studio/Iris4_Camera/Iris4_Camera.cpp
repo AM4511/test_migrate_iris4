@@ -30,7 +30,8 @@
 using namespace std;
 
 
-#define bitstream_BuildID_min         0x5F58D07F
+#define bitstream_BuildID_min         0x0
+//#define bitstream_BuildID_min         0x5F58D07F
 
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
@@ -203,6 +204,7 @@ int main(void)
 
 		printf("\n\nPress any key to exit");
 		_getch();
+		delete FpgaEeprom;
 		delete XGS_Ctrl;
 		delete XGS_Data;
 		delete I2C;
