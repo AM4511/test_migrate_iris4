@@ -88,6 +88,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		24,            //XGSmax HISPI channels 
 	    6,             //XGS_HiSPI_Ch_used;
 	    4,             //XGS_HiSPI_mux;  (static register for the moment)
+		2,             //default is 2 (4 line buffers)
 
 		36,            // XGS_Start;
 	    4131,          // XGS_End;

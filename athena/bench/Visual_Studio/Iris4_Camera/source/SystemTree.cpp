@@ -178,6 +178,9 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 		func = 0;
 		MSMReadConfig(MSMHandle,  FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x70, 1, &LinkStatus);       // [link Status]
 		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x04, 1, &MasterBit);
+		
+		MSMReadConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x68, 1, &DevCtrlRegister);
+		DevCtrlRegister = DevCtrlRegister & 0xfffff7ef; //no snoop - relax ordering
 		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x68, 1, &DevCtrlRegister);
 
 		if((LinkStatus & 0xff0000)      == 0x110000) { printf("\nFPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1

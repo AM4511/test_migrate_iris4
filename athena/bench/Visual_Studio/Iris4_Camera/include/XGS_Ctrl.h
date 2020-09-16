@@ -67,6 +67,7 @@ struct SensorParamStruct
 	M_UINT32 XGS_HiSPI_Ch;
 	M_UINT32 XGS_HiSPI_Ch_used;
 	M_UINT32 XGS_HiSPI_mux;
+	M_UINT32 XGS_DMA_LinePtrWidth;
 
 	M_UINT32 XGS_X_START;
 	M_UINT32 XGS_X_END;

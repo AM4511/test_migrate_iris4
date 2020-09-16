@@ -37,10 +37,11 @@
 void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    {
 
-   SensorParams.SENSOR_TYPE         = 5000;
-   SensorParams.XGS_HiSPI_Ch        = 16;
-   SensorParams.XGS_HiSPI_Ch_used   = 4;
-   SensorParams.XGS_HiSPI_mux       = 4;
+   SensorParams.SENSOR_TYPE          = 5000;
+   SensorParams.XGS_HiSPI_Ch         = 16;
+   SensorParams.XGS_HiSPI_Ch_used    = 4;
+   SensorParams.XGS_HiSPI_mux        = 4;
+   SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
 
    SensorParams.Xsize_Full          = 2600;                                                // Interpolation INCLUDED
    SensorParams.Ysize_Full          = 2056;                                                // Interpolation INCLUDED

@@ -29,6 +29,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch         = 24;
    SensorParams.XGS_HiSPI_Ch_used    = 6;
    SensorParams.XGS_HiSPI_mux        = 4;
+   SensorParams.XGS_DMA_LinePtrWidth = 2;   // 4 line buffers
 
    SensorParams.Xsize_Full           = 4104;     // Interpolation INCLUDED
    SensorParams.Ysize_Full           = 3080;     // Interpolation INCLUDED 

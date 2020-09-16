@@ -30,6 +30,7 @@
 using namespace std;
 
 
+//#define bitstream_BuildID_min         0x0
 #define bitstream_BuildID_min         0x5F58D07F
 
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
@@ -203,6 +204,7 @@ int main(void)
 
 		printf("\n\nPress any key to exit");
 		_getch();
+		delete FpgaEeprom;
 		delete XGS_Ctrl;
 		delete XGS_Data;
 		delete I2C;
@@ -371,6 +373,7 @@ int main(void)
 				printf("\n----------------------------");
 				printf("\n    FPGA Firmware update    ");
 				printf("\n----------------------------");
+				Pcie->Read_QSPI_ID();
 				// Get the File name and location
 				string cin_imagefilename;
 				std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
