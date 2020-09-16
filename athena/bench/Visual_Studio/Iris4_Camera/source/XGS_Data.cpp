@@ -316,7 +316,9 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if (error_detect == 1)
 	{
 		printf("\n\n");
-
+		printf("DMA.OUTPUT_BUFFER.f.MAX_LINE_BUFF_CNT   : 0x%X\n", rXGSptr.DMA.OUTPUT_BUFFER.f.MAX_LINE_BUFF_CNT);
+		printf("DMA.OUTPUT_BUFFER.f.PCIE_BACK_PRESSURE  : 0x%X\n", rXGSptr.DMA.OUTPUT_BUFFER.f.PCIE_BACK_PRESSURE);
+		printf("\n");
 		Reg_HISPI_CTRL = rXGSptr.HISPI.CTRL.u32;
 		printf("HISPI CTRL         : 0x%X\n",   Reg_HISPI_CTRL);
 		printf("HISPI STATUS       : 0x%X\n",   Reg_HISPI_STATUS);

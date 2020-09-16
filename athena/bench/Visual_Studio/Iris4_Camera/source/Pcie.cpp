@@ -81,7 +81,7 @@ M_UINT32 CPcie::Read_QSPI_ID(void)
     rPcie_ptr.spi.spiregin.f.spisel     = 0x0;
     rPcie_ptr.spi.spiregin.f.spitxst    = 0x1;
     while ((rPcie_ptr.spi.spiregout.u32 & 0x10000) != 0x10000);  //polling for SPIWRTD=1 
-    printf("QSPI Manufacturer ID is 0x%X  ", rPcie_ptr.spi.spiregout.f.spidatard);
+    printf("\n\nQSPI Manufacturer ID is 0x%X  ", rPcie_ptr.spi.spiregout.f.spidatard);
     qspiManu = rPcie_ptr.spi.spiregout.f.spidatard;
     
     if (qspiManu == 0xd5 || qspiManu == 0x90 || qspiManu == 0x9D) printf("Flash SPI is ISSI\n");   

@@ -144,7 +144,9 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.HISPI.PHY.f.PIXEL_PER_LANE       = SensorParams.XGS_X_SIZE / SensorParams.XGS_HiSPI_Ch;
 	rXGSptr.HISPI.PHY.u32                    = sXGSptr.HISPI.PHY.u32;
 
-
-
-
+	// Set FPGA nuber of linebuffers in DMA 
+	sXGSptr.DMA.OUTPUT_BUFFER.f.LINE_PTR_WIDTH        = SensorParams.XGS_DMA_LinePtrWidth;
+	sXGSptr.DMA.OUTPUT_BUFFER.f.CLR_MAX_LINE_BUFF_CNT = 1;
+	rXGSptr.DMA.OUTPUT_BUFFER.u32                     = sXGSptr.DMA.OUTPUT_BUFFER.u32;
+	sXGSptr.DMA.OUTPUT_BUFFER.f.CLR_MAX_LINE_BUFF_CNT = 0;
 }
