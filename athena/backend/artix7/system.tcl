@@ -231,7 +231,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
-   CONFIG.MAX_PCIE_PAYLOAD_SIZE {1024} \
+   CONFIG.MAX_PCIE_PAYLOAD_SIZE {256} \
    CONFIG.SENSOR_FREQ {32000} \
  ] $XGS_athena_0
 

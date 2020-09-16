@@ -18,14 +18,16 @@ puts "Running ${myself}"
 # 0.0.7 : XGS_athena now report CRC errors, implements LUT, implements MSI IRQ, Fix a HiSPi calibration issue
 #
 # 0.0.8 : XGS_athena no HiSPI differential termination resistor on fpga, added General Arbiter to Logic. 
-#         XGS_athena/DMA, output line buffer structure now configurable (Fix PCIe back pressure problem); 
-#         Augmented PCIe max payload size to 1024
+#
+# 0.0.9 : XGS_athena/DMA, output line buffer structure now configurable (Fix PCIe back pressure problem); 
+#         Parameterized XGS_athena to support max_payload size upto 1024
+#         Set Xilinx PCI endpoint PCIe max payload size to 256 
 #         Fixed IRQ masking/enabling in the Queue mechanism (PCIE2AXIMASTER)
-#         Added SW interrupt in pcie2aximaster
-
+#         Added a SW interrupt bit in pcie2aximaster (for debug)
+#
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 8
+set FPGA_SUB_MINOR_VERSION 9
 
 
 set BASE_NAME athena
