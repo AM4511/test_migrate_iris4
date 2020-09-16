@@ -1,9 +1,14 @@
 # RDS CLK: 133 MHZ
 #set RDS_CLOCK_PERIOD 7.500
-create_clock -period 10.000 -name VIRT_CLK
-create_clock -period 10.000 -name RDS_CLK [get_ports hb_rwds]
+#100 MHz version
+#create_clock -period 10.000 -name VIRT_CLK
+#create_clock -period 10.000 -name RDS_CLK [get_ports hb_rwds]
 
-set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300
+#125 MHz version
+create_clock -period 8.000 -name VIRT_CLK
+create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
+
+#set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300 j'enleve au départ, pour ne pas me nuire, car je me demande si le 0.3 améliore ou détériore le timing
 
 # Edge-Aligned Double Data Rate Source Synchronous Inputs
 # (Using a direct FF connection)
@@ -26,11 +31,18 @@ set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300
 # synchronous DDR inputs (Edge aligned) see the following link:
 #    https://forums.xilinx.com/t5/Timing-Analysis/How-to-constraint-Same-Edge-capture-edge-aligned-DDR-input/m-p/646009#M8411
 
-# Input Delay Constraint
-set_input_delay -clock VIRT_CLK -max 5.450 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -min 4.550 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 5.450 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 4.550 [get_ports {hb_dq[*]}]
+# Input Delay Constraint, cheating method, based on wrong clock set at 100 MHz, hence 1/2 period = 5 and input_delay = 5 +/- 0.45.
+#set_input_delay -clock VIRT_CLK -max 5.450 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -min 4.550 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 5.450 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 4.550 [get_ports {hb_dq[*]}]
+
+#cheating method, clock a 125 MHz
+set_input_delay -clock VIRT_CLK -max 4.450 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -min 3.550 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 4.450 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.550 [get_ports {hb_dq[*]}]
+
 
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
