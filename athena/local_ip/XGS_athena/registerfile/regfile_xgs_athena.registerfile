@@ -123,9 +123,16 @@
       </fields>
     </registers>
     <registers name="TLP" offsetFromParent="3C">
-      <fields name="MAX_PAYLOAD" lsb="16" size="12" readWrite="false" readOnly="true"/>
+      <fields name="MAX_PAYLOAD" description="" lsb="16" size="12" readWrite="false" readOnly="true"/>
       <fields name="BUS_MASTER_EN" lsb="3" readWrite="false" readOnly="true"/>
-      <fields name="CFG_MAX_PLD" size="3" readWrite="false" readOnly="true"/>
+      <fields name="CFG_MAX_PLD" alias="PCIe Device Control Register (Offset 08h); bits 7 downto 5" description="See PCIe Baser2.1, Section 7.8.4. Device Control Register (Offset 08h)&#xD;&#xA;&#xD;&#xA;This field indicates the maximum TLP payload &#xD;&#xA;size allowed by the host for this Function. As a Receiver, the Function must handle TLPs as large as the set value. As a Transmitter, the Function must not generate TLPs exceeding the set value. Permissible values that can be programmed are indicated by the Max_Payload_Size Supported in the Device Capabilities register (see Section 7.8.3).&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;Functions that support only the 128-byte max payload size are&#xD;&#xA;permitted to hardwire this field to 000b.&#xD;&#xA;System software is not required to program the same value for&#xD;&#xA;this field for all the Functions of a multi-Function device. Refer&#xD;&#xA;to Section 2.2.2 for important guidance.&#xD;&#xA;For ARI Devices, Max_Payload_Size is determined solely by the&#xD;&#xA;setting in Function 0. The settings in the other Functions always&#xD;&#xA;return whatever value software programmed for each, but&#xD;&#xA;otherwise are ignored by the component.&#xD;&#xA;Default value of this field is 000b." size="3" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>128 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>256 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>512 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1024 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not supported by Xilinx endpoint&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2D8">

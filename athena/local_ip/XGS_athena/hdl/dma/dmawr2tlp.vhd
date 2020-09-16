@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------
 -- 
---              
+-- MAX_PCIE_PAYLOAD_SIZE : see PCIe 2.1 spec; section 7.8.4. Device
+--                         Control Register (Offset 08h)              
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

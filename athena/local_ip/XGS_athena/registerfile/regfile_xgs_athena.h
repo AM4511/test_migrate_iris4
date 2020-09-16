@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x640D18C
+* Register file CRC32 : 0xD9044013
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -401,7 +401,7 @@ typedef union
 
    struct
    {
-      M_UINT32 CFG_MAX_PLD   : 3;   /* Bits(2:0), null */
+      M_UINT32 CFG_MAX_PLD   : 3;   /* Bits(2:0), PCIe Device Control Register (Offset 08h); bits 7 downto 5 */
       M_UINT32 BUS_MASTER_EN : 1;   /* Bits(3:3), null */
       M_UINT32 RSVD0         : 12;  /* Bits(15:4), Reserved */
       M_UINT32 MAX_PAYLOAD   : 12;  /* Bits(27:16), null */
