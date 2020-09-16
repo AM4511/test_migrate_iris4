@@ -2,11 +2,11 @@
 ** File                : Cregfile_pcie2AxiMaster.cpp
 ** Project             : FDK
 ** Module              : regfile_pcie2AxiMaster
-** Created on          : 2020/09/14 14:50:04
+** Created on          : 2020/09/15 18:41:27
 ** Created by          : amarchan
 ** FDK IDE Version     : 4.7.0_beta4
 ** Build ID            : I20191220-1537
-** Register file CRC32 : 0x9CA38D67
+** Register file CRC32 : 0xC43C8CD6
 **
 **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 **  All Rights Reserved
@@ -155,6 +155,7 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pSection->addRegister(pRegister);
 
    //Fields:
+   pRegister->addField(createField(pRegister, "sw_irq", 31, 1, CfdkField::WO, 0x0, 0x1, 0x0)); // ctrl(31)
    pRegister->addField(createField(pRegister, "num_irq", 1, 7, CfdkField::RO, 0x1, 0x0, 0x7f)); // ctrl(7:1)
    pRegister->addField(createField(pRegister, "global_mask", 0, 1, CfdkField::RW, 0x1, 0x1, 0x1)); // ctrl(0)
 
@@ -274,7 +275,7 @@ Cregfile_pcie2AxiMaster::Cregfile_pcie2AxiMaster() : CfdkRegisterFile("regfile_p
    pSection->addRegister(pRegister);
 
    //Fields:
-   pRegister->addField(createField(pRegister, "nb_dw", 24, 8, CfdkField::STATIC, 0x1, 0x0, 0xff)); // control(31:24)
+   pRegister->addField(createField(pRegister, "nb_dw", 24, 8, CfdkField::STATIC, 0x2, 0x0, 0xff)); // control(31:24)
    pRegister->addField(createField(pRegister, "enable", 0, 1, CfdkField::RW, 0x0, 0x1, 0x1)); // control(0)
 
    /******************************************************************

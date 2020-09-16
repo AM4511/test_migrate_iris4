@@ -25,7 +25,7 @@ module testbench();
 	parameter AXIS_USER_WIDTH = 4;
 	parameter GPIO_NUMB_INPUT = 1;
 	parameter GPIO_NUMB_OUTPUT = 1;
-	parameter MAX_PCIE_PAYLOAD_SIZE = 1024;
+	parameter MAX_PCIE_PAYLOAD_SIZE = 256; // 128, 256, 512. 1024
 	parameter HISPI_IDLE_CHARACTER = 12'h3A6;
 
 	parameter BAR_XGS_ATHENA        = 32'h00000000;
@@ -155,7 +155,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS12M_
+	`define _XGS5M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
@@ -504,8 +504,13 @@ module testbench();
 
 	assign cfg_bus_mast_en = 1'b1;
 	
-	// PCIE core able of 1024 max payload size
-	assign cfg_setmaxpld = 3'b111;
+	// PCIE Device Control Register (Offset 08h); bits 7:5
+    //	000b 128 bytes max payload size
+    //	001b 256 bytes max payload size
+    //	010b 512 bytes max payload size
+    //	011b 1024 bytes max payload size
+	//  Others, not supported
+	assign cfg_setmaxpld = 3'b001;
 	//assign tx_axis.tready = 1'b1;
 
 	//Connect the GPIO

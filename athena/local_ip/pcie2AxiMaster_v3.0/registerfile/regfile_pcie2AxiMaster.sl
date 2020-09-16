@@ -76,6 +76,9 @@ Register("board_info", 0x2c, 4, "Board information");
 Section("interrupts", 0, 0x40);
 
 Register("ctrl", 0x40, 4, "null");
+		Field("sw_irq", 31, 31, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Software IRQ");
+			FieldValue("No effect", 0);
+			FieldValue("Create an Irq event (pluse)", 1);
 		Field("num_irq", 7, 1, "rd", 0x0, 0x1, 0x0, 0x0, NO_TEST, 0, 0, "Number of IRQ");
 		Field("global_mask", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Global Mask interrupt ");
 			FieldValue("Any enabled interrupt will bi signaled to the host", 0);
@@ -135,7 +138,7 @@ for(i = 0; i < 2; i++)
 Section("interrupt_queue", 0, 0x60);
 
 Register("control", 0x60, 4, "null");
-		Field("nb_dw", 31, 24, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Number of DWORDS");
+		Field("nb_dw", 31, 24, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Number of DWORDS");
 		Field("enable", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "QInterrupt queue enable");
 
 Register("cons_idx", 0x64, 4, "Consumer Index");

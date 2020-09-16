@@ -11,7 +11,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.std_logic_unsigned.all;
-use IEEE.std_logic_arith.all;
+--use IEEE.std_logic_arith.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -33,6 +33,7 @@ entity pcie2AxiMaster is
     AXI_ID_WIDTH          : integer range 1 to 8  := 6;
     ENABLE_DMA            : integer range 0 to 1  := 0;
     ENABLE_MTX_SPI        : integer range 0 to 1  := 0;
+    ENABLE_SW_IRQ         : integer range 0 to 1  := 0;
     DEBUG_IN_WIDTH        : integer range 0 to 32 := 0;
     DEBUG_OUT_WIDTH       : integer range 0 to 32 := 0
     );
@@ -101,7 +102,8 @@ entity pcie2AxiMaster is
     ---------------------------------------------------------------------------
     -- Interrupt interface
     ---------------------------------------------------------------------------
-    irq_event : in std_logic_vector(NUMB_IRQ-1 downto 0);
+    sw_irq    : out std_logic;
+    irq_event : in  std_logic_vector(NUMB_IRQ-1 downto 0);
 
 
     ---------------------------------------------------------------------------
@@ -1001,6 +1003,8 @@ architecture struct of pcie2AxiMaster is
   signal debug_in_sig_meta : std_logic_vector(31 downto 0) := (others => '0');
   signal debug_in_sig      : std_logic_vector(31 downto 0) := (others => '0');
   signal debug_out_sig     : std_logic_vector(31 downto 0) := (others => '0');
+  signal sw_irq_vect       : unsigned(3 downto 0)          := (others => '0');
+
 
   type type_debug_dma_state is (idle,
                                 header,
@@ -1577,8 +1581,8 @@ begin
       ---------------------------------------------------------------------
       -- single interrupt OUT
       ---------------------------------------------------------------------
-      queue_int_out => queue_irq(0), -- Legacy IRQ
-      msi_req       => msi_req(0),   -- MSI IRQ
+      queue_int_out => queue_irq(0),    -- Legacy IRQ
+      msi_req       => msi_req(0),      -- MSI IRQ
       msi_ack       => msi_ack(0),
 
       regfile => regfile.INTERRUPT_QUEUE,
@@ -1748,7 +1752,28 @@ begin
   regfile.interrupts.ctrl.num_irq <= std_logic_vector(to_unsigned(NUMB_IRQ, 7));
 
 
+  
+  G_SW_IRQ : if (ENABLE_SW_IRQ > 0) generate
+  -----------------------------------------------------------------------------
+  -- Software IRQ (pulse width enlarger)
+  -----------------------------------------------------------------------------
+  P_sw_irq_vect : process (sys_clk) is
+  begin
+    if (rising_edge(sys_clk)) then
+      if (sys_reset_n = '0') then
+        sw_irq_vect <= (others => '0');
+      else
+        if (regfile.interrupts.ctrl.sw_irq = '1') then
+          sw_irq_vect <= (others => '1');
+        else
+          sw_irq_vect <= shift_right(sw_irq_vect, 1);
+        end if;
+      end if;
+    end if;
+  end process;
+  end generate G_SW_IRQ;
 
+  sw_irq <= sw_irq_vect(0);
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------

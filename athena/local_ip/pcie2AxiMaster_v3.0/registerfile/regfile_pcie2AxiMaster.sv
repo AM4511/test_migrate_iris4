@@ -2,11 +2,11 @@
  ** File                : regfile_pcie2AxiMaster.sv
  ** Project             : FDK
  ** Module              : regfile_pcie2AxiMaster
- ** Created on          : 2020/09/14 14:50:04
+ ** Created on          : 2020/09/15 18:41:27
  ** Created by          : amarchan
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0x9CA38D67
+ ** Register file CRC32 : 0xC43C8CD6
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -194,7 +194,8 @@ typedef union packed
    {
       logic        global_mask;  /* Bits(0:0), Global Mask interrupt */
       logic [6:0]  num_irq;      /* Bits(7:1), Number of IRQ */
-      logic [23:0] rsvd0;        /* Bits(31:8), Reserved */
+      logic [22:0] rsvd0;        /* Bits(30:8), Reserved */
+      logic        sw_irq;       /* Bits(31:31), Software IRQ */
    } f;
 
 } fdk_regfile_pcie2AxiMaster_interrupts_ctrl_t;

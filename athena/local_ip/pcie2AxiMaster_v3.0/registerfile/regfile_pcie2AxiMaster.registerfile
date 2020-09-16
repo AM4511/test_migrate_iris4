@@ -79,6 +79,11 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupts" description="&#xD;&#xA;Mapping provided in the system instantiating this IP." baseAddress="40" endAddress="58">
     <registers name="ctrl">
+      <fields name="sw_irq" alias="Software IRQ" description="Used to test software IRQ mechanism. The mapping of this bit is application dependant" lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Create an Irq event (pluse)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="num_irq" alias="Number of IRQ" description="Indicated the total number of IRQ connected to the pcie2AxiMaster" lsb="1" size="7" valueAtReset="1" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -114,7 +119,7 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="interrupt_queue" description="This section controls the behavior of the interrupt queue" baseAddress="60" endAddress="6C">
     <registers name="control">
-      <fields name="nb_dw" alias="Number of DWORDS" description="This is the number of 32-bit DW used to represent all interrupt sources. It is used by the driver to know how to split the data of the interrupt queue in interrupt events.&#xD;&#xA;&#xD;&#xA;This number should always be a power of 2 to simply the hardware implementation and avoid having a single interrupt event split by the wrap-around boundary.&#xD;&#xA;" lsb="24" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="nb_dw" alias="Number of DWORDS" description="This is the number of 32-bit DW used to represent all interrupt sources. It is used by the driver to know how to split the data of the interrupt queue in interrupt events.&#xD;&#xA;&#xD;&#xA;This number should always be a power of 2 to simply the hardware implementation and avoid having a single interrupt event split by the wrap-around boundary.&#xD;&#xA;" lsb="24" size="8" valueAtReset="2" readWrite="false" staticVal="true"/>
       <fields name="enable" alias="QInterrupt queue enable" description="This bit is used to enable the interrupt queue. When disabled, the interrupt will behave in a legacy way where all interrupts are merged into interrupt status register and driver has to read the status register to know the interrupt sources.&#xD;&#xA;&#xD;&#xA;To reset the interrupt queue, the driver should disable the queue and re-enable it. This will cause the producer index to be reset to 0 internally in the hardware.  The driver should write the whole queue area to 0 to make sure it does not mis-interpret the data in the queue as events when the queue is turned back to on."/>
     </registers>
     <registers name="cons_idx" alias="Consumer Index" description="The consumer index indicates up to which element of interrupt queue array it can write. Element in the queue between CONS_IDX (included) and PROD_IDX (not included) belong to the driver and are not written by the hardware. " offsetFromParent="4">

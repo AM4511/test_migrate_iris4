@@ -1,3 +1,4 @@
 # This file is automatically written.  Do not modify.
 proc gen_USERPARAMETER_ENABLE_DMA_VALUE {BOOL_ENABLE_DMA } {expr $BOOL_ENABLE_DMA == true ? 1 : 0}
 proc gen_USERPARAMETER_ENABLE_MTX_SPI_VALUE {BOOL_ENABLE_SPI } {expr $BOOL_ENABLE_SPI == true ? 1 : 0}
+proc gen_USERPARAMETER_ENABLE_SW_IRQ_VALUE {BOOL_ENABLE_SW_IRQ } {expr $BOOL_ENABLE_SW_IRQ == true ? 1 : 0}

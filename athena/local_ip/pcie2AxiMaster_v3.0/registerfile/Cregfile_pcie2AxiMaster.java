@@ -154,6 +154,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
+      register.addField(new CField(register, "sw_irq", "Software IRQ", CField.FieldType.WO, 31, 1, 0x0));
       register.addField(new CField(register, "num_irq", "Number of IRQ", CField.FieldType.RO, 1, 7, 0x1));
       register.addField(new CField(register, "global_mask", "Global Mask interrupt ", CField.FieldType.RW, 0, 1, 0x1));
 
@@ -203,7 +204,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "nb_dw", "Number of DWORDS", CField.FieldType.STATIC, 24, 8, 0x1));
+      register.addField(new CField(register, "nb_dw", "Number of DWORDS", CField.FieldType.STATIC, 24, 8, 0x2));
       register.addField(new CField(register, "enable", "QInterrupt queue enable", CField.FieldType.RW, 0, 1, 0x0));
 
       /***************************************************************

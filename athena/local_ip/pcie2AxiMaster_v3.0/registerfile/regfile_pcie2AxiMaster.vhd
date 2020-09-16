@@ -2,11 +2,11 @@
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster_pack
--- Created on          : 2020/09/14 14:50:04
+-- Created on          : 2020/09/15 18:41:27
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9CA38D67
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -216,11 +216,13 @@ package regfile_pcie2AxiMaster_pack is
    -- Register Name: ctrl
    ------------------------------------------------------------------------------------------
    type INTERRUPTS_CTRL_TYPE is record
+      sw_irq         : std_logic;
       num_irq        : std_logic_vector(6 downto 0);
       global_mask    : std_logic;
    end record INTERRUPTS_CTRL_TYPE;
 
    constant INIT_INTERRUPTS_CTRL_TYPE : INTERRUPTS_CTRL_TYPE := (
+      sw_irq          => 'Z',
       num_irq         => (others=> 'Z'),
       global_mask     => 'Z'
    );
@@ -1017,6 +1019,7 @@ package body regfile_pcie2AxiMaster_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.sw_irq;
       output(7 downto 1) := reg.num_irq;
       output(0) := reg.global_mask;
       return output;
@@ -1029,6 +1032,7 @@ package body regfile_pcie2AxiMaster_pack is
    function to_INTERRUPTS_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return INTERRUPTS_CTRL_TYPE is
    variable output : INTERRUPTS_CTRL_TYPE;
    begin
+      output.sw_irq := stdlv(31);
       output.num_irq := stdlv(7 downto 1);
       output.global_mask := stdlv(0);
       return output;
@@ -1578,11 +1582,11 @@ end package body;
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster
--- Created on          : 2020/09/14 14:50:04
+-- Created on          : 2020/09/15 18:41:27
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x9CA38D67
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -1675,6 +1679,7 @@ signal rb_debug_DMA_DEBUG1                           : std_logic_vector(31 downt
 signal rb_debug_DMA_DEBUG2                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_debug_DMA_DEBUG3                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_info_scratchpad_value                : std_logic_vector(31 downto 0);                   -- Field: value
+signal field_wautoclr_interrupts_ctrl_sw_irq         : std_logic;                                       -- Field: sw_irq
 signal field_rw_interrupts_ctrl_global_mask          : std_logic;                                       -- Field: global_mask
 signal field_rw2c_interrupts_status_0_value          : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw2c_interrupts_status_1_value          : std_logic_vector(31 downto 0);                   -- Field: value
@@ -2273,6 +2278,30 @@ rb_fpga_board_info(3 downto 0) <= regfile.fpga.board_info.capability;
 wEn(9) <= (hit(9)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: sw_irq
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_interrupts_ctrl(31) <= '0';
+regfile.interrupts.ctrl.sw_irq <= field_wautoclr_interrupts_ctrl_sw_irq;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_interrupts_ctrl_sw_irq
+------------------------------------------------------------------------------------------
+P_interrupts_ctrl_sw_irq : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_interrupts_ctrl_sw_irq <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(9) = '1' and bitEnN(31) = '0') then
+         field_wautoclr_interrupts_ctrl_sw_irq <= reg_writedata(31);
+      else
+         field_wautoclr_interrupts_ctrl_sw_irq <= '0';
+      end if;
+   end if;
+end process P_interrupts_ctrl_sw_irq;
+
+------------------------------------------------------------------------------------------
 -- Field name: num_irq(6 downto 0)
 -- Field type: RO
 ------------------------------------------------------------------------------------------
@@ -2520,7 +2549,7 @@ wEn(16) <= (hit(16)) and (reg_write);
 -- Field name: nb_dw
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(2),8));
 regfile.interrupt_queue.control.nb_dw <= rb_interrupt_queue_control(31 downto 24);
 
 

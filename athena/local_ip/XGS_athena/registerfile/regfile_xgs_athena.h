@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xD1EB35A0
+* Register file CRC32 : 0xD9044013
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -43,6 +43,7 @@
 #define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS                  0x094
 #define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                        0x098
 #define FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_ADDRESS              0x0A8
+#define FPGA_REGFILE_XGS_ATHENA_DMA_TLP_ADDRESS                        0x0AC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS                  0x100
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS                  0x108
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS               0x110
@@ -387,6 +388,27 @@ typedef union
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_TYPE;
+
+
+/**************************************************************************
+* Register name : TLP
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 CFG_MAX_PLD   : 3;   /* Bits(2:0), PCIe Device Control Register (Offset 08h); bits 7 downto 5 */
+      M_UINT32 BUS_MASTER_EN : 1;   /* Bits(3:3), null */
+      M_UINT32 RSVD0         : 12;  /* Bits(15:4), Reserved */
+      M_UINT32 MAX_PAYLOAD   : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1         : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DMA_TLP_TYPE;
 
 
 /**************************************************************************
@@ -1811,6 +1833,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x24 */
    FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x28 */
    FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_TYPE OUTPUT_BUFFER;  /* Address offset: 0x38 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_TLP_TYPE           TLP;            /* Address offset: 0x3c */
 } FPGA_REGFILE_XGS_ATHENA_DMA_TYPE;
 
 /**************************************************************************
@@ -1925,7 +1948,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE    SYSTEM;      /* Section; Base address offset: 0x0 */
    M_UINT32                               RSVD0[24];   /* Padding; Size (96 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE       DMA;         /* Section; Base address offset: 0x70 */
-   M_UINT32                               RSVD1[21];   /* Padding; Size (84 Bytes) */
+   M_UINT32                               RSVD1[20];   /* Padding; Size (80 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE       ACQ;         /* Section; Base address offset: 0x100 */
    M_UINT32                               RSVD2[73];   /* Padding; Size (292 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */

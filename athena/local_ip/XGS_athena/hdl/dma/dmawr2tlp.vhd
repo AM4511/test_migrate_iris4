@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------
 -- 
---              
+-- MAX_PCIE_PAYLOAD_SIZE : see PCIe 2.1 spec; section 7.8.4. Device
+--                         Control Register (Offset 08h)              
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -248,7 +249,10 @@ begin
 
   dma_context_mapping.numb_plane <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
                                     3;
-
+  
+  regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
+  regfile.DMA.TLP.CFG_MAX_PLD   <= cfg_setmaxpld;
+  regfile.DMA.TLP.BUS_MASTER_EN <= cfg_bus_mast_en;
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline

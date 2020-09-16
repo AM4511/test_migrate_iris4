@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x9CA38D67
+* Register file CRC32 : 0xC43C8CD6
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -237,7 +237,8 @@ typedef union
    {
       M_UINT32 global_mask : 1;   /* Bits(0:0), Global Mask interrupt */
       M_UINT32 num_irq     : 7;   /* Bits(7:1), Number of IRQ */
-      M_UINT32 rsvd0       : 24;  /* Bits(31:8), Reserved */
+      M_UINT32 rsvd0       : 23;  /* Bits(30:8), Reserved */
+      M_UINT32 sw_irq      : 1;   /* Bits(31:31), Software IRQ */
    } f;
 
 } FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_CTRL_TYPE;
