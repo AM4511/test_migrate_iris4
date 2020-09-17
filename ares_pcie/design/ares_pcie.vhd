@@ -753,9 +753,12 @@ begin
   -- venant de Athena
   status_gled <= acq_led(0);
 
-  -- sur le circuit rouge il y a un pullup pour que la led rouge s'allume par defaut.  On doit donc driver 0 pour 0 et 'z' pour 1, sinon ca fait un overdrive sur le rouge.
-  status_rled <= '0' when acq_led(1) = '0' else 'Z';
-
+  -- GTR : sur le circuit rouge il y a un pullup pour que la led rouge s'allume par defaut.  On doit donc driver 0 pour 0 et 'z' pour 1, sinon ca fait un overdrive sur le rouge.
+  --status_rled <= '0' when acq_led(1) = '0' else 'Z';
+  -- GTX : Dmitri a fait un nouveau circuit et n'a pas mis de pullup sur la led rouge, alors on drive directement la led avec le signal recu
+  status_rled <= acq_led(1);
+  
+  
   -- Pour avoir access a la pin dedie du core PCIe, il faut instantier le IBUFDS_GTE2
   refclk_ibuf : IBUFDS_GTE2
     port map (

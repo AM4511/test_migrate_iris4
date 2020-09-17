@@ -3,7 +3,9 @@
 # Description  : TCL script used to create the MIOX fpga project. 
 #
 # Example      : source $env(IRIS4)/athena/backend/artix7/create_athena.tcl
-#
+#                source $env(IRIS4)/athena/backend/artix7/firmwares.tcl
+#                source $env(IRIS4)/athena/backend/artix7/report_implementation.tcl
+#                source $env(IRIS4)/athena/backend/artix7/archive.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"

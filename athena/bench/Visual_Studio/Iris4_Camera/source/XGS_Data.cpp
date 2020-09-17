@@ -337,6 +337,14 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		printf("\n\nError detected at : ");
 		PrintTime();
 
+		if (rXGSptr.DMA.TLP.f.MAX_PAYLOAD != rXGSptr.DMA.TLP.f.CFG_MAX_PLD) {
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 0) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  128 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 1) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  256 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 2) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  512 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 3) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program 1024 bytes \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+		}
+
+
 		printf("\nPress 'c' to continue without recover HI_SPI\n");
 		printf("Press 'r' to try to recover HI_SPI and continue this test\n");
 		printf("Press 'q' to quit this test and try to recover HI_SPI\n");
@@ -352,10 +360,12 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 			break;
 
 		case 'c':
+			printf("\n(c) Continuing...\n");
 			Stop_test = 0;
 			break;
 
 		case 'r':
+			printf("\n(r) Recovering...\n");
 			Stop_test = 0;
 			HiSpiClr();
 			HiSpiCalibrate();
