@@ -32,9 +32,9 @@
 #include <future>
 
 #include "mbasictypes.h"
-#include "Mil.h"
+#include "mil.h"
 #include "milstring.h"
-#include "Milos.h"
+#include "milos.h"
 
 #include <math.h>
 #include <vector>
