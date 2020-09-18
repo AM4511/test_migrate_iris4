@@ -275,13 +275,13 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {133.333} \
    CONFIG.CLKOUT2_REQUESTED_PHASE {90.000} \
    CONFIG.CLKOUT2_USED {true} \
-   CONFIG.CLKOUT3_JITTER {161.941} \
-   CONFIG.CLKOUT3_PHASE_ERROR {218.145} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {100.000} \
-   CONFIG.CLKOUT3_USED {false} \
+   CONFIG.CLKOUT3_JITTER {161.087} \
+   CONFIG.CLKOUT3_PHASE_ERROR {144.334} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200.000} \
+   CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLK_OUT1_PORT {rpc_clk} \
    CONFIG.CLK_OUT2_PORT {rpc_clk90} \
-   CONFIG.CLK_OUT3_PORT {clk_out3} \
+   CONFIG.CLK_OUT3_PORT {clk200MHz} \
    CONFIG.ENABLE_CLOCK_MONITOR {false} \
    CONFIG.MMCM_CLKFBOUT_MULT_F {16.000} \
    CONFIG.MMCM_CLKIN1_PERIOD {20.000} \
@@ -289,9 +289,9 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {6.000} \
    CONFIG.MMCM_CLKOUT1_DIVIDE {6} \
    CONFIG.MMCM_CLKOUT1_PHASE {90.000} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {4} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
-   CONFIG.NUM_OUT_CLKS {2} \
+   CONFIG.NUM_OUT_CLKS {3} \
    CONFIG.PRIMITIVE {MMCM} \
    CONFIG.PRIM_IN_FREQ {50.000} \
    CONFIG.RESET_PORT {resetn} \
@@ -304,17 +304,17 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.CLKIN1_JITTER_PS {200.0} \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {186.330} \
-   CONFIG.CLKOUT1_PHASE_ERROR {144.334} \
+   CONFIG.CLKOUT1_JITTER {210.017} \
+   CONFIG.CLKOUT1_PHASE_ERROR {148.661} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {222.587} \
-   CONFIG.CLKOUT2_PHASE_ERROR {144.334} \
+   CONFIG.CLKOUT2_JITTER {243.865} \
+   CONFIG.CLKOUT2_PHASE_ERROR {148.661} \
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {50} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {BUFG} \
-   CONFIG.CLKOUT3_JITTER {222.587} \
-   CONFIG.CLKOUT3_PHASE_ERROR {144.334} \
+   CONFIG.CLKOUT3_JITTER {243.865} \
+   CONFIG.CLKOUT3_PHASE_ERROR {148.661} \
    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {50} \
    CONFIG.CLKOUT3_REQUESTED_PHASE {-40} \
    CONFIG.CLKOUT3_USED {true} \
@@ -323,7 +323,7 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT4_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {200.000} \
    CONFIG.CLKOUT4_REQUESTED_PHASE {0.000} \
-   CONFIG.CLKOUT4_USED {true} \
+   CONFIG.CLKOUT4_USED {false} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
    CONFIG.CLKOUT5_JITTER {137.096} \
    CONFIG.CLKOUT5_PHASE_ERROR {116.405} \
@@ -351,17 +351,17 @@ proc create_root_design { parentCell } {
    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
    CONFIG.JITTER_SEL {No_Jitter} \
    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {16.000} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {13.000} \
    CONFIG.MMCM_CLKIN1_PERIOD {20.000} \
    CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {8.000} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {6.500} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {16} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {13} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {16} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {13} \
    CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT2_PHASE {-39.375} \
-   CONFIG.MMCM_CLKOUT3_DIVIDE {4} \
+   CONFIG.MMCM_CLKOUT2_PHASE {-38.077} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
    CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT3_PHASE {0.000} \
    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
@@ -374,7 +374,7 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT6_PHASE {0.000} \
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
-   CONFIG.NUM_OUT_CLKS {4} \
+   CONFIG.NUM_OUT_CLKS {3} \
    CONFIG.PRIMITIVE {MMCM} \
    CONFIG.PRIM_IN_FREQ {50.000} \
    CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
@@ -414,10 +414,10 @@ proc create_root_design { parentCell } {
   connect_bd_net -net pcie_sys_clk_0_1 [get_bd_ports pcie_sys_clk] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net refclk [get_bd_ports refclk_50MHz] [get_bd_pins rpc_pll/clk_in1] [get_bd_pins system_pll/clk_in1]
   connect_bd_net -net reset_100MHz_interconnect_aresetn [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins reset_100MHz/interconnect_aresetn]
+  connect_bd_net -net rpc_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins rpc_pll/clk200MHz]
   connect_bd_net -net rpc_pll_rpc_clk [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz] [get_bd_pins rpc_pll/rpc_clk]
   connect_bd_net -net rpc_pll_rpc_clk90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins rpc_pll/rpc_clk90]
   connect_bd_net -net rst_ddr2_mig_0_100M_peripheral_aresetn [get_bd_pins axi_ethernetlite_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins mii_to_rmii_0/rst_n] [get_bd_pins reset_100MHz/peripheral_aresetn] [get_bd_pins rpc2_ctrl_controller_0/AXIm_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIr_ARESETN]
-  connect_bd_net -net system_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins system_pll/clk200MHz]
   connect_bd_net -net system_pll_clk50MHz_io [get_bd_ports ncsi_clk] [get_bd_pins system_pll/clk50MHz_io]
   connect_bd_net -net system_pll_locked [get_bd_pins reset_100MHz/dcm_locked] [get_bd_pins system_pll/locked]
   connect_bd_net -net xlconstant_2_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_2/dout]
