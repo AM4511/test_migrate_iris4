@@ -16,7 +16,7 @@ set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 1
 
 
-set BASE_NAME  ares_a50_test_hr
+set BASE_NAME  ares_a50_test_hr133MHz
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -47,8 +47,10 @@ set REG_DIR            ${WORKDIR}/registerfile
 set XDC_DIR            ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${SYSTEM_DIR}/add_files_pcie_hr133MHz.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_test_133MHz.tcl
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -164,20 +166,26 @@ close_design
 
 
 ################################################
+# Generate firmware file
+################################################
+source ${FIRMWARE_SCRIPT}
+
+
+################################################
 # Run Backend script
 ################################################
+source  $REPORT_FILE
+
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
 	 puts "** Write_bitstream Complete. Generating image"
-	 #source  $SDK_SCRIPT
- 	 #source  $ARCHIVE_SCRIPT
+ 	 source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"
- }
+}
 
 puts "** Done."
-
 
 
