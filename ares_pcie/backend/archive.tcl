@@ -80,7 +80,7 @@ file mkdir $pre_release_registerfile_dir
 file mkdir $pre_release_vivado_dir
 
 # Copy SDK dir
-file copy   -force  $SDK_DIR $pre_release_sdk_dir
+#file copy   -force  $SDK_DIR $pre_release_sdk_dir
 file copy   -force  $OUTPUT_DIR $pre_release_dir
 
 # Copie du fichier de probe 
