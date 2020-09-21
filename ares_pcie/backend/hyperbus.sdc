@@ -8,6 +8,10 @@
 create_clock -period 8.000 -name VIRT_CLK
 create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
 
+#142.857 MHz version
+create_clock -period 7.000 -name VIRT_CLK
+create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
+
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300 j'enleve au départ, pour ne pas me nuire, car je me demande si le 0.3 améliore ou détériore le timing
 
 # Edge-Aligned Double Data Rate Source Synchronous Inputs
@@ -38,11 +42,16 @@ create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
 #set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 4.550 [get_ports {hb_dq[*]}]
 
 #cheating method, clock a 125 MHz
-set_input_delay -clock VIRT_CLK -max 4.450 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -min 3.550 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 4.450 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.550 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -max 4.450 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -min 3.550 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 4.450 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.550 [get_ports {hb_dq[*]}]
 
+#cheating method, clock a 142.857 MHz
+set_input_delay -clock VIRT_CLK -max 3.950 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -min 3.050 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 3.950 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.050 [get_ports {hb_dq[*]}]
 
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
@@ -93,10 +102,13 @@ create_generated_clock -name RPC_CK -source [get_pins ares_pb_i/ares_pb_i/rpc2_c
 # gen_clock_name is the name of forwarded clock here. It should be used below for defining "fwclk".
 
 # Output Delay Constraints
-set_output_delay -clock RPC_CK -max 1.000 [get_ports {hb_dq[*]}]
-set_output_delay -clock RPC_CK -min -1.000 [get_ports {hb_dq[*]}]
-set_output_delay -clock RPC_CK -clock_fall -max -add_delay 1.000 [get_ports {hb_dq[*]}]
-set_output_delay -clock RPC_CK -clock_fall -min -add_delay -1.000 [get_ports {hb_dq[*]}]
+set_output_delay -clock RPC_CK -max 1.000 [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -min -1.000 [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -max -add_delay 1.000 [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -min -add_delay -1.000 [get_ports {hb_dq[*] hb_rwds}]
+
+# RDS_CLK est la strobe utilise en input. Elle ne doit pas etre utilise pour clocker sa propre pin
+set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
 
 # Report Timing Template
 #report_timing -rise_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_rise -file src_sync_ddr_out_rise.txt;
