@@ -48,10 +48,24 @@ create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
 #set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.550 [get_ports {hb_dq[*]}]
 
 #cheating method, clock a 142.857 MHz
-set_input_delay -clock VIRT_CLK -max 3.950 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -min 3.050 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 3.950 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.050 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -max 3.950 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -min 3.050 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 3.950 [get_ports {hb_dq[*]}]
+#set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.050 [get_ports {hb_dq[*]}]
+
+#methode propre, delai d'invalidite autour du hb_rwds
+set_input_delay -clock VIRT_CLK -max 0.45 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -min -0.45 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 0.45 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay -0.45 [get_ports {hb_dq[*]}]
+#methode propre, on retarde rwds pour sampler, il faut donc clocker le data de 0 ns avec la clock de 0 ns, puis enlever les paths impossibles
+set_multicycle_path 0 -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+set_false_path -setup -rise_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
+set_false_path -setup -fall_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
+#methode propre, correction pour le hold
+set_multicycle_path -1 -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+set_false_path -hold -rise_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
+set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
 
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 1 -delay_type min_max -name src_sync_edge_ddr_in_rise -file src_sync_edge_ddr_in_rise.txt;
@@ -292,3 +306,6 @@ set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc
 # To trick the router (hold time fix)
 #set_max_delay -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 7.5
 
+#relaxer le timing a partir des registres Base Adress qui sont statique en operation normale.
+set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 2
+set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 1 -hold
