@@ -17,6 +17,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.mtx_types_pkg.all;
+use work.hispi_pack.all;
 
 
 entity bit_split is
@@ -40,10 +41,12 @@ entity bit_split is
     ---------------------------------------------------------------------------
     -- Pixel clock domain
     ---------------------------------------------------------------------------
-    pclk                : in  std_logic;
-    pclk_idle_detect_en : in  std_logic;
-    pclk_bit_locked     : out std_logic;
-    pclk_data           : out std_logic_vector(PIXEL_SIZE-1 downto 0)
+    pclk            : in  std_logic;
+    pclk_bit_locked : out std_logic;
+    pclk_valid      : out std_logic;
+    pclk_embedded   : out std_logic;
+    pclk_state      : out FSM_STATE_TYPE := S_DISABLED;
+    pclk_data       : out std_logic_vector(PIXEL_SIZE-1 downto 0)
     );
 end entity bit_split;
 
@@ -53,21 +56,36 @@ architecture rtl of bit_split is
   attribute mark_debug : string;
   attribute keep       : string;
 
+
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant HISPI_SHIFT_REGISTER_SIZE : integer := HISPI_WORDS_PER_SYNC_CODE * PIXEL_SIZE + PHY_OUTPUT_WIDTH;
+
+  constant HCLK_SYNC_SOF : std_logic_vector(3 downto 0)               := "1100";
+  constant HCLK_SYNC_EOF : std_logic_vector(3 downto 0)               := "1110";
+  constant HCLK_SYNC_SOL : std_logic_vector(3 downto 0)               := "1000";
+  constant HCLK_SYNC_EOL : std_logic_vector(3 downto 0)               := "1010";
+  constant SYNC_MARKER   : std_logic_vector(3*PIXEL_SIZE- 1 downto 0) := X"FFF000000";
 
   signal hclk_phase               : std_logic             := '0';
   signal hclk_shift_register      : std_logic_vector (HISPI_SHIFT_REGISTER_SIZE-1 downto 0);
   signal hclk_lsb_ptr             : integer range 0 to PIXEL_SIZE-1;
   signal hclk_lsb_ptr_reg         : integer range 0 to 2*PIXEL_SIZE-1;
-  signal hclk_aligned_pixel_mux   : std_logic_vector (PIXEL_SIZE- 1 downto 0);
+  signal hclk_aligned_pixel_mux   : std_logic_vector (4*PIXEL_SIZE- 1 downto 0);
   signal hclk_data                : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal hclk_idle_detected       : std_logic;
+  signal hclk_sync_detected       : std_logic;
   signal hclk_lock_cntr_max_value : unsigned(12 downto 0) := (others => '1');
   signal hclk_lock_cntr           : unsigned(12 downto 0);
   signal hclk_bit_locked          : std_logic;
 
-  
+  signal hclk_idle_detect_en : std_logic;
+  signal hclk_state          : FSM_STATE_TYPE := S_DISABLED;
+  signal hclk_hispi_phy_en   : std_logic      := '1';
+  signal hclk_crc_enable     : std_logic      := '1';
+  signal hclk_embedded       : std_logic      := '1';
+  signal hclk_done           : std_logic;
+  signal hclk_valid          : std_logic;
+
   -----------------------------------------------------------------------------
   -- Debug attributes
   -----------------------------------------------------------------------------
@@ -82,12 +100,12 @@ architecture rtl of bit_split is
   attribute mark_debug of hclk_idle_detected  : signal is "true";
   attribute mark_debug of hclk_lock_cntr      : signal is "true";
   attribute mark_debug of hclk_bit_locked     : signal is "true";
-  
-  attribute mark_debug of pclk_idle_detect_en : signal is "true";
+
+  attribute mark_debug of hclk_idle_detect_en : signal is "true";
   attribute mark_debug of pclk_bit_locked     : signal is "true";
   attribute mark_debug of pclk_data           : signal is "true";
 
-  
+
 begin
 
 
@@ -127,7 +145,7 @@ begin
   -----------------------------------------------------------------------------
   -- Detect a sequence of 4 consecutives IDLE characters (4x12bits)
   -----------------------------------------------------------------------------
-  P_detect_idle_char : process (hclk_shift_register, hclk_idle_char, pclk_idle_detect_en) is
+  P_detect_idle_char : process (hclk_shift_register, hclk_idle_char, hclk_idle_detect_en) is
     variable msb                   : integer;
     variable lsb                   : integer;
     variable hclk_idle_quad_vector : std_logic_vector(4*PIXEL_SIZE-1 downto 0);
@@ -135,8 +153,6 @@ begin
   begin
 
 
-    -- ToDO : No need to have 4 consecutive IDLE character anymore because of
-    --        pclk_idle_detect_en = '1'. can be simplified eventually
     hclk_idle_quad_vector := hclk_idle_char & hclk_idle_char & hclk_idle_char & hclk_idle_char;
 
 
@@ -149,7 +165,7 @@ begin
       msb := lsb + (4*PIXEL_SIZE) - 1;
 
       -- If detected 4-IDLE character, assert the flag hclk_idle_detected 
-      if (hclk_shift_register(msb downto lsb) = hclk_idle_quad_vector and pclk_idle_detect_en = '1') then
+      if (hclk_shift_register(msb downto lsb) = hclk_idle_quad_vector and hclk_idle_detect_en = '1') then
         hclk_idle_detected <= '1';
         hclk_lsb_ptr       <= bit_index;
         exit;                           -- exit the bit_index forloop
@@ -160,6 +176,76 @@ begin
       end if;
 
     end loop;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_idle_detect_en
+  -- Description : Flag to indicates when we can detect IDLE character to do
+  --               the bit alignment. We don't want to detect false IDLE
+  --               character in the image section. We want to detect only
+  --               during the blanking.
+  -----------------------------------------------------------------------------
+  -- P_hclk_idle_detect_en : process (hclk) is
+  --   variable sync : std_logic_vector(3 downto 0);
+  -- begin
+  --   if (rising_edge(hclk)) then
+  --     if (hclk_reset = '1')then
+  --       hclk_idle_detect_en <= '1';
+  --     else
+  --       if (hclk_sync_detected = '1') then
+  --         sync := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
+  --         case sync is
+  --           when HCLK_SYNC_SOF =>
+  --             hclk_idle_detect_en <= '0';
+  --           when HCLK_SYNC_EOF =>
+  --             hclk_idle_detect_en <= '1';
+  --           when HCLK_SYNC_SOL =>
+  --             hclk_idle_detect_en <= '0';
+  --           when HCLK_SYNC_EOL =>
+  --             hclk_idle_detect_en <= '1';
+  --           when others =>
+  --             null;
+  --         end case;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_embedded
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_hclk_embedded : process (hclk) is
+    variable sync     : std_logic_vector(3 downto 0);
+    variable embedded : std_logic;
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_embedded       <= '0';
+        hclk_idle_detect_en <= '1';
+        hclk_valid          <= '0';
+      else
+        if (hclk_phase = '0') then
+          -- Detect if embedded data at SOF and SOL
+          if (hclk_sync_detected = '1') then
+            sync     := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
+            embedded := hclk_aligned_pixel_mux(PIXEL_SIZE-5);
+            if (sync = HCLK_SYNC_SOF or sync = HCLK_SYNC_SOL) then
+              hclk_embedded       <= embedded;
+              hclk_valid          <= '1';
+              hclk_idle_detect_en <= '0';
+            end if;
+
+          elsif(hclk_done = '1')then
+            hclk_embedded       <= '0';
+            hclk_valid          <= '0';
+            hclk_idle_detect_en <= '1';
+          end if;
+        end if;
+      end if;
+    end if;
   end process;
 
 
@@ -179,7 +265,8 @@ begin
         end if;
       end if;
     end if;
-  end process P_hclk_lsb_ptr_reg;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
@@ -188,10 +275,15 @@ begin
   -----------------------------------------------------------------------------
   P_hclk_aligned_pixel_mux : process (hclk_lsb_ptr_reg, hclk_shift_register) is
   begin
-    for j in 0 to (PIXEL_SIZE -1) loop
+    for j in 0 to (4*PIXEL_SIZE -1) loop
       hclk_aligned_pixel_mux(j) <= hclk_shift_register(j+hclk_lsb_ptr_reg);
     end loop;
-  end process P_hclk_aligned_pixel_mux;
+  end process;
+
+
+
+  hclk_sync_detected <= '1' when (hclk_aligned_pixel_mux(4*PIXEL_SIZE -1 downto PIXEL_SIZE) = SYNC_MARKER) else
+                        '0';
 
 
   -----------------------------------------------------------------------------
@@ -247,20 +339,6 @@ begin
                      '0';
 
 
-  P_pclk_bit_locked : process (hclk) is
-  begin
-    if (rising_edge(hclk)) then
-      if (hclk_reset = '1') then
-        pclk_bit_locked <= '0';
-      else
-        if (hclk_phase = '0') then
-          pclk_bit_locked <= hclk_bit_locked;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_data
   -- Description : Provide the correctly extracted pixel
@@ -269,22 +347,173 @@ begin
   begin
     if (rising_edge(hclk)) then
       if (hclk_idle_detected = '1' or hclk_phase = '0') then
-        hclk_data <= hclk_aligned_pixel_mux;
+        hclk_data <= hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto 0);
       end if;
     end if;
   end process;
 
 
+  hclk_done <= '1' when (hclk_crc_enable = '1' and hclk_state = S_CRC2) else
+               '1' when (hclk_crc_enable = '0' and (hclk_state = S_EOL or hclk_state = S_EOF)) else
+               '0';
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_state
+  -- Description : Decode the hispi protocol state
+  -----------------------------------------------------------------------------
+  P_hclk_state : process (hclk) is
+    variable sync : std_logic_vector(3 downto 0);
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1' or hclk_hispi_phy_en = '0')then
+        hclk_state <= S_DISABLED;
+      else
+        if (hclk_phase = '0') then
+
+          case hclk_state is
+            -------------------------------------------------------------------
+            -- S_DISABLED : 
+            -------------------------------------------------------------------
+            when S_DISABLED =>
+              hclk_state <= S_IDLE;
+
+
+            -------------------------------------------------------------------
+            -- S_IDLE : 
+            -------------------------------------------------------------------
+            when S_IDLE =>
+              if (hclk_sync_detected = '1') then
+                sync := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
+
+                if (sync = HCLK_SYNC_SOF) then
+                  hclk_state <= S_SOF;
+                elsif(sync = HCLK_SYNC_SOL) then
+                  hclk_state <= S_SOL;
+                else
+                  hclk_state <= S_ERROR;
+                end if;
+              else
+                hclk_state <= S_IDLE;
+              end if;
+
+
+            -------------------------------------------------------------------
+            -- S_SOF : 
+            -------------------------------------------------------------------
+            when S_SOF =>
+              hclk_state <= S_AIL;
+
+
+            -------------------------------------------------------------------
+            -- S_SOL : 
+            -------------------------------------------------------------------
+            when S_SOL =>
+              hclk_state <= S_AIL;
+
+
+            -------------------------------------------------------------------
+            -- S_EOF : 
+            -------------------------------------------------------------------
+            when S_EOF =>
+              if (hclk_crc_enable = '1') then
+                hclk_state <= S_CRC1;
+              else
+                hclk_state <= S_IDLE;
+              end if;
+
+
+            -------------------------------------------------------------------
+            -- S_EOL : 
+            -------------------------------------------------------------------
+            when S_EOL =>
+              if (hclk_crc_enable = '1') then
+                hclk_state <= S_CRC1;
+              else
+                hclk_state <= S_IDLE;
+              end if;
+
+
+            -------------------------------------------------------------------
+            -- S_AIL : 
+            -------------------------------------------------------------------
+            when S_AIL =>
+              if (hclk_sync_detected = '1') then
+                sync := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
+                if(sync = HCLK_SYNC_EOF) then
+                  hclk_state <= S_EOF;
+                elsif(sync = HCLK_SYNC_EOL) then
+                  hclk_state <= S_EOL;
+                else
+                  hclk_state <= S_ERROR;
+                end if;
+              else
+                hclk_state <= S_AIL;
+              end if;
+
+
+            -------------------------------------------------------------------
+            -- S_CRC1 : 
+            -------------------------------------------------------------------
+            when S_CRC1 =>
+              hclk_state <= S_CRC2;
+
+
+            -------------------------------------------------------------------
+            -- S_CRC2 : 
+            -------------------------------------------------------------------
+            when S_CRC2 =>
+              hclk_state <= S_IDLE;
+
+
+            -------------------------------------------------------------------
+            -- S_ERROR : 
+            -------------------------------------------------------------------
+            when S_ERROR =>
+              hclk_state <= S_DISABLED;
+
+
+            -------------------------------------------------------------------
+            -- 
+            -------------------------------------------------------------------
+            when others =>
+              hclk_state <= S_ERROR;
+
+          end case;
+        end if;
+      end if;
+    end if;
+  end process P_hclk_state;
+
+
+
+  P_pclk_interface : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (hclk_reset = '1') then
+        pclk_bit_locked <= '0';
+        pclk_embedded   <= '0';
+        pclk_valid      <= '0';
+        pclk_state      <= S_DISABLED;
+      else
+        pclk_valid      <= hclk_valid;
+        pclk_embedded   <= hclk_embedded;
+        pclk_bit_locked <= hclk_bit_locked;
+        pclk_state      <= hclk_state;
+        pclk_data       <= hclk_data;
+      end if;
+    end if;
+  end process;
+
   -----------------------------------------------------------------------------
   -- Process     : P_pclk_data
   -- Description : Provide the correctly extracted pixel on pclk
   -----------------------------------------------------------------------------
-  P_pclk_data : process (pclk) is
-  begin
-    if (rising_edge(pclk)) then
-      pclk_data <= hclk_data;
-    end if;
-  end process;
+  -- P_pclk_data : process (pclk) is
+  -- begin
+  --   if (rising_edge(pclk)) then
+  --     pclk_data <= hclk_data;
+  --   end if;
+  -- end process;
 
 
 end architecture rtl;
