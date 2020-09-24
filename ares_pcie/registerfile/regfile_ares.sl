@@ -71,11 +71,7 @@ Register("intstat2", 0x8, 4, "null");
 		Field("irq_timer_start", 7, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 Register("buildid", 0x1c, 4, "null");
-		Field("year", 31, 24, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("month", 23, 20, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("date", 19, 12, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("hour", 11, 4, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
-		Field("minutes", 3, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "EPOCH date value");
 
 Register("fpga_id", 0x20, 4, "null");
 		Field("profinet_led", 12, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -95,7 +91,8 @@ Register("fpga_id", 0x20, 4, "null");
 			FieldValue("Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)", 8);
 			FieldValue("Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)", 9);
 			FieldValue("Reserved for Artix7 Eris (LPC) on Y7478-01", 10);
-			FieldValue("Iris GTX, Artix7 Ares PCIe", 17);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A35T", 16);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A50T", 17);
 
 Register("led_override", 0x24, 4, "null");
 		Field("red_orange_flash", 25, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
@@ -162,6 +159,42 @@ Register("spiregout", 0xe8, 4, "SPI Register Out");
 			FieldValue("Transfer in progress", 0);
 			FieldValue("No transfer in progress", 1);
 		Field("spidatard", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "SPI DATA  Read byte OUTput ");
+
+%=================================================================
+% SECTION NAME	: ARBITER
+%=================================================================
+Section("arbiter", 0, 0xf0);
+
+Register("arbiter_capabilities", 0xf0, 4, "null");
+		Field("agent_nb", 17, 16, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("tag", 11, 0, "rd", 0x0, 0xAAB, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+variable agentTags = UChar_Type[2];
+
+for(i = 0; i < 2; i++)
+{
+	agentTags[i] = i;
+}
+
+Group("agent", "DECTAG", agentTags);
+
+for(i = 0; i < 2; i++)
+{
+
+	Register("agent", 0xf4 + i*0x4, 4, "agent*", "agent", i, "null");
+		Field("ack", 9, 9, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request ACKnoledge");
+			FieldValue(" The resource is NOT ready to be used.", 0);
+			FieldValue(" The resource is ready to be used.", 1);
+		Field("rec", 8, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request RECeived");
+			FieldValue(" Master request not received", 0);
+			FieldValue("Master request has been received", 1);
+		Field("done", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "transaction DONE ");
+			FieldValue("Nothing", 0);
+			FieldValue("Master requester transaction done", 1);
+		Field("req", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "REQuest resource");
+			FieldValue("Nothing", 0);
+			FieldValue("Ask for a device resource", 1);
+}
 
 %=================================================================
 % SECTION NAME	: IO

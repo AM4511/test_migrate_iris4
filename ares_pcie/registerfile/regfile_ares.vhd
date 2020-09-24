@@ -2,11 +2,11 @@
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares_pack
--- Created on          : 2020/09/08 09:27:28
--- Created by          : imaval
+-- Created on          : 2020/09/21 16:48:36
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x78D3BB4
+-- Register file CRC32 : 0xF5A7196A
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -251,19 +251,11 @@ package regfile_ares_pack is
    -- Register Name: BUILDID
    ------------------------------------------------------------------------------------------
    type DEVICE_SPECIFIC_BUILDID_TYPE is record
-      YEAR           : std_logic_vector(7 downto 0);
-      MONTH          : std_logic_vector(3 downto 0);
-      DATE           : std_logic_vector(7 downto 0);
-      HOUR           : std_logic_vector(7 downto 0);
-      MINUTES        : std_logic_vector(3 downto 0);
+      VALUE          : std_logic_vector(31 downto 0);
    end record DEVICE_SPECIFIC_BUILDID_TYPE;
 
    constant INIT_DEVICE_SPECIFIC_BUILDID_TYPE : DEVICE_SPECIFIC_BUILDID_TYPE := (
-      YEAR            => (others=> 'Z'),
-      MONTH           => (others=> 'Z'),
-      DATE            => (others=> 'Z'),
-      HOUR            => (others=> 'Z'),
-      MINUTES         => (others=> 'Z')
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
@@ -1837,11 +1829,7 @@ package body regfile_ares_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 24) := reg.YEAR;
-      output(23 downto 20) := reg.MONTH;
-      output(19 downto 12) := reg.DATE;
-      output(11 downto 4) := reg.HOUR;
-      output(3 downto 0) := reg.MINUTES;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
@@ -1852,11 +1840,7 @@ package body regfile_ares_pack is
    function to_DEVICE_SPECIFIC_BUILDID_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEVICE_SPECIFIC_BUILDID_TYPE is
    variable output : DEVICE_SPECIFIC_BUILDID_TYPE;
    begin
-      output.YEAR := stdlv(31 downto 24);
-      output.MONTH := stdlv(23 downto 20);
-      output.DATE := stdlv(19 downto 12);
-      output.HOUR := stdlv(11 downto 4);
-      output.MINUTES := stdlv(3 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
    end to_DEVICE_SPECIFIC_BUILDID_TYPE;
 
@@ -3446,11 +3430,11 @@ end package body;
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares
--- Created on          : 2020/09/08 09:27:28
--- Created by          : imaval
+-- Created on          : 2020/09/21 16:48:36
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x78D3BB4
+-- Register file CRC32 : 0xF5A7196A
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -5297,38 +5281,10 @@ end process P_Device_specific_INTSTAT2_IRQ_TIMER_START;
 wEn(3) <= (hit(3)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: YEAR(7 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(31 downto 24) <= regfile.Device_specific.BUILDID.YEAR;
-
-
-------------------------------------------------------------------------------------------
--- Field name: MONTH(3 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(23 downto 20) <= regfile.Device_specific.BUILDID.MONTH;
-
-
-------------------------------------------------------------------------------------------
--- Field name: DATE(7 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(19 downto 12) <= regfile.Device_specific.BUILDID.DATE;
-
-
-------------------------------------------------------------------------------------------
--- Field name: HOUR(7 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(11 downto 4) <= regfile.Device_specific.BUILDID.HOUR;
-
-
-------------------------------------------------------------------------------------------
--- Field name: MINUTES(3 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(3 downto 0) <= regfile.Device_specific.BUILDID.MINUTES;
+rb_Device_specific_BUILDID(31 downto 0) <= regfile.Device_specific.BUILDID.VALUE;
 
 
 

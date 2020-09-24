@@ -23,16 +23,13 @@ set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
 
-# Define a MIL upgrade firmware
-set FPGA_IS_NPI_GOLDEN     0
-
-
 # FPGA_DEVICE_ID (DEVICE ID MAP) :
 #  0      : xc7a50ticpg236-1L
 #  1      : xc7a35ticpg236-1L
 #  2      : TBD
 #  Others : reserved
 set FPGA_DEVICE_ID 0
+
 
 set WORKDIR     $env(IRIS4)/ares_pcie
 
@@ -53,6 +50,7 @@ set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+#set UTIL_LIB           ${BACKEND_DIR}/util_lib.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -60,14 +58,23 @@ set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
 
+# Top level generics
+#source ${UTIL_LIB}
+set FPGA_GOLDEN     "false"
+set FPGA_ID          17; # 0x11 : Iris GTX, Artix7 Ares PCIe, Artix7 A50T
+
+
+
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
 set FPGA_BUILD_DATE [clock seconds]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
+set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
+puts "FPGA_BUILD_DATE =  $HEX_BUILD_DATE (${BUILD_TIME})"
+#set FPGA_BUILD_ID    [get_fpga_build_id ${FPGA_BUILD_DATE}]
 
-puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
-set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
 
 set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
@@ -134,7 +141,12 @@ source ${FILESET_SCRIPT}
 ################################################
 # Top level Generics
 ################################################
-set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
+#set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
+set generic_list [list    \
+GOLDEN=${FPGA_GOLDEN}     \
+BUILD_ID=${HEX_BUILD_DATE} \
+FPGA_ID=${FPGA_ID}        \
+]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
 
