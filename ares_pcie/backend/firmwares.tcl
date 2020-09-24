@@ -30,8 +30,8 @@ set top_entity_name [get_property top [current_fileset]]
 regexp xc7a([0-9]+)t [get_property part [current_project]] dummy_var device_number
 
 # Allons chercher le BUILD_ID
-set buildid_generic [lsearch -inline [get_property generic [current_fileset]] "FPGA_BUILD_DATE=*"]
-set buildid [regsub -nocase "FPGA_BUILD_DATE=" $buildid_generic "" ]
+set buildid_generic [lsearch -inline [get_property generic [current_fileset]] "BUILD_ID=*"]
+set buildid [regsub -nocase "BUILD_ID=" $buildid_generic "" ]
 puts stdout [format "Build date is: 0x%s" $buildid]
 
 # Extract the FPGA Major version
@@ -51,7 +51,7 @@ set FPGA_VERSION "${MAJOR}.${MINOR}.${SUB_MINOR}"
 
 
 set FPGA_DESCRIPTION "IrisGTX Athena FPGA"
-set YEAR [clock format [clock seconds] -format {%Y}]
+set YEAR [clock format ${buildid} -format {%Y}]
 set BUILD_DATE [clock format ${buildid} -format "%Y-%m-%d  %H:%M:%S"]
 set VIVADO_SHORT_VERSION [version -short]
 
