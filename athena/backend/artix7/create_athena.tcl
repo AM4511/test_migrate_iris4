@@ -27,9 +27,12 @@ puts "Running ${myself}"
 #         Fixed IRQ masking/enabling in the Queue mechanism (PCIE2AXIMASTER)
 #         Added a SW interrupt bit in pcie2aximaster (for debug)
 #
+# 0.1.0 : Fixed the PHY BIT LOCK ERROR   (See JIRA : IRIS4-248)
+#         Changed the project name created by thhe backend script. Now the buildID is given as HEX (easier to match in hex with bench tools)
+#
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 9
+set FPGA_MINOR_VERSION     1
+set FPGA_SUB_MINOR_VERSION 0
 
 
 set BASE_NAME athena
@@ -78,9 +81,10 @@ set JOB_COUNT  4
 ###################################################################################
 set FPGA_BUILD_DATE [clock seconds]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
+set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 
-puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
-set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
+puts "FPGA_BUILD_DATE =  $HEX_BUILD_DATE (${BUILD_TIME})"
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 
@@ -149,7 +153,7 @@ generate_target all ${BD_FILE}
 ################################################
 set_property top athena [current_fileset]
 
-set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
+set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
 
