@@ -4,11 +4,10 @@
 -- DESCRIPTION : Extract the pixels from the serial stream. Find the pixel
 --               bit-alignment in the input serial stream. Uses the idle
 --               character to determine this alignment. The extraction is based
---               on the detection of 4 consecutives idle_character. This module
---               Also provide the associated pixel clock.
+--               on the detection of 4 consecutives idle_character. 
 --
 --  ToDo       : This file should be renamed bit SLIP (not split!!! Daah...;-)
---               Reduce the Shift register size
+--               
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -36,7 +35,8 @@ entity bit_split is
     -------------------------------------------------------------------------
     -- Register file interface
     -------------------------------------------------------------------------
-    hclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hclk_idle_char  : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+    hclk_crc_enable : in std_logic := '1';
 
     ---------------------------------------------------------------------------
     -- Pixel clock domain
@@ -80,8 +80,6 @@ architecture rtl of bit_split is
 
   signal hclk_idle_detect_en : std_logic;
   signal hclk_state          : FSM_STATE_TYPE := S_DISABLED;
-  signal hclk_hispi_phy_en   : std_logic      := '1';
-  signal hclk_crc_enable     : std_logic      := '1';
   signal hclk_embedded       : std_logic      := '1';
   signal hclk_done           : std_logic;
   signal hclk_valid          : std_logic;
@@ -180,42 +178,99 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hclk_idle_detect_en
-  -- Description : Flag to indicates when we can detect IDLE character to do
-  --               the bit alignment. We don't want to detect false IDLE
-  --               character in the image section. We want to detect only
-  --               during the blanking.
+  -- Process     : P_hclk_phase
+  -- Description : HiSPi clock phase. Phase counter required as the pixel clock
+  --               is hclk divided by 2 we need to determine on which hclk
+  --               phase the data is latched
   -----------------------------------------------------------------------------
-  -- P_hclk_idle_detect_en : process (hclk) is
-  --   variable sync : std_logic_vector(3 downto 0);
-  -- begin
-  --   if (rising_edge(hclk)) then
-  --     if (hclk_reset = '1')then
-  --       hclk_idle_detect_en <= '1';
-  --     else
-  --       if (hclk_sync_detected = '1') then
-  --         sync := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
-  --         case sync is
-  --           when HCLK_SYNC_SOF =>
-  --             hclk_idle_detect_en <= '0';
-  --           when HCLK_SYNC_EOF =>
-  --             hclk_idle_detect_en <= '1';
-  --           when HCLK_SYNC_SOL =>
-  --             hclk_idle_detect_en <= '0';
-  --           when HCLK_SYNC_EOL =>
-  --             hclk_idle_detect_en <= '1';
-  --           when others =>
-  --             null;
-  --         end case;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
+  P_hclk_phase : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_phase <= '0';
+      else
+        -- If the idle sequence is detected,
+        -- we realign the clock phase with the pixel boundaries
+        if (hclk_idle_detected = '1') then
+          hclk_phase <= '0';
+        else
+          hclk_phase <= not hclk_phase;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_lsb_ptr_reg
+  -- Description : Store the LSB alignment pointer value if the quad idle
+  --               sequence detected
+  -----------------------------------------------------------------------------
+  P_hclk_lsb_ptr_reg : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_lsb_ptr_reg <= 0;
+      else
+        if (hclk_idle_detected = '1') then
+          hclk_lsb_ptr_reg <= hclk_lsb_ptr;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_aligned_pixel_mux
+  -- Description : Extracted the aligned pixel in the data stream.
+  -----------------------------------------------------------------------------
+  P_hclk_aligned_pixel_mux : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_reset = '1')then
+        hclk_aligned_pixel_mux <= (others => '0');
+      else
+        -- First pipeline : latch on phase 1
+        if (hclk_phase = '1') then
+          for j in 0 to (4*PIXEL_SIZE -1) loop
+            hclk_aligned_pixel_mux(j) <= hclk_shift_register(j+hclk_lsb_ptr_reg);
+          end loop;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_data
+  -- Description : Provide the correctly extracted pixel
+  -----------------------------------------------------------------------------
+  P_hclk_data : process (hclk) is
+  begin
+    if (rising_edge(hclk)) then
+      if (hclk_phase = '0') then
+        hclk_data <= hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto 0);
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_hclk_sync_detected
+  -- Description : Asynchronous flag used to indicate if an XGS sync sequence
+  --               is detected in the incomming data stream
+  --               For 12 bit wide pixels :
+  --
+  --               SYNC_MARKER = {0xFFF, 0x000, 0x000, XXX}
+  -----------------------------------------------------------------------------
+  hclk_sync_detected <= '1' when (hclk_aligned_pixel_mux(4*PIXEL_SIZE -1 downto PIXEL_SIZE) = SYNC_MARKER) else
+                        '0';
 
 
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_embedded
-  -- Description : 
+  -- Description : This flag indicates if the current line is XGS embedded data
+  --               or normal line
   -----------------------------------------------------------------------------
   P_hclk_embedded : process (hclk) is
     variable sync     : std_logic_vector(3 downto 0);
@@ -250,67 +305,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_hclk_lsb_ptr_reg
-  -- Description : Store the LSB alignment pointer value if the quad idle
-  --               sequence detected
-  -----------------------------------------------------------------------------
-  P_hclk_lsb_ptr_reg : process (hclk) is
-  begin
-    if (rising_edge(hclk)) then
-      if (hclk_reset = '1')then
-        hclk_lsb_ptr_reg <= 0;
-      else
-        if (hclk_idle_detected = '1') then
-          hclk_lsb_ptr_reg <= hclk_lsb_ptr;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_hclk_aligned_pixel_mux
-  -- Description : Extracted the aligned pixel.
-  -----------------------------------------------------------------------------
-  P_hclk_aligned_pixel_mux : process (hclk_lsb_ptr_reg, hclk_shift_register) is
-  begin
-    for j in 0 to (4*PIXEL_SIZE -1) loop
-      hclk_aligned_pixel_mux(j) <= hclk_shift_register(j+hclk_lsb_ptr_reg);
-    end loop;
-  end process;
-
-
-
-  hclk_sync_detected <= '1' when (hclk_aligned_pixel_mux(4*PIXEL_SIZE -1 downto PIXEL_SIZE) = SYNC_MARKER) else
-                        '0';
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_hclk_phase
-  -- Description : HiSPi clock phase. 
-  -----------------------------------------------------------------------------
-  P_hclk_phase : process (hclk) is
-  begin
-    if (rising_edge(hclk)) then
-      if (hclk_reset = '1')then
-        hclk_phase <= '0';
-      else
-        -- If the idle sequence is detected,
-        -- we realign the clock phase with the pixel boundaries
-        if (hclk_idle_detected = '1') then
-          hclk_phase <= '1';
-        else
-          hclk_phase <= not hclk_phase;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
   -- Process     : P_hclk_lock_cntr
-  -- Description : 
+  -- Description : This counter is used by the hclk_bit_locked to determine if 
+  --               the data extraction mechanism has locked
   -----------------------------------------------------------------------------
   P_hclk_lock_cntr : process (hclk) is
   begin
@@ -339,33 +336,19 @@ begin
                      '0';
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_hclk_data
-  -- Description : Provide the correctly extracted pixel
-  -----------------------------------------------------------------------------
-  P_hclk_data : process (hclk) is
-  begin
-    if (rising_edge(hclk)) then
-      if (hclk_idle_detected = '1' or hclk_phase = '0') then
-        hclk_data <= hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto 0);
-      end if;
-    end if;
-  end process;
-
-
   hclk_done <= '1' when (hclk_crc_enable = '1' and hclk_state = S_CRC2) else
                '1' when (hclk_crc_enable = '0' and (hclk_state = S_EOL or hclk_state = S_EOF)) else
                '0';
 
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_state
-  -- Description : Decode the hispi protocol state
+  -- Description : Decode the hispi protocol states
   -----------------------------------------------------------------------------
   P_hclk_state : process (hclk) is
     variable sync : std_logic_vector(3 downto 0);
   begin
     if (rising_edge(hclk)) then
-      if (hclk_reset = '1' or hclk_hispi_phy_en = '0')then
+      if (hclk_reset = '1')then
         hclk_state <= S_DISABLED;
       else
         if (hclk_phase = '0') then
@@ -379,7 +362,7 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_IDLE : 
+            -- S_IDLE : (Interline (blanking) state)
             -------------------------------------------------------------------
             when S_IDLE =>
               if (hclk_sync_detected = '1') then
@@ -398,21 +381,21 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_SOF : 
+            -- S_SOF : HiSPi start of frame sync character present on hclk_data
             -------------------------------------------------------------------
             when S_SOF =>
               hclk_state <= S_AIL;
 
 
             -------------------------------------------------------------------
-            -- S_SOL : 
+            -- S_SOL : HiSPi start of line sync character present on hclk_data
             -------------------------------------------------------------------
             when S_SOL =>
               hclk_state <= S_AIL;
 
 
             -------------------------------------------------------------------
-            -- S_EOF : 
+            -- S_EOF : HiSPi end of frame sync character present on hclk_data
             -------------------------------------------------------------------
             when S_EOF =>
               if (hclk_crc_enable = '1') then
@@ -423,7 +406,7 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_EOL : 
+            -- S_EOL : HiSPi end of line sync character present on hclk_data 
             -------------------------------------------------------------------
             when S_EOL =>
               if (hclk_crc_enable = '1') then
@@ -434,7 +417,7 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_AIL : 
+            -- S_AIL :  HiSPi pixel data present on hclk_data 
             -------------------------------------------------------------------
             when S_AIL =>
               if (hclk_sync_detected = '1') then
@@ -452,28 +435,28 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_CRC1 : 
+            -- S_CRC1 : HiSPi CRC16 high byte data present on hclk_data 
             -------------------------------------------------------------------
             when S_CRC1 =>
               hclk_state <= S_CRC2;
 
 
             -------------------------------------------------------------------
-            -- S_CRC2 : 
+            -- S_CRC2 : HiSPi CRC16 low byte data present on hclk_data 
             -------------------------------------------------------------------
             when S_CRC2 =>
               hclk_state <= S_IDLE;
 
 
             -------------------------------------------------------------------
-            -- S_ERROR : 
+            -- S_ERROR : HiSPi protocol error. Shuld never occurs
             -------------------------------------------------------------------
             when S_ERROR =>
               hclk_state <= S_DISABLED;
 
 
             -------------------------------------------------------------------
-            -- 
+            -- Any other cases are errors
             -------------------------------------------------------------------
             when others =>
               hclk_state <= S_ERROR;
@@ -486,6 +469,10 @@ begin
 
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_data
+  -- Description : Provide the correctly extracted pixel on pclk
+  -----------------------------------------------------------------------------
   P_pclk_interface : process (pclk) is
   begin
     if (rising_edge(pclk)) then
@@ -504,16 +491,6 @@ begin
     end if;
   end process;
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_pclk_data
-  -- Description : Provide the correctly extracted pixel on pclk
-  -----------------------------------------------------------------------------
-  -- P_pclk_data : process (pclk) is
-  -- begin
-  --   if (rising_edge(pclk)) then
-  --     pclk_data <= hclk_data;
-  --   end if;
-  -- end process;
 
 
 end architecture rtl;

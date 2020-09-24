@@ -700,12 +700,7 @@ begin
           -- S_INIT : 
           -------------------------------------------------------------------
           when S_INIT =>
-            --if (pclk_cal_busy = (pclk_cal_busy'range => '1')) then
-            -- if (pclk_cal_busy = (pclk_cal_busy'range => '0')) then
             hclk_state <= S_LOAD_TAP_CNTR;
-            -- else
-            --   hclk_state <= S_INIT;
-            -- end if;
 
           -------------------------------------------------------------------
           -- S_RESET_TAP_CNTR : 

@@ -94,7 +94,8 @@ architecture rtl of lane_decoder is
       -------------------------------------------------------------------------
       -- Register file interface
       -------------------------------------------------------------------------
-      hclk_idle_char : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hclk_idle_char  : in std_logic_vector(PIXEL_SIZE-1 downto 0);
+      hclk_crc_enable : in std_logic;
 
       ---------------------------------------------------------------------------
       -- Pixel clock domain
@@ -191,7 +192,6 @@ architecture rtl of lane_decoder is
   attribute mark_debug : string;
   attribute keep       : string;
 
-  -- type FSM_STATE_TYPE is (S_DISABLED, S_IDLE, S_EMBEDED, S_SOF, S_EOF, S_SOL, S_EOL, S_FLR, S_AIL, S_CRC1, S_CRC2, S_ERROR);
 
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
@@ -358,6 +358,7 @@ begin
       hclk_reset      => hclk_reset,
       hclk_data_lane  => hclk_data_lane,
       hclk_idle_char  => async_idle_character,  -- Falsepath
+      hclk_crc_enable => pclk_crc_enable,       -- Falsepath
       pclk            => pclk,
       pclk_bit_locked => pclk_bit_locked,
       pclk_valid      => pclk_valid,
@@ -617,7 +618,7 @@ begin
     end if;
   end process;
 
- 
+
 
 
   -----------------------------------------------------------------------------
