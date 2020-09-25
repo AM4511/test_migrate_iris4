@@ -28,9 +28,10 @@ entity bit_split is
     ---------------------------------------------------------------------------
     -- HiSPi clock domain
     ---------------------------------------------------------------------------
-    hclk           : in std_logic;
-    hclk_reset     : in std_logic;
-    hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+    hclk             : in std_logic;
+    hclk_reset       : in std_logic;
+    hclk_lane_enable : in std_logic;
+    hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
     -------------------------------------------------------------------------
     -- Register file interface
@@ -120,7 +121,7 @@ begin
 
   begin
     if (rising_edge(hclk)) then
-      if (hclk_reset = '1') then
+      if (hclk_reset = '1' or  hclk_lane_enable = '0') then
         -- initialize with all 0's
         hclk_shift_register <= (others => '0');
       else
@@ -348,7 +349,7 @@ begin
     variable sync : std_logic_vector(3 downto 0);
   begin
     if (rising_edge(hclk)) then
-      if (hclk_reset = '1')then
+      if (hclk_reset = '1' or hclk_lane_enable = '0')then
         hclk_state <= S_DISABLED;
       else
         if (hclk_phase = '0') then
@@ -476,11 +477,12 @@ begin
   P_pclk_interface : process (pclk) is
   begin
     if (rising_edge(pclk)) then
-      if (hclk_reset = '1') then
-        pclk_bit_locked <= '0';
-        pclk_embedded   <= '0';
+      if (hclk_reset = '1' or hclk_lane_enable = '0') then
         pclk_valid      <= '0';
+        pclk_embedded   <= '0';
+        pclk_bit_locked <= '0';
         pclk_state      <= S_DISABLED;
+        pclk_data       <= (others=>'0');
       else
         pclk_valid      <= hclk_valid;
         pclk_embedded   <= hclk_embedded;

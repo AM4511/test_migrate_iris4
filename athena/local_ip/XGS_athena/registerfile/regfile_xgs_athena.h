@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xD9044013
+* Register file CRC32 : 0x4EFFCEF4
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1348,7 +1348,7 @@ typedef union
 
    struct
    {
-      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), null */
+      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), Number of physical lane enabled */
       M_UINT32 RSVD0          : 5;   /* Bits(7:3), Reserved */
       M_UINT32 MUX_RATIO      : 3;   /* Bits(10:8), null */
       M_UINT32 RSVD1          : 5;   /* Bits(15:11), Reserved */
