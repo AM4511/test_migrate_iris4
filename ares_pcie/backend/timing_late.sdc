@@ -5,9 +5,14 @@ create_generated_clock -name axi_clk100MHz  [get_pins ares_pb_i/ares_pb_i/system
 create_generated_clock -name eth_clk125MHz  [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT1]
 create_generated_clock -name ncsi_clk50MHz  [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT2]
 
-create_generated_clock -name rpc_clk_0      [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT3]
-create_generated_clock -name rpc_clk_90     [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT4]
-create_generated_clock -name rpc_clk_200MHz [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT5]
+#create_generated_clock -name rpc_clk_0      [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT3]
+#create_generated_clock -name rpc_clk_90     [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT4]
+#create_generated_clock -name rpc_clk_200MHz [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT5]
+
+#version second MMCM a 150 MHz
+create_generated_clock -name rpc_clk_0      [get_pins ares_pb_i/ares_pb_i/hbclockwiz/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name rpc_clk_90     [get_pins ares_pb_i/ares_pb_i/hbclockwiz/inst/mmcm_adv_inst/CLKOUT1]
+create_generated_clock -name rpc_clk_200MHz [get_pins ares_pb_i/ares_pb_i/hbclockwiz/inst/mmcm_adv_inst/CLKOUT2]
 
 
 # ####################################################################

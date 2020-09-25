@@ -5,12 +5,20 @@
 #create_clock -period 10.000 -name RDS_CLK [get_ports hb_rwds]
 
 #125 MHz version
-create_clock -period 8.000 -name VIRT_CLK
-create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
+#create_clock -period 8.000 -name VIRT_CLK
+#create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
 
 #142.857 MHz version
-create_clock -period 7.000 -name VIRT_CLK
-create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
+#create_clock -period 7.000 -name VIRT_CLK
+#create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
+
+#150.0 MHz version
+create_clock -period 6.667 -name VIRT_CLK
+create_clock -period 6.667 -name RDS_CLK [get_ports hb_rwds]
+
+#166.666 MHz version
+#create_clock -period 6.000 -name VIRT_CLK
+#create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
 
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300 j'enleve au départ, pour ne pas me nuire, car je me demande si le 0.3 améliore ou détériore le timing
 
@@ -115,11 +123,18 @@ create_generated_clock -name RPC_CK -source [get_pins ares_pb_i/ares_pb_i/rpc2_c
 # create_generated_clock -name <gen_clock_name> -multiply_by 1 -source [get_pins <source_pin>] [get_ports <output_clock_port>]
 # gen_clock_name is the name of forwarded clock here. It should be used below for defining "fwclk".
 
-# Output Delay Constraints
-set_output_delay -clock RPC_CK -max 1.000 [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -min -1.000 [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -clock_fall -max -add_delay 1.000 [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -clock_fall -min -add_delay -1.000 [get_ports {hb_dq[*] hb_rwds}]
+# Output Delay Constraints 
+# le input setup et hold sur la ram varie en fonction de la requence d'operation
+# a 100 MHz:
+#set hbram_setup_hold 1.000
+# a 133 MHz:
+#set hbram_setup_hold 0.800
+# a 166 MHz:
+set hbram_setup_hold 0.600
+set_output_delay -clock RPC_CK -max $hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -min -$hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -max -add_delay $hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -min -add_delay -$hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
 
 # RDS_CLK est la strobe utilise en input. Elle ne doit pas etre utilise pour clocker sa propre pin
 set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
