@@ -137,7 +137,7 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2D8">
     <registers name="GRAB_CTRL" alias="GRAB ConTRoL Register" description="Grag Control Register" useReservedSpaceBelow="true" address="118">
-      <fields name="RESET_GRAB" description="This register resets the entire python_ctrl." lsb="31">
+      <fields name="RESET_GRAB" description="This register resets the entire XGS ctrl." lsb="31">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset not active&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset active&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -397,7 +397,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Color sensor&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="SENSOR_REG_UPTATE" alias="SENSOR REGister UPDATE" description="By setting this bit to 1, the SENSOR CONTROLLER WILL UPDATE the programed CMOS sensor registers at the beginning of each grab." lsb="4" valueAtReset="1">
+      <fields name="SENSOR_REG_UPDATE" alias="SENSOR REGister UPDATE" description="By setting this bit to 1, the SENSOR CONTROLLER WILL UPDATE the programed CMOS sensor registers at the beginning of each grab." lsb="4" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not update registers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Update registers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

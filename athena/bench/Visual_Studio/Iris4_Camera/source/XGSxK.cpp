@@ -68,6 +68,12 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	WriteSPI(0x3800, GeneralConfig0 | 0x30);
 	if ((ReadSPI(0x3800) & 0x30) == 0x30) printf("XGS is now in Slave trigger mode.\n");
 
+	//Color BIT
+	if(SensorParams.IS_COLOR==0)
+		WriteSPI_Bit(0x3800, 1, 0);
+	else
+		WriteSPI_Bit(0x3800, 1, 1);
+
 	//Enable sequencer : BITFIELD = 0x3800, 0x0001, 1
 	WriteSPI_Bit(0x3800, 0, 1);
 
@@ -124,7 +130,6 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.ACQ.READOUT_CFG1.f.EO_FOT_SEL         = 1;  //EO_FOT genere ds le fpga : programmable number of lines!
 	rXGSptr.ACQ.READOUT_CFG1.u32                  = sXGSptr.ACQ.READOUT_CFG1.u32;
 
-
 	// Set Location of first valid x pixel(including Interpolation)
 	sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START     = SensorParams.XGS_X_START;
 	rXGSptr.HISPI.FRAME_CFG_X_VALID.u32           = sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
@@ -149,4 +154,10 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 	sXGSptr.DMA.OUTPUT_BUFFER.f.CLR_MAX_LINE_BUFF_CNT = 1;
 	rXGSptr.DMA.OUTPUT_BUFFER.u32                     = sXGSptr.DMA.OUTPUT_BUFFER.u32;
 	sXGSptr.DMA.OUTPUT_BUFFER.f.CLR_MAX_LINE_BUFF_CNT = 0;
+
+	// Set FPGA COlor Configuration
+	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_COLOR = SensorParams.IS_COLOR;
+	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
+
+
 }

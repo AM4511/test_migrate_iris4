@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/09/16 10:49:09
--- Created by          : amarchan
+-- Created on          : 2020/09/28 09:33:25
+-- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xD9044013
+-- Register file CRC32 : 0x8C8E849E
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -697,7 +697,7 @@ package regfile_xgs_athena_pack is
       SENSOR_REFRESH_TEMP: std_logic;
       SENSOR_POWERDOWN: std_logic;
       SENSOR_COLOR   : std_logic;
-      SENSOR_REG_UPTATE: std_logic;
+      SENSOR_REG_UPDATE: std_logic;
       SENSOR_RESETN  : std_logic;
       SENSOR_POWERUP : std_logic;
    end record ACQ_SENSOR_CTRL_TYPE;
@@ -706,7 +706,7 @@ package regfile_xgs_athena_pack is
       SENSOR_REFRESH_TEMP => 'Z',
       SENSOR_POWERDOWN => 'Z',
       SENSOR_COLOR    => 'Z',
-      SENSOR_REG_UPTATE => 'Z',
+      SENSOR_REG_UPDATE => 'Z',
       SENSOR_RESETN   => 'Z',
       SENSOR_POWERUP  => 'Z'
    );
@@ -2642,7 +2642,7 @@ package body regfile_xgs_athena_pack is
       output(24) := reg.SENSOR_REFRESH_TEMP;
       output(16) := reg.SENSOR_POWERDOWN;
       output(8) := reg.SENSOR_COLOR;
-      output(4) := reg.SENSOR_REG_UPTATE;
+      output(4) := reg.SENSOR_REG_UPDATE;
       output(1) := reg.SENSOR_RESETN;
       output(0) := reg.SENSOR_POWERUP;
       return output;
@@ -2658,7 +2658,7 @@ package body regfile_xgs_athena_pack is
       output.SENSOR_REFRESH_TEMP := stdlv(24);
       output.SENSOR_POWERDOWN := stdlv(16);
       output.SENSOR_COLOR := stdlv(8);
-      output.SENSOR_REG_UPTATE := stdlv(4);
+      output.SENSOR_REG_UPDATE := stdlv(4);
       output.SENSOR_RESETN := stdlv(1);
       output.SENSOR_POWERUP := stdlv(0);
       return output;
@@ -3840,11 +3840,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/09/16 10:49:09
--- Created by          : amarchan
+-- Created on          : 2020/09/28 09:33:25
+-- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xD9044013
+-- Register file CRC32 : 0x8C8E849E
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4042,7 +4042,7 @@ signal field_rw_ACQ_ACQ_SER_ADDATA_SER_ADD                         : std_logic_v
 signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_REFRESH_TEMP          : std_logic;                                       -- Field: SENSOR_REFRESH_TEMP
 signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERDOWN             : std_logic;                                       -- Field: SENSOR_POWERDOWN
 signal field_rw_ACQ_SENSOR_CTRL_SENSOR_COLOR                       : std_logic;                                       -- Field: SENSOR_COLOR
-signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE                  : std_logic;                                       -- Field: SENSOR_REG_UPTATE
+signal field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE                  : std_logic;                                       -- Field: SENSOR_REG_UPDATE
 signal field_rw_ACQ_SENSOR_CTRL_SENSOR_RESETN                      : std_logic;                                       -- Field: SENSOR_RESETN
 signal field_wautoclr_ACQ_SENSOR_CTRL_SENSOR_POWERUP               : std_logic;                                       -- Field: SENSOR_POWERUP
 signal field_rw_ACQ_SENSOR_SUBSAMPLING_ACTIVE_SUBSAMPLING_Y        : std_logic;                                       -- Field: ACTIVE_SUBSAMPLING_Y
@@ -6663,28 +6663,28 @@ begin
 end process P_ACQ_SENSOR_CTRL_SENSOR_COLOR;
 
 ------------------------------------------------------------------------------------------
--- Field name: SENSOR_REG_UPTATE
+-- Field name: SENSOR_REG_UPDATE
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_CTRL(4) <= field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE;
-regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE <= field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE;
+rb_ACQ_SENSOR_CTRL(4) <= field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE;
+regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE <= field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE
+-- Process: P_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE
 ------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE : process(sysclk)
+P_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE <= '1';
+         field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE <= '1';
       else
          if(wEn(32) = '1' and bitEnN(4) = '0') then
-            field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE <= reg_writedata(4);
+            field_rw_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE <= reg_writedata(4);
          end if;
       end if;
    end if;
-end process P_ACQ_SENSOR_CTRL_SENSOR_REG_UPTATE;
+end process P_ACQ_SENSOR_CTRL_SENSOR_REG_UPDATE;
 
 ------------------------------------------------------------------------------------------
 -- Field name: SENSOR_RESETN

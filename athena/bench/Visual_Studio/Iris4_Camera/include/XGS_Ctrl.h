@@ -64,6 +64,7 @@ struct GrabParamStruct
 struct SensorParamStruct
 {
 	M_UINT32 SENSOR_TYPE;
+	M_UINT32 IS_COLOR;
 	M_UINT32 XGS_HiSPI_Ch;
 	M_UINT32 XGS_HiSPI_Ch_used;
 	M_UINT32 XGS_HiSPI_mux;

@@ -1057,6 +1057,24 @@ begin
   );
 
 
+
+  --------------------------------------------------------------------
+  -- To bypass DPC and LUT to have more RAM to chipscope
+  --
+  -- 1) comment DPC and LUT component declaration
+  -- 2) comment DPC and LUT component instantation
+  -- 3) remove regfile DPC and LUT sections and compile regifile
+  --------------------------------------------------------------------
+  --
+  --lut_tvalid  <= aclk_tvalid;
+  --aclk_tready <= lut_tready;
+  --lut_tuser   <= aclk_tuser; 
+  --lut_tlast   <= aclk_tlast; 
+  --lut_tdata   <= aclk_tdata(79 downto 72) & aclk_tdata(69 downto 62) & aclk_tdata(59 downto 52) & aclk_tdata(49 downto 42) &
+  --               aclk_tdata(39 downto 32) & aclk_tdata(29 downto 22) & aclk_tdata(19 downto 12) & aclk_tdata(9  downto  2) ; 
+
+
+
   xdmawr2tlp : dmawr2tlp
     generic map(
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE

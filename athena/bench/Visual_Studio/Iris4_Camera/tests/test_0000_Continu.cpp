@@ -423,22 +423,26 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGSTestImageMode ++;
 				if (XGSTestImageMode == 7)
 				{
+					cout << "\nXgs Image Test Mode is Live Mode\n";
 					XGSTestImageMode = 0;
 					XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal image
 				}
 
 				// Programmable Flat Image
 				if (XGSTestImageMode == 1) {
-					cout << "Xgs Image Test Mode is set to Flat Image (Can be programmed to any value)\n" ;
-					XGS_Ctrl->WriteSPI(0x3e10, 0x7ff); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x7ff); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x7ff); // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x7ff); // Test data Green-B channel
+					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x" ;
+					M_UINT32 pixelvalue;
+					scanf_s("%x", &pixelvalue);
+
+					XGS_Ctrl->WriteSPI(0x3e10, pixelvalue << 1); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, pixelvalue << 1); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, pixelvalue << 1); // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, pixelvalue << 1); // Test data Green-B channel
 					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
 				}
 				//  Programmable Horizontal black and white lines
 				if (XGSTestImageMode == 2) {
-					cout << "Xgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
+					cout << "\nXgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
 					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
 					XGS_Ctrl->WriteSPI(0x3e12, 0x1fff); // Test data Green-R channel
 					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
@@ -447,7 +451,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				}
 				//  Programmable Vertical black and white columns
 				if (XGSTestImageMode == 3) {
-					cout << "Xgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
+					cout << "\nXgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
 					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
 					XGS_Ctrl->WriteSPI(0x3e12, 0x0); // Test data Green-R channel
 					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
@@ -459,19 +463,19 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				// diagonal gray x1
 				if (XGSTestImageMode == 4) {
-					cout << "Xgs Image Test Mode is set to Diagonal gray x1\n";
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x1\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
 				}
 				
 				// diagonal gray x3	
 				if (XGSTestImageMode == 5) {
-					cout << "Xgs Image Test Mode is set to Diagonal gray x3\n";
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x3\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 5); // diagonal gray x3		
 				}
 
 				// White/Black bar(coarse)
 				if (XGSTestImageMode == 6) {
-					cout << "Xgs Image Test Mode is set to White/Black bar(coarse)\n";
+					cout << "\nXgs Image Test Mode is set to White/Black bar(coarse)\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
 				}
 
