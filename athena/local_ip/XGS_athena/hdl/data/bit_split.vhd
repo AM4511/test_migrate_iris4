@@ -43,6 +43,7 @@ entity bit_split is
     -- Pixel clock domain
     ---------------------------------------------------------------------------
     pclk            : in  std_logic;
+    pclk_cal_busy   : in  std_logic;
     pclk_bit_locked : out std_logic;
     pclk_valid      : out std_logic;
     pclk_embedded   : out std_logic;
@@ -308,7 +309,7 @@ begin
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_lock_cntr
   -- Description : This counter is used by the hclk_bit_locked to determine if 
-  --               the data extraction mechanism has locked
+  --               the data extraction mechanism has unlocked
   -----------------------------------------------------------------------------
   P_hclk_lock_cntr : process (hclk) is
   begin
@@ -316,10 +317,10 @@ begin
       if (hclk_reset = '1') then
         hclk_lock_cntr <= (others => '0');
       else
-        if (hclk_phase = '0') then
+        if (hclk_phase = '1') then
           if (hclk_idle_detected = '1') then
             hclk_lock_cntr <= hclk_lock_cntr_max_value;
-          elsif (hclk_bit_locked = '1') then
+          elsif (hclk_bit_locked = '1' and pclk_cal_busy = '0') then
             hclk_lock_cntr <= hclk_lock_cntr - 1;
           end if;
         end if;

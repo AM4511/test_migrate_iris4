@@ -123,12 +123,7 @@ architecture rtl of xgs_hispi_top is
       sclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       sclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
       sclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
-
-      -- Flags 
-      sclk_sof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_eof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_sol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_eol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+      sclk_fifo_read_sync       : out std4_logic_vector(LANE_PER_PHY-1 downto 0)
       );
   end component;
 
@@ -312,8 +307,9 @@ architecture rtl of xgs_hispi_top is
   signal rclk_reset          : std_logic;
   signal rclk_irq_error_vect : std_logic_vector(3 downto 0);
   signal sclk_reset          : std_logic;
-  signal new_line_pending    : std_logic;
-  signal new_frame_pending   : std_logic;
+  -- signal new_line_pending    : std_logic;
+  -- signal new_frame_pending   : std_logic;
+  signal data_pending        : std_logic;
 
   signal sclk_reset_phy : std_logic;
 
@@ -331,25 +327,20 @@ architecture rtl of xgs_hispi_top is
 
   signal top_lanes_p                 : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n                 : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_sof_flag                : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_eof_flag                : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_sol_flag                : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_eol_flag                : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sof_flag                    : std_logic;
   signal top_fifo_read_en            : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_empty              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data_valid    : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal top_fifo_read_sync          : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_done             : std_logic;
   signal bottom_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_sof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_eof_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_sol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_eol_flag             : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_en         : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal bottom_fifo_read_sync       : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal state                       : FSM_TYPE := S_IDLE;
   signal state_mapping               : std_logic_vector(3 downto 0);
 
@@ -386,7 +377,7 @@ architecture rtl of xgs_hispi_top is
   signal buff_addr  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buff_data  : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
-  signal sync            : std_logic_vector(1 downto 0);
+--  signal sync            : std_logic_vector(1 downto 0);
   signal hispi_eof_pulse : std_logic_vector(3 downto 0);
   signal buffer_enable   : std_logic;
   signal x_row_start     : std_logic_vector(12 downto 0);
@@ -482,14 +473,14 @@ begin
   end process;
 
 
-  
+
   rclk_irq_error <= rclk_irq_error_vect(rclk_irq_error_vect'left);
 
 
-  crc_error <=  '1' when (aggregated_crc_error /= (aggregated_crc_error'range => '0')) else
-                '0';
+  crc_error <= '1' when (aggregated_crc_error /= (aggregated_crc_error'range => '0')) else
+               '0';
 
-  
+
   regfile.HISPI.STATUS.CRC_ERROR <= crc_error;
 
 
@@ -525,7 +516,7 @@ begin
       if (sclk_reset = '1') then
         x_row_start <= (others => '0');
       else
-        if (state = S_SOF) then
+        if (sof_flag = '1') then
           --ToDO should come from register
           x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
         end if;
@@ -544,7 +535,7 @@ begin
       if (sclk_reset = '1') then
         x_row_stop <= (others => '0');
       else
-        if (state = S_SOF) then
+        if (sof_flag = '1') then
           x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
         end if;
       end if;
@@ -563,7 +554,7 @@ begin
       if (sclk_reset = '1') then
         y_row_start <= (others => '0');
       else
-        if (state = S_SOF) then
+        if (sof_flag = '1') then
           y_row_start <= hispi_ystart;
         end if;
       end if;
@@ -583,7 +574,7 @@ begin
       if (sclk_reset = '1') then
         y_row_stop <= (others => '0');
       else
-        if (state = S_SOF) then
+        if (sof_flag = '1') then
           start      := unsigned(hispi_ystart);
           size       := unsigned(hispi_ysize);
           y_row_stop <= std_logic_vector(start + (size - 1));
@@ -676,14 +667,11 @@ begin
   end process;
 
 
-
   -- TBD : manage line valid, RoI, embeded data
   line_valid <= '1';
 
   -- TBD : manage buffer control
   buffer_enable <= '1';
-
-
 
 
   -----------------------------------------------------------------------------
@@ -729,10 +717,7 @@ begin
       sclk_fifo_empty           => top_fifo_empty,
       sclk_fifo_read_data_valid => top_fifo_read_data_valid,
       sclk_fifo_read_data       => top_fifo_read_data,
-      sclk_sof_flag             => top_sof_flag,
-      sclk_eof_flag             => top_eof_flag,
-      sclk_sol_flag             => top_sol_flag,
-      sclk_eol_flag             => top_eol_flag
+      sclk_fifo_read_sync       => top_fifo_read_sync
       );
 
 
@@ -765,65 +750,9 @@ begin
       sclk_fifo_empty           => bottom_fifo_empty,
       sclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
       sclk_fifo_read_data       => bottom_fifo_read_data,
-      sclk_sof_flag             => bottom_sof_flag,
-      sclk_eof_flag             => bottom_eof_flag,
-      sclk_sol_flag             => bottom_sol_flag,
-      sclk_eol_flag             => bottom_eol_flag
+      sclk_fifo_read_sync       => bottom_fifo_read_sync
       );
 
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_new_frame_pending
-  -- Description : Flag used to indicates when a start of frame is decoded from
-  --               any top lane. This flag is asserted on the detection of any
-  --               top SOF and cleared when it is processed by the main state
-  --               machine.
-  -----------------------------------------------------------------------------
-  P_new_frame_pending : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        new_frame_pending <= '0';
-      else
-        -- A SOF is detected on any top lane
-        if (top_sof_flag /= (top_sof_flag'range => '0')) then
-          new_frame_pending <= '1';
-
-        -- This flag is cleared once processed by the state
-        -- machine
-        elsif (state <= S_SOF) then
-          new_frame_pending <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_new_line_pending
-  -- Description : Flag used to indicates when a start of line is decoded from
-  --               any top lane. This flag is asserted on the detection of any
-  --               top SOL and cleared when it is processed by the main state
-  --               machine.
-  -----------------------------------------------------------------------------
-  P_new_line_pending : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        new_line_pending <= '0';
-      else
-        -- A SOL is detected on any top lane
-        if (top_sol_flag /= (top_sol_flag'range => '0')) then
-          new_line_pending <= '1';
-
-        -- This flag is cleared once processed by the state
-        -- machine
-        elsif (state <= S_SOL) then
-          new_line_pending <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
 
 
   init_lane_packer <= '1' when (state = S_INIT) else
@@ -832,6 +761,26 @@ begin
 
   all_packer_idle <= '1' when (packer_busy = (packer_busy'range => '0')) else
                      '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sof_flag
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sof_flag : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sof_flag <= '0';
+      else
+        if (state = S_PACK and top_fifo_read_sync(0)(0) = '1' and top_fifo_read_data_valid(0) = '1') then
+          sof_flag <= '1';
+        else
+          sof_flag <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -912,10 +861,8 @@ begin
           when S_IDLE =>
             if (sclk_calibration_pending = '1') then
               state <= S_START_CALIBRATION;
-            elsif (new_frame_pending = '1') then
-              state <= S_SOF;
-            elsif (new_line_pending = '1') then
-              state <= S_SOL;
+            elsif (data_pending = '1') then
+              state <= S_INIT;
             end if;
 
           ---------------------------------------------------------------------
@@ -934,17 +881,17 @@ begin
               state <= S_CALIBRATE;
             end if;
 
-          ---------------------------------------------------------------------
-          -- S_SOL : Start of line detected
-          ---------------------------------------------------------------------
-          when S_SOL =>
-            state <= S_INIT;
+            ---------------------------------------------------------------------
+            -- S_SOL : Start of line detected
+            ---------------------------------------------------------------------
+            -- when S_SOL =>
+            --   state <= S_INIT;
 
-          ---------------------------------------------------------------------
-          -- S_SOF : Start of frame detected
-          ---------------------------------------------------------------------
-          when S_SOF =>
-            state <= S_INIT;
+            ---------------------------------------------------------------------
+            -- S_SOF : Start of frame detected
+            ---------------------------------------------------------------------
+            -- when S_SOF =>
+            --   state <= S_INIT;
 
 
           ---------------------------------------------------------------------
@@ -958,10 +905,10 @@ begin
           --          in the line buffer.
           ---------------------------------------------------------------------
           when S_PACK =>
-            if (bottom_eof_flag(0) = '1') then
+            if (bottom_fifo_read_sync(0)(1) = '1') then
               state <= S_EOF;
 
-            elsif (bottom_eol_flag(0) = '1') then
+            elsif (bottom_fifo_read_sync(0)(3) = '1') then
               state <= S_EOL;
             else
               state <= S_PACK;
@@ -1010,6 +957,8 @@ begin
   end process P_state;
 
 
+  data_pending <= '1' when (top_fifo_empty(0) = '0' or bottom_fifo_empty(0) = '0') else
+                  '0';
 
   -----------------------------------------------------------------------------
   -- 
@@ -1036,21 +985,21 @@ begin
   -- 10 : CONT
   -- 11 : EOF
   -----------------------------------------------------------------------------
-  P_sync : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        sync <= "10";
-      else
-        case state is
-          when S_SOF  => sync <= "00";
-          when S_EOF  => sync <= "11";
-          when S_EOL  => sync <= "01";
-          when others => sync <= "10";
-        end case;
-      end if;
-    end if;
-  end process;
+  -- P_sync : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       sync <= "10";
+  --     else
+  --       case state is
+  --         when S_SOF  => sync <= "00";
+  --         when S_EOF  => sync <= "11";
+  --         when S_EOL  => sync <= "01";
+  --         when others => sync <= "10";
+  --       end case;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -1106,7 +1055,7 @@ begin
       if (sclk_reset = '1') then
         line_cntr <= (others => '0');
       else
-        if (state = S_SOF) then
+        if (sof_flag = '1') then
           line_cntr <= unsigned(hispi_ystart);
         elsif (state = S_DONE) then
           line_cntr <= line_cntr+1;
@@ -1121,8 +1070,7 @@ begin
 
 
 
-  init_frame <= '1' when (state = S_SOF) else
-                '0';
+  init_frame <= sof_flag;
 
   -----------------------------------------------------------------------------
   -- 
@@ -1182,22 +1130,16 @@ begin
         line_valid                  => line_valid,
         busy                        => packer_busy(i),
         line_buffer_id              => line_buffer_id,
-        top_sync(0)                 => bottom_sof_flag(i),
-        top_sync(1)                 => bottom_eof_flag(i),
-        top_sync(2)                 => bottom_sol_flag(i),
-        top_sync(3)                 => bottom_eol_flag(i),
         top_fifo_read_en            => top_fifo_read_en(i),
         top_fifo_empty              => top_fifo_empty(i),
         top_fifo_read_data_valid    => top_fifo_read_data_valid(i),
         top_fifo_read_data          => top_fifo_read_data(i),
-        bottom_sync(0)              => bottom_sof_flag(i),
-        bottom_sync(1)              => bottom_eof_flag(i),
-        bottom_sync(2)              => bottom_sol_flag(i),
-        bottom_sync(3)              => bottom_eol_flag(i),
+        top_sync                    => top_fifo_read_sync(i),
         bottom_fifo_read_en         => bottom_fifo_read_en(i),
         bottom_fifo_empty           => bottom_fifo_empty(i),
         bottom_fifo_read_data_valid => bottom_fifo_read_data_valid(i),
         bottom_fifo_read_data       => bottom_fifo_read_data(i),
+        bottom_sync                 => bottom_fifo_read_sync(i),
         lane_packer_ack             => lane_packer_ack(i),
         lane_packer_req             => lane_packer_req(i),
         lane_packer_write           => lane_packer_write(i),
@@ -1311,7 +1253,7 @@ begin
       when S_CALIBRATE         => state_mapping <= "0101";
       when S_PACK              => state_mapping <= "0110";
       when S_FLUSH_PACKER      => state_mapping <= "0111";
-      when S_SOF               => state_mapping <= "1000";
+--      when S_SOF               => state_mapping <= "1000";
       when S_EOF               => state_mapping <= "1001";
       when S_SOL               => state_mapping <= "1010";
       when S_EOL               => state_mapping <= "1011";

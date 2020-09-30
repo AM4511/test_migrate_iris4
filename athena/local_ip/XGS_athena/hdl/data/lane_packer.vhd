@@ -125,7 +125,7 @@ architecture rtl of lane_packer is
   type INTEGER_ARRAY_TYPE is array (natural range <>) of natural;
 
   type PACK_FSM_TYPE is (S_IDLE, S_INIT, S_PACK, S_SOF, S_EOF, S_EOL, S_FLUSH, S_LINE_BUFFER_OVERFLOW, S_DONE);
-  type OUTPUT_FSM_TYPE is (S_IDLE, S_REQ, S_WRITE, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_REQ, S_WRITE, S_WAIT_DATA, S_DONE);
 
 
   signal state            : PACK_FSM_TYPE;
@@ -285,9 +285,9 @@ begin
                 end if;
               end if;
 
-           ---------------------------------------------------------------------
-           -- S_FLUSH : Flush process 
-           ---------------------------------------------------------------------
+            ---------------------------------------------------------------------
+            -- S_FLUSH : Flush process 
+            ---------------------------------------------------------------------
             when S_FLUSH =>
               if (output_state = S_DONE) then
                 state <= S_DONE;
@@ -313,10 +313,10 @@ begin
             ---------------------------------------------------------------------
             when S_DONE =>
               state <= S_IDLE;
-              
-           ---------------------------------------------------------------------
-           -- 
-           ---------------------------------------------------------------------
+
+            ---------------------------------------------------------------------
+            -- 
+            ---------------------------------------------------------------------
             when others =>
               null;
           end case;
@@ -349,7 +349,7 @@ begin
   -----------------------------------------------------------------------------
   -- Pack each lane individually
   -----------------------------------------------------------------------------
-  load_data <= '1' when (top_fifo_read_data_valid = '1' and bottom_fifo_read_data_valid = '1') else
+  load_data <= '1' when (top_fifo_read_data_valid = '1' and bottom_fifo_read_data_valid = '1' and top_sync(1) = '0' and top_sync(3) = '0' and bottom_sync(1) = '0' and bottom_sync(3) = '0') else
                '0';
 
 
@@ -537,16 +537,29 @@ begin
                 output_state <= S_REQ;
               end if;
 
-           ---------------------------------------------------------------------
-           -- S_WRITE : 
-           ---------------------------------------------------------------------
+            ---------------------------------------------------------------------
+            -- S_WRITE : 
+            ---------------------------------------------------------------------
             when S_WRITE =>
               if (fifo_empty = '1') then
-                output_state <= S_DONE;
+                if (state = S_FLUSH) then
+                  output_state <= S_DONE;
+                else
+                  output_state <= S_WAIT_DATA;
+                end if;
               else
                 output_state <= S_WRITE;
               end if;
 
+            ---------------------------------------------------------------------
+            -- S_WAIT_DATA : Wait for next data available
+            ---------------------------------------------------------------------
+            when S_WAIT_DATA =>
+              if (fifo_empty = '1') then
+                output_state <= S_WAIT_DATA;
+              else
+                output_state <= S_REQ;
+              end if;
 
             ---------------------------------------------------------------------
             -- S_DONE : 
@@ -634,5 +647,5 @@ begin
     end if;
   end process;
 
-  
+
 end architecture rtl;

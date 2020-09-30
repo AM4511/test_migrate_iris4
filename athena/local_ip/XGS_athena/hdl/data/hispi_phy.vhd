@@ -66,12 +66,13 @@ entity hispi_phy is
     sclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
     sclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
     sclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
+    sclk_fifo_read_sync       : out std4_logic_vector(LANE_PER_PHY-1 downto 0)
 
     -- Flags 
-    sclk_sof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_eof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_sol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_eol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+    -- sclk_sof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    -- sclk_eof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    -- sclk_sol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
+    -- sclk_eol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0)
     );
 
 end entity hispi_phy;
@@ -158,13 +159,14 @@ architecture rtl of hispi_phy is
       sclk_fifo_empty           : out std_logic;
       sclk_fifo_read_data_valid : out std_logic;
       sclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
+      sclk_fifo_read_sync       : out std_logic_vector(3 downto 0)
 
       -- Flags
-      --sclk_embeded_data : out std_logic;
-      sclk_sof_flag : out std_logic;
-      sclk_eof_flag : out std_logic;
-      sclk_sol_flag : out std_logic;
-      sclk_eol_flag : out std_logic
+      -- sclk_embeded_data : out std_logic;
+      -- sclk_sof_flag : out std_logic;
+      -- sclk_eof_flag : out std_logic;
+      -- sclk_sol_flag : out std_logic;
+      -- sclk_eol_flag : out std_logic
       );
   end component;
 
@@ -247,7 +249,8 @@ architecture rtl of hispi_phy is
   signal pclk_cal_monitor_done  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_busy          : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_valid             : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal pclk_cal_tap_value     : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  --signal pclk_cal_tap_value     : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
+  signal pclk_cal_tap_value     : std5_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_tap_histogram     : std32_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_tap_cntr          : std_logic_vector(4 downto 0) := (others => '0');
 
@@ -439,7 +442,7 @@ begin
         pclk_valid                => pclk_valid(i),
         pclk_cal_monitor_done     => pclk_cal_monitor_done(i),
         pclk_cal_busy             => pclk_cal_busy(i),
-        pclk_cal_tap_value        => pclk_cal_tap_value((5*i)+4 downto (5*i)),
+        pclk_cal_tap_value        => pclk_cal_tap_value(i),
         pclk_tap_histogram        => pclk_tap_histogram(i),
         rclk                      => rclk,
         rclk_reset                => rclk_reset,
@@ -450,10 +453,11 @@ begin
         sclk_fifo_empty           => sclk_fifo_empty(i),
         sclk_fifo_read_data_valid => sclk_fifo_read_data_valid(i),
         sclk_fifo_read_data       => sclk_fifo_read_data(i),
-        sclk_sof_flag             => sclk_sof_flag(i),
-        sclk_eof_flag             => sclk_eof_flag(i),
-        sclk_sol_flag             => sclk_sol_flag(i),
-        sclk_eol_flag             => sclk_eol_flag(i)
+        sclk_fifo_read_sync       => sclk_fifo_read_sync(i) 
+        -- sclk_sof_flag             => sclk_sof_flag(i),
+        -- sclk_eof_flag             => sclk_eof_flag(i),
+        -- sclk_sol_flag             => sclk_sol_flag(i),
+        -- sclk_eol_flag             => sclk_eol_flag(i)
         );
 
 
@@ -534,8 +538,10 @@ begin
       if (hclk_manual_calibration_en = '1') then
         hclk_delay_tap_in <= rclk_manual_calibration_tap;
       elsif (hclk_state = S_LOAD_RESULT) then
-        hclk_delay_tap_in <= pclk_cal_tap_value;
+        --hclk_delay_tap_in <= pclk_cal_tap_value;
+        hclk_delay_tap_in((5*i)+4 downto (5*i)) <= pclk_cal_tap_value(i);
       else
+        -- During calibration we use the tap counter value
         hclk_delay_tap_in((5*i)+4 downto (5*i)) <= std_logic_vector(hclk_tap_cntr);
       end if;
     end loop;
@@ -738,6 +744,7 @@ begin
 
   pclk_cal_en <= hclk_cal_en_pulse(0);
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_calibration_pending
   -- Description : 
@@ -757,6 +764,7 @@ begin
     end if;
   end process;
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_state
   -- Description : Calibration FSM
@@ -851,7 +859,8 @@ begin
           -- S_WAIT_RESULT : 
           -------------------------------------------------------------------
           when S_WAIT_RESULT =>
-            if ((pclk_cal_monitor_done and hclk_lane_enable) = (hclk_lane_enable'range => '0')) then
+            --if ((pclk_cal_monitor_done and hclk_lane_enable) = (hclk_lane_enable'range => '0')) then
+            if ((pclk_cal_busy and hclk_lane_enable) = (hclk_lane_enable'range => '0')) then
               hclk_state <= S_LOAD_RESULT;
             end if;
 
