@@ -219,13 +219,13 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			XGS_Ctrl->WaitEndExpReadout();
 
 
-		if (DisplayOn)
-		{
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
-		//	//printf("%f", DisplayLength1 - DisplayLength0);
-		}
+		//if (DisplayOn)
+		//{
+		////	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
+		//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+		////	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
+		////	//printf("%f", DisplayLength1 - DisplayLength0);
+		//}
 
 
 
@@ -324,7 +324,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 				XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
 				XGS_Ctrl->WaitEndExpReadout();
-				//MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 				nbGrab++;
 				printf("\rGrabSnapshot completed : %d           ", nbGrab);
 
