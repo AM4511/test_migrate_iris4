@@ -824,7 +824,7 @@ BEGIN
       dev_id => "5e10",
       rev_id => "00",
       subsys_ven_id => "102B",
-      subsys_id => "0500",
+      subsys_id => "0600",
       class_code => "118000",
       cardbus_cis_ptr => "00000000",
       cap_ver => "2",

@@ -71,7 +71,7 @@ entity pcie_7x_core_top is
     CFG_DEV_ID                                     : std_logic_vector := X"5e10";
     CFG_REV_ID                                     : std_logic_vector := X"00";
     CFG_SUBSYS_VEND_ID                             : std_logic_vector := X"102B";
-    CFG_SUBSYS_ID                                  : std_logic_vector := X"0500";
+    CFG_SUBSYS_ID                                  : std_logic_vector := X"0600";
     INIT_PATTERN_WIDTH                             : integer                      := 8;
     INIT_PATTERN1                                  : std_logic_vector(7 downto 0) := X"12";
     INIT_PATTERN2                                  : std_logic_vector(7 downto 0) := X"9a";

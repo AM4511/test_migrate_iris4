@@ -177,6 +177,10 @@ report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PR
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 close_design
 
+################################################
+# Generate firmware file
+################################################
+source ${FIRMWARE_SCRIPT}
 
 ################################################
 # Generate hdf file

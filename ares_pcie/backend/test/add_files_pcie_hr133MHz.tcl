@@ -18,14 +18,14 @@ add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/test/hyperbus133MHz.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/ncsi_timings.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/qspi_timing.sdc
-add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/test/compile.xdc
 
-add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing_late.sdc
-set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/timing_late.sdc]
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/test/timing_late.sdc
+set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/test/timing_late.sdc]
 
-set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
+set_property used_in_synthesis false [get_files  ${XDC_DIR}/test/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
-set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
+set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/test/compile.xdc]
 
 
 # Target constraints file

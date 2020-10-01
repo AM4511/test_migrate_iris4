@@ -155,7 +155,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS5M_
+	`define _XGS12M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
@@ -1095,13 +1095,15 @@ module testbench();
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
 
+				
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////	
 				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
 				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!					
 				ROI_Y_START = 0;         // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_SIZE  = 64;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);

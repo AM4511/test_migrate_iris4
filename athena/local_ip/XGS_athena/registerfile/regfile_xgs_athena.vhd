@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/09/16 10:49:09
+-- Created on          : 2020/09/25 12:01:24
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xD9044013
+-- Register file CRC32 : 0x4EFFCEF4
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3840,11 +3840,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/09/16 10:49:09
+-- Created on          : 2020/09/25 12:01:24
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xD9044013
+-- Register file CRC32 : 0x4EFFCEF4
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -8202,7 +8202,7 @@ P_HISPI_PHY_NB_LANES : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_PHY_NB_LANES <= std_logic_vector(to_unsigned(integer(6),3));
+         field_rw_HISPI_PHY_NB_LANES <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
             if(wEn(60) = '1' and bitEnN(j) = '0') then
