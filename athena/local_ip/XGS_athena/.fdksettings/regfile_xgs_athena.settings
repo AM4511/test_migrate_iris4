@@ -4,7 +4,7 @@
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.vhd"/>
 		<item key="generator_enabled" value="true"/>
 		<item key="last_generation_date" value="2020/09/28 09:33:23"/>
-	</section>
+	</section> 
 	<section name="MilSDKFileGenerator">
 		<item key="output_file" value="/XGS_athena/registerfile/regfile_xgs_athena.h"/>
 		<item key="generator_enabled" value="true"/>

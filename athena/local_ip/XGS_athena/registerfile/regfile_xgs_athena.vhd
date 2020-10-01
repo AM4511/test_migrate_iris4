@@ -8202,7 +8202,7 @@ P_HISPI_PHY_NB_LANES : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_PHY_NB_LANES <= std_logic_vector(to_unsigned(integer(6),3));
+         field_rw_HISPI_PHY_NB_LANES <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
             if(wEn(60) = '1' and bitEnN(j) = '0') then

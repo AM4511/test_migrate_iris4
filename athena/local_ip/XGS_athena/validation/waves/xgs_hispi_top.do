@@ -1,113 +1,70 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_reset_n
-add wave -noupdate -expand -group xgs_hispi_top -group {registerfile I/F} /testbench/DUT/x_xgs_hispi_top/rclk
-add wave -noupdate -expand -group xgs_hispi_top -group {registerfile I/F} /testbench/DUT/x_xgs_hispi_top/rclk_reset_n
-add wave -noupdate -expand -group xgs_hispi_top -group {registerfile I/F} /testbench/DUT/x_xgs_hispi_top/regfile
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_start_calibration
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_calibration_active
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_pix_clk
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_eof
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/idelay_clk
-add wave -noupdate -expand -group xgs_hispi_top -expand -group {HiSPi I/O} /testbench/DUT/x_xgs_hispi_top/hispi_io_clk_p
-add wave -noupdate -expand -group xgs_hispi_top -expand -group {HiSPi I/O} /testbench/DUT/x_xgs_hispi_top/hispi_io_clk_n
-add wave -noupdate -expand -group xgs_hispi_top -expand -group {HiSPi I/O} /testbench/DUT/x_xgs_hispi_top/hispi_io_data_p
-add wave -noupdate -expand -group xgs_hispi_top -expand -group {HiSPi I/O} /testbench/DUT/x_xgs_hispi_top/hispi_io_data_n
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_tready
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_tvalid
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_tuser
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_tlast
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_tdata
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_reset
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/new_line_pending
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/new_frame_pending
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_reset_phy
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_pll_locked_Meta
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_pll_locked
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_calibration_req
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_calibration_pending
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_start_calibration
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_calibration_done
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_cal_error
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_xgs_ctrl_calib_req_Meta
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_xgs_ctrl_calib_req
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_cal_done
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_lanes_p
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_lanes_n
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_sof_flag
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_eof_flag
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_sol_flag
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_eol_flag
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_fifo_read_en
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_fifo_empty
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_fifo_read_data_valid
-add wave -noupdate -expand -group xgs_hispi_top -group {TOP } /testbench/DUT/x_xgs_hispi_top/top_fifo_read_data
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_cal_done
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_lanes_p
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_lanes_n
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_sof_flag
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_eof_flag
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_sol_flag
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_eol_flag
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_fifo_read_en
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_fifo_empty
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_fifo_read_data_valid
-add wave -noupdate -expand -group xgs_hispi_top -group Bottom /testbench/DUT/x_xgs_hispi_top/bottom_fifo_read_data
-add wave -noupdate -expand -group xgs_hispi_top -color Yellow /testbench/DUT/x_xgs_hispi_top/state
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/state_mapping
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/row_id
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/row_last
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/packer_busy
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/all_packer_idle
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/init_lane_packer
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_id
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/packer_fifo_overrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/packer_fifo_underrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/frame_cntr
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_valid
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/transfert_done
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/init_frame
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/lane_packer_ack
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/lane_packer_req
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/lane_packer_write
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/lane_packer_addr
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/lane_packer_data
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/packer_enable
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/nxtBuffer
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/clrBuffer
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_ready
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/buff_write
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/buff_addr
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/buff_data
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sync
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/hispi_eof_pulse
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/buffer_enable
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/x_row_start
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/x_row_stop
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/y_row_start
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/y_row_stop
-add wave -noupdate -expand -group xgs_hispi_top -color {Steel Blue} -radix unsigned /testbench/DUT/x_xgs_hispi_top/line_cntr
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_read
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_ptr
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_address
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_row_id
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/line_buffer_data
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/enable_hispi
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_fifo_overrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_fifo_underrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_cal_error
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_sync_error
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_packer_fifo_overrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_packer_fifo_underrun
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/fifo_error
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_bit_lock_error
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/rclk_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hispi_serial_clk_p
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hispi_serial_clk_n
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hispi_serial_input_p
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hispi_serial_input_n
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hispi_pix_clk
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/regfile
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/bitslip
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_div2
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_reset_vect
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_state
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_lane_enable
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_start_calibration
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_calibration_pending
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_calibration_done
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_serdes_data
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_lane_data
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_manual_calibration_en
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_manual_calibration_load
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_lane_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_tap_cntr
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_cal_start_monitor_pulse
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_delay_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_delay_tap_in
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_delay_tap_out
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_delay_data_ce
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_delay_data_inc
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_latch_cal_status
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_cal_en_pulse
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/hclk_wait_cntr
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_reset
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_reset_Meta1
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_reset_Meta2
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_cal_en
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_cal_start_monitor
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_cal_monitor_done
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_cal_busy
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_valid
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_cal_tap_value
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_tap_histogram
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/pclk_tap_cntr
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_latch_cal_status
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_manual_calibration_tap
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_cal_tap_value
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_nb_lanes
+add wave -noupdate -expand -group hispi_phy_top /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/rclk_tap_histogram
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_reset
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_reset_phy
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_start_calibration
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_calibration_done
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_fifo_empty
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_fifo_read_en
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_fifo_read_data_valid
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} -expand /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_fifo_read_data
+add wave -noupdate -expand -group hispi_phy_top -expand -group {FiFo read I/F} -expand /testbench/DUT/x_xgs_hispi_top/xtop_hispi_phy/sclk_fifo_read_sync
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1187235000 ps} 0} {{Cursor 2} {1725946835 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1272368877 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 257
-configure wave -valuecolwidth 100
+configure wave -namecolwidth 262
+configure wave -valuecolwidth 191
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -117,7 +74,7 @@ configure wave -childrowmargin 2
 configure wave -gridoffset 0
 configure wave -gridperiod 1
 configure wave -griddelta 40
-configure wave -timeline 0
-configure wave -timelineunits ps
+configure wave -timeline 1
+configure wave -timelineunits ns
 update
-WaveRestoreZoom {1146303589 ps} {1395590034 ps}
+WaveRestoreZoom {1231812540 ps} {1232024868 ps}

@@ -22,8 +22,6 @@ entity line_buffer is
     LINE_BUFFER_ADDRESS_WIDTH : integer              := 11;
     LINE_BUFFER_DATA_WIDTH    : integer              := 64;
     NUMB_LANE_PACKER          : integer              := 3
-    -- PIXELS_PER_LINE           : integer              := 4176;
-    -- LINES_PER_FRAME           : integer              := 3102
     );
   port (
     sysclk : in std_logic;

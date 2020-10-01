@@ -285,11 +285,11 @@ begin
                 end if;
               end if;
 
-           ---------------------------------------------------------------------
-           -- S_FLUSH : Flush process 
-           ---------------------------------------------------------------------
+            ---------------------------------------------------------------------
+            -- S_FLUSH : Flush process 
+            ---------------------------------------------------------------------
             when S_FLUSH =>
-              if (output_state = S_DONE) then
+              if (output_state = S_IDLE and fifo_empty = '1') then
                 state <= S_DONE;
               else
                 state <= S_FLUSH;
@@ -313,10 +313,10 @@ begin
             ---------------------------------------------------------------------
             when S_DONE =>
               state <= S_IDLE;
-              
-           ---------------------------------------------------------------------
-           -- 
-           ---------------------------------------------------------------------
+
+            ---------------------------------------------------------------------
+            -- 
+            ---------------------------------------------------------------------
             when others =>
               null;
           end case;
@@ -349,7 +349,7 @@ begin
   -----------------------------------------------------------------------------
   -- Pack each lane individually
   -----------------------------------------------------------------------------
-  load_data <= '1' when (top_fifo_read_data_valid = '1' and bottom_fifo_read_data_valid = '1') else
+  load_data <= '1' when (top_fifo_read_data_valid = '1' and bottom_fifo_read_data_valid = '1' and top_sync(1) = '0' and top_sync(3) = '0' and bottom_sync(1) = '0' and bottom_sync(3) = '0') else
                '0';
 
 
@@ -537,12 +537,12 @@ begin
                 output_state <= S_REQ;
               end if;
 
-           ---------------------------------------------------------------------
-           -- S_WRITE : 
-           ---------------------------------------------------------------------
+            ---------------------------------------------------------------------
+            -- S_WRITE : Write data in the line buffer until we flush the fifo
+            ---------------------------------------------------------------------
             when S_WRITE =>
               if (fifo_empty = '1') then
-                output_state <= S_DONE;
+                  output_state <= S_DONE;
               else
                 output_state <= S_WRITE;
               end if;
@@ -634,5 +634,5 @@ begin
     end if;
   end process;
 
-  
+
 end architecture rtl;

@@ -682,7 +682,8 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera the mux ratio is fixed and set to 4." lsb="8" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
-      <fields name="NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" size="3" valueAtReset="6">
+      <fields name="NB_LANES" alias="Number of physical lane enabled" description="This is the physical number of HiSPI lanes available for the  XGS sensor used. &#xD;&#xA;In GTX camera configuration :&#xD;&#xA; - Must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA; - Must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>All lanes are disabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>6 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved (All lanes are disabled)&lt;/matrox_column_delimiter></possibleValues>

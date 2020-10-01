@@ -1237,7 +1237,7 @@ begin
   irq(3) <= irq_sos;               -- Start of Strobe  
   irq(4) <= irq_eos;               -- End of Strobe 
   irq(5) <= load_dma_context(1);   -- End Of FOT (START OF GRAB)
-  irq(6) <= '0';
+  irq(6) <= irq_abort;
   irq(7) <= irq_hispi_error;
 
   ----------------------------------------------------
