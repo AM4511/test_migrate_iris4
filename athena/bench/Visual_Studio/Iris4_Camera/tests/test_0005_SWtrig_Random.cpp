@@ -281,8 +281,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -320,7 +320,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf("\nError destroying mutex.\n");
 
 	printf("\n\n********************************\n");
-	printf("*    End of Test0000.cpp    *\n");
+	printf("*    End of Test0005.cpp    *\n");
 	printf("********************************\n\n");
 
    }

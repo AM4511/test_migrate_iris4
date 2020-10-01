@@ -18,7 +18,7 @@
 -- DPC_CORR_PIXELS_DEPTH=6  =>   63 pixels, 6+1+4:  11 RAM36K 
 -- DPC_CORR_PIXELS_DEPTH=7  =>  127 pixels, 6+1+4:  11 RAM36K 
 -- DPC_CORR_PIXELS_DEPTH=8  =>  255 pixels, 6+1+4:  11 RAM36K 
--- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 6+1+4:  11 RAM36K 
+-- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 6+1+4:  11 RAM36K   *default au 28 septembre
 -- DPC_CORR_PIXELS_DEPTH=10 => 1023 pixels, 6+1+8:  15 RAM36K 
 -- DPC_CORR_PIXELS_DEPTH=11 => 2047 pixels, 6+2+16: 24 RAM36K 
 -- DPC_CORR_PIXELS_DEPTH=12 => 4095 pixels, 6+4+32: 42 RAM36K   
@@ -318,7 +318,10 @@ architecture functional of dpc_filter is
   
   signal kernel_10x3_curr        : curr_pixel_type;
 
+  signal proc_X_pix_curr_nosub   : std13_logic_vector(nb_pixels downto 0);
+  signal proc_X_pix_curr_sub     : std13_logic_vector(nb_pixels downto 0);
   signal proc_X_pix_curr         : std13_logic_vector(nb_pixels downto 0); 
+  
   signal proc_first_col          : std_logic_vector(nb_pixels downto 0); 
   signal proc_last_col           : std_logic_vector(nb_pixels downto 0);   
  
@@ -656,10 +659,21 @@ begin
         elsif(  conv_integer(RAM_R_data(24 downto 13)) >= conv_integer(curr_Ystart(11 downto 0)) and 
                 conv_integer(RAM_R_data(24 downto 13)) <= conv_integer(curr_Yend(11 downto 0))   and
                 conv_integer(RAM_R_data(12 downto  0)) >= curr_Xstart_integer                    and      
-                conv_integer(RAM_R_data(12 downto  0)) <= curr_Xend_integer             -- Les lignes apres la roi seront flushes a la fin        
+                conv_integer(RAM_R_data(12 downto  0)) <= curr_Xend_integer                      and
+				
+				((curr_Xsub = '1' and  RAM_R_data(0)  = '0') or curr_Xsub = '0')                 and -- Mono X SUBsampling (read 1 - skip 1)
+				((curr_Ysub = '1' and  RAM_R_data(13) = '0') or curr_Ysub = '0')                     -- Mono Y SUBsampling (read 1 - skip 1)
+				
+				--((curr_Xsub = '1' and  RAM_R_data(1)  = '0') or curr_Xsub = '0')                 and -- Color X SUBsampling (read 2 - skip 2)
+				--((curr_Ysub = '1' and  RAM_R_data(14) = '0') or curr_Ysub = '0')                     -- Color Y SUBsampling (read 2 - skip 2)
+				
            ) then 
-          for i in 0 to nb_pixels loop          
-            if(nb_pixels=7 and conv_integer(RAM_R_data(2 downto 0))=i ) or (nb_pixels=3 and conv_integer(RAM_R_data(1 downto 0))=i ) then  
+          for i in 0 to nb_pixels loop  -- X Loop        
+            if(nb_pixels=7 and ( (curr_Xsub = '0' and conv_integer(RAM_R_data(2 downto 0))=i ) or (curr_Xsub = '1' and conv_integer(RAM_R_data(3 downto 1))=i) ) ) or     -- Mono
+			  (nb_pixels=3 and ( (curr_Xsub = '0' and conv_integer(RAM_R_data(1 downto 0))=i ) or (curr_Xsub = '1' and conv_integer(RAM_R_data(2 downto 1))=i) ) ) then   -- Mono
+            --if(nb_pixels=7 and ( (curr_Xsub = '0' and conv_integer(RAM_R_data(2 downto 0))=i ) or (curr_Xsub = '1' and conv_integer(RAM_R_data(3 downto 2) & RAM_R_data(0)) =i ) ) ) or     -- Color
+			--  (nb_pixels=3 and ( (curr_Xsub = '0' and conv_integer(RAM_R_data(1 downto 0))=i ) or (curr_Xsub = '1' and conv_integer(RAM_R_data(2)& RAM_R_data(0))           =i ) ) ) then   -- COlor
+  			  
               --current DP to each macro
               dpc_fifo_write(i)   <= '1';
             else  
@@ -883,14 +897,27 @@ begin
       if(kernel_10x3_sof='1' or kernel_10x3_eol='1') then
          kernel_10x3_curr.X_pos(12 downto 0) <= curr_Xstart_corr;                   
       elsif(kernel_10x3_en='1') then
-        kernel_10x3_curr.X_pos <= kernel_10x3_curr.X_pos + conv_std_logic_vector(nb_pixels+1,4);   --7+1 for GTX
+	    if(curr_Xsub='0') then
+          kernel_10x3_curr.X_pos <= kernel_10x3_curr.X_pos + conv_std_logic_vector(nb_pixels+1,5);   --7+1 ou 3+1 for GTX
+		else  
+          kernel_10x3_curr.X_pos <= kernel_10x3_curr.X_pos + conv_std_logic_vector(2*nb_pixels+2,5); --14+2 ou 6+2 for GTX	(pour mono + couleur)
+		end if;  
       end if;
       
       --Y registers are line based in sensor
       if(kernel_10x3_sof='1') then
         kernel_10x3_curr.Y_pos(11 downto 0) <= curr_Ystart;
       elsif(kernel_10x3_eol='1') then
-        kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + '1';
+        if(curr_Ysub='0') then
+          kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + '1';
+        else
+          kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + "10";       -- Mono
+          --if(kernel_10x3_curr.Y_pos(0)='0') then                       -- Color
+          --  kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + '1';    -- Color 
+          --else	                                                     -- Color
+          --  kernel_10x3_curr.Y_pos <= kernel_10x3_curr.Y_pos + "11";   -- Color
+          --end if;
+        end if;	
       end if;                
 
     end if;
@@ -913,10 +940,36 @@ begin
             
   GEN_4_8_CORE: for i in 0 to nb_pixels generate
   
-    proc_X_pix_curr(i) <= kernel_10x3_curr.X_pos(12 downto 2) & conv_std_logic_vector(i,2) when nb_pixels = 3 else 
-                          kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(i,3);
+    proc_X_pix_curr_nosub(i) <= kernel_10x3_curr.X_pos(12 downto 2) & conv_std_logic_vector(i,2) when nb_pixels = 3 else 
+                                kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(i,3);
    
-    
+    --MONO COLOR SUB
+    proc_X_pix_curr_sub(i)   <= kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(i,2) & '0' when nb_pixels = 3 else  -- Mono SUB : read 1 - skip 1
+                                kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(i,3) & '0';                         -- Mono SUB : read 1 - skip 1
+								
+--    --COLOR SUB
+--	DW_bus : if(nb_pixels = 3) gerate
+--	  proc_X_pix_curr_sub(0)   <= kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(0,3;                          -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(1)   <= kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(1,3;                          -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(2)   <= kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(4,3);                         -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(3)   <= kernel_10x3_curr.X_pos(12 downto 3) & conv_std_logic_vector(5,3);                         -- Color SUB : read 2 - skip 2
+--	end generate;  
+--	
+--	QW_bus : if(nb_pixels = 7) gerate	
+--      proc_X_pix_curr_sub(0)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(0,4) ;                        -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(1)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(1,4) ;                        -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(2)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(4,4) ;                        -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(3)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(5,4) ;                        -- Color SUB : read 2 - skip 2	 
+--	  proc_X_pix_curr_sub(4)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(8,4) ;                        -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(5)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(9,4) ;                        -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(6)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(12,4) ;                       -- Color SUB : read 2 - skip 2
+--	  proc_X_pix_curr_sub(7)   <= kernel_10x3_curr.X_pos(12 downto 4) & conv_std_logic_vector(13,4) ;                       -- Color SUB : read 2 - skip 2
+--	end generate;  
+		
+		
+		
+	proc_X_pix_curr(i)       <= proc_X_pix_curr_nosub(i) when (curr_Xsub='0') else proc_X_pix_curr_sub(i);  
+	
     Xdpc_kernel_proc : dpc_kernel_proc
     generic map( DPC_CORR_PIXELS_DEPTH         => DPC_CORR_PIXELS_DEPTH )	
 	port map(

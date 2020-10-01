@@ -385,7 +385,12 @@ architecture functional of xgs_ctrl is
   signal  next_SO_FOT            : std_logic;
   signal  next_FOT               : std_logic;
   signal  next_EO_FOT            : std_logic;
+  
   signal  SO_FOT                 : std_logic;
+  signal  SO_FOT_P1              : std_logic;
+  signal  SO_FOT_P2              : std_logic;
+  signal  SO_FOT_P3              : std_logic;
+
   signal  FOT                    : std_logic;
   signal  EO_FOT                 : std_logic;
   
@@ -1081,7 +1086,7 @@ BEGIN
   begin
     case curr_grab_mngr_state is
       when  idle              =>  if(REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and abort_now='0' and REGFILE.ACQ.GRAB_CTRL.ABORT_GRAB='0') then
-                                    if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100") then
+                                    if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100") then
                                       next_grab_mngr_state  <= sensor_reprog;
                                     else
                                       next_grab_mngr_state  <= arm;
@@ -1168,7 +1173,7 @@ BEGIN
                                   elsif(EO_FOT='1') then
                                     if(abort_now='0' and REGFILE.ACQ.GRAB_CTRL.ABORT_GRAB='0') then
                                       if(grab_pending='1' or REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1') then          -- --bug bench EO_FOT+GRABCMD
-                                        if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1' and curr_trigger_src/="100") then  -- in 3D scanner do not reprogram at end of FOT
+                                        if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' and curr_trigger_src/="100") then  -- in 3D scanner do not reprogram at end of FOT
                                           next_grab_mngr_state  <= sensor_reprog;
                                         else
                                           if(curr_trigger_overlap='1') then
@@ -2066,9 +2071,15 @@ BEGIN
   begin
     if(rising_edge(sys_clk)) then
       if(sys_reset_n='0') then
-        start_calibration <= '0';
+		SO_FOT_P1         <= '0';
+		SO_FOT_P2         <= '0';
+		SO_FOT_P3         <= '0';
+        start_calibration <= '0';	
       else
-        start_calibration <= SO_FOT;
+		SO_FOT_P1         <= SO_FOT;
+		SO_FOT_P2         <= SO_FOT_P1;
+		SO_FOT_P3         <= SO_FOT_P2;  
+        start_calibration <= SO_FOT or SO_FOT_P1 or SO_FOT_P2 or SO_FOT_P3;		
       end if;
     end if;
   end process;

@@ -173,8 +173,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;

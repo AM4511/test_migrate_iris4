@@ -283,7 +283,7 @@ Register("sensor_ctrl", 0x190, 4, "SENSOR ConTRoL");
 		Field("sensor_color", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR COLOR");
 			FieldValue("Monochrone sensor", 0);
 			FieldValue("Color sensor", 1);
-		Field("sensor_reg_uptate", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR REGister UPDATE");
+		Field("sensor_reg_update", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR REGister UPDATE");
 			FieldValue("Do not update registers", 0);
 			FieldValue("Update registers", 1);
 		Field("sensor_resetn", 1, 1, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR RESET Not");

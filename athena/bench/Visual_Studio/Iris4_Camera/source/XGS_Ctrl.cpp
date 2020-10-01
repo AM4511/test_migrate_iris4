@@ -85,6 +85,7 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 	SensorParams = {
 
 		0,             //Sensor Type
+		0,             //IS_COLOR
 		24,            //XGSmax HISPI channels 
 	    6,             //XGS_HiSPI_Ch_used;
 	    4,             //XGS_HiSPI_mux;  (static register for the moment)
@@ -174,22 +175,26 @@ void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 //------------------------------------------------------------------------------------
 // XGS SPI WRITE BURST 
 //------------------------------------------------------------------------------------
-void CXGS_Ctrl::WriteSPI_BURST(M_UINT32 tableau[500])
+void CXGS_Ctrl::WriteSPI_BURST(const M_UINT32 table[], int NbElements)
 {
-	int i = 0;
+	int i;
 	M_UINT32 add;
 	M_UINT32 data;
 	printf("   SPI WRITE BURST : ");
-	while (tableau[i + 1] != 0xcafefade) {  //cafefade is End character
-		add = tableau[0] + (i*2);
-		data = tableau[i + 1];
+	for (i = 0; i < (NbElements - 1); i++)
+	{
+		add = table[0] + (i * 2);
+		data = table[i + 1];
 		WriteSPI(add, data);
 		//printf("\nSPI WRITE BURST : number=%d add=0x%X data=0x%X", i, add, data);
-		i++;
 	}
 	//printf("\n");
 	printf("\r   SPI WRITE BURST : total writes=%d\n", i);
+
 }
+
+
+
 
 //------------------------------------------------------------------------------------
 // XGS SPI WRITE BIT : This function write one bit of the serial register 
@@ -408,32 +413,35 @@ void CXGS_Ctrl::InitXGS()
 	Sleep(100);
 
 	// READ XGS MODEL ID and REVISION
-	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 0;
+	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPDATE = 0;
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 	DataRead = ReadSPI(0x0);
 	if (DataRead == 0x0358) {
-		printf("XGS Model ID detected is 0x358, XGS5M");
+		printf("XGS Model ID detected is 0x358, XGS5M, ");
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
-		if (((DataRead & 0x1c) >> 2) == 0x18)
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+
+		if (((DataRead & 0x7c) >> 2) == 0x18)
 			printf("XGS Resolution is 5Mp\n");
-		if (((DataRead & 0x1c) >> 2) == 0x19)
+		if (((DataRead & 0x7c) >> 2) == 0x19)
 			printf("XGS Resolution is 3Mp\n");
-		if (((DataRead & 0x1c) >> 2) == 0x1a)
+		if (((DataRead & 0x7c) >> 2) == 0x1a)
 			printf("XGS Resolution is 2Mp\n");
-		if (((DataRead & 0x1c) >> 2) == 0x1b)
+		if (((DataRead & 0x7c) >> 2) == 0x1b)
 			printf("XGS Resolution is 1.3Mp\n");
 
-		if (((DataRead & 0x60) >> 5) == 0)
+		if (((DataRead & 0x600) >> 5) == 0)
 			printf("XGS Speedgrade is 16 ports\n");
-		if (((DataRead & 0x60) >> 5) == 1)
+		if (((DataRead & 0x600) >> 5) == 1)
 			printf("XGS Speedgrade is 12 ports\n");
-		if (((DataRead & 0x60) >> 5) == 2)
+		if (((DataRead & 0x600) >> 5) == 2)
 			printf("XGS Speedgrade is 8 ports\n");
-		if (((DataRead & 0x60) >> 5) == 3)
+		if (((DataRead & 0x600) >> 5) == 3)
 			printf("XGS Speedgrade is 4 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
@@ -441,11 +449,18 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf("XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3) == 1)
+		if ((DataRead & 0x3) == 1) {
 			printf("XGS is COLOR\n");
-		if ((DataRead & 0x3) == 2)
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
 			printf("XGS is MONO\n");
-
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
 
 		XGS5M_SetGrabParamsInit5000(4);
 		XGS5M_LoadDCF(4);
@@ -457,7 +472,9 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 
 		if(((DataRead&0x1c)>>2) == 0)
 		  printf("XGS Resolution is 12Mp\n");
@@ -491,7 +508,9 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
 			printf("XGS Resolution is 16Mp\n");
@@ -570,6 +589,19 @@ void CXGS_Ctrl::DisableXGS()
 	// Sensor already POWERED, POWERDOWN!
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE == 1 && rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT == 1) {
 		printf("\n\nDisabling XGS (disable clk and reset)... ");
+
+		//1. Disable CAPTURE if output is active by disabling
+		//	 the sequencer(general_config0_reg[0] = 0).
+		WriteSPI_Bit(0x3800, 0, 0);
+		Sleep(1);
+
+		//2. Issue a sensor STANDBY request	(reset_register_reg[2] = 0).By default, the
+		//	 transition to STANDBY state happens either after
+		//	 completion of current row(or frame) readout or
+		//	 instantly(configurable).
+		WriteSPI_Bit(0x3700, 2, 0);
+		Sleep(1);
+
 		sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_POWERDOWN = 1;
 		rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 		sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_POWERDOWN = 0;  //wo
@@ -689,7 +721,7 @@ void CXGS_Ctrl::SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTI
 //----------------------------------------------------
 void CXGS_Ctrl::EnableRegUpdate(void)
 {
-	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 1;   // Enable REGISTER UPDATE
+	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPDATE = 1;   // Enable REGISTER UPDATE
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 }
 
@@ -700,7 +732,7 @@ void CXGS_Ctrl::DisableRegUpdate(void)
 {
 
 	WaitEndExpReadout();
-	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPTATE = 0;   // Disable REGISTER UPDATE
+	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_REG_UPDATE = 0;   // Disable REGISTER UPDATE
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 }
 

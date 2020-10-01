@@ -311,7 +311,7 @@ BEGIN
   ------------------------------------------------------------------------------------------------------
   -- La magie est faite ici:
   --
-  -- Pour que le grab reprogramme les registres du senseur, ilfaut setter SENSOR_REG_UPTATE=1.
+  -- Pour que le grab reprogramme les registres du senseur, ilfaut setter SENSOR_REG_UPDATE=1.
   --
   -- Lorsque le GRAB_CMD est recu, les registres(regfile) mirroirs du senseur sont envoyes dans le fifo.
   -- Un STOP separtor est insere a la fin des access. Si un deuxieme GRAB_CMD est recu sans que le premier
@@ -329,10 +329,10 @@ BEGIN
           sensor_reconf_WF_pipe  <= (others=>'0');
           GRAB_ROI2_EN_DB        <= '0'; 
         else
-          sensor_reconf_WF_pipe(0)           <= (GRAB_CMD or acquisition_start_SFNC) and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE;
+          sensor_reconf_WF_pipe(0)           <= (GRAB_CMD or acquisition_start_SFNC) and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE;
           sensor_reconf_WF_pipe(12 downto 1) <= sensor_reconf_WF_pipe(11 downto 0);
           
-          if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1' then
+          if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' then
             GRAB_ROI2_EN_DB        <= regfile.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
           end if;
           
@@ -341,14 +341,14 @@ BEGIN
         if(sys_reset_n='0') then
           sensor_reconf_roi_sel   <= "0101";
         else
-          if( sensor_reconf_WF_pipe(11)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
+          if( sensor_reconf_WF_pipe(11)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
             sensor_reconf_roi_sel <= not(sensor_reconf_roi_sel(3)) & not(sensor_reconf_roi_sel(2)) & not(sensor_reconf_roi_sel(1)) & not(sensor_reconf_roi_sel(0));
           else
             sensor_reconf_roi_sel <= sensor_reconf_roi_sel;
           end if;
         end if;
     
-        if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then
+        if(regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then
           
           if(sensor_reconf_WF_pipe(0)='1') then               -- Program register ROI[0-1]_START_REG (0x381a or 0x381e) : Ystart 
             sensor_reconf_WF_ss  <= '1';
@@ -548,7 +548,7 @@ BEGIN
         read_temp_sensor_start_buff         <= '0';
       else
         -- grab manager reconfiguration request
-        if(grab_mngr_sensor_reconf='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then
+        if(grab_mngr_sensor_reconf='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then
           if(S_currentState= S_idle and read_temp_sensor_start='0') then                                           -- Cet access est prioritaire sur l'acces de temperature
             grab_mngr_sensor_reconf_start       <= '1';
             grab_mngr_sensor_reconf_start_buff  <= '0';
@@ -556,7 +556,7 @@ BEGIN
             grab_mngr_sensor_reconf_start       <= '0';
             grab_mngr_sensor_reconf_start_buff  <= '1';
           end if;
-        elsif(grab_mngr_sensor_reconf_start_buff='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPTATE='1') then
+        elsif(grab_mngr_sensor_reconf_start_buff='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then
           if(S_currentState= S_idle) then
             grab_mngr_sensor_reconf_start       <= '1';
             grab_mngr_sensor_reconf_start_buff  <= '0';

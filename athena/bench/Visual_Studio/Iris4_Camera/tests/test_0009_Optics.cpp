@@ -257,7 +257,10 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//----------------------
 	// Disable HW
 	//----------------------
-	XGS_Ctrl->DisableXGS();  //reset and disable clk
+	XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+	XGS_Ctrl->GrabAbort();
+	XGS_Data->HiSpiClr();
+	XGS_Ctrl->DisableXGS();
 
 	printf("\n\n********************************\n");
 	printf("*    End of Test0009.cpp    *\n");
