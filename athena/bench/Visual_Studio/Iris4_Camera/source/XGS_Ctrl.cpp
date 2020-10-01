@@ -175,22 +175,26 @@ void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 //------------------------------------------------------------------------------------
 // XGS SPI WRITE BURST 
 //------------------------------------------------------------------------------------
-void CXGS_Ctrl::WriteSPI_BURST(M_UINT32 tableau[500])
+void CXGS_Ctrl::WriteSPI_BURST(const M_UINT32 table[], int NbElements)
 {
-	int i = 0;
+	int i;
 	M_UINT32 add;
 	M_UINT32 data;
 	printf("   SPI WRITE BURST : ");
-	while (tableau[i + 1] != 0xcafefade) {  //cafefade is End character
-		add = tableau[0] + (i*2);
-		data = tableau[i + 1];
+	for (i = 0; i < (NbElements - 1); i++)
+	{
+		add = table[0] + (i * 2);
+		data = table[i + 1];
 		WriteSPI(add, data);
 		//printf("\nSPI WRITE BURST : number=%d add=0x%X data=0x%X", i, add, data);
-		i++;
 	}
 	//printf("\n");
 	printf("\r   SPI WRITE BURST : total writes=%d\n", i);
+
 }
+
+
+
 
 //------------------------------------------------------------------------------------
 // XGS SPI WRITE BIT : This function write one bit of the serial register 
@@ -418,7 +422,10 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+
 		if (((DataRead & 0x7c) >> 2) == 0x18)
 			printf("XGS Resolution is 5Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x19)
@@ -465,7 +472,9 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 
 		if(((DataRead&0x1c)>>2) == 0)
 		  printf("XGS Resolution is 12Mp\n");
@@ -499,7 +508,9 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = ReadSPI(0x2);
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
+		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		DataRead = ReadSPI(0x3012);
+		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
 			printf("XGS Resolution is 16Mp\n");
