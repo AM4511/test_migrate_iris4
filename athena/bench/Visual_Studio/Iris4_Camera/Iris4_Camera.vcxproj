@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Ares.cpp" />
     <ClCompile Include="source\flashupdate.cpp" />
     <ClCompile Include="source\osfunctions.cpp" />
     <ClCompile Include="source\Pcie.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="tests\test_0009_Optics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\ares_pcie\registerfile\regfile_ares.h" />
     <ClInclude Include="..\..\..\local_ip\axi_i2c_1.0\registerfile\regfile_i2c.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -197,6 +199,7 @@
     <ClInclude Include="..\..\..\local_ip\XGS_athena\registerfile\regfile_xgs_athena.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="include\Ares.h" />
     <ClInclude Include="include\flashupdate.h" />
     <ClInclude Include="include\I2C.h" />
     <ClInclude Include="include\IntelHexFormatDecoder.h" />

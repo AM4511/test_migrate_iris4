@@ -28,9 +28,10 @@ entity bit_split is
     ---------------------------------------------------------------------------
     -- HiSPi clock domain
     ---------------------------------------------------------------------------
-    hclk           : in std_logic;
-    hclk_reset     : in std_logic;
-    hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+    hclk             : in std_logic;
+    hclk_reset       : in std_logic;
+    hclk_lane_enable : in std_logic;
+    hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
     -------------------------------------------------------------------------
     -- Register file interface
@@ -42,6 +43,7 @@ entity bit_split is
     -- Pixel clock domain
     ---------------------------------------------------------------------------
     pclk            : in  std_logic;
+    pclk_cal_busy   : in  std_logic;
     pclk_bit_locked : out std_logic;
     pclk_valid      : out std_logic;
     pclk_embedded   : out std_logic;
@@ -120,7 +122,7 @@ begin
 
   begin
     if (rising_edge(hclk)) then
-      if (hclk_reset = '1') then
+      if (hclk_reset = '1' or  hclk_lane_enable = '0') then
         -- initialize with all 0's
         hclk_shift_register <= (others => '0');
       else
@@ -307,7 +309,7 @@ begin
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_lock_cntr
   -- Description : This counter is used by the hclk_bit_locked to determine if 
-  --               the data extraction mechanism has locked
+  --               the data extraction mechanism has unlocked
   -----------------------------------------------------------------------------
   P_hclk_lock_cntr : process (hclk) is
   begin
@@ -315,10 +317,10 @@ begin
       if (hclk_reset = '1') then
         hclk_lock_cntr <= (others => '0');
       else
-        if (hclk_phase = '0') then
+        if (hclk_phase = '1') then
           if (hclk_idle_detected = '1') then
             hclk_lock_cntr <= hclk_lock_cntr_max_value;
-          elsif (hclk_bit_locked = '1') then
+          elsif (hclk_bit_locked = '1' and pclk_cal_busy = '0') then
             hclk_lock_cntr <= hclk_lock_cntr - 1;
           end if;
         end if;
@@ -348,7 +350,7 @@ begin
     variable sync : std_logic_vector(3 downto 0);
   begin
     if (rising_edge(hclk)) then
-      if (hclk_reset = '1')then
+      if (hclk_reset = '1' or hclk_lane_enable = '0')then
         hclk_state <= S_DISABLED;
       else
         if (hclk_phase = '0') then
@@ -476,11 +478,12 @@ begin
   P_pclk_interface : process (pclk) is
   begin
     if (rising_edge(pclk)) then
-      if (hclk_reset = '1') then
-        pclk_bit_locked <= '0';
-        pclk_embedded   <= '0';
+      if (hclk_reset = '1' or hclk_lane_enable = '0') then
         pclk_valid      <= '0';
+        pclk_embedded   <= '0';
+        pclk_bit_locked <= '0';
         pclk_state      <= S_DISABLED;
+        pclk_data       <= (others=>'0');
       else
         pclk_valid      <= hclk_valid;
         pclk_embedded   <= hclk_embedded;

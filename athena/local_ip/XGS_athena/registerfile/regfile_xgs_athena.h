@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : amarchan
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xD9044013
+* Register file CRC32 : 0x6AADD448
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -778,7 +778,7 @@ typedef union
       M_UINT32 SENSOR_POWERUP         : 1;  /* Bits(0:0), null */
       M_UINT32 SENSOR_RESETN          : 1;  /* Bits(1:1), SENSOR RESET Not */
       M_UINT32 RSVD0                  : 2;  /* Bits(3:2), Reserved */
-      M_UINT32 SENSOR_REG_UPTATE      : 1;  /* Bits(4:4), SENSOR REGister UPDATE */
+      M_UINT32 SENSOR_REG_UPDATE      : 1;  /* Bits(4:4), SENSOR REGister UPDATE */
       M_UINT32 RSVD1                  : 3;  /* Bits(7:5), Reserved */
       M_UINT32 SENSOR_COLOR           : 1;  /* Bits(8:8), SENSOR COLOR */
       M_UINT32 RSVD2                  : 7;  /* Bits(15:9), Reserved */
@@ -1348,7 +1348,7 @@ typedef union
 
    struct
    {
-      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), null */
+      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), Number of physical lane enabled */
       M_UINT32 RSVD0          : 5;   /* Bits(7:3), Reserved */
       M_UINT32 MUX_RATIO      : 3;   /* Bits(10:8), null */
       M_UINT32 RSVD1          : 5;   /* Bits(15:11), Reserved */

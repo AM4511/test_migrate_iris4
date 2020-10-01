@@ -283,7 +283,7 @@ Register("sensor_ctrl", 0x190, 4, "SENSOR ConTRoL");
 		Field("sensor_color", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR COLOR");
 			FieldValue("Monochrone sensor", 0);
 			FieldValue("Color sensor", 1);
-		Field("sensor_reg_uptate", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR REGister UPDATE");
+		Field("sensor_reg_update", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR REGister UPDATE");
 			FieldValue("Do not update registers", 0);
 			FieldValue("Update registers", 1);
 		Field("sensor_resetn", 1, 1, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "SENSOR RESET Not");
@@ -493,7 +493,8 @@ Register("idle_character", 0x40c, 4, "null");
 Register("phy", 0x410, 4, "null");
 		Field("pixel_per_lane", 25, 16, "rd|wr", 0x0, 0xAE, 0xffffffff, 0xffffffff, TEST, 0, 0, "Number of pixels per lanes");
 		Field("mux_ratio", 10, 8, "rd", 0x0, 0x4, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("nb_lanes", 2, 0, "rd|wr", 0x0, 0x6, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("nb_lanes", 2, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Number of physical lane enabled");
+			FieldValue("All lanes are disabled", 0);
 			FieldValue("4 lanes enabled", 4);
 			FieldValue("6 lanes enabled", 6);
 

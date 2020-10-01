@@ -17,6 +17,7 @@
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
 #include "Pcie.h"
+#include "Ares.h"
 #include "flashupdate.h"
 
 #include "I2C.h"
@@ -36,6 +37,7 @@ using namespace std;
 #define regfile_MAIO_ADD_OFFSET       0x00000000  //
 #define regfile_XGS_ATHENA_ADD_OFFSET 0x00000000  //
 #define regfile_I2C_ADD_OFFSET        0x00001000  // addresse reelle est 0x10000, mais on map la window2 PCIe sur 0x10000, avec un start a 0x1000
+#define regfile_ARES_ADD_OFFSET       0x00000000  //
 
 void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
@@ -54,7 +56,9 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 /* Main function. */
 int main(void)
 {
-	M_UINT32 DevID= 0x5054;
+	M_UINT32 Athena_DevID = 0x5054;
+	M_UINT32 Ares_DevID   = 0x5e10;
+
 	int sortie = 0;
 	char ch;
 	//int answer;
@@ -73,15 +77,16 @@ int main(void)
 	int FPGA_used = 0;
 	int NBiter = 1;
 	int PD_Head = 1;
+	int fpgaSel = 0;
 
 	// IRISx
-	int nbFPGA = FindMultiFpga(0x102b, DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
-	
+	int nbFPGA = FindMultiFpga(0x102b, Athena_DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
+
 
 	if (nbFPGA == 0)
 	{
 		printf("Impossible to find Athena!!!\n");
-		int i =_getch();
+		int i = _getch();
 		return(1);
 	}
 	else
@@ -89,7 +94,7 @@ int main(void)
 		{
 			FPGA_used = 1;
 		}
-		else { FPGA_used = 1;  } //prendre le premier par defaut
+		else { FPGA_used = 1; } //prendre le premier par defaut
 
 	M_UINT64 fpga_bar0_add = FPGAs[FPGA_used - 1].PhyRefReg_BAR0;
 	M_UINT64 fpga_bar1_add = FPGAs[FPGA_used - 1].PhyRefReg_BAR1;
@@ -97,10 +102,32 @@ int main(void)
 
 	MilLayerAlloc();
 
-    int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
+	int PCIe_config = MultiFpgaPCIeConfig(FPGA_used - 1, FPGAs);
 
-	printf("\n\nATHENA   %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
 
+
+	//------------------------------
+	// Init ARES FPGAs, Regfile
+	//------------------------------
+	Struck_FPGAs ARES_FPGAs[16];
+
+	// Ares (only one fpga)
+	int Ares_nbFPGA = FindMultiFpga(0x102b, Ares_DevID, ARES_FPGAs);     // Lets get the Bar0 address of the ARES FPGA
+	M_UINT64 Ares_fpga_bar0_add = ARES_FPGAs[0].PhyRefReg_BAR0;
+	if (Ares_nbFPGA == 0) Ares_fpga_bar0_add = fpga_bar1_add;
+
+	int Ares_PCIe_config = MultiFpgaPCIeConfig(0, ARES_FPGAs);
+
+
+	if (nbFPGA == 1)
+		printf("\nATHENA   %X.%X  BAR0=0x%08x,  BAR1=0x%08x \n", FPGAs[FPGA_used - 1].DevID, FPGAs[FPGA_used - 1].SubsystemID, FPGAs[FPGA_used - 1].PhyRefReg_BAR0, FPGAs[FPGA_used - 1].PhyRefReg_BAR1);
+	else
+		printf("ATHENA FPGA not detected\n");
+
+	if (Ares_nbFPGA == 1)
+		printf("ARES   %X.%X  BAR0=0x%08x\n", ARES_FPGAs[0].DevID, ARES_FPGAs[0].SubsystemID, ARES_FPGAs[0].PhyRefReg_BAR0);
+	else
+		printf("ARES FPGA not detected\n");
 
 	//------------------------------
 	// Init Global PCIe (Maio) REGISTER FILE
@@ -120,6 +147,11 @@ int main(void)
 	volatile unsigned char* I2C_regptr = getMilLayerRegisterPtr(2, fpga_bar0_add + regfile_I2C_ADD_OFFSET);       // Lets put a pointer to the FPGA I2C
 	volatile FPGA_REGFILE_I2C_TYPE& rI2Cptr = (*(volatile FPGA_REGFILE_I2C_TYPE*)(I2C_regptr));
 
+	//------------------------------
+	// Init ARES REGISTER FILE
+	//------------------------------
+	volatile unsigned char* Ares_regptr = getMilLayerRegisterPtr(3, Ares_fpga_bar0_add + regfile_ARES_ADD_OFFSET);       // Lets put a pointer to the ARES FPGA
+	volatile FPGA_REGFILE_ARES_TYPE& rAresptr = (*(volatile FPGA_REGFILE_ARES_TYPE*)(Ares_regptr));
 
 	//------------------------------
 	// Init class 
@@ -132,27 +164,39 @@ int main(void)
 	//------------------------------
 	// Init class XGS CONTROLLER
 	//------------------------------
-	CXGS_Ctrl *XGS_Ctrl;
+	CXGS_Ctrl* XGS_Ctrl;
 	XGS_Ctrl = new CXGS_Ctrl(rXGS_Athena_ptr, 16.000000, 15.625, rI2Cptr);    //32Mhz
 
 	//------------------------------
-    // Init class XGS DATAPATH
-    //------------------------------
+	// Init class XGS DATAPATH
+	//------------------------------
 	CXGS_Data* XGS_Data;
 	XGS_Data = new CXGS_Data(rXGS_Athena_ptr);
-	
+
 	//------------------------------
 	// Init class I2C CONTROLLER
 	//------------------------------
-	CI2C *I2C;
+	CI2C* I2C;
 	I2C = new CI2C(rI2Cptr);
 
-	
 	//------------------------------
-	// Init class Flash
+	// Init class ARES fpga
+	//------------------------------
+	CAres* Ares;
+	Ares = new CAres(rAresptr, Ares_nbFPGA);
+
+
+	//------------------------------
+	// Init class Flash ATHENA
 	//------------------------------
 	CFpgaEeprom* FpgaEeprom;
 	FpgaEeprom = new CFpgaEeprom(fpga_bar1_add, 0x3F0000); //32Mb flash (we have 64Mb installed)
+
+	//------------------------------
+	// Init class Flash ARES
+	//------------------------------
+	CFpgaEeprom* FpgaEepromAres;
+	FpgaEepromAres = new CFpgaEeprom(Ares_fpga_bar0_add, 0x3F0000); //32Mb flash (we have 64Mb installed)
 
 
 	//-----------------------------------------------------
@@ -187,11 +231,24 @@ int main(void)
 	printf("\n");
 	printf("XGS ATHENA Static_ID : 0x%X\n", rXGS_Athena_ptr.SYSTEM.TAG.f.VALUE);
 	printf("XGS I2C Static_ID    : 0x%X\n", rI2Cptr.I2C.I2C_ID.f.ID);
+	if(Ares_nbFPGA==1) 
+	  printf("ARES Static_ID       : 0x%X\n", rAresptr.device_specific.fpga_id.f.fpga_id);
+	
 	printf("\n");
 
 
 	//Print build ID
-	printf("\n\nFPGA Build is ID is %d (0x%X), ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+	printf("\n\nAthena FPGA Build is ID is %d (0x%X), builded on ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+	//Epoch to human understandable time
+	time_t rawtime = Pcie->rPcie_ptr.fpga.build_id.f.value;
+	struct tm  ts;
+	char       buf[80];
+	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+	ts = *localtime(&rawtime);
+	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+	printf("%s\n", buf);
+
+	if (Ares_nbFPGA == 1) printf("Ares   FPGA Build is ID is 0x%X ", rAresptr.device_specific.buildid.u32);
 
 	// Generate a ERROR if FPGA is lower than a particular buildID
 	M_UINT32 MinBuildID = (M_UINT32) bitstream_BuildID_min;
@@ -215,14 +272,6 @@ int main(void)
 	}
 
 
-	//Epoch to human understandable time
-	time_t rawtime = Pcie->rPcie_ptr.fpga.build_id.f.value;
-	struct tm  ts;
-	char       buf[80];
-	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
-	ts = *localtime(&rawtime);
-	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
-	printf("%s\n", buf);
 
 
 
@@ -231,7 +280,8 @@ int main(void)
 
 	// test Arbitre
 	Pcie->ArbiterTest();
-
+	if (Ares_nbFPGA == 1)
+		Ares->ArbiterTest();
 
 
 
@@ -364,22 +414,54 @@ int main(void)
 
 
 			case 's':
-				Pcie->Read_QSPI_ID();
-				for(int i=0; i<16; i++)
-				  printf ("0x%08X 0x%08X\n", i*4, Pcie->Read_QSPI_DW(i*4) );
+
+				printf("\nQuel FPGA vous voulez utiliser? (0=Athena, 1=Ares) : ");
+				scanf_s("%d", &fpgaSel);
+				if (fpgaSel == 0) {
+					Pcie->Read_QSPI_ID();
+					for (int i = 0; i < 16; i++)
+						printf("0x%08X 0x%08X\n", i * 4, Pcie->Read_QSPI_DW(i * 4));
+				}
+				else
+				{
+					Ares->Read_QSPI_ID();
+					for (int i = 0; i < 16; i++)
+						printf("0x%08X 0x%08X\n", i * 4, Ares->Read_QSPI_DW(i * 4));
+				}
 				break;
 
 			case 'F':
-				printf("\n----------------------------");
-				printf("\n    FPGA Firmware update    ");
-				printf("\n----------------------------");
-				Pcie->Read_QSPI_ID();
-				// Get the File name and location
-				string cin_imagefilename;
-				std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
-				cin >> cin_imagefilename;
-				FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
-				printf("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new fpga firmware\n\n");
+				//printf("\nQuel FPGA vous voulez programmer? (0=Athena, 1=Ares) : ");
+				//scanf_s("%d", &fpgaSel);
+				//if (fpgaSel == 0) {
+					printf("\n-----------------------------------");
+					printf("\n    ATHENA FPGA Firmware update    ");
+					printf("\n-----------------------------------");
+					Pcie->Read_QSPI_ID();
+					// Get the File name and location
+					string cin_imagefilename;
+					std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
+					cin >> cin_imagefilename;
+					FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
+					printf("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Athena fpga firmware\n\n");
+				//} else {
+				//	if (Ares_nbFPGA == 1) {
+				//		printf("\n---------------------------------");
+				//		printf("\n    ARES FPGA Firmware update    ");
+				//		printf("\n---------------------------------");
+				//		Ares->Read_QSPI_ID();
+				//		// Get the File name and location
+				//		string cin_imagefilename;
+				//		std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\ares_1599678296.firmware) : ";
+				//		cin >> cin_imagefilename;
+				//		FpgaEepromAres->FPGAROMApiFlashFromFile(cin_imagefilename);
+				//		printf("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Ares fpga firmware\n\n");
+				//	}
+				//	else {
+				//		printf("\nARES fpga non detected, CODE-12!!!\n\n");
+				//	}
+				//
+				//}
 				break;
 
 
@@ -395,9 +477,11 @@ int main(void)
 	delete XGS_Data;
 	delete I2C;
 	delete Pcie;
+	delete Ares;
+	delete FpgaEepromAres;
 	IrisMilFree();
 
-
+	
 
 	exit(0);
 

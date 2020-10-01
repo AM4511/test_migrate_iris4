@@ -30,17 +30,20 @@ entity lane_decoder is
     ---------------------------------------------------------------------------
     -- hispi_clk clock domain
     ---------------------------------------------------------------------------
-    hclk           : in std_logic;
-    hclk_reset     : in std_logic;
-    hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
-    hclk_tap_cntr  : in unsigned(4 downto 0);
+    hclk             : in std_logic;
+    hclk_reset       : in std_logic;
+    hclk_lane_enable : in std_logic;
+    hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Lane calibration
     ---------------------------------------------------------------------------
     pclk                   : in  std_logic;
+    pclk_reset             : in  std_logic;
     pclk_cal_en            : in  std_logic;
     pclk_cal_start_monitor : in  std_logic;
+    pclk_tap_cntr          : in  std_logic_vector(4 downto 0);
+    pclk_valid             : out std_logic;
     pclk_cal_monitor_done  : out std_logic;
     pclk_cal_busy          : out std_logic;
     pclk_cal_tap_value     : out std_logic_vector(4 downto 0);
@@ -64,13 +67,7 @@ entity lane_decoder is
     sclk_fifo_empty           : out std_logic;
     sclk_fifo_read_data_valid : out std_logic;
     sclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
-
-    -- Flags
-    --sclk_embeded_data : out std_logic;
-    sclk_sof_flag : out std_logic;
-    sclk_eof_flag : out std_logic;
-    sclk_sol_flag : out std_logic;
-    sclk_eol_flag : out std_logic
+    sclk_fifo_read_sync       : out std_logic_vector(3 downto 0)
     );
 end entity lane_decoder;
 
@@ -87,9 +84,10 @@ architecture rtl of lane_decoder is
       ---------------------------------------------------------------------------
       -- HiSPi clock domain
       ---------------------------------------------------------------------------
-      hclk           : in std_logic;
-      hclk_reset     : in std_logic;
-      hclk_data_lane : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+      hclk             : in std_logic;
+      hclk_reset       : in std_logic;
+      hclk_lane_enable : in std_logic;
+      hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
 
       -------------------------------------------------------------------------
       -- Register file interface
@@ -101,6 +99,7 @@ architecture rtl of lane_decoder is
       -- Pixel clock domain
       ---------------------------------------------------------------------------
       pclk            : in  std_logic;
+      pclk_cal_busy   : in  std_logic;
       pclk_bit_locked : out std_logic;
       pclk_valid      : out std_logic;
       pclk_embedded   : out std_logic;
@@ -115,14 +114,12 @@ architecture rtl of lane_decoder is
       PIXEL_SIZE : integer := 12
       );
     port (
-      hclk_tap_cntr          : in  unsigned(4 downto 0);
-      ---------------------------------------------------------------------------
-      -- Pixel clock domain (pclk)
-      ---------------------------------------------------------------------------
       pclk                   : in  std_logic;
       pclk_reset             : in  std_logic;
+      pclk_lane_enable       : in  std_logic;
       pclk_pixel             : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
       pclk_idle_character    : in  std_logic_vector(PIXEL_SIZE-1 downto 0);
+      pclk_tap_cntr          : in  std_logic_vector(4 downto 0);
       pclk_cal_en            : in  std_logic;
       pclk_cal_start_monitor : in  std_logic;
       pclk_cal_monitor_done  : out std_logic;
@@ -196,31 +193,26 @@ architecture rtl of lane_decoder is
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
   constant FIFO_ADDRESS_WIDTH        : integer := 10;  -- jmansill 1024 locationsde 32bits : 32K : 1 block memoire 36Kbits
-  constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH;
+  constant FIFO_DATA_WIDTH           : integer := LANE_DATA_WIDTH+4;  -- Sync and data
 
-  signal pclk_reset              : std_logic;
-  signal pclk_reset_Meta1        : std_logic;
-  signal pclk_reset_Meta2        : std_logic;
   signal pclk_data               : std_logic_vector(PIXEL_SIZE-1 downto 0);
   signal pclk_bit_locked         : std_logic;
   signal pclk_cal_busy_int       : std_logic;
   signal pclk_cal_error          : std_logic;
   signal pclk_hispi_phy_en       : std_logic;
   signal pclk_hispi_data_path_en : std_logic;
-  signal pclk_valid              : std_logic;
   signal pclk_embedded           : std_logic;
   signal pclk_sof_pending        : std_logic;
   signal pclk_sof_flag           : std_logic;
-  signal pclk_eof_flag           : std_logic;
-  signal pclk_sol_flag           : std_logic;
-  signal pclk_eol_flag           : std_logic;
   signal pclk_fifo_overrun       : std_logic;
   signal pclk_fifo_wen           : std_logic;
+  signal pclk_fifo_wdata         : std_logic_vector (FIFO_DATA_WIDTH-1 downto 0);
   signal pclk_fifo_full          : std_logic;
   signal pclk_packer_mux         : std_logic_vector (LANE_DATA_WIDTH-1 downto 0);
   signal pclk_state              : FSM_STATE_TYPE                                := S_DISABLED;
   signal pclk_dataCntr           : unsigned(2 downto 0);  -- Modulo 8 counter
   signal pclk_packer_valid       : std_logic;
+  signal pclk_sync               : std_logic_vector (3 downto 0);
   signal pclk_sync_error         : std_logic;
   signal pclk_packer_0_valid     : std_logic;
   signal pclk_packer_1_valid     : std_logic;
@@ -237,8 +229,10 @@ architecture rtl of lane_decoder is
   signal pclk_computed_crc1      : std_logic_vector(11 downto 0);
   signal pclk_computed_crc2      : std_logic_vector(11 downto 0);
 
-  signal sclk_fifo_empty_int : std_logic;
-  signal sclk_fifo_underrun  : std_logic;
+  signal sclk_fifo_empty_int           : std_logic;
+  signal sclk_fifo_underrun            : std_logic;
+  signal sclk_fifo_rdata               : std_logic_vector (FIFO_DATA_WIDTH-1 downto 0);
+  signal sclk_fifo_read_data_valid_int : std_logic;
 
   signal rclk_enable_hispi    : std_logic;
   signal rclk_enable_datapath : std_logic;
@@ -272,11 +266,8 @@ architecture rtl of lane_decoder is
   attribute mark_debug of rclk_bit_locked      : signal is "true";
   attribute mark_debug of rclk_bit_locked_fall : signal is "true";
 
-
-  attribute mark_debug of pclk_reset              : signal is "true";
-  attribute mark_debug of pclk_reset_Meta1        : signal is "true";
-  attribute mark_debug of pclk_reset_Meta2        : signal is "true";
   attribute mark_debug of pclk_data               : signal is "true";
+  attribute mark_debug of pclk_sync               : signal is "true";
   attribute mark_debug of pclk_bit_locked         : signal is "true";
   attribute mark_debug of pclk_cal_busy_int       : signal is "true";
   attribute mark_debug of pclk_cal_error          : signal is "true";
@@ -284,9 +275,6 @@ architecture rtl of lane_decoder is
   attribute mark_debug of pclk_hispi_data_path_en : signal is "true";
   attribute mark_debug of pclk_embedded           : signal is "true";
   attribute mark_debug of pclk_sof_flag           : signal is "true";
-  attribute mark_debug of pclk_eof_flag           : signal is "true";
-  attribute mark_debug of pclk_sol_flag           : signal is "true";
-  attribute mark_debug of pclk_eol_flag           : signal is "true";
   attribute mark_debug of pclk_fifo_overrun       : signal is "true";
   attribute mark_debug of pclk_fifo_wen           : signal is "true";
   attribute mark_debug of pclk_fifo_full          : signal is "true";
@@ -315,33 +303,11 @@ architecture rtl of lane_decoder is
   attribute mark_debug of sclk_fifo_empty           : signal is "true";
   attribute mark_debug of sclk_fifo_read_data_valid : signal is "true";
   attribute mark_debug of sclk_fifo_read_data       : signal is "true";
-  attribute mark_debug of sclk_sof_flag             : signal is "true";
-  attribute mark_debug of sclk_eof_flag             : signal is "true";
-  attribute mark_debug of sclk_sol_flag             : signal is "true";
-  attribute mark_debug of sclk_eol_flag             : signal is "true";
+
 
 begin
 
   async_idle_character <= regfile.HISPI.IDLE_CHARACTER.VALUE;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_pclk_reset
-  -- Description : Resynchronize hclk_reset on the pixel clock
-  -----------------------------------------------------------------------------
-  P_pclk_reset : process (hclk_reset, pclk) is
-  begin
-    if (hclk_reset = '1') then
-      pclk_reset_Meta1 <= '1';
-      pclk_reset_Meta2 <= '1';
-      pclk_reset       <= '1';
-
-    elsif (rising_edge(pclk)) then
-      pclk_reset_Meta1 <= '0';
-      pclk_reset_Meta2 <= pclk_reset_Meta1;
-      pclk_reset       <= pclk_reset_Meta2;
-    end if;
-  end process;
 
 
   -----------------------------------------------------------------------------
@@ -354,17 +320,19 @@ begin
       PIXEL_SIZE       => PIXEL_SIZE
       )
     port map(
-      hclk            => hclk,
-      hclk_reset      => hclk_reset,
-      hclk_data_lane  => hclk_data_lane,
-      hclk_idle_char  => async_idle_character,  -- Falsepath
-      hclk_crc_enable => pclk_crc_enable,       -- Falsepath
-      pclk            => pclk,
-      pclk_bit_locked => pclk_bit_locked,
-      pclk_valid      => pclk_valid,
-      pclk_embedded   => pclk_embedded,
-      pclk_state      => pclk_state,
-      pclk_data       => pclk_data
+      hclk             => hclk,
+      hclk_reset       => hclk_reset,
+      hclk_lane_enable => hclk_lane_enable,
+      hclk_data_lane   => hclk_data_lane,
+      hclk_idle_char   => async_idle_character,  -- Falsepath
+      hclk_crc_enable  => pclk_crc_enable,       -- Falsepath
+      pclk             => pclk,
+      pclk_cal_busy    => pclk_cal_busy_int,
+      pclk_bit_locked  => pclk_bit_locked,
+      pclk_valid       => pclk_valid,
+      pclk_embedded    => pclk_embedded,
+      pclk_state       => pclk_state,
+      pclk_data        => pclk_data
       );
 
 
@@ -411,11 +379,12 @@ begin
       PIXEL_SIZE => PIXEL_SIZE
       )
     port map(
-      hclk_tap_cntr          => hclk_tap_cntr,
       pclk                   => pclk,
       pclk_reset             => pclk_reset,
+      pclk_lane_enable       => hclk_lane_enable,      --Falsepath
       pclk_pixel             => pclk_data,
       pclk_idle_character    => async_idle_character,  -- Falsepath
+      pclk_tap_cntr          => pclk_tap_cntr,
       pclk_cal_en            => pclk_cal_en,
       pclk_cal_start_monitor => pclk_cal_start_monitor,
       pclk_cal_monitor_done  => pclk_cal_monitor_done,
@@ -644,16 +613,51 @@ begin
   pclk_sof_flag <= '1' when (pclk_state = S_SOL and pclk_sof_pending = '1') else
                    '0';
 
-  pclk_eof_flag <= '1' when (pclk_state = S_EOF) else '0';
-  pclk_sol_flag <= '1' when (pclk_state = S_SOL) else '0';
-  pclk_eol_flag <= '1' when (pclk_state = S_EOL) else '0';
-
 
   pclk_fifo_wen <= '1' when (pclk_state = S_AIL and pclk_packer_valid = '1') else
+                   '1' when (pclk_sync(1) = '1' or pclk_sync(3) = '1') else
                    '0';
+
 
   pclk_sync_error <= '1' when (pclk_state = S_ERROR) else
                      '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_sync
+  -- Description : Generates the sync marker aligned with pclk_fifo_wdata
+  -----------------------------------------------------------------------------
+  P_pclk_sync : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1')then
+        pclk_sync <= (others => '0');
+      else
+        if (pclk_embedded = '0') then
+          case pclk_state is
+            when S_SOF =>
+              pclk_sync(0) <= '1';
+            when S_SOL =>
+              if (pclk_sof_pending = '1') then
+                -- Start of frame delayed by embedded data
+                pclk_sync(0) <= '1';
+              else
+                -- Start of line
+                pclk_sync(2) <= '1';
+              end if;
+            when S_EOL =>
+              pclk_sync(3) <= '1';
+            when S_EOF =>
+              pclk_sync(1) <= '1';
+            when others =>
+              if (pclk_fifo_wen = '1') then
+                pclk_sync <= (others => '0');
+              end if;
+          end case;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -676,6 +680,7 @@ begin
   end process;
 
 
+  pclk_fifo_wdata <= (pclk_sync & pclk_packer_mux);
 
   -----------------------------------------------------------------------------
   -- Module      : xoutput_fifo
@@ -692,78 +697,18 @@ begin
       aClr   => pclk_reset,
       wClk   => pclk,
       wEn    => pclk_fifo_wen,
-      wData  => pclk_packer_mux,
+      wData  => pclk_fifo_wdata,
       wFull  => pclk_fifo_full,
       rClk   => sclk,
       rEn    => sclk_fifo_read_en,
-      rData  => sclk_fifo_read_data,
+      rData  => sclk_fifo_rdata,
       rEmpty => sclk_fifo_empty_int
       );
 
+  sclk_fifo_read_data <= sclk_fifo_rdata(sclk_fifo_read_data'range);
+  sclk_fifo_read_sync <= sclk_fifo_rdata(FIFO_DATA_WIDTH-1 downto FIFO_DATA_WIDTH-4) when (sclk_fifo_read_data_valid_int = '1') else
+                         "0000";
 
-  -----------------------------------------------------------------------------
-  -- Resync sclk_sof_flag
-  -----------------------------------------------------------------------------
-  M_sclk_sof_flag : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_sof_flag,
-      bclk  => sclk,
-      bclr  => sclk_reset,
-      bDout => sclk_sof_flag,
-      bRise => open,
-      bFall => open
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync sclk_eof_flag
-  -----------------------------------------------------------------------------
-  M_sclk_eof_flag : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_eof_flag,
-      bclk  => sclk,
-      bclr  => sclk_reset,
-      bDout => sclk_eof_flag,
-      bRise => open,
-      bFall => open
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync sclk_sol_flag
-  -----------------------------------------------------------------------------
-  M_sclk_sol_flag : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_sol_flag,
-      bclk  => sclk,
-      bclr  => sclk_reset,
-      bDout => sclk_sol_flag,
-      bRise => open,
-      bFall => open
-      );
-
-  -----------------------------------------------------------------------------
-  -- Resync sclk_eof_flag
-  -----------------------------------------------------------------------------
-  M_sclk_eol_flag : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_eol_flag,
-      bclk  => sclk,
-      bclr  => sclk_reset,
-      bDout => sclk_eol_flag,
-      bRise => open,
-      bFall => open
-      );
 
 
   -----------------------------------------------------------------------------
@@ -811,17 +756,19 @@ begin
   -- Process     : P_sclk_fifo_read_data_valid
   -- Description : Indicates presence of read data on the FiFo read data bus.
   -----------------------------------------------------------------------------
-  P_sclk_fifo_read_data_valid : process (sclk) is
+  P_sclk_fifo_read_data_valid_int : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        sclk_fifo_read_data_valid <= '0';
+        sclk_fifo_read_data_valid_int <= '0';
       else
-        sclk_fifo_read_data_valid <= sclk_fifo_read_en;
+        sclk_fifo_read_data_valid_int <= sclk_fifo_read_en;
       end if;
     end if;
   end process;
 
+
+  sclk_fifo_read_data_valid <= sclk_fifo_read_data_valid_int;
 
 
   -----------------------------------------------------------------------------
@@ -829,6 +776,7 @@ begin
   -----------------------------------------------------------------------------
   sclk_fifo_empty <= sclk_fifo_empty_int;
 
+  
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------

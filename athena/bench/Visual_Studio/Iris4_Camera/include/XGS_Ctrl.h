@@ -64,6 +64,7 @@ struct GrabParamStruct
 struct SensorParamStruct
 {
 	M_UINT32 SENSOR_TYPE;
+	M_UINT32 IS_COLOR;
 	M_UINT32 XGS_HiSPI_Ch;
 	M_UINT32 XGS_HiSPI_Ch_used;
 	M_UINT32 XGS_HiSPI_mux;
@@ -128,7 +129,7 @@ public:
 
 	// SPI interface 
 	void WriteSPI(M_UINT32 address, M_UINT32 data);
-	void WriteSPI_BURST(M_UINT32 tableau[500]);
+	void WriteSPI_BURST(const M_UINT32 table[], int NbElements);
 	void WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write,  M_UINT32 data);
 	M_UINT32 ReadSPI(M_UINT32 address);
 	void PollRegSPI(M_UINT32 address, M_UINT32 maskN, M_UINT32 Data2Poll, M_UINT32 Delay, M_UINT32 TimeOut);

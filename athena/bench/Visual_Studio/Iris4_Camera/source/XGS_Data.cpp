@@ -132,7 +132,7 @@ void CXGS_Data::HiSpiClr(void)
 void CXGS_Data::HiSpiCalibrate(void)
 {
 	int count = 0;
-	
+
 	//clear old flags
 	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
@@ -141,47 +141,51 @@ void CXGS_Data::HiSpiCalibrate(void)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
 
-	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32  = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32  = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32  = 0xffffffff; //all flags are R or RWc2
-
-	printf("Starting HiSPI calibration...  ");
-	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 1;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 1;
-	rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 0;
+	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
 	
-	do 
-	{
-		Sleep(1);
-		count++;
-		if (count == 100) break;
+    //At least, is sensor powerOn an unreset ?
+	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
+		printf("Starting HiSPI calibration...  ");
+		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
+		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
 
-	} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
+		do
+		{
+			Sleep(1);
+			count++;
+			if (count == 100) break;
+
+		} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
 
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR==1 ||  rXGSptr.HISPI.STATUS.f.CRC_ERROR==1)
-	{
-		printf("Calibration ERROR\n");
-		printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
-		printf("  IDELAYCTRL_STATUS     : 0x%X\n", rXGSptr.HISPI.IDELAYCTRL_STATUS.u32);
-		printf("  LANE_DECODER_STATUS_0 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32);
-		printf("  LANE_DECODER_STATUS_1 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32);
-		printf("  LANE_DECODER_STATUS_2 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32);
-		printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
-		printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
-		printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
-		printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
-		printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
-		printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
+		{
+			printf("Calibration ERROR\n");
+			printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
+			printf("  IDELAYCTRL_STATUS     : 0x%X\n", rXGSptr.HISPI.IDELAYCTRL_STATUS.u32);
+			printf("  LANE_DECODER_STATUS_0 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32);
+			printf("  LANE_DECODER_STATUS_1 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32);
+			printf("  LANE_DECODER_STATUS_2 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32);
+			printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
+			printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
+			printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
+			printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
+			printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
+			printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
 
-	}
+		}
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
-		printf("Calibration OK ");
-		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
-		rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
-	}
+		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
+			printf("Calibration OK ");
+			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
+			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		}
+	} else
+		printf("Sensor not poweredUP!!! \n");
 }
 
 
