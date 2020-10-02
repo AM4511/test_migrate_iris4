@@ -250,7 +250,8 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.AXI_ID_WIDTH {2} \
    CONFIG.NUMB_IRQ {1} \
-   CONFIG.PCIE_SUBSYS_VENDOR_ID {5555} \
+   CONFIG.PCIE_DEVICE_ID {43981} \
+   CONFIG.PCIE_SUBSYS_VENDOR_ID {4139} \
  ] $pcie2AxiMaster_0
 
   # Create instance: reset_100MHz, and set properties
@@ -321,7 +322,7 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT4_DRIVES {BUFG} \
    CONFIG.CLKOUT4_JITTER {161.087} \
    CONFIG.CLKOUT4_PHASE_ERROR {144.334} \
-   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {200.000} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {100.000} \
    CONFIG.CLKOUT4_REQUESTED_PHASE {0.000} \
    CONFIG.CLKOUT4_USED {false} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
@@ -344,7 +345,7 @@ proc create_root_design { parentCell } {
    CONFIG.CLK_OUT1_PORT {clk100MHz} \
    CONFIG.CLK_OUT2_PORT {clk50MHz} \
    CONFIG.CLK_OUT3_PORT {clk50MHz_io} \
-   CONFIG.CLK_OUT4_PORT {clk200MHz} \
+   CONFIG.CLK_OUT4_PORT {clk_out4} \
    CONFIG.CLK_OUT5_PORT {clk_out5} \
    CONFIG.CLK_OUT6_PORT {clk_out6} \
    CONFIG.CLK_OUT7_PORT {clk_out7} \
@@ -362,7 +363,7 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT2_PHASE {-38.077} \
    CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
-   CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.5} \
+   CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.500} \
    CONFIG.MMCM_CLKOUT3_PHASE {0.000} \
    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
    CONFIG.MMCM_CLKOUT4_DUTY_CYCLE {0.500} \
