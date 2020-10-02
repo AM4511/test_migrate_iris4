@@ -4,6 +4,8 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/test/create_ares_hr133MHz.tcl
 # 
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/test/system_pcie_test_133MHz.tcl
+# write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -56,6 +58,10 @@ set REPORT_FILE        ${SYSTEM_DIR}/report_implementation.tcl
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
+
+
+
+# Save the board design
 
 
 ###################################################################################
