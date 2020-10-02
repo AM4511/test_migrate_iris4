@@ -46,11 +46,11 @@ set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
 set XDC_DIR            ${BACKEND_DIR}
 
-set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
+set ARCHIVE_SCRIPT     ${SYSTEM_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${SYSTEM_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${SYSTEM_DIR}/add_files_pcie_hr133MHz.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_test_133MHz.tcl
-set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+set REPORT_FILE        ${SYSTEM_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
