@@ -62,10 +62,11 @@ set JOB_COUNT  4
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
 set FPGA_BUILD_DATE [clock seconds]
+set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 
-puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
-set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
+puts "FPGA_BUILD_DATE =  $HEX_BUILD_DATE (${BUILD_TIME})"
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
@@ -126,7 +127,7 @@ source ${FILESET_SCRIPT}
 ################################################
 # Top level Generics
 ################################################
-set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
+set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
 ################################################
