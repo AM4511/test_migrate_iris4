@@ -125,12 +125,12 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 xilinx.com:ip:axi_ethernetlite:3.0\
 xilinx.com:ip:axi_uartlite:2.0\
-xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:mii_to_rmii:2.0\
 matrox.com:Imaging:pcie2AxiMaster:2.0\
 xilinx.com:ip:proc_sys_reset:5.0\
 matrox.com:Imaging:rpc2_ctrl_controller:1.0\
 xilinx.com:ip:clk_wiz:6.0\
+xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -212,10 +212,10 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.FREQ_HZ {50000000} \
  ] $ncsi_clk
-  set pcie_refclk [ create_bd_port -dir I -type clk pcie_refclk ]
+  set pcie_sys_clk [ create_bd_port -dir I -type clk pcie_sys_clk ]
   set_property -dict [ list \
-   CONFIG.FREQ_HZ {100000000} \
- ] $pcie_refclk
+   CONFIG.ASSOCIATED_RESET {reset_n:reset_n} \
+ ] $pcie_sys_clk
   set refclk_50MHz [ create_bd_port -dir I -type clk refclk_50MHz ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {} \
@@ -242,12 +242,6 @@ proc create_root_design { parentCell } {
    CONFIG.C_BAUDRATE {115200} \
  ] $axi_uartlite_0
 
-  # Create instance: irq_constant, and set properties
-  set irq_constant [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 irq_constant ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
- ] $irq_constant
-
   # Create instance: mii_to_rmii_0, and set properties
   set mii_to_rmii_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mii_to_rmii:2.0 mii_to_rmii_0 ]
 
@@ -256,8 +250,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.AXI_ID_WIDTH {2} \
    CONFIG.NUMB_IRQ {1} \
-   CONFIG.PCIE_DEVICE_ID {43981} \
-   CONFIG.PCIE_SUBSYS_VENDOR_ID {4139} \
+   CONFIG.PCIE_SUBSYS_VENDOR_ID {5555} \
  ] $pcie2AxiMaster_0
 
   # Create instance: reset_100MHz, and set properties
@@ -273,22 +266,22 @@ proc create_root_design { parentCell } {
   # Create instance: rpc_pll, and set properties
   set rpc_pll [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 rpc_pll ]
   set_property -dict [ list \
-   CONFIG.CLKIN1_JITTER_PS {100.0} \
-   CONFIG.CLKOUT1_JITTER {136.421} \
-   CONFIG.CLKOUT1_PHASE_ERROR {114.212} \
+   CONFIG.CLKIN1_JITTER_PS {200.0} \
+   CONFIG.CLKOUT1_JITTER {174.430} \
+   CONFIG.CLKOUT1_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {133.333} \
-   CONFIG.CLKOUT2_JITTER {136.421} \
-   CONFIG.CLKOUT2_PHASE_ERROR {114.212} \
+   CONFIG.CLKOUT2_JITTER {174.430} \
+   CONFIG.CLKOUT2_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {133.333} \
    CONFIG.CLKOUT2_REQUESTED_PHASE {90.000} \
    CONFIG.CLKOUT2_USED {true} \
-   CONFIG.CLKOUT3_JITTER {126.455} \
-   CONFIG.CLKOUT3_PHASE_ERROR {114.212} \
-   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200.000} \
-   CONFIG.CLKOUT3_USED {true} \
+   CONFIG.CLKOUT3_JITTER {161.941} \
+   CONFIG.CLKOUT3_PHASE_ERROR {218.145} \
+   CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {100.000} \
+   CONFIG.CLKOUT3_USED {false} \
    CONFIG.CLK_OUT1_PORT {rpc_clk} \
    CONFIG.CLK_OUT2_PORT {rpc_clk90} \
-   CONFIG.CLK_OUT3_PORT {clk200MHz} \
+   CONFIG.CLK_OUT3_PORT {clk_out3} \
    CONFIG.ENABLE_CLOCK_MONITOR {false} \
    CONFIG.MMCM_CLKFBOUT_MULT_F {16.000} \
    CONFIG.MMCM_CLKIN1_PERIOD {20.000} \
@@ -296,11 +289,11 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {6.000} \
    CONFIG.MMCM_CLKOUT1_DIVIDE {6} \
    CONFIG.MMCM_CLKOUT1_PHASE {90.000} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {4} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {1} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
-   CONFIG.NUM_OUT_CLKS {3} \
+   CONFIG.NUM_OUT_CLKS {2} \
    CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.PRIM_SOURCE {Global_buffer} \
+   CONFIG.PRIM_IN_FREQ {50.000} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.USE_LOCKED {false} \
@@ -309,28 +302,28 @@ proc create_root_design { parentCell } {
   # Create instance: system_pll, and set properties
   set system_pll [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 system_pll ]
   set_property -dict [ list \
-   CONFIG.CLKIN1_JITTER_PS {100.0} \
+   CONFIG.CLKIN1_JITTER_PS {200.0} \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {145.553} \
-   CONFIG.CLKOUT1_PHASE_ERROR {124.502} \
+   CONFIG.CLKOUT1_JITTER {186.330} \
+   CONFIG.CLKOUT1_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {167.927} \
-   CONFIG.CLKOUT2_PHASE_ERROR {124.502} \
+   CONFIG.CLKOUT2_JITTER {222.587} \
+   CONFIG.CLKOUT2_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {50} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {BUFG} \
-   CONFIG.CLKOUT3_JITTER {167.927} \
-   CONFIG.CLKOUT3_PHASE_ERROR {124.502} \
+   CONFIG.CLKOUT3_JITTER {222.587} \
+   CONFIG.CLKOUT3_PHASE_ERROR {144.334} \
    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {50} \
    CONFIG.CLKOUT3_REQUESTED_PHASE {-40} \
    CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLKOUT4_DRIVES {BUFG} \
    CONFIG.CLKOUT4_JITTER {161.087} \
    CONFIG.CLKOUT4_PHASE_ERROR {144.334} \
-   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {100.000} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {200.000} \
    CONFIG.CLKOUT4_REQUESTED_PHASE {0.000} \
-   CONFIG.CLKOUT4_USED {false} \
+   CONFIG.CLKOUT4_USED {true} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
    CONFIG.CLKOUT5_JITTER {137.096} \
    CONFIG.CLKOUT5_PHASE_ERROR {116.405} \
@@ -351,25 +344,25 @@ proc create_root_design { parentCell } {
    CONFIG.CLK_OUT1_PORT {clk100MHz} \
    CONFIG.CLK_OUT2_PORT {clk50MHz} \
    CONFIG.CLK_OUT3_PORT {clk50MHz_io} \
-   CONFIG.CLK_OUT4_PORT {clk_out4} \
+   CONFIG.CLK_OUT4_PORT {clk200MHz} \
    CONFIG.CLK_OUT5_PORT {clk_out5} \
    CONFIG.CLK_OUT6_PORT {clk_out6} \
    CONFIG.CLK_OUT7_PORT {clk_out7} \
    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
    CONFIG.JITTER_SEL {No_Jitter} \
    CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {13.000} \
+   CONFIG.MMCM_CLKFBOUT_MULT_F {16.000} \
    CONFIG.MMCM_CLKIN1_PERIOD {20.000} \
    CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {6.500} \
+   CONFIG.MMCM_CLKOUT0_DIVIDE_F {8.000} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {13} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {16} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT2_DIVIDE {13} \
+   CONFIG.MMCM_CLKOUT2_DIVIDE {16} \
    CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT2_PHASE {-38.077} \
-   CONFIG.MMCM_CLKOUT3_DIVIDE {1} \
-   CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.500} \
+   CONFIG.MMCM_CLKOUT2_PHASE {-39.375} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {4} \
+   CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT3_PHASE {0.000} \
    CONFIG.MMCM_CLKOUT4_DIVIDE {1} \
    CONFIG.MMCM_CLKOUT4_DUTY_CYCLE {0.500} \
@@ -381,15 +374,22 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKOUT6_PHASE {0.000} \
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
-   CONFIG.NUM_OUT_CLKS {3} \
+   CONFIG.NUM_OUT_CLKS {4} \
    CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.PRIM_SOURCE {Global_buffer} \
+   CONFIG.PRIM_IN_FREQ {50.000} \
+   CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.RESET_PORT {resetn} \
    CONFIG.RESET_TYPE {ACTIVE_LOW} \
    CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.USE_MIN_POWER {true} \
    CONFIG.USE_PHASE_ALIGNMENT {true} \
  ] $system_pll
+
+  # Create instance: xlconstant_2, and set properties
+  set xlconstant_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_2 ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {0} \
+ ] $xlconstant_2
 
   # Create interface connections
   connect_bd_intf_net -intf_net FPGA_Info_0_1 [get_bd_intf_ports FPGA_Info] [get_bd_intf_pins pcie2AxiMaster_0/FPGA_Info]
@@ -411,16 +411,16 @@ proc create_root_design { parentCell } {
   connect_bd_net -net microblaze_0_Clk [get_bd_pins axi_ethernetlite_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/M04_ACLK] [get_bd_pins axi_uartlite_0/s_axi_aclk] [get_bd_pins reset_100MHz/slowest_sync_clk] [get_bd_pins rpc2_ctrl_controller_0/AXIm_ACLK] [get_bd_pins rpc2_ctrl_controller_0/AXIr_ACLK] [get_bd_pins system_pll/clk100MHz]
   connect_bd_net -net pcie2AxiMaster_0_axim_clk [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins pcie2AxiMaster_0/axim_clk]
   connect_bd_net -net pcie2AxiMaster_0_axim_rst_n [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins pcie2AxiMaster_0/axim_rst_n]
+  connect_bd_net -net pcie_sys_clk_0_1 [get_bd_ports pcie_sys_clk] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
   connect_bd_net -net refclk [get_bd_ports refclk_50MHz] [get_bd_pins rpc_pll/clk_in1] [get_bd_pins system_pll/clk_in1]
   connect_bd_net -net reset_100MHz_interconnect_aresetn [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins reset_100MHz/interconnect_aresetn]
-  connect_bd_net -net rpc_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins rpc_pll/clk200MHz]
   connect_bd_net -net rpc_pll_rpc_clk [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz] [get_bd_pins rpc_pll/rpc_clk]
   connect_bd_net -net rpc_pll_rpc_clk90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins rpc_pll/rpc_clk90]
   connect_bd_net -net rst_ddr2_mig_0_100M_peripheral_aresetn [get_bd_pins axi_ethernetlite_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins mii_to_rmii_0/rst_n] [get_bd_pins reset_100MHz/peripheral_aresetn] [get_bd_pins rpc2_ctrl_controller_0/AXIm_ARESETN] [get_bd_pins rpc2_ctrl_controller_0/AXIr_ARESETN]
+  connect_bd_net -net system_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins system_pll/clk200MHz]
   connect_bd_net -net system_pll_clk50MHz_io [get_bd_ports ncsi_clk] [get_bd_pins system_pll/clk50MHz_io]
   connect_bd_net -net system_pll_locked [get_bd_pins reset_100MHz/dcm_locked] [get_bd_pins system_pll/locked]
-  connect_bd_net -net util_ds_buf_0_IBUF_OUT [get_bd_ports pcie_refclk] [get_bd_pins pcie2AxiMaster_0/pcie_sys_clk]
-  connect_bd_net -net xlconstant_2_dout [get_bd_pins irq_constant/dout] [get_bd_pins pcie2AxiMaster_0/irq_event]
+  connect_bd_net -net xlconstant_2_dout [get_bd_pins pcie2AxiMaster_0/irq_event] [get_bd_pins xlconstant_2/dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00002000 -offset 0x00040000 [get_bd_addr_spaces pcie2AxiMaster_0/M_AXI] [get_bd_addr_segs axi_ethernetlite_0/S_AXI/Reg] SEG_axi_ethernetlite_0_Reg

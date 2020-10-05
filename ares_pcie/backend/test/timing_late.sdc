@@ -7,7 +7,7 @@ create_generated_clock -name ncsi_clk50MHz [get_pins ares_pb_i/ares_pb_i/system_
 
 create_generated_clock -name rpc_clk_0 [get_pins ares_pb_i/ares_pb_i/rpc_pll/inst/mmcm_adv_inst/CLKOUT0]
 create_generated_clock -name rpc_clk_90 [get_pins ares_pb_i/ares_pb_i/rpc_pll/inst/mmcm_adv_inst/CLKOUT1]
-create_generated_clock -name rpc_clk_200MHz [get_pins ares_pb_i/ares_pb_i/rpc_pll/inst/mmcm_adv_inst/CLKOUT2]
+create_generated_clock -name rpc_clk_200MHz [get_pins ares_pb_i/ares_pb_i/system_pll/inst/mmcm_adv_inst/CLKOUT3]
 
 
 # ####################################################################
@@ -56,6 +56,7 @@ set_false_path -from [get_ports debug_uart_rxd]
 ## Because of the PLL phase advance, we need to specify on which edge we want the
 ## setup analyse to occur
 ###################################################################################
+
 
 
 
