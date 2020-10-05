@@ -1,7 +1,10 @@
 # Synchronous DDR inputs (Edge aligned) see the following link:
 #    https://forums.xilinx.com/t5/Timing-Analysis/How-to-constraint-Same-Edge-capture-edge-aligned-DDR-input/m-p/646009#M8411# RDS CLK: 133 MHZ
-create_clock -period 7.500 -name VIRT_CLK
-create_clock -period 7.500 -name RDS_CLK [get_ports hb_rwds]
+# set CK_PERIOD 7.500;  # 133MHz
+set CK_PERIOD 8.000;  # 125MHz
+
+create_clock -period ${CK_PERIOD} -name VIRT_CLK
+create_clock -period ${CK_PERIOD} -name RDS_CLK [get_ports hb_rwds]
 set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0.300
 
 set_input_delay -clock VIRT_CLK 0.450 [get_ports {hb_dq[*]}]

@@ -87,7 +87,7 @@ u32 CtestHyperRam::test_single_access()
 		assert(true, message);
 	}
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
-	sprintf_s(message, sizeof(message), "test_single_access time : %.3f ms.\n", time * 1000);
+	sprintf_s(message, sizeof(message), "test_single_access time : %.3f ms. : OK\n", time * 1000);
 	cout << message;
 	//return status();
 	return 0;
@@ -122,6 +122,7 @@ u32 CtestHyperRam::clear32(u32 start, u32 stop, u32 clearValue)
 		stepCntr += 4;
 		address += 4;
 	} while (address < stop);
+	printProgress("Clear u32 32MB      : ", 1.00);
 
 	// Print duration
 	MappTimer(M_DEFAULT, M_TIMER_READ + M_SYNCHRONOUS, &time);
