@@ -4,6 +4,9 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/create_ares.tcl
 # 
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
+# write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
+#
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -13,11 +16,11 @@ puts "Running ${myself}"
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : Set HyperRam freq to 125MHz, automatically generate HDF file
 # 0.0.3 : Changed project naming scheme. The buildID is now in hex radix (easier to match in development tools)
-#         Set the following parameters 
+#         Set the following parameters in the create_ares.tcl script 
 #             * FPGA_GOLDEN     = false (MIL upgrade firmware)
 #			  * FPGA_ID         = 0x11  (IrisGTX PCIe, Artix7 - A50-1L)
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
-#
+#         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
 #		   
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
@@ -152,6 +155,9 @@ set generic_list [list    \
 GOLDEN=${FPGA_GOLDEN}     \
 BUILD_ID=${HEX_BUILD_DATE} \
 FPGA_ID=${FPGA_ID}        \
+FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} \
+FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} \
+FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} \ 
 ]
 set_property generic  ${generic_list} ${HDL_FILESET}
 

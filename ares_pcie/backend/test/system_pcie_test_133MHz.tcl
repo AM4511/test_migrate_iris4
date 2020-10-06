@@ -218,7 +218,6 @@ proc create_root_design { parentCell } {
  ] $pcie_sys_clk
   set refclk_50MHz [ create_bd_port -dir I -type clk refclk_50MHz ]
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_RESET {} \
    CONFIG.FREQ_HZ {50000000} \
  ] $refclk_50MHz
   set reset_n [ create_bd_port -dir I -type rst reset_n ]
@@ -261,6 +260,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.C_AXI_MEM_ADDR_WIDTH {25} \
    CONFIG.C_ENABLE_WP {true} \
+   CONFIG.INPUT_FIXED_DELAY {11} \
  ] $rpc2_ctrl_controller_0
 
   # Create instance: rpc_pll, and set properties
