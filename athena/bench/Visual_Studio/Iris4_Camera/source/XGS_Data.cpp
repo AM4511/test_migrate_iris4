@@ -161,8 +161,8 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 		} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
 
-
-		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
+		sXGSptr.HISPI.STATUS.u32 = rXGSptr.HISPI.STATUS.u32;
+		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || sXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
 		{
 			printf("Calibration ERROR\n");
 			printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
@@ -179,7 +179,7 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 		}
 
-		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
+		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
 			printf("Calibration OK ");
 			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
