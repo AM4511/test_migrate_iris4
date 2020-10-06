@@ -493,10 +493,18 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf("XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3)  == 1)
+		if ((DataRead & 0x3) == 1) {
 			printf("XGS is COLOR\n");
-		if ((DataRead & 0x3) == 2)
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
 			printf("XGS is MONO\n");
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
 
 		XGS12M_SetGrabParamsInit12000(6);
 		XGS12M_LoadDCF(6);
@@ -529,10 +537,18 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf("XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3) == 1)
+		if ((DataRead & 0x3) == 1) {
 			printf("XGS is COLOR\n");
-		if ((DataRead & 0x3) == 2)
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
 			printf("XGS is MONO\n");
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
 
 		XGS16M_SetGrabParamsInit16000(6);
 		XGS16M_LoadDCF(6);

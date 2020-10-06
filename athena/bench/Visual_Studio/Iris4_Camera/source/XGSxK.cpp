@@ -157,7 +157,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 
 	// Set FPGA COlor Configuration
 	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_COLOR = SensorParams.IS_COLOR;
-	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
+	rXGSptr.ACQ.SENSOR_CTRL.u32            = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 
 }
