@@ -295,11 +295,11 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 	if (f_dump_Open != TRUE)
 	{
 		f_dump_Open = TRUE;
-		f_dump = fopen("PythonDump_All_Regs.txt", "w+t");
+		f_dump = fopen("XGSDump_All_Regs.txt", "w+t");
 
 		if (f_dump == NULL)
 		{
-			printf("ERROR when trying to open file PythonDump_All_Regs.txt \n");
+			printf("ERROR when trying to open file XGSDump_All_Regs.txt \n");
 			exit(1);
 		}
 		else
@@ -323,6 +323,11 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 			}
 
 			for (int i = 0x3e0e; i < 0x3e84; i = i + 2)
+			{
+				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
+			}
+
+			for (int i = 0x4000; i < 0x7000; i = i + 2)
 			{
 				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
 			}
@@ -423,8 +428,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);
 
 		if (((DataRead & 0x7c) >> 2) == 0x18)
 			printf("XGS Resolution is 5Mp\n");
@@ -473,8 +480,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);  
 
 		if(((DataRead&0x1c)>>2) == 0)
 		  printf("XGS Resolution is 12Mp\n");
@@ -517,8 +526,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);  
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
 			printf("XGS Resolution is 16Mp\n");

@@ -104,6 +104,10 @@ entity xgs_ctrl is
            curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
            curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
+           --curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
+           --curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
+           --curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
+
            curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
            curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
            curr_db_y_size_ROI2             : out std_logic_vector;     -- 1-base

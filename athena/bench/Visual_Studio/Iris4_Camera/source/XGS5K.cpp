@@ -122,12 +122,12 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 	// Checking the version of OTPM and uploading settings accordingly, reg 0x3700[5] needs to be enabled to read the OTPM version
 	// apbase.log("Checking OTPM version (enable register 0x3700[5] = 1) -. reg 0x3016[3:0]")
 	WriteSPI(0x3700, 0x0020);
-	Sleep(50);
+	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
 	printf("XGS OTPM version : 0x%X\n", otpmversion);
 	WriteSPI(0x3700, 0x0000);
-
+	Sleep(50);
 	if (otpmversion == 0) {
 
 		// [Hidden:Req_Reg_Up_0]
