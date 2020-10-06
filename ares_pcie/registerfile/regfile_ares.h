@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_ares.h
-* Created by   : imaval
+* Created by   : amarchan
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_ares processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x78D3BB4
+* Register file CRC32 : 0xF5A7196A
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -177,11 +177,7 @@ typedef union
 
    struct
    {
-      M_UINT32 minutes : 4;  /* Bits(3:0), null */
-      M_UINT32 hour    : 8;  /* Bits(11:4), null */
-      M_UINT32 date    : 8;  /* Bits(19:12), null */
-      M_UINT32 month   : 4;  /* Bits(23:20), null */
-      M_UINT32 year    : 8;  /* Bits(31:24), null */
+      M_UINT32 value : 32;  /* Bits(31:0), EPOCH date value */
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_BUILDID_TYPE;

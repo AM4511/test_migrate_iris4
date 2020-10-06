@@ -16,6 +16,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
+
 library UNISIM;
 use UNISIM.vcomponents.all;
 
@@ -25,7 +27,7 @@ use work.regfile_ares_pack.all;
 
 entity ares_pcie is
   generic(
-    BUILD_ID        : std_logic_vector(31 downto 0) := x"76543210";  -- Generic passed in .tcl script
+    BUILD_ID        : integer                       := 0;  -- Generic passed in .tcl script
     SIMULATION      : integer                       := 0;
     PCIe_LANES      : integer                       := 1;
     --FPGA_ID                   : integer := 8;                          -- Ares for y7478-00
@@ -1304,11 +1306,12 @@ begin
   -- Field name: BUILDID(31 downto 0)
   -- Field type: RO
   ------------------------------------------------------------------------------------------
-  regfile.Device_specific.BUILDID.YEAR    <= BUILD_ID(31 downto 24);
-  regfile.Device_specific.BUILDID.MONTH   <= BUILD_ID(23 downto 20);
-  regfile.Device_specific.BUILDID.DATE    <= BUILD_ID(19 downto 12);
-  regfile.Device_specific.BUILDID.HOUR    <= BUILD_ID(11 downto 4);
-  regfile.Device_specific.BUILDID.MINUTES <= BUILD_ID(3 downto 0);
+  -- regfile.Device_specific.BUILDID.YEAR    <= BUILD_ID(31 downto 24);
+  -- regfile.Device_specific.BUILDID.MONTH   <= BUILD_ID(23 downto 20);
+  -- regfile.Device_specific.BUILDID.DATE    <= BUILD_ID(19 downto 12);
+  -- regfile.Device_specific.BUILDID.HOUR    <= BUILD_ID(11 downto 4);
+  -- regfile.Device_specific.BUILDID.MINUTES <= BUILD_ID(3 downto 0);
+  regfile.Device_specific.BUILDID.VALUE   <= std_logic_vector(to_unsigned(BUILD_ID,32));
 
   ------------------------------------------------------------------------------------------
   -- Field name: FPGA_ID(2 downto 0)
