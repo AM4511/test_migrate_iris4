@@ -11,20 +11,20 @@
 --------------------------------------------------------------------------------
 
 library ieee;
-   use ieee.std_logic_1164.all;
-   use ieee.std_logic_arith.all;
-   --use ieee.numeric_bit.all;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+--use ieee.numeric_bit.all;
 
 
 package pciepack is
 
-  
+
   ---------------------------------------------------------------------------------
   -- PCIe constants
   ---------------------------------------------------------------------------------
   --constant NB_PCIE_AGENTS     : integer := 3; -- number of BAR agents + number of master agents
-  type ATTRIB_VECTOR  is array(natural range <>) of std_logic_vector(1 downto 0);
-  type TRANS_ID       is array(natural range <>) of std_logic_vector(23 downto 0);
+  type ATTRIB_VECTOR is array(natural range <>) of std_logic_vector(1 downto 0);
+  type TRANS_ID is array(natural range <>) of std_logic_vector(23 downto 0);
   type BYTE_COUNT_ARRAY is array(natural range <>) of std_logic_vector(12 downto 0);
   type LOWER_ADDR_ARRAY is array(natural range <>) of std_logic_vector(6 downto 0);
   type FMT_TYPE_ARRAY is array(natural range <>) of std_logic_vector(6 downto 0);
@@ -32,20 +32,102 @@ package pciepack is
   type PCIE_DATA_ARRAY is array(natural range <>) of std_logic_vector(63 downto 0);
   type PCIE_ADDRESS_ARRAY is array(natural range <>) of std_logic_vector(63 downto 2);
   type LDWBE_FDWBE_ARRAY is array(natural range <>) of std_logic_vector(7 downto 0);
-  type integer_vector is array (natural range <>) of integer; -- definition de VHDL2008 non disponible dans ISE 13.4
-  
+  type integer_vector is array (natural range <>) of integer;  -- definition de VHDL2008 non disponible dans ISE 13.4
+
   -- pour la version PCIE qui parle au protocol serie:
   --type STD8_LOGIC_VECTOR is array (natural range <>) of std_logic_vector(7 downto 0);
   --type STD32_LOGIC_VECTOR is array (natural range <>) of std_logic_vector(31 downto 0);
-  
-  
+
+
+  ------------------------------------------------------------------------------------------
+  -- Register Name: ctrl
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_CTRL_TYPE is record
+    enable : std_logic;
+  end record AXI_WINDOW_CTRL_TYPE;
+
+  constant INIT_AXI_WINDOW_CTRL_TYPE : AXI_WINDOW_CTRL_TYPE := (
+    enable => 'Z'
+    );
+
+  -- Casting functions:
+  function to_std_logic_vector(reg       : AXI_WINDOW_CTRL_TYPE) return std_logic_vector;
+  function to_AXI_WINDOW_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_CTRL_TYPE;
+
+  ------------------------------------------------------------------------------------------
+  -- Register Name: pci_bar0_start
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_PCI_BAR0_START_TYPE is record
+    value : std_logic_vector(25 downto 0);
+  end record AXI_WINDOW_PCI_BAR0_START_TYPE;
+
+  constant INIT_AXI_WINDOW_PCI_BAR0_START_TYPE : AXI_WINDOW_PCI_BAR0_START_TYPE := (
+    value => (others => 'Z')
+    );
+
+  -- Casting functions:
+  function to_std_logic_vector(reg                 : AXI_WINDOW_PCI_BAR0_START_TYPE) return std_logic_vector;
+  function to_AXI_WINDOW_PCI_BAR0_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_START_TYPE;
+
+  ------------------------------------------------------------------------------------------
+  -- Register Name: pci_bar0_stop
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_PCI_BAR0_STOP_TYPE is record
+    value : std_logic_vector(25 downto 0);
+  end record AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+
+  constant INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE : AXI_WINDOW_PCI_BAR0_STOP_TYPE := (
+    value => (others => 'Z')
+    );
+
+  -- Casting functions:
+  function to_std_logic_vector(reg                : AXI_WINDOW_PCI_BAR0_STOP_TYPE) return std_logic_vector;
+  function to_AXI_WINDOW_PCI_BAR0_STOP_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+
+  ------------------------------------------------------------------------------------------
+  -- Register Name: axi_translation
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_AXI_TRANSLATION_TYPE is record
+    value : std_logic_vector(31 downto 0);
+  end record AXI_WINDOW_AXI_TRANSLATION_TYPE;
+
+  constant INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE : AXI_WINDOW_AXI_TRANSLATION_TYPE := (
+    value => (others => 'Z')
+    );
+
+  -- Casting functions:
+  function to_std_logic_vector(reg                  : AXI_WINDOW_AXI_TRANSLATION_TYPE) return std_logic_vector;
+  function to_AXI_WINDOW_AXI_TRANSLATION_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_AXI_TRANSLATION_TYPE;
+  ------------------------------------------------------------------------------------------
+  -- Section Name: axi_window
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_TYPE is record
+    ctrl            : AXI_WINDOW_CTRL_TYPE;
+    pci_bar0_start  : AXI_WINDOW_PCI_BAR0_START_TYPE;
+    pci_bar0_stop   : AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+    axi_translation : AXI_WINDOW_AXI_TRANSLATION_TYPE;
+  end record AXI_WINDOW_TYPE;
+
+  constant INIT_AXI_WINDOW_TYPE : AXI_WINDOW_TYPE := (
+    ctrl            => INIT_AXI_WINDOW_CTRL_TYPE,
+    pci_bar0_start  => INIT_AXI_WINDOW_PCI_BAR0_START_TYPE,
+    pci_bar0_stop   => INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE,
+    axi_translation => INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE
+    );
+
+  ------------------------------------------------------------------------------------------
+  -- Array type: AXI_WINDOW_TYPE
+  ------------------------------------------------------------------------------------------
+  type AXI_WINDOW_TYPE_ARRAY is array (3 downto 0) of AXI_WINDOW_TYPE;
+  constant INIT_AXI_WINDOW_TYPE_ARRAY : AXI_WINDOW_TYPE_ARRAY := (others => INIT_AXI_WINDOW_TYPE);
+
   ---------------------------------------------------------------------------------
   -- PCIe - Streamer constants
   ---------------------------------------------------------------------------------
 --  constant MAX_PCIE_PAYLOAD_SIZE  : integer := 128; -- ceci sert a limiter la dimension maximale que les agents master sur le pcie (le DMA) peuvent utiliser, en plus de la limitation
-                                                   -- de link negocie avec le link partner.  Le but est d'etre plus efficace sur certaines architectures (Iris GT par exemple, qui est plus 
-                                                   -- performant avec des payload de 64.
-  
+  -- de link negocie avec le link partner.  Le but est d'etre plus efficace sur certaines architectures (Iris GT par exemple, qui est plus 
+    -- performant avec des payload de 64.
+
 
   ---------------------------------------------------------------------------------
   -- GENERAL FUNCTIONS
@@ -88,7 +170,7 @@ end pciepack;
 --       when 4097 to 8192 => sum := 13;
 --       when 8193 to 16384 => sum := 14;
 --       when 16385 to 32786 => sum := 15;
---       when 32797 to 65536	=> sum := 16;
+--       when 32797 to 65536    => sum := 16;
 --       when 65537 to 131072 => sum := 17;
 --       when 131073 to 262144 => sum := 18;
 --       when 262145 to 524288 => sum := 19;

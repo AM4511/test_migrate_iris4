@@ -678,7 +678,7 @@ module testbench();
 
 				test_nb_images=0;
 				fstart = 'hA0000000;
-				line_size = P_ROI_WIDTH;
+				line_size = P_ROI_WIDTH + 2*P_INTERPOLATION;
 				line_pitch = 'h2000;
 
 
@@ -1042,8 +1042,10 @@ module testbench();
 				// X origin 
 				//ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
 				//ROI_X_END    = ROI_X_START+4096-1;              			
-				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
-				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
+//				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
+//				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
+				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + 0;
+				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1 + 2*P_INTERPOLATION;              			
 				reg_value = (ROI_X_END<<16) + ROI_X_START;
 				host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 

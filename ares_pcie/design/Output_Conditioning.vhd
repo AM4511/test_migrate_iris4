@@ -189,11 +189,23 @@ begin
 end process;
 
 
-OutputVal_gen : for i in user_data_out'range generate
-  regfile.OutputCond(i).OutputVal  <= user_data_out_post_filter(i);
-end generate;
+-- OutputVal_gen : for i in user_data_out'range generate
+--   G_: if (i < user_data_out'left) generate
+--   regfile.OutputCond(i).OutputVal  <= user_data_out_post_filter(i);
+    
+--   end generate G_;
+-- end generate;
 
-
+P_OutputVal: process(user_data_out_post_filter) is
+begin
+  for i in regfile.OutputCond'range loop
+    if (i < user_data_out'length) then
+      regfile.OutputCond(i).OutputVal  <= user_data_out_post_filter(i);
+    else
+      regfile.OutputCond(i).OutputVal  <= '0';
+    end if;
+  end loop;
+end process;
 
 
 end functional;

@@ -21,7 +21,8 @@ puts "Running ${myself}"
 #			  * FPGA_ID         = 0x11  (IrisGTX PCIe, Artix7 - A50-1L)
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
 #         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
-#		   
+# 0.0.4 : Open a new BAR on PCIE and connect the tlp_to_axi
+		   
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 3

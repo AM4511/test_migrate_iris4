@@ -24,20 +24,21 @@ use UNISIM.vcomponents.all;
 library work;
 use work.spider_pak.all;
 use work.regfile_ares_pack.all;
+use work.pciepack.all;
 
 entity ares_pcie is
   generic(
-    BUILD_ID        : integer                       := 0;  -- Generic passed in .tcl script
-    SIMULATION      : integer                       := 0;
-    PCIe_LANES      : integer                       := 1;
+    BUILD_ID        : integer := 0;     -- Generic passed in .tcl script
+    SIMULATION      : integer := 0;
+    PCIe_LANES      : integer := 1;
     --FPGA_ID                   : integer := 8;                          -- Ares for y7478-00
-    FPGA_ID         : integer                       := 9;  -- Ares for y7478-01
-    NB_USER_IN      : integer                       := 4;
-    NB_USER_OUT     : integer                       := 3;
-    GOLDEN          : boolean                       := false;  -- le code Golden n'a pas de Microblaze
-    HOST_SPI_ACCESS : boolean                       := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
-                                                           -- veuillez noter qu'il faut AUSSI enlever le STARTUPE2 dans le module SPI dans le block design
-                                                           -- et changer quelle fichier de contrainte qui est actif.
+    FPGA_ID         : integer := 9;     -- Ares for y7478-01
+    NB_USER_IN      : integer := 4;
+    NB_USER_OUT     : integer := 3;
+    GOLDEN          : boolean := false;  -- le code Golden n'a pas de Microblaze
+    HOST_SPI_ACCESS : boolean := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
+                                         -- veuillez noter qu'il faut AUSSI enlever le STARTUPE2 dans le module SPI dans le block design
+                                         -- et changer quelle fichier de contrainte qui est actif.
 
     --SYNTH_SPI_PAGE_256B_BURST : integer := 1;                  -- Pour ne pas implementer la capacite de burster 256Bytes mettre a '0' (1 RAM de moins)
     SYNTH_TICK_TABLES : integer := 1;  -- Pour ne pas implementer les TickTables mettre a '0'
@@ -114,14 +115,14 @@ entity ares_pcie is
     ---------------------------------------------------------------------------
     -- HyperRam I/F
     ---------------------------------------------------------------------------
-    hb_ck     : out   std_logic;
-    hb_ck_n   : out   std_logic;
-    hb_cs_n   : out   std_logic;
-    hb_dq     : inout std_logic_vector (7 downto 0);
+    hb_ck    : out   std_logic;
+    hb_ck_n  : out   std_logic;
+    hb_cs_n  : out   std_logic;
+    hb_dq    : inout std_logic_vector (7 downto 0);
     --hb_int_n  : in    std_logic;
-    hb_rst_n  : out   std_logic;
+    hb_rst_n : out   std_logic;
     --hb_rsto_n : in    std_logic;
-    hb_rwds   : inout std_logic;
+    hb_rwds  : inout std_logic;
     --hb_wp_n   : out   std_logic;
 
     ---------------------------------------------------------------------------
@@ -142,11 +143,13 @@ end ares_pcie;
 
 architecture functional of ares_pcie is
 
+
   component pcie_top is
     generic (
-      USE_DMA        : boolean := false;
-      MAX_LANE_NB    : integer := 0;
-      NB_PCIE_AGENTS : integer := 2
+      USE_DMA             : boolean                := false;
+      MAX_LANE_NB         : integer                := 0;
+      AXIM_BAR_ADDR_WIDTH : integer range 10 to 30 := 25;
+      AXIM_ID_WIDTH       : integer range 1 to 8   := 4
       );
     port (
       CFG_SUBSYS_ID_in : in std_logic_vector(15 downto 0) := x"0000";  -- jlarin: nous voulons un subsystem ID dependant d'un signal statique
@@ -210,8 +213,82 @@ architecture functional of ares_pcie is
       dma_tlp_lower_address  : in std_logic_vector(6 downto 0)  := (others => '0');
 
       cfg_bus_mast_en : out std_logic;
-      cfg_setmaxpld   : out std_logic_vector(2 downto 0)
+      cfg_setmaxpld   : out std_logic_vector(2 downto 0);
 
+      --pcie_drp_clk                        : in STD_LOGIC                         := '1';
+      --pcie_drp_en                         : in STD_LOGIC                         := '0';
+      --pcie_drp_we                         : in STD_LOGIC                         := '0';
+      --pcie_drp_addr                       : in STD_LOGIC_VECTOR ( 8 downto 0 )   := (others => '0');
+      --pcie_drp_di                         : in STD_LOGIC_VECTOR ( 15 downto 0 )  := (others => '0');
+      --pcie_drp_do                         : out STD_LOGIC_VECTOR ( 15 downto 0 );
+      --pcie_drp_rdy                        : out STD_LOGIC
+      ---------------------------------------------------------------------------
+      -- AXI windowing
+      ---------------------------------------------------------------------------
+      axi_window : inout AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
+
+      ---------------------------------------------------------------------------
+      -- Write Address Channel
+      ---------------------------------------------------------------------------
+      axim_awready : in  std_logic;
+      axim_awvalid : out std_logic;
+
+      axim_awid    : out std_logic_vector(AXIM_ID_WIDTH-1 downto 0);
+      axim_awaddr  : out std_logic_vector(31 downto 0);
+      axim_awlen   : out std_logic_vector(7 downto 0);
+      axim_awsize  : out std_logic_vector(2 downto 0);
+      axim_awburst : out std_logic_vector(1 downto 0);
+      axim_awlock  : out std_logic;
+      axim_awcache : out std_logic_vector(3 downto 0);
+      axim_awprot  : out std_logic_vector(2 downto 0);
+      axim_awqos   : out std_logic_vector(3 downto 0);
+
+
+      ---------------------------------------------------------------------------
+      -- Write Data Channel
+      ---------------------------------------------------------------------------
+      axim_wready : in  std_logic;
+      axim_wvalid : out std_logic;
+      axim_wid    : out std_logic_vector(AXIM_ID_WIDTH-1 downto 0);
+      axim_wdata  : out std_logic_vector(31 downto 0);
+      axim_wstrb  : out std_logic_vector(3 downto 0);
+      axim_wlast  : out std_logic;
+
+
+      ---------------------------------------------------------------------------
+      -- AXI Write response
+      ---------------------------------------------------------------------------
+      axim_bvalid : in  std_logic;
+      axim_bready : out std_logic;
+      axim_bid    : in  std_logic_vector(AXIM_ID_WIDTH-1 downto 0);
+      axim_bresp  : in  std_logic_vector(1 downto 0);
+
+
+      ---------------------------------------------------------------------------
+      --  Read Address Channel
+      ---------------------------------------------------------------------------
+      axim_arready : in  std_logic;
+      axim_arvalid : out std_logic;
+      axim_arid    : out std_logic_vector(AXIM_ID_WIDTH-1 downto 0);
+      axim_araddr  : out std_logic_vector(31 downto 0);
+      axim_arlen   : out std_logic_vector(7 downto 0);
+      axim_arsize  : out std_logic_vector(2 downto 0);
+      axim_arburst : out std_logic_vector(1 downto 0);
+      axim_arlock  : out std_logic;
+      axim_arcache : out std_logic_vector(3 downto 0);
+      axim_arprot  : out std_logic_vector(2 downto 0);
+      axim_arqos   : out std_logic_vector(3 downto 0);
+
+
+      ---------------------------------------------------------------------------
+      -- AXI Read data channel
+      ---------------------------------------------------------------------------
+      axim_rready : out std_logic;
+      axim_rvalid : in  std_logic;
+      axim_rid    : in  std_logic_vector(AXIM_ID_WIDTH-1 downto 0);
+      axim_rdata  : in  std_logic_vector(31 downto 0);
+      axim_rresp  : in  std_logic_vector(1 downto 0);
+      axim_rlast  : in  std_logic
       );
   end component;
 
@@ -470,6 +547,48 @@ architecture functional of ares_pcie is
       hb_dq                      : inout std_logic_vector (7 downto 0);
       hb_rst_n                   : out   std_logic;
       hb_rwds                    : inout std_logic;
+      hb_wp_n                    : out   std_logic;
+      host2axi_araddr            : in    std_logic_vector (31 downto 0);
+      host2axi_arburst           : in    std_logic_vector (1 downto 0);
+      host2axi_arcache           : in    std_logic_vector (3 downto 0);
+      host2axi_arid              : in    std_logic_vector (0 to 0);
+      host2axi_arlen             : in    std_logic_vector (7 downto 0);
+      host2axi_arlock            : in    std_logic_vector (0 to 0);
+      host2axi_arprot            : in    std_logic_vector (2 downto 0);
+      host2axi_arqos             : in    std_logic_vector (3 downto 0);
+      host2axi_arready           : out   std_logic;
+      host2axi_arregion          : in    std_logic_vector (3 downto 0);
+      host2axi_arsize            : in    std_logic_vector (2 downto 0);
+      host2axi_arvalid           : in    std_logic;
+      host2axi_awaddr            : in    std_logic_vector (31 downto 0);
+      host2axi_awburst           : in    std_logic_vector (1 downto 0);
+      host2axi_awcache           : in    std_logic_vector (3 downto 0);
+      host2axi_awid              : in    std_logic_vector (0 to 0);
+      host2axi_awlen             : in    std_logic_vector (7 downto 0);
+      host2axi_awlock            : in    std_logic_vector (0 to 0);
+      host2axi_awprot            : in    std_logic_vector (2 downto 0);
+      host2axi_awqos             : in    std_logic_vector (3 downto 0);
+      host2axi_awready           : out   std_logic;
+      host2axi_awregion          : in    std_logic_vector (3 downto 0);
+      host2axi_awsize            : in    std_logic_vector (2 downto 0);
+      host2axi_awvalid           : in    std_logic;
+      host2axi_bid               : out   std_logic_vector (0 to 0);
+      host2axi_bready            : in    std_logic;
+      host2axi_bresp             : out   std_logic_vector (1 downto 0);
+      host2axi_bvalid            : out   std_logic;
+      host2axi_clk               : in    std_logic;
+      host2axi_rdata             : out   std_logic_vector (31 downto 0);
+      host2axi_reset_n           : in    std_logic;
+      host2axi_rid               : out   std_logic_vector (0 to 0);
+      host2axi_rlast             : out   std_logic;
+      host2axi_rready            : in    std_logic;
+      host2axi_rresp             : out   std_logic_vector (1 downto 0);
+      host2axi_rvalid            : out   std_logic;
+      host2axi_wdata             : in    std_logic_vector (31 downto 0);
+      host2axi_wlast             : in    std_logic;
+      host2axi_wready            : out   std_logic;
+      host2axi_wstrb             : in    std_logic_vector (3 downto 0);
+      host2axi_wvalid            : in    std_logic;
       host_irq                   : out   std_logic;
       ncsi_clk                   : out   std_logic;
       ncsi_crs_dv                : in    std_logic;
@@ -492,26 +611,28 @@ architecture functional of ares_pcie is
 
 
   component arbiter is
-   port(
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals (regfile domain)
-    ---------------------------------------------------------------------
-	axi_clk	    : in std_logic;
-	axi_reset_n	: in std_logic;
-	
-	---------------------------------------------------------------------
-    -- Regsiters
-    ---------------------------------------------------------------------
-    AGENT_REQ                            : in    std_logic_vector(1 downto 0);  -- Write-Only register
-    AGENT_REC                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
-    AGENT_ACK                            : out   std_logic_vector(1 downto 0);  -- Read-Only register
-    AGENT_DONE                           : in    std_logic_vector(1 downto 0)   -- Write-Only register
+    port(
+      ---------------------------------------------------------------------
+      -- Sys domain reset and clock signals (regfile domain)
+      ---------------------------------------------------------------------
+      axi_clk     : in std_logic;
+      axi_reset_n : in std_logic;
 
-  );  
-  end component;  
+      ---------------------------------------------------------------------
+      -- Regsiters
+      ---------------------------------------------------------------------
+      AGENT_REQ  : in  std_logic_vector(1 downto 0);  -- Write-Only register
+      AGENT_REC  : out std_logic_vector(1 downto 0);  -- Read-Only register
+      AGENT_ACK  : out std_logic_vector(1 downto 0);  -- Read-Only register
+      AGENT_DONE : in  std_logic_vector(1 downto 0)   -- Write-Only register
+
+      );
+  end component;
 
 
-  constant CLOCK_PERIOD : integer := 16;
+  constant CLOCK_PERIOD        : integer := 16;
+  constant AXIM_BAR_ADDR_WIDTH : integer := 24;  -- axi_quad_spi decodes 24 address bits
+  constant AXIM_ID_WIDTH       : integer := 1;
 
   -- pour faire suite a une discussion avec Sebastien, la tick-table doit avoir 4 bits de large sur Ares.
   -- Cela correspond a la largeur de l'entree, tout comme sur Spider LPC. Je ne retrouve pas la garantie que cela sera toujours le cas.
@@ -625,6 +746,7 @@ architecture functional of ares_pcie is
   signal user_rled_interne               : std_logic;
 
   signal uart_txd_profinet : std_logic;
+  signal acq_trigger_ff    :  std_logic;
 
   constant MAX_FLASHER_COUNT : integer                              := 31250000;  --  1/2 seconde
   signal flasher_count       : integer range 0 to MAX_FLASHER_COUNT := 0;  -- periode PCIe = 16 ns, 1/2 seconde
@@ -637,22 +759,87 @@ architecture functional of ares_pcie is
 
   -- Arbiter signals
   signal AGENT_REQ  : std_logic_vector(1 downto 0);
-  signal AGENT_REC  : std_logic_vector(1 downto 0); 
+  signal AGENT_REC  : std_logic_vector(1 downto 0);
   signal AGENT_ACK  : std_logic_vector(1 downto 0);
   signal AGENT_DONE : std_logic_vector(1 downto 0);
 
+  signal axi_window : AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
 
-  
+  signal host2axi_araddr   : std_logic_vector (31 downto 0);
+  signal host2axi_arburst  : std_logic_vector (1 downto 0);
+  signal host2axi_arcache  : std_logic_vector (3 downto 0);
+  signal host2axi_arid     : std_logic_vector (0 to 0);
+  signal host2axi_arlen    : std_logic_vector (7 downto 0);
+  signal host2axi_arlock   : std_logic_vector (0 to 0);
+  signal host2axi_arprot   : std_logic_vector (2 downto 0);
+  signal host2axi_arqos    : std_logic_vector (3 downto 0);
+  signal host2axi_arready  : std_logic;
+  signal host2axi_arregion : std_logic_vector (3 downto 0);
+  signal host2axi_arsize   : std_logic_vector (2 downto 0);
+  signal host2axi_arvalid  : std_logic;
+  signal host2axi_awaddr   : std_logic_vector (31 downto 0);
+  signal host2axi_awburst  : std_logic_vector (1 downto 0);
+  signal host2axi_awcache  : std_logic_vector (3 downto 0);
+  signal host2axi_awid     : std_logic_vector (0 to 0);
+  signal host2axi_awlen    : std_logic_vector (7 downto 0);
+  signal host2axi_awlock   : std_logic_vector (0 to 0);
+  signal host2axi_awprot   : std_logic_vector (2 downto 0);
+  signal host2axi_awqos    : std_logic_vector (3 downto 0);
+  signal host2axi_awready  : std_logic;
+  signal host2axi_awregion : std_logic_vector (3 downto 0);
+  signal host2axi_awsize   : std_logic_vector (2 downto 0);
+  signal host2axi_awvalid  : std_logic;
+  signal host2axi_bid      : std_logic_vector (0 to 0);
+  signal host2axi_bready   : std_logic;
+  signal host2axi_bresp    : std_logic_vector (1 downto 0);
+  signal host2axi_bvalid   : std_logic;
+  signal host2axi_clk      : std_logic;
+  signal host2axi_rdata    : std_logic_vector (31 downto 0);
+  signal host2axi_reset_n  : std_logic;
+  signal host2axi_rid      : std_logic_vector (0 to 0);
+  signal host2axi_rlast    : std_logic;
+  signal host2axi_rready   : std_logic;
+  signal host2axi_rresp    : std_logic_vector (1 downto 0);
+  signal host2axi_rvalid   : std_logic;
+  signal host2axi_wdata    : std_logic_vector (31 downto 0);
+  signal host2axi_wlast    : std_logic;
+  signal host2axi_wready   : std_logic;
+  signal host2axi_wstrb    : std_logic_vector (3 downto 0);
+  signal host2axi_wvalid   : std_logic;
+
+
 begin
 
+  
+  -----------------------------------------------------------------------------
+  -- TLP_TO_AXI_MASTER : Only one 16MB window aperture pointing to the
+  -- axi_quad_spi base address in IP-Integrator
+  -----------------------------------------------------------------------------
+  axi_window(0).ctrl.enable           <= '1';
+  axi_window(0).pci_bar0_start.value  <= "00000000000000000000000000";
+  axi_window(0).pci_bar0_stop.value   <= "00111111111111111111111100";
+  axi_window(0).axi_translation.value <= X"45000000";  -- Static address
+                                                       -- extracted from IP-Integrator
 
+  
+  -----------------------------------------------------------------------------
+  -- Unused windows are disabled
+  -----------------------------------------------------------------------------
+  G_axi_window_unused: for i in 1 to 3 generate
+    axi_window(i).ctrl.enable           <= '0';
+    axi_window(i).pci_bar0_start.value  <= (others=>'0');
+    axi_window(i).pci_bar0_stop.value   <= (others=>'0');
+    axi_window(i).axi_translation.value <= (others=>'0');
+  end generate G_axi_window_unused;
+
+  
   -- NCSI clock output to I210 is aligned with Data but inverted  
   ncsi_clk <= ncsi_clk_phase_180;
 
   ncsi_clk_oddr : ODDR
     generic map(
       DDR_CLK_EDGE => "OPPOSITE_EDGE",  -- "OPPOSITE_EDGE" or "SAME_EDGE" 
-      INIT         => '0',              -- Initial value for Q port ('1' or '0')
+      INIT         => '0',  -- Initial value for Q port ('1' or '0')
       SRTYPE       => "SYNC")           -- Reset Type ("ASYNC" or "SYNC")
     port map (
       Q  => ncsi_clk_phase_180,         -- 1-bit DDR output
@@ -672,20 +859,24 @@ begin
   -- le trigger output est la sortie d'un mux prennant divers signaux interne. 
   -- Du a la relativement faible complexite de ce signal, je ne le mettrai pas dans un module reutilisable (est-ce reutilisable?)
   AcqTrigger_MUX <= profinet_internal_output_sysclk & clean_user_data_in & Timer_Output & Qdecoder_out & TickTableOut1DArray;
-
+  regfile.InternalOutput.OutputCond(0).OutputVal <= acq_trigger_ff;
+  
   process(pclk)
     variable AcqTrigger_AsInt : integer;
   begin
     if rising_edge(pclk) then
       AcqTrigger_AsInt := conv_integer(regfile.InternalOutput.OutputCond(0).Outsel);
       if AcqTrigger_AsInt < AcqTrigger_MUX'length then
-        acq_trigger <= AcqTrigger_MUX(AcqTrigger_AsInt);
+        acq_trigger_ff <= AcqTrigger_MUX(AcqTrigger_AsInt);
       else
-        acq_trigger <= '0';
+        acq_trigger_ff <= '0';
       end if;
     end if;
   end process;
+  
+  acq_trigger <= acq_trigger_ff;
 
+  
   -------------------------------------------------
   -- redirection des signaux internes inter-fpga --
   -------------------------------------------------
@@ -759,8 +950,8 @@ begin
   --status_rled <= '0' when acq_led(1) = '0' else 'Z';
   -- GTX : Dmitri a fait un nouveau circuit et n'a pas mis de pullup sur la led rouge, alors on drive directement la led avec le signal recu
   status_rled <= acq_led(1);
-  
-  
+
+
   -- Pour avoir access a la pin dedie du core PCIe, il faut instantier le IBUFDS_GTE2
   refclk_ibuf : IBUFDS_GTE2
     port map (
@@ -776,7 +967,10 @@ begin
   ---------------------------------------------------------------------------
   xpcie_top : pcie_top
     generic map(
-      MAX_LANE_NB => PCIe_LANES-1
+      USE_DMA             => false,
+      MAX_LANE_NB         => PCIe_LANES-1,
+      AXIM_BAR_ADDR_WIDTH => AXIM_BAR_ADDR_WIDTH,
+      AXIM_ID_WIDTH       => AXIM_ID_WIDTH
       )
     port map(
       ---------------------------------------------------------------------------
@@ -814,7 +1008,75 @@ begin
       reg_write         => reg_write,
       reg_beN           => reg_beN,
       reg_writedata     => reg_writedata,
-      reg_read          => reg_read     --,
+      reg_read          => reg_read,
+
+      ---------------------------------------------------------------------------
+      -- AXI window
+      ---------------------------------------------------------------------------
+      axi_window => axi_window,
+
+      ---------------------------------------------------------------------------
+      -- Write Address Channel
+      ---------------------------------------------------------------------------
+      axim_awready => host2axi_awready,
+      axim_awvalid => host2axi_awvalid,
+
+      axim_awid    => host2axi_awid,
+      axim_awaddr  => host2axi_awaddr,
+      axim_awlen   => host2axi_awlen,
+      axim_awsize  => host2axi_awsize,
+      axim_awburst => host2axi_awburst,
+      axim_awlock  => host2axi_awlock(0),
+      axim_awcache => host2axi_awcache,
+      axim_awprot  => host2axi_awprot,
+      axim_awqos   => host2axi_awqos,
+
+
+      ---------------------------------------------------------------------------
+      -- Write Data Channel
+      ---------------------------------------------------------------------------
+      axim_wready => host2axi_wready,
+      axim_wvalid => host2axi_wvalid,
+      axim_wid    => open,
+      axim_wdata  => host2axi_wdata,
+      axim_wstrb  => host2axi_wstrb,
+      axim_wlast  => host2axi_wlast,
+
+
+      ---------------------------------------------------------------------------
+      -- AXI Write response
+      ---------------------------------------------------------------------------
+      axim_bvalid => host2axi_bvalid,
+      axim_bready => host2axi_bready,
+      axim_bid    => host2axi_bid,
+      axim_bresp  => host2axi_bresp,
+
+
+      ---------------------------------------------------------------------------
+      --  Read Address Channel
+      ---------------------------------------------------------------------------
+      axim_arready => host2axi_arready,
+      axim_arvalid => host2axi_arvalid,
+      axim_arid    => host2axi_arid,
+      axim_araddr  => host2axi_araddr,
+      axim_arlen   => host2axi_arlen,
+      axim_arsize  => host2axi_arsize,
+      axim_arburst => host2axi_arburst,
+      axim_arlock  => host2axi_arlock(0),
+      axim_arcache => host2axi_arcache,
+      axim_arprot  => host2axi_arprot,
+      axim_arqos   => host2axi_arqos,
+
+
+      ---------------------------------------------------------------------------
+      -- AXI Read data channel
+      ---------------------------------------------------------------------------
+      axim_rready => host2axi_rready,
+      axim_rvalid => host2axi_rvalid,
+      axim_rid    => host2axi_rid,
+      axim_rdata  => host2axi_rdata,
+      axim_rresp  => host2axi_rresp,
+      axim_rlast  => host2axi_rlast
       );
 
   -- corriger la polarite du reset
@@ -933,6 +1195,47 @@ begin
       hb_dq                      => hb_dq,
       hb_rst_n                   => hb_rst_n,
       hb_rwds                    => hb_rwds,
+      host2axi_araddr            => host2axi_araddr,
+      host2axi_arburst           => host2axi_arburst,
+      host2axi_arcache           => host2axi_arcache,
+      host2axi_arid              => host2axi_arid,
+      host2axi_arlen             => host2axi_arlen,
+      host2axi_arlock            => host2axi_arlock,
+      host2axi_arprot            => host2axi_arprot,
+      host2axi_arqos             => host2axi_arqos,
+      host2axi_arready           => host2axi_arready,
+      host2axi_arregion          => host2axi_arregion,
+      host2axi_arsize            => host2axi_arsize,
+      host2axi_arvalid           => host2axi_arvalid,
+      host2axi_awaddr            => host2axi_awaddr,
+      host2axi_awburst           => host2axi_awburst,
+      host2axi_awcache           => host2axi_awcache,
+      host2axi_awid              => host2axi_awid,
+      host2axi_awlen             => host2axi_awlen,
+      host2axi_awlock            => host2axi_awlock,
+      host2axi_awprot            => host2axi_awprot,
+      host2axi_awqos             => host2axi_awqos,
+      host2axi_awready           => host2axi_awready,
+      host2axi_awregion          => host2axi_awregion,
+      host2axi_awsize            => host2axi_awsize,
+      host2axi_awvalid           => host2axi_awvalid,
+      host2axi_bid               => host2axi_bid,
+      host2axi_bready            => host2axi_bready,
+      host2axi_bresp             => host2axi_bresp,
+      host2axi_bvalid            => host2axi_bvalid,
+      host2axi_clk               => host2axi_clk,
+      host2axi_rdata             => host2axi_rdata,
+      host2axi_reset_n           => host2axi_reset_n,
+      host2axi_rid               => host2axi_rid,
+      host2axi_rlast             => host2axi_rlast,
+      host2axi_rready            => host2axi_rready,
+      host2axi_rresp             => host2axi_rresp,
+      host2axi_rvalid            => host2axi_rvalid,
+      host2axi_wdata             => host2axi_wdata,
+      host2axi_wlast             => host2axi_wlast,
+      host2axi_wready            => host2axi_wready,
+      host2axi_wstrb             => host2axi_wstrb,
+      host2axi_wvalid            => host2axi_wvalid,
       host_irq                   => profinet_irq,
       ncsi_clk                   => ncsi_clk_phase_0,
       ncsi_crs_dv                => ncsi_rx_crs_dv,
@@ -1311,7 +1614,7 @@ begin
   -- regfile.Device_specific.BUILDID.DATE    <= BUILD_ID(19 downto 12);
   -- regfile.Device_specific.BUILDID.HOUR    <= BUILD_ID(11 downto 4);
   -- regfile.Device_specific.BUILDID.MINUTES <= BUILD_ID(3 downto 0);
-  regfile.Device_specific.BUILDID.VALUE   <= std_logic_vector(to_unsigned(BUILD_ID,32));
+  regfile.Device_specific.BUILDID.VALUE <= std_logic_vector(to_unsigned(BUILD_ID, 32));
 
   ------------------------------------------------------------------------------------------
   -- Field name: FPGA_ID(2 downto 0)
@@ -1325,26 +1628,26 @@ begin
   -- Arbitre pour utilisation generale
   -----------------------------------------------------------------------------
   Xarbiter : arbiter
-   port map(
-    ---------------------------------------------------------------------
-    -- Sys domain reset and clock signals (regfile domain)
-    ---------------------------------------------------------------------
-	axi_clk	      => pclk,
-	axi_reset_n	  => preset_n,
+    port map(
+      ---------------------------------------------------------------------
+      -- Sys domain reset and clock signals (regfile domain)
+      ---------------------------------------------------------------------
+      axi_clk     => pclk,
+      axi_reset_n => preset_n,
 
-	---------------------------------------------------------------------
-    -- Regsiters
-    ---------------------------------------------------------------------
-    AGENT_REQ     => AGENT_REQ,  -- Write-Only register
-    AGENT_REC     => AGENT_REC,  -- Read-Only register
-    AGENT_ACK     => AGENT_ACK,  -- Read-Only register
-    AGENT_DONE    => AGENT_DONE  -- Write-Only register
+      ---------------------------------------------------------------------
+      -- Regsiters
+      ---------------------------------------------------------------------
+      AGENT_REQ  => AGENT_REQ,          -- Write-Only register
+      AGENT_REC  => AGENT_REC,          -- Read-Only register
+      AGENT_ACK  => AGENT_ACK,          -- Read-Only register
+      AGENT_DONE => AGENT_DONE          -- Write-Only register
 
-  );  
+      );
 
   -- Write-Only registers
-  AGENT_REQ  <= regfile.arbiter.AGENT(1).REQ  & regfile.arbiter.AGENT(0).REQ;
-  AGENT_DONE <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
+  AGENT_REQ                    <= regfile.arbiter.AGENT(1).REQ & regfile.arbiter.AGENT(0).REQ;
+  AGENT_DONE                   <= regfile.arbiter.AGENT(1).DONE & regfile.arbiter.AGENT(0).DONE;
   -- Read-Only registers
   regfile.arbiter.AGENT(0).REC <= AGENT_REC(0);
   regfile.arbiter.AGENT(0).ACK <= AGENT_ACK(0);
