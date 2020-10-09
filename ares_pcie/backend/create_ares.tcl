@@ -25,7 +25,7 @@ puts "Running ${myself}"
 		   
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_SUB_MINOR_VERSION 4
 
 
 set BASE_NAME  ares_xc7a50t
