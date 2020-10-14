@@ -1016,6 +1016,9 @@ architecture functional of pcie_top is
   constant REG_AGENT_NUMBER : integer := 0;
   constant IRQ_AGENT_NUMBER : integer := 1;
   constant AXI_AGENT_NUMBER : integer := 2;
+  constant BAR0             : integer := 0;
+  constant BAR2             : integer := 2;
+  constant NO_BAR           : integer := 7;
 
   signal tlp_timeout_value    : std_logic_vector(31 downto 0);
   signal tlp_abort_cntr_init  : std_logic;
@@ -1397,9 +1400,12 @@ begin
   xpcie_rx : pcie_rx_axi
     generic map (
       NB_PCIE_AGENTS     => NB_PCIE_AGENTS,
-      AGENT_TO_BAR       => (2 => 7,
-                       1 => 7,          -- la queue n'a pas de BAR associe
-                       0 => 0),
+      -- AGENT_TO_BAR       => (2 => 7,
+      --                  1 => 7,          -- la queue n'a pas de BAR associe
+      --                  0 => 0),
+      AGENT_TO_BAR       => (AXI_AGENT_NUMBER => BAR2,
+                             IRQ_AGENT_NUMBER => NO_BAR,          -- la queue n'a pas de BAR associe
+                             REG_AGENT_NUMBER => BAR0),
       C_DATA_WIDTH       => 64
       )
     port map (

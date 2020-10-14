@@ -518,6 +518,73 @@ architecture functional of ares_pcie is
   end component;
 
 
+  component mb_system_wrapper is
+    port (
+      clk_100MHz         : in    std_logic;
+      hb_ck              : out   std_logic;
+      hb_ck_n            : out   std_logic;
+      hb_cs0_n           : out   std_logic;
+      hb_dq              : inout std_logic_vector (7 downto 0);
+      hb_rst_n           : out   std_logic;
+      hb_rwds            : inout std_logic;
+      host2axi_araddr    : in    std_logic_vector (31 downto 0);
+      host2axi_arburst   : in    std_logic_vector (1 downto 0);
+      host2axi_arcache   : in    std_logic_vector (3 downto 0);
+      host2axi_arid      : in    std_logic_vector (0 to 0);
+      host2axi_arlen     : in    std_logic_vector (7 downto 0);
+      host2axi_arlock    : in    std_logic_vector (0 to 0);
+      host2axi_arprot    : in    std_logic_vector (2 downto 0);
+      host2axi_arqos     : in    std_logic_vector (3 downto 0);
+      host2axi_arready   : out   std_logic;
+      host2axi_arregion  : in    std_logic_vector (3 downto 0);
+      host2axi_arsize    : in    std_logic_vector (2 downto 0);
+      host2axi_arvalid   : in    std_logic;
+      host2axi_awaddr    : in    std_logic_vector (31 downto 0);
+      host2axi_awburst   : in    std_logic_vector (1 downto 0);
+      host2axi_awcache   : in    std_logic_vector (3 downto 0);
+      host2axi_awid      : in    std_logic_vector (0 to 0);
+      host2axi_awlen     : in    std_logic_vector (7 downto 0);
+      host2axi_awlock    : in    std_logic_vector (0 to 0);
+      host2axi_awprot    : in    std_logic_vector (2 downto 0);
+      host2axi_awqos     : in    std_logic_vector (3 downto 0);
+      host2axi_awready   : out   std_logic;
+      host2axi_awregion  : in    std_logic_vector (3 downto 0);
+      host2axi_awsize    : in    std_logic_vector (2 downto 0);
+      host2axi_awvalid   : in    std_logic;
+      host2axi_bid       : out   std_logic_vector (0 to 0);
+      host2axi_bready    : in    std_logic;
+      host2axi_bresp     : out   std_logic_vector (1 downto 0);
+      host2axi_bvalid    : out   std_logic;
+      host2axi_clk       : in    std_logic;
+      host2axi_rdata     : out   std_logic_vector (31 downto 0);
+      host2axi_reset_n   : in    std_logic;
+      host2axi_rid       : out   std_logic_vector (0 to 0);
+      host2axi_rlast     : out   std_logic;
+      host2axi_rready    : in    std_logic;
+      host2axi_rresp     : out   std_logic_vector (1 downto 0);
+      host2axi_rvalid    : out   std_logic;
+      host2axi_wdata     : in    std_logic_vector (31 downto 0);
+      host2axi_wlast     : in    std_logic;
+      host2axi_wready    : out   std_logic;
+      host2axi_wstrb     : in    std_logic_vector (3 downto 0);
+      host2axi_wvalid    : in    std_logic;
+      profinet_led_tri_o : out   std_logic_vector (2 downto 0);
+      reset_n            : in    std_logic;
+      spi_io0_io         : inout std_logic;
+      spi_io1_io         : inout std_logic;
+      spi_io2_io         : inout std_logic;
+      spi_io3_io         : inout std_logic;
+      spi_ss_io          : inout std_logic_vector (0 to 0);
+      startup_io_cfgclk  : out   std_logic;
+      startup_io_cfgmclk : out   std_logic;
+      startup_io_eos     : out   std_logic;
+      startup_io_preq    : out   std_logic;
+      uart_rxd           : in    std_logic;
+      uart_txd           : out   std_logic
+      );
+  end component;
+
+
   component ares_pb_wrapper is
     port (
       ProdCons_1_addr            : in    std_logic_vector (10 downto 0);
@@ -746,7 +813,7 @@ architecture functional of ares_pcie is
   signal user_rled_interne               : std_logic;
 
   signal uart_txd_profinet : std_logic;
-  signal acq_trigger_ff    :  std_logic;
+  signal acq_trigger_ff    : std_logic;
 
   constant MAX_FLASHER_COUNT : integer                              := 31250000;  --  1/2 seconde
   signal flasher_count       : integer range 0 to MAX_FLASHER_COUNT := 0;  -- periode PCIe = 16 ns, 1/2 seconde
@@ -810,7 +877,7 @@ architecture functional of ares_pcie is
 
 begin
 
-  
+
   -----------------------------------------------------------------------------
   -- TLP_TO_AXI_MASTER : Only one 16MB window aperture pointing to the
   -- axi_quad_spi base address in IP-Integrator
@@ -821,18 +888,18 @@ begin
   axi_window(0).axi_translation.value <= X"45000000";  -- Static address
                                                        -- extracted from IP-Integrator
 
-  
+
   -----------------------------------------------------------------------------
   -- Unused windows are disabled
   -----------------------------------------------------------------------------
-  G_axi_window_unused: for i in 1 to 3 generate
+  G_axi_window_unused : for i in 1 to 3 generate
     axi_window(i).ctrl.enable           <= '0';
-    axi_window(i).pci_bar0_start.value  <= (others=>'0');
-    axi_window(i).pci_bar0_stop.value   <= (others=>'0');
-    axi_window(i).axi_translation.value <= (others=>'0');
+    axi_window(i).pci_bar0_start.value  <= (others => '0');
+    axi_window(i).pci_bar0_stop.value   <= (others => '0');
+    axi_window(i).axi_translation.value <= (others => '0');
   end generate G_axi_window_unused;
 
-  
+
   -- NCSI clock output to I210 is aligned with Data but inverted  
   ncsi_clk <= ncsi_clk_phase_180;
 
@@ -858,9 +925,9 @@ begin
   ------------------------------
   -- le trigger output est la sortie d'un mux prennant divers signaux interne. 
   -- Du a la relativement faible complexite de ce signal, je ne le mettrai pas dans un module reutilisable (est-ce reutilisable?)
-  AcqTrigger_MUX <= profinet_internal_output_sysclk & clean_user_data_in & Timer_Output & Qdecoder_out & TickTableOut1DArray;
+  AcqTrigger_MUX                                 <= profinet_internal_output_sysclk & clean_user_data_in & Timer_Output & Qdecoder_out & TickTableOut1DArray;
   regfile.InternalOutput.OutputCond(0).OutputVal <= acq_trigger_ff;
-  
+
   process(pclk)
     variable AcqTrigger_AsInt : integer;
   begin
@@ -873,10 +940,10 @@ begin
       end if;
     end if;
   end process;
-  
+
   acq_trigger <= acq_trigger_ff;
 
-  
+
   -------------------------------------------------
   -- redirection des signaux internes inter-fpga --
   -------------------------------------------------
@@ -1165,100 +1232,168 @@ begin
       I => pcie_sys_clk
       );
 
+  xmb_system_wrapper : mb_system_wrapper
+    port map(
+      clk_100MHz            => clk_100MHz_buf,
+      hb_ck                 => hb_ck,
+      hb_ck_n               => hb_ck_n,
+      hb_cs0_n              => hb_cs_n,
+      hb_dq                 => hb_dq,
+      hb_rst_n              => hb_rst_n,
+      hb_rwds               => hb_rwds,
+      host2axi_araddr       => host2axi_araddr,
+      host2axi_arburst      => host2axi_arburst,
+      host2axi_arcache      => host2axi_arcache,
+      host2axi_arid         => host2axi_arid,
+      host2axi_arlen        => host2axi_arlen,
+      host2axi_arlock       => host2axi_arlock,
+      host2axi_arprot       => host2axi_arprot,
+      host2axi_arqos        => host2axi_arqos,
+      host2axi_arready      => host2axi_arready,
+      host2axi_arregion     => host2axi_arregion,
+      host2axi_arsize       => host2axi_arsize,
+      host2axi_arvalid      => host2axi_arvalid,
+      host2axi_awaddr       => host2axi_awaddr,
+      host2axi_awburst      => host2axi_awburst,
+      host2axi_awcache      => host2axi_awcache,
+      host2axi_awid         => host2axi_awid,
+      host2axi_awlen        => host2axi_awlen,
+      host2axi_awlock       => host2axi_awlock,
+      host2axi_awprot       => host2axi_awprot,
+      host2axi_awqos        => host2axi_awqos,
+      host2axi_awready      => host2axi_awready,
+      host2axi_awregion     => host2axi_awregion,
+      host2axi_awsize       => host2axi_awsize,
+      host2axi_awvalid      => host2axi_awvalid,
+      host2axi_bid          => host2axi_bid,
+      host2axi_bready       => host2axi_bready,
+      host2axi_bresp        => host2axi_bresp,
+      host2axi_bvalid       => host2axi_bvalid,
+      host2axi_clk          => host2axi_clk,
+      host2axi_rdata        => host2axi_rdata,
+      host2axi_reset_n      => host2axi_reset_n,
+      host2axi_rid          => host2axi_rid,
+      host2axi_rlast        => host2axi_rlast,
+      host2axi_rready       => host2axi_rready,
+      host2axi_rresp        => host2axi_rresp,
+      host2axi_rvalid       => host2axi_rvalid,
+      host2axi_wdata        => host2axi_wdata,
+      host2axi_wlast        => host2axi_wlast,
+      host2axi_wready       => host2axi_wready,
+      host2axi_wstrb        => host2axi_wstrb,
+      host2axi_wvalid       => host2axi_wvalid,
+      profinet_led_tri_o(0) => profinet_led(0),
+      profinet_led_tri_o(1) => profinet_led(1),
+      profinet_led_tri_o(2) => profinet_internal_output,
+      reset_n               => preset_n,
+      spi_io0_io            => spi_sd(0),
+      spi_io1_io            => spi_sd(1),
+      spi_io2_io            => spi_sd(2),
+      spi_io3_io            => spi_sd(3),
+      spi_ss_io(0)          => spi_cs_n,
+      startup_io_cfgclk     => open,
+      startup_io_cfgmclk    => cfgmclk_pb,
+      startup_io_eos        => open,
+      startup_io_preq       => open,
+      uart_rxd              => debug_uart_rxd,
+      uart_txd              => uart_txd_profinet
+      );
+
+
   ----------------
   -- Profiblaze --
   ----------------
-  ares_pb_i : ares_pb_wrapper
-    port map (
-      -- interface au deuxieme external
-      ProdCons_1_addr            => ProdCons_1_addr,
-      ProdCons_1_ben             => ext_writeBeN,  -- partage entre les 2 interfaces
-      ProdCons_1_clk             => pclk,
-      ProdCons_1_read            => ProdCons_1_read,
-      ProdCons_1_readdata        => ProdCons_1_readdata,
-      ProdCons_1_readdatavalid   => ProdCons_1_readdatavalid,
-      ProdCons_1_reset           => preset,
-      ProdCons_1_write           => ProdCons_1_write,
-      ProdCons_1_writedata       => ext_writeData,
-      cfgmclk                    => cfgmclk_pb,
-      clk_100MHz                 => clk_100MHz_buf,
-      ext_ProdCons_addr          => ext_ProdCons_addr,
-      ext_ProdCons_readData      => ext_ProdCons_readData,
-      ext_ProdCons_readDataValid => ext_ProdCons_readDataValid,
-      ext_ProdCons_readEn        => ext_ProdCons_readEn,
-      ext_ProdCons_writeEn       => ext_ProdCons_writeEn,
-      ext_writeBeN               => ext_writeBeN,
-      ext_writeData              => ext_writeData,
-      hb_ck                      => hb_ck,
-      hb_ck_n                    => hb_ck_n,
-      hb_cs0_n                   => hb_cs_n,
-      hb_dq                      => hb_dq,
-      hb_rst_n                   => hb_rst_n,
-      hb_rwds                    => hb_rwds,
-      host2axi_araddr            => host2axi_araddr,
-      host2axi_arburst           => host2axi_arburst,
-      host2axi_arcache           => host2axi_arcache,
-      host2axi_arid              => host2axi_arid,
-      host2axi_arlen             => host2axi_arlen,
-      host2axi_arlock            => host2axi_arlock,
-      host2axi_arprot            => host2axi_arprot,
-      host2axi_arqos             => host2axi_arqos,
-      host2axi_arready           => host2axi_arready,
-      host2axi_arregion          => host2axi_arregion,
-      host2axi_arsize            => host2axi_arsize,
-      host2axi_arvalid           => host2axi_arvalid,
-      host2axi_awaddr            => host2axi_awaddr,
-      host2axi_awburst           => host2axi_awburst,
-      host2axi_awcache           => host2axi_awcache,
-      host2axi_awid              => host2axi_awid,
-      host2axi_awlen             => host2axi_awlen,
-      host2axi_awlock            => host2axi_awlock,
-      host2axi_awprot            => host2axi_awprot,
-      host2axi_awqos             => host2axi_awqos,
-      host2axi_awready           => host2axi_awready,
-      host2axi_awregion          => host2axi_awregion,
-      host2axi_awsize            => host2axi_awsize,
-      host2axi_awvalid           => host2axi_awvalid,
-      host2axi_bid               => host2axi_bid,
-      host2axi_bready            => host2axi_bready,
-      host2axi_bresp             => host2axi_bresp,
-      host2axi_bvalid            => host2axi_bvalid,
-      host2axi_clk               => host2axi_clk,
-      host2axi_rdata             => host2axi_rdata,
-      host2axi_reset_n           => host2axi_reset_n,
-      host2axi_rid               => host2axi_rid,
-      host2axi_rlast             => host2axi_rlast,
-      host2axi_rready            => host2axi_rready,
-      host2axi_rresp             => host2axi_rresp,
-      host2axi_rvalid            => host2axi_rvalid,
-      host2axi_wdata             => host2axi_wdata,
-      host2axi_wlast             => host2axi_wlast,
-      host2axi_wready            => host2axi_wready,
-      host2axi_wstrb             => host2axi_wstrb,
-      host2axi_wvalid            => host2axi_wvalid,
-      host_irq                   => profinet_irq,
-      ncsi_clk                   => ncsi_clk_phase_0,
-      ncsi_crs_dv                => ncsi_rx_crs_dv,
-      ncsi_rx_er                 => '0',
-      ncsi_rxd                   => ncsi_rxd,
-      ncsi_tx_en                 => ncsi_tx_en,
-      ncsi_txd                   => ncsi_txd,
-      gpio_in(2)                 => profinet_internal_output,
-      gpio_in(1 downto 0)        => profinet_led,
-      gpio_out(2)                => profinet_internal_output,
-      gpio_out(1 downto 0)       => profinet_led,
-      gpio_3states_en            => open,
-      reset_n                    => preset_n,
-      spi_io0_io                 => spi_sd(0),
-      spi_io1_io                 => spi_sd(1),
-      spi_io2_io                 => spi_sd(2),
-      spi_io3_io                 => spi_sd(3),
-      spi_ss_io(0)               => spi_cs_n,
-      sysclk                     => pclk,
-      sysrst                     => preset,
-      uart_rxd                   => debug_uart_rxd,
-      uart_txd                   => uart_txd_profinet
-      );
+  -- ares_pb_i : ares_pb_wrapper
+  --   port map (
+  --     -- interface au deuxieme external
+  --     ProdCons_1_addr            => ProdCons_1_addr,
+  --     ProdCons_1_ben             => ext_writeBeN,  -- partage entre les 2 interfaces
+  --     ProdCons_1_clk             => pclk,
+  --     ProdCons_1_read            => ProdCons_1_read,
+  --     ProdCons_1_readdata        => ProdCons_1_readdata,
+  --     ProdCons_1_readdatavalid   => ProdCons_1_readdatavalid,
+  --     ProdCons_1_reset           => preset,
+  --     ProdCons_1_write           => ProdCons_1_write,
+  --     ProdCons_1_writedata       => ext_writeData,
+  --     cfgmclk                    => cfgmclk_pb,
+  --     clk_100MHz                 => clk_100MHz_buf,
+  --     ext_ProdCons_addr          => ext_ProdCons_addr,
+  --     ext_ProdCons_readData      => ext_ProdCons_readData,
+  --     ext_ProdCons_readDataValid => ext_ProdCons_readDataValid,
+  --     ext_ProdCons_readEn        => ext_ProdCons_readEn,
+  --     ext_ProdCons_writeEn       => ext_ProdCons_writeEn,
+  --     ext_writeBeN               => ext_writeBeN,
+  --     ext_writeData              => ext_writeData,
+  --     hb_ck                      => hb_ck,
+  --     hb_ck_n                    => hb_ck_n,
+  --     hb_cs0_n                   => hb_cs_n,
+  --     hb_dq                      => hb_dq,
+  --     hb_rst_n                   => hb_rst_n,
+  --     hb_rwds                    => hb_rwds,
+  --     host2axi_araddr            => host2axi_araddr,
+  --     host2axi_arburst           => host2axi_arburst,
+  --     host2axi_arcache           => host2axi_arcache,
+  --     host2axi_arid              => host2axi_arid,
+  --     host2axi_arlen             => host2axi_arlen,
+  --     host2axi_arlock            => host2axi_arlock,
+  --     host2axi_arprot            => host2axi_arprot,
+  --     host2axi_arqos             => host2axi_arqos,
+  --     host2axi_arready           => host2axi_arready,
+  --     host2axi_arregion          => host2axi_arregion,
+  --     host2axi_arsize            => host2axi_arsize,
+  --     host2axi_arvalid           => host2axi_arvalid,
+  --     host2axi_awaddr            => host2axi_awaddr,
+  --     host2axi_awburst           => host2axi_awburst,
+  --     host2axi_awcache           => host2axi_awcache,
+  --     host2axi_awid              => host2axi_awid,
+  --     host2axi_awlen             => host2axi_awlen,
+  --     host2axi_awlock            => host2axi_awlock,
+  --     host2axi_awprot            => host2axi_awprot,
+  --     host2axi_awqos             => host2axi_awqos,
+  --     host2axi_awready           => host2axi_awready,
+  --     host2axi_awregion          => host2axi_awregion,
+  --     host2axi_awsize            => host2axi_awsize,
+  --     host2axi_awvalid           => host2axi_awvalid,
+  --     host2axi_bid               => host2axi_bid,
+  --     host2axi_bready            => host2axi_bready,
+  --     host2axi_bresp             => host2axi_bresp,
+  --     host2axi_bvalid            => host2axi_bvalid,
+  --     host2axi_clk               => pclk,
+  --     host2axi_rdata             => host2axi_rdata,
+  --     host2axi_reset_n           => preset_n,
+  --     host2axi_rid               => host2axi_rid,
+  --     host2axi_rlast             => host2axi_rlast,
+  --     host2axi_rready            => host2axi_rready,
+  --     host2axi_rresp             => host2axi_rresp,
+  --     host2axi_rvalid            => host2axi_rvalid,
+  --     host2axi_wdata             => host2axi_wdata,
+  --     host2axi_wlast             => host2axi_wlast,
+  --     host2axi_wready            => host2axi_wready,
+  --     host2axi_wstrb             => host2axi_wstrb,
+  --     host2axi_wvalid            => host2axi_wvalid,
+  --     host_irq                   => profinet_irq,
+  --     ncsi_clk                   => ncsi_clk_phase_0,
+  --     ncsi_crs_dv                => ncsi_rx_crs_dv,
+  --     ncsi_rx_er                 => '0',
+  --     ncsi_rxd                   => ncsi_rxd,
+  --     ncsi_tx_en                 => ncsi_tx_en,
+  --     ncsi_txd                   => ncsi_txd,
+  --     gpio_in(2)                 => profinet_internal_output,
+  --     gpio_in(1 downto 0)        => profinet_led,
+  --     gpio_out(2)                => profinet_internal_output,
+  --     gpio_out(1 downto 0)       => profinet_led,
+  --     gpio_3states_en            => open,
+  --     reset_n                    => preset_n,
+  --     spi_io0_io                 => spi_sd(0),
+  --     spi_io1_io                 => spi_sd(1),
+  --     spi_io2_io                 => spi_sd(2),
+  --     spi_io3_io                 => spi_sd(3),
+  --     spi_ss_io(0)               => spi_cs_n,
+  --     sysclk                     => pclk,
+  --     sysrst                     => preset,
+  --     uart_rxd                   => debug_uart_rxd,
+  --     uart_txd                   => uart_txd_profinet
+  --     );
 
   -- Maintenant qu'on a 2 regions prod-cons, il faut les mapper a 2 places differente dans le register file. Ca ne peut donc plus etre statique dans le register file
   regfile.Microblaze.ProdCons(0).Offset <= conv_std_logic_vector(8192, 20);

@@ -21,7 +21,7 @@ puts "Running ${myself}"
 #			  * FPGA_ID         = 0x11  (IrisGTX PCIe, Artix7 - A50-1L)
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
 #         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
-# 0.0.4 : Open a new BAR on PCIE and connect the tlp_to_axi
+# 0.0.4 : Open a new BAR on PCIE and connect the tlp_to_aximaster
 		   
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
@@ -59,6 +59,7 @@ set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/mb_system_pcie.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 #set UTIL_LIB           ${BACKEND_DIR}/util_lib.tcl
 
@@ -131,7 +132,7 @@ regenerate_bd_layout
 
 
 ## Create the Wrapper file
-set BD_FILE [get_files "*ares_pb.bd"]
+set BD_FILE [get_files "*.bd"]
 set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
 add_files -norecurse -force $BD_WRAPPER_FILE
 
@@ -163,7 +164,7 @@ set_property generic  ${generic_list} ${HDL_FILESET}
 
 
 ## Touchup to patch 
-set_property is_enabled false [get_files  bd_a352_mac_0_clocks.xdc]
+#set_property is_enabled false [get_files  bd_a352_mac_0_clocks.xdc]
 
 ################################################
 # Generate synthesis run

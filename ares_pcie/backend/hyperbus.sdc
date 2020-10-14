@@ -50,7 +50,8 @@ set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_C
 # Example of creating generated clock at clock output port
 # create_generated_clock -name <gen_clock_name> -multiply_by 1 -source [get_pins <source_pin>] [get_ports <output_clock_port>]
 # gen_clock_name is the name of forwarded clock here. It should be used below for defining "fwclk".
-create_generated_clock -name RPC_CK -source [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_ck/ODDR_inst/C] -multiply_by 1 -invert [get_ports hb_ck]
+set SRC_CLK_PIN [get_pins -hier -filter name=~*rpc2_ctrl_io/io_oddr_ck/ODDR_inst/C]
+create_generated_clock -name RPC_CK -source ${SRC_CLK_PIN} -multiply_by 1 -invert [get_ports hb_ck]
 
 set fwclk        RPC_CK;     # forwarded clock name (generated using create_generated_clock at output clock port)        
 set tsu_r        1.000;      # destination device setup time requirement for rising edge
@@ -72,8 +73,5 @@ set_output_delay -clock $fwclk -min [expr $trce_dly_min - $thd_f] [get_ports $ou
 #report_timing -fall_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_fall -file src_sync_ddr_out_fall.txt;
 
 
-set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_Meta_reg/PRE]
-set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_reg/PRE]
-
-
-
+set_false_path -to [get_pins -hier -filter name=~*rpc2_ctrl_io/reset_clk90_Meta_reg/PRE]
+set_false_path -to [get_pins -hier -filter name=~*rpc2_ctrl_io/reset_clk90_reg/PRE]
