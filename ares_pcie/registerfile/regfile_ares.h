@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xCC5990AA
+* Register file CRC32 : 0xF5A7196A
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -41,6 +41,8 @@
 #define FPGA_REGFILE_ARES_INTERRUPT_QUEUE_MAPPING_ADDRESS                     0x0050
 #define FPGA_REGFILE_ARES_SPI_SPIREGIN_ADDRESS                                0x00E0
 #define FPGA_REGFILE_ARES_SPI_SPIREGOUT_ADDRESS                               0x00E8
+#define FPGA_REGFILE_ARES_ARBITER_ARBITER_CAPABILITIES_ADDRESS                0x00F0
+#define FPGA_REGFILE_ARES_ARBITER_AGENT_ADDRESS                               0x00F4
 #define FPGA_REGFILE_ARES_IO_CAPABILITIES_IO_ADDRESS                          0x0200
 #define FPGA_REGFILE_ARES_IO_IO_PIN_ADDRESS                                   0x0204
 #define FPGA_REGFILE_ARES_IO_IO_OUT_ADDRESS                                   0x0208
@@ -175,11 +177,7 @@ typedef union
 
    struct
    {
-      M_UINT32 minutes : 4;  /* Bits(3:0), null */
-      M_UINT32 hour    : 8;  /* Bits(11:4), null */
-      M_UINT32 date    : 8;  /* Bits(19:12), null */
-      M_UINT32 month   : 4;  /* Bits(23:20), null */
-      M_UINT32 year    : 8;  /* Bits(31:24), null */
+      M_UINT32 value : 32;  /* Bits(31:0), EPOCH date value */
    } f;
 
 } FPGA_REGFILE_ARES_DEVICE_SPECIFIC_BUILDID_TYPE;
@@ -373,6 +371,49 @@ typedef union
    } f;
 
 } FPGA_REGFILE_ARES_SPI_SPIREGOUT_TYPE;
+
+
+/**************************************************************************
+* Register name : arbiter_capabilities
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 tag      : 12;  /* Bits(11:0), null */
+      M_UINT32 rsvd0    : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 agent_nb : 2;   /* Bits(17:16), null */
+      M_UINT32 rsvd1    : 14;  /* Bits(31:18), Reserved */
+   } f;
+
+} FPGA_REGFILE_ARES_ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+
+/**************************************************************************
+* Register name : agent
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 req   : 1;   /* Bits(0:0), REQuest resource */
+      M_UINT32 rsvd0 : 3;   /* Bits(3:1), Reserved */
+      M_UINT32 done  : 1;   /* Bits(4:4), transaction DONE */
+      M_UINT32 rsvd1 : 3;   /* Bits(7:5), Reserved */
+      M_UINT32 rec   : 1;   /* Bits(8:8), master request RECeived */
+      M_UINT32 ack   : 1;   /* Bits(9:9), master request ACKnoledge */
+      M_UINT32 rsvd2 : 22;  /* Bits(31:10), Reserved */
+   } f;
+
+} FPGA_REGFILE_ARES_ARBITER_AGENT_TYPE;
 
 
 /**************************************************************************
@@ -1429,6 +1470,15 @@ typedef struct
 } FPGA_REGFILE_ARES_SPI_TYPE;
 
 /**************************************************************************
+* Section name   : arbiter
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_ARES_ARBITER_ARBITER_CAPABILITIES_TYPE arbiter_capabilities;  /* Address offset: 0x0 */
+   FPGA_REGFILE_ARES_ARBITER_AGENT_TYPE                agent[2];              /* Address offset: 0x4 */
+} FPGA_REGFILE_ARES_ARBITER_TYPE;
+
+/**************************************************************************
 * Section name   : io
 ***************************************************************************/
 typedef struct
@@ -1584,7 +1634,8 @@ typedef struct
    FPGA_REGFILE_ARES_INTERRUPT_QUEUE_TYPE    interrupt_queue;     /* Section; Base address offset: 0x40 */
    M_UINT32                                  rsvd1[35];           /* Padding; Size (140 Bytes) */
    FPGA_REGFILE_ARES_SPI_TYPE                spi;                 /* Section; Base address offset: 0xe0 */
-   M_UINT32                                  rsvd2[68];           /* Padding; Size (272 Bytes) */
+   FPGA_REGFILE_ARES_ARBITER_TYPE            arbiter;             /* Section; Base address offset: 0xf0 */
+   M_UINT32                                  rsvd2[65];           /* Padding; Size (260 Bytes) */
    FPGA_REGFILE_ARES_IO_TYPE                 io[2];               /* Section; Base address offset: 0x200 */
    FPGA_REGFILE_ARES_QUADRATURE_TYPE         quadrature[1];       /* Section; Base address offset: 0x300 */
    FPGA_REGFILE_ARES_TICKTABLE_TYPE          ticktable[1];        /* Section; Base address offset: 0x380 */

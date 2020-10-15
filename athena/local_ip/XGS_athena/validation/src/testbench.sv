@@ -25,7 +25,7 @@ module testbench();
 	parameter AXIS_USER_WIDTH = 4;
 	parameter GPIO_NUMB_INPUT = 1;
 	parameter GPIO_NUMB_OUTPUT = 1;
-	parameter MAX_PCIE_PAYLOAD_SIZE = 128;
+	parameter MAX_PCIE_PAYLOAD_SIZE = 256; // 128, 256, 512. 1024
 	parameter HISPI_IDLE_CHARACTER = 12'h3A6;
 
 	parameter BAR_XGS_ATHENA        = 32'h00000000;
@@ -43,7 +43,8 @@ module testbench();
 	parameter FSTART_R_OFFSET_HIGH  = 'h08C;
 	parameter LINE_PITCH_OFFSET     = 'h090;
 	parameter LINE_SIZE_OFFSET      = 'h094;
-
+	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
+	
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
 	parameter READOUT_CFG3_OFFSET       = 'h0120;
@@ -88,6 +89,11 @@ module testbench();
     parameter DPC_LIST_DATA2               = 16'h490; 
     parameter DPC_LIST_DATA1_RD            = 16'h494;    
     parameter DPC_LIST_DATA2_RD            = 16'h498;     
+
+    // LUT
+    parameter LUT_CAPABILITIES             = 16'h4B0;
+	parameter LUT_CTRL                     = 16'h4B4;
+	parameter LUT_RB                       = 16'h4B8;
 
 	// I2C
 	parameter I2C_ID_OFFSET                = 32'h00010000;	
@@ -149,7 +155,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS5M_
+	`define _XGS12M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
@@ -174,7 +180,8 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  8;
 		parameter P_BOTTOM_DUMMY_1  =  3;
-
+		parameter P_LINE_PTR_WIDTH  =  3;
+		 
     ////////////////////////////////////////////////////////////
     // XGS 12000 Sensor parameter definitions
     ////////////////////////////////////////////////////////////
@@ -198,9 +205,10 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  24;
 		parameter P_BOTTOM_DUMMY_1  =  3;
+		parameter P_LINE_PTR_WIDTH  =  2;
 		
     ////////////////////////////////////////////////////////////
-    // XGS 12000 Sensor parameter definitions
+    // XGS 16000 Sensor parameter definitions
     ////////////////////////////////////////////////////////////
 	`elsif _XGS16M_
 		parameter P_MODEL_ID       =  16'h0258;
@@ -222,6 +230,7 @@ module testbench();
 		parameter P_BOTTOM_DUMMY_0  =  4;
 		parameter P_BOTTOM_BLACKREF =  8;
 		parameter P_BOTTOM_DUMMY_1  =  3;
+		parameter P_LINE_PTR_WIDTH  =  2;
 
     `endif
 	 
@@ -494,6 +503,14 @@ module testbench();
 
 
 	assign cfg_bus_mast_en = 1'b1;
+	
+	// PCIE Device Control Register (Offset 08h); bits 7:5
+    //	000b 128 bytes max payload size
+    //	001b 256 bytes max payload size
+    //	010b 512 bytes max payload size
+    //	011b 1024 bytes max payload size
+	//  Others, not supported
+	assign cfg_setmaxpld = 3'b001;
 	//assign tx_axis.tready = 1'b1;
 
 	//Connect the GPIO
@@ -518,74 +535,85 @@ module testbench();
 	// Back pressure to AXI tready
 	//
 	/////////////////////////////////////////////// 
-	reg        tready_cntr_en;
-	reg [15:0] tready_cntr;
-  
-	reg [15:0] tready_packet_delai   = 9;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	// For in-packet Back pressure (on est assure que le PCI va rentrer le TLP sans wait PG054):
+    //   If the core transmit AXI4-Stream interface accepts the start of a TLP by asserting
+    //   s_axis_tx_tready, it is guaranteed to accept the complete TLP with a size up to the
+    //   value contained in the Max_Payload_Size field of the PCI Express Device Capability Register
+    //   (offset 04H)
+
+    //For inter packet Back pressure
+    reg        tx_axis_done;
+	reg        tready_packet_delai_cfg = 0;  // 0=Static, 1=random
+	reg [15:0] tready_packet_delai     = 0;  // InterPacket Back Pressure : 0 = tready statique a 1,   1 = tready a 0 durant un cycle apres le tlast ...
+	reg [15:0] tready_packet_delai_db  = 0;  
 	reg        tready_packet_cntr_en;
 	reg [15:0] tready_packet_cntr;
-  
-  
+	bit [31:0] tready_packet_random; 
+	bit [31:0] tready_packet_random_min=1; 
+	bit [31:0] tready_packet_random_max=15;      
+
 	always @(posedge pcie_clk)
 		if (pcie_axi.reset_n==0) begin
 			tx_axis.tready         <= 1'b1 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 16'b0;
-  
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
+
+            tx_axis_done           <= 1;
       
-		end else if (tx_axis.tvalid==1 && tx_axis.tuser==1) begin
+		end else if (tx_axis.tvalid==1 && tx_axis_done==1) begin  //first data of burst of 16x Qwords
 			tx_axis.tready         <= 1'b1 ;
-      
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-      
+                     
+			if (tready_packet_delai_cfg==0) begin
+			  tready_packet_delai_db = tready_packet_delai;
+			end else begin
+			  tready_packet_random   = $urandom_range(tready_packet_random_max, tready_packet_random_min);				
+			  tready_packet_delai_db = tready_packet_random;
+			end
+
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
+
+            tx_axis_done           <= 0;
   
-		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai==0) begin
+		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1 && tready_packet_delai_db==0) begin
 			tx_axis.tready         <= 1'b1 ;
-  
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
   
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
 
+            tx_axis_done           <= 1;
+
 		end else if (tx_axis.tvalid==1'b1 && tx_axis.tlast==1'b1) begin
 			tx_axis.tready         <= 1'b0 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
 			tready_packet_cntr_en  <= 1;
 			tready_packet_cntr     <= 16'b0;
-      
+
+            tx_axis_done           <= 1;
+
+
 			//------------------------  
 			// inter packet delay  
 			//------------------------
-		end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai-1))  begin    
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr!= (tready_packet_delai_db-1))  begin    
     
 			tx_axis.tready         <= 1'b0 ;
   
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
 			tready_packet_cntr_en  <= 1;
 			tready_packet_cntr     <= tready_packet_cntr + 16'd1;
-  
-		end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai-1))  begin    
+
+            tx_axis_done           <= tx_axis_done;
+
+		end else if (tready_packet_cntr_en==1 && tready_packet_cntr== (tready_packet_delai_db-1))  begin    
     
 			tx_axis.tready         <= 1'b1 ;
-  
-			tready_cntr_en         <= 0;
-			tready_cntr            <= 0;
-  
+			
 			tready_packet_cntr_en  <= 0;
 			tready_packet_cntr     <= 16'b0;
-  
+
+            tx_axis_done           <= tx_axis_done;
+
 		end
     
     
@@ -639,6 +667,7 @@ module testbench();
 				longint fstart;
 				int line_size;
 				int line_pitch;
+				int output_buffer_value;
 
 				int line_time;
 				int monitor_0_reg;
@@ -717,6 +746,13 @@ module testbench();
 				host.write(LINE_PITCH_OFFSET, line_pitch);
 				host.wait_n(10);
 
+				///////////////////////////////////////////////////
+				// DMA output buffer configuration
+				///////////////////////////////////////////////////
+				$display("  2.6 Write OUTPUT_BUFFER register @0x%h", OUTPUT_BUFFER_OFFSET);
+				output_buffer_value =  P_LINE_PTR_WIDTH << 24;
+				host.write(OUTPUT_BUFFER_OFFSET, output_buffer_value);
+				host.wait_n(10);
 
 				///////////////////////////////////////////////////
 				// XGS Controller wakes up sensor
@@ -1028,15 +1064,24 @@ module testbench();
 				end
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<13) +  i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
                 host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<14) + (1<<13) +  i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
-
+                 
+				// Sigle pixel correction (bypassed) 
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + 0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
+	            //host.write(DPC_LIST_DATA1, (2<<16)+2);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            //host.write(DPC_LIST_DATA2,  85);                             // DPC_LIST_CORR_PATTERN = 0;
+	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + 0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<13) +  0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
+                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<14) + (1<<13) +  0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
 	            
-
-
 
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
 				///////////////////////////////////////////////////
+                tready_packet_delai_cfg    = 1; //random backpressure
+				tready_packet_random_min   = 1; 
+	            tready_packet_random_max   = 31;				
+	           
 				ROI_Y_START = 0;    // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
@@ -1050,15 +1095,15 @@ module testbench();
 				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
 
+				
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
-				///////////////////////////////////////////////////
+				///////////////////////////////////////////////////	
 				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				
-			
+				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!					
 				ROI_Y_START = 0;         // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_SIZE  = 64;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
@@ -1074,10 +1119,20 @@ module testbench();
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event
 				///////////////////////////////////////////////////
-				while (dma_irq_cntr != test_nb_images) begin
+				while (dma_irq_cntr != 1) begin
 					#1us;
 				end
 				
+				// Changeons le backpressure apres la premiere image								
+                tready_packet_delai_cfg = 0;   // Static backpressure
+                tready_packet_delai     = 0;  // ok
+                //tready_packet_delai   = 28;  // overrun	
+
+
+				while (dma_irq_cntr != test_nb_images) begin
+					#1us;
+				end
+
 				
 				// Terminate the simulation
 				///////////////////////////////////////////////////

@@ -19,7 +19,7 @@
       <fields name="VALUE" size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="A4">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="AC">
     <registers name="CTRL" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" useReservedSpaceBelow="true" address="108">
       <fields name="GRAB_QUEUE_EN" alias="" description="" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -97,10 +97,47 @@
       </fields>
       <fields name="REVERSE_X" lsb="8"/>
     </registers>
+    <registers name="OUTPUT_BUFFER" alias="Output line buffer" offsetFromParent="38">
+      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LINE_PTR_WIDTH" alias="Line pointer size (in bits)" description="Set the line pointer size (in bits)&#xD;&#xA; 3 = 3 bits wide : The full memory buffer is divided in 8 sub line buffers " lsb="24" size="2" valueAtReset="2" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not valid&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 2 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 4 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 8 line buffers&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="" lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Back pressure detected on PCIe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="CLR_MAX_LINE_BUFF_CNT" alias="Clear maximum line buffer count" description="" readWrite="false" writeOnly="true" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Clear the max count&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="TLP" offsetFromParent="3C">
+      <fields name="MAX_PAYLOAD" description="" lsb="16" size="12" readWrite="false" readOnly="true"/>
+      <fields name="BUS_MASTER_EN" lsb="3" readWrite="false" readOnly="true"/>
+      <fields name="CFG_MAX_PLD" alias="PCIe Device Control Register (Offset 08h); bits 7 downto 5" description="See PCIe Baser2.1, Section 7.8.4. Device Control Register (Offset 08h)&#xD;&#xA;&#xD;&#xA;This field indicates the maximum TLP payload &#xD;&#xA;size allowed by the host for this Function. As a Receiver, the Function must handle TLPs as large as the set value. As a Transmitter, the Function must not generate TLPs exceeding the set value. Permissible values that can be programmed are indicated by the Max_Payload_Size Supported in the Device Capabilities register (see Section 7.8.3).&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;Functions that support only the 128-byte max payload size are&#xD;&#xA;permitted to hardwire this field to 000b.&#xD;&#xA;System software is not required to program the same value for&#xD;&#xA;this field for all the Functions of a multi-Function device. Refer&#xD;&#xA;to Section 2.2.2 for important guidance.&#xD;&#xA;For ARI Devices, Max_Payload_Size is determined solely by the&#xD;&#xA;setting in Function 0. The settings in the other Functions always&#xD;&#xA;return whatever value software programmed for each, but&#xD;&#xA;otherwise are ignored by the component.&#xD;&#xA;Default value of this field is 000b." size="3" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>128 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>256 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>512 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1024 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not supported by Xilinx endpoint&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="ACQ" baseAddress="100" endAddress="2D8">
     <registers name="GRAB_CTRL" alias="GRAB ConTRoL Register" description="Grag Control Register" useReservedSpaceBelow="true" address="118">
-      <fields name="RESET_GRAB" description="This register resets the entire python_ctrl." lsb="31">
+      <fields name="RESET_GRAB" description="This register resets the entire XGS ctrl." lsb="31">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset not active&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset active&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -360,7 +397,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Color sensor&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="SENSOR_REG_UPTATE" alias="SENSOR REGister UPDATE" description="By setting this bit to 1, the SENSOR CONTROLLER WILL UPDATE the programed CMOS sensor registers at the beginning of each grab." lsb="4" valueAtReset="1">
+      <fields name="SENSOR_REG_UPDATE" alias="SENSOR REGister UPDATE" description="By setting this bit to 1, the SENSOR CONTROLLER WILL UPDATE the programed CMOS sensor registers at the beginning of each grab." lsb="4" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Do not update registers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Update registers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -645,7 +682,8 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="MUX_RATIO" description="This is the configuration MUX ratio of the  XGS sensor used. For GTX camera the mux ratio is fixed and set to 4." lsb="8" size="3" valueAtReset="4" readWrite="false" staticVal="true"/>
-      <fields name="NB_LANES" description="This is the configuration number of HiSPI lanes of the  XGS sensor used. &#xD;&#xA;For GTX camera it must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA;For GTX camera it must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" size="3" valueAtReset="6">
+      <fields name="NB_LANES" alias="Number of physical lane enabled" description="This is the physical number of HiSPI lanes available for the  XGS sensor used. &#xD;&#xA;In GTX camera configuration :&#xD;&#xA; - Must be set to 4 in XGS5000, XGS3000,XGS2000 and XGS1300.&#xD;&#xA; - Must be set to 6 in XGS16M, XGS12M, XGS9.4M and XGS8M XGS1300.&#xD;&#xA;" size="3">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>All lanes are disabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>4 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=6&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>6 lanes enabled&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved (All lanes are disabled)&lt;/matrox_column_delimiter></possibleValues>
@@ -783,6 +821,34 @@
     </registers>
     <registers name="DPC_LIST_DATA2_RD" alias="" description="" offsetFromParent="18">
       <fields name="dpc_list_corr_pattern" description="This is pattern of the pixel to be corrected when executing a write to the DPC list.&#xD;&#xA;&#xD;&#xA;2 bit correction : 34, 17, 136, 68&#xD;&#xA;4 bit correction : 170, 153, 51, 204, 85, 102&#xD;&#xA;6 bit correcttion: 187,238 (mapped to 170), 119,221 (mapped to 85)&#xD;&#xA;8 bit correction : 255&#xD;&#xA;Set pixel to 255 (white), debug  : 0" size="8" readWrite="false" readOnly="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="LUT" baseAddress="4B0" endAddress="4B8">
+    <registers name="LUT_CAPABILITIES">
+      <fields name="LUT_SIZE_CONFIG" description="" lsb="16" size="12" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>10 to 8 bits LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_VER" description="Implemented version of the LUT module" size="4" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial monochrone LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="LUT_CTRL" offsetFromParent="4">
+      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT logic will not be used, and the 8MSB bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga." lsb="28"/>
+      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT." lsb="16" size="8"/>
+      <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;The Color and Mono shares the same 8 physical LUT. &#xD;&#xA;&#xD;&#xA;In mono mode set LUT_SEL to 8 to write to all RAMs simultaneous." lsb="12" size="4"/>
+      <fields name="LUT_WRN" alias="LUT Write ReadNot" description="LUT Write mode" lsb="11">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write operation&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="LUT_SS" alias="LUT SnapShot" description="Start the LUT READ or WRITE OPERATION " lsb="10" readWrite="false" writeOnly="true"/>
+      <fields name="LUT_ADD" size="10"/>
+    </registers>
+    <registers name="LUT_RB" offsetFromParent="8">
+      <fields name="LUT_RB" description="Not Implemented to save FPGA ressources" size="8" readWrite="false" staticVal="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">

@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------
 -- 
---              
+-- MAX_PCIE_PAYLOAD_SIZE : see PCIe 2.1 spec; section 7.8.4. Device
+--                         Control Register (Offset 08h)              
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -32,12 +33,12 @@ entity dmawr2tlp is
     ---------------------------------------------------------------------
     -- System I/F
     ---------------------------------------------------------------------
-    context_strb : in std_logic_vector(1 downto 0);
+    context_strb : in    std_logic_vector(1 downto 0);
     --load_dma_context
     ---------------------------------------------------------------------
     -- RegisterFile I/F
     ---------------------------------------------------------------------
-    regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
+    regfile      : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
 
     ----------------------------------------------------
     -- AXI stream interface (Slave port)
@@ -89,7 +90,7 @@ architecture rtl of dmawr2tlp is
     generic (
       AXIS_DATA_WIDTH   : integer := 64;
       AXIS_USER_WIDTH   : integer := 4;
-      BUFFER_ADDR_WIDTH : integer := 10
+      BUFFER_ADDR_WIDTH : integer := 11  -- in bits
       );
     port (
       ---------------------------------------------------------------------
@@ -99,8 +100,12 @@ architecture rtl of dmawr2tlp is
       srst_n : in std_logic;
 
       ----------------------------------------------------
-      -- Control I/F
+      -- Line buffer config (Register file I/F)
       ----------------------------------------------------
+      clr_max_line_buffer_cnt     : in  std_logic;
+      line_ptr_width              : in  std_logic_vector(1 downto 0);
+      max_line_buffer_cnt         : out std_logic_vector(3 downto 0);
+      pcie_back_pressure_detected : out std_logic;
 
       ----------------------------------------------------
       -- AXI stream interface (Slave port)
@@ -204,16 +209,20 @@ architecture rtl of dmawr2tlp is
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
 
-  signal dma_idle                 : std_logic;
-  signal dma_pcie_state           : std_logic_vector(2 downto 0);
-  signal start_of_frame           : std_logic;
-  signal line_ready               : std_logic;
-  signal line_transfered          : std_logic;
-  signal end_of_dma               : std_logic;
-  signal line_buffer_read_en      : std_logic;
-  signal line_buffer_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
-  signal line_buffer_read_data    : std_logic_vector(63 downto 0);
-  signal color_space              : std_logic_vector(2 downto 0);
+  signal dma_idle                    : std_logic;
+  signal dma_pcie_state              : std_logic_vector(2 downto 0);
+  signal start_of_frame              : std_logic;
+  signal line_ready                  : std_logic;
+  signal line_transfered             : std_logic;
+  signal end_of_dma                  : std_logic;
+  signal line_buffer_read_en         : std_logic;
+  signal line_buffer_read_address    : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal line_buffer_read_data       : std_logic_vector(63 downto 0);
+  signal color_space                 : std_logic_vector(2 downto 0);
+  signal clr_max_line_buffer_cnt     : std_logic;
+  signal line_ptr_width              : std_logic_vector(1 downto 0);
+  signal max_line_buffer_cnt         : std_logic_vector(3 downto 0);
+  signal pcie_back_pressure_detected : std_logic;
 
 
   -----------------------------------------------------------------------------
@@ -237,10 +246,13 @@ begin
   dma_context_mapping.line_pitch     <= regfile.DMA.LINE_PITCH.VALUE;
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
-  
-  dma_context_mapping.numb_plane     <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
-                                    3;
 
+  dma_context_mapping.numb_plane <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
+                                    3;
+  
+  regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
+  regfile.DMA.TLP.CFG_MAX_PLD   <= cfg_setmaxpld;
+  regfile.DMA.TLP.BUS_MASTER_EN <= cfg_bus_mast_en;
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline
@@ -270,6 +282,12 @@ begin
                      dma_context_mapping;
 
 
+  regfile.DMA.OUTPUT_BUFFER.MAX_LINE_BUFF_CNT      <= max_line_buffer_cnt;
+  line_ptr_width                                   <= regfile.DMA.OUTPUT_BUFFER.LINE_PTR_WIDTH;
+  regfile.DMA.OUTPUT_BUFFER.ADDRESS_BUS_WIDTH      <= std_logic_vector(to_unsigned(BUFFER_ADDR_WIDTH, 4));
+  clr_max_line_buffer_cnt                          <= regfile.DMA.OUTPUT_BUFFER.CLR_MAX_LINE_BUFF_CNT;
+  regfile.DMA.OUTPUT_BUFFER.PCIE_BACK_PRESSURE_set <= pcie_back_pressure_detected;
+
   xaxi_stream_in : axi_stream_in
     generic map(
       AXIS_DATA_WIDTH   => AXIS_DATA_WIDTH,
@@ -277,20 +295,24 @@ begin
       BUFFER_ADDR_WIDTH => BUFFER_ADDR_WIDTH
       )
     port map(
-      sclk                     => sclk,
-      srst_n                   => srst_n,
-      s_axis_tready            => tready,
-      s_axis_tvalid            => tvalid,
-      s_axis_tdata             => tdata,
-      s_axis_tlast             => tlast,
-      s_axis_tuser             => tuser,
-      start_of_frame           => start_of_frame,
-      line_ready               => line_ready,
-      line_transfered          => line_transfered,
-      end_of_dma               => end_of_dma,
-      line_buffer_read_en      => line_buffer_read_en,
-      line_buffer_read_address => line_buffer_read_address,
-      line_buffer_read_data    => line_buffer_read_data
+      sclk                        => sclk,
+      srst_n                      => srst_n,
+      clr_max_line_buffer_cnt     => clr_max_line_buffer_cnt,
+      line_ptr_width              => line_ptr_width,
+      max_line_buffer_cnt         => max_line_buffer_cnt,
+      pcie_back_pressure_detected => pcie_back_pressure_detected,
+      s_axis_tready               => tready,
+      s_axis_tvalid               => tvalid,
+      s_axis_tdata                => tdata,
+      s_axis_tlast                => tlast,
+      s_axis_tuser                => tuser,
+      start_of_frame              => start_of_frame,
+      line_ready                  => line_ready,
+      line_transfered             => line_transfered,
+      end_of_dma                  => end_of_dma,
+      line_buffer_read_en         => line_buffer_read_en,
+      line_buffer_read_address    => line_buffer_read_address,
+      line_buffer_read_data       => line_buffer_read_data
       );
 
 
@@ -337,7 +359,7 @@ begin
   -----------------------------------------------------------------------------
   -- End of DMA transfer
   -----------------------------------------------------------------------------
-  intevent <= end_of_dma; 
+  intevent <= end_of_dma;
 
 end rtl;
 

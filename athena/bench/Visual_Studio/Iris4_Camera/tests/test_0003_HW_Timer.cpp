@@ -105,7 +105,7 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->setBlackRef(0);
 
 	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
-
+	XGS_Ctrl->enableStrobe(0, 0, 250, 1);
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO, TIMER 
@@ -208,7 +208,7 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			// alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
 			// width minimum sur le signal trig0 du senseur.
 
-			printf("\r%dfps(%.2f), Calculated Max fps is %f @Exp_max=~%.0fus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
+			printf("\r%dfps(%.2f), Calculated Max fps is %lf @Exp_max=~%.0lfus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
 				                                                                        XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0,
 				                                                                        XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
 				                                                                        XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y)
@@ -241,8 +241,8 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
 				XGS_Ctrl->StopHWTimer();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -360,10 +360,11 @@ void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				// Programmable Flat Image
 				if (XGSTestImageMode == 1) {
 					cout << "Xgs Image Test Mode is set to Flat Image (Can be programmed to any value)\n" ;
-					XGS_Ctrl->WriteSPI(0x3e10, 0x7ff); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x7ff); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x7ff); // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x7ff); // Test data Green-B channel
+					M_UINT32 Pixel_value = 0x3a6; // 0x1d3 << 1;
+					XGS_Ctrl->WriteSPI(0x3e10, Pixel_value); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, Pixel_value); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, Pixel_value); // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, Pixel_value); // Test data Green-B channel
 					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
 				}
 				//  Programmable Horizontal black and white lines

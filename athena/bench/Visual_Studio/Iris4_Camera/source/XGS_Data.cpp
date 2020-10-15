@@ -59,6 +59,27 @@ DMAParamStruct* CXGS_Data::getDMAParams(void)
 }
 
 
+//----------------------------------------------------
+//
+//  Print Time
+//
+//----------------------------------------------------
+void CXGS_Data::PrintTime(void)
+{
+
+	time_t ltime;
+	char* buf;
+
+	time(&ltime);
+
+	buf = ctime(&ltime);
+	if (!buf)
+	{
+		printf("Invalid Arguments for ctime.\n");
+	}
+	printf("Current time is %s", buf);
+
+}
 
 //--------------------------------------------------------------------
 // Cette fonction Reset l'interface HiSPI
@@ -111,7 +132,7 @@ void CXGS_Data::HiSpiClr(void)
 void CXGS_Data::HiSpiCalibrate(void)
 {
 	int count = 0;
-	
+
 	//clear old flags
 	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
@@ -120,46 +141,51 @@ void CXGS_Data::HiSpiCalibrate(void)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
 
-	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32  = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32  = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32  = 0xffffffff; //all flags are R or RWc2
-
-	printf("Starting HiSPI calibration...  ");
-	sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 1;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 1;
-	rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
-	sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES  = 0;
+	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
+	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
 	
-	do 
-	{
-		Sleep(1);
-		count++;
-		if (count == 100) break;
+    //At least, is sensor powerOn an unreset ?
+	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
+		printf("Starting HiSPI calibration...  ");
+		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
+		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
 
-	} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
+		do
+		{
+			Sleep(1);
+			count++;
+			if (count == 100) break;
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0)
-	{
-		printf("Calibration ERROR\n");
-		printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
-		printf("  IDELAYCTRL_STATUS     : 0x%X\n", rXGSptr.HISPI.IDELAYCTRL_STATUS.u32);
-		printf("  LANE_DECODER_STATUS_0 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32);
-		printf("  LANE_DECODER_STATUS_1 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32);
-		printf("  LANE_DECODER_STATUS_2 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32);
-		printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
-		printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
-		printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
-		printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
-		printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
-		printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+		} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
 
-	}
 
-	if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
-		printf("Calibration OK\n");
-		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
-		rXGSptr.HISPI.CTRL.u32                = sXGSptr.HISPI.CTRL.u32;
-	}
+		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
+		{
+			printf("Calibration ERROR\n");
+			printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
+			printf("  IDELAYCTRL_STATUS     : 0x%X\n", rXGSptr.HISPI.IDELAYCTRL_STATUS.u32);
+			printf("  LANE_DECODER_STATUS_0 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32);
+			printf("  LANE_DECODER_STATUS_1 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32);
+			printf("  LANE_DECODER_STATUS_2 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32);
+			printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
+			printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
+			printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
+			printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
+			printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
+			printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+
+		}
+
+		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
+			printf("Calibration OK ");
+			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
+			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		}
+	} else
+		printf("Sensor not poweredUP!!! \n");
 }
 
 
@@ -268,6 +294,8 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if ( (Register & 0x00000002) == 0x002)  { printf("\nHISPI_STATUS, CALIBRATION ERROR");    error_detect = 1; }
 	if ( (Register & 0x00000004) == 0x004)  { printf("\nHISPI_STATUS, FIFO ERROR");			  error_detect = 1; }
 	if ( (Register & 0x00000008) == 0x008)  { printf("\nHISPI_STATUS, PHY_BIT_LOCKED_ERROR"); error_detect = 1; }
+	if ( (Register & 0x00000010) == 0x010)  { printf("\nHISPI_STATUS, CRC_ERROR");            error_detect = 1; }
+
 
 	for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
 	{
@@ -278,6 +306,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		if ( (Register & 0x00000008)  == 0x008)  { printf("\nLANE_DECODER_STATUS_[%d], CALIBRATION_ERROR", i);		error_detect = 1; } 
 		if ( (Register & 0x00002000)  == 0x2000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_BIT_LOCKED_ERROR", i);	error_detect = 1; }
 		if ( (Register & 0x00004000)  == 0x4000) { printf("\nLANE_DECODER_STATUS_[%d], PHY_SYNC_ERROR", i);			error_detect = 1; }
+		if ( (Register & 0x00008000)  == 0x8000) { printf("\nLANE_DECODER_STATUS_[%d], CRC_ERROR", i);			    error_detect = 1; }
 	}
 
 	for (M_UINT32 i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
@@ -291,21 +320,34 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 	if (error_detect == 1)
 	{
 		printf("\n\n");
-
+		printf("DMA.OUTPUT_BUFFER.f.MAX_LINE_BUFF_CNT   : 0x%X\n", rXGSptr.DMA.OUTPUT_BUFFER.f.MAX_LINE_BUFF_CNT);
+		printf("DMA.OUTPUT_BUFFER.f.PCIE_BACK_PRESSURE  : 0x%X\n", rXGSptr.DMA.OUTPUT_BUFFER.f.PCIE_BACK_PRESSURE);
+		printf("\n");
 		Reg_HISPI_CTRL = rXGSptr.HISPI.CTRL.u32;
 		printf("HISPI CTRL         : 0x%X\n",   Reg_HISPI_CTRL);
-		printf("HISPI STATUS       : 0x%X\n\n", Reg_HISPI_STATUS);
-
+		printf("HISPI STATUS       : 0x%X\n",   Reg_HISPI_STATUS);
 		printf("HISPI DEC0_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[0]);
 		printf("HISPI DEC1_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[1]);
 		printf("HISPI DEC2_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[2]);
 		printf("HISPI DEC3_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[3]);
 		printf("HISPI DEC4_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[4]);
-		printf("HISPI DEC5_STATUS  : 0x%X\n\n", Reg_HISPI_DEC_STATUS[5]);
-
+		printf("HISPI DEC5_STATUS  : 0x%X\n",   Reg_HISPI_DEC_STATUS[5]);
 		printf("HISPI PACK0_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[0]);
 		printf("HISPI PACK1_STATUS : 0x%X\n",   Reg_HISPI_PACK_STATUS[1]);
-		printf("HISPI PACK2_STATUS : 0x%X\n\n", Reg_HISPI_PACK_STATUS[2]);
+		printf("HISPI PACK2_STATUS : 0x%X\n", Reg_HISPI_PACK_STATUS[2]);
+		for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
+			printf("TAP_HISTOGRAM_%d : 0x%X\n", i, rXGSptr.HISPI.TAP_HISTOGRAM[i].u32);
+
+		printf("\n\nError detected at : ");
+		PrintTime();
+
+		if (rXGSptr.DMA.TLP.f.MAX_PAYLOAD != rXGSptr.DMA.TLP.f.CFG_MAX_PLD) {
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 0) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  128 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 1) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  256 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 2) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  512 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 3) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program 1024 bytes \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+		}
+
 
 		printf("\nPress 'c' to continue without recover HI_SPI\n");
 		printf("Press 'r' to try to recover HI_SPI and continue this test\n");
@@ -322,10 +364,12 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 			break;
 
 		case 'c':
+			printf("\n(c) Continuing...\n");
 			Stop_test = 0;
 			break;
 
 		case 'r':
+			printf("\n(r) Recovering...\n");
 			Stop_test = 0;
 			HiSpiClr();
 			HiSpiCalibrate();
@@ -335,3 +379,65 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 
 	return Stop_test;
 }
+
+
+//---------------------------------------------------------------------------------------
+//
+// Program LUTs
+//
+//---------------------------------------------------------------------------------------
+void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1; // bypass
+	rXGSptr.LUT.LUT_CTRL.f.LUT_SEL    = 8; // All LUT
+	rXGSptr.LUT.LUT_CTRL.f.LUT_WRN    = 1; // WRITE LUT
+	
+	//Transparent 10 a 8 (Compression 10 a 8) 
+	if (LUT_TYPE == 0) { 
+		printf("\nLUT is now 10 to 8 bits Compression (Transparent)\n");
+		for (int i = 0; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i>>2;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+	}
+	//Inverted 10 a 8 (8 MSB) 
+	else if (LUT_TYPE == 1) {
+		printf("\nLUT is now 10 to 8 bits Compression (Inverted)\n");
+		for (int i = 0; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = 255-(i >> 2);
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS = 1;
+		}
+	}
+	//Transparent 10 a 8 (8 LSB  of 10 bits) 
+	else if (LUT_TYPE == 2) {
+		printf("\nLUT is now 10 to 8 bits, 8LSB bits of 10 bits\n");
+		for (int i = 0; i < 256; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i ;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+		for (int i = 256; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD    = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = 0xff;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS     = 1;
+		}
+
+	}
+
+
+}
+
+
+void CXGS_Data::EnableLUT(void)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 0;
+}
+
+
+void CXGS_Data::DisableLUT(void)
+{
+	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1;
+}
+

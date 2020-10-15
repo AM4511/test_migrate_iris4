@@ -2,11 +2,11 @@
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster_pack
--- Created on          : 2020/06/29 12:06:56
--- Created by          : imaval
+-- Created on          : 2020/09/15 18:41:27
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x482014AC
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -42,6 +42,9 @@ package regfile_pcie2AxiMaster_pack is
    constant K_tlp_transaction_abort_cntr_ADDR  : natural := 16#74#;
    constant K_spi_SPIREGIN_ADDR                : natural := 16#e0#;
    constant K_spi_SPIREGOUT_ADDR               : natural := 16#e8#;
+   constant K_arbiter_ARBITER_CAPABILITIES_ADDR : natural := 16#f0#;
+   constant K_arbiter_AGENT_0_ADDR             : natural := 16#f4#;
+   constant K_arbiter_AGENT_1_ADDR             : natural := 16#f8#;
    constant K_axi_window_0_ctrl_ADDR           : natural := 16#100#;
    constant K_axi_window_0_pci_bar0_start_ADDR : natural := 16#104#;
    constant K_axi_window_0_pci_bar0_stop_ADDR  : natural := 16#108#;
@@ -213,11 +216,13 @@ package regfile_pcie2AxiMaster_pack is
    -- Register Name: ctrl
    ------------------------------------------------------------------------------------------
    type INTERRUPTS_CTRL_TYPE is record
+      sw_irq         : std_logic;
       num_irq        : std_logic_vector(6 downto 0);
       global_mask    : std_logic;
    end record INTERRUPTS_CTRL_TYPE;
 
    constant INIT_INTERRUPTS_CTRL_TYPE : INTERRUPTS_CTRL_TYPE := (
+      sw_irq          => 'Z',
       num_irq         => (others=> 'Z'),
       global_mask     => 'Z'
    );
@@ -427,6 +432,49 @@ package regfile_pcie2AxiMaster_pack is
    -- Casting functions:
    function to_std_logic_vector(reg : SPI_SPIREGOUT_TYPE) return std_logic_vector;
    function to_SPI_SPIREGOUT_TYPE(stdlv : std_logic_vector(31 downto 0)) return SPI_SPIREGOUT_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: ARBITER_CAPABILITIES
+   ------------------------------------------------------------------------------------------
+   type ARBITER_ARBITER_CAPABILITIES_TYPE is record
+      AGENT_NB       : std_logic_vector(1 downto 0);
+      TAG            : std_logic_vector(11 downto 0);
+   end record ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+   constant INIT_ARBITER_ARBITER_CAPABILITIES_TYPE : ARBITER_ARBITER_CAPABILITIES_TYPE := (
+      AGENT_NB        => (others=> 'Z'),
+      TAG             => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ARBITER_ARBITER_CAPABILITIES_TYPE) return std_logic_vector;
+   function to_ARBITER_ARBITER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_ARBITER_CAPABILITIES_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: AGENT
+   ------------------------------------------------------------------------------------------
+   type ARBITER_AGENT_TYPE is record
+      ACK            : std_logic;
+      REC            : std_logic;
+      DONE           : std_logic;
+      REQ            : std_logic;
+   end record ARBITER_AGENT_TYPE;
+
+   constant INIT_ARBITER_AGENT_TYPE : ARBITER_AGENT_TYPE := (
+      ACK             => 'Z',
+      REC             => 'Z',
+      DONE            => 'Z',
+      REQ             => 'Z'
+   );
+
+   ------------------------------------------------------------------------------------------
+   -- Array type: ARBITER_AGENT_TYPE
+   ------------------------------------------------------------------------------------------
+   type ARBITER_AGENT_TYPE_ARRAY is array (1 downto 0) of ARBITER_AGENT_TYPE;
+   constant INIT_ARBITER_AGENT_TYPE_ARRAY : ARBITER_AGENT_TYPE_ARRAY := (others => INIT_ARBITER_AGENT_TYPE);
+   -- Casting functions:
+   function to_std_logic_vector(reg : ARBITER_AGENT_TYPE) return std_logic_vector;
+   function to_ARBITER_AGENT_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_AGENT_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: ctrl
@@ -662,6 +710,19 @@ package regfile_pcie2AxiMaster_pack is
    );
 
    ------------------------------------------------------------------------------------------
+   -- Section Name: arbiter
+   ------------------------------------------------------------------------------------------
+   type ARBITER_TYPE is record
+      ARBITER_CAPABILITIES: ARBITER_ARBITER_CAPABILITIES_TYPE;
+      AGENT          : ARBITER_AGENT_TYPE_ARRAY;
+   end record ARBITER_TYPE;
+
+   constant INIT_ARBITER_TYPE : ARBITER_TYPE := (
+      ARBITER_CAPABILITIES => INIT_ARBITER_ARBITER_CAPABILITIES_TYPE,
+      AGENT           => INIT_ARBITER_AGENT_TYPE_ARRAY
+   );
+
+   ------------------------------------------------------------------------------------------
    -- Section Name: axi_window
    ------------------------------------------------------------------------------------------
    type AXI_WINDOW_TYPE is record
@@ -712,6 +773,7 @@ package regfile_pcie2AxiMaster_pack is
       interrupt_queue: INTERRUPT_QUEUE_TYPE;
       tlp            : TLP_TYPE;
       spi            : SPI_TYPE;
+      arbiter        : ARBITER_TYPE;
       axi_window     : AXI_WINDOW_TYPE_array;
       debug          : DEBUG_TYPE;
    end record REGFILE_PCIE2AXIMASTER_TYPE;
@@ -723,6 +785,7 @@ package regfile_pcie2AxiMaster_pack is
       interrupt_queue => INIT_INTERRUPT_QUEUE_TYPE,
       tlp             => INIT_TLP_TYPE,
       spi             => INIT_SPI_TYPE,
+      arbiter         => INIT_ARBITER_TYPE,
       axi_window      => INIT_AXI_WINDOW_TYPE_array,
       debug           => INIT_DEBUG_TYPE
    );
@@ -956,6 +1019,7 @@ package body regfile_pcie2AxiMaster_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.sw_irq;
       output(7 downto 1) := reg.num_irq;
       output(0) := reg.global_mask;
       return output;
@@ -968,6 +1032,7 @@ package body regfile_pcie2AxiMaster_pack is
    function to_INTERRUPTS_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return INTERRUPTS_CTRL_TYPE is
    variable output : INTERRUPTS_CTRL_TYPE;
    begin
+      output.sw_irq := stdlv(31);
       output.num_irq := stdlv(7 downto 1);
       output.global_mask := stdlv(0);
       return output;
@@ -1248,6 +1313,60 @@ package body regfile_pcie2AxiMaster_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
+   -- Description: Cast from ARBITER_ARBITER_CAPABILITIES_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ARBITER_ARBITER_CAPABILITIES_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(17 downto 16) := reg.AGENT_NB;
+      output(11 downto 0) := reg.TAG;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ARBITER_ARBITER_CAPABILITIES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ARBITER_ARBITER_CAPABILITIES_TYPE
+   --------------------------------------------------------------------------------
+   function to_ARBITER_ARBITER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_ARBITER_CAPABILITIES_TYPE is
+   variable output : ARBITER_ARBITER_CAPABILITIES_TYPE;
+   begin
+      output.AGENT_NB := stdlv(17 downto 16);
+      output.TAG := stdlv(11 downto 0);
+      return output;
+   end to_ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ARBITER_AGENT_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ARBITER_AGENT_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(9) := reg.ACK;
+      output(8) := reg.REC;
+      output(4) := reg.DONE;
+      output(0) := reg.REQ;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ARBITER_AGENT_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ARBITER_AGENT_TYPE
+   --------------------------------------------------------------------------------
+   function to_ARBITER_AGENT_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_AGENT_TYPE is
+   variable output : ARBITER_AGENT_TYPE;
+   begin
+      output.ACK := stdlv(9);
+      output.REC := stdlv(8);
+      output.DONE := stdlv(4);
+      output.REQ := stdlv(0);
+      return output;
+   end to_ARBITER_AGENT_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
    -- Description: Cast from AXI_WINDOW_CTRL_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : AXI_WINDOW_CTRL_TYPE) return std_logic_vector is
@@ -1463,11 +1582,11 @@ end package body;
 -- File                : regfile_pcie2AxiMaster.vhd
 -- Project             : FDK
 -- Module              : regfile_pcie2AxiMaster
--- Created on          : 2020/06/29 12:06:56
--- Created by          : imaval
+-- Created on          : 2020/09/15 18:41:27
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x482014AC
+-- Register file CRC32 : 0xC43C8CD6
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -1505,8 +1624,8 @@ architecture rtl of regfile_pcie2AxiMaster is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                   : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                           : std_logic_vector(44 downto 0);                   -- Address decode hit
-signal wEn                                           : std_logic_vector(44 downto 0);                   -- Write Enable
+signal hit                                           : std_logic_vector(47 downto 0);                   -- Address decode hit
+signal wEn                                           : std_logic_vector(47 downto 0);                   -- Write Enable
 signal fullAddr                                      : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                 : integer;                                        
 signal bitEnN                                        : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -1535,6 +1654,9 @@ signal rb_tlp_timeout                                : std_logic_vector(31 downt
 signal rb_tlp_transaction_abort_cntr                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_spi_SPIREGIN                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_spi_SPIREGOUT                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_ARBITER_CAPABILITIES               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_AGENT_0                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_AGENT_1                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_axi_window_0_ctrl                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_axi_window_0_pci_bar0_start                : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_axi_window_0_pci_bar0_stop                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -1557,6 +1679,7 @@ signal rb_debug_DMA_DEBUG1                           : std_logic_vector(31 downt
 signal rb_debug_DMA_DEBUG2                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_debug_DMA_DEBUG3                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_info_scratchpad_value                : std_logic_vector(31 downto 0);                   -- Field: value
+signal field_wautoclr_interrupts_ctrl_sw_irq         : std_logic;                                       -- Field: sw_irq
 signal field_rw_interrupts_ctrl_global_mask          : std_logic;                                       -- Field: global_mask
 signal field_rw2c_interrupts_status_0_value          : std_logic_vector(31 downto 0);                   -- Field: value
 signal field_rw2c_interrupts_status_1_value          : std_logic_vector(31 downto 0);                   -- Field: value
@@ -1576,6 +1699,10 @@ signal field_rw_spi_SPIREGIN_SPICMDDONE              : std_logic;               
 signal field_rw_spi_SPIREGIN_SPISEL                  : std_logic;                                       -- Field: SPISEL
 signal field_wautoclr_spi_SPIREGIN_SPITXST           : std_logic;                                       -- Field: SPITXST
 signal field_rw_spi_SPIREGIN_SPIDATAW                : std_logic_vector(7 downto 0);                    -- Field: SPIDATAW
+signal field_wautoclr_arbiter_AGENT_0_DONE           : std_logic;                                       -- Field: DONE
+signal field_wautoclr_arbiter_AGENT_0_REQ            : std_logic;                                       -- Field: REQ
+signal field_wautoclr_arbiter_AGENT_1_DONE           : std_logic;                                       -- Field: DONE
+signal field_wautoclr_arbiter_AGENT_1_REQ            : std_logic;                                       -- Field: REQ
 signal field_rw_axi_window_0_ctrl_enable             : std_logic;                                       -- Field: enable
 signal field_rw_axi_window_0_pci_bar0_start_value    : std_logic_vector(23 downto 0);                   -- Field: value
 signal field_rw_axi_window_0_pci_bar0_stop_value     : std_logic_vector(23 downto 0);                   -- Field: value
@@ -1639,27 +1766,30 @@ hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '
 hit(21) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#74#,12)))	else '0'; -- Addr:  0x0074	transaction_abort_cntr
 hit(22) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#e0#,12)))	else '0'; -- Addr:  0x00E0	SPIREGIN
 hit(23) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#e8#,12)))	else '0'; -- Addr:  0x00E8	SPIREGOUT
-hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	ctrl
-hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#104#,12)))	else '0'; -- Addr:  0x0104	pci_bar0_start
-hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	pci_bar0_stop
-hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#10c#,12)))	else '0'; -- Addr:  0x010C	axi_translation
-hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	ctrl
-hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#114#,12)))	else '0'; -- Addr:  0x0114	pci_bar0_start
-hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#118#,12)))	else '0'; -- Addr:  0x0118	pci_bar0_stop
-hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#11c#,12)))	else '0'; -- Addr:  0x011C	axi_translation
-hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#120#,12)))	else '0'; -- Addr:  0x0120	ctrl
-hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#124#,12)))	else '0'; -- Addr:  0x0124	pci_bar0_start
-hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	pci_bar0_stop
-hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#12c#,12)))	else '0'; -- Addr:  0x012C	axi_translation
-hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	ctrl
-hit(37) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#134#,12)))	else '0'; -- Addr:  0x0134	pci_bar0_start
-hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	pci_bar0_stop
-hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#13c#,12)))	else '0'; -- Addr:  0x013C	axi_translation
-hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#200#,12)))	else '0'; -- Addr:  0x0200	input
-hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#204#,12)))	else '0'; -- Addr:  0x0204	output
-hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#208#,12)))	else '0'; -- Addr:  0x0208	DMA_DEBUG1
-hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#20c#,12)))	else '0'; -- Addr:  0x020C	DMA_DEBUG2
-hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#210#,12)))	else '0'; -- Addr:  0x0210	DMA_DEBUG3
+hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f0#,12)))	else '0'; -- Addr:  0x00F0	ARBITER_CAPABILITIES
+hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f4#,12)))	else '0'; -- Addr:  0x00F4	AGENT[0]
+hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f8#,12)))	else '0'; -- Addr:  0x00F8	AGENT[1]
+hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	ctrl
+hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#104#,12)))	else '0'; -- Addr:  0x0104	pci_bar0_start
+hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	pci_bar0_stop
+hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#10c#,12)))	else '0'; -- Addr:  0x010C	axi_translation
+hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	ctrl
+hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#114#,12)))	else '0'; -- Addr:  0x0114	pci_bar0_start
+hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#118#,12)))	else '0'; -- Addr:  0x0118	pci_bar0_stop
+hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#11c#,12)))	else '0'; -- Addr:  0x011C	axi_translation
+hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#120#,12)))	else '0'; -- Addr:  0x0120	ctrl
+hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#124#,12)))	else '0'; -- Addr:  0x0124	pci_bar0_start
+hit(37) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	pci_bar0_stop
+hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#12c#,12)))	else '0'; -- Addr:  0x012C	axi_translation
+hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	ctrl
+hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#134#,12)))	else '0'; -- Addr:  0x0134	pci_bar0_start
+hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	pci_bar0_stop
+hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#13c#,12)))	else '0'; -- Addr:  0x013C	axi_translation
+hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#200#,12)))	else '0'; -- Addr:  0x0200	input
+hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#204#,12)))	else '0'; -- Addr:  0x0204	output
+hit(45) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#208#,12)))	else '0'; -- Addr:  0x0208	DMA_DEBUG1
+hit(46) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#20c#,12)))	else '0'; -- Addr:  0x020C	DMA_DEBUG2
+hit(47) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#210#,12)))	else '0'; -- Addr:  0x0210	DMA_DEBUG3
 
 
 
@@ -1694,6 +1824,9 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_tlp_transaction_abort_cntr,
                             rb_spi_SPIREGIN,
                             rb_spi_SPIREGOUT,
+                            rb_arbiter_ARBITER_CAPABILITIES,
+                            rb_arbiter_AGENT_0,
+                            rb_arbiter_AGENT_1,
                             rb_axi_window_0_ctrl,
                             rb_axi_window_0_pci_bar0_start,
                             rb_axi_window_0_pci_bar0_stop,
@@ -1813,6 +1946,18 @@ begin
       -- [0x0e8]: /spi/SPIREGOUT
       when 16#E8# =>
          readBackMux <= rb_spi_SPIREGOUT;
+
+      -- [0x0f0]: /arbiter/ARBITER_CAPABILITIES
+      when 16#F0# =>
+         readBackMux <= rb_arbiter_ARBITER_CAPABILITIES;
+
+      -- [0x0f4]: /arbiter/AGENT_0
+      when 16#F4# =>
+         readBackMux <= rb_arbiter_AGENT_0;
+
+      -- [0x0f8]: /arbiter/AGENT_1
+      when 16#F8# =>
+         readBackMux <= rb_arbiter_AGENT_1;
 
       -- [0x100]: /axi_window_0/ctrl
       when 16#100# =>
@@ -2133,6 +2278,30 @@ rb_fpga_board_info(3 downto 0) <= regfile.fpga.board_info.capability;
 wEn(9) <= (hit(9)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: sw_irq
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_interrupts_ctrl(31) <= '0';
+regfile.interrupts.ctrl.sw_irq <= field_wautoclr_interrupts_ctrl_sw_irq;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_interrupts_ctrl_sw_irq
+------------------------------------------------------------------------------------------
+P_interrupts_ctrl_sw_irq : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_interrupts_ctrl_sw_irq <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(9) = '1' and bitEnN(31) = '0') then
+         field_wautoclr_interrupts_ctrl_sw_irq <= reg_writedata(31);
+      else
+         field_wautoclr_interrupts_ctrl_sw_irq <= '0';
+      end if;
+   end if;
+end process P_interrupts_ctrl_sw_irq;
+
+------------------------------------------------------------------------------------------
 -- Field name: num_irq(6 downto 0)
 -- Field type: RO
 ------------------------------------------------------------------------------------------
@@ -2324,7 +2493,7 @@ regfile.interrupts.mask(0).value <= field_rw_interrupts_mask_0_value(31 downto 0
 P_interrupts_mask_0_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_mask_0_value <= X"00000000";
+      field_rw_interrupts_mask_0_value <= X"FFFFFFFF";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(14) = '1' and bitEnN(j) = '0') then
@@ -2357,7 +2526,7 @@ regfile.interrupts.mask(1).value <= field_rw_interrupts_mask_1_value(31 downto 0
 P_interrupts_mask_1_value : process(sysclk, resetN)
 begin
    if (resetN = '0') then
-      field_rw_interrupts_mask_1_value <= X"00000000";
+      field_rw_interrupts_mask_1_value <= X"FFFFFFFF";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
          if(wEn(15) = '1' and bitEnN(j) = '0') then
@@ -2380,7 +2549,7 @@ wEn(16) <= (hit(16)) and (reg_write);
 -- Field name: nb_dw
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_interrupt_queue_control(31 downto 24) <= std_logic_vector(to_unsigned(integer(2),8));
 regfile.interrupt_queue.control.nb_dw <= rb_interrupt_queue_control(31 downto 24);
 
 
@@ -2765,10 +2934,177 @@ rb_spi_SPIREGOUT(7 downto 0) <= regfile.spi.SPIREGOUT.SPIDATARD;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: axi_window_0_ctrl
+-- Register name: arbiter_ARBITER_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(24) <= (hit(24)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: AGENT_NB
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_arbiter_ARBITER_CAPABILITIES(17 downto 16) <= std_logic_vector(to_unsigned(integer(2),2));
+regfile.arbiter.ARBITER_CAPABILITIES.AGENT_NB <= rb_arbiter_ARBITER_CAPABILITIES(17 downto 16);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: TAG
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_arbiter_ARBITER_CAPABILITIES(11 downto 0) <= std_logic_vector(to_unsigned(integer(2731),12));
+regfile.arbiter.ARBITER_CAPABILITIES.TAG <= rb_arbiter_ARBITER_CAPABILITIES(11 downto 0);
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: arbiter_AGENT_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(25) <= (hit(25)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ACK
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(9) <= regfile.arbiter.AGENT(0).ACK;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: REC
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(8) <= regfile.arbiter.AGENT(0).REC;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DONE
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(4) <= '0';
+regfile.arbiter.AGENT(0).DONE <= field_wautoclr_arbiter_AGENT_0_DONE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_0_DONE
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_0_DONE : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_arbiter_AGENT_0_DONE <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(25) = '1' and bitEnN(4) = '0') then
+         field_wautoclr_arbiter_AGENT_0_DONE <= reg_writedata(4);
+      else
+         field_wautoclr_arbiter_AGENT_0_DONE <= '0';
+      end if;
+   end if;
+end process P_arbiter_AGENT_0_DONE;
+
+------------------------------------------------------------------------------------------
+-- Field name: REQ
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(0) <= '0';
+regfile.arbiter.AGENT(0).REQ <= field_wautoclr_arbiter_AGENT_0_REQ;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_0_REQ
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_0_REQ : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_arbiter_AGENT_0_REQ <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(25) = '1' and bitEnN(0) = '0') then
+         field_wautoclr_arbiter_AGENT_0_REQ <= reg_writedata(0);
+      else
+         field_wautoclr_arbiter_AGENT_0_REQ <= '0';
+      end if;
+   end if;
+end process P_arbiter_AGENT_0_REQ;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: arbiter_AGENT_1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(26) <= (hit(26)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ACK
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(9) <= regfile.arbiter.AGENT(1).ACK;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: REC
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(8) <= regfile.arbiter.AGENT(1).REC;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DONE
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(4) <= '0';
+regfile.arbiter.AGENT(1).DONE <= field_wautoclr_arbiter_AGENT_1_DONE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_1_DONE
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_1_DONE : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_arbiter_AGENT_1_DONE <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(26) = '1' and bitEnN(4) = '0') then
+         field_wautoclr_arbiter_AGENT_1_DONE <= reg_writedata(4);
+      else
+         field_wautoclr_arbiter_AGENT_1_DONE <= '0';
+      end if;
+   end if;
+end process P_arbiter_AGENT_1_DONE;
+
+------------------------------------------------------------------------------------------
+-- Field name: REQ
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(0) <= '0';
+regfile.arbiter.AGENT(1).REQ <= field_wautoclr_arbiter_AGENT_1_REQ;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_1_REQ
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_1_REQ : process(sysclk, resetN)
+begin
+   if (resetN = '0') then
+      field_wautoclr_arbiter_AGENT_1_REQ <= '0';
+   elsif (rising_edge(sysclk)) then
+      if(wEn(26) = '1' and bitEnN(0) = '0') then
+         field_wautoclr_arbiter_AGENT_1_REQ <= reg_writedata(0);
+      else
+         field_wautoclr_arbiter_AGENT_1_REQ <= '0';
+      end if;
+   end if;
+end process P_arbiter_AGENT_1_REQ;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: axi_window_0_ctrl
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(27) <= (hit(27)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: enable
@@ -2786,7 +3122,7 @@ begin
    if (resetN = '0') then
       field_rw_axi_window_0_ctrl_enable <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(24) = '1' and bitEnN(0) = '0') then
+      if(wEn(27) = '1' and bitEnN(0) = '0') then
          field_rw_axi_window_0_ctrl_enable <= reg_writedata(0);
       end if;
    end if;
@@ -2799,7 +3135,7 @@ end process P_axi_window_0_ctrl_enable;
 -- Register name: axi_window_0_pci_bar0_start
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(25) <= (hit(25)) and (reg_write);
+wEn(28) <= (hit(28)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -2818,7 +3154,7 @@ begin
       field_rw_axi_window_0_pci_bar0_start_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(25) = '1' and bitEnN(j) = '0') then
+         if(wEn(28) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_0_pci_bar0_start_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -2832,7 +3168,7 @@ end process P_axi_window_0_pci_bar0_start_value;
 -- Register name: axi_window_0_pci_bar0_stop
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(26) <= (hit(26)) and (reg_write);
+wEn(29) <= (hit(29)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -2851,7 +3187,7 @@ begin
       field_rw_axi_window_0_pci_bar0_stop_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(26) = '1' and bitEnN(j) = '0') then
+         if(wEn(29) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_0_pci_bar0_stop_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -2865,7 +3201,7 @@ end process P_axi_window_0_pci_bar0_stop_value;
 -- Register name: axi_window_0_axi_translation
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(27) <= (hit(27)) and (reg_write);
+wEn(30) <= (hit(30)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -2884,7 +3220,7 @@ begin
       field_rw_axi_window_0_axi_translation_value <= std_logic_vector(to_unsigned(integer(0),30));
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 2  loop
-         if(wEn(27) = '1' and bitEnN(j) = '0') then
+         if(wEn(30) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_0_axi_translation_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -2898,7 +3234,7 @@ end process P_axi_window_0_axi_translation_value;
 -- Register name: axi_window_1_ctrl
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(28) <= (hit(28)) and (reg_write);
+wEn(31) <= (hit(31)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: enable
@@ -2916,7 +3252,7 @@ begin
    if (resetN = '0') then
       field_rw_axi_window_1_ctrl_enable <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(28) = '1' and bitEnN(0) = '0') then
+      if(wEn(31) = '1' and bitEnN(0) = '0') then
          field_rw_axi_window_1_ctrl_enable <= reg_writedata(0);
       end if;
    end if;
@@ -2929,7 +3265,7 @@ end process P_axi_window_1_ctrl_enable;
 -- Register name: axi_window_1_pci_bar0_start
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(29) <= (hit(29)) and (reg_write);
+wEn(32) <= (hit(32)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -2948,7 +3284,7 @@ begin
       field_rw_axi_window_1_pci_bar0_start_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(29) = '1' and bitEnN(j) = '0') then
+         if(wEn(32) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_1_pci_bar0_start_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -2962,7 +3298,7 @@ end process P_axi_window_1_pci_bar0_start_value;
 -- Register name: axi_window_1_pci_bar0_stop
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(30) <= (hit(30)) and (reg_write);
+wEn(33) <= (hit(33)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -2981,7 +3317,7 @@ begin
       field_rw_axi_window_1_pci_bar0_stop_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(30) = '1' and bitEnN(j) = '0') then
+         if(wEn(33) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_1_pci_bar0_stop_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -2995,7 +3331,7 @@ end process P_axi_window_1_pci_bar0_stop_value;
 -- Register name: axi_window_1_axi_translation
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(31) <= (hit(31)) and (reg_write);
+wEn(34) <= (hit(34)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -3014,7 +3350,7 @@ begin
       field_rw_axi_window_1_axi_translation_value <= std_logic_vector(to_unsigned(integer(0),30));
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 2  loop
-         if(wEn(31) = '1' and bitEnN(j) = '0') then
+         if(wEn(34) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_1_axi_translation_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3028,7 +3364,7 @@ end process P_axi_window_1_axi_translation_value;
 -- Register name: axi_window_2_ctrl
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(32) <= (hit(32)) and (reg_write);
+wEn(35) <= (hit(35)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: enable
@@ -3046,7 +3382,7 @@ begin
    if (resetN = '0') then
       field_rw_axi_window_2_ctrl_enable <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(32) = '1' and bitEnN(0) = '0') then
+      if(wEn(35) = '1' and bitEnN(0) = '0') then
          field_rw_axi_window_2_ctrl_enable <= reg_writedata(0);
       end if;
    end if;
@@ -3059,7 +3395,7 @@ end process P_axi_window_2_ctrl_enable;
 -- Register name: axi_window_2_pci_bar0_start
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(33) <= (hit(33)) and (reg_write);
+wEn(36) <= (hit(36)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -3078,7 +3414,7 @@ begin
       field_rw_axi_window_2_pci_bar0_start_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(33) = '1' and bitEnN(j) = '0') then
+         if(wEn(36) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_2_pci_bar0_start_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3092,7 +3428,7 @@ end process P_axi_window_2_pci_bar0_start_value;
 -- Register name: axi_window_2_pci_bar0_stop
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(34) <= (hit(34)) and (reg_write);
+wEn(37) <= (hit(37)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -3111,7 +3447,7 @@ begin
       field_rw_axi_window_2_pci_bar0_stop_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(34) = '1' and bitEnN(j) = '0') then
+         if(wEn(37) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_2_pci_bar0_stop_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3125,7 +3461,7 @@ end process P_axi_window_2_pci_bar0_stop_value;
 -- Register name: axi_window_2_axi_translation
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(35) <= (hit(35)) and (reg_write);
+wEn(38) <= (hit(38)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -3144,7 +3480,7 @@ begin
       field_rw_axi_window_2_axi_translation_value <= std_logic_vector(to_unsigned(integer(0),30));
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 2  loop
-         if(wEn(35) = '1' and bitEnN(j) = '0') then
+         if(wEn(38) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_2_axi_translation_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3158,7 +3494,7 @@ end process P_axi_window_2_axi_translation_value;
 -- Register name: axi_window_3_ctrl
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(36) <= (hit(36)) and (reg_write);
+wEn(39) <= (hit(39)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: enable
@@ -3176,7 +3512,7 @@ begin
    if (resetN = '0') then
       field_rw_axi_window_3_ctrl_enable <= '0';
    elsif (rising_edge(sysclk)) then
-      if(wEn(36) = '1' and bitEnN(0) = '0') then
+      if(wEn(39) = '1' and bitEnN(0) = '0') then
          field_rw_axi_window_3_ctrl_enable <= reg_writedata(0);
       end if;
    end if;
@@ -3189,7 +3525,7 @@ end process P_axi_window_3_ctrl_enable;
 -- Register name: axi_window_3_pci_bar0_start
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(37) <= (hit(37)) and (reg_write);
+wEn(40) <= (hit(40)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -3208,7 +3544,7 @@ begin
       field_rw_axi_window_3_pci_bar0_start_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(37) = '1' and bitEnN(j) = '0') then
+         if(wEn(40) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_3_pci_bar0_start_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3222,7 +3558,7 @@ end process P_axi_window_3_pci_bar0_start_value;
 -- Register name: axi_window_3_pci_bar0_stop
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(38) <= (hit(38)) and (reg_write);
+wEn(41) <= (hit(41)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(25 downto 0)
@@ -3241,7 +3577,7 @@ begin
       field_rw_axi_window_3_pci_bar0_stop_value <= std_logic_vector(to_unsigned(integer(0),24));
    elsif (rising_edge(sysclk)) then
       for j in  25 downto 2  loop
-         if(wEn(38) = '1' and bitEnN(j) = '0') then
+         if(wEn(41) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_3_pci_bar0_stop_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3255,7 +3591,7 @@ end process P_axi_window_3_pci_bar0_stop_value;
 -- Register name: axi_window_3_axi_translation
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(39) <= (hit(39)) and (reg_write);
+wEn(42) <= (hit(42)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -3274,7 +3610,7 @@ begin
       field_rw_axi_window_3_axi_translation_value <= std_logic_vector(to_unsigned(integer(0),30));
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 2  loop
-         if(wEn(39) = '1' and bitEnN(j) = '0') then
+         if(wEn(42) = '1' and bitEnN(j) = '0') then
             field_rw_axi_window_3_axi_translation_value(j-2) <= reg_writedata(j);
          end if;
       end loop;
@@ -3288,7 +3624,7 @@ end process P_axi_window_3_axi_translation_value;
 -- Register name: debug_input
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(40) <= (hit(40)) and (reg_write);
+wEn(43) <= (hit(43)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -3304,7 +3640,7 @@ rb_debug_input(31 downto 0) <= regfile.debug.input.value;
 -- Register name: debug_output
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(41) <= (hit(41)) and (reg_write);
+wEn(44) <= (hit(44)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: value(31 downto 0)
@@ -3323,7 +3659,7 @@ begin
       field_rw_debug_output_value <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(41) = '1' and bitEnN(j) = '0') then
+         if(wEn(44) = '1' and bitEnN(j) = '0') then
             field_rw_debug_output_value(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -3337,7 +3673,7 @@ end process P_debug_output_value;
 -- Register name: debug_DMA_DEBUG1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(42) <= (hit(42)) and (reg_write);
+wEn(45) <= (hit(45)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: ADD_START(31 downto 0)
@@ -3356,7 +3692,7 @@ begin
       field_rw_debug_DMA_DEBUG1_ADD_START <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(42) = '1' and bitEnN(j) = '0') then
+         if(wEn(45) = '1' and bitEnN(j) = '0') then
             field_rw_debug_DMA_DEBUG1_ADD_START(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -3370,7 +3706,7 @@ end process P_debug_DMA_DEBUG1_ADD_START;
 -- Register name: debug_DMA_DEBUG2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(43) <= (hit(43)) and (reg_write);
+wEn(46) <= (hit(46)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: ADD_OVERRUN(31 downto 0)
@@ -3389,7 +3725,7 @@ begin
       field_rw_debug_DMA_DEBUG2_ADD_OVERRUN <= X"00000000";
    elsif (rising_edge(sysclk)) then
       for j in  31 downto 0  loop
-         if(wEn(43) = '1' and bitEnN(j) = '0') then
+         if(wEn(46) = '1' and bitEnN(j) = '0') then
             field_rw_debug_DMA_DEBUG2_ADD_OVERRUN(j-0) <= reg_writedata(j);
          end if;
       end loop;
@@ -3403,7 +3739,7 @@ end process P_debug_DMA_DEBUG2_ADD_OVERRUN;
 -- Register name: debug_DMA_DEBUG3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(44) <= (hit(44)) and (reg_write);
+wEn(47) <= (hit(47)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DMA_ADD_ERROR

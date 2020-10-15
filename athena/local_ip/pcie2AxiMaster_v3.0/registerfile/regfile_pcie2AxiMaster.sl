@@ -76,6 +76,9 @@ Register("board_info", 0x2c, 4, "Board information");
 Section("interrupts", 0, 0x40);
 
 Register("ctrl", 0x40, 4, "null");
+		Field("sw_irq", 31, 31, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Software IRQ");
+			FieldValue("No effect", 0);
+			FieldValue("Create an Irq event (pluse)", 1);
 		Field("num_irq", 7, 1, "rd", 0x0, 0x1, 0x0, 0x0, NO_TEST, 0, 0, "Number of IRQ");
 		Field("global_mask", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Global Mask interrupt ");
 			FieldValue("Any enabled interrupt will bi signaled to the host", 0);
@@ -109,7 +112,7 @@ Group("enable", "DECTAG", enableTags);
 for(i = 0; i < 2; i++)
 {
 
-	Register("enable", 0x4c + i*0x4, 4, "enable*", "enable", i, "Interrupt enable register");
+	Register("enable", 0x4c + i*0x4, 4, "enable*", "enable", i, "Interrupt status enable");
 		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 }
 
@@ -125,8 +128,8 @@ Group("mask", "DECTAG", maskTags);
 for(i = 0; i < 2; i++)
 {
 
-	Register("mask", 0x54 + i*0x4, 4, "mask*", "mask", i, "Interrupt mask register");
-		Field("value", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+	Register("mask", 0x54 + i*0x4, 4, "mask*", "mask", i, "Interrupt event mask");
+		Field("value", 31, 0, "rd|wr", 0x0, 0xffffffff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 }
 
 %=================================================================
@@ -135,7 +138,7 @@ for(i = 0; i < 2; i++)
 Section("interrupt_queue", 0, 0x60);
 
 Register("control", 0x60, 4, "null");
-		Field("nb_dw", 31, 24, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Number of DWORDS");
+		Field("nb_dw", 31, 24, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "Number of DWORDS");
 		Field("enable", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "QInterrupt queue enable");
 
 Register("cons_idx", 0x64, 4, "Consumer Index");
@@ -189,6 +192,42 @@ Register("spiregout", 0xe8, 4, "SPI Register Out");
 			FieldValue("Transfer in progress", 0);
 			FieldValue("No transfer in progress", 1);
 		Field("spidatard", 7, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "SPI DATA  Read byte OUTput ");
+
+%=================================================================
+% SECTION NAME	: ARBITER
+%=================================================================
+Section("arbiter", 0, 0xf0);
+
+Register("arbiter_capabilities", 0xf0, 4, "null");
+		Field("agent_nb", 17, 16, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("tag", 11, 0, "rd", 0x0, 0xAAB, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+variable agentTags = UChar_Type[2];
+
+for(i = 0; i < 2; i++)
+{
+	agentTags[i] = i;
+}
+
+Group("agent", "DECTAG", agentTags);
+
+for(i = 0; i < 2; i++)
+{
+
+	Register("agent", 0xf4 + i*0x4, 4, "agent*", "agent", i, "null");
+		Field("ack", 9, 9, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request ACKnoledge");
+			FieldValue(" The resource is NOT ready to be used.", 0);
+			FieldValue(" The resource is ready to be used.", 1);
+		Field("rec", 8, 8, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "master request RECeived");
+			FieldValue(" Master request not received", 0);
+			FieldValue("Master request has been received", 1);
+		Field("done", 4, 4, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "transaction DONE ");
+			FieldValue("Nothing", 0);
+			FieldValue("Master requester transaction done", 1);
+		Field("req", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "REQuest resource");
+			FieldValue("Nothing", 0);
+			FieldValue("Ask for a device resource", 1);
+}
 
 %=================================================================
 % SECTION NAME	: AXI_WINDOW

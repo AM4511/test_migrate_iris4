@@ -27,8 +27,11 @@ proc init_gui { IPINST } {
   set_property tooltip {Enable SPI interface} ${BOOL_ENABLE_SPI}
 
   #Adding Page
-  set Host [ipgui::add_page $IPINST -name "Host"]
+  set Host [ipgui::add_page $IPINST -name "Host" -display_name {Host IRQ}]
+  set_property tooltip {Host interrupt requests configuration} ${Host}
   ipgui::add_param $IPINST -name "NUMB_IRQ" -parent ${Host}
+  set BOOL_ENABLE_SW_IRQ [ipgui::add_param $IPINST -name "BOOL_ENABLE_SW_IRQ" -parent ${Host}]
+  set_property tooltip {Enable software Irq (Used mainly for debug purpose)} ${BOOL_ENABLE_SW_IRQ}
 
   #Adding Page
   set Misc [ipgui::add_page $IPINST -name "Misc"]
@@ -69,6 +72,20 @@ proc validate_PARAM_VALUE.ENABLE_MTX_SPI { PARAM_VALUE.ENABLE_MTX_SPI } {
 	return true
 }
 
+proc update_PARAM_VALUE.ENABLE_SW_IRQ { PARAM_VALUE.ENABLE_SW_IRQ PARAM_VALUE.BOOL_ENABLE_SW_IRQ } {
+	# Procedure called to update ENABLE_SW_IRQ when any of the dependent parameters in the arguments change
+	
+	set ENABLE_SW_IRQ ${PARAM_VALUE.ENABLE_SW_IRQ}
+	set BOOL_ENABLE_SW_IRQ ${PARAM_VALUE.BOOL_ENABLE_SW_IRQ}
+	set values(BOOL_ENABLE_SW_IRQ) [get_property value $BOOL_ENABLE_SW_IRQ]
+	set_property value [gen_USERPARAMETER_ENABLE_SW_IRQ_VALUE $values(BOOL_ENABLE_SW_IRQ)] $ENABLE_SW_IRQ
+}
+
+proc validate_PARAM_VALUE.ENABLE_SW_IRQ { PARAM_VALUE.ENABLE_SW_IRQ } {
+	# Procedure called to validate ENABLE_SW_IRQ
+	return true
+}
+
 proc update_PARAM_VALUE.AXI_ID_WIDTH { PARAM_VALUE.AXI_ID_WIDTH } {
 	# Procedure called to update AXI_ID_WIDTH when any of the dependent parameters in the arguments change
 }
@@ -93,6 +110,15 @@ proc update_PARAM_VALUE.BOOL_ENABLE_SPI { PARAM_VALUE.BOOL_ENABLE_SPI } {
 
 proc validate_PARAM_VALUE.BOOL_ENABLE_SPI { PARAM_VALUE.BOOL_ENABLE_SPI } {
 	# Procedure called to validate BOOL_ENABLE_SPI
+	return true
+}
+
+proc update_PARAM_VALUE.BOOL_ENABLE_SW_IRQ { PARAM_VALUE.BOOL_ENABLE_SW_IRQ } {
+	# Procedure called to update BOOL_ENABLE_SW_IRQ when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.BOOL_ENABLE_SW_IRQ { PARAM_VALUE.BOOL_ENABLE_SW_IRQ } {
+	# Procedure called to validate BOOL_ENABLE_SW_IRQ
 	return true
 }
 
@@ -236,5 +262,10 @@ proc update_MODELPARAM_VALUE.ENABLE_MTX_SPI { MODELPARAM_VALUE.ENABLE_MTX_SPI PA
 proc update_MODELPARAM_VALUE.PCIE_NB_LANES { MODELPARAM_VALUE.PCIE_NB_LANES PARAM_VALUE.PCIE_NB_LANES } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.PCIE_NB_LANES}] ${MODELPARAM_VALUE.PCIE_NB_LANES}
+}
+
+proc update_MODELPARAM_VALUE.ENABLE_SW_IRQ { MODELPARAM_VALUE.ENABLE_SW_IRQ PARAM_VALUE.ENABLE_SW_IRQ } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.ENABLE_SW_IRQ}] ${MODELPARAM_VALUE.ENABLE_SW_IRQ}
 }
 

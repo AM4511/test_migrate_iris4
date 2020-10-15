@@ -2,11 +2,11 @@
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares_pack
--- Created on          : 2020/07/16 13:51:25
+-- Created on          : 2020/09/21 16:48:36
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xCC5990AA
+-- Register file CRC32 : 0xF5A7196A
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -31,6 +31,9 @@ package regfile_ares_pack is
    constant K_INTERRUPT_QUEUE_MAPPING_ADDR                : natural := 16#50#;
    constant K_SPI_SPIREGIN_ADDR                           : natural := 16#e0#;
    constant K_SPI_SPIREGOUT_ADDR                          : natural := 16#e8#;
+   constant K_arbiter_ARBITER_CAPABILITIES_ADDR           : natural := 16#f0#;
+   constant K_arbiter_AGENT_0_ADDR                        : natural := 16#f4#;
+   constant K_arbiter_AGENT_1_ADDR                        : natural := 16#f8#;
    constant K_IO_0_CAPABILITIES_IO_ADDR                   : natural := 16#200#;
    constant K_IO_0_IO_PIN_ADDR                            : natural := 16#204#;
    constant K_IO_0_IO_OUT_ADDR                            : natural := 16#208#;
@@ -248,19 +251,11 @@ package regfile_ares_pack is
    -- Register Name: BUILDID
    ------------------------------------------------------------------------------------------
    type DEVICE_SPECIFIC_BUILDID_TYPE is record
-      YEAR           : std_logic_vector(7 downto 0);
-      MONTH          : std_logic_vector(3 downto 0);
-      DATE           : std_logic_vector(7 downto 0);
-      HOUR           : std_logic_vector(7 downto 0);
-      MINUTES        : std_logic_vector(3 downto 0);
+      VALUE          : std_logic_vector(31 downto 0);
    end record DEVICE_SPECIFIC_BUILDID_TYPE;
 
    constant INIT_DEVICE_SPECIFIC_BUILDID_TYPE : DEVICE_SPECIFIC_BUILDID_TYPE := (
-      YEAR            => (others=> 'Z'),
-      MONTH           => (others=> 'Z'),
-      DATE            => (others=> 'Z'),
-      HOUR            => (others=> 'Z'),
-      MINUTES         => (others=> 'Z')
+      VALUE           => (others=> 'Z')
    );
 
    -- Casting functions:
@@ -439,6 +434,49 @@ package regfile_ares_pack is
    -- Casting functions:
    function to_std_logic_vector(reg : SPI_SPIREGOUT_TYPE) return std_logic_vector;
    function to_SPI_SPIREGOUT_TYPE(stdlv : std_logic_vector(31 downto 0)) return SPI_SPIREGOUT_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: ARBITER_CAPABILITIES
+   ------------------------------------------------------------------------------------------
+   type ARBITER_ARBITER_CAPABILITIES_TYPE is record
+      AGENT_NB       : std_logic_vector(1 downto 0);
+      TAG            : std_logic_vector(11 downto 0);
+   end record ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+   constant INIT_ARBITER_ARBITER_CAPABILITIES_TYPE : ARBITER_ARBITER_CAPABILITIES_TYPE := (
+      AGENT_NB        => (others=> 'Z'),
+      TAG             => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ARBITER_ARBITER_CAPABILITIES_TYPE) return std_logic_vector;
+   function to_ARBITER_ARBITER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_ARBITER_CAPABILITIES_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: AGENT
+   ------------------------------------------------------------------------------------------
+   type ARBITER_AGENT_TYPE is record
+      ACK            : std_logic;
+      REC            : std_logic;
+      DONE           : std_logic;
+      REQ            : std_logic;
+   end record ARBITER_AGENT_TYPE;
+
+   constant INIT_ARBITER_AGENT_TYPE : ARBITER_AGENT_TYPE := (
+      ACK             => 'Z',
+      REC             => 'Z',
+      DONE            => 'Z',
+      REQ             => 'Z'
+   );
+
+   ------------------------------------------------------------------------------------------
+   -- Array type: ARBITER_AGENT_TYPE
+   ------------------------------------------------------------------------------------------
+   type ARBITER_AGENT_TYPE_ARRAY is array (1 downto 0) of ARBITER_AGENT_TYPE;
+   constant INIT_ARBITER_AGENT_TYPE_ARRAY : ARBITER_AGENT_TYPE_ARRAY := (others => INIT_ARBITER_AGENT_TYPE);
+   -- Casting functions:
+   function to_std_logic_vector(reg : ARBITER_AGENT_TYPE) return std_logic_vector;
+   function to_ARBITER_AGENT_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_AGENT_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: CAPABILITIES_IO
@@ -1420,6 +1458,19 @@ package regfile_ares_pack is
    );
 
    ------------------------------------------------------------------------------------------
+   -- Section Name: arbiter
+   ------------------------------------------------------------------------------------------
+   type ARBITER_TYPE is record
+      ARBITER_CAPABILITIES: ARBITER_ARBITER_CAPABILITIES_TYPE;
+      AGENT          : ARBITER_AGENT_TYPE_ARRAY;
+   end record ARBITER_TYPE;
+
+   constant INIT_ARBITER_TYPE : ARBITER_TYPE := (
+      ARBITER_CAPABILITIES => INIT_ARBITER_ARBITER_CAPABILITIES_TYPE,
+      AGENT           => INIT_ARBITER_AGENT_TYPE_ARRAY
+   );
+
+   ------------------------------------------------------------------------------------------
    -- Section Name: IO
    ------------------------------------------------------------------------------------------
    type IO_TYPE is record
@@ -1643,6 +1694,7 @@ package regfile_ares_pack is
       Device_specific: DEVICE_SPECIFIC_TYPE;
       INTERRUPT_QUEUE: INTERRUPT_QUEUE_TYPE;
       SPI            : SPI_TYPE;
+      arbiter        : ARBITER_TYPE;
       IO             : IO_TYPE_array;
       Quadrature     : QUADRATURE_TYPE_array;
       TickTable      : TICKTABLE_TYPE_array;
@@ -1660,6 +1712,7 @@ package regfile_ares_pack is
       Device_specific => INIT_DEVICE_SPECIFIC_TYPE,
       INTERRUPT_QUEUE => INIT_INTERRUPT_QUEUE_TYPE,
       SPI             => INIT_SPI_TYPE,
+      arbiter         => INIT_ARBITER_TYPE,
       IO              => INIT_IO_TYPE_array,
       Quadrature      => INIT_QUADRATURE_TYPE_array,
       TickTable       => INIT_TICKTABLE_TYPE_array,
@@ -1776,11 +1829,7 @@ package body regfile_ares_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(31 downto 24) := reg.YEAR;
-      output(23 downto 20) := reg.MONTH;
-      output(19 downto 12) := reg.DATE;
-      output(11 downto 4) := reg.HOUR;
-      output(3 downto 0) := reg.MINUTES;
+      output(31 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
@@ -1791,11 +1840,7 @@ package body regfile_ares_pack is
    function to_DEVICE_SPECIFIC_BUILDID_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEVICE_SPECIFIC_BUILDID_TYPE is
    variable output : DEVICE_SPECIFIC_BUILDID_TYPE;
    begin
-      output.YEAR := stdlv(31 downto 24);
-      output.MONTH := stdlv(23 downto 20);
-      output.DATE := stdlv(19 downto 12);
-      output.HOUR := stdlv(11 downto 4);
-      output.MINUTES := stdlv(3 downto 0);
+      output.VALUE := stdlv(31 downto 0);
       return output;
    end to_DEVICE_SPECIFIC_BUILDID_TYPE;
 
@@ -2043,6 +2088,60 @@ package body regfile_ares_pack is
       output.SPIDATARD := stdlv(7 downto 0);
       return output;
    end to_SPI_SPIREGOUT_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ARBITER_ARBITER_CAPABILITIES_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ARBITER_ARBITER_CAPABILITIES_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(17 downto 16) := reg.AGENT_NB;
+      output(11 downto 0) := reg.TAG;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ARBITER_ARBITER_CAPABILITIES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ARBITER_ARBITER_CAPABILITIES_TYPE
+   --------------------------------------------------------------------------------
+   function to_ARBITER_ARBITER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_ARBITER_CAPABILITIES_TYPE is
+   variable output : ARBITER_ARBITER_CAPABILITIES_TYPE;
+   begin
+      output.AGENT_NB := stdlv(17 downto 16);
+      output.TAG := stdlv(11 downto 0);
+      return output;
+   end to_ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ARBITER_AGENT_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ARBITER_AGENT_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(9) := reg.ACK;
+      output(8) := reg.REC;
+      output(4) := reg.DONE;
+      output(0) := reg.REQ;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ARBITER_AGENT_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ARBITER_AGENT_TYPE
+   --------------------------------------------------------------------------------
+   function to_ARBITER_AGENT_TYPE(stdlv : std_logic_vector(31 downto 0)) return ARBITER_AGENT_TYPE is
+   variable output : ARBITER_AGENT_TYPE;
+   begin
+      output.ACK := stdlv(9);
+      output.REC := stdlv(8);
+      output.DONE := stdlv(4);
+      output.REQ := stdlv(0);
+      return output;
+   end to_ARBITER_AGENT_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -3331,11 +3430,11 @@ end package body;
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares
--- Created on          : 2020/07/16 13:51:25
+-- Created on          : 2020/09/21 16:48:36
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xCC5990AA
+-- Register file CRC32 : 0xF5A7196A
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3399,8 +3498,8 @@ architecture rtl of regfile_ares is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                          : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                                  : std_logic_vector(145 downto 0);                  -- Address decode hit
-signal wEn                                                                  : std_logic_vector(143 downto 0);                  -- Write Enable
+signal hit                                                                  : std_logic_vector(148 downto 0);                  -- Address decode hit
+signal wEn                                                                  : std_logic_vector(146 downto 0);                  -- Write Enable
 signal fullAddr                                                             : std_logic_vector(15 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                                        : integer;                                        
 signal bitEnN                                                               : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -3416,6 +3515,9 @@ signal rb_INTERRUPT_QUEUE_CONS_IDX                                          : st
 signal rb_INTERRUPT_QUEUE_ADDR_LOW                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_INTERRUPT_QUEUE_ADDR_HIGH                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_SPI_SPIREGOUT                                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_ARBITER_CAPABILITIES                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_AGENT_0                                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_arbiter_AGENT_1                                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_IO_0_CAPABILITIES_IO                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_IO_0_IO_PIN                                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_IO_0_IO_OUT                                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -3582,6 +3684,10 @@ signal field_rw_SPI_SPIREGIN_SPICMDDONE                                     : st
 signal field_rw_SPI_SPIREGIN_SPISEL                                         : std_logic;                                       -- Field: SPISEL
 signal field_wautoclr_SPI_SPIREGIN_SPITXST                                  : std_logic;                                       -- Field: SPITXST
 signal field_rw_SPI_SPIREGIN_SPIDATAW                                       : std_logic_vector(7 downto 0);                    -- Field: SPIDATAW
+signal field_wautoclr_arbiter_AGENT_0_DONE                                  : std_logic;                                       -- Field: DONE
+signal field_wautoclr_arbiter_AGENT_0_REQ                                   : std_logic;                                       -- Field: REQ
+signal field_wautoclr_arbiter_AGENT_1_DONE                                  : std_logic;                                       -- Field: DONE
+signal field_wautoclr_arbiter_AGENT_1_REQ                                   : std_logic;                                       -- Field: REQ
 signal field_rw_IO_0_IO_OUT_Out_value                                       : std_logic_vector(3 downto 0);                    -- Field: Out_value
 signal field_rw_IO_0_IO_DIR_Dir                                             : std_logic_vector(3 downto 0);                    -- Field: Dir
 signal field_rw_IO_0_IO_POL_In_pol                                          : std_logic_vector(3 downto 0);                    -- Field: In_pol
@@ -3892,140 +3998,143 @@ hit(9)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c#,16)))	else 
 hit(10)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#50#,16)))	else '0'; -- Addr:  0x0050	MAPPING
 hit(11)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#e0#,16)))	else '0'; -- Addr:  0x00E0	SPIREGIN
 hit(12)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#e8#,16)))	else '0'; -- Addr:  0x00E8	SPIREGOUT
-hit(13)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#200#,16)))	else '0'; -- Addr:  0x0200	CAPABILITIES_IO
-hit(14)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#204#,16)))	else '0'; -- Addr:  0x0204	IO_PIN
-hit(15)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#208#,16)))	else '0'; -- Addr:  0x0208	IO_OUT
-hit(16)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#20c#,16)))	else '0'; -- Addr:  0x020C	IO_DIR
-hit(17)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#210#,16)))	else '0'; -- Addr:  0x0210	IO_POL
-hit(18)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#214#,16)))	else '0'; -- Addr:  0x0214	IO_INTSTAT
-hit(19)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#218#,16)))	else '0'; -- Addr:  0x0218	IO_INTMASKn
-hit(20)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#21c#,16)))	else '0'; -- Addr:  0x021C	IO_ANYEDGE
-hit(21)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#280#,16)))	else '0'; -- Addr:  0x0280	CAPABILITIES_IO
-hit(22)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#284#,16)))	else '0'; -- Addr:  0x0284	IO_PIN
-hit(23)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#288#,16)))	else '0'; -- Addr:  0x0288	IO_OUT
-hit(24)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#28c#,16)))	else '0'; -- Addr:  0x028C	IO_DIR
-hit(25)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#290#,16)))	else '0'; -- Addr:  0x0290	IO_POL
-hit(26)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#294#,16)))	else '0'; -- Addr:  0x0294	IO_INTSTAT
-hit(27)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#298#,16)))	else '0'; -- Addr:  0x0298	IO_INTMASKn
-hit(28)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#29c#,16)))	else '0'; -- Addr:  0x029C	IO_ANYEDGE
-hit(29)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#300#,16)))	else '0'; -- Addr:  0x0300	CAPABILITIES_QUAD
-hit(30)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#304#,16)))	else '0'; -- Addr:  0x0304	PositionReset
-hit(31)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#308#,16)))	else '0'; -- Addr:  0x0308	DecoderInput
-hit(32)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#30c#,16)))	else '0'; -- Addr:  0x030C	DecoderCfg
-hit(33)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#310#,16)))	else '0'; -- Addr:  0x0310	DecoderPosTrigger
-hit(34)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#314#,16)))	else '0'; -- Addr:  0x0314	DecoderCntrLatch_Cfg
-hit(35)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#334#,16)))	else '0'; -- Addr:  0x0334	DecoderCntrLatched_SW
-hit(36)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#338#,16)))	else '0'; -- Addr:  0x0338	DecoderCntrLatched
-hit(37)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#380#,16)))	else '0'; -- Addr:  0x0380	CAPABILITIES_TICKTBL
-hit(38)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#384#,16)))	else '0'; -- Addr:  0x0384	CAPABILITIES_EXT1
-hit(39)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#388#,16)))	else '0'; -- Addr:  0x0388	TickTableClockPeriod
-hit(40)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#38c#,16)))	else '0'; -- Addr:  0x038C	TickConfig
-hit(41)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#390#,16)))	else '0'; -- Addr:  0x0390	CurrentStampLatched
-hit(42)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#394#,16)))	else '0'; -- Addr:  0x0394	WriteTime
-hit(43)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#398#,16)))	else '0'; -- Addr:  0x0398	WriteCommand
-hit(44)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#39c#,16)))	else '0'; -- Addr:  0x039C	LatchIntStat
-hit(45)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a0#,16)))	else '0'; -- Addr:  0x03A0	InputStamp[0]
-hit(46)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a4#,16)))	else '0'; -- Addr:  0x03A4	InputStamp[1]
-hit(47)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a8#,16)))	else '0'; -- Addr:  0x03A8	reserved_for_extra_latch[0]
-hit(48)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3ac#,16)))	else '0'; -- Addr:  0x03AC	reserved_for_extra_latch[1]
-hit(49)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b0#,16)))	else '0'; -- Addr:  0x03B0	reserved_for_extra_latch[2]
-hit(50)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b4#,16)))	else '0'; -- Addr:  0x03B4	reserved_for_extra_latch[3]
-hit(51)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b8#,16)))	else '0'; -- Addr:  0x03B8	reserved_for_extra_latch[4]
-hit(52)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3bc#,16)))	else '0'; -- Addr:  0x03BC	reserved_for_extra_latch[5]
-hit(53)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c0#,16)))	else '0'; -- Addr:  0x03C0	reserved_for_extra_latch[6]
-hit(54)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c4#,16)))	else '0'; -- Addr:  0x03C4	reserved_for_extra_latch[7]
-hit(55)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c8#,16)))	else '0'; -- Addr:  0x03C8	reserved_for_extra_latch[8]
-hit(56)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3cc#,16)))	else '0'; -- Addr:  0x03CC	reserved_for_extra_latch[9]
-hit(57)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3d0#,16)))	else '0'; -- Addr:  0x03D0	InputStampLatched[0]
-hit(58)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3d4#,16)))	else '0'; -- Addr:  0x03D4	InputStampLatched[1]
-hit(59)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,16)))	else '0'; -- Addr:  0x0400	CAPABILITIES_INCOND
-hit(60)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,16)))	else '0'; -- Addr:  0x0404	InputConditioning[0]
-hit(61)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,16)))	else '0'; -- Addr:  0x0408	InputConditioning[1]
-hit(62)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,16)))	else '0'; -- Addr:  0x040C	InputConditioning[2]
-hit(63)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,16)))	else '0'; -- Addr:  0x0410	InputConditioning[3]
-hit(64)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,16)))	else '0'; -- Addr:  0x0480	CAPABILITIES_OUTCOND
-hit(65)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,16)))	else '0'; -- Addr:  0x0484	OutputCond[0]
-hit(66)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,16)))	else '0'; -- Addr:  0x0488	OutputCond[1]
-hit(67)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,16)))	else '0'; -- Addr:  0x048C	OutputCond[2]
-hit(68)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,16)))	else '0'; -- Addr:  0x0490	OutputCond[3]
-hit(69)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,16)))	else '0'; -- Addr:  0x0494	Reserved
-hit(70)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4ac#,16)))	else '0'; -- Addr:  0x04AC	Output_Debounce
-hit(71)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#500#,16)))	else '0'; -- Addr:  0x0500	CAPABILITIES_INT_INP
-hit(72)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#580#,16)))	else '0'; -- Addr:  0x0580	CAPABILITIES_INTOUT
-hit(73)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#584#,16)))	else '0'; -- Addr:  0x0584	OutputCond[0]
-hit(74)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#600#,16)))	else '0'; -- Addr:  0x0600	CAPABILITIES_TIMER
-hit(75)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#604#,16)))	else '0'; -- Addr:  0x0604	TimerClockPeriod
-hit(76)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#608#,16)))	else '0'; -- Addr:  0x0608	TimerTriggerArm
-hit(77)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#60c#,16)))	else '0'; -- Addr:  0x060C	TimerClockSource
-hit(78)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#610#,16)))	else '0'; -- Addr:  0x0610	TimerDelayValue
-hit(79)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#614#,16)))	else '0'; -- Addr:  0x0614	TimerDuration
-hit(80)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#618#,16)))	else '0'; -- Addr:  0x0618	TimerLatchedValue
-hit(81)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#61c#,16)))	else '0'; -- Addr:  0x061C	TimerStatus
-hit(82)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#680#,16)))	else '0'; -- Addr:  0x0680	CAPABILITIES_TIMER
-hit(83)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#684#,16)))	else '0'; -- Addr:  0x0684	TimerClockPeriod
-hit(84)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#688#,16)))	else '0'; -- Addr:  0x0688	TimerTriggerArm
-hit(85)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#68c#,16)))	else '0'; -- Addr:  0x068C	TimerClockSource
-hit(86)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#690#,16)))	else '0'; -- Addr:  0x0690	TimerDelayValue
-hit(87)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#694#,16)))	else '0'; -- Addr:  0x0694	TimerDuration
-hit(88)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#698#,16)))	else '0'; -- Addr:  0x0698	TimerLatchedValue
-hit(89)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#69c#,16)))	else '0'; -- Addr:  0x069C	TimerStatus
-hit(90)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#700#,16)))	else '0'; -- Addr:  0x0700	CAPABILITIES_TIMER
-hit(91)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#704#,16)))	else '0'; -- Addr:  0x0704	TimerClockPeriod
-hit(92)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#708#,16)))	else '0'; -- Addr:  0x0708	TimerTriggerArm
-hit(93)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70c#,16)))	else '0'; -- Addr:  0x070C	TimerClockSource
-hit(94)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#710#,16)))	else '0'; -- Addr:  0x0710	TimerDelayValue
-hit(95)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#714#,16)))	else '0'; -- Addr:  0x0714	TimerDuration
-hit(96)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#718#,16)))	else '0'; -- Addr:  0x0718	TimerLatchedValue
-hit(97)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#71c#,16)))	else '0'; -- Addr:  0x071C	TimerStatus
-hit(98)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#780#,16)))	else '0'; -- Addr:  0x0780	CAPABILITIES_TIMER
-hit(99)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#784#,16)))	else '0'; -- Addr:  0x0784	TimerClockPeriod
-hit(100) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#788#,16)))	else '0'; -- Addr:  0x0788	TimerTriggerArm
-hit(101) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78c#,16)))	else '0'; -- Addr:  0x078C	TimerClockSource
-hit(102) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#790#,16)))	else '0'; -- Addr:  0x0790	TimerDelayValue
-hit(103) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#794#,16)))	else '0'; -- Addr:  0x0794	TimerDuration
-hit(104) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#798#,16)))	else '0'; -- Addr:  0x0798	TimerLatchedValue
-hit(105) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#79c#,16)))	else '0'; -- Addr:  0x079C	TimerStatus
-hit(106) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#800#,16)))	else '0'; -- Addr:  0x0800	CAPABILITIES_TIMER
-hit(107) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#804#,16)))	else '0'; -- Addr:  0x0804	TimerClockPeriod
-hit(108) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#808#,16)))	else '0'; -- Addr:  0x0808	TimerTriggerArm
-hit(109) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80c#,16)))	else '0'; -- Addr:  0x080C	TimerClockSource
-hit(110) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#810#,16)))	else '0'; -- Addr:  0x0810	TimerDelayValue
-hit(111) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#814#,16)))	else '0'; -- Addr:  0x0814	TimerDuration
-hit(112) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#818#,16)))	else '0'; -- Addr:  0x0818	TimerLatchedValue
-hit(113) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#81c#,16)))	else '0'; -- Addr:  0x081C	TimerStatus
-hit(114) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#880#,16)))	else '0'; -- Addr:  0x0880	CAPABILITIES_TIMER
-hit(115) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#884#,16)))	else '0'; -- Addr:  0x0884	TimerClockPeriod
-hit(116) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#888#,16)))	else '0'; -- Addr:  0x0888	TimerTriggerArm
-hit(117) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88c#,16)))	else '0'; -- Addr:  0x088C	TimerClockSource
-hit(118) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#890#,16)))	else '0'; -- Addr:  0x0890	TimerDelayValue
-hit(119) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#894#,16)))	else '0'; -- Addr:  0x0894	TimerDuration
-hit(120) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#898#,16)))	else '0'; -- Addr:  0x0898	TimerLatchedValue
-hit(121) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#89c#,16)))	else '0'; -- Addr:  0x089C	TimerStatus
-hit(122) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#900#,16)))	else '0'; -- Addr:  0x0900	CAPABILITIES_TIMER
-hit(123) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#904#,16)))	else '0'; -- Addr:  0x0904	TimerClockPeriod
-hit(124) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#908#,16)))	else '0'; -- Addr:  0x0908	TimerTriggerArm
-hit(125) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90c#,16)))	else '0'; -- Addr:  0x090C	TimerClockSource
-hit(126) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#910#,16)))	else '0'; -- Addr:  0x0910	TimerDelayValue
-hit(127) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#914#,16)))	else '0'; -- Addr:  0x0914	TimerDuration
-hit(128) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#918#,16)))	else '0'; -- Addr:  0x0918	TimerLatchedValue
-hit(129) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#91c#,16)))	else '0'; -- Addr:  0x091C	TimerStatus
-hit(130) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#980#,16)))	else '0'; -- Addr:  0x0980	CAPABILITIES_TIMER
-hit(131) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#984#,16)))	else '0'; -- Addr:  0x0984	TimerClockPeriod
-hit(132) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#988#,16)))	else '0'; -- Addr:  0x0988	TimerTriggerArm
-hit(133) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98c#,16)))	else '0'; -- Addr:  0x098C	TimerClockSource
-hit(134) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#990#,16)))	else '0'; -- Addr:  0x0990	TimerDelayValue
-hit(135) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#994#,16)))	else '0'; -- Addr:  0x0994	TimerDuration
-hit(136) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#998#,16)))	else '0'; -- Addr:  0x0998	TimerLatchedValue
-hit(137) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#99c#,16)))	else '0'; -- Addr:  0x099C	TimerStatus
-hit(138) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a00#,16)))	else '0'; -- Addr:  0x0A00	CAPABILITIES_MICRO
-hit(139) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a04#,16)))	else '0'; -- Addr:  0x0A04	ProdCons[0]
-hit(140) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a08#,16)))	else '0'; -- Addr:  0x0A08	ProdCons[1]
-hit(141) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a80#,16)))	else '0'; -- Addr:  0x0A80	CAPABILITIES_ANA_OUT
-hit(142) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a84#,16)))	else '0'; -- Addr:  0x0A84	OutputValue
-hit(143) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#b00#,16)))	else '0'; -- Addr:  0x0B00	EOFM
+hit(13)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f0#,16)))	else '0'; -- Addr:  0x00F0	ARBITER_CAPABILITIES
+hit(14)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f4#,16)))	else '0'; -- Addr:  0x00F4	AGENT[0]
+hit(15)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#f8#,16)))	else '0'; -- Addr:  0x00F8	AGENT[1]
+hit(16)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#200#,16)))	else '0'; -- Addr:  0x0200	CAPABILITIES_IO
+hit(17)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#204#,16)))	else '0'; -- Addr:  0x0204	IO_PIN
+hit(18)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#208#,16)))	else '0'; -- Addr:  0x0208	IO_OUT
+hit(19)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#20c#,16)))	else '0'; -- Addr:  0x020C	IO_DIR
+hit(20)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#210#,16)))	else '0'; -- Addr:  0x0210	IO_POL
+hit(21)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#214#,16)))	else '0'; -- Addr:  0x0214	IO_INTSTAT
+hit(22)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#218#,16)))	else '0'; -- Addr:  0x0218	IO_INTMASKn
+hit(23)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#21c#,16)))	else '0'; -- Addr:  0x021C	IO_ANYEDGE
+hit(24)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#280#,16)))	else '0'; -- Addr:  0x0280	CAPABILITIES_IO
+hit(25)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#284#,16)))	else '0'; -- Addr:  0x0284	IO_PIN
+hit(26)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#288#,16)))	else '0'; -- Addr:  0x0288	IO_OUT
+hit(27)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#28c#,16)))	else '0'; -- Addr:  0x028C	IO_DIR
+hit(28)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#290#,16)))	else '0'; -- Addr:  0x0290	IO_POL
+hit(29)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#294#,16)))	else '0'; -- Addr:  0x0294	IO_INTSTAT
+hit(30)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#298#,16)))	else '0'; -- Addr:  0x0298	IO_INTMASKn
+hit(31)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#29c#,16)))	else '0'; -- Addr:  0x029C	IO_ANYEDGE
+hit(32)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#300#,16)))	else '0'; -- Addr:  0x0300	CAPABILITIES_QUAD
+hit(33)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#304#,16)))	else '0'; -- Addr:  0x0304	PositionReset
+hit(34)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#308#,16)))	else '0'; -- Addr:  0x0308	DecoderInput
+hit(35)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#30c#,16)))	else '0'; -- Addr:  0x030C	DecoderCfg
+hit(36)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#310#,16)))	else '0'; -- Addr:  0x0310	DecoderPosTrigger
+hit(37)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#314#,16)))	else '0'; -- Addr:  0x0314	DecoderCntrLatch_Cfg
+hit(38)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#334#,16)))	else '0'; -- Addr:  0x0334	DecoderCntrLatched_SW
+hit(39)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#338#,16)))	else '0'; -- Addr:  0x0338	DecoderCntrLatched
+hit(40)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#380#,16)))	else '0'; -- Addr:  0x0380	CAPABILITIES_TICKTBL
+hit(41)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#384#,16)))	else '0'; -- Addr:  0x0384	CAPABILITIES_EXT1
+hit(42)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#388#,16)))	else '0'; -- Addr:  0x0388	TickTableClockPeriod
+hit(43)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#38c#,16)))	else '0'; -- Addr:  0x038C	TickConfig
+hit(44)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#390#,16)))	else '0'; -- Addr:  0x0390	CurrentStampLatched
+hit(45)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#394#,16)))	else '0'; -- Addr:  0x0394	WriteTime
+hit(46)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#398#,16)))	else '0'; -- Addr:  0x0398	WriteCommand
+hit(47)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#39c#,16)))	else '0'; -- Addr:  0x039C	LatchIntStat
+hit(48)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a0#,16)))	else '0'; -- Addr:  0x03A0	InputStamp[0]
+hit(49)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a4#,16)))	else '0'; -- Addr:  0x03A4	InputStamp[1]
+hit(50)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3a8#,16)))	else '0'; -- Addr:  0x03A8	reserved_for_extra_latch[0]
+hit(51)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3ac#,16)))	else '0'; -- Addr:  0x03AC	reserved_for_extra_latch[1]
+hit(52)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b0#,16)))	else '0'; -- Addr:  0x03B0	reserved_for_extra_latch[2]
+hit(53)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b4#,16)))	else '0'; -- Addr:  0x03B4	reserved_for_extra_latch[3]
+hit(54)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3b8#,16)))	else '0'; -- Addr:  0x03B8	reserved_for_extra_latch[4]
+hit(55)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3bc#,16)))	else '0'; -- Addr:  0x03BC	reserved_for_extra_latch[5]
+hit(56)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c0#,16)))	else '0'; -- Addr:  0x03C0	reserved_for_extra_latch[6]
+hit(57)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c4#,16)))	else '0'; -- Addr:  0x03C4	reserved_for_extra_latch[7]
+hit(58)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3c8#,16)))	else '0'; -- Addr:  0x03C8	reserved_for_extra_latch[8]
+hit(59)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3cc#,16)))	else '0'; -- Addr:  0x03CC	reserved_for_extra_latch[9]
+hit(60)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3d0#,16)))	else '0'; -- Addr:  0x03D0	InputStampLatched[0]
+hit(61)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#3d4#,16)))	else '0'; -- Addr:  0x03D4	InputStampLatched[1]
+hit(62)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,16)))	else '0'; -- Addr:  0x0400	CAPABILITIES_INCOND
+hit(63)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,16)))	else '0'; -- Addr:  0x0404	InputConditioning[0]
+hit(64)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,16)))	else '0'; -- Addr:  0x0408	InputConditioning[1]
+hit(65)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,16)))	else '0'; -- Addr:  0x040C	InputConditioning[2]
+hit(66)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,16)))	else '0'; -- Addr:  0x0410	InputConditioning[3]
+hit(67)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,16)))	else '0'; -- Addr:  0x0480	CAPABILITIES_OUTCOND
+hit(68)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,16)))	else '0'; -- Addr:  0x0484	OutputCond[0]
+hit(69)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,16)))	else '0'; -- Addr:  0x0488	OutputCond[1]
+hit(70)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,16)))	else '0'; -- Addr:  0x048C	OutputCond[2]
+hit(71)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,16)))	else '0'; -- Addr:  0x0490	OutputCond[3]
+hit(72)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,16)))	else '0'; -- Addr:  0x0494	Reserved
+hit(73)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4ac#,16)))	else '0'; -- Addr:  0x04AC	Output_Debounce
+hit(74)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#500#,16)))	else '0'; -- Addr:  0x0500	CAPABILITIES_INT_INP
+hit(75)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#580#,16)))	else '0'; -- Addr:  0x0580	CAPABILITIES_INTOUT
+hit(76)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#584#,16)))	else '0'; -- Addr:  0x0584	OutputCond[0]
+hit(77)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#600#,16)))	else '0'; -- Addr:  0x0600	CAPABILITIES_TIMER
+hit(78)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#604#,16)))	else '0'; -- Addr:  0x0604	TimerClockPeriod
+hit(79)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#608#,16)))	else '0'; -- Addr:  0x0608	TimerTriggerArm
+hit(80)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#60c#,16)))	else '0'; -- Addr:  0x060C	TimerClockSource
+hit(81)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#610#,16)))	else '0'; -- Addr:  0x0610	TimerDelayValue
+hit(82)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#614#,16)))	else '0'; -- Addr:  0x0614	TimerDuration
+hit(83)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#618#,16)))	else '0'; -- Addr:  0x0618	TimerLatchedValue
+hit(84)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#61c#,16)))	else '0'; -- Addr:  0x061C	TimerStatus
+hit(85)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#680#,16)))	else '0'; -- Addr:  0x0680	CAPABILITIES_TIMER
+hit(86)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#684#,16)))	else '0'; -- Addr:  0x0684	TimerClockPeriod
+hit(87)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#688#,16)))	else '0'; -- Addr:  0x0688	TimerTriggerArm
+hit(88)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#68c#,16)))	else '0'; -- Addr:  0x068C	TimerClockSource
+hit(89)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#690#,16)))	else '0'; -- Addr:  0x0690	TimerDelayValue
+hit(90)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#694#,16)))	else '0'; -- Addr:  0x0694	TimerDuration
+hit(91)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#698#,16)))	else '0'; -- Addr:  0x0698	TimerLatchedValue
+hit(92)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#69c#,16)))	else '0'; -- Addr:  0x069C	TimerStatus
+hit(93)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#700#,16)))	else '0'; -- Addr:  0x0700	CAPABILITIES_TIMER
+hit(94)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#704#,16)))	else '0'; -- Addr:  0x0704	TimerClockPeriod
+hit(95)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#708#,16)))	else '0'; -- Addr:  0x0708	TimerTriggerArm
+hit(96)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70c#,16)))	else '0'; -- Addr:  0x070C	TimerClockSource
+hit(97)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#710#,16)))	else '0'; -- Addr:  0x0710	TimerDelayValue
+hit(98)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#714#,16)))	else '0'; -- Addr:  0x0714	TimerDuration
+hit(99)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#718#,16)))	else '0'; -- Addr:  0x0718	TimerLatchedValue
+hit(100) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#71c#,16)))	else '0'; -- Addr:  0x071C	TimerStatus
+hit(101) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#780#,16)))	else '0'; -- Addr:  0x0780	CAPABILITIES_TIMER
+hit(102) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#784#,16)))	else '0'; -- Addr:  0x0784	TimerClockPeriod
+hit(103) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#788#,16)))	else '0'; -- Addr:  0x0788	TimerTriggerArm
+hit(104) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78c#,16)))	else '0'; -- Addr:  0x078C	TimerClockSource
+hit(105) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#790#,16)))	else '0'; -- Addr:  0x0790	TimerDelayValue
+hit(106) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#794#,16)))	else '0'; -- Addr:  0x0794	TimerDuration
+hit(107) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#798#,16)))	else '0'; -- Addr:  0x0798	TimerLatchedValue
+hit(108) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#79c#,16)))	else '0'; -- Addr:  0x079C	TimerStatus
+hit(109) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#800#,16)))	else '0'; -- Addr:  0x0800	CAPABILITIES_TIMER
+hit(110) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#804#,16)))	else '0'; -- Addr:  0x0804	TimerClockPeriod
+hit(111) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#808#,16)))	else '0'; -- Addr:  0x0808	TimerTriggerArm
+hit(112) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80c#,16)))	else '0'; -- Addr:  0x080C	TimerClockSource
+hit(113) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#810#,16)))	else '0'; -- Addr:  0x0810	TimerDelayValue
+hit(114) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#814#,16)))	else '0'; -- Addr:  0x0814	TimerDuration
+hit(115) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#818#,16)))	else '0'; -- Addr:  0x0818	TimerLatchedValue
+hit(116) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#81c#,16)))	else '0'; -- Addr:  0x081C	TimerStatus
+hit(117) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#880#,16)))	else '0'; -- Addr:  0x0880	CAPABILITIES_TIMER
+hit(118) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#884#,16)))	else '0'; -- Addr:  0x0884	TimerClockPeriod
+hit(119) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#888#,16)))	else '0'; -- Addr:  0x0888	TimerTriggerArm
+hit(120) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88c#,16)))	else '0'; -- Addr:  0x088C	TimerClockSource
+hit(121) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#890#,16)))	else '0'; -- Addr:  0x0890	TimerDelayValue
+hit(122) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#894#,16)))	else '0'; -- Addr:  0x0894	TimerDuration
+hit(123) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#898#,16)))	else '0'; -- Addr:  0x0898	TimerLatchedValue
+hit(124) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#89c#,16)))	else '0'; -- Addr:  0x089C	TimerStatus
+hit(125) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#900#,16)))	else '0'; -- Addr:  0x0900	CAPABILITIES_TIMER
+hit(126) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#904#,16)))	else '0'; -- Addr:  0x0904	TimerClockPeriod
+hit(127) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#908#,16)))	else '0'; -- Addr:  0x0908	TimerTriggerArm
+hit(128) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90c#,16)))	else '0'; -- Addr:  0x090C	TimerClockSource
+hit(129) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#910#,16)))	else '0'; -- Addr:  0x0910	TimerDelayValue
+hit(130) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#914#,16)))	else '0'; -- Addr:  0x0914	TimerDuration
+hit(131) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#918#,16)))	else '0'; -- Addr:  0x0918	TimerLatchedValue
+hit(132) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#91c#,16)))	else '0'; -- Addr:  0x091C	TimerStatus
+hit(133) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#980#,16)))	else '0'; -- Addr:  0x0980	CAPABILITIES_TIMER
+hit(134) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#984#,16)))	else '0'; -- Addr:  0x0984	TimerClockPeriod
+hit(135) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#988#,16)))	else '0'; -- Addr:  0x0988	TimerTriggerArm
+hit(136) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98c#,16)))	else '0'; -- Addr:  0x098C	TimerClockSource
+hit(137) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#990#,16)))	else '0'; -- Addr:  0x0990	TimerDelayValue
+hit(138) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#994#,16)))	else '0'; -- Addr:  0x0994	TimerDuration
+hit(139) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#998#,16)))	else '0'; -- Addr:  0x0998	TimerLatchedValue
+hit(140) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#99c#,16)))	else '0'; -- Addr:  0x099C	TimerStatus
+hit(141) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a00#,16)))	else '0'; -- Addr:  0x0A00	CAPABILITIES_MICRO
+hit(142) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a04#,16)))	else '0'; -- Addr:  0x0A04	ProdCons[0]
+hit(143) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a08#,16)))	else '0'; -- Addr:  0x0A08	ProdCons[1]
+hit(144) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a80#,16)))	else '0'; -- Addr:  0x0A80	CAPABILITIES_ANA_OUT
+hit(145) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a84#,16)))	else '0'; -- Addr:  0x0A84	OutputValue
+hit(146) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#b00#,16)))	else '0'; -- Addr:  0x0B00	EOFM
 
-hit(144) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#2000#,16)) and fullAddr <= std_logic_vector(to_unsigned(16#3ffc#,16)))	else '0'; -- Addr:  0x2000 to 0x3FFC	ProdCons[0]
-hit(145) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#4000#,16)) and fullAddr <= std_logic_vector(to_unsigned(16#5ffc#,16)))	else '0'; -- Addr:  0x4000 to 0x5FFC	ProdCons[1]
+hit(147) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#2000#,16)) and fullAddr <= std_logic_vector(to_unsigned(16#3ffc#,16)))	else '0'; -- Addr:  0x2000 to 0x3FFC	ProdCons[0]
+hit(148) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#4000#,16)) and fullAddr <= std_logic_vector(to_unsigned(16#5ffc#,16)))	else '0'; -- Addr:  0x4000 to 0x5FFC	ProdCons[1]
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4046,6 +4155,9 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_INTERRUPT_QUEUE_ADDR_LOW,
                             rb_INTERRUPT_QUEUE_ADDR_HIGH,
                             rb_SPI_SPIREGOUT,
+                            rb_arbiter_ARBITER_CAPABILITIES,
+                            rb_arbiter_AGENT_0,
+                            rb_arbiter_AGENT_1,
                             rb_IO_0_CAPABILITIES_IO,
                             rb_IO_0_IO_PIN,
                             rb_IO_0_IO_OUT,
@@ -4227,6 +4339,18 @@ begin
       -- [0x00e8]: /SPI/SPIREGOUT
       when 16#E8# =>
          readBackMux <= rb_SPI_SPIREGOUT;
+
+      -- [0x00f0]: /arbiter/ARBITER_CAPABILITIES
+      when 16#F0# =>
+         readBackMux <= rb_arbiter_ARBITER_CAPABILITIES;
+
+      -- [0x00f4]: /arbiter/AGENT_0
+      when 16#F4# =>
+         readBackMux <= rb_arbiter_AGENT_0;
+
+      -- [0x00f8]: /arbiter/AGENT_1
+      when 16#F8# =>
+         readBackMux <= rb_arbiter_AGENT_1;
 
       -- [0x0200]: /IO_0/CAPABILITIES_IO
       when 16#200# =>
@@ -5157,38 +5281,10 @@ end process P_Device_specific_INTSTAT2_IRQ_TIMER_START;
 wEn(3) <= (hit(3)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: YEAR(7 downto 0)
+-- Field name: VALUE(31 downto 0)
 -- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(31 downto 24) <= regfile.Device_specific.BUILDID.YEAR;
-
-
-------------------------------------------------------------------------------------------
--- Field name: MONTH(3 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(23 downto 20) <= regfile.Device_specific.BUILDID.MONTH;
-
-
-------------------------------------------------------------------------------------------
--- Field name: DATE(7 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(19 downto 12) <= regfile.Device_specific.BUILDID.DATE;
-
-
-------------------------------------------------------------------------------------------
--- Field name: HOUR(7 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(11 downto 4) <= regfile.Device_specific.BUILDID.HOUR;
-
-
-------------------------------------------------------------------------------------------
--- Field name: MINUTES(3 downto 0)
--- Field type: RO
-------------------------------------------------------------------------------------------
-rb_Device_specific_BUILDID(3 downto 0) <= regfile.Device_specific.BUILDID.MINUTES;
+rb_Device_specific_BUILDID(31 downto 0) <= regfile.Device_specific.BUILDID.VALUE;
 
 
 
@@ -5901,10 +5997,185 @@ regfile.SPI.SPIREGOUT.SPIDATARD <= rb_SPI_SPIREGOUT(7 downto 0);
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: IO_0_CAPABILITIES_IO
+-- Register name: arbiter_ARBITER_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(13) <= (hit(13)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: AGENT_NB
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_arbiter_ARBITER_CAPABILITIES(17 downto 16) <= std_logic_vector(to_unsigned(integer(2),2));
+regfile.arbiter.ARBITER_CAPABILITIES.AGENT_NB <= rb_arbiter_ARBITER_CAPABILITIES(17 downto 16);
+
+
+------------------------------------------------------------------------------------------
+-- Field name: TAG
+-- Field type: STATIC
+------------------------------------------------------------------------------------------
+rb_arbiter_ARBITER_CAPABILITIES(11 downto 0) <= std_logic_vector(to_unsigned(integer(2731),12));
+regfile.arbiter.ARBITER_CAPABILITIES.TAG <= rb_arbiter_ARBITER_CAPABILITIES(11 downto 0);
+
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: arbiter_AGENT_0
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(14) <= (hit(14)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ACK
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(9) <= regfile.arbiter.AGENT(0).ACK;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: REC
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(8) <= regfile.arbiter.AGENT(0).REC;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DONE
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(4) <= '0';
+regfile.arbiter.AGENT(0).DONE <= field_wautoclr_arbiter_AGENT_0_DONE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_0_DONE
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_0_DONE : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_arbiter_AGENT_0_DONE <= '0';
+      else
+         if(wEn(14) = '1' and bitEnN(4) = '0') then
+            field_wautoclr_arbiter_AGENT_0_DONE <= reg_writedata(4);
+         else
+            field_wautoclr_arbiter_AGENT_0_DONE <= '0';
+         end if;
+      end if;
+   end if;
+end process P_arbiter_AGENT_0_DONE;
+
+------------------------------------------------------------------------------------------
+-- Field name: REQ
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_0(0) <= '0';
+regfile.arbiter.AGENT(0).REQ <= field_wautoclr_arbiter_AGENT_0_REQ;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_0_REQ
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_0_REQ : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_arbiter_AGENT_0_REQ <= '0';
+      else
+         if(wEn(14) = '1' and bitEnN(0) = '0') then
+            field_wautoclr_arbiter_AGENT_0_REQ <= reg_writedata(0);
+         else
+            field_wautoclr_arbiter_AGENT_0_REQ <= '0';
+         end if;
+      end if;
+   end if;
+end process P_arbiter_AGENT_0_REQ;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: arbiter_AGENT_1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(15) <= (hit(15)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ACK
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(9) <= regfile.arbiter.AGENT(1).ACK;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: REC
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(8) <= regfile.arbiter.AGENT(1).REC;
+
+
+------------------------------------------------------------------------------------------
+-- Field name: DONE
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(4) <= '0';
+regfile.arbiter.AGENT(1).DONE <= field_wautoclr_arbiter_AGENT_1_DONE;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_1_DONE
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_1_DONE : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_arbiter_AGENT_1_DONE <= '0';
+      else
+         if(wEn(15) = '1' and bitEnN(4) = '0') then
+            field_wautoclr_arbiter_AGENT_1_DONE <= reg_writedata(4);
+         else
+            field_wautoclr_arbiter_AGENT_1_DONE <= '0';
+         end if;
+      end if;
+   end if;
+end process P_arbiter_AGENT_1_DONE;
+
+------------------------------------------------------------------------------------------
+-- Field name: REQ
+-- Field type: WAUTOCLR
+------------------------------------------------------------------------------------------
+rb_arbiter_AGENT_1(0) <= '0';
+regfile.arbiter.AGENT(1).REQ <= field_wautoclr_arbiter_AGENT_1_REQ;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_arbiter_AGENT_1_REQ
+------------------------------------------------------------------------------------------
+P_arbiter_AGENT_1_REQ : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_wautoclr_arbiter_AGENT_1_REQ <= '0';
+      else
+         if(wEn(15) = '1' and bitEnN(0) = '0') then
+            field_wautoclr_arbiter_AGENT_1_REQ <= reg_writedata(0);
+         else
+            field_wautoclr_arbiter_AGENT_1_REQ <= '0';
+         end if;
+      end if;
+   end if;
+end process P_arbiter_AGENT_1_REQ;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: IO_0_CAPABILITIES_IO
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(16) <= (hit(16)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IO_ID
@@ -5949,7 +6220,7 @@ rb_IO_0_CAPABILITIES_IO(16 downto 12) <= regfile.IO(0).CAPABILITIES_IO.Intnum;
 -- Register name: IO_0_IO_PIN
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(14) <= (hit(14)) and (reg_write);
+wEn(17) <= (hit(17)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Pin_value(3 downto 0)
@@ -5965,7 +6236,7 @@ rb_IO_0_IO_PIN(3 downto 0) <= regfile.IO(0).IO_PIN.Pin_value;
 -- Register name: IO_0_IO_OUT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(15) <= (hit(15)) and (reg_write);
+wEn(18) <= (hit(18)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Out_value(3 downto 0)
@@ -5985,7 +6256,7 @@ begin
          field_rw_IO_0_IO_OUT_Out_value <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(15) = '1' and bitEnN(j) = '0') then
+            if(wEn(18) = '1' and bitEnN(j) = '0') then
                field_rw_IO_0_IO_OUT_Out_value(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6000,7 +6271,7 @@ end process P_IO_0_IO_OUT_Out_value;
 -- Register name: IO_0_IO_DIR
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(16) <= (hit(16)) and (reg_write);
+wEn(19) <= (hit(19)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Dir(3 downto 0)
@@ -6020,7 +6291,7 @@ begin
          field_rw_IO_0_IO_DIR_Dir <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(16) = '1' and bitEnN(j) = '0') then
+            if(wEn(19) = '1' and bitEnN(j) = '0') then
                field_rw_IO_0_IO_DIR_Dir(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6035,7 +6306,7 @@ end process P_IO_0_IO_DIR_Dir;
 -- Register name: IO_0_IO_POL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(17) <= (hit(17)) and (reg_write);
+wEn(20) <= (hit(20)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: In_pol(3 downto 0)
@@ -6055,7 +6326,7 @@ begin
          field_rw_IO_0_IO_POL_In_pol <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(17) = '1' and bitEnN(j) = '0') then
+            if(wEn(20) = '1' and bitEnN(j) = '0') then
                field_rw_IO_0_IO_POL_In_pol(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6070,7 +6341,7 @@ end process P_IO_0_IO_POL_In_pol;
 -- Register name: IO_0_IO_INTSTAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(18) <= (hit(18)) and (reg_write);
+wEn(21) <= (hit(21)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Intstat(3 downto 0)
@@ -6090,7 +6361,7 @@ begin
          field_rw2c_IO_0_IO_INTSTAT_Intstat <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(18) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
+            if(wEn(21) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
                -- Clear every field bit to '0'
                field_rw2c_IO_0_IO_INTSTAT_Intstat(j-0) <= '0';
             else
@@ -6109,7 +6380,7 @@ end process P_IO_0_IO_INTSTAT_Intstat;
 -- Register name: IO_0_IO_INTMASKn
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(19) <= (hit(19)) and (reg_write);
+wEn(22) <= (hit(22)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Intmaskn(3 downto 0)
@@ -6129,7 +6400,7 @@ begin
          field_rw_IO_0_IO_INTMASKn_Intmaskn <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(19) = '1' and bitEnN(j) = '0') then
+            if(wEn(22) = '1' and bitEnN(j) = '0') then
                field_rw_IO_0_IO_INTMASKn_Intmaskn(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6144,7 +6415,7 @@ end process P_IO_0_IO_INTMASKn_Intmaskn;
 -- Register name: IO_0_IO_ANYEDGE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(20) <= (hit(20)) and (reg_write);
+wEn(23) <= (hit(23)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: In_AnyEdge(3 downto 0)
@@ -6164,7 +6435,7 @@ begin
          field_rw_IO_0_IO_ANYEDGE_In_AnyEdge <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(20) = '1' and bitEnN(j) = '0') then
+            if(wEn(23) = '1' and bitEnN(j) = '0') then
                field_rw_IO_0_IO_ANYEDGE_In_AnyEdge(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6179,7 +6450,7 @@ end process P_IO_0_IO_ANYEDGE_In_AnyEdge;
 -- Register name: IO_1_CAPABILITIES_IO
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(21) <= (hit(21)) and (reg_write);
+wEn(24) <= (hit(24)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IO_ID
@@ -6224,7 +6495,7 @@ rb_IO_1_CAPABILITIES_IO(16 downto 12) <= regfile.IO(1).CAPABILITIES_IO.Intnum;
 -- Register name: IO_1_IO_PIN
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(22) <= (hit(22)) and (reg_write);
+wEn(25) <= (hit(25)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Pin_value(3 downto 0)
@@ -6240,7 +6511,7 @@ rb_IO_1_IO_PIN(3 downto 0) <= regfile.IO(1).IO_PIN.Pin_value;
 -- Register name: IO_1_IO_OUT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(23) <= (hit(23)) and (reg_write);
+wEn(26) <= (hit(26)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Out_value(3 downto 0)
@@ -6260,7 +6531,7 @@ begin
          field_rw_IO_1_IO_OUT_Out_value <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(23) = '1' and bitEnN(j) = '0') then
+            if(wEn(26) = '1' and bitEnN(j) = '0') then
                field_rw_IO_1_IO_OUT_Out_value(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6275,7 +6546,7 @@ end process P_IO_1_IO_OUT_Out_value;
 -- Register name: IO_1_IO_DIR
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(24) <= (hit(24)) and (reg_write);
+wEn(27) <= (hit(27)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Dir(3 downto 0)
@@ -6295,7 +6566,7 @@ begin
          field_rw_IO_1_IO_DIR_Dir <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(24) = '1' and bitEnN(j) = '0') then
+            if(wEn(27) = '1' and bitEnN(j) = '0') then
                field_rw_IO_1_IO_DIR_Dir(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6310,7 +6581,7 @@ end process P_IO_1_IO_DIR_Dir;
 -- Register name: IO_1_IO_POL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(25) <= (hit(25)) and (reg_write);
+wEn(28) <= (hit(28)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: In_pol(3 downto 0)
@@ -6330,7 +6601,7 @@ begin
          field_rw_IO_1_IO_POL_In_pol <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(25) = '1' and bitEnN(j) = '0') then
+            if(wEn(28) = '1' and bitEnN(j) = '0') then
                field_rw_IO_1_IO_POL_In_pol(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6345,7 +6616,7 @@ end process P_IO_1_IO_POL_In_pol;
 -- Register name: IO_1_IO_INTSTAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(26) <= (hit(26)) and (reg_write);
+wEn(29) <= (hit(29)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Intstat(3 downto 0)
@@ -6365,7 +6636,7 @@ begin
          field_rw2c_IO_1_IO_INTSTAT_Intstat <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(26) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
+            if(wEn(29) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
                -- Clear every field bit to '0'
                field_rw2c_IO_1_IO_INTSTAT_Intstat(j-0) <= '0';
             else
@@ -6384,7 +6655,7 @@ end process P_IO_1_IO_INTSTAT_Intstat;
 -- Register name: IO_1_IO_INTMASKn
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(27) <= (hit(27)) and (reg_write);
+wEn(30) <= (hit(30)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Intmaskn(3 downto 0)
@@ -6404,7 +6675,7 @@ begin
          field_rw_IO_1_IO_INTMASKn_Intmaskn <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(27) = '1' and bitEnN(j) = '0') then
+            if(wEn(30) = '1' and bitEnN(j) = '0') then
                field_rw_IO_1_IO_INTMASKn_Intmaskn(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6419,7 +6690,7 @@ end process P_IO_1_IO_INTMASKn_Intmaskn;
 -- Register name: IO_1_IO_ANYEDGE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(28) <= (hit(28)) and (reg_write);
+wEn(31) <= (hit(31)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: In_AnyEdge(3 downto 0)
@@ -6439,7 +6710,7 @@ begin
          field_rw_IO_1_IO_ANYEDGE_In_AnyEdge <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(28) = '1' and bitEnN(j) = '0') then
+            if(wEn(31) = '1' and bitEnN(j) = '0') then
                field_rw_IO_1_IO_ANYEDGE_In_AnyEdge(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6454,7 +6725,7 @@ end process P_IO_1_IO_ANYEDGE_In_AnyEdge;
 -- Register name: Quadrature_0_CAPABILITIES_QUAD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(29) <= (hit(29)) and (reg_write);
+wEn(32) <= (hit(32)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: QUADRATURE_ID
@@ -6479,7 +6750,7 @@ regfile.Quadrature(0).CAPABILITIES_QUAD.FEATURE_REV <= rb_Quadrature_0_CAPABILIT
 -- Register name: Quadrature_0_PositionReset
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(30) <= (hit(30)) and (reg_write);
+wEn(33) <= (hit(33)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PositionResetSource(5 downto 2)
@@ -6499,7 +6770,7 @@ begin
          field_rw_Quadrature_0_PositionReset_PositionResetSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  5 downto 2  loop
-            if(wEn(30) = '1' and bitEnN(j) = '0') then
+            if(wEn(33) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_PositionReset_PositionResetSource(j-2) <= reg_writedata(j);
             end if;
          end loop;
@@ -6524,7 +6795,7 @@ begin
       if (resetN = '0') then
          field_rw_Quadrature_0_PositionReset_PositionResetActivation <= '0';
       else
-         if(wEn(30) = '1' and bitEnN(1) = '0') then
+         if(wEn(33) = '1' and bitEnN(1) = '0') then
             field_rw_Quadrature_0_PositionReset_PositionResetActivation <= reg_writedata(1);
          end if;
       end if;
@@ -6548,7 +6819,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Quadrature_0_PositionReset_soft_PositionReset <= '0';
       else
-         if(wEn(30) = '1' and bitEnN(0) = '0') then
+         if(wEn(33) = '1' and bitEnN(0) = '0') then
             field_wautoclr_Quadrature_0_PositionReset_soft_PositionReset <= reg_writedata(0);
          else
             field_wautoclr_Quadrature_0_PositionReset_soft_PositionReset <= '0';
@@ -6564,7 +6835,7 @@ end process P_Quadrature_0_PositionReset_soft_PositionReset;
 -- Register name: Quadrature_0_DecoderInput
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(31) <= (hit(31)) and (reg_write);
+wEn(34) <= (hit(34)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: BSelector(31 downto 29)
@@ -6584,7 +6855,7 @@ begin
          field_rw_Quadrature_0_DecoderInput_BSelector <= std_logic_vector(to_unsigned(integer(2),3));
       else
          for j in  31 downto 29  loop
-            if(wEn(31) = '1' and bitEnN(j) = '0') then
+            if(wEn(34) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderInput_BSelector(j-29) <= reg_writedata(j);
             end if;
          end loop;
@@ -6610,7 +6881,7 @@ begin
          field_rw_Quadrature_0_DecoderInput_ASelector <= std_logic_vector(to_unsigned(integer(1),3));
       else
          for j in  15 downto 13  loop
-            if(wEn(31) = '1' and bitEnN(j) = '0') then
+            if(wEn(34) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderInput_ASelector(j-13) <= reg_writedata(j);
             end if;
          end loop;
@@ -6625,7 +6896,7 @@ end process P_Quadrature_0_DecoderInput_ASelector;
 -- Register name: Quadrature_0_DecoderCfg
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(32) <= (hit(32)) and (reg_write);
+wEn(35) <= (hit(35)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DecOutSource0(4 downto 2)
@@ -6645,7 +6916,7 @@ begin
          field_rw_Quadrature_0_DecoderCfg_DecOutSource0 <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  4 downto 2  loop
-            if(wEn(32) = '1' and bitEnN(j) = '0') then
+            if(wEn(35) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderCfg_DecOutSource0(j-2) <= reg_writedata(j);
             end if;
          end loop;
@@ -6670,7 +6941,7 @@ begin
       if (resetN = '0') then
          field_rw_Quadrature_0_DecoderCfg_QuadEnable <= '0';
       else
-         if(wEn(32) = '1' and bitEnN(0) = '0') then
+         if(wEn(35) = '1' and bitEnN(0) = '0') then
             field_rw_Quadrature_0_DecoderCfg_QuadEnable <= reg_writedata(0);
          end if;
       end if;
@@ -6684,7 +6955,7 @@ end process P_Quadrature_0_DecoderCfg_QuadEnable;
 -- Register name: Quadrature_0_DecoderPosTrigger
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(33) <= (hit(33)) and (reg_write);
+wEn(36) <= (hit(36)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: PositionTrigger(31 downto 0)
@@ -6704,7 +6975,7 @@ begin
          field_rw_Quadrature_0_DecoderPosTrigger_PositionTrigger <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(33) = '1' and bitEnN(j) = '0') then
+            if(wEn(36) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderPosTrigger_PositionTrigger(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -6719,7 +6990,7 @@ end process P_Quadrature_0_DecoderPosTrigger_PositionTrigger;
 -- Register name: Quadrature_0_DecoderCntrLatch_Cfg
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(34) <= (hit(34)) and (reg_write);
+wEn(37) <= (hit(37)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DecoderCntrLatch_SW
@@ -6738,7 +7009,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_SW <= '0';
       else
-         if(wEn(34) = '1' and bitEnN(24) = '0') then
+         if(wEn(37) = '1' and bitEnN(24) = '0') then
             field_wautoclr_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_SW <= reg_writedata(24);
          else
             field_wautoclr_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_SW <= '0';
@@ -6765,7 +7036,7 @@ begin
          field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_Src <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  20 downto 16  loop
-            if(wEn(34) = '1' and bitEnN(j) = '0') then
+            if(wEn(37) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_Src(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -6790,7 +7061,7 @@ begin
       if (resetN = '0') then
          field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_En <= '0';
       else
-         if(wEn(34) = '1' and bitEnN(8) = '0') then
+         if(wEn(37) = '1' and bitEnN(8) = '0') then
             field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_En <= reg_writedata(8);
          end if;
       end if;
@@ -6815,7 +7086,7 @@ begin
          field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_Act <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(34) = '1' and bitEnN(j) = '0') then
+            if(wEn(37) = '1' and bitEnN(j) = '0') then
                field_rw_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_Act(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -6830,7 +7101,7 @@ end process P_Quadrature_0_DecoderCntrLatch_Cfg_DecoderCntrLatch_Act;
 -- Register name: Quadrature_0_DecoderCntrLatched_SW
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(35) <= (hit(35)) and (reg_write);
+wEn(38) <= (hit(38)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DecoderCntr(31 downto 0)
@@ -6846,7 +7117,7 @@ rb_Quadrature_0_DecoderCntrLatched_SW(31 downto 0) <= regfile.Quadrature(0).Deco
 -- Register name: Quadrature_0_DecoderCntrLatched
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(36) <= (hit(36)) and (reg_write);
+wEn(39) <= (hit(39)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DecoderCntr(31 downto 0)
@@ -6862,7 +7133,7 @@ rb_Quadrature_0_DecoderCntrLatched(31 downto 0) <= regfile.Quadrature(0).Decoder
 -- Register name: TickTable_0_CAPABILITIES_TICKTBL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(37) <= (hit(37)) and (reg_write);
+wEn(40) <= (hit(40)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TICKTABLE_ID
@@ -6902,7 +7173,7 @@ rb_TickTable_0_CAPABILITIES_TICKTBL(11 downto 7) <= regfile.TickTable(0).CAPABIL
 -- Register name: TickTable_0_CAPABILITIES_EXT1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(38) <= (hit(38)) and (reg_write);
+wEn(41) <= (hit(41)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TABLE_WIDTH
@@ -6927,7 +7198,7 @@ regfile.TickTable(0).CAPABILITIES_EXT1.NB_LATCH <= rb_TickTable_0_CAPABILITIES_E
 -- Register name: TickTable_0_TickTableClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(39) <= (hit(39)) and (reg_write);
+wEn(42) <= (hit(42)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(7 downto 0)
@@ -6943,7 +7214,7 @@ rb_TickTable_0_TickTableClockPeriod(7 downto 0) <= regfile.TickTable(0).TickTabl
 -- Register name: TickTable_0_TickConfig
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(40) <= (hit(40)) and (reg_write);
+wEn(43) <= (hit(43)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: ClearTickTable
@@ -6962,7 +7233,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_TickTable_0_TickConfig_ClearTickTable <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(28) = '0') then
+         if(wEn(43) = '1' and bitEnN(28) = '0') then
             field_wautoclr_TickTable_0_TickConfig_ClearTickTable <= reg_writedata(28);
          else
             field_wautoclr_TickTable_0_TickConfig_ClearTickTable <= '0';
@@ -6989,7 +7260,7 @@ begin
          field_rw_TickTable_0_TickConfig_ClearMask <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  23 downto 16  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(43) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_TickConfig_ClearMask(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -7015,7 +7286,7 @@ begin
          field_rw_TickTable_0_TickConfig_TickClock <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(43) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_TickConfig_TickClock(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -7041,7 +7312,7 @@ begin
          field_rw_TickTable_0_TickConfig_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  7 downto 6  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(43) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_TickConfig_IntClock_sel(j-6) <= reg_writedata(j);
             end if;
          end loop;
@@ -7067,7 +7338,7 @@ begin
          field_rw_TickTable_0_TickConfig_TickClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(43) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_TickConfig_TickClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -7092,7 +7363,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_TickConfig_EnableHalftableInt <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(3) = '0') then
+         if(wEn(43) = '1' and bitEnN(3) = '0') then
             field_rw_TickTable_0_TickConfig_EnableHalftableInt <= reg_writedata(3);
          end if;
       end if;
@@ -7116,7 +7387,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_TickConfig_IntClock_en <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(2) = '0') then
+         if(wEn(43) = '1' and bitEnN(2) = '0') then
             field_rw_TickTable_0_TickConfig_IntClock_en <= reg_writedata(2);
          end if;
       end if;
@@ -7140,7 +7411,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_TickTable_0_TickConfig_LatchCurrentStamp <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(1) = '0') then
+         if(wEn(43) = '1' and bitEnN(1) = '0') then
             field_wautoclr_TickTable_0_TickConfig_LatchCurrentStamp <= reg_writedata(1);
          else
             field_wautoclr_TickTable_0_TickConfig_LatchCurrentStamp <= '0';
@@ -7166,7 +7437,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_TickTable_0_TickConfig_ResetTimestamp <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(0) = '0') then
+         if(wEn(43) = '1' and bitEnN(0) = '0') then
             field_wautoclr_TickTable_0_TickConfig_ResetTimestamp <= reg_writedata(0);
          else
             field_wautoclr_TickTable_0_TickConfig_ResetTimestamp <= '0';
@@ -7182,7 +7453,7 @@ end process P_TickTable_0_TickConfig_ResetTimestamp;
 -- Register name: TickTable_0_CurrentStampLatched
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(41) <= (hit(41)) and (reg_write);
+wEn(44) <= (hit(44)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: CurrentStamp(31 downto 0)
@@ -7198,7 +7469,7 @@ rb_TickTable_0_CurrentStampLatched(31 downto 0) <= regfile.TickTable(0).CurrentS
 -- Register name: TickTable_0_WriteTime
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(42) <= (hit(42)) and (reg_write);
+wEn(45) <= (hit(45)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: WriteTime(31 downto 0)
@@ -7218,7 +7489,7 @@ begin
          field_rw_TickTable_0_WriteTime_WriteTime <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(42) = '1' and bitEnN(j) = '0') then
+            if(wEn(45) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_WriteTime_WriteTime(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7233,7 +7504,7 @@ end process P_TickTable_0_WriteTime_WriteTime;
 -- Register name: TickTable_0_WriteCommand
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(43) <= (hit(43)) and (reg_write);
+wEn(46) <= (hit(46)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: WriteDone
@@ -7266,7 +7537,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_TickTable_0_WriteCommand_ExecuteFutureWrite <= '0';
       else
-         if(wEn(43) = '1' and bitEnN(9) = '0') then
+         if(wEn(46) = '1' and bitEnN(9) = '0') then
             field_wautoclr_TickTable_0_WriteCommand_ExecuteFutureWrite <= reg_writedata(9);
          else
             field_wautoclr_TickTable_0_WriteCommand_ExecuteFutureWrite <= '0';
@@ -7292,7 +7563,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_TickTable_0_WriteCommand_ExecuteImmWrite <= '0';
       else
-         if(wEn(43) = '1' and bitEnN(8) = '0') then
+         if(wEn(46) = '1' and bitEnN(8) = '0') then
             field_wautoclr_TickTable_0_WriteCommand_ExecuteImmWrite <= reg_writedata(8);
          else
             field_wautoclr_TickTable_0_WriteCommand_ExecuteImmWrite <= '0';
@@ -7319,7 +7590,7 @@ begin
          field_rw_TickTable_0_WriteCommand_BitCmd <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  6 downto 5  loop
-            if(wEn(43) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_WriteCommand_BitCmd(j-5) <= reg_writedata(j);
             end if;
          end loop;
@@ -7345,7 +7616,7 @@ begin
          field_rw_TickTable_0_WriteCommand_BitNum <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  1 downto 0  loop
-            if(wEn(43) = '1' and bitEnN(j) = '0') then
+            if(wEn(46) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_WriteCommand_BitNum(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7360,7 +7631,7 @@ end process P_TickTable_0_WriteCommand_BitNum;
 -- Register name: TickTable_0_LatchIntStat
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(44) <= (hit(44)) and (reg_write);
+wEn(47) <= (hit(47)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LatchIntStat(1 downto 0)
@@ -7380,7 +7651,7 @@ begin
          field_rw2c_TickTable_0_LatchIntStat_LatchIntStat <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  1 downto 0  loop
-            if(wEn(44) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
+            if(wEn(47) = '1' and reg_writedata(j) = '1' and bitEnN(j) = '0') then
                -- Clear every field bit to '0'
                field_rw2c_TickTable_0_LatchIntStat_LatchIntStat(j-0) <= '0';
             else
@@ -7399,7 +7670,7 @@ end process P_TickTable_0_LatchIntStat_LatchIntStat;
 -- Register name: TickTable_0_InputStamp_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(45) <= (hit(45)) and (reg_write);
+wEn(48) <= (hit(48)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: InputStampSource(19 downto 16)
@@ -7419,7 +7690,7 @@ begin
          field_rw_TickTable_0_InputStamp_0_InputStampSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  19 downto 16  loop
-            if(wEn(45) = '1' and bitEnN(j) = '0') then
+            if(wEn(48) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_InputStamp_0_InputStampSource(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -7444,7 +7715,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_InputStamp_0_LatchInputIntEnable <= '0';
       else
-         if(wEn(45) = '1' and bitEnN(9) = '0') then
+         if(wEn(48) = '1' and bitEnN(9) = '0') then
             field_rw_TickTable_0_InputStamp_0_LatchInputIntEnable <= reg_writedata(9);
          end if;
       end if;
@@ -7468,7 +7739,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_InputStamp_0_LatchInputStamp_En <= '0';
       else
-         if(wEn(45) = '1' and bitEnN(8) = '0') then
+         if(wEn(48) = '1' and bitEnN(8) = '0') then
             field_rw_TickTable_0_InputStamp_0_LatchInputStamp_En <= reg_writedata(8);
          end if;
       end if;
@@ -7493,7 +7764,7 @@ begin
          field_rw_TickTable_0_InputStamp_0_InputStampActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(45) = '1' and bitEnN(j) = '0') then
+            if(wEn(48) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_InputStamp_0_InputStampActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -7508,7 +7779,7 @@ end process P_TickTable_0_InputStamp_0_InputStampActivation;
 -- Register name: TickTable_0_InputStamp_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(46) <= (hit(46)) and (reg_write);
+wEn(49) <= (hit(49)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: InputStampSource(19 downto 16)
@@ -7528,7 +7799,7 @@ begin
          field_rw_TickTable_0_InputStamp_1_InputStampSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  19 downto 16  loop
-            if(wEn(46) = '1' and bitEnN(j) = '0') then
+            if(wEn(49) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_InputStamp_1_InputStampSource(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -7553,7 +7824,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_InputStamp_1_LatchInputIntEnable <= '0';
       else
-         if(wEn(46) = '1' and bitEnN(9) = '0') then
+         if(wEn(49) = '1' and bitEnN(9) = '0') then
             field_rw_TickTable_0_InputStamp_1_LatchInputIntEnable <= reg_writedata(9);
          end if;
       end if;
@@ -7577,7 +7848,7 @@ begin
       if (resetN = '0') then
          field_rw_TickTable_0_InputStamp_1_LatchInputStamp_En <= '0';
       else
-         if(wEn(46) = '1' and bitEnN(8) = '0') then
+         if(wEn(49) = '1' and bitEnN(8) = '0') then
             field_rw_TickTable_0_InputStamp_1_LatchInputStamp_En <= reg_writedata(8);
          end if;
       end if;
@@ -7602,7 +7873,7 @@ begin
          field_rw_TickTable_0_InputStamp_1_InputStampActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(46) = '1' and bitEnN(j) = '0') then
+            if(wEn(49) = '1' and bitEnN(j) = '0') then
                field_rw_TickTable_0_InputStamp_1_InputStampActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -7617,7 +7888,7 @@ end process P_TickTable_0_InputStamp_1_InputStampActivation;
 -- Register name: TickTable_0_reserved_for_extra_latch_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(47) <= (hit(47)) and (reg_write);
+wEn(50) <= (hit(50)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7634,7 +7905,7 @@ regfile.TickTable(0).reserved_for_extra_latch(0).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(48) <= (hit(48)) and (reg_write);
+wEn(51) <= (hit(51)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7651,7 +7922,7 @@ regfile.TickTable(0).reserved_for_extra_latch(1).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(49) <= (hit(49)) and (reg_write);
+wEn(52) <= (hit(52)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7668,7 +7939,7 @@ regfile.TickTable(0).reserved_for_extra_latch(2).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(50) <= (hit(50)) and (reg_write);
+wEn(53) <= (hit(53)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7685,7 +7956,7 @@ regfile.TickTable(0).reserved_for_extra_latch(3).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_4
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(51) <= (hit(51)) and (reg_write);
+wEn(54) <= (hit(54)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7702,7 +7973,7 @@ regfile.TickTable(0).reserved_for_extra_latch(4).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_5
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(52) <= (hit(52)) and (reg_write);
+wEn(55) <= (hit(55)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7719,7 +7990,7 @@ regfile.TickTable(0).reserved_for_extra_latch(5).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_6
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(53) <= (hit(53)) and (reg_write);
+wEn(56) <= (hit(56)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7736,7 +8007,7 @@ regfile.TickTable(0).reserved_for_extra_latch(6).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_7
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(54) <= (hit(54)) and (reg_write);
+wEn(57) <= (hit(57)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7753,7 +8024,7 @@ regfile.TickTable(0).reserved_for_extra_latch(7).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_8
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(55) <= (hit(55)) and (reg_write);
+wEn(58) <= (hit(58)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7770,7 +8041,7 @@ regfile.TickTable(0).reserved_for_extra_latch(8).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_reserved_for_extra_latch_9
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(56) <= (hit(56)) and (reg_write);
+wEn(59) <= (hit(59)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved_for_extra_latch
@@ -7787,7 +8058,7 @@ regfile.TickTable(0).reserved_for_extra_latch(9).reserved_for_extra_latch <= rb_
 -- Register name: TickTable_0_InputStampLatched_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(57) <= (hit(57)) and (reg_write);
+wEn(60) <= (hit(60)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: InputStamp(31 downto 0)
@@ -7803,7 +8074,7 @@ rb_TickTable_0_InputStampLatched_0(31 downto 0) <= regfile.TickTable(0).InputSta
 -- Register name: TickTable_0_InputStampLatched_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(58) <= (hit(58)) and (reg_write);
+wEn(61) <= (hit(61)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: InputStamp(31 downto 0)
@@ -7819,7 +8090,7 @@ rb_TickTable_0_InputStampLatched_1(31 downto 0) <= regfile.TickTable(0).InputSta
 -- Register name: InputConditioning_CAPABILITIES_INCOND
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(59) <= (hit(59)) and (reg_write);
+wEn(62) <= (hit(62)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: INPUTCOND_ID
@@ -7859,7 +8130,7 @@ rb_InputConditioning_CAPABILITIES_INCOND(7 downto 0) <= regfile.InputConditionin
 -- Register name: InputConditioning_InputConditioning_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(60) <= (hit(60)) and (reg_write);
+wEn(63) <= (hit(63)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DebounceHoldOff(31 downto 8)
@@ -7879,7 +8150,7 @@ begin
          field_rw_InputConditioning_InputConditioning_0_DebounceHoldOff <= std_logic_vector(to_unsigned(integer(0),24));
       else
          for j in  31 downto 8  loop
-            if(wEn(60) = '1' and bitEnN(j) = '0') then
+            if(wEn(63) = '1' and bitEnN(j) = '0') then
                field_rw_InputConditioning_InputConditioning_0_DebounceHoldOff(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -7904,7 +8175,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_0_InputFiltering <= '0';
       else
-         if(wEn(60) = '1' and bitEnN(1) = '0') then
+         if(wEn(63) = '1' and bitEnN(1) = '0') then
             field_rw_InputConditioning_InputConditioning_0_InputFiltering <= reg_writedata(1);
          end if;
       end if;
@@ -7928,7 +8199,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_0_InputPol <= '0';
       else
-         if(wEn(60) = '1' and bitEnN(0) = '0') then
+         if(wEn(63) = '1' and bitEnN(0) = '0') then
             field_rw_InputConditioning_InputConditioning_0_InputPol <= reg_writedata(0);
          end if;
       end if;
@@ -7942,7 +8213,7 @@ end process P_InputConditioning_InputConditioning_0_InputPol;
 -- Register name: InputConditioning_InputConditioning_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(61) <= (hit(61)) and (reg_write);
+wEn(64) <= (hit(64)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DebounceHoldOff(31 downto 8)
@@ -7962,7 +8233,7 @@ begin
          field_rw_InputConditioning_InputConditioning_1_DebounceHoldOff <= std_logic_vector(to_unsigned(integer(0),24));
       else
          for j in  31 downto 8  loop
-            if(wEn(61) = '1' and bitEnN(j) = '0') then
+            if(wEn(64) = '1' and bitEnN(j) = '0') then
                field_rw_InputConditioning_InputConditioning_1_DebounceHoldOff(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -7987,7 +8258,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_1_InputFiltering <= '0';
       else
-         if(wEn(61) = '1' and bitEnN(1) = '0') then
+         if(wEn(64) = '1' and bitEnN(1) = '0') then
             field_rw_InputConditioning_InputConditioning_1_InputFiltering <= reg_writedata(1);
          end if;
       end if;
@@ -8011,7 +8282,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_1_InputPol <= '0';
       else
-         if(wEn(61) = '1' and bitEnN(0) = '0') then
+         if(wEn(64) = '1' and bitEnN(0) = '0') then
             field_rw_InputConditioning_InputConditioning_1_InputPol <= reg_writedata(0);
          end if;
       end if;
@@ -8025,7 +8296,7 @@ end process P_InputConditioning_InputConditioning_1_InputPol;
 -- Register name: InputConditioning_InputConditioning_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(62) <= (hit(62)) and (reg_write);
+wEn(65) <= (hit(65)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DebounceHoldOff(31 downto 8)
@@ -8045,7 +8316,7 @@ begin
          field_rw_InputConditioning_InputConditioning_2_DebounceHoldOff <= std_logic_vector(to_unsigned(integer(0),24));
       else
          for j in  31 downto 8  loop
-            if(wEn(62) = '1' and bitEnN(j) = '0') then
+            if(wEn(65) = '1' and bitEnN(j) = '0') then
                field_rw_InputConditioning_InputConditioning_2_DebounceHoldOff(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -8070,7 +8341,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_2_InputFiltering <= '0';
       else
-         if(wEn(62) = '1' and bitEnN(1) = '0') then
+         if(wEn(65) = '1' and bitEnN(1) = '0') then
             field_rw_InputConditioning_InputConditioning_2_InputFiltering <= reg_writedata(1);
          end if;
       end if;
@@ -8094,7 +8365,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_2_InputPol <= '0';
       else
-         if(wEn(62) = '1' and bitEnN(0) = '0') then
+         if(wEn(65) = '1' and bitEnN(0) = '0') then
             field_rw_InputConditioning_InputConditioning_2_InputPol <= reg_writedata(0);
          end if;
       end if;
@@ -8108,7 +8379,7 @@ end process P_InputConditioning_InputConditioning_2_InputPol;
 -- Register name: InputConditioning_InputConditioning_3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(63) <= (hit(63)) and (reg_write);
+wEn(66) <= (hit(66)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DebounceHoldOff(31 downto 8)
@@ -8128,7 +8399,7 @@ begin
          field_rw_InputConditioning_InputConditioning_3_DebounceHoldOff <= std_logic_vector(to_unsigned(integer(0),24));
       else
          for j in  31 downto 8  loop
-            if(wEn(63) = '1' and bitEnN(j) = '0') then
+            if(wEn(66) = '1' and bitEnN(j) = '0') then
                field_rw_InputConditioning_InputConditioning_3_DebounceHoldOff(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -8153,7 +8424,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_3_InputFiltering <= '0';
       else
-         if(wEn(63) = '1' and bitEnN(1) = '0') then
+         if(wEn(66) = '1' and bitEnN(1) = '0') then
             field_rw_InputConditioning_InputConditioning_3_InputFiltering <= reg_writedata(1);
          end if;
       end if;
@@ -8177,7 +8448,7 @@ begin
       if (resetN = '0') then
          field_rw_InputConditioning_InputConditioning_3_InputPol <= '0';
       else
-         if(wEn(63) = '1' and bitEnN(0) = '0') then
+         if(wEn(66) = '1' and bitEnN(0) = '0') then
             field_rw_InputConditioning_InputConditioning_3_InputPol <= reg_writedata(0);
          end if;
       end if;
@@ -8191,7 +8462,7 @@ end process P_InputConditioning_InputConditioning_3_InputPol;
 -- Register name: OutputConditioning_CAPABILITIES_OUTCOND
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(64) <= (hit(64)) and (reg_write);
+wEn(67) <= (hit(67)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OUTPUTCOND_ID
@@ -8224,7 +8495,7 @@ regfile.OutputConditioning.CAPABILITIES_OUTCOND.NB_OUTPUTS <= rb_OutputCondition
 -- Register name: OutputConditioning_OutputCond_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(65) <= (hit(65)) and (reg_write);
+wEn(68) <= (hit(68)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal
@@ -8250,7 +8521,7 @@ begin
       if (resetN = '0') then
          field_rw_OutputConditioning_OutputCond_0_OutputPol <= '0';
       else
-         if(wEn(65) = '1' and bitEnN(7) = '0') then
+         if(wEn(68) = '1' and bitEnN(7) = '0') then
             field_rw_OutputConditioning_OutputCond_0_OutputPol <= reg_writedata(7);
          end if;
       end if;
@@ -8275,7 +8546,7 @@ begin
          field_rw_OutputConditioning_OutputCond_0_Outsel <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  5 downto 0  loop
-            if(wEn(65) = '1' and bitEnN(j) = '0') then
+            if(wEn(68) = '1' and bitEnN(j) = '0') then
                field_rw_OutputConditioning_OutputCond_0_Outsel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8290,7 +8561,7 @@ end process P_OutputConditioning_OutputCond_0_Outsel;
 -- Register name: OutputConditioning_OutputCond_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(66) <= (hit(66)) and (reg_write);
+wEn(69) <= (hit(69)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal
@@ -8316,7 +8587,7 @@ begin
       if (resetN = '0') then
          field_rw_OutputConditioning_OutputCond_1_OutputPol <= '0';
       else
-         if(wEn(66) = '1' and bitEnN(7) = '0') then
+         if(wEn(69) = '1' and bitEnN(7) = '0') then
             field_rw_OutputConditioning_OutputCond_1_OutputPol <= reg_writedata(7);
          end if;
       end if;
@@ -8341,7 +8612,7 @@ begin
          field_rw_OutputConditioning_OutputCond_1_Outsel <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  5 downto 0  loop
-            if(wEn(66) = '1' and bitEnN(j) = '0') then
+            if(wEn(69) = '1' and bitEnN(j) = '0') then
                field_rw_OutputConditioning_OutputCond_1_Outsel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8356,7 +8627,7 @@ end process P_OutputConditioning_OutputCond_1_Outsel;
 -- Register name: OutputConditioning_OutputCond_2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(67) <= (hit(67)) and (reg_write);
+wEn(70) <= (hit(70)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal
@@ -8382,7 +8653,7 @@ begin
       if (resetN = '0') then
          field_rw_OutputConditioning_OutputCond_2_OutputPol <= '0';
       else
-         if(wEn(67) = '1' and bitEnN(7) = '0') then
+         if(wEn(70) = '1' and bitEnN(7) = '0') then
             field_rw_OutputConditioning_OutputCond_2_OutputPol <= reg_writedata(7);
          end if;
       end if;
@@ -8407,7 +8678,7 @@ begin
          field_rw_OutputConditioning_OutputCond_2_Outsel <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  5 downto 0  loop
-            if(wEn(67) = '1' and bitEnN(j) = '0') then
+            if(wEn(70) = '1' and bitEnN(j) = '0') then
                field_rw_OutputConditioning_OutputCond_2_Outsel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8422,7 +8693,7 @@ end process P_OutputConditioning_OutputCond_2_Outsel;
 -- Register name: OutputConditioning_OutputCond_3
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(68) <= (hit(68)) and (reg_write);
+wEn(71) <= (hit(71)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal
@@ -8448,7 +8719,7 @@ begin
       if (resetN = '0') then
          field_rw_OutputConditioning_OutputCond_3_OutputPol <= '0';
       else
-         if(wEn(68) = '1' and bitEnN(7) = '0') then
+         if(wEn(71) = '1' and bitEnN(7) = '0') then
             field_rw_OutputConditioning_OutputCond_3_OutputPol <= reg_writedata(7);
          end if;
       end if;
@@ -8473,7 +8744,7 @@ begin
          field_rw_OutputConditioning_OutputCond_3_Outsel <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  5 downto 0  loop
-            if(wEn(68) = '1' and bitEnN(j) = '0') then
+            if(wEn(71) = '1' and bitEnN(j) = '0') then
                field_rw_OutputConditioning_OutputCond_3_Outsel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8488,7 +8759,7 @@ end process P_OutputConditioning_OutputCond_3_Outsel;
 -- Register name: OutputConditioning_Reserved
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(69) <= (hit(69)) and (reg_write);
+wEn(72) <= (hit(72)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Reserved
@@ -8505,7 +8776,7 @@ regfile.OutputConditioning.Reserved.Reserved <= rb_OutputConditioning_Reserved(7
 -- Register name: OutputConditioning_Output_Debounce
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(70) <= (hit(70)) and (reg_write);
+wEn(73) <= (hit(73)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Output_HoldOFF_reg_EN
@@ -8524,7 +8795,7 @@ begin
       if (resetN = '0') then
          field_rw_OutputConditioning_Output_Debounce_Output_HoldOFF_reg_EN <= '0';
       else
-         if(wEn(70) = '1' and bitEnN(16) = '0') then
+         if(wEn(73) = '1' and bitEnN(16) = '0') then
             field_rw_OutputConditioning_Output_Debounce_Output_HoldOFF_reg_EN <= reg_writedata(16);
          end if;
       end if;
@@ -8549,7 +8820,7 @@ begin
          field_rw_OutputConditioning_Output_Debounce_Output_HoldOFF_reg_CNTR <= std_logic_vector(to_unsigned(integer(511),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(70) = '1' and bitEnN(j) = '0') then
+            if(wEn(73) = '1' and bitEnN(j) = '0') then
                field_rw_OutputConditioning_Output_Debounce_Output_HoldOFF_reg_CNTR(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8564,7 +8835,7 @@ end process P_OutputConditioning_Output_Debounce_Output_HoldOFF_reg_CNTR;
 -- Register name: InternalInput_CAPABILITIES_INT_INP
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(71) <= (hit(71)) and (reg_write);
+wEn(74) <= (hit(74)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: INT_INPUT_ID
@@ -8597,7 +8868,7 @@ regfile.InternalInput.CAPABILITIES_INT_INP.NB_INPUTS <= rb_InternalInput_CAPABIL
 -- Register name: InternalOutput_CAPABILITIES_INTOUT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(72) <= (hit(72)) and (reg_write);
+wEn(75) <= (hit(75)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: INT_OUTPUT_ID
@@ -8630,7 +8901,7 @@ regfile.InternalOutput.CAPABILITIES_INTOUT.NB_OUTPUTS <= rb_InternalOutput_CAPAB
 -- Register name: InternalOutput_OutputCond_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(73) <= (hit(73)) and (reg_write);
+wEn(76) <= (hit(76)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal
@@ -8657,7 +8928,7 @@ begin
          field_rw_InternalOutput_OutputCond_0_Outsel <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  5 downto 0  loop
-            if(wEn(73) = '1' and bitEnN(j) = '0') then
+            if(wEn(76) = '1' and bitEnN(j) = '0') then
                field_rw_InternalOutput_OutputCond_0_Outsel(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -8672,7 +8943,7 @@ end process P_InternalOutput_OutputCond_0_Outsel;
 -- Register name: Timer_0_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(74) <= (hit(74)) and (reg_write);
+wEn(77) <= (hit(77)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -8704,7 +8975,7 @@ rb_Timer_0_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(0).CAPABILITIES_TIME
 -- Register name: Timer_0_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(75) <= (hit(75)) and (reg_write);
+wEn(78) <= (hit(78)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -8720,7 +8991,7 @@ rb_Timer_0_TimerClockPeriod(15 downto 0) <= regfile.Timer(0).TimerClockPeriod.Pe
 -- Register name: Timer_0_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(76) <= (hit(76)) and (reg_write);
+wEn(79) <= (hit(79)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -8739,7 +9010,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(76) = '1' and bitEnN(31) = '0') then
+         if(wEn(79) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -8766,7 +9037,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -8791,7 +9062,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(76) = '1' and bitEnN(24) = '0') then
+         if(wEn(79) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_0_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -8816,7 +9087,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -8842,7 +9113,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -8867,7 +9138,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(76) = '1' and bitEnN(15) = '0') then
+         if(wEn(79) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_0_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -8893,7 +9164,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(76) = '1' and bitEnN(14) = '0') then
+         if(wEn(79) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_0_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -8918,7 +9189,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -8944,7 +9215,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -8970,7 +9241,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -8996,7 +9267,7 @@ begin
          field_rw_Timer_0_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(76) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9011,7 +9282,7 @@ end process P_Timer_0_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_0_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(77) <= (hit(77)) and (reg_write);
+wEn(80) <= (hit(80)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -9031,7 +9302,7 @@ begin
          field_rw_Timer_0_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -9057,7 +9328,7 @@ begin
          field_rw_Timer_0_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -9083,7 +9354,7 @@ begin
          field_rw_Timer_0_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -9109,7 +9380,7 @@ begin
          field_rw_Timer_0_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -9135,7 +9406,7 @@ begin
          field_rw_Timer_0_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(77) = '1' and bitEnN(j) = '0') then
+            if(wEn(80) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9150,7 +9421,7 @@ end process P_Timer_0_TimerClockSource_TimerClockSource;
 -- Register name: Timer_0_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(78) <= (hit(78)) and (reg_write);
+wEn(81) <= (hit(81)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -9170,7 +9441,7 @@ begin
          field_rw_Timer_0_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(78) = '1' and bitEnN(j) = '0') then
+            if(wEn(81) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9185,7 +9456,7 @@ end process P_Timer_0_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_0_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(79) <= (hit(79)) and (reg_write);
+wEn(82) <= (hit(82)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -9205,7 +9476,7 @@ begin
          field_rw_Timer_0_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(79) = '1' and bitEnN(j) = '0') then
+            if(wEn(82) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_0_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9220,7 +9491,7 @@ end process P_Timer_0_TimerDuration_TimerDuration;
 -- Register name: Timer_0_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(80) <= (hit(80)) and (reg_write);
+wEn(83) <= (hit(83)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -9236,7 +9507,7 @@ rb_Timer_0_TimerLatchedValue(31 downto 0) <= regfile.Timer(0).TimerLatchedValue.
 -- Register name: Timer_0_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(81) <= (hit(81)) and (reg_write);
+wEn(84) <= (hit(84)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -9269,7 +9540,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(17) = '0') then
+         if(wEn(84) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_0_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -9293,7 +9564,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(16) = '0') then
+         if(wEn(84) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_0_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -9317,7 +9588,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(10) = '0') then
+         if(wEn(84) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_0_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -9341,7 +9612,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_0_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(9) = '0') then
+         if(wEn(84) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_0_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_0_TimerStatus_TimerLatchValue <= '0';
@@ -9367,7 +9638,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_0_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(8) = '0') then
+         if(wEn(84) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_0_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_0_TimerStatus_TimerCntrReset <= '0';
@@ -9393,7 +9664,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(1) = '0') then
+         if(wEn(84) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_0_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -9417,7 +9688,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_0_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(81) = '1' and bitEnN(0) = '0') then
+         if(wEn(84) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_0_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -9431,7 +9702,7 @@ end process P_Timer_0_TimerStatus_TimerEnable;
 -- Register name: Timer_1_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(82) <= (hit(82)) and (reg_write);
+wEn(85) <= (hit(85)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -9463,7 +9734,7 @@ rb_Timer_1_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(1).CAPABILITIES_TIME
 -- Register name: Timer_1_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(83) <= (hit(83)) and (reg_write);
+wEn(86) <= (hit(86)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -9479,7 +9750,7 @@ rb_Timer_1_TimerClockPeriod(15 downto 0) <= regfile.Timer(1).TimerClockPeriod.Pe
 -- Register name: Timer_1_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(84) <= (hit(84)) and (reg_write);
+wEn(87) <= (hit(87)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -9498,7 +9769,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(31) = '0') then
+         if(wEn(87) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -9525,7 +9796,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -9550,7 +9821,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(24) = '0') then
+         if(wEn(87) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_1_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -9575,7 +9846,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -9601,7 +9872,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -9626,7 +9897,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(15) = '0') then
+         if(wEn(87) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_1_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -9652,7 +9923,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(84) = '1' and bitEnN(14) = '0') then
+         if(wEn(87) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_1_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -9677,7 +9948,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -9703,7 +9974,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -9729,7 +10000,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -9755,7 +10026,7 @@ begin
          field_rw_Timer_1_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9770,7 +10041,7 @@ end process P_Timer_1_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_1_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(85) <= (hit(85)) and (reg_write);
+wEn(88) <= (hit(88)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -9790,7 +10061,7 @@ begin
          field_rw_Timer_1_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(88) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -9816,7 +10087,7 @@ begin
          field_rw_Timer_1_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(88) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -9842,7 +10113,7 @@ begin
          field_rw_Timer_1_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(88) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -9868,7 +10139,7 @@ begin
          field_rw_Timer_1_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(88) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -9894,7 +10165,7 @@ begin
          field_rw_Timer_1_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(88) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9909,7 +10180,7 @@ end process P_Timer_1_TimerClockSource_TimerClockSource;
 -- Register name: Timer_1_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(86) <= (hit(86)) and (reg_write);
+wEn(89) <= (hit(89)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -9929,7 +10200,7 @@ begin
          field_rw_Timer_1_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(86) = '1' and bitEnN(j) = '0') then
+            if(wEn(89) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9944,7 +10215,7 @@ end process P_Timer_1_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_1_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(87) <= (hit(87)) and (reg_write);
+wEn(90) <= (hit(90)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -9964,7 +10235,7 @@ begin
          field_rw_Timer_1_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(87) = '1' and bitEnN(j) = '0') then
+            if(wEn(90) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_1_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -9979,7 +10250,7 @@ end process P_Timer_1_TimerDuration_TimerDuration;
 -- Register name: Timer_1_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(88) <= (hit(88)) and (reg_write);
+wEn(91) <= (hit(91)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -9995,7 +10266,7 @@ rb_Timer_1_TimerLatchedValue(31 downto 0) <= regfile.Timer(1).TimerLatchedValue.
 -- Register name: Timer_1_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(89) <= (hit(89)) and (reg_write);
+wEn(92) <= (hit(92)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -10028,7 +10299,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(17) = '0') then
+         if(wEn(92) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_1_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -10052,7 +10323,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(16) = '0') then
+         if(wEn(92) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_1_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -10076,7 +10347,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(10) = '0') then
+         if(wEn(92) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_1_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -10100,7 +10371,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_1_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(9) = '0') then
+         if(wEn(92) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_1_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_1_TimerStatus_TimerLatchValue <= '0';
@@ -10126,7 +10397,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_1_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(8) = '0') then
+         if(wEn(92) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_1_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_1_TimerStatus_TimerCntrReset <= '0';
@@ -10152,7 +10423,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(1) = '0') then
+         if(wEn(92) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_1_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -10176,7 +10447,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_1_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(0) = '0') then
+         if(wEn(92) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_1_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -10190,7 +10461,7 @@ end process P_Timer_1_TimerStatus_TimerEnable;
 -- Register name: Timer_2_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(90) <= (hit(90)) and (reg_write);
+wEn(93) <= (hit(93)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -10222,7 +10493,7 @@ rb_Timer_2_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(2).CAPABILITIES_TIME
 -- Register name: Timer_2_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(91) <= (hit(91)) and (reg_write);
+wEn(94) <= (hit(94)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -10238,7 +10509,7 @@ rb_Timer_2_TimerClockPeriod(15 downto 0) <= regfile.Timer(2).TimerClockPeriod.Pe
 -- Register name: Timer_2_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(92) <= (hit(92)) and (reg_write);
+wEn(95) <= (hit(95)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -10257,7 +10528,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(92) = '1' and bitEnN(31) = '0') then
+         if(wEn(95) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -10284,7 +10555,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -10309,7 +10580,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(92) = '1' and bitEnN(24) = '0') then
+         if(wEn(95) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_2_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -10334,7 +10605,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -10360,7 +10631,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10385,7 +10656,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(92) = '1' and bitEnN(15) = '0') then
+         if(wEn(95) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_2_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -10411,7 +10682,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(92) = '1' and bitEnN(14) = '0') then
+         if(wEn(95) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_2_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -10436,7 +10707,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -10462,7 +10733,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -10488,7 +10759,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -10514,7 +10785,7 @@ begin
          field_rw_Timer_2_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
+            if(wEn(95) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10529,7 +10800,7 @@ end process P_Timer_2_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_2_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(93) <= (hit(93)) and (reg_write);
+wEn(96) <= (hit(96)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -10549,7 +10820,7 @@ begin
          field_rw_Timer_2_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10575,7 +10846,7 @@ begin
          field_rw_Timer_2_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -10601,7 +10872,7 @@ begin
          field_rw_Timer_2_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -10627,7 +10898,7 @@ begin
          field_rw_Timer_2_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -10653,7 +10924,7 @@ begin
          field_rw_Timer_2_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10668,7 +10939,7 @@ end process P_Timer_2_TimerClockSource_TimerClockSource;
 -- Register name: Timer_2_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(94) <= (hit(94)) and (reg_write);
+wEn(97) <= (hit(97)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -10688,7 +10959,7 @@ begin
          field_rw_Timer_2_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(94) = '1' and bitEnN(j) = '0') then
+            if(wEn(97) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10703,7 +10974,7 @@ end process P_Timer_2_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_2_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(95) <= (hit(95)) and (reg_write);
+wEn(98) <= (hit(98)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -10723,7 +10994,7 @@ begin
          field_rw_Timer_2_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(95) = '1' and bitEnN(j) = '0') then
+            if(wEn(98) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_2_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10738,7 +11009,7 @@ end process P_Timer_2_TimerDuration_TimerDuration;
 -- Register name: Timer_2_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(96) <= (hit(96)) and (reg_write);
+wEn(99) <= (hit(99)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -10754,7 +11025,7 @@ rb_Timer_2_TimerLatchedValue(31 downto 0) <= regfile.Timer(2).TimerLatchedValue.
 -- Register name: Timer_2_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(97) <= (hit(97)) and (reg_write);
+wEn(100) <= (hit(100)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -10787,7 +11058,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(17) = '0') then
+         if(wEn(100) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_2_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -10811,7 +11082,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(16) = '0') then
+         if(wEn(100) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_2_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -10835,7 +11106,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(10) = '0') then
+         if(wEn(100) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_2_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -10859,7 +11130,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_2_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(9) = '0') then
+         if(wEn(100) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_2_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_2_TimerStatus_TimerLatchValue <= '0';
@@ -10885,7 +11156,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_2_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(8) = '0') then
+         if(wEn(100) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_2_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_2_TimerStatus_TimerCntrReset <= '0';
@@ -10911,7 +11182,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(1) = '0') then
+         if(wEn(100) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_2_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -10935,7 +11206,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_2_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(97) = '1' and bitEnN(0) = '0') then
+         if(wEn(100) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_2_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -10949,7 +11220,7 @@ end process P_Timer_2_TimerStatus_TimerEnable;
 -- Register name: Timer_3_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(98) <= (hit(98)) and (reg_write);
+wEn(101) <= (hit(101)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -10981,7 +11252,7 @@ rb_Timer_3_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(3).CAPABILITIES_TIME
 -- Register name: Timer_3_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(99) <= (hit(99)) and (reg_write);
+wEn(102) <= (hit(102)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -10997,7 +11268,7 @@ rb_Timer_3_TimerClockPeriod(15 downto 0) <= regfile.Timer(3).TimerClockPeriod.Pe
 -- Register name: Timer_3_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(100) <= (hit(100)) and (reg_write);
+wEn(103) <= (hit(103)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -11016,7 +11287,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(100) = '1' and bitEnN(31) = '0') then
+         if(wEn(103) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -11043,7 +11314,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -11068,7 +11339,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(100) = '1' and bitEnN(24) = '0') then
+         if(wEn(103) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_3_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -11093,7 +11364,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -11119,7 +11390,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -11144,7 +11415,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(100) = '1' and bitEnN(15) = '0') then
+         if(wEn(103) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_3_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -11170,7 +11441,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(100) = '1' and bitEnN(14) = '0') then
+         if(wEn(103) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_3_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -11195,7 +11466,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -11221,7 +11492,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -11247,7 +11518,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -11273,7 +11544,7 @@ begin
          field_rw_Timer_3_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(100) = '1' and bitEnN(j) = '0') then
+            if(wEn(103) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -11288,7 +11559,7 @@ end process P_Timer_3_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_3_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(101) <= (hit(101)) and (reg_write);
+wEn(104) <= (hit(104)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -11308,7 +11579,7 @@ begin
          field_rw_Timer_3_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(101) = '1' and bitEnN(j) = '0') then
+            if(wEn(104) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -11334,7 +11605,7 @@ begin
          field_rw_Timer_3_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(101) = '1' and bitEnN(j) = '0') then
+            if(wEn(104) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -11360,7 +11631,7 @@ begin
          field_rw_Timer_3_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(101) = '1' and bitEnN(j) = '0') then
+            if(wEn(104) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -11386,7 +11657,7 @@ begin
          field_rw_Timer_3_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(101) = '1' and bitEnN(j) = '0') then
+            if(wEn(104) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -11412,7 +11683,7 @@ begin
          field_rw_Timer_3_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(101) = '1' and bitEnN(j) = '0') then
+            if(wEn(104) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -11427,7 +11698,7 @@ end process P_Timer_3_TimerClockSource_TimerClockSource;
 -- Register name: Timer_3_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(102) <= (hit(102)) and (reg_write);
+wEn(105) <= (hit(105)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -11447,7 +11718,7 @@ begin
          field_rw_Timer_3_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(102) = '1' and bitEnN(j) = '0') then
+            if(wEn(105) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -11462,7 +11733,7 @@ end process P_Timer_3_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_3_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(103) <= (hit(103)) and (reg_write);
+wEn(106) <= (hit(106)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -11482,7 +11753,7 @@ begin
          field_rw_Timer_3_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(103) = '1' and bitEnN(j) = '0') then
+            if(wEn(106) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_3_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -11497,7 +11768,7 @@ end process P_Timer_3_TimerDuration_TimerDuration;
 -- Register name: Timer_3_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(104) <= (hit(104)) and (reg_write);
+wEn(107) <= (hit(107)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -11513,7 +11784,7 @@ rb_Timer_3_TimerLatchedValue(31 downto 0) <= regfile.Timer(3).TimerLatchedValue.
 -- Register name: Timer_3_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(105) <= (hit(105)) and (reg_write);
+wEn(108) <= (hit(108)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -11546,7 +11817,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(17) = '0') then
+         if(wEn(108) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_3_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -11570,7 +11841,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(16) = '0') then
+         if(wEn(108) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_3_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -11594,7 +11865,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(10) = '0') then
+         if(wEn(108) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_3_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -11618,7 +11889,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_3_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(9) = '0') then
+         if(wEn(108) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_3_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_3_TimerStatus_TimerLatchValue <= '0';
@@ -11644,7 +11915,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_3_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(8) = '0') then
+         if(wEn(108) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_3_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_3_TimerStatus_TimerCntrReset <= '0';
@@ -11670,7 +11941,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(1) = '0') then
+         if(wEn(108) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_3_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -11694,7 +11965,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_3_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(105) = '1' and bitEnN(0) = '0') then
+         if(wEn(108) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_3_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -11708,7 +11979,7 @@ end process P_Timer_3_TimerStatus_TimerEnable;
 -- Register name: Timer_4_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(106) <= (hit(106)) and (reg_write);
+wEn(109) <= (hit(109)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -11740,7 +12011,7 @@ rb_Timer_4_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(4).CAPABILITIES_TIME
 -- Register name: Timer_4_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(107) <= (hit(107)) and (reg_write);
+wEn(110) <= (hit(110)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -11756,7 +12027,7 @@ rb_Timer_4_TimerClockPeriod(15 downto 0) <= regfile.Timer(4).TimerClockPeriod.Pe
 -- Register name: Timer_4_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(108) <= (hit(108)) and (reg_write);
+wEn(111) <= (hit(111)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -11775,7 +12046,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(108) = '1' and bitEnN(31) = '0') then
+         if(wEn(111) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -11802,7 +12073,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -11827,7 +12098,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(108) = '1' and bitEnN(24) = '0') then
+         if(wEn(111) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_4_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -11852,7 +12123,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -11878,7 +12149,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -11903,7 +12174,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(108) = '1' and bitEnN(15) = '0') then
+         if(wEn(111) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_4_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -11929,7 +12200,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(108) = '1' and bitEnN(14) = '0') then
+         if(wEn(111) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_4_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -11954,7 +12225,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -11980,7 +12251,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -12006,7 +12277,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -12032,7 +12303,7 @@ begin
          field_rw_Timer_4_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(108) = '1' and bitEnN(j) = '0') then
+            if(wEn(111) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12047,7 +12318,7 @@ end process P_Timer_4_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_4_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(109) <= (hit(109)) and (reg_write);
+wEn(112) <= (hit(112)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -12067,7 +12338,7 @@ begin
          field_rw_Timer_4_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(109) = '1' and bitEnN(j) = '0') then
+            if(wEn(112) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -12093,7 +12364,7 @@ begin
          field_rw_Timer_4_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(109) = '1' and bitEnN(j) = '0') then
+            if(wEn(112) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -12119,7 +12390,7 @@ begin
          field_rw_Timer_4_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(109) = '1' and bitEnN(j) = '0') then
+            if(wEn(112) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -12145,7 +12416,7 @@ begin
          field_rw_Timer_4_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(109) = '1' and bitEnN(j) = '0') then
+            if(wEn(112) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -12171,7 +12442,7 @@ begin
          field_rw_Timer_4_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(109) = '1' and bitEnN(j) = '0') then
+            if(wEn(112) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12186,7 +12457,7 @@ end process P_Timer_4_TimerClockSource_TimerClockSource;
 -- Register name: Timer_4_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(110) <= (hit(110)) and (reg_write);
+wEn(113) <= (hit(113)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -12206,7 +12477,7 @@ begin
          field_rw_Timer_4_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(110) = '1' and bitEnN(j) = '0') then
+            if(wEn(113) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12221,7 +12492,7 @@ end process P_Timer_4_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_4_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(111) <= (hit(111)) and (reg_write);
+wEn(114) <= (hit(114)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -12241,7 +12512,7 @@ begin
          field_rw_Timer_4_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(111) = '1' and bitEnN(j) = '0') then
+            if(wEn(114) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_4_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12256,7 +12527,7 @@ end process P_Timer_4_TimerDuration_TimerDuration;
 -- Register name: Timer_4_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(112) <= (hit(112)) and (reg_write);
+wEn(115) <= (hit(115)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -12272,7 +12543,7 @@ rb_Timer_4_TimerLatchedValue(31 downto 0) <= regfile.Timer(4).TimerLatchedValue.
 -- Register name: Timer_4_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(113) <= (hit(113)) and (reg_write);
+wEn(116) <= (hit(116)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -12305,7 +12576,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(17) = '0') then
+         if(wEn(116) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_4_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -12329,7 +12600,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(16) = '0') then
+         if(wEn(116) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_4_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -12353,7 +12624,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(10) = '0') then
+         if(wEn(116) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_4_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -12377,7 +12648,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_4_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(9) = '0') then
+         if(wEn(116) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_4_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_4_TimerStatus_TimerLatchValue <= '0';
@@ -12403,7 +12674,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_4_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(8) = '0') then
+         if(wEn(116) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_4_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_4_TimerStatus_TimerCntrReset <= '0';
@@ -12429,7 +12700,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(1) = '0') then
+         if(wEn(116) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_4_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -12453,7 +12724,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_4_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(113) = '1' and bitEnN(0) = '0') then
+         if(wEn(116) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_4_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -12467,7 +12738,7 @@ end process P_Timer_4_TimerStatus_TimerEnable;
 -- Register name: Timer_5_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(114) <= (hit(114)) and (reg_write);
+wEn(117) <= (hit(117)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -12499,7 +12770,7 @@ rb_Timer_5_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(5).CAPABILITIES_TIME
 -- Register name: Timer_5_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(115) <= (hit(115)) and (reg_write);
+wEn(118) <= (hit(118)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -12515,7 +12786,7 @@ rb_Timer_5_TimerClockPeriod(15 downto 0) <= regfile.Timer(5).TimerClockPeriod.Pe
 -- Register name: Timer_5_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(116) <= (hit(116)) and (reg_write);
+wEn(119) <= (hit(119)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -12534,7 +12805,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(116) = '1' and bitEnN(31) = '0') then
+         if(wEn(119) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -12561,7 +12832,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -12586,7 +12857,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(116) = '1' and bitEnN(24) = '0') then
+         if(wEn(119) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_5_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -12611,7 +12882,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -12637,7 +12908,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -12662,7 +12933,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(116) = '1' and bitEnN(15) = '0') then
+         if(wEn(119) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_5_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -12688,7 +12959,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(116) = '1' and bitEnN(14) = '0') then
+         if(wEn(119) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_5_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -12713,7 +12984,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -12739,7 +13010,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -12765,7 +13036,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -12791,7 +13062,7 @@ begin
          field_rw_Timer_5_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(116) = '1' and bitEnN(j) = '0') then
+            if(wEn(119) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12806,7 +13077,7 @@ end process P_Timer_5_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_5_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(117) <= (hit(117)) and (reg_write);
+wEn(120) <= (hit(120)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -12826,7 +13097,7 @@ begin
          field_rw_Timer_5_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(117) = '1' and bitEnN(j) = '0') then
+            if(wEn(120) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -12852,7 +13123,7 @@ begin
          field_rw_Timer_5_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(117) = '1' and bitEnN(j) = '0') then
+            if(wEn(120) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -12878,7 +13149,7 @@ begin
          field_rw_Timer_5_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(117) = '1' and bitEnN(j) = '0') then
+            if(wEn(120) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -12904,7 +13175,7 @@ begin
          field_rw_Timer_5_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(117) = '1' and bitEnN(j) = '0') then
+            if(wEn(120) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -12930,7 +13201,7 @@ begin
          field_rw_Timer_5_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(117) = '1' and bitEnN(j) = '0') then
+            if(wEn(120) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12945,7 +13216,7 @@ end process P_Timer_5_TimerClockSource_TimerClockSource;
 -- Register name: Timer_5_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(118) <= (hit(118)) and (reg_write);
+wEn(121) <= (hit(121)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -12965,7 +13236,7 @@ begin
          field_rw_Timer_5_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(118) = '1' and bitEnN(j) = '0') then
+            if(wEn(121) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -12980,7 +13251,7 @@ end process P_Timer_5_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_5_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(119) <= (hit(119)) and (reg_write);
+wEn(122) <= (hit(122)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -13000,7 +13271,7 @@ begin
          field_rw_Timer_5_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(119) = '1' and bitEnN(j) = '0') then
+            if(wEn(122) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_5_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -13015,7 +13286,7 @@ end process P_Timer_5_TimerDuration_TimerDuration;
 -- Register name: Timer_5_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(120) <= (hit(120)) and (reg_write);
+wEn(123) <= (hit(123)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -13031,7 +13302,7 @@ rb_Timer_5_TimerLatchedValue(31 downto 0) <= regfile.Timer(5).TimerLatchedValue.
 -- Register name: Timer_5_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(121) <= (hit(121)) and (reg_write);
+wEn(124) <= (hit(124)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -13064,7 +13335,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(17) = '0') then
+         if(wEn(124) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_5_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -13088,7 +13359,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(16) = '0') then
+         if(wEn(124) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_5_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -13112,7 +13383,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(10) = '0') then
+         if(wEn(124) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_5_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -13136,7 +13407,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_5_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(9) = '0') then
+         if(wEn(124) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_5_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_5_TimerStatus_TimerLatchValue <= '0';
@@ -13162,7 +13433,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_5_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(8) = '0') then
+         if(wEn(124) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_5_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_5_TimerStatus_TimerCntrReset <= '0';
@@ -13188,7 +13459,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(1) = '0') then
+         if(wEn(124) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_5_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -13212,7 +13483,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_5_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(121) = '1' and bitEnN(0) = '0') then
+         if(wEn(124) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_5_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -13226,7 +13497,7 @@ end process P_Timer_5_TimerStatus_TimerEnable;
 -- Register name: Timer_6_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(122) <= (hit(122)) and (reg_write);
+wEn(125) <= (hit(125)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -13258,7 +13529,7 @@ rb_Timer_6_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(6).CAPABILITIES_TIME
 -- Register name: Timer_6_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(123) <= (hit(123)) and (reg_write);
+wEn(126) <= (hit(126)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -13274,7 +13545,7 @@ rb_Timer_6_TimerClockPeriod(15 downto 0) <= regfile.Timer(6).TimerClockPeriod.Pe
 -- Register name: Timer_6_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(124) <= (hit(124)) and (reg_write);
+wEn(127) <= (hit(127)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -13293,7 +13564,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(124) = '1' and bitEnN(31) = '0') then
+         if(wEn(127) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -13320,7 +13591,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -13345,7 +13616,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(124) = '1' and bitEnN(24) = '0') then
+         if(wEn(127) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_6_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -13370,7 +13641,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -13396,7 +13667,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -13421,7 +13692,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(124) = '1' and bitEnN(15) = '0') then
+         if(wEn(127) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_6_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -13447,7 +13718,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(124) = '1' and bitEnN(14) = '0') then
+         if(wEn(127) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_6_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -13472,7 +13743,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -13498,7 +13769,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -13524,7 +13795,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -13550,7 +13821,7 @@ begin
          field_rw_Timer_6_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(124) = '1' and bitEnN(j) = '0') then
+            if(wEn(127) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -13565,7 +13836,7 @@ end process P_Timer_6_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_6_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(125) <= (hit(125)) and (reg_write);
+wEn(128) <= (hit(128)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -13585,7 +13856,7 @@ begin
          field_rw_Timer_6_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(125) = '1' and bitEnN(j) = '0') then
+            if(wEn(128) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -13611,7 +13882,7 @@ begin
          field_rw_Timer_6_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(125) = '1' and bitEnN(j) = '0') then
+            if(wEn(128) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -13637,7 +13908,7 @@ begin
          field_rw_Timer_6_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(125) = '1' and bitEnN(j) = '0') then
+            if(wEn(128) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -13663,7 +13934,7 @@ begin
          field_rw_Timer_6_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(125) = '1' and bitEnN(j) = '0') then
+            if(wEn(128) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -13689,7 +13960,7 @@ begin
          field_rw_Timer_6_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(125) = '1' and bitEnN(j) = '0') then
+            if(wEn(128) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -13704,7 +13975,7 @@ end process P_Timer_6_TimerClockSource_TimerClockSource;
 -- Register name: Timer_6_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(126) <= (hit(126)) and (reg_write);
+wEn(129) <= (hit(129)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -13724,7 +13995,7 @@ begin
          field_rw_Timer_6_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(126) = '1' and bitEnN(j) = '0') then
+            if(wEn(129) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -13739,7 +14010,7 @@ end process P_Timer_6_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_6_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(127) <= (hit(127)) and (reg_write);
+wEn(130) <= (hit(130)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -13759,7 +14030,7 @@ begin
          field_rw_Timer_6_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(127) = '1' and bitEnN(j) = '0') then
+            if(wEn(130) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_6_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -13774,7 +14045,7 @@ end process P_Timer_6_TimerDuration_TimerDuration;
 -- Register name: Timer_6_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(128) <= (hit(128)) and (reg_write);
+wEn(131) <= (hit(131)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -13790,7 +14061,7 @@ rb_Timer_6_TimerLatchedValue(31 downto 0) <= regfile.Timer(6).TimerLatchedValue.
 -- Register name: Timer_6_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(129) <= (hit(129)) and (reg_write);
+wEn(132) <= (hit(132)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -13823,7 +14094,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(17) = '0') then
+         if(wEn(132) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_6_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -13847,7 +14118,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(16) = '0') then
+         if(wEn(132) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_6_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -13871,7 +14142,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(10) = '0') then
+         if(wEn(132) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_6_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -13895,7 +14166,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_6_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(9) = '0') then
+         if(wEn(132) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_6_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_6_TimerStatus_TimerLatchValue <= '0';
@@ -13921,7 +14192,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_6_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(8) = '0') then
+         if(wEn(132) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_6_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_6_TimerStatus_TimerCntrReset <= '0';
@@ -13947,7 +14218,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(1) = '0') then
+         if(wEn(132) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_6_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -13971,7 +14242,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_6_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(129) = '1' and bitEnN(0) = '0') then
+         if(wEn(132) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_6_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -13985,7 +14256,7 @@ end process P_Timer_6_TimerStatus_TimerEnable;
 -- Register name: Timer_7_CAPABILITIES_TIMER
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(130) <= (hit(130)) and (reg_write);
+wEn(133) <= (hit(133)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TIMER_ID
@@ -14017,7 +14288,7 @@ rb_Timer_7_CAPABILITIES_TIMER(11 downto 7) <= regfile.Timer(7).CAPABILITIES_TIME
 -- Register name: Timer_7_TimerClockPeriod
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(131) <= (hit(131)) and (reg_write);
+wEn(134) <= (hit(134)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Period_ns(15 downto 0)
@@ -14033,7 +14304,7 @@ rb_Timer_7_TimerClockPeriod(15 downto 0) <= regfile.Timer(7).TimerClockPeriod.Pe
 -- Register name: Timer_7_TimerTriggerArm
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(132) <= (hit(132)) and (reg_write);
+wEn(135) <= (hit(135)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: Soft_TimerArm
@@ -14052,7 +14323,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerArm <= '0';
       else
-         if(wEn(132) = '1' and bitEnN(31) = '0') then
+         if(wEn(135) = '1' and bitEnN(31) = '0') then
             field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerArm <= reg_writedata(31);
          else
             field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerArm <= '0';
@@ -14079,7 +14350,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerTriggerOverlap <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  26 downto 25  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerTriggerOverlap(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -14104,7 +14375,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerTriggerArm_TimerArmEnable <= '0';
       else
-         if(wEn(132) = '1' and bitEnN(24) = '0') then
+         if(wEn(135) = '1' and bitEnN(24) = '0') then
             field_rw_Timer_7_TimerTriggerArm_TimerArmEnable <= reg_writedata(24);
          end if;
       end if;
@@ -14129,7 +14400,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerArmSource <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  23 downto 19  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerArmSource(j-19) <= reg_writedata(j);
             end if;
          end loop;
@@ -14155,7 +14426,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerArmActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  18 downto 16  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerArmActivation(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -14180,7 +14451,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerTrigger <= '0';
       else
-         if(wEn(132) = '1' and bitEnN(15) = '0') then
+         if(wEn(135) = '1' and bitEnN(15) = '0') then
             field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerTrigger <= reg_writedata(15);
          else
             field_wautoclr_Timer_7_TimerTriggerArm_Soft_TimerTrigger <= '0';
@@ -14206,7 +14477,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerTriggerArm_TimerMesurement <= '0';
       else
-         if(wEn(132) = '1' and bitEnN(14) = '0') then
+         if(wEn(135) = '1' and bitEnN(14) = '0') then
             field_rw_Timer_7_TimerTriggerArm_TimerMesurement <= reg_writedata(14);
          end if;
       end if;
@@ -14231,7 +14502,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerTriggerLogicESel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  12 downto 11  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerTriggerLogicESel(j-11) <= reg_writedata(j);
             end if;
          end loop;
@@ -14257,7 +14528,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerTriggerLogicDSel <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  10 downto 9  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerTriggerLogicDSel(j-9) <= reg_writedata(j);
             end if;
          end loop;
@@ -14283,7 +14554,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerTriggerSource <= std_logic_vector(to_unsigned(integer(0),6));
       else
          for j in  8 downto 3  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerTriggerSource(j-3) <= reg_writedata(j);
             end if;
          end loop;
@@ -14309,7 +14580,7 @@ begin
          field_rw_Timer_7_TimerTriggerArm_TimerTriggerActivation <= std_logic_vector(to_unsigned(integer(0),3));
       else
          for j in  2 downto 0  loop
-            if(wEn(132) = '1' and bitEnN(j) = '0') then
+            if(wEn(135) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerTriggerArm_TimerTriggerActivation(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -14324,7 +14595,7 @@ end process P_Timer_7_TimerTriggerArm_TimerTriggerActivation;
 -- Register name: Timer_7_TimerClockSource
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(133) <= (hit(133)) and (reg_write);
+wEn(136) <= (hit(136)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: IntClock_sel(17 downto 16)
@@ -14344,7 +14615,7 @@ begin
          field_rw_Timer_7_TimerClockSource_IntClock_sel <= std_logic_vector(to_unsigned(integer(1),2));
       else
          for j in  17 downto 16  loop
-            if(wEn(133) = '1' and bitEnN(j) = '0') then
+            if(wEn(136) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerClockSource_IntClock_sel(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -14370,7 +14641,7 @@ begin
          field_rw_Timer_7_TimerClockSource_DelayClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  13 downto 12  loop
-            if(wEn(133) = '1' and bitEnN(j) = '0') then
+            if(wEn(136) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerClockSource_DelayClockActivation(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -14396,7 +14667,7 @@ begin
          field_rw_Timer_7_TimerClockSource_DelayClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  11 downto 8  loop
-            if(wEn(133) = '1' and bitEnN(j) = '0') then
+            if(wEn(136) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerClockSource_DelayClockSource(j-8) <= reg_writedata(j);
             end if;
          end loop;
@@ -14422,7 +14693,7 @@ begin
          field_rw_Timer_7_TimerClockSource_TimerClockActivation <= std_logic_vector(to_unsigned(integer(0),2));
       else
          for j in  5 downto 4  loop
-            if(wEn(133) = '1' and bitEnN(j) = '0') then
+            if(wEn(136) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerClockSource_TimerClockActivation(j-4) <= reg_writedata(j);
             end if;
          end loop;
@@ -14448,7 +14719,7 @@ begin
          field_rw_Timer_7_TimerClockSource_TimerClockSource <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  3 downto 0  loop
-            if(wEn(133) = '1' and bitEnN(j) = '0') then
+            if(wEn(136) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerClockSource_TimerClockSource(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -14463,7 +14734,7 @@ end process P_Timer_7_TimerClockSource_TimerClockSource;
 -- Register name: Timer_7_TimerDelayValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(134) <= (hit(134)) and (reg_write);
+wEn(137) <= (hit(137)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDelayValue(31 downto 0)
@@ -14483,7 +14754,7 @@ begin
          field_rw_Timer_7_TimerDelayValue_TimerDelayValue <= X"00000000";
       else
          for j in  31 downto 0  loop
-            if(wEn(134) = '1' and bitEnN(j) = '0') then
+            if(wEn(137) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerDelayValue_TimerDelayValue(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -14498,7 +14769,7 @@ end process P_Timer_7_TimerDelayValue_TimerDelayValue;
 -- Register name: Timer_7_TimerDuration
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(135) <= (hit(135)) and (reg_write);
+wEn(138) <= (hit(138)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerDuration(31 downto 0)
@@ -14518,7 +14789,7 @@ begin
          field_rw_Timer_7_TimerDuration_TimerDuration <= X"00000001";
       else
          for j in  31 downto 0  loop
-            if(wEn(135) = '1' and bitEnN(j) = '0') then
+            if(wEn(138) = '1' and bitEnN(j) = '0') then
                field_rw_Timer_7_TimerDuration_TimerDuration(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -14533,7 +14804,7 @@ end process P_Timer_7_TimerDuration_TimerDuration;
 -- Register name: Timer_7_TimerLatchedValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(136) <= (hit(136)) and (reg_write);
+wEn(139) <= (hit(139)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerLatchedValue(31 downto 0)
@@ -14549,7 +14820,7 @@ rb_Timer_7_TimerLatchedValue(31 downto 0) <= regfile.Timer(7).TimerLatchedValue.
 -- Register name: Timer_7_TimerStatus
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(137) <= (hit(137)) and (reg_write);
+wEn(140) <= (hit(140)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: TimerStatus(2 downto 0)
@@ -14582,7 +14853,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerStatus_TimerEndIntmaskn <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(17) = '0') then
+         if(wEn(140) = '1' and bitEnN(17) = '0') then
             field_rw_Timer_7_TimerStatus_TimerEndIntmaskn <= reg_writedata(17);
          end if;
       end if;
@@ -14606,7 +14877,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerStatus_TimerStartIntmaskn <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(16) = '0') then
+         if(wEn(140) = '1' and bitEnN(16) = '0') then
             field_rw_Timer_7_TimerStatus_TimerStartIntmaskn <= reg_writedata(16);
          end if;
       end if;
@@ -14630,7 +14901,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerStatus_TimerLatchAndReset <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(10) = '0') then
+         if(wEn(140) = '1' and bitEnN(10) = '0') then
             field_rw_Timer_7_TimerStatus_TimerLatchAndReset <= reg_writedata(10);
          end if;
       end if;
@@ -14654,7 +14925,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_7_TimerStatus_TimerLatchValue <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(9) = '0') then
+         if(wEn(140) = '1' and bitEnN(9) = '0') then
             field_wautoclr_Timer_7_TimerStatus_TimerLatchValue <= reg_writedata(9);
          else
             field_wautoclr_Timer_7_TimerStatus_TimerLatchValue <= '0';
@@ -14680,7 +14951,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_Timer_7_TimerStatus_TimerCntrReset <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(8) = '0') then
+         if(wEn(140) = '1' and bitEnN(8) = '0') then
             field_wautoclr_Timer_7_TimerStatus_TimerCntrReset <= reg_writedata(8);
          else
             field_wautoclr_Timer_7_TimerStatus_TimerCntrReset <= '0';
@@ -14706,7 +14977,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerStatus_TimerInversion <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(1) = '0') then
+         if(wEn(140) = '1' and bitEnN(1) = '0') then
             field_rw_Timer_7_TimerStatus_TimerInversion <= reg_writedata(1);
          end if;
       end if;
@@ -14730,7 +15001,7 @@ begin
       if (resetN = '0') then
          field_rw_Timer_7_TimerStatus_TimerEnable <= '0';
       else
-         if(wEn(137) = '1' and bitEnN(0) = '0') then
+         if(wEn(140) = '1' and bitEnN(0) = '0') then
             field_rw_Timer_7_TimerStatus_TimerEnable <= reg_writedata(0);
          end if;
       end if;
@@ -14744,7 +15015,7 @@ end process P_Timer_7_TimerStatus_TimerEnable;
 -- Register name: Microblaze_CAPABILITIES_MICRO
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(138) <= (hit(138)) and (reg_write);
+wEn(141) <= (hit(141)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MICRO_ID
@@ -14777,7 +15048,7 @@ regfile.Microblaze.CAPABILITIES_MICRO.Intnum <= rb_Microblaze_CAPABILITIES_MICRO
 -- Register name: Microblaze_ProdCons_0
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(139) <= (hit(139)) and (reg_write);
+wEn(142) <= (hit(142)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MemorySize
@@ -14801,7 +15072,7 @@ rb_Microblaze_ProdCons_0(19 downto 0) <= regfile.Microblaze.ProdCons(0).Offset;
 -- Register name: Microblaze_ProdCons_1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(140) <= (hit(140)) and (reg_write);
+wEn(143) <= (hit(143)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MemorySize
@@ -14825,7 +15096,7 @@ rb_Microblaze_ProdCons_1(19 downto 0) <= regfile.Microblaze.ProdCons(1).Offset;
 -- Register name: AnalogOutput_CAPABILITIES_ANA_OUT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(141) <= (hit(141)) and (reg_write);
+wEn(144) <= (hit(144)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: ANA_OUT_ID
@@ -14858,7 +15129,7 @@ regfile.AnalogOutput.CAPABILITIES_ANA_OUT.NB_OUTPUTS <= rb_AnalogOutput_CAPABILI
 -- Register name: AnalogOutput_OutputValue
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(142) <= (hit(142)) and (reg_write);
+wEn(145) <= (hit(145)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: OutputVal(7 downto 0)
@@ -14878,7 +15149,7 @@ begin
          field_rw_AnalogOutput_OutputValue_OutputVal <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  7 downto 0  loop
-            if(wEn(142) = '1' and bitEnN(j) = '0') then
+            if(wEn(145) = '1' and bitEnN(j) = '0') then
                field_rw_AnalogOutput_OutputValue_OutputVal(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -14893,7 +15164,7 @@ end process P_AnalogOutput_OutputValue_OutputVal;
 -- Register name: EOFM_EOFM
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(143) <= (hit(143)) and (reg_write);
+wEn(146) <= (hit(146)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: EOFM
@@ -14966,7 +15237,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_writeEn_0 <= '0';
       else
-         ext_ProdCons_writeEn_0 <= hit(144) and reg_write;
+         ext_ProdCons_writeEn_0 <= hit(147) and reg_write;
       end if;
    end if;
 end process P_ext_ProdCons_writeEn_0;
@@ -14981,7 +15252,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_readEn_0 <= '0';
       else
-         ext_ProdCons_readEn_0 <= hit(144) and reg_read;
+         ext_ProdCons_readEn_0 <= hit(147) and reg_read;
       end if;
    end if;
 end process P_ext_ProdCons_readEn_0;
@@ -15026,7 +15297,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_readPending_0 <= '0';
       else
-         if (reg_read = '1' and hit(144) = '1') then
+         if (reg_read = '1' and hit(147) = '1') then
             ext_ProdCons_readPending_0 <= '1';
 
          elsif (ext_ProdCons_readDataValid_0_FF = '1') then
@@ -15067,7 +15338,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_writeEn_1 <= '0';
       else
-         ext_ProdCons_writeEn_1 <= hit(145) and reg_write;
+         ext_ProdCons_writeEn_1 <= hit(148) and reg_write;
       end if;
    end if;
 end process P_ext_ProdCons_writeEn_1;
@@ -15082,7 +15353,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_readEn_1 <= '0';
       else
-         ext_ProdCons_readEn_1 <= hit(145) and reg_read;
+         ext_ProdCons_readEn_1 <= hit(148) and reg_read;
       end if;
    end if;
 end process P_ext_ProdCons_readEn_1;
@@ -15127,7 +15398,7 @@ begin
       if (resetN = '0') then
          ext_ProdCons_readPending_1 <= '0';
       else
-         if (reg_read = '1' and hit(145) = '1') then
+         if (reg_read = '1' and hit(148) = '1') then
             ext_ProdCons_readPending_1 <= '1';
 
          elsif (ext_ProdCons_readDataValid_1_FF = '1') then
@@ -15175,7 +15446,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(144) or hit(145)))  or (ext_ProdCons_readPending_0 and ext_ProdCons_readDataValid_0_FF) or (ext_ProdCons_readPending_1 and ext_ProdCons_readDataValid_1_FF);
+ldData <= (reg_read and not(hit(147) or hit(148)))  or (ext_ProdCons_readPending_0 and ext_ProdCons_readDataValid_0_FF) or (ext_ProdCons_readPending_1 and ext_ProdCons_readDataValid_1_FF);
 
 end rtl;
 

@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_pcie2AxiMaster.h
-* Created by   : imaval
+* Created by   : amarchan
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_pcie2AxiMaster processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x482014AC
+* Register file CRC32 : 0xC43C8CD6
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -28,36 +28,38 @@
 /**************************************************************************
 * Register address defines
 ***************************************************************************/
-#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_TAG_ADDRESS                       0x000
-#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_FID_ADDRESS                       0x004
-#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_VERSION_ADDRESS                   0x008
-#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_CAPABILITY_ADDRESS                0x00C
-#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_SCRATCHPAD_ADDRESS                0x010
-#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_VERSION_ADDRESS                   0x020
-#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_BUILD_ID_ADDRESS                  0x024
-#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_DEVICE_ADDRESS                    0x028
-#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_BOARD_INFO_ADDRESS                0x02C
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_CTRL_ADDRESS                0x040
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_STATUS_ADDRESS              0x044
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_ENABLE_ADDRESS              0x04C
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_MASK_ADDRESS                0x054
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_CONTROL_ADDRESS        0x060
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_CONS_IDX_ADDRESS       0x064
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_ADDR_LOW_ADDRESS       0x068
-#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_ADDR_HIGH_ADDRESS      0x06C
-#define FPGA_REGFILE_PCIE2AXIMASTER_TLP_TIMEOUT_ADDRESS                    0x070
-#define FPGA_REGFILE_PCIE2AXIMASTER_TLP_TRANSACTION_ABORT_CNTR_ADDRESS     0x074
-#define FPGA_REGFILE_PCIE2AXIMASTER_SPI_SPIREGIN_ADDRESS                   0x0E0
-#define FPGA_REGFILE_PCIE2AXIMASTER_SPI_SPIREGOUT_ADDRESS                  0x0E8
-#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_CTRL_ADDRESS                0x100
-#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_PCI_BAR0_START_ADDRESS      0x104
-#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_PCI_BAR0_STOP_ADDRESS       0x108
-#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_AXI_TRANSLATION_ADDRESS     0x10C
-#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_INPUT_ADDRESS                    0x200
-#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_OUTPUT_ADDRESS                   0x204
-#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG1_ADDRESS               0x208
-#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG2_ADDRESS               0x20C
-#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG3_ADDRESS               0x210
+#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_TAG_ADDRESS                         0x000
+#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_FID_ADDRESS                         0x004
+#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_VERSION_ADDRESS                     0x008
+#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_CAPABILITY_ADDRESS                  0x00C
+#define FPGA_REGFILE_PCIE2AXIMASTER_INFO_SCRATCHPAD_ADDRESS                  0x010
+#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_VERSION_ADDRESS                     0x020
+#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_BUILD_ID_ADDRESS                    0x024
+#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_DEVICE_ADDRESS                      0x028
+#define FPGA_REGFILE_PCIE2AXIMASTER_FPGA_BOARD_INFO_ADDRESS                  0x02C
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_CTRL_ADDRESS                  0x040
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_STATUS_ADDRESS                0x044
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_ENABLE_ADDRESS                0x04C
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_MASK_ADDRESS                  0x054
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_CONTROL_ADDRESS          0x060
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_CONS_IDX_ADDRESS         0x064
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_ADDR_LOW_ADDRESS         0x068
+#define FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPT_QUEUE_ADDR_HIGH_ADDRESS        0x06C
+#define FPGA_REGFILE_PCIE2AXIMASTER_TLP_TIMEOUT_ADDRESS                      0x070
+#define FPGA_REGFILE_PCIE2AXIMASTER_TLP_TRANSACTION_ABORT_CNTR_ADDRESS       0x074
+#define FPGA_REGFILE_PCIE2AXIMASTER_SPI_SPIREGIN_ADDRESS                     0x0E0
+#define FPGA_REGFILE_PCIE2AXIMASTER_SPI_SPIREGOUT_ADDRESS                    0x0E8
+#define FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_ARBITER_CAPABILITIES_ADDRESS     0x0F0
+#define FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_AGENT_ADDRESS                    0x0F4
+#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_CTRL_ADDRESS                  0x100
+#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_PCI_BAR0_START_ADDRESS        0x104
+#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_PCI_BAR0_STOP_ADDRESS         0x108
+#define FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_AXI_TRANSLATION_ADDRESS       0x10C
+#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_INPUT_ADDRESS                      0x200
+#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_OUTPUT_ADDRESS                     0x204
+#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG1_ADDRESS                 0x208
+#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG2_ADDRESS                 0x20C
+#define FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_DMA_DEBUG3_ADDRESS                 0x210
 
 /**************************************************************************
 * Register name : tag
@@ -235,7 +237,8 @@ typedef union
    {
       M_UINT32 global_mask : 1;   /* Bits(0:0), Global Mask interrupt */
       M_UINT32 num_irq     : 7;   /* Bits(7:1), Number of IRQ */
-      M_UINT32 rsvd0       : 24;  /* Bits(31:8), Reserved */
+      M_UINT32 rsvd0       : 23;  /* Bits(30:8), Reserved */
+      M_UINT32 sw_irq      : 1;   /* Bits(31:31), Software IRQ */
    } f;
 
 } FPGA_REGFILE_PCIE2AXIMASTER_INTERRUPTS_CTRL_TYPE;
@@ -447,6 +450,49 @@ typedef union
    } f;
 
 } FPGA_REGFILE_PCIE2AXIMASTER_SPI_SPIREGOUT_TYPE;
+
+
+/**************************************************************************
+* Register name : arbiter_capabilities
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 tag      : 12;  /* Bits(11:0), null */
+      M_UINT32 rsvd0    : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 agent_nb : 2;   /* Bits(17:16), null */
+      M_UINT32 rsvd1    : 14;  /* Bits(31:18), Reserved */
+   } f;
+
+} FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_ARBITER_CAPABILITIES_TYPE;
+
+
+/**************************************************************************
+* Register name : agent
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 req   : 1;   /* Bits(0:0), REQuest resource */
+      M_UINT32 rsvd0 : 3;   /* Bits(3:1), Reserved */
+      M_UINT32 done  : 1;   /* Bits(4:4), transaction DONE */
+      M_UINT32 rsvd1 : 3;   /* Bits(7:5), Reserved */
+      M_UINT32 rec   : 1;   /* Bits(8:8), master request RECeived */
+      M_UINT32 ack   : 1;   /* Bits(9:9), master request ACKnoledge */
+      M_UINT32 rsvd2 : 22;  /* Bits(31:10), Reserved */
+   } f;
+
+} FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_AGENT_TYPE;
 
 
 /**************************************************************************
@@ -672,6 +718,15 @@ typedef struct
 } FPGA_REGFILE_PCIE2AXIMASTER_SPI_TYPE;
 
 /**************************************************************************
+* Section name   : arbiter
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_ARBITER_CAPABILITIES_TYPE arbiter_capabilities;  /* Address offset: 0x0 */
+   FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_AGENT_TYPE                agent[2];              /* Address offset: 0x4 */
+} FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_TYPE;
+
+/**************************************************************************
 * Section name   : axi_window
 ***************************************************************************/
 typedef struct
@@ -709,7 +764,8 @@ typedef struct
    FPGA_REGFILE_PCIE2AXIMASTER_TLP_TYPE             tlp;              /* Section; Base address offset: 0x70 */
    M_UINT32                                         rsvd3[26];        /* Padding; Size (104 Bytes) */
    FPGA_REGFILE_PCIE2AXIMASTER_SPI_TYPE             spi;              /* Section; Base address offset: 0xe0 */
-   M_UINT32                                         rsvd4[4];         /* Padding; Size (16 Bytes) */
+   FPGA_REGFILE_PCIE2AXIMASTER_ARBITER_TYPE         arbiter;          /* Section; Base address offset: 0xf0 */
+   M_UINT32                                         rsvd4[1];         /* Padding; Size (4 Bytes) */
    FPGA_REGFILE_PCIE2AXIMASTER_AXI_WINDOW_TYPE      axi_window[4];    /* Section; Base address offset: 0x100 */
    M_UINT32                                         rsvd5[48];        /* Padding; Size (192 Bytes) */
    FPGA_REGFILE_PCIE2AXIMASTER_DEBUG_TYPE           debug;            /* Section; Base address offset: 0x200 */

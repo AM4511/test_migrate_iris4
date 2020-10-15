@@ -80,6 +80,8 @@ module pcie_7x_0 (
   m_axis_rx_tuser,
   rx_np_ok,
   rx_np_req,
+  cfg_mgmt_do,
+  cfg_mgmt_rd_wr_done,
   cfg_status,
   cfg_command,
   cfg_dstatus,
@@ -92,6 +94,12 @@ module pcie_7x_0 (
   cfg_pmcsr_powerstate,
   cfg_pmcsr_pme_status,
   cfg_received_func_lvl_rst,
+  cfg_mgmt_di,
+  cfg_mgmt_byte_en,
+  cfg_mgmt_dwaddr,
+  cfg_mgmt_wr_en,
+  cfg_mgmt_rd_en,
+  cfg_mgmt_wr_readonly,
   cfg_err_ecrc,
   cfg_err_ur,
   cfg_err_cpl_timeout,
@@ -137,6 +145,7 @@ module pcie_7x_0 (
   cfg_ds_bus_number,
   cfg_ds_device_number,
   cfg_ds_function_number,
+  cfg_mgmt_wr_rw1c_as_rw,
   cfg_bridge_serr_en,
   cfg_slot_control_electromech_il_ctl_pulse,
   cfg_root_control_syserr_corr_err_en,
@@ -213,6 +222,10 @@ output wire [21 : 0] m_axis_rx_tuser;
 input wire rx_np_ok;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_control:1.0 pcie2_cfg_control rx_np_req" *)
 input wire rx_np_req;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt READ_DATA" *)
+output wire [31 : 0] cfg_mgmt_do;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt READ_WRITE_DONE" *)
+output wire cfg_mgmt_rd_wr_done;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_status:1.0 pcie2_cfg_status status" *)
 output wire [15 : 0] cfg_status;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_status:1.0 pcie2_cfg_status command" *)
@@ -237,6 +250,18 @@ output wire [1 : 0] cfg_pmcsr_powerstate;
 output wire cfg_pmcsr_pme_status;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_status:1.0 pcie2_cfg_status received_func_lvl_rst" *)
 output wire cfg_received_func_lvl_rst;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt WRITE_DATA" *)
+input wire [31 : 0] cfg_mgmt_di;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt BYTE_EN" *)
+input wire [3 : 0] cfg_mgmt_byte_en;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt ADDR" *)
+input wire [9 : 0] cfg_mgmt_dwaddr;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt WRITE_EN" *)
+input wire cfg_mgmt_wr_en;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt READ_EN" *)
+input wire cfg_mgmt_rd_en;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt READONLY" *)
+input wire cfg_mgmt_wr_readonly;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_err:1.0 pcie2_cfg_err ecrc" *)
 input wire cfg_err_ecrc;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_err:1.0 pcie2_cfg_err ur" *)
@@ -327,6 +352,8 @@ input wire [7 : 0] cfg_ds_bus_number;
 input wire [4 : 0] cfg_ds_device_number;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_control:1.0 pcie2_cfg_control ds_function_number" *)
 input wire [2 : 0] cfg_ds_function_number;
+(* X_INTERFACE_INFO = "xilinx.com:interface:pcie_cfg_mgmt:1.0 pcie_cfg_mgmt TYPE1_CFG_REG_ACCESS" *)
+input wire cfg_mgmt_wr_rw1c_as_rw;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_status:1.0 pcie2_cfg_status bridge_serr_en" *)
 output wire cfg_bridge_serr_en;
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie2_cfg_status:1.0 pcie2_cfg_status slot_control_electromech_il_ctl_pulse" *)
@@ -398,8 +425,8 @@ input wire sys_rst_n;
     .cardbus_cis_ptr("00000000"),
     .cap_ver("2"),
     .c_pcie_cap_slot_implemented("FALSE"),
-    .mps("010"),
-    .cmps("2"),
+    .mps("001"),
+    .cmps("1"),
     .ext_tag_fld_sup("FALSE"),
     .c_dev_control_ext_tag_default("FALSE"),
     .phantm_func_sup("00"),
@@ -413,14 +440,14 @@ input wire sys_rst_n;
     .c_cpl_timeout_ranges_sup("2"),
     .c_buf_opt_bma("FALSE"),
     .c_perf_level_high("FALSE"),
-    .c_tx_last_tlp("14"),
-    .c_rx_ram_limit("3FF"),
+    .c_tx_last_tlp("13"),
+    .c_rx_ram_limit("1FF"),
     .c_fc_ph("4"),
-    .c_fc_pd("64"),
+    .c_fc_pd("32"),
     .c_fc_nph("4"),
     .c_fc_npd("8"),
     .c_fc_cplh("72"),
-    .c_fc_cpld("338"),
+    .c_fc_cpld("114"),
     .c_cpl_inf("TRUE"),
     .c_cpl_infinite("TRUE"),
     .c_dll_lnk_actv_cap("FALSE"),
@@ -573,7 +600,7 @@ input wire sys_rst_n;
     .SHARED_LOGIC_IN_CORE("FALSE"),
     .ERR_REPORTING_IF("TRUE"),
     .PL_INTERFACE("FALSE"),
-    .CFG_MGMT_IF("FALSE"),
+    .CFG_MGMT_IF("TRUE"),
     .CFG_CTL_IF("TRUE"),
     .CFG_STATUS_IF("TRUE"),
     .RCV_MSG_IF("FALSE"),
@@ -641,8 +668,8 @@ input wire sys_rst_n;
     .fc_pd(),
     .fc_ph(),
     .fc_sel(3'B0),
-    .cfg_mgmt_do(),
-    .cfg_mgmt_rd_wr_done(),
+    .cfg_mgmt_do(cfg_mgmt_do),
+    .cfg_mgmt_rd_wr_done(cfg_mgmt_rd_wr_done),
     .cfg_status(cfg_status),
     .cfg_command(cfg_command),
     .cfg_dstatus(cfg_dstatus),
@@ -655,12 +682,12 @@ input wire sys_rst_n;
     .cfg_pmcsr_powerstate(cfg_pmcsr_powerstate),
     .cfg_pmcsr_pme_status(cfg_pmcsr_pme_status),
     .cfg_received_func_lvl_rst(cfg_received_func_lvl_rst),
-    .cfg_mgmt_di(32'B0),
-    .cfg_mgmt_byte_en(4'B0),
-    .cfg_mgmt_dwaddr(10'B0),
-    .cfg_mgmt_wr_en(1'B0),
-    .cfg_mgmt_rd_en(1'B0),
-    .cfg_mgmt_wr_readonly(1'B0),
+    .cfg_mgmt_di(cfg_mgmt_di),
+    .cfg_mgmt_byte_en(cfg_mgmt_byte_en),
+    .cfg_mgmt_dwaddr(cfg_mgmt_dwaddr),
+    .cfg_mgmt_wr_en(cfg_mgmt_wr_en),
+    .cfg_mgmt_rd_en(cfg_mgmt_rd_en),
+    .cfg_mgmt_wr_readonly(cfg_mgmt_wr_readonly),
     .cfg_err_ecrc(cfg_err_ecrc),
     .cfg_err_ur(cfg_err_ur),
     .cfg_err_cpl_timeout(cfg_err_cpl_timeout),
@@ -706,7 +733,7 @@ input wire sys_rst_n;
     .cfg_ds_bus_number(cfg_ds_bus_number),
     .cfg_ds_device_number(cfg_ds_device_number),
     .cfg_ds_function_number(cfg_ds_function_number),
-    .cfg_mgmt_wr_rw1c_as_rw(1'B0),
+    .cfg_mgmt_wr_rw1c_as_rw(cfg_mgmt_wr_rw1c_as_rw),
     .cfg_msg_received(),
     .cfg_msg_data(),
     .cfg_bridge_serr_en(cfg_bridge_serr_en),

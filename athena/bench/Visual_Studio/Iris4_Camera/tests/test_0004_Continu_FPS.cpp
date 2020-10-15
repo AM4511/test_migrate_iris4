@@ -173,8 +173,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -224,7 +224,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					if (OverrunPixel != 0)
 						break;
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 					ROI_Y_SIZE_vector_ExpMax[i] = Sensor_EXP_max;
 					ROI_Y_SIZE_vector_FPSMax[i] = Sensor_FPS_PRED;
@@ -281,7 +281,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 
@@ -343,7 +343,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0fus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 

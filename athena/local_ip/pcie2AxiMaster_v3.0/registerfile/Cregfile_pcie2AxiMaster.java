@@ -154,6 +154,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
+      register.addField(new CField(register, "sw_irq", "Software IRQ", CField.FieldType.WO, 31, 1, 0x0));
       register.addField(new CField(register, "num_irq", "Number of IRQ", CField.FieldType.RO, 1, 7, 0x1));
       register.addField(new CField(register, "global_mask", "Global Mask interrupt ", CField.FieldType.RW, 0, 1, 0x1));
 
@@ -171,7 +172,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       * Register: enable
       * Offset: 0xc
       ****************************************************************/
-      register = new CRegister(section, "enable", "Interrupt enable register", 0xc);
+      register = new CRegister(section, "enable", "Interrupt status enable", 0xc);
       section.addRegister(register);
 
       //Fields:
@@ -181,11 +182,11 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       * Register: mask
       * Offset: 0x14
       ****************************************************************/
-      register = new CRegister(section, "mask", "Interrupt mask register", 0x14);
+      register = new CRegister(section, "mask", "Interrupt event mask", 0x14);
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "value", "null", CField.FieldType.RW, 0, 32, 0x0));
+      register.addField(new CField(register, "value", "null", CField.FieldType.RW, 0, 32, 0xffffffff));
 
 
       /***************************************************************
@@ -203,7 +204,7 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       section.addRegister(register);
 
       //Fields:
-      register.addField(new CField(register, "nb_dw", "Number of DWORDS", CField.FieldType.STATIC, 24, 8, 0x1));
+      register.addField(new CField(register, "nb_dw", "Number of DWORDS", CField.FieldType.STATIC, 24, 8, 0x2));
       register.addField(new CField(register, "enable", "QInterrupt queue enable", CField.FieldType.RW, 0, 1, 0x0));
 
       /***************************************************************
@@ -300,6 +301,38 @@ public class Cregfile_pcie2AxiMaster  extends CRegisterFile {
       register.addField(new CField(register, "SPI_WB_CAP", "SPI Write Burst CAPable", CField.FieldType.RO, 17, 1, 0x0));
       register.addField(new CField(register, "SPIWRTD", "SPI Write or Read Transfer Done", CField.FieldType.RO, 16, 1, 0x0));
       register.addField(new CField(register, "SPIDATARD", "SPI DATA  Read byte OUTput ", CField.FieldType.RO, 0, 8, 0x0));
+
+
+      /***************************************************************
+      * Section: arbiter
+      * Offset: 0xf0
+      ****************************************************************/
+      section = new CSection(this, "arbiter", "null", 0xf0);
+      super.childrenList.add(section);
+
+      /***************************************************************
+      * Register: ARBITER_CAPABILITIES
+      * Offset: 0x0
+      ****************************************************************/
+      register = new CRegister(section, "ARBITER_CAPABILITIES", "null", 0x0);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "AGENT_NB", "null", CField.FieldType.STATIC, 16, 2, 0x2));
+      register.addField(new CField(register, "TAG", "null", CField.FieldType.STATIC, 0, 12, 0xaab));
+
+      /***************************************************************
+      * Register: AGENT
+      * Offset: 0x4
+      ****************************************************************/
+      register = new CRegister(section, "AGENT", "null", 0x4);
+      section.addRegister(register);
+
+      //Fields:
+      register.addField(new CField(register, "ACK", "master request ACKnoledge", CField.FieldType.RO, 9, 1, 0x0));
+      register.addField(new CField(register, "REC", "master request RECeived", CField.FieldType.RO, 8, 1, 0x0));
+      register.addField(new CField(register, "DONE", "transaction DONE ", CField.FieldType.WO, 4, 1, 0x0));
+      register.addField(new CField(register, "REQ", "REQuest resource", CField.FieldType.WO, 0, 1, 0x0));
 
 
       /***************************************************************

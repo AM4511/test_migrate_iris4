@@ -108,6 +108,8 @@ set_property LOC PCIE_X0Y0 [get_cells inst/pcie_top_i/pcie_7x_i/pcie_block_i]
 #
 # BlockRAM placement
 #
+set_property LOC RAMB36_X0Y24 [get_cells {inst/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[0].ram/use_sdp.ramb36sdp/genblk*.bram36_sdp_bl_2.bram36_sdp_bl_2}]
+set_property LOC RAMB36_X0Y21 [get_cells {inst/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[0].ram/use_sdp.ramb36sdp/genblk*.bram36_sdp_bl_2.bram36_sdp_bl_2}]
 
 ###############################################################################
 # Timing Constraints

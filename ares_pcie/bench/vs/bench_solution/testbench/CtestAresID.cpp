@@ -37,7 +37,9 @@ u32  CtestAresID::run()
 	assert(fpgaBuildID < 0x5F204884, "MIOX FPGA BuildID is smaller than 0x5ca63d35");
 
 	// Test scratch pad register
-	cout << "MIOX FPGA test scratch pad register (R/W)" << endl;
+
+	cout << "MIOX FPGA test scratch pad register (R/W) : ";
+
 	for (u32  i = 0; i < 0x10000; i++)
 	{
 		ares.setScratchValue(i);
@@ -50,6 +52,11 @@ u32  CtestAresID::run()
 		}
 
 	}
+	if (errorCnt == 0)
+	{
+		cout << "OK" << endl;
+	}
+
 
 
 	return status();

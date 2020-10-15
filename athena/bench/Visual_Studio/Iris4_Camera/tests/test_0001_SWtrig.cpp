@@ -7,6 +7,9 @@
 /* Headers */
 #include "osincludes.h"
 
+#include <iostream>
+using namespace std;
+
 #include <mil.h>
 
 #include "MilLayer.h"
@@ -42,6 +45,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParamStruct* DMAParams = XGS_Data->getDMAParams();                // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
+
+	M_UINT32 XGSTestImageMode = 0;
 
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0001.cpp    *\n");
@@ -214,13 +219,13 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			XGS_Ctrl->WaitEndExpReadout();
 
 
-		if (DisplayOn)
-		{
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
-		//	//printf("%f", DisplayLength1 - DisplayLength0);
-		}
+		//if (DisplayOn)
+		//{
+		////	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
+		//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+		////	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
+		////	//printf("%f", DisplayLength1 - DisplayLength0);
+		//}
 
 
 
@@ -233,8 +238,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sortie = 1;
 				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
-				XGS_Ctrl->DisableXGS();
 				XGS_Data->HiSpiClr();
+				XGS_Ctrl->DisableXGS();
 				printf("\n\n");
 				printf("Exit! \n");
 				break;
@@ -319,7 +324,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 				XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
 				XGS_Ctrl->WaitEndExpReadout();
-				//MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 				nbGrab++;
 				printf("\rGrabSnapshot completed : %d           ", nbGrab);
 
@@ -346,6 +351,71 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				printf("\n");
 
+				break;
+			case 't':
+				XGS_Ctrl->WaitEndExpReadout();
+				cout << "\n";
+				XGSTestImageMode++;
+				if (XGSTestImageMode == 7)
+				{
+					cout << "\nXgs Image Test Mode is Live Mode\n";
+					XGSTestImageMode = 0;
+					XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal image
+				}
+
+				// Programmable Flat Image
+				if (XGSTestImageMode == 1) {
+					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x";
+					M_UINT32 pixelvalue;
+					scanf_s("%x", &pixelvalue);
+
+					XGS_Ctrl->WriteSPI(0x3e10, pixelvalue << 1); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, pixelvalue << 1); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, pixelvalue << 1); // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, pixelvalue << 1); // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
+				}
+				//  Programmable Horizontal black and white lines
+				if (XGSTestImageMode == 2) {
+					cout << "\nXgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
+					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x1fff); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x0);    // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
+				}
+				//  Programmable Vertical black and white columns
+				if (XGSTestImageMode == 3) {
+					cout << "\nXgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
+					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, 0x0); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, 0x1fff);    // Test data Green-B channel
+					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
+				}
+				//XGS_Ctrl->WriteSPI(0x3e0e, 2); // Color bars (BAYER)
+				//XGS_Ctrl->WriteSPI(0x3e0e, 3); // fade to gray, all must be 0 or 1 (NE Marche PAS ??? a cause du 6 Lanes???)
+
+				// diagonal gray x1
+				if (XGSTestImageMode == 4) {
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x1\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
+				}
+
+				// diagonal gray x3	
+				if (XGSTestImageMode == 5) {
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x3\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 5); // diagonal gray x3		
+				}
+
+				// White/Black bar(coarse)
+				if (XGSTestImageMode == 6) {
+					cout << "\nXgs Image Test Mode is set to White/Black bar(coarse)\n";
+					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
+				}
+
+				//XGS_Ctrl->WriteSPI(0x3e0e, 7);    // White/Black bar(fine)   (NE Marche PAS ???  a cause du 6 Lanes???)			
+				cout << "\n";
 				break;
 
 

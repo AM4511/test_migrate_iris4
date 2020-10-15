@@ -7,6 +7,8 @@ LDFLAGS  = -L$(MILDIR)/lib -lmil -lmilim -lpthread -lstdc++
 
 SRC_MAIN  = Iris4_Camera.cpp
 SRC_SOURCES = source/osfunctions.cpp \
+              source/Ares.cpp \
+              source/flashupdate.cpp \
               source/I2C.cpp \
               source/MilLayer.cpp \
 			  source/mtxservmanager.cpp \

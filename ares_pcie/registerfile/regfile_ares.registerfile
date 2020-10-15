@@ -72,18 +72,8 @@
       </fields>
     </registers>
     <registers name="BUILDID" description="This field represents a timestamp when the FPGA was synthesized and can be used to identify FPGA implementation uniquely." offsetFromParent="1C" numberOfReservedSpacesBelow="6">
-      <fields name="YEAR" description="Last 2 digits of the year, represented in BCD.  0x13 is for 2013 for example." lsb="24" size="8" readWrite="false" readOnly="true"/>
-      <fields name="MONTH" description="Month of the year, in hex." lsb="20" size="4" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=1-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>January to December&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="DATE" description="Day of the month, represented in BCD." lsb="12" size="8" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=1-49&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="HOUR" description="The hour of the timestamp, coded in BCD." lsb="4" size="8" readWrite="false" readOnly="true"/>
-      <fields name="MINUTES" description="This field is used to represent the minutes in the hour, divided by 10.  Ten minutes is enough resolution for the FPGA build." size="4" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=0-5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      <fields name="VALUE" alias="EPOCH date value" description="" size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -109,7 +99,8 @@
         <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -201,6 +192,36 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="SPIDATARD" alias="SPI DATA  Read byte OUTput " description="This is the data read byte from the SPI " size="8" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="arbiter" baseAddress="F0" endAddress="F8">
+    <registers name="ARBITER_CAPABILITIES">
+      <fields name="AGENT_NB" description="Number of agents" lsb="16" size="2" valueAtReset="2" readWrite="false" staticVal="true"/>
+      <fields name="TAG" description="Arbiter TAG : AABiter" size="12" valueAtReset="AAB" readWrite="false" staticVal="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="AGENT" offsetFromParent="4" useMultiples="true">
+      <fields name="ACK" alias="master request ACKnoledge" description="This field indicates that a master request has been received, and and the resource is ready to be used." lsb="9" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> The resource is NOT ready to be used.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> The resource is ready to be used.&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="REC" alias="master request RECeived" description="This field indicates that a master request has been received." lsb="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter> Master request not received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Master request has been received&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="DONE" alias="transaction DONE " description="This field from master requester informs the arbiter that it has finish with the device resource. The arbiter can give the resource to another master requester." lsb="4" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Master requester transaction done&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="REQ" alias="REQuest resource" description="This field from master requester ask the arbiter for a device resource." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Nothing&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Ask for a device resource&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="IO" description="This sections are for IO banks used to interface to external world.&#xD;&#xA;Bank0 is UserInput&#xD;&#xA;Bank1 is UserOutput" baseAddress="200" endAddress="2FC" useMultiples="true" totalSize="32" useTotalSize="true">

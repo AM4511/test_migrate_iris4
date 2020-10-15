@@ -53,6 +53,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 Overrun      = 0;
 	M_UINT32 OverrunPixel = 0;
 
+	M_UINT32 LUT_PATTERN = 0;
+
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0000.cpp    *\n"); 
 	printf(    "********************************\n\n");
@@ -131,6 +133,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 
+	//Transparent LUTs
+	XGS_Data->ProgramLUT(LUT_PATTERN); 
+	XGS_Data->EnableLUT();
 
 	printf("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
@@ -223,6 +228,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (S) Subsampling mode");
 	printf("\n  (D) Disable Image Display transfer (Max fps)");
 	printf("\n  (T) Fpga Monitor(Temp and Supplies)");
+	printf("\n  (l) Program LUT");
 	printf("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -231,6 +237,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For debug DMA overrun with any 12Mpix sensor
 	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
 	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);    // 0x10c00080;
+
 
 	//---------------------
 	// Give SPI control to FPGA
@@ -262,7 +269,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			// alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
 			// width minimum sur le signal trig0 du senseur.
 
-			printf("\r%dfps(%.2f), Calculated Max fps is %f @Exp_max=~%.0fus)        ",  XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
+			printf("\r%dfps(%.2f), Calculated Max fps is %lf @Exp_max=~%.0lfus)        ",  XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS, 
 				                                                                         XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS/10.0,
 				                                                                         XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
 				                                                                         XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y)
@@ -416,22 +423,26 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGSTestImageMode ++;
 				if (XGSTestImageMode == 7)
 				{
+					cout << "\nXgs Image Test Mode is Live Mode\n";
 					XGSTestImageMode = 0;
 					XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal image
 				}
 
 				// Programmable Flat Image
 				if (XGSTestImageMode == 1) {
-					cout << "Xgs Image Test Mode is set to Flat Image (Can be programmed to any value)\n" ;
-					XGS_Ctrl->WriteSPI(0x3e10, 0x7ff); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x7ff); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x7ff); // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x7ff); // Test data Green-B channel
+					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x" ;
+					M_UINT32 pixelvalue;
+					scanf_s("%x", &pixelvalue);
+
+					XGS_Ctrl->WriteSPI(0x3e10, pixelvalue << 1); // Test data Red channel
+					XGS_Ctrl->WriteSPI(0x3e12, pixelvalue << 1); // Test data Green-R channel
+					XGS_Ctrl->WriteSPI(0x3e14, pixelvalue << 1); // Test data Bleu channel
+					XGS_Ctrl->WriteSPI(0x3e16, pixelvalue << 1); // Test data Green-B channel
 					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
 				}
 				//  Programmable Horizontal black and white lines
 				if (XGSTestImageMode == 2) {
-					cout << "Xgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
+					cout << "\nXgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
 					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
 					XGS_Ctrl->WriteSPI(0x3e12, 0x1fff); // Test data Green-R channel
 					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
@@ -440,7 +451,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				}
 				//  Programmable Vertical black and white columns
 				if (XGSTestImageMode == 3) {
-					cout << "Xgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
+					cout << "\nXgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
 					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
 					XGS_Ctrl->WriteSPI(0x3e12, 0x0); // Test data Green-R channel
 					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
@@ -452,19 +463,19 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				// diagonal gray x1
 				if (XGSTestImageMode == 4) {
-					cout << "Xgs Image Test Mode is set to Diagonal gray x1\n";
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x1\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
 				}
 				
 				// diagonal gray x3	
 				if (XGSTestImageMode == 5) {
-					cout << "Xgs Image Test Mode is set to Diagonal gray x3\n";
+					cout << "\nXgs Image Test Mode is set to Diagonal gray x3\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 5); // diagonal gray x3		
 				}
 
 				// White/Black bar(coarse)
 				if (XGSTestImageMode == 6) {
-					cout << "Xgs Image Test Mode is set to White/Black bar(coarse)\n";
+					cout << "\nXgs Image Test Mode is set to White/Black bar(coarse)\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
 				}
 
@@ -484,9 +495,17 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->FPGASystemMon();
 				break;
 
+			case 'l':	
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				LUT_PATTERN++;
+				if (LUT_PATTERN == 3) LUT_PATTERN = 0;
+				XGS_Data->ProgramLUT(LUT_PATTERN);
+				XGS_Data->EnableLUT();
+				break;
+
+
 			}
-
-
 
 		}
 

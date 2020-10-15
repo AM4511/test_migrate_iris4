@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * File name    :  regfile_xgs_athena.h
-* Created by   : amarchan
+* Created by   : imaval
 *
 * Content      :  This file contains the register structures for the
 *                 fpga regfile_xgs_athena processing unit.
@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x1A9D160D
+* Register file CRC32 : 0x6AADD448
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -42,6 +42,8 @@
 #define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_ADDRESS                 0x090
 #define FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_ADDRESS                  0x094
 #define FPGA_REGFILE_XGS_ATHENA_DMA_CSC_ADDRESS                        0x098
+#define FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_ADDRESS              0x0A8
+#define FPGA_REGFILE_XGS_ATHENA_DMA_TLP_ADDRESS                        0x0AC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_CTRL_ADDRESS                  0x100
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_GRAB_STAT_ADDRESS                  0x108
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG1_ADDRESS               0x110
@@ -100,6 +102,9 @@
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_ADDRESS             0x490
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA1_RD_ADDRESS          0x494
 #define FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_DATA2_RD_ADDRESS          0x498
+#define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CAPABILITIES_ADDRESS           0x4B0
+#define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_ADDRESS                   0x4B4
+#define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_ADDRESS                     0x4B8
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -359,6 +364,51 @@ typedef union
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE;
+
+
+/**************************************************************************
+* Register name : OUTPUT_BUFFER
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 CLR_MAX_LINE_BUFF_CNT : 1;   /* Bits(0:0), Clear maximum line buffer count */
+      M_UINT32 RSVD0                 : 3;   /* Bits(3:1), Reserved */
+      M_UINT32 PCIE_BACK_PRESSURE    : 1;   /* Bits(4:4), PCIE link back pressure detected */
+      M_UINT32 RSVD1                 : 15;  /* Bits(19:5), Reserved */
+      M_UINT32 ADDRESS_BUS_WIDTH     : 4;   /* Bits(23:20), Line buffer address size in bits */
+      M_UINT32 LINE_PTR_WIDTH        : 2;   /* Bits(25:24), Line pointer size (in bits) */
+      M_UINT32 RSVD2                 : 2;   /* Bits(27:26), Reserved */
+      M_UINT32 MAX_LINE_BUFF_CNT     : 4;   /* Bits(31:28), Maximum line buffer count */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_TYPE;
+
+
+/**************************************************************************
+* Register name : TLP
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 CFG_MAX_PLD   : 3;   /* Bits(2:0), PCIe Device Control Register (Offset 08h); bits 7 downto 5 */
+      M_UINT32 BUS_MASTER_EN : 1;   /* Bits(3:3), null */
+      M_UINT32 RSVD0         : 12;  /* Bits(15:4), Reserved */
+      M_UINT32 MAX_PAYLOAD   : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1         : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_DMA_TLP_TYPE;
 
 
 /**************************************************************************
@@ -728,7 +778,7 @@ typedef union
       M_UINT32 SENSOR_POWERUP         : 1;  /* Bits(0:0), null */
       M_UINT32 SENSOR_RESETN          : 1;  /* Bits(1:1), SENSOR RESET Not */
       M_UINT32 RSVD0                  : 2;  /* Bits(3:2), Reserved */
-      M_UINT32 SENSOR_REG_UPTATE      : 1;  /* Bits(4:4), SENSOR REGister UPDATE */
+      M_UINT32 SENSOR_REG_UPDATE      : 1;  /* Bits(4:4), SENSOR REGister UPDATE */
       M_UINT32 RSVD1                  : 3;  /* Bits(7:5), Reserved */
       M_UINT32 SENSOR_COLOR           : 1;  /* Bits(8:8), SENSOR COLOR */
       M_UINT32 RSVD2                  : 7;  /* Bits(15:9), Reserved */
@@ -1298,7 +1348,7 @@ typedef union
 
    struct
    {
-      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), null */
+      M_UINT32 NB_LANES       : 3;   /* Bits(2:0), Number of physical lane enabled */
       M_UINT32 RSVD0          : 5;   /* Bits(7:3), Reserved */
       M_UINT32 MUX_RATIO      : 3;   /* Bits(10:8), null */
       M_UINT32 RSVD1          : 5;   /* Bits(15:11), Reserved */
@@ -1578,6 +1628,68 @@ typedef union
 
 
 /**************************************************************************
+* Register name : LUT_CAPABILITIES
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 LUT_VER         : 4;   /* Bits(3:0), null */
+      M_UINT32 RSVD0           : 12;  /* Bits(15:4), Reserved */
+      M_UINT32 LUT_SIZE_CONFIG : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1           : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CAPABILITIES_TYPE;
+
+
+/**************************************************************************
+* Register name : LUT_CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 LUT_ADD    : 10;  /* Bits(9:0), null */
+      M_UINT32 LUT_SS     : 1;   /* Bits(10:10), LUT SnapShot */
+      M_UINT32 LUT_WRN    : 1;   /* Bits(11:11), LUT Write ReadNot */
+      M_UINT32 LUT_SEL    : 4;   /* Bits(15:12), LUT SELection */
+      M_UINT32 LUT_DATA_W : 8;   /* Bits(23:16), LUT DATA to Write */
+      M_UINT32 RSVD0      : 4;   /* Bits(27:24), Reserved */
+      M_UINT32 LUT_BYPASS : 1;   /* Bits(28:28), LUT BYPASS */
+      M_UINT32 RSVD1      : 3;   /* Bits(31:29), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : LUT_RB
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 LUT_RB : 8;   /* Bits(7:0), null */
+      M_UINT32 RSVD0  : 24;  /* Bits(31:8), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_TYPE;
+
+
+/**************************************************************************
 * Register name : TEMP
 ***************************************************************************/
 typedef union
@@ -1720,6 +1832,8 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_DMA_LINE_PITCH_TYPE    LINE_PITCH;     /* Address offset: 0x20 */
    FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE     LINE_SIZE;      /* Address offset: 0x24 */
    FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE           CSC;            /* Address offset: 0x28 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_TYPE OUTPUT_BUFFER;  /* Address offset: 0x38 */
+   FPGA_REGFILE_XGS_ATHENA_DMA_TLP_TYPE           TLP;            /* Address offset: 0x3c */
 } FPGA_REGFILE_XGS_ATHENA_DMA_TYPE;
 
 /**************************************************************************
@@ -1802,6 +1916,16 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_DPC_TYPE;
 
 /**************************************************************************
+* Section name   : LUT
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CAPABILITIES_TYPE LUT_CAPABILITIES;  /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_TYPE         LUT_CTRL;          /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_TYPE           LUT_RB;            /* Address offset: 0x8 */
+} FPGA_REGFILE_XGS_ATHENA_LUT_TYPE;
+
+/**************************************************************************
 * External section name   : SYSMONXIL
 ***************************************************************************/
 typedef struct
@@ -1824,13 +1948,15 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_SYSTEM_TYPE    SYSTEM;      /* Section; Base address offset: 0x0 */
    M_UINT32                               RSVD0[24];   /* Padding; Size (96 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DMA_TYPE       DMA;         /* Section; Base address offset: 0x70 */
-   M_UINT32                               RSVD1[22];   /* Padding; Size (88 Bytes) */
+   M_UINT32                               RSVD1[20];   /* Padding; Size (80 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TYPE       ACQ;         /* Section; Base address offset: 0x100 */
    M_UINT32                               RSVD2[73];   /* Padding; Size (292 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_HISPI_TYPE     HISPI;       /* Section; Base address offset: 0x400 */
    M_UINT32                               RSVD3[7];    /* Padding; Size (28 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_DPC_TYPE       DPC;         /* Section; Base address offset: 0x480 */
-   M_UINT32                               RSVD4[153];  /* Padding; Size (612 Bytes) */
+   M_UINT32                               RSVD4[5];    /* Padding; Size (20 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_LUT_TYPE       LUT;         /* Section; Base address offset: 0x4b0 */
+   M_UINT32                               RSVD5[145];  /* Padding; Size (580 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

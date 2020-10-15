@@ -2,11 +2,11 @@
  ** File                : regfile_pcie2AxiMaster.sv
  ** Project             : FDK
  ** Module              : regfile_pcie2AxiMaster
- ** Created on          : 2020/06/29 12:06:56
- ** Created by          : imaval
+ ** Created on          : 2020/09/15 18:41:27
+ ** Created by          : amarchan
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0x482014AC
+ ** Register file CRC32 : 0xC43C8CD6
  **
  **  COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -194,7 +194,8 @@ typedef union packed
    {
       logic        global_mask;  /* Bits(0:0), Global Mask interrupt */
       logic [6:0]  num_irq;      /* Bits(7:1), Number of IRQ */
-      logic [23:0] rsvd0;        /* Bits(31:8), Reserved */
+      logic [22:0] rsvd0;        /* Bits(30:8), Reserved */
+      logic        sw_irq;       /* Bits(31:31), Software IRQ */
    } f;
 
 } fdk_regfile_pcie2AxiMaster_interrupts_ctrl_t;
@@ -406,6 +407,49 @@ typedef union packed
    } f;
 
 } fdk_regfile_pcie2AxiMaster_spi_SPIREGOUT_t;
+
+
+/**************************************************************************
+* Register name : ARBITER_CAPABILITIES
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] TAG;       /* Bits(11:0), null */
+      logic [3:0]  rsvd0;     /* Bits(15:12), Reserved */
+      logic [1:0]  AGENT_NB;  /* Bits(17:16), null */
+      logic [13:0] rsvd1;     /* Bits(31:18), Reserved */
+   } f;
+
+} fdk_regfile_pcie2AxiMaster_arbiter_ARBITER_CAPABILITIES_t;
+
+
+/**************************************************************************
+* Register name : AGENT
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic        REQ;    /* Bits(0:0), REQuest resource */
+      logic [2:0]  rsvd0;  /* Bits(3:1), Reserved */
+      logic        DONE;   /* Bits(4:4), transaction DONE */
+      logic [2:0]  rsvd1;  /* Bits(7:5), Reserved */
+      logic        REC;    /* Bits(8:8), master request RECeived */
+      logic        ACK;    /* Bits(9:9), master request ACKnoledge */
+      logic [21:0] rsvd2;  /* Bits(31:10), Reserved */
+   } f;
+
+} fdk_regfile_pcie2AxiMaster_arbiter_AGENT_t;
 
 
 /**************************************************************************
@@ -637,6 +681,16 @@ typedef struct packed
 
 
 /**************************************************************************
+* Section name   : arbiter
+***************************************************************************/
+typedef struct packed
+{
+   fdk_regfile_pcie2AxiMaster_arbiter_ARBITER_CAPABILITIES_t ARBITER_CAPABILITIES;  /* Address offset: 0x0 */
+   fdk_regfile_pcie2AxiMaster_arbiter_AGENT_t                AGENT[2];              /* Address offset: 0x4 */
+} fdk_regfile_pcie2AxiMaster_arbiter_t;
+
+
+/**************************************************************************
 * Section name   : axi_window
 ***************************************************************************/
 typedef struct packed
@@ -676,7 +730,8 @@ typedef struct packed
    fdk_regfile_pcie2AxiMaster_tlp_t             tlp;              /* Section; Base address offset: 0x70 */
    uint32_t                                     [25:0]rsvd3;      /* Padding; Size (104 Bytes) */
    fdk_regfile_pcie2AxiMaster_spi_t             spi;              /* Section; Base address offset: 0xe0 */
-   uint32_t                                     [3:0]rsvd4;       /* Padding; Size (16 Bytes) */
+   fdk_regfile_pcie2AxiMaster_arbiter_t         arbiter;          /* Section; Base address offset: 0xf0 */
+   uint32_t                                     rsvd4;            /* Padding; Size (4 Bytes) */
    fdk_regfile_pcie2AxiMaster_axi_window_t      axi_window[4];    /* Section; Base address offset: 0x100 */
    uint32_t                                     [47:0]rsvd5;      /* Padding; Size (192 Bytes) */
    fdk_regfile_pcie2AxiMaster_debug_t           debug;            /* Section; Base address offset: 0x200 */
