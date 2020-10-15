@@ -148,9 +148,9 @@ set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
 
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
-#set_property PACKAGE_PIN V16 [get_ports hb_rwds]
+set_property PACKAGE_PIN V16 [get_ports hb_rwds]
 #deplace sur pin MRCC par jflarin
-set_property PACKAGE_PIN N17 [get_ports hb_rwds]
+#set_property PACKAGE_PIN N17 [get_ports hb_rwds]
 #pin negative, ne fonctionnera pas pour aller vers BUFIO, juste un test pour l'instant
 #set_property PACKAGE_PIN P17 [get_ports hb_rwds]
 
