@@ -29,24 +29,24 @@ entity ares_test is
     FPGA_BUILD_DATE        : integer := 0;
     FPGA_IS_NPI_GOLDEN     : integer := 0;
     FPGA_DEVICE_ID         : integer := 0;
-    
-	-- Deprecated
-	--BUILD_ID        : std_logic_vector(31 downto 0) := x"76543210";  -- Generic passed in .tcl script
+
+    -- Deprecated
+    --BUILD_ID        : std_logic_vector(31 downto 0) := x"76543210";  -- Generic passed in .tcl script
     --SIMULATION      : integer                       := 0;
-    PCIe_LANES      : integer                       := 1;
+    PCIe_LANES  : integer := 1;
     --FPGA_ID                   : integer := 8;                          -- Ares for y7478-00
     --FPGA_ID         : integer                       := 9;  -- Ares for y7478-01
-    NB_USER_IN      : integer                       := 4;
-    NB_USER_OUT     : integer                       := 3
+    NB_USER_IN  : integer := 4;
+    NB_USER_OUT : integer := 3
     --GOLDEN          : boolean                       := false;  -- le code Golden n'a pas de Microblaze
-   -- HOST_SPI_ACCESS : boolean                       := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
-                                                           -- veuillez noter qu'il faut AUSSI enlever le STARTUPE2 dans le module SPI dans le block design
-                                                           -- et changer quelle fichier de contrainte qui est actif.
+    -- HOST_SPI_ACCESS : boolean                       := false;  -- est-ce qu'on veut donner l'acces SPI au host, pour NPI (par rapport au Microblaze)
+    -- veuillez noter qu'il faut AUSSI enlever le STARTUPE2 dans le module SPI dans le block design
+    -- et changer quelle fichier de contrainte qui est actif.
 
-    --SYNTH_SPI_PAGE_256B_BURST : integer := 1;                  -- Pour ne pas implementer la capacite de burster 256Bytes mettre a '0' (1 RAM de moins)
+   --SYNTH_SPI_PAGE_256B_BURST : integer := 1;                  -- Pour ne pas implementer la capacite de burster 256Bytes mettre a '0' (1 RAM de moins)
    -- SYNTH_TICK_TABLES : integer := 1;  -- Pour ne pas implementer les TickTables mettre a '0'
-    --SYNTH_TIMERs      : integer := 1;  -- Pour ne pas implementer les Timers mettre a '0'
-    --SYNTH_QUAD_DECs   : integer := 1  -- Pour ne pas implementer les Quad Dec mettre a '0'
+   --SYNTH_TIMERs      : integer := 1;  -- Pour ne pas implementer les Timers mettre a '0'
+   --SYNTH_QUAD_DECs   : integer := 1  -- Pour ne pas implementer les Quad Dec mettre a '0'
     );
   port (
     sys_rst_in_n   : in std_logic;
@@ -150,58 +150,58 @@ architecture struct of ares_test is
 
   component ares_pb_wrapper is
     port (
-      FPGA_Info_board_info         : in    std_logic_vector (3 downto 0);
-      FPGA_Info_fpga_build_id      : in    std_logic_vector (31 downto 0);
-      FPGA_Info_fpga_device_id     : in    std_logic_vector (7 downto 0);
-      FPGA_Info_fpga_firmware_type : in    std_logic_vector (7 downto 0);
-      FPGA_Info_fpga_major_ver     : in    std_logic_vector (7 downto 0);
-      FPGA_Info_fpga_minor_ver     : in    std_logic_vector (7 downto 0);
-      FPGA_Info_fpga_sub_minor_ver : in    std_logic_vector (7 downto 0);
-      hb_ck                        : out   std_logic;
-      hb_ck_n                      : out   std_logic;
-      hb_cs0_n                     : out   std_logic;
-      hb_dq                        : inout std_logic_vector (7 downto 0);
-      hb_rst_n                     : out   std_logic;
-      hb_rwds                      : inout std_logic;
-      hb_wp_n                      : out   std_logic;
-      mtxSPI_0_spi_csn             : out   std_logic;
-      mtxSPI_0_spi_sdin            : in    std_logic;
-      mtxSPI_0_spi_sdout           : out   std_logic;
-      ncsi_clk                     : out   std_logic;
-      ncsi_crs_dv                  : in    std_logic;
-      ncsi_rx_er                   : in    std_logic;
-      ncsi_rxd                     : in    std_logic_vector (1 downto 0);
-      ncsi_tx_en                   : out   std_logic;
-      ncsi_txd                     : out   std_logic_vector (1 downto 0);
-      pcie_mgt_0_rxn               : in    std_logic;
-      pcie_mgt_0_rxp               : in    std_logic;
-      pcie_mgt_0_txn               : out   std_logic;
-      pcie_mgt_0_txp               : out   std_logic;
-      pcie_sys_clk                 : in    std_logic;
-      refclk_50MHz                 : in    std_logic;
-      reset_n                      : in    std_logic;
-      uart_rxd                     : in    std_logic;
-      uart_txd                     : out   std_logic
+  FPGA_Info_board_info : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    FPGA_Info_fpga_build_id : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    FPGA_Info_fpga_device_id : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    FPGA_Info_fpga_firmware_type : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    FPGA_Info_fpga_major_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    FPGA_Info_fpga_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    FPGA_Info_fpga_sub_minor_ver : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    hb_ck : out STD_LOGIC;
+    hb_ck_n : out STD_LOGIC;
+    hb_cs0_n : out STD_LOGIC;
+    hb_dq : inout STD_LOGIC_VECTOR ( 7 downto 0 );
+    hb_rst_n : out STD_LOGIC;
+    hb_rwds : inout STD_LOGIC;
+    hb_wp_n : out STD_LOGIC;
+    mtxSPI_0_spi_csn : out STD_LOGIC;
+    mtxSPI_0_spi_sdin : in STD_LOGIC;
+    mtxSPI_0_spi_sdout : out STD_LOGIC;
+    ncsi_clk : out STD_LOGIC;
+    ncsi_crs_dv : in STD_LOGIC;
+    ncsi_rx_er : in STD_LOGIC;
+    ncsi_rxd : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    ncsi_tx_en : out STD_LOGIC;
+    ncsi_txd : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_mgt_0_rxn : in STD_LOGIC;
+    pcie_mgt_0_rxp : in STD_LOGIC;
+    pcie_mgt_0_txn : out STD_LOGIC;
+    pcie_mgt_0_txp : out STD_LOGIC;
+    pcie_sys_clk : in STD_LOGIC;
+    refclk_50MHz : in STD_LOGIC;
+    reset_n : in STD_LOGIC;
+    uart_rxd : in STD_LOGIC;
+    uart_txd : out STD_LOGIC
       );
   end component ares_pb_wrapper;
 
 
-  signal pcie_sys_clk_buf : std_logic;  -- reference venant du pcie, apres le input buffer differentiel
-  signal refclk_50MHz_buf : std_logic;  -- reference, vers le microblaze
+   signal pcie_sys_clk_buf : std_logic;  -- reference venant du pcie, apres le input buffer differentiel
+   signal refclk_50MHz_buf : std_logic;  -- reference, vers le microblaze
 
 
 begin
 
 
   -- Pour avoir access a la pin dedie du core PCIe, il faut instantier le IBUFDS_GTE2
-  refclk_ibuf : IBUFDS_GTE2
-    port map (
-      O     => pcie_sys_clk_buf,
-      I     => pcie_sys_clk_p,
-      IB    => pcie_sys_clk_n,
-      CEB   => '0',
-      ODIV2 => open
-      );
+   refclk_ibuf : IBUFDS_GTE2
+     port map (
+       O     => pcie_sys_clk_buf,
+       I     => pcie_sys_clk_p,
+       IB    => pcie_sys_clk_n,
+       CEB   => '0',
+       ODIV2 => open
+       );
 
 
   -- en premiere approximation, on va utiliser un BUFG, question de le reserve.  Idealement, pour minimiser le delai et le jitter, on tentera d'utiliser seulement un BUF, 
@@ -210,7 +210,7 @@ begin
     port map
     (
       O => refclk_50MHz_buf,
-      --I => pcie_sys_clk
+--      I => pcie_sys_clk
       I => ref_clk_100MHz
       );
 

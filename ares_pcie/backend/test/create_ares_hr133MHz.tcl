@@ -4,6 +4,8 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/test/create_ares_hr133MHz.tcl
 # 
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/test/system_pcie_test_133MHz.tcl
+# write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -46,11 +48,11 @@ set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
 set XDC_DIR            ${BACKEND_DIR}
 
-set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
+set ARCHIVE_SCRIPT     ${SYSTEM_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${SYSTEM_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${SYSTEM_DIR}/add_files_pcie_hr133MHz.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_test_133MHz.tcl
-set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+set REPORT_FILE        ${SYSTEM_DIR}/report_implementation.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -58,14 +60,19 @@ set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
 
+
+# Save the board design
+
+
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
 ###################################################################################
 set FPGA_BUILD_DATE [clock seconds]
+set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 
-puts "FPGA_BUILD_DATE =  $FPGA_BUILD_DATE (${BUILD_TIME})"
-set PROJECT_NAME  ${BASE_NAME}_${FPGA_BUILD_DATE}
+puts "FPGA_BUILD_DATE =  $HEX_BUILD_DATE (${BUILD_TIME})"
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
 
 set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
@@ -126,7 +133,7 @@ source ${FILESET_SCRIPT}
 ################################################
 # Top level Generics
 ################################################
-set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
+set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set_property generic  ${generic_list} ${HDL_FILESET}
 
 ################################################

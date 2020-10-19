@@ -25,10 +25,10 @@ int main()
 	MIL_ID   MilSystem;
 
 
-	//u64 PcieBAR0 = 0x80000000; //Axi system
-	//u64 PcieBAR2 = 0x84000000; //Pcie2AxiMaster bridge
-	u64 PcieBAR0 = 0x88000000; //Axi system
-	u64 PcieBAR2 = 0x8C000000; //Pcie2AxiMaster bridge
+	u64 PcieBAR0 = 0x80000000; //Axi system
+	u64 PcieBAR2 = 0x84000000; //Pcie2AxiMaster bridge
+	//u64 PcieBAR0 = 0x88000000; //Axi system
+	//u64 PcieBAR2 = 0x8C000000; //Pcie2AxiMaster bridge
 	int errCnt = 0;
 
 	// Print the PCIe BAR for sanity check in the console
@@ -52,6 +52,7 @@ int main()
 	CtestHyperRam testHyperRam = CtestHyperRam(ares);
 
 	// Run tests
+
 	errCnt += testAresID.run();
 	//errCnt += testAresAxiWindow.run();
 	//errCnt += testQuadSpi.run();

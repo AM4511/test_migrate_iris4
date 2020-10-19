@@ -72,18 +72,8 @@
       </fields>
     </registers>
     <registers name="BUILDID" description="This field represents a timestamp when the FPGA was synthesized and can be used to identify FPGA implementation uniquely." offsetFromParent="1C" numberOfReservedSpacesBelow="6">
-      <fields name="YEAR" description="Last 2 digits of the year, represented in BCD.  0x13 is for 2013 for example." lsb="24" size="8" readWrite="false" readOnly="true"/>
-      <fields name="MONTH" description="Month of the year, in hex." lsb="20" size="4" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=1-12&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>January to December&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="DATE" description="Day of the month, represented in BCD." lsb="12" size="8" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=1-49&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
-      </fields>
-      <fields name="HOUR" description="The hour of the timestamp, coded in BCD." lsb="4" size="8" readWrite="false" readOnly="true"/>
-      <fields name="MINUTES" description="This field is used to represent the minutes in the hour, divided by 10.  Ten minutes is enough resolution for the FPGA build." size="4" readWrite="false" readOnly="true">
-        <possibleValues>&lt;matrox_column_delimiter>range=0-5&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      <fields name="VALUE" alias="EPOCH date value" description="" size="32" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -109,7 +99,8 @@
         <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
