@@ -105,8 +105,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// DMA PARAMETERS
 	//---------------------
 	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
+	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;
+	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full ; // Full window MIL display
 
 
 	printf("\n\nTest started at : ");

@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/10/01 15:07:34
+-- Created on          : 2020/10/06 14:48:12
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x6AADD448
+-- Register file CRC32 : 0x65D06512
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -56,13 +56,13 @@ package regfile_xgs_athena_pack is
    constant K_ACQ_SENSOR_GAIN_ANA_ADDR        : natural := 16#1a4#;
    constant K_ACQ_SENSOR_ROI_Y_START_ADDR     : natural := 16#1a8#;
    constant K_ACQ_SENSOR_ROI_Y_SIZE_ADDR      : natural := 16#1ac#;
-   constant K_ACQ_SENSOR_ROI2_Y_START_ADDR    : natural := 16#1b0#;
-   constant K_ACQ_SENSOR_ROI2_Y_SIZE_ADDR     : natural := 16#1b4#;
    constant K_ACQ_SENSOR_M_LINES_ADDR         : natural := 16#1b8#;
    constant K_ACQ_SENSOR_DP_GR_ADDR           : natural := 16#1bc#;
    constant K_ACQ_SENSOR_DP_GB_ADDR           : natural := 16#1c0#;
    constant K_ACQ_SENSOR_DP_R_ADDR            : natural := 16#1c4#;
    constant K_ACQ_SENSOR_DP_B_ADDR            : natural := 16#1c8#;
+   constant K_ACQ_FPGA_ROI_X_START_ADDR       : natural := 16#1d8#;
+   constant K_ACQ_FPGA_ROI_X_SIZE_ADDR        : natural := 16#1dc#;
    constant K_ACQ_DEBUG_PINS_ADDR             : natural := 16#1e0#;
    constant K_ACQ_TRIGGER_MISSED_ADDR         : natural := 16#1e8#;
    constant K_ACQ_SENSOR_FPS_ADDR             : natural := 16#1f0#;
@@ -821,40 +821,6 @@ package regfile_xgs_athena_pack is
    function to_ACQ_SENSOR_ROI_Y_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_ROI_Y_SIZE_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: SENSOR_ROI2_Y_START
-   ------------------------------------------------------------------------------------------
-   type ACQ_SENSOR_ROI2_Y_START_TYPE is record
-      reserved       : std_logic_vector(5 downto 0);
-      Y_START        : std_logic_vector(9 downto 0);
-   end record ACQ_SENSOR_ROI2_Y_START_TYPE;
-
-   constant INIT_ACQ_SENSOR_ROI2_Y_START_TYPE : ACQ_SENSOR_ROI2_Y_START_TYPE := (
-      reserved        => (others=> 'Z'),
-      Y_START         => (others=> 'Z')
-   );
-
-   -- Casting functions:
-   function to_std_logic_vector(reg : ACQ_SENSOR_ROI2_Y_START_TYPE) return std_logic_vector;
-   function to_ACQ_SENSOR_ROI2_Y_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_ROI2_Y_START_TYPE;
-   
-   ------------------------------------------------------------------------------------------
-   -- Register Name: SENSOR_ROI2_Y_SIZE
-   ------------------------------------------------------------------------------------------
-   type ACQ_SENSOR_ROI2_Y_SIZE_TYPE is record
-      reserved       : std_logic_vector(5 downto 0);
-      Y_SIZE         : std_logic_vector(9 downto 0);
-   end record ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
-
-   constant INIT_ACQ_SENSOR_ROI2_Y_SIZE_TYPE : ACQ_SENSOR_ROI2_Y_SIZE_TYPE := (
-      reserved        => (others=> 'Z'),
-      Y_SIZE          => (others=> 'Z')
-   );
-
-   -- Casting functions:
-   function to_std_logic_vector(reg : ACQ_SENSOR_ROI2_Y_SIZE_TYPE) return std_logic_vector;
-   function to_ACQ_SENSOR_ROI2_Y_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
-   
-   ------------------------------------------------------------------------------------------
    -- Register Name: SENSOR_M_LINES
    ------------------------------------------------------------------------------------------
    type ACQ_SENSOR_M_LINES_TYPE is record
@@ -940,6 +906,36 @@ package regfile_xgs_athena_pack is
    -- Casting functions:
    function to_std_logic_vector(reg : ACQ_SENSOR_DP_B_TYPE) return std_logic_vector;
    function to_ACQ_SENSOR_DP_B_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_DP_B_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: FPGA_ROI_X_START
+   ------------------------------------------------------------------------------------------
+   type ACQ_FPGA_ROI_X_START_TYPE is record
+      X_START        : std_logic_vector(12 downto 0);
+   end record ACQ_FPGA_ROI_X_START_TYPE;
+
+   constant INIT_ACQ_FPGA_ROI_X_START_TYPE : ACQ_FPGA_ROI_X_START_TYPE := (
+      X_START         => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_FPGA_ROI_X_START_TYPE) return std_logic_vector;
+   function to_ACQ_FPGA_ROI_X_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_FPGA_ROI_X_START_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: FPGA_ROI_X_SIZE
+   ------------------------------------------------------------------------------------------
+   type ACQ_FPGA_ROI_X_SIZE_TYPE is record
+      X_SIZE         : std_logic_vector(12 downto 0);
+   end record ACQ_FPGA_ROI_X_SIZE_TYPE;
+
+   constant INIT_ACQ_FPGA_ROI_X_SIZE_TYPE : ACQ_FPGA_ROI_X_SIZE_TYPE := (
+      X_SIZE          => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : ACQ_FPGA_ROI_X_SIZE_TYPE) return std_logic_vector;
+   function to_ACQ_FPGA_ROI_X_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_FPGA_ROI_X_SIZE_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: DEBUG_PINS
@@ -1638,13 +1634,13 @@ package regfile_xgs_athena_pack is
       SENSOR_GAIN_ANA: ACQ_SENSOR_GAIN_ANA_TYPE;
       SENSOR_ROI_Y_START: ACQ_SENSOR_ROI_Y_START_TYPE;
       SENSOR_ROI_Y_SIZE: ACQ_SENSOR_ROI_Y_SIZE_TYPE;
-      SENSOR_ROI2_Y_START: ACQ_SENSOR_ROI2_Y_START_TYPE;
-      SENSOR_ROI2_Y_SIZE: ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
       SENSOR_M_LINES : ACQ_SENSOR_M_LINES_TYPE;
       SENSOR_DP_GR   : ACQ_SENSOR_DP_GR_TYPE;
       SENSOR_DP_GB   : ACQ_SENSOR_DP_GB_TYPE;
       SENSOR_DP_R    : ACQ_SENSOR_DP_R_TYPE;
       SENSOR_DP_B    : ACQ_SENSOR_DP_B_TYPE;
+      FPGA_ROI_X_START: ACQ_FPGA_ROI_X_START_TYPE;
+      FPGA_ROI_X_SIZE: ACQ_FPGA_ROI_X_SIZE_TYPE;
       DEBUG_PINS     : ACQ_DEBUG_PINS_TYPE;
       TRIGGER_MISSED : ACQ_TRIGGER_MISSED_TYPE;
       SENSOR_FPS     : ACQ_SENSOR_FPS_TYPE;
@@ -1681,13 +1677,13 @@ package regfile_xgs_athena_pack is
       SENSOR_GAIN_ANA => INIT_ACQ_SENSOR_GAIN_ANA_TYPE,
       SENSOR_ROI_Y_START => INIT_ACQ_SENSOR_ROI_Y_START_TYPE,
       SENSOR_ROI_Y_SIZE => INIT_ACQ_SENSOR_ROI_Y_SIZE_TYPE,
-      SENSOR_ROI2_Y_START => INIT_ACQ_SENSOR_ROI2_Y_START_TYPE,
-      SENSOR_ROI2_Y_SIZE => INIT_ACQ_SENSOR_ROI2_Y_SIZE_TYPE,
       SENSOR_M_LINES  => INIT_ACQ_SENSOR_M_LINES_TYPE,
       SENSOR_DP_GR    => INIT_ACQ_SENSOR_DP_GR_TYPE,
       SENSOR_DP_GB    => INIT_ACQ_SENSOR_DP_GB_TYPE,
       SENSOR_DP_R     => INIT_ACQ_SENSOR_DP_R_TYPE,
       SENSOR_DP_B     => INIT_ACQ_SENSOR_DP_B_TYPE,
+      FPGA_ROI_X_START => INIT_ACQ_FPGA_ROI_X_START_TYPE,
+      FPGA_ROI_X_SIZE => INIT_ACQ_FPGA_ROI_X_SIZE_TYPE,
       DEBUG_PINS      => INIT_ACQ_DEBUG_PINS_TYPE,
       TRIGGER_MISSED  => INIT_ACQ_TRIGGER_MISSED_TYPE,
       SENSOR_FPS      => INIT_ACQ_SENSOR_FPS_TYPE,
@@ -2811,56 +2807,6 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from ACQ_SENSOR_ROI2_Y_START_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : ACQ_SENSOR_ROI2_Y_START_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(15 downto 10) := reg.reserved;
-      output(9 downto 0) := reg.Y_START;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_ACQ_SENSOR_ROI2_Y_START_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_ROI2_Y_START_TYPE
-   --------------------------------------------------------------------------------
-   function to_ACQ_SENSOR_ROI2_Y_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_ROI2_Y_START_TYPE is
-   variable output : ACQ_SENSOR_ROI2_Y_START_TYPE;
-   begin
-      output.reserved := stdlv(15 downto 10);
-      output.Y_START := stdlv(9 downto 0);
-      return output;
-   end to_ACQ_SENSOR_ROI2_Y_START_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
-   -- Description: Cast from ACQ_SENSOR_ROI2_Y_SIZE_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : ACQ_SENSOR_ROI2_Y_SIZE_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(15 downto 10) := reg.reserved;
-      output(9 downto 0) := reg.Y_SIZE;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_ACQ_SENSOR_ROI2_Y_SIZE_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_SENSOR_ROI2_Y_SIZE_TYPE
-   --------------------------------------------------------------------------------
-   function to_ACQ_SENSOR_ROI2_Y_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_SENSOR_ROI2_Y_SIZE_TYPE is
-   variable output : ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
-   begin
-      output.reserved := stdlv(15 downto 10);
-      output.Y_SIZE := stdlv(9 downto 0);
-      return output;
-   end to_ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
    -- Description: Cast from ACQ_SENSOR_M_LINES_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : ACQ_SENSOR_M_LINES_TYPE) return std_logic_vector is
@@ -2985,6 +2931,52 @@ package body regfile_xgs_athena_pack is
       output.DP_OFFSET_B := stdlv(11 downto 0);
       return output;
    end to_ACQ_SENSOR_DP_B_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_FPGA_ROI_X_START_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_FPGA_ROI_X_START_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(12 downto 0) := reg.X_START;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_FPGA_ROI_X_START_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_FPGA_ROI_X_START_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_FPGA_ROI_X_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_FPGA_ROI_X_START_TYPE is
+   variable output : ACQ_FPGA_ROI_X_START_TYPE;
+   begin
+      output.X_START := stdlv(12 downto 0);
+      return output;
+   end to_ACQ_FPGA_ROI_X_START_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from ACQ_FPGA_ROI_X_SIZE_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : ACQ_FPGA_ROI_X_SIZE_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(12 downto 0) := reg.X_SIZE;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_ACQ_FPGA_ROI_X_SIZE_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to ACQ_FPGA_ROI_X_SIZE_TYPE
+   --------------------------------------------------------------------------------
+   function to_ACQ_FPGA_ROI_X_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return ACQ_FPGA_ROI_X_SIZE_TYPE is
+   variable output : ACQ_FPGA_ROI_X_SIZE_TYPE;
+   begin
+      output.X_SIZE := stdlv(12 downto 0);
+      return output;
+   end to_ACQ_FPGA_ROI_X_SIZE_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -3840,11 +3832,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/10/01 15:07:34
+-- Created on          : 2020/10/06 14:48:12
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x6AADD448
+-- Register file CRC32 : 0x65D06512
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3936,13 +3928,13 @@ signal rb_ACQ_SENSOR_SUBSAMPLING                                   : std_logic_v
 signal rb_ACQ_SENSOR_GAIN_ANA                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_ROI_Y_START                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_ROI_Y_SIZE                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_START                                  : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_ACQ_SENSOR_ROI2_Y_SIZE                                   : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_M_LINES                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_GR                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_GB                                         : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_R                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_DP_B                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_FPGA_ROI_X_START                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_ACQ_FPGA_ROI_X_SIZE                                      : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_DEBUG_PINS                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_TRIGGER_MISSED                                       : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_ACQ_SENSOR_FPS                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -4051,8 +4043,6 @@ signal field_rw_ACQ_SENSOR_SUBSAMPLING_SUBSAMPLING_X               : std_logic; 
 signal field_rw_ACQ_SENSOR_GAIN_ANA_ANALOG_GAIN                    : std_logic_vector(2 downto 0);                    -- Field: ANALOG_GAIN
 signal field_rw_ACQ_SENSOR_ROI_Y_START_Y_START                     : std_logic_vector(9 downto 0);                    -- Field: Y_START
 signal field_rw_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE                       : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
-signal field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START                    : std_logic_vector(9 downto 0);                    -- Field: Y_START
-signal field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE                      : std_logic_vector(9 downto 0);                    -- Field: Y_SIZE
 signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_DISPLAY                 : std_logic;                                       -- Field: M_LINES_DISPLAY
 signal field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED                    : std_logic_vector(4 downto 0);                    -- Field: M_SUPPRESSED
 signal field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR                  : std_logic_vector(9 downto 0);                    -- Field: M_LINES_SENSOR
@@ -4060,6 +4050,8 @@ signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                      : std_logic_v
 signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                      : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
 signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
 signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
+signal field_rw_ACQ_FPGA_ROI_X_START_X_START                       : std_logic_vector(12 downto 0);                   -- Field: X_START
+signal field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE                         : std_logic_vector(12 downto 0);                   -- Field: X_SIZE
 signal field_rw_ACQ_DEBUG_PINS_Debug3_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug3_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug2_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug2_sel
 signal field_rw_ACQ_DEBUG_PINS_Debug1_sel                          : std_logic_vector(4 downto 0);                    -- Field: Debug1_sel
@@ -4216,13 +4208,13 @@ hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#19c#,12)))	else 
 hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
 hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
 hit(37) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
-hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b0#,12)))	else '0'; -- Addr:  0x01B0	SENSOR_ROI2_Y_START
-hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b4#,12)))	else '0'; -- Addr:  0x01B4	SENSOR_ROI2_Y_SIZE
-hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b8#,12)))	else '0'; -- Addr:  0x01B8	SENSOR_M_LINES
-hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else '0'; -- Addr:  0x01BC	SENSOR_DP_GR
-hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GB
-hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_R
-hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_B
+hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b8#,12)))	else '0'; -- Addr:  0x01B8	SENSOR_M_LINES
+hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else '0'; -- Addr:  0x01BC	SENSOR_DP_GR
+hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GB
+hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_R
+hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_B
+hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d8#,12)))	else '0'; -- Addr:  0x01D8	FPGA_ROI_X_START
+hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	FPGA_ROI_X_SIZE
 hit(45) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
 hit(46) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
 hit(47) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
@@ -4316,13 +4308,13 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_ACQ_SENSOR_GAIN_ANA,
                             rb_ACQ_SENSOR_ROI_Y_START,
                             rb_ACQ_SENSOR_ROI_Y_SIZE,
-                            rb_ACQ_SENSOR_ROI2_Y_START,
-                            rb_ACQ_SENSOR_ROI2_Y_SIZE,
                             rb_ACQ_SENSOR_M_LINES,
                             rb_ACQ_SENSOR_DP_GR,
                             rb_ACQ_SENSOR_DP_GB,
                             rb_ACQ_SENSOR_DP_R,
                             rb_ACQ_SENSOR_DP_B,
+                            rb_ACQ_FPGA_ROI_X_START,
+                            rb_ACQ_FPGA_ROI_X_SIZE,
                             rb_ACQ_DEBUG_PINS,
                             rb_ACQ_TRIGGER_MISSED,
                             rb_ACQ_SENSOR_FPS,
@@ -4523,14 +4515,6 @@ begin
       when 16#1AC# =>
          readBackMux <= rb_ACQ_SENSOR_ROI_Y_SIZE;
 
-      -- [0x1b0]: /ACQ/SENSOR_ROI2_Y_START
-      when 16#1B0# =>
-         readBackMux <= rb_ACQ_SENSOR_ROI2_Y_START;
-
-      -- [0x1b4]: /ACQ/SENSOR_ROI2_Y_SIZE
-      when 16#1B4# =>
-         readBackMux <= rb_ACQ_SENSOR_ROI2_Y_SIZE;
-
       -- [0x1b8]: /ACQ/SENSOR_M_LINES
       when 16#1B8# =>
          readBackMux <= rb_ACQ_SENSOR_M_LINES;
@@ -4550,6 +4534,14 @@ begin
       -- [0x1c8]: /ACQ/SENSOR_DP_B
       when 16#1C8# =>
          readBackMux <= rb_ACQ_SENSOR_DP_B;
+
+      -- [0x1d8]: /ACQ/FPGA_ROI_X_START
+      when 16#1D8# =>
+         readBackMux <= rb_ACQ_FPGA_ROI_X_START;
+
+      -- [0x1dc]: /ACQ/FPGA_ROI_X_SIZE
+      when 16#1DC# =>
+         readBackMux <= rb_ACQ_FPGA_ROI_X_SIZE;
 
       -- [0x1e0]: /ACQ/DEBUG_PINS
       when 16#1E0# =>
@@ -7039,96 +7031,10 @@ end process P_ACQ_SENSOR_ROI_Y_SIZE_Y_SIZE;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: ACQ_SENSOR_ROI2_Y_START
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(38) <= (hit(38)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: reserved
--- Field type: STATIC
-------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_ROI2_Y_START(15 downto 10) <= std_logic_vector(to_unsigned(integer(0),6));
-regfile.ACQ.SENSOR_ROI2_Y_START.reserved <= rb_ACQ_SENSOR_ROI2_Y_START(15 downto 10);
-
-
-------------------------------------------------------------------------------------------
--- Field name: Y_START(9 downto 0)
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_ROI2_Y_START(9 downto 0) <= field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START(9 downto 0);
-regfile.ACQ.SENSOR_ROI2_Y_START.Y_START <= field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START(9 downto 0);
-
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_ROI2_Y_START_Y_START
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_ROI2_Y_START_Y_START : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START <= std_logic_vector(to_unsigned(integer(0),10));
-      else
-         for j in  9 downto 0  loop
-            if(wEn(38) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_SENSOR_ROI2_Y_START_Y_START(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_ROI2_Y_START_Y_START;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
--- Register name: ACQ_SENSOR_ROI2_Y_SIZE
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(39) <= (hit(39)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: reserved
--- Field type: STATIC
-------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_ROI2_Y_SIZE(15 downto 10) <= std_logic_vector(to_unsigned(integer(0),6));
-regfile.ACQ.SENSOR_ROI2_Y_SIZE.reserved <= rb_ACQ_SENSOR_ROI2_Y_SIZE(15 downto 10);
-
-
-------------------------------------------------------------------------------------------
--- Field name: Y_SIZE(9 downto 0)
--- Field type: RW
-------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_ROI2_Y_SIZE(9 downto 0) <= field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE(9 downto 0);
-regfile.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE <= field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE(9 downto 0);
-
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE <= std_logic_vector(to_unsigned(integer(770),10));
-      else
-         for j in  9 downto 0  loop
-            if(wEn(39) = '1' and bitEnN(j) = '0') then
-               field_rw_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_ROI2_Y_SIZE_Y_SIZE;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
 -- Register name: ACQ_SENSOR_M_LINES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(40) <= (hit(40)) and (reg_write);
+wEn(38) <= (hit(38)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: M_LINES_DISPLAY
@@ -7147,7 +7053,7 @@ begin
       if (resetN = '0') then
          field_rw_ACQ_SENSOR_M_LINES_M_LINES_DISPLAY <= '0';
       else
-         if(wEn(40) = '1' and bitEnN(15) = '0') then
+         if(wEn(38) = '1' and bitEnN(15) = '0') then
             field_rw_ACQ_SENSOR_M_LINES_M_LINES_DISPLAY <= reg_writedata(15);
          end if;
       end if;
@@ -7172,7 +7078,7 @@ begin
          field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  14 downto 10  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(38) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_M_LINES_M_SUPPRESSED(j-10) <= reg_writedata(j);
             end if;
          end loop;
@@ -7198,7 +7104,7 @@ begin
          field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR <= std_logic_vector(to_unsigned(integer(8),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(40) = '1' and bitEnN(j) = '0') then
+            if(wEn(38) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_M_LINES_M_LINES_SENSOR(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7213,7 +7119,7 @@ end process P_ACQ_SENSOR_M_LINES_M_LINES_SENSOR;
 -- Register name: ACQ_SENSOR_DP_GR
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(41) <= (hit(41)) and (reg_write);
+wEn(39) <= (hit(39)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -7241,7 +7147,7 @@ begin
          field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR <= std_logic_vector(to_unsigned(integer(256),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(41) = '1' and bitEnN(j) = '0') then
+            if(wEn(39) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7256,7 +7162,7 @@ end process P_ACQ_SENSOR_DP_GR_DP_OFFSET_GR;
 -- Register name: ACQ_SENSOR_DP_GB
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(42) <= (hit(42)) and (reg_write);
+wEn(40) <= (hit(40)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -7284,7 +7190,7 @@ begin
          field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB <= std_logic_vector(to_unsigned(integer(256),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(42) = '1' and bitEnN(j) = '0') then
+            if(wEn(40) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7299,7 +7205,7 @@ end process P_ACQ_SENSOR_DP_GB_DP_OFFSET_GB;
 -- Register name: ACQ_SENSOR_DP_R
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(43) <= (hit(43)) and (reg_write);
+wEn(41) <= (hit(41)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -7327,7 +7233,7 @@ begin
          field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R <= std_logic_vector(to_unsigned(integer(256),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(43) = '1' and bitEnN(j) = '0') then
+            if(wEn(41) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -7342,7 +7248,7 @@ end process P_ACQ_SENSOR_DP_R_DP_OFFSET_R;
 -- Register name: ACQ_SENSOR_DP_B
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(44) <= (hit(44)) and (reg_write);
+wEn(42) <= (hit(42)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved
@@ -7370,13 +7276,83 @@ begin
          field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B <= std_logic_vector(to_unsigned(integer(256),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(44) = '1' and bitEnN(j) = '0') then
+            if(wEn(42) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B(j-0) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
 end process P_ACQ_SENSOR_DP_B_DP_OFFSET_B;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_FPGA_ROI_X_START
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(43) <= (hit(43)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: X_START(12 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_FPGA_ROI_X_START(12 downto 0) <= field_rw_ACQ_FPGA_ROI_X_START_X_START(12 downto 0);
+regfile.ACQ.FPGA_ROI_X_START.X_START <= field_rw_ACQ_FPGA_ROI_X_START_X_START(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_FPGA_ROI_X_START_X_START
+------------------------------------------------------------------------------------------
+P_ACQ_FPGA_ROI_X_START_X_START : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_FPGA_ROI_X_START_X_START <= std_logic_vector(to_unsigned(integer(0),13));
+      else
+         for j in  12 downto 0  loop
+            if(wEn(43) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_FPGA_ROI_X_START_X_START(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_FPGA_ROI_X_START_X_START;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: ACQ_FPGA_ROI_X_SIZE
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(44) <= (hit(44)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: X_SIZE(12 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_ACQ_FPGA_ROI_X_SIZE(12 downto 0) <= field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE(12 downto 0);
+regfile.ACQ.FPGA_ROI_X_SIZE.X_SIZE <= field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_ACQ_FPGA_ROI_X_SIZE_X_SIZE
+------------------------------------------------------------------------------------------
+P_ACQ_FPGA_ROI_X_SIZE_X_SIZE : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE <= std_logic_vector(to_unsigned(integer(0),13));
+      else
+         for j in  12 downto 0  loop
+            if(wEn(44) = '1' and bitEnN(j) = '0') then
+               field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_ACQ_FPGA_ROI_X_SIZE_X_SIZE;
 
 
 

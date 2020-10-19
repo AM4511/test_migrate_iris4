@@ -98,19 +98,19 @@ entity xgs_ctrl is
            strobe_DMA_P1                   : out std_logic;            -- Load DMA 1st stage registers (5 sys_clk length) 
            strobe_DMA_P2                   : out std_logic;            -- Load DMA 2nd stage registers (5 sys_clk length)  
            
-           curr_db_GRAB_ROI2_EN            : out std_logic;
+           --curr_db_GRAB_ROI2_EN            : out std_logic;
                       
            curr_db_y_start_ROI1            : out std_logic_vector;     -- 1-base
            curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
            curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
-           --curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
-           --curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
-           --curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
+           curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
+           curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
+           curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
 
-           curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
-           curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
-           curr_db_y_size_ROI2             : out std_logic_vector;     -- 1-base
+           --curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
+           --curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
+           --curr_db_y_size_ROI2             : out std_logic_vector;     -- 1-base
              
            curr_db_subsampling_X           : out std_logic;
            curr_db_subsampling_Y           : out std_logic;
@@ -283,7 +283,7 @@ architecture functional of xgs_ctrl is
   signal  curr_trigger_overlap_buffn   : std_logic;
 
   -- READOUT DB registers
-  signal  curr_GRAB_ROI2_EN      : std_logic; 
+  --signal  curr_GRAB_ROI2_EN      : std_logic; 
 
   signal  curr_CSC_32            : std_logic_vector(31 downto 0):= (others=>'0');
   signal  curr_BUFFER_ID         : std_logic; -- hardcode a un seul bit a cause du register file. Si jamais le register file est etendu, ca ne va pas compiler
@@ -291,9 +291,13 @@ architecture functional of xgs_ctrl is
   --signal  curr_DMA_PARAMETER     : ALIAS_DMA_TYPE;
   
   signal  curr_y_start           : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
+  signal  curr_y_end             : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
   signal  curr_y_size            : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
-  signal  curr_y_start_ROI2      : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
-  signal  curr_y_size_ROI2       : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
+  signal  curr_x_start           : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
+  signal  curr_x_end             : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
+  signal  curr_x_size            : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 0 );      
+  --signal  curr_y_start_ROI2      : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
+  --signal  curr_y_size_ROI2       : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
  
   signal  Y_SIZE_SUB             : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'range ); 
   
@@ -979,8 +983,10 @@ BEGIN
       
       
       if (acquisition_start_SFNC='1') or (REGFILE.ACQ.GRAB_CTRL.GRAB_CMD='1' and grab_active= '0') or (EO_FOT='1' and REGFILE.ACQ.GRAB_CTRL.TRIGGER_SRC/="100" ) then
-              
+         
+        -- X: multiple de 4 (dans XGS)
         curr_y_start               <= REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START & "00";
+        curr_y_end                 <= std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START & "00") + std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE & "00") - '1';	
 		
         if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then
           if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
@@ -990,29 +996,39 @@ BEGIN
           end if;		  
         else
 		  if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
-            curr_y_size              <= '0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) & "00";       
+            curr_y_size              <= '0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 0) & '0';       --to support 4lines subsampled!!
 		  else
-            curr_y_size              <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 1) & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      
+            curr_y_size              <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high downto 0) & '0') + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      
           end if;		  
         end if;   
 
-        curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
-        if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then              
-          if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
-		    curr_y_size_ROI2         <= REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE   & "00";
-		  else
-		    curr_y_size_ROI2         <= std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      		  
-          end if;		  
+        -- X: multiple de 8 pixel poursimplifier 
+        curr_x_start               <= REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000";	
+        curr_x_end                 <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000") + std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000") - '1' ;
+        if(REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X='0') then
+  	      curr_x_size              <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000");
         else
-          if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
-	        curr_y_size_ROI2         <= '0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00";       
-		  else
-	        curr_y_size_ROI2         <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00" ) + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;            		  
-          end if;		  
-			
+          curr_x_size              <= std_logic_vector('0' & REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 4) & "000") ;      
         end if;   
+
+
+        --curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
+        --if(REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y='0') then              
+        --  if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
+		--    curr_y_size_ROI2         <= REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE   & "00";
+		--  else
+		--    curr_y_size_ROI2         <= std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE & "00") + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;      		  
+        --  end if;		  
+        --else
+        --  if(REGFILE.ACQ.SENSOR_M_LINES.M_LINES_DISPLAY='0') then
+	    --    curr_y_size_ROI2         <= '0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00";       
+		--  else
+	    --    curr_y_size_ROI2         <= std_logic_vector('0' & REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high downto 1) & "00" ) + REGFILE.ACQ.SENSOR_M_LINES.M_LINES_SENSOR - REGFILE.ACQ.SENSOR_M_LINES.M_SUPPRESSED;            		  
+        --  end if;		  
+		--	
+        --end if;   
     
-        curr_GRAB_ROI2_EN          <= REGFILE.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
+        --curr_GRAB_ROI2_EN          <= REGFILE.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
 
         curr_subsampling_X         <= REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;
         curr_subsampling_Y         <= REGFILE.ACQ.SENSOR_SUBSAMPLING.ACTIVE_SUBSAMPLING_Y;
@@ -1021,14 +1037,18 @@ BEGIN
       
       if(EO_FOT='1') then
         curr_db_y_start_ROI1       <= curr_y_start;                           --Only used in Bayer/dcp
-        curr_db_y_end_ROI1         <= curr_y_start+curr_y_size-'1';           --Only used in Bayer/dcp
         curr_db_y_size_ROI1        <= curr_y_size;                            --Only used in Bayer/dcp 
+        curr_db_y_end_ROI1         <= curr_y_end;                             --Only used in Bayer/dcp
 
-        curr_db_y_start_ROI2       <= curr_y_start_ROI2;                      --Only used in Bayer/dcp
-        curr_db_y_end_ROI2         <= curr_y_start_ROI2+curr_y_size_ROI2-'1'; --Only used in Bayer/dcp		
-        curr_db_y_size_ROI2        <= curr_y_size_ROI2;                       --Only used in Bayer/dcp
+        curr_db_x_start_ROI1       <= curr_x_start;                           --Only used in Bayer/dcp
+        curr_db_x_size_ROI1        <= curr_x_size;                            --Only used in Bayer/dcp 
+        curr_db_x_end_ROI1         <= curr_x_end;                             --Only used in Bayer/dcp
+
+        --curr_db_y_start_ROI2       <= curr_y_start_ROI2;                      --Only used in Bayer/dcp
+        --curr_db_y_size_ROI2        <= curr_y_size_ROI2;                       --Only used in Bayer/dcp
+        --curr_db_y_end_ROI2         <= curr_y_start_ROI2+curr_y_size_ROI2-'1'; --Only used in Bayer/dcp		
         
-        curr_db_GRAB_ROI2_EN       <= curr_GRAB_ROI2_EN;
+        --curr_db_GRAB_ROI2_EN       <= curr_GRAB_ROI2_EN;
         
         curr_db_subsampling_X      <= curr_subsampling_X;
         curr_db_subsampling_Y      <= curr_subsampling_Y;

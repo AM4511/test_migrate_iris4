@@ -29,13 +29,14 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch         = 24;
    SensorParams.XGS_HiSPI_Ch_used    = 6;
    SensorParams.XGS_HiSPI_mux        = 4;
-   SensorParams.XGS_DMA_LinePtrWidth = 2;   // 4 line buffers
+   SensorParams.XGS_DMA_LinePtrWidth = 2;//4;   // 4 line buffers : attention a image > 4096 !!!
+   SensorParams.XGS_DMA_LinePtrWidth = 1;//2;   // 2 line buffers : attention a image > 4096 !!!
 
    SensorParams.Xsize_Full           = 4104;     // Interpolation INCLUDED
    SensorParams.Ysize_Full           = 3080;     // Interpolation INCLUDED 
 
    SensorParams.XGS_X_START          = 32;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
-   SensorParams.XGS_X_END            = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_END            = SensorParams.XGS_X_START + SensorParams.Xsize_Full; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
    
    SensorParams.XGS_X_SIZE           = 4176;    // FULL X, including everything                                                  // FULL X, including everything
    SensorParams.XGS_Y_SIZE           = 3102;    // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)                                                  // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
@@ -99,12 +100,12 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 	// Checking the version of OTPM and uploading settings accordingly, reg 0x3700[5] needs to be enabled to read the OTPM version
 	// apbase.log("Checking OTPM version (enable register 0x3700[5] = 1) -. reg 0x3016[3:0]")
 	WriteSPI(0x3700, 0x0020);
-	Sleep(60); //comme ds le code de onsemi
+	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
 	printf("XGS OTPM version : 0x%X\n", otpmversion);
 	WriteSPI(0x3700, 0x0000);
-	Sleep(60);
+	//Sleep(50);
 
 	if (otpmversion <= 1) {
 

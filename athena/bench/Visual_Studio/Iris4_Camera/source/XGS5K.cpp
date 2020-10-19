@@ -127,7 +127,7 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 	M_UINT32 otpmversion = ReadSPI(0x3016);
 	printf("XGS OTPM version : 0x%X\n", otpmversion);
 	WriteSPI(0x3700, 0x0000);
-	Sleep(50);
+	//Sleep(50);
 	if (otpmversion == 0) {
 
 		// [Hidden:Req_Reg_Up_0]

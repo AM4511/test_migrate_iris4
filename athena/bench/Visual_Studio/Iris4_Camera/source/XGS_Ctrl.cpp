@@ -952,14 +952,14 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE  = (GrabParams.Y_SIZE)/4;
 	rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32       = sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32;
 
-	if (sXGSptr.ACQ.GRAB_CTRL.f.GRAB_ROI2_EN == 1)
-	{
-		sXGSptr.ACQ.SENSOR_ROI2_Y_START.f.Y_START = GrabParams.Y_START_ROI2/4;
-		rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32       = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
-
-		sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_SIZE2)/4;	
-		rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32        = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
-	}
+	//if (sXGSptr.ACQ.GRAB_CTRL.f.GRAB_ROI2_EN == 1)
+	//{
+	//	sXGSptr.ACQ.SENSOR_ROI2_Y_START.f.Y_START = GrabParams.Y_START_ROI2/4;
+	//	rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32       = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
+	//
+	//	sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_SIZE2)/4;	
+	//	rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32        = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
+	//}
 	
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS       = GrabParams.Exposure;
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_LEV_MODE = GrabParams.EXPOSURE_LEV_MODE;
@@ -1120,8 +1120,8 @@ void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
 			fprintf(f_dump, "0x1a4\tACQ.SENSOR_GAIN_ANA      0x%08X\n", rXGSptr.ACQ.SENSOR_GAIN_ANA.u32);
 			fprintf(f_dump, "0x1a8\tACQ.SENSOR_ROI_Y_START   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_START.u32);
 			fprintf(f_dump, "0x1ac\tACQ.SENSOR_ROI_Y_SIZE    0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32);
-			fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
-			fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
+			//fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
+			//fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
 			fprintf(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
 			//fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
 			fprintf(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
