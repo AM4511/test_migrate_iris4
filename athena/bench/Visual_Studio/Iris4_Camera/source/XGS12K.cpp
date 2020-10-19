@@ -30,7 +30,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    SensorParams.XGS_HiSPI_Ch_used    = 6;
    SensorParams.XGS_HiSPI_mux        = 4;
 //   SensorParams.XGS_DMA_LinePtrWidth = 1;//2;   // 2 line buffers : attention a image > 4096 !!!
-   SensorParams.XGS_DMA_LinePtrWidth = 2;//4;   // 4 line buffers : attention a image > 4096 !!!
+   SensorParams.XGS_DMA_LinePtrWidth = 2;//4;   // 4 line buffers : attention a image > 4096 !!!.
 
 //   SensorParams.Xsize_Full           = 4104;     // Interpolation INCLUDED
    SensorParams.Xsize_Full           = 4096;     // Transfering from interpolation 0 to 4096, till we have a real ROI X
