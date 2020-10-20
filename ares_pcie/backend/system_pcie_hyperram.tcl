@@ -576,9 +576,9 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT7_REQUESTED_PHASE {-40} \
    CONFIG.CLKOUT7_USED {true} \
    CONFIG.CLK_OUT1_PORT {clk100MHz} \
-   CONFIG.CLK_OUT2_PORT {clk166MHz_90} \
+   CONFIG.CLK_OUT2_PORT {clkHyperRam_90} \
    CONFIG.CLK_OUT3_PORT {clk50MHz} \
-   CONFIG.CLK_OUT4_PORT {clk166MHz} \
+   CONFIG.CLK_OUT4_PORT {clkHyperRam} \
    CONFIG.CLK_OUT5_PORT {clk125MHz} \
    CONFIG.CLK_OUT6_PORT {clk200MHz} \
    CONFIG.CLK_OUT7_PORT {clk50MHz_io} \
@@ -701,10 +701,10 @@ proc create_root_design { parentCell } {
   connect_bd_net -net sysclk_1 [get_bd_ports sysclk] [get_bd_pins Lpc_to_AXI_prodcons_0/sysclk]
   connect_bd_net -net sysrst_1 [get_bd_ports sysrst] [get_bd_pins Lpc_to_AXI_prodcons_0/sysrst]
   connect_bd_net -net system_pll_clk125MHz [get_bd_pins axi_ethernet_0/gtx_clk] [get_bd_pins system_pll/clk125MHz]
-  connect_bd_net -net system_pll_clk166MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz] [get_bd_pins system_pll/clk166MHz]
-  connect_bd_net -net system_pll_clk166MHz_90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins system_pll/clk166MHz_90]
   connect_bd_net -net system_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins system_pll/clk200MHz]
   connect_bd_net -net system_pll_clk50MHz_io [get_bd_ports ncsi_clk] [get_bd_pins system_pll/clk50MHz_io]
+  connect_bd_net -net system_pll_clkHyperRam [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz] [get_bd_pins system_pll/clkHyperRam]
+  connect_bd_net -net system_pll_clkHyperRam_90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins system_pll/clkHyperRam_90]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins axi_ethernet_0/mdio_mdio_i] [get_bd_pins logic_0/dout]
 
   # Create address segments
