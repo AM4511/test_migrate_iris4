@@ -369,6 +369,18 @@ Register("sensor_dp_b", 0x1c8, 4, "null");
 		Field("reserved", 15, 12, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dp_offset_b", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+Register("sensor_gain_dig_g", 0x1cc, 4, "null");
+		Field("reserved1", 15, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dg_factor_gr", 14, 8, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("reserved0", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dg_factor_gb", 6, 0, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("sensor_gain_dig_rb", 0x1d0, 4, "null");
+		Field("reserved1", 15, 15, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dg_factor_r", 14, 8, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("reserved0", 7, 7, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("dg_factor_b", 6, 0, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
 Register("fpga_roi_x_start", 0x1d8, 4, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START");
 

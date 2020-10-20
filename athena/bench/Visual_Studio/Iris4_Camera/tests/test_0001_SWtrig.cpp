@@ -91,7 +91,9 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
-	
+	XGS_Ctrl->setAnalogGain(1);        //unitary analog gain   
+	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
+
 	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 

@@ -714,14 +714,25 @@ void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
 
 }
 
+
 //----------------------------------------------------
 //  setXGSDigGain    
 //----------------------------------------------------
 void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 {
-	DigGain = DigGain & 0x7f;
-	WriteSPI(0x3846, (DigGain << 8) + DigGain);
-	WriteSPI(0x3848, (DigGain << 8) + DigGain);
+	double gain_double;
+	
+	DigGain     = DigGain & 0x7f;
+	gain_double = double(DigGain / 32.0);
+	
+	// Program same gain for all components
+	// This may be used to White balance images...
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_G.f.DG_FACTOR_GB = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_G.f.DG_FACTOR_GR = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_R = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_B = DigGain;
+
+	printf("Digital gain set to 0x%X, factor is %1.5f \n", DigGain, gain_double);
 }
 
 

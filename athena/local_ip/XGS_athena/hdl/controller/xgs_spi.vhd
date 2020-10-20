@@ -199,7 +199,7 @@ signal ser_data_read         : std_logic_vector(15 downto 0);
 signal sensor_reconf_add     : std_logic_vector(15 downto 0);
 signal sensor_reconf_dat     : std_logic_vector(15 downto 0);
 signal sensor_reconf_cmd     : std_logic_vector(1 downto 0);
-signal sensor_reconf_WF_pipe : std_logic_vector(10 downto 0);
+signal sensor_reconf_WF_pipe : std_logic_vector(12 downto 0);
 signal sensor_reconf_WF_ss   : std_logic;
 signal sensor_reconf_roi_sel : std_logic_vector(3 downto 0) := "0101";
 
@@ -330,7 +330,7 @@ BEGIN
           --GRAB_ROI2_EN_DB        <= '0'; 
         else
           sensor_reconf_WF_pipe(0)           <= (GRAB_CMD or acquisition_start_SFNC) and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE;
-          sensor_reconf_WF_pipe(10 downto 1) <= sensor_reconf_WF_pipe(9 downto 0);
+          sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high downto 1) <= sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1 downto 0);
           
           --if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' then
           --  GRAB_ROI2_EN_DB        <= regfile.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
@@ -341,7 +341,7 @@ BEGIN
         if(sys_reset_n='0') then
           sensor_reconf_roi_sel   <= "0101";
         else
-          if( sensor_reconf_WF_pipe(9)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
+          if( sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
             sensor_reconf_roi_sel <= not(sensor_reconf_roi_sel(3)) & not(sensor_reconf_roi_sel(2)) & not(sensor_reconf_roi_sel(1)) & not(sensor_reconf_roi_sel(0));
           else
             sensor_reconf_roi_sel <= sensor_reconf_roi_sel;
@@ -457,8 +457,22 @@ BEGIN
               sensor_reconf_dat(3 downto 2)   <= "00";
             --end if;
             
+
+          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg DIGITAL_GAIN_CODE_G_CTXT0_REG (R/W) (3846) : ceci est automatiquement gere par le fpga
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3846";
+            sensor_reconf_dat(15 downto 0)    <= regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 & regfile.ACQ.SENSOR_GAIN_DIG_G.DG_FACTOR_GR & regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 & regfile.ACQ.SENSOR_GAIN_DIG_G.DG_FACTOR_GB;
+            
+			
+          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg DIGITAL_GAIN_CODE_RB_CTXT0_REG (R/W) (3848) : ceci est automatiquement gere par le fpga
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3848";
+            sensor_reconf_dat(15 downto 0)    <= regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 & regfile.ACQ.SENSOR_GAIN_DIG_RB.DG_FACTOR_R & regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 & regfile.ACQ.SENSOR_GAIN_DIG_RB.DG_FACTOR_B;
+			
                             
-          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program STOP SEPARATOR 
+          elsif(sensor_reconf_WF_pipe(11)='1') then            -- Program STOP SEPARATOR 
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "10";
             sensor_reconf_add    <= (others => '-');
@@ -504,7 +518,7 @@ BEGIN
       else
         if (GRAB_CMD='1' or acquisition_start_SFNC='1') then
           GRAB_CMD_DONE                <= '0';
-        elsif(sensor_reconf_WF_pipe(10)='1') then
+        elsif(sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1)='1') then
           GRAB_CMD_DONE                <= '1';
         end if;
       end if;

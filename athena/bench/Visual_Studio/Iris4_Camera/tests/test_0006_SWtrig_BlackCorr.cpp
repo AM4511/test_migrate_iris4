@@ -86,8 +86,6 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	XGS_Ctrl->setBlackRef(BlackOffset);
-
 	// For a full frame ROI 
 	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
@@ -98,6 +96,10 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setExposure( (M_UINT32) XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
+	XGS_Ctrl->setBlackRef(BlackOffset);
+	XGS_Ctrl->setAnalogGain(1);        //unitary analog gain   
+	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
+
 
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
