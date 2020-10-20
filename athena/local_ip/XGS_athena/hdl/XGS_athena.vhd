@@ -648,15 +648,19 @@ architecture struct of XGS_athena is
       strobe_DMA_P1 : out std_logic := '0';  -- Load DMA 1st stage registers  
       strobe_DMA_P2 : out std_logic := '0';  -- Load DMA 2nd stage registers 
 
-      curr_db_GRAB_ROI2_EN : out std_logic := '0';
+      --curr_db_GRAB_ROI2_EN : out std_logic := '0';
 
       curr_db_y_start_ROI1 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base
       curr_db_y_end_ROI1   : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
       curr_db_y_size_ROI1  : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base    
 
-      curr_db_y_start_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-      curr_db_y_end_ROI2   : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
-      curr_db_y_size_ROI2  : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
+      curr_db_x_start_ROI1 : out std_logic_vector(12 downto 0) := (others => '0');  -- 1-base
+      curr_db_x_end_ROI1   : out std_logic_vector(12 downto 0) := (others => '0');  -- 1-base  
+      curr_db_x_size_ROI1  : out std_logic_vector(12 downto 0) := (others => '0');  -- 1-base    
+
+      --curr_db_y_start_ROI2 : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
+      --curr_db_y_end_ROI2   : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
+      --curr_db_y_size_ROI2  : out std_logic_vector(11 downto 0) := (others => '0');  -- 1-base  
 
       curr_db_subsampling_X : out std_logic := '0';
       curr_db_subsampling_Y : out std_logic := '0';
@@ -783,6 +787,10 @@ architecture struct of XGS_athena is
   signal hispi_ystart             : std_logic_vector(11 downto 0);
   signal hispi_yend               : std_logic_vector(11 downto 0);
   signal hispi_ysize              : std_logic_vector(11 downto 0);
+  signal hispi_xstart             : std_logic_vector(12 downto 0);
+  signal hispi_xend               : std_logic_vector(12 downto 0);
+  signal hispi_xsize              : std_logic_vector(12 downto 0);
+
   signal hispi_subX               : std_logic;
   signal hispi_subY               : std_logic;
   signal first_lines_mask_cnt     : std_logic_vector(9 downto 0);  -- 1(embedded)+ Calibration Black lines programmed. Ici je ne double buff pas car ca va etre statique apres le load de la dcf
@@ -951,7 +959,7 @@ begin
       -- 
       ---------------------------------------------------------------------
       curr_Xstart => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
-      curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+      curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,    -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
 
       curr_Ystart => hispi_ystart,
       curr_Yend   => hispi_yend,
@@ -1188,15 +1196,19 @@ begin
       strobe_DMA_P1 => load_dma_context(0),
       strobe_DMA_P2 => load_dma_context(1),
 
-      curr_db_GRAB_ROI2_EN => open,
+      --curr_db_GRAB_ROI2_EN => open,
 
-      curr_db_y_start_ROI1 => hispi_ystart,
-      curr_db_y_end_ROI1   => hispi_yend,
-      curr_db_y_size_ROI1  => hispi_ysize,
+      curr_db_y_start_ROI1 => hispi_ystart,  --ROI before SUB_Y
+      curr_db_y_end_ROI1   => hispi_yend,    --ROI before SUB_Y
+      curr_db_y_size_ROI1  => hispi_ysize,   --NB lines after SUBSAMPLING Y APPLIED
 
-      curr_db_y_start_ROI2 => open,
-      curr_db_y_end_ROI2   => open,
-      curr_db_y_size_ROI2  => open,
+      curr_db_x_start_ROI1 => hispi_xstart,  --ROI before SUB_X
+      curr_db_x_end_ROI1   => hispi_xend,    --ROI before SUB_X
+      curr_db_x_size_ROI1  => hispi_xsize,   --NB lines after SUBSAMPLING X APPLIED
+
+      --curr_db_y_start_ROI2 => open,
+      --curr_db_y_end_ROI2   => open,
+      --curr_db_y_size_ROI2  => open,
 
       curr_db_subsampling_X => hispi_subX,
       curr_db_subsampling_Y => hispi_subY,

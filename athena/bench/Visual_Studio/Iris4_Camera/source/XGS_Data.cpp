@@ -147,7 +147,7 @@ void CXGS_Data::HiSpiCalibrate(void)
 	
     //At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
-		printf("Starting HiSPI calibration...  ");
+		printf("\nStarting HiSPI calibration...  ");
 		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
@@ -161,8 +161,8 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 		} while (rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0);
 
-
-		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || rXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || rXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
+		sXGSptr.HISPI.STATUS.u32 = rXGSptr.HISPI.STATUS.u32;
+		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || sXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
 		{
 			printf("Calibration ERROR\n");
 			printf("  HISPI_STATUS          : 0x%X\n", rXGSptr.HISPI.STATUS.u32);
@@ -179,8 +179,8 @@ void CXGS_Data::HiSpiCalibrate(void)
 
 		}
 
-		if (rXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && rXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
-			printf("Calibration OK ");
+		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
+			printf("Calibration OK \n");
 			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
 		}
@@ -347,7 +347,11 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 2) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  512 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
 			if (rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 3) printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program 1024 bytes \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
 		}
-
+		
+		if (rXGSptr.DMA.TLP.f.MAX_PAYLOAD == 256 and rXGSptr.DMA.TLP.f.CFG_MAX_PLD==0)  // bios program 128
+			printf("\nFifo overrun Warning: PCIe MAX payload annonced by fpga is %d bytes, Bios program  128 bytes  \n", rXGSptr.DMA.TLP.f.MAX_PAYLOAD);
+		if (rXGSptr.DMA.TLP.f.MAX_PAYLOAD == 256 and rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 1)  // bios program 256
+			printf("\nPCIe MAX payload is optimal (256 bytes)  \n");
 
 		printf("\nPress 'c' to continue without recover HI_SPI\n");
 		printf("Press 'r' to try to recover HI_SPI and continue this test\n");

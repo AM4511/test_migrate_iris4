@@ -248,7 +248,19 @@ int main(void)
 	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 	printf("%s\n", buf);
 
-	if (Ares_nbFPGA == 1) printf("Ares   FPGA Build is ID is 0x%X ", rAresptr.device_specific.buildid.u32);
+	if (Ares_nbFPGA == 1)
+	{
+		printf("Ares   FPGA Build is ID is %d (0x%X), builded on ", rAresptr.device_specific.buildid.u32, rAresptr.device_specific.buildid.u32);
+		//Epoch to human understandable time
+		time_t rawtime = rAresptr.device_specific.buildid.u32;
+		struct tm  ts;
+		char       buf[80];
+		// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+		ts = *localtime(&rawtime);
+		strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+		printf("%s\n", buf);
+	}
+
 
 	// Generate a ERROR if FPGA is lower than a particular buildID
 	M_UINT32 MinBuildID = (M_UINT32) bitstream_BuildID_min;

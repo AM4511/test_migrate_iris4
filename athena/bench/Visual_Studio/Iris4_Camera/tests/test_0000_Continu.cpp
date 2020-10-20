@@ -55,6 +55,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 LUT_PATTERN = 0;
 
+	M_UINT32 DigGain = 0x20; // Unitary gain
+
 	printf("\n\n********************************\n");
 	printf(    "*    Executing Test0000.cpp    *\n"); 
 	printf(    "********************************\n\n");
@@ -115,6 +117,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
+	XGS_Ctrl->setAnalogGain(1);        //unitary analog gain   
+	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
 
 	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y) );
 
@@ -229,6 +233,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf("\n  (D) Disable Image Display transfer (Max fps)");
 	printf("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf("\n  (l) Program LUT");
+	printf("\n  (2) Digital Gain +1 (XGS Dig Gain)");
+	printf("\n  (1) Digital Gain -1 (XGS Dig Gain)");
+
 	printf("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -237,6 +244,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For debug DMA overrun with any 12Mpix sensor
 	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
 	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + (M_INT32)(DMAParams->LINE_PITCH * GrabParams->Y_SIZE);    // 0x10c00080;
+
+
+
+	if (XGS_Ctrl->rXGSptr.HISPI.STATUS.f.CRC_ERROR == 1) printf("CRC error before grab loop start!!!\n");
 
 
 	//---------------------
@@ -503,7 +514,22 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Data->ProgramLUT(LUT_PATTERN);
 				XGS_Data->EnableLUT();
 				break;
+            
+			case '2':
+				if (DigGain == 127) 
+				  DigGain = 127;
+				else
+				  DigGain++;				
+				XGS_Ctrl->setDigitalGain(DigGain);
+                break;
 
+			case '1':
+				if (DigGain == 1)
+					DigGain = 1;
+				else
+					DigGain--;
+				XGS_Ctrl->setDigitalGain(DigGain);
+				break;
 
 			}
 

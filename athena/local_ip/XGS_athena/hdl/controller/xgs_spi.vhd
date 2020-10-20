@@ -218,7 +218,7 @@ signal grab_mngr_sensor_reconf_start_buff  : std_logic;
 signal read_temp_sensor_start              : std_logic;
 signal read_temp_sensor_start_buff         : std_logic;
 
-signal GRAB_ROI2_EN_DB                     : std_logic;
+--signal GRAB_ROI2_EN_DB                     : std_logic;
 signal GRAB_CMD_DONE                       : std_logic;
 
 signal GRAB_CMD                            : std_logic; 
@@ -327,21 +327,21 @@ BEGIN
       if(sys_clk'event and sys_clk='1') then
         if(sys_reset_n='0') then
           sensor_reconf_WF_pipe  <= (others=>'0');
-          GRAB_ROI2_EN_DB        <= '0'; 
+          --GRAB_ROI2_EN_DB        <= '0'; 
         else
           sensor_reconf_WF_pipe(0)           <= (GRAB_CMD or acquisition_start_SFNC) and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE;
-          sensor_reconf_WF_pipe(12 downto 1) <= sensor_reconf_WF_pipe(11 downto 0);
+          sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high downto 1) <= sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1 downto 0);
           
-          if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' then
-            GRAB_ROI2_EN_DB        <= regfile.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
-          end if;
+          --if(GRAB_CMD='1' or acquisition_start_SFNC='1') and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1' then
+          --  GRAB_ROI2_EN_DB        <= regfile.ACQ.GRAB_CTRL.GRAB_ROI2_EN;
+          --end if;
           
         end if;
     
         if(sys_reset_n='0') then
           sensor_reconf_roi_sel   <= "0101";
         else
-          if( sensor_reconf_WF_pipe(11)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
+          if( sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1)='1' and regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE='1') then             -- now we have program all new parameters, change ROI for next grab image, "01"->"10"->"01"->"10" ... using only ROI 1 and 2
             sensor_reconf_roi_sel <= not(sensor_reconf_roi_sel(3)) & not(sensor_reconf_roi_sel(2)) & not(sensor_reconf_roi_sel(1)) & not(sensor_reconf_roi_sel(0));
           else
             sensor_reconf_roi_sel <= sensor_reconf_roi_sel;
@@ -373,31 +373,31 @@ BEGIN
                                     regfile.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE;
 
 
-          elsif(sensor_reconf_WF_pipe(2)='1') then               -- Program register ROI[2-3]_START_REG (0x3822 or 0x3826) : Ystart 
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd <= "00";
-             if(sensor_reconf_roi_sel(3 downto 2)="01") then
-               sensor_reconf_add <= X"3822";
-             else  
-               sensor_reconf_add <= X"3826";
-             end if;
-             sensor_reconf_dat   <=  regfile.ACQ.SENSOR_ROI2_Y_START.reserved  &
-                                     regfile.ACQ.SENSOR_ROI2_Y_START.Y_START;
-    
-          elsif(sensor_reconf_WF_pipe(3)='1') then            -- Program register ROI[2-3]_SIZE_REG (0x3824 or 0x3828) : Ysize
-            sensor_reconf_WF_ss  <= '1';
-            sensor_reconf_cmd    <= "00";
-            if(sensor_reconf_roi_sel(3 downto 2)="01") then
-              sensor_reconf_add <= X"3824";
-            else  
-              sensor_reconf_add <= X"3828";
-            end if;
-            sensor_reconf_dat   <=  regfile.ACQ.SENSOR_ROI2_Y_SIZE.reserved  &
-                                    regfile.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE;
+          --elsif(sensor_reconf_WF_pipe(2)='1') then               -- Program register ROI[2-3]_START_REG (0x3822 or 0x3826) : Ystart 
+          --  sensor_reconf_WF_ss  <= '1';
+          --  sensor_reconf_cmd <= "00";
+          --   if(sensor_reconf_roi_sel(3 downto 2)="01") then
+          --     sensor_reconf_add <= X"3822";
+          --   else  
+          --     sensor_reconf_add <= X"3826";
+          --   end if;
+          --   sensor_reconf_dat   <=  regfile.ACQ.SENSOR_ROI2_Y_START.reserved  &
+          --                           regfile.ACQ.SENSOR_ROI2_Y_START.Y_START;
+		  --
+          --elsif(sensor_reconf_WF_pipe(3)='1') then            -- Program register ROI[2-3]_SIZE_REG (0x3824 or 0x3828) : Ysize
+          --  sensor_reconf_WF_ss  <= '1';
+          --  sensor_reconf_cmd    <= "00";
+          --  if(sensor_reconf_roi_sel(3 downto 2)="01") then
+          --    sensor_reconf_add <= X"3824";
+          --  else  
+          --    sensor_reconf_add <= X"3828";
+          --  end if;
+          --  sensor_reconf_dat   <=  regfile.ACQ.SENSOR_ROI2_Y_SIZE.reserved  &
+          --                          regfile.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE;
 
                                     
             
-          elsif(sensor_reconf_WF_pipe(4)='1') then            -- Program reg SUBSAMPLING (0x383c) 
+          elsif(sensor_reconf_WF_pipe(2)='1') then            -- Program reg SUBSAMPLING (0x383c) 
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"383c";
@@ -408,7 +408,7 @@ BEGIN
                                     regfile.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X;            
             
     
-          elsif(sensor_reconf_WF_pipe(5)='1') then            -- Program reg ANALOG_GAIN_CODE (0x3844)
+          elsif(sensor_reconf_WF_pipe(3)='1') then            -- Program reg ANALOG_GAIN_CODE (0x3844)
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"3844";
@@ -416,7 +416,7 @@ BEGIN
                                     regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN    &
                                     regfile.ACQ.SENSOR_GAIN_ANA.reserved0;
     
-          elsif(sensor_reconf_WF_pipe(6)='1') then            -- Program reg Data Pedestal (Gr)
+          elsif(sensor_reconf_WF_pipe(4)='1') then            -- Program reg Data Pedestal (Gr)
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"384A";
@@ -424,39 +424,53 @@ BEGIN
                                      regfile.ACQ.SENSOR_DP_GR.DP_OFFSET_GR;
           
          
-          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg Data Pedestal (Gb)
+          elsif(sensor_reconf_WF_pipe(5)='1') then            -- Program reg Data Pedestal (Gb)
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"384C";
             sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_GB.reserved        &
                                      regfile.ACQ.SENSOR_DP_GB.DP_OFFSET_GB;
                    
-          elsif(sensor_reconf_WF_pipe(8)='1') then            -- Program reg Data Pedestal (R)
+          elsif(sensor_reconf_WF_pipe(6)='1') then            -- Program reg Data Pedestal (R)
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"384E";
             sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_R.reserved        &
                                      regfile.ACQ.SENSOR_DP_R.DP_OFFSET_R;
           
-          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg Data Pedestal (B)
+          elsif(sensor_reconf_WF_pipe(7)='1') then            -- Program reg Data Pedestal (B)
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"3850";
             sensor_reconf_dat    <=  regfile.ACQ.SENSOR_DP_B.reserved        &
                                      regfile.ACQ.SENSOR_DP_B.DP_OFFSET_B;
 
-          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg ROI ACTIVE context 0 (0x383e) : ceci est automatiquement gere par le fpga
+          elsif(sensor_reconf_WF_pipe(8)='1') then            -- Program reg ROI ACTIVE context 0 (0x383e) : ceci est automatiquement gere par le fpga
             sensor_reconf_WF_ss  <= '1';
             sensor_reconf_cmd    <= "00";
             sensor_reconf_add    <= X"383e";
             sensor_reconf_dat(15 downto 4)    <= "000000000000";
             sensor_reconf_dat(1 downto 0)     <= sensor_reconf_roi_sel(1 downto 0);
-            if(GRAB_ROI2_EN_DB='1') then
-              sensor_reconf_dat(3 downto 2)   <= sensor_reconf_roi_sel(3 downto 2);
-            else
+            --if(GRAB_ROI2_EN_DB='1') then
+            --  sensor_reconf_dat(3 downto 2)   <= sensor_reconf_roi_sel(3 downto 2);
+            --else
               sensor_reconf_dat(3 downto 2)   <= "00";
-            end if;
+            --end if;
             
+
+          elsif(sensor_reconf_WF_pipe(9)='1') then            -- Program reg DIGITAL_GAIN_CODE_G_CTXT0_REG (R/W) (3846) : ceci est automatiquement gere par le fpga
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3846";
+            sensor_reconf_dat(15 downto 0)    <= regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 & regfile.ACQ.SENSOR_GAIN_DIG_G.DG_FACTOR_GR & regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 & regfile.ACQ.SENSOR_GAIN_DIG_G.DG_FACTOR_GB;
+            
+			
+          elsif(sensor_reconf_WF_pipe(10)='1') then            -- Program reg DIGITAL_GAIN_CODE_RB_CTXT0_REG (R/W) (3848) : ceci est automatiquement gere par le fpga
+            sensor_reconf_WF_ss  <= '1';
+            sensor_reconf_cmd    <= "00";
+            sensor_reconf_add    <= X"3848";
+            sensor_reconf_dat(15 downto 0)    <= regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 & regfile.ACQ.SENSOR_GAIN_DIG_RB.DG_FACTOR_R & regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 & regfile.ACQ.SENSOR_GAIN_DIG_RB.DG_FACTOR_B;
+			
                             
           elsif(sensor_reconf_WF_pipe(11)='1') then            -- Program STOP SEPARATOR 
             sensor_reconf_WF_ss  <= '1';
@@ -504,7 +518,7 @@ BEGIN
       else
         if (GRAB_CMD='1' or acquisition_start_SFNC='1') then
           GRAB_CMD_DONE                <= '0';
-        elsif(sensor_reconf_WF_pipe(12)='1') then
+        elsif(sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1)='1') then
           GRAB_CMD_DONE                <= '1';
         end if;
       end if;
