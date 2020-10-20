@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/10/20 12:18:55
+-- Created on          : 2020/10/20 14:11:38
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1366738E
+-- Register file CRC32 : 0xF1F6A38F
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3938,11 +3938,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/10/20 12:18:55
+-- Created on          : 2020/10/20 14:11:38
 -- Created by          : imaval
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1366738E
+-- Register file CRC32 : 0xF1F6A38F
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4158,13 +4158,9 @@ signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                      : std_logic_v
 signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                      : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
 signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
 signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
-signal field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1                    : std_logic;                                       -- Field: reserved1
 signal field_rw_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GR                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_GR
-signal field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0                    : std_logic;                                       -- Field: reserved0
 signal field_rw_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GB                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_GB
-signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1                   : std_logic;                                       -- Field: reserved1
 signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_R                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_R
-signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0                   : std_logic;                                       -- Field: reserved0
 signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_B                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_B
 signal field_rw_ACQ_FPGA_ROI_X_START_X_START                       : std_logic_vector(12 downto 0);                   -- Field: X_START
 signal field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE                         : std_logic_vector(12 downto 0);                   -- Field: X_SIZE
@@ -7423,27 +7419,11 @@ wEn(43) <= (hit(43)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_G(15) <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1;
-regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1;
+rb_ACQ_SENSOR_GAIN_DIG_G(15) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 <= rb_ACQ_SENSOR_GAIN_DIG_G(15);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_G_reserved1
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_G_reserved1 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1 <= '0';
-      else
-         if(wEn(43) = '1' and bitEnN(15) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1 <= reg_writedata(15);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_G_reserved1;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_GR(14 downto 8)
@@ -7473,27 +7453,11 @@ end process P_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved0
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_G(7) <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0;
-regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0;
+rb_ACQ_SENSOR_GAIN_DIG_G(7) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 <= rb_ACQ_SENSOR_GAIN_DIG_G(7);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_G_reserved0
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_G_reserved0 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0 <= '0';
-      else
-         if(wEn(43) = '1' and bitEnN(7) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0 <= reg_writedata(7);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_G_reserved0;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_GB(6 downto 0)
@@ -7532,27 +7496,11 @@ wEn(44) <= (hit(44)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_RB(15) <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
-regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
+rb_ACQ_SENSOR_GAIN_DIG_RB(15) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 <= rb_ACQ_SENSOR_GAIN_DIG_RB(15);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_RB_reserved1
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_RB_reserved1 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1 <= '0';
-      else
-         if(wEn(44) = '1' and bitEnN(15) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1 <= reg_writedata(15);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_R(14 downto 8)
@@ -7582,27 +7530,11 @@ end process P_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_R;
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved0
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_RB(7) <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
-regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
+rb_ACQ_SENSOR_GAIN_DIG_RB(7) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 <= rb_ACQ_SENSOR_GAIN_DIG_RB(7);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_RB_reserved0
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_RB_reserved0 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0 <= '0';
-      else
-         if(wEn(44) = '1' and bitEnN(7) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0 <= reg_writedata(7);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_B(6 downto 0)
