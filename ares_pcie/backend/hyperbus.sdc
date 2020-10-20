@@ -136,9 +136,3 @@ set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
 
 set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_Meta_reg/PRE]
 set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_reg/PRE]
-
-
-
-#relaxer le timing a partir des registres Base Adress qui sont statique en operation normale.
-set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 2
-set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 1 -hold
