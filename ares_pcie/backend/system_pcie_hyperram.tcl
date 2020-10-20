@@ -531,6 +531,8 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.C_AXI_MEM_ADDR_WIDTH {25} \
    CONFIG.C_ENABLE_WP {true} \
+   CONFIG.DPRAM_MACRO_TYPE {0} \
+   CONFIG.INPUT_FIXED_DELAY {14} \
  ] $rpc2_ctrl_controller_0
 
   # Create instance: system_pll, and set properties
@@ -538,11 +540,13 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.CLKOUT1_DRIVES {BUFG} \
    CONFIG.CLKOUT1_JITTER {130.958} \
+   CONFIG.CLKOUT1_PHASE_ERROR {98.575} \
    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {100} \
    CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT2_JITTER {125.247} \
+   CONFIG.CLKOUT2_JITTER {118.758} \
    CONFIG.CLKOUT2_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {125} \
+   CONFIG.CLKOUT2_REQUESTED_OUT_FREQ {166.667} \
+   CONFIG.CLKOUT2_REQUESTED_PHASE {90} \
    CONFIG.CLKOUT2_USED {true} \
    CONFIG.CLKOUT3_DRIVES {BUFG} \
    CONFIG.CLKOUT3_JITTER {151.636} \
@@ -550,15 +554,15 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {50} \
    CONFIG.CLKOUT3_USED {true} \
    CONFIG.CLKOUT4_DRIVES {BUFG} \
-   CONFIG.CLKOUT4_JITTER {125.247} \
+   CONFIG.CLKOUT4_JITTER {118.758} \
    CONFIG.CLKOUT4_PHASE_ERROR {98.575} \
-   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {125} \
+   CONFIG.CLKOUT4_REQUESTED_OUT_FREQ {166.667} \
    CONFIG.CLKOUT4_USED {true} \
    CONFIG.CLKOUT5_DRIVES {BUFG} \
    CONFIG.CLKOUT5_JITTER {125.247} \
    CONFIG.CLKOUT5_PHASE_ERROR {98.575} \
    CONFIG.CLKOUT5_REQUESTED_OUT_FREQ {125} \
-   CONFIG.CLKOUT5_REQUESTED_PHASE {90.000} \
+   CONFIG.CLKOUT5_REQUESTED_PHASE {0} \
    CONFIG.CLKOUT5_USED {true} \
    CONFIG.CLKOUT6_DRIVES {BUFG} \
    CONFIG.CLKOUT6_JITTER {114.829} \
@@ -572,10 +576,10 @@ proc create_root_design { parentCell } {
    CONFIG.CLKOUT7_REQUESTED_PHASE {-40} \
    CONFIG.CLKOUT7_USED {true} \
    CONFIG.CLK_OUT1_PORT {clk100MHz} \
-   CONFIG.CLK_OUT2_PORT {clk125MHz} \
+   CONFIG.CLK_OUT2_PORT {clkHyperRam_90} \
    CONFIG.CLK_OUT3_PORT {clk50MHz} \
    CONFIG.CLK_OUT4_PORT {clkHyperRam} \
-   CONFIG.CLK_OUT5_PORT {clkHyperRam_90} \
+   CONFIG.CLK_OUT5_PORT {clk125MHz} \
    CONFIG.CLK_OUT6_PORT {clk200MHz} \
    CONFIG.CLK_OUT7_PORT {clk50MHz_io} \
    CONFIG.FEEDBACK_SOURCE {FDBK_AUTO} \
@@ -586,15 +590,16 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKIN2_PERIOD {10.000} \
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {10.000} \
    CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT1_DIVIDE {8} \
+   CONFIG.MMCM_CLKOUT1_DIVIDE {6} \
    CONFIG.MMCM_CLKOUT1_DUTY_CYCLE {0.5} \
+   CONFIG.MMCM_CLKOUT1_PHASE {90.000} \
    CONFIG.MMCM_CLKOUT2_DIVIDE {20} \
    CONFIG.MMCM_CLKOUT2_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT3_DIVIDE {8} \
+   CONFIG.MMCM_CLKOUT3_DIVIDE {6} \
    CONFIG.MMCM_CLKOUT3_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT4_DIVIDE {8} \
    CONFIG.MMCM_CLKOUT4_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_CLKOUT4_PHASE {90.000} \
+   CONFIG.MMCM_CLKOUT4_PHASE {0.000} \
    CONFIG.MMCM_CLKOUT5_DIVIDE {5} \
    CONFIG.MMCM_CLKOUT5_DUTY_CYCLE {0.5} \
    CONFIG.MMCM_CLKOUT6_DIVIDE {20} \
@@ -603,6 +608,7 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_COMPENSATION {ZHOLD} \
    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
    CONFIG.NUM_OUT_CLKS {7} \
+   CONFIG.OVERRIDE_MMCM {false} \
    CONFIG.PRIMITIVE {MMCM} \
    CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
    CONFIG.RESET_PORT {resetn} \
@@ -676,7 +682,6 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins microblaze_0_xlconcat/In5]
   connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In0]
   connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins system_pll/clk_in1]
-  connect_bd_net -net clk_wiz_0_clk125MHz [get_bd_pins axi_ethernet_0/gtx_clk] [get_bd_pins system_pll/clk125MHz]
   connect_bd_net -net clk_wiz_0_clk50MHz [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins mii_to_rmii_0/ref_clk] [get_bd_pins system_pll/clk50MHz]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins axiRpc_reset/dcm_locked] [get_bd_pins system_pll/locked] [get_bd_pins system_reset/dcm_locked]
   connect_bd_net -net ext_ProdCons_addr_1 [get_bd_ports ext_ProdCons_addr] [get_bd_pins Lpc_to_AXI_prodcons_0/ext_ProdCons_addr]
@@ -695,6 +700,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net rst_ddr2_mig_0_100M_peripheral_aresetn [get_bd_pins Lpc_to_AXI_prodcons_0/s00_axi_aresetn] [get_bd_pins Lpc_to_AXI_prodcons_1/s00_axi_aresetn] [get_bd_pins axi_ethernet_0/s_axi_lite_resetn] [get_bd_pins axi_ethernet_0_dma/axi_resetn] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_intc_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/S05_ARESETN] [get_bd_pins axi_quad_spi_0/s_axi4_aresetn] [get_bd_pins axi_timer_0/s_axi_aresetn] [get_bd_pins axi_timer_1/s_axi_aresetn] [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins mdm_1/M_AXI_ARESETN] [get_bd_pins mdm_1/S_AXI_ARESETN] [get_bd_pins microblaze_0_axi_periph/M00_ARESETN] [get_bd_pins microblaze_0_axi_periph/M01_ARESETN] [get_bd_pins microblaze_0_axi_periph/M02_ARESETN] [get_bd_pins microblaze_0_axi_periph/M03_ARESETN] [get_bd_pins microblaze_0_axi_periph/M04_ARESETN] [get_bd_pins microblaze_0_axi_periph/M05_ARESETN] [get_bd_pins microblaze_0_axi_periph/M06_ARESETN] [get_bd_pins microblaze_0_axi_periph/M07_ARESETN] [get_bd_pins microblaze_0_axi_periph/M08_ARESETN] [get_bd_pins microblaze_0_axi_periph/M09_ARESETN] [get_bd_pins microblaze_0_axi_periph/M10_ARESETN] [get_bd_pins microblaze_0_axi_periph/S00_ARESETN] [get_bd_pins system_reset/peripheral_aresetn]
   connect_bd_net -net sysclk_1 [get_bd_ports sysclk] [get_bd_pins Lpc_to_AXI_prodcons_0/sysclk]
   connect_bd_net -net sysrst_1 [get_bd_ports sysrst] [get_bd_pins Lpc_to_AXI_prodcons_0/sysrst]
+  connect_bd_net -net system_pll_clk125MHz [get_bd_pins axi_ethernet_0/gtx_clk] [get_bd_pins system_pll/clk125MHz]
   connect_bd_net -net system_pll_clk200MHz [get_bd_pins rpc2_ctrl_controller_0/rpc_clk200MHz] [get_bd_pins system_pll/clk200MHz]
   connect_bd_net -net system_pll_clk50MHz_io [get_bd_ports ncsi_clk] [get_bd_pins system_pll/clk50MHz_io]
   connect_bd_net -net system_pll_clkHyperRam [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz] [get_bd_pins system_pll/clkHyperRam]
