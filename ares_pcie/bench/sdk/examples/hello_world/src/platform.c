@@ -34,7 +34,6 @@
 #include "xil_cache.h"
 
 #include "platform_config.h"
-#include "hyperbusi.h"
 
 /*
  * Uncomment one of the following two lines, depending on the target,
@@ -89,19 +88,6 @@ init_uart()
     /* Bootrom/BSP configures PS7/PSU UART to 115200 bps */
 }
 
-
-// Initialize the HyperRam memory controller
-void init_rpc2_ctrl()
-{
-    // Set the MCR register (DEVTYPE = Hyperram)
-	UINTPTR p_mcr = (UINTPTR)XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR + 0x20;
-	Xil_Out32(p_mcr, 0x00000010);
-
-    // Set the MTR register (Latency = 6 clock cycles)
-    UINTPTR p_mtr   = (UINTPTR)XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR + 0x30;
-    Xil_Out32(p_mtr, 0x00000001);
-}
-
 void
 init_platform()
 {
@@ -116,7 +102,6 @@ init_platform()
     /* psu_init();*/
     enable_caches();
     init_uart();
-    init_rpc2_ctrl();
 }
 
 void

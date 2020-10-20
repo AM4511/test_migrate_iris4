@@ -33,6 +33,7 @@
 #include "xparameters.h"
 #include "xil_cache.h"
 #include "xil_io.h"
+
 #include "platform_config.h"
 
 #ifdef STDOUT_IS_16550
@@ -73,8 +74,8 @@ disable_caches()
 void init_rpc2_ctrl()
 {
     // Set the MCR register (DEVTYPE = Hyperram)
-	UINTPTR p_mcr = (UINTPTR)XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR + 0x20;
-	Xil_Out32(p_mcr, 0x00000010);
+    UINTPTR p_mcr = (UINTPTR)XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR + 0x20;
+    Xil_Out32(p_mcr, 0x00000010);
 
     // Set the MTR register (Latency = 6 clock cycles)
     UINTPTR p_mtr   = (UINTPTR)XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR + 0x30;

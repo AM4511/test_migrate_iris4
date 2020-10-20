@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>hyperram_test</name>
-	<comment>Created by SDK v2019.1. hello_world_bsp - microblaze_0</comment>
+	<comment>Created by SDK v2019.1. ares_pcie_bsp - microblaze_0</comment>
 	<projects>
-		<project>hello_world_bsp</project>
+		<project>ares_pcie_bsp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
