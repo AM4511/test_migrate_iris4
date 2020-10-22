@@ -6,7 +6,7 @@
 # 
 # write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
 # write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
-#
+# write_bd_tcl -force D:/work/iris4/ares_pcie/backend/system_pcie_hyperram_dbg.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -58,7 +58,8 @@ set XDC_DIR            ${BACKEND_DIR}
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_dbg.tcl
 #set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/mb_system_pcie.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 #set UTIL_LIB           ${BACKEND_DIR}/util_lib.tcl
