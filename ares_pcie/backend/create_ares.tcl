@@ -5,8 +5,6 @@
 # Example      : source $env(IRIS4)/ares_pcie/backend/create_ares.tcl
 # 
 # write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
-# write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
-# write_bd_tcl -force D:/work/iris4/ares_pcie/backend/system_pcie_hyperram_dbg.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -21,14 +19,17 @@ puts "Running ${myself}"
 #			  * FPGA_ID         = 0x11  (IrisGTX PCIe, Artix7 - A50-1L)
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
 #         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
+#
 # 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
 #         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
 #         
-		   
+# 0.0.5 :
+#
+
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 4
+set FPGA_SUB_MINOR_VERSION 5
 
 
 set BASE_NAME  ares_xc7a50t
@@ -48,7 +49,6 @@ set WORKDIR     $env(IRIS4)/ares_pcie
 
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
-#set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 set VIVADO_DIR   D:/vivado
 set BACKEND_DIR  ${WORKDIR}/backend
 set TCL_DIR      ${BACKEND_DIR}
@@ -62,10 +62,7 @@ set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_dbg.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/mb_system_pcie.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
-#set UTIL_LIB           ${BACKEND_DIR}/util_lib.tcl
 
 
 set SYNTH_RUN "synth_1"
@@ -206,10 +203,12 @@ report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PR
 report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 close_design
 
+
 ################################################
 # Generate firmware file
 ################################################
 source ${FIRMWARE_SCRIPT}
+
 
 ################################################
 # Generate hdf file

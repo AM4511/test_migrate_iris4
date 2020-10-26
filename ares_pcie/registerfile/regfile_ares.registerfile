@@ -224,6 +224,20 @@
       </fields>
     </registers>
   </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="axi_window" baseAddress="100" endAddress="13C" useMultiples="true" numberOfMultiples="4">
+    <registers name="ctrl" alias="PCIe Bar 0 start address">
+      <fields name="enable"/>
+    </registers>
+    <registers name="pci_bar0_start" alias="PCIe Bar 0 window start offset" offsetFromParent="4">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="pci_bar0_stop" alias="PCIe Bar 0 window stop offset" offsetFromParent="8">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="axi_translation" alias="Axi offset translation" description="32 bits window offset in the axi space" offsetFromParent="C">
+      <fields name="value" size="32" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+  </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="IO" description="This sections are for IO banks used to interface to external world.&#xD;&#xA;Bank0 is UserInput&#xD;&#xA;Bank1 is UserOutput" baseAddress="200" endAddress="2FC" useMultiples="true" totalSize="32" useTotalSize="true">
     <registers name="CAPABILITIES_IO" description="This register identfies this block as a IO block for software automatic feature detection mechanism">
       <fields name="IO_ID" description="This identifies an input and/or output bank. &#xD;&#xA;&#xD;&#xA;This is a Legacy module. The FREV field has been removed to made the ID larger (8 bits). If for an unknown reason this module have to be modified, change the ID to a new one, and add new functionnality." lsb="24" size="8" valueAtReset="10" readWrite="false" staticVal="true"/>
