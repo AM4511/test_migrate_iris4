@@ -68,16 +68,16 @@ create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
 #set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay 3.050 [get_ports {hb_dq[*]}]
 
 #methode propre, delai d'invalidite autour du hb_rwds
-set_input_delay -clock VIRT_CLK -max 0.45 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -min -0.45 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 0.45 [get_ports {hb_dq[*]}]
-set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay -0.45 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -max 0.450 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -min -0.450 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -max -add_delay 0.450 [get_ports {hb_dq[*]}]
+set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay -0.450 [get_ports {hb_dq[*]}]
 #methode propre, on retarde rwds pour sampler, il faut donc clocker le data de 0 ns avec la clock de 0 ns, puis enlever les paths impossibles
-set_multicycle_path 0 -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+set_multicycle_path -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0
 set_false_path -setup -rise_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
 set_false_path -setup -fall_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
 #methode propre, correction pour le hold
-set_multicycle_path -1 -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK]
+set_multicycle_path -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] -1
 set_false_path -hold -rise_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
 set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
 
@@ -104,7 +104,7 @@ set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_C
 # gen_clock_name is the name of forwarded clock here. It should be used below for defining "fwclk".
 create_generated_clock -name RPC_CK -source [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/io_oddr_ck/ODDR_inst/C] -multiply_by 1 -invert [get_ports hb_ck]
 
-#set fwclk        RPC_CK;     # forwarded clock name (generated using create_generated_clock at output clock port)        
+#set fwclk        RPC_CK;     # forwarded clock name (generated using create_generated_clock at output clock port)
 #set tsu_r        1.000;      # destination device setup time requirement for rising edge
 #set thd_r        1.000;      # destination device hold time requirement for rising edge
 #set tsu_f        1.000;      # destination device setup time requirement for falling edge
@@ -113,18 +113,17 @@ create_generated_clock -name RPC_CK -source [get_pins ares_pb_i/ares_pb_i/rpc2_c
 #set trce_dly_min 0.000;      # minimum board trace delay
 #set output_ports {hb_dq[*]}; # list of output ports
 
-# Output Delay Constraints 
+# Output Delay Constraints
 # le input setup et hold sur la ram varie en fonction de la requence d'operation
 # a 100 MHz:
 #set hbram_setup_hold 1.000
 # a 133 MHz:
 #set hbram_setup_hold 0.800
 # a 166 MHz:
-set hbram_setup_hold 0.600
-set_output_delay -clock RPC_CK -max $hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -min -$hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -clock_fall -max -add_delay $hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
-set_output_delay -clock RPC_CK -clock_fall -min -add_delay -$hbram_setup_hold [get_ports {hb_dq[*] hb_rwds}]
+set_output_delay -clock RPC_CK -max 0.600 [get_ports {{hb_dq[*]} hb_rwds}]
+set_output_delay -clock RPC_CK -min -0.600 [get_ports {{hb_dq[*]} hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -max -add_delay 0.600 [get_ports {{hb_dq[*]} hb_rwds}]
+set_output_delay -clock RPC_CK -clock_fall -min -add_delay -0.600 [get_ports {{hb_dq[*]} hb_rwds}]
 
 # RDS_CLK est la strobe utilise en input. Elle ne doit pas etre utilise pour clocker sa propre pin
 set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
@@ -134,11 +133,10 @@ set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
 #report_timing -fall_to [get_ports $output_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_ddr_out_fall -file src_sync_ddr_out_fall.txt;
 
 
+
+# Exceptions
 set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_Meta_reg/PRE]
 set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/reset_clk90_reg/PRE]
 
-
-
-#relaxer le timing a partir des registres Base Adress qui sont statique en operation normale.
-set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 2
-set_multicycle_path -from [get_pins {ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_sync_to_memclk/reg_mbr?_reg[?]/C}] 1 -hold
+# Max delay to the input fifo write_enable pin
+set_max_delay -from [get_pins  ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/rds_valid_delayed_reg/C] 1.5

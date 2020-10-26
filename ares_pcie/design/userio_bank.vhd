@@ -105,6 +105,12 @@ begin
     end process;
   end generate;
 
+  -- [AM] Fixed below. Vivado failed when regfile.IO_PIN.Pin_value not connected
+  rb_no_input_gen: if input_active = FALSE generate
+    regfile.IO_PIN.Pin_value <= (others => '0');
+  end generate;
+
+
   ---------------------
   -- IO_OUT Register --
   ---------------------

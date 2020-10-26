@@ -2,6 +2,9 @@
 # Add HDL source files
 ################################################
 set FILE_LIST [list \
+  [file normalize "${IPCORES_DIR}/common/design/mtxSCFIFO.vhd"]\
+  [file normalize "${SRC_DIR}//tlp_completion.vhd"]\
+  [file normalize "${SRC_DIR}//tlp_to_axi_master.vhd"]\
   [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/pcie_7x/pcie_7x.xci"]\
   [file normalize "${LOCAL_IP_DIR}/xil_cores_artix7/xil_pcie_reg_fifo/xil_pcie_reg_fifo.xci"]\
   [file normalize "${SRC_DIR}/osirispak.vhd"]\

@@ -6,7 +6,7 @@
 # 
 # write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
 # write_bd_tcl -force ${AXI_SYSTEM_BD_FILE}
-#
+# write_bd_tcl -force D:/work/iris4/ares_pcie/backend/system_pcie_hyperram_dbg.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -21,10 +21,14 @@ puts "Running ${myself}"
 #			  * FPGA_ID         = 0x11  (IrisGTX PCIe, Artix7 - A50-1L)
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
 #         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
-#		   
+# 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
+#         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
+#         Open a new BAR on PCIE and connect the tlp_to_aximaster
+#         
+		   
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_SUB_MINOR_VERSION 4
 
 
 set BASE_NAME  ares_xc7a50t
@@ -58,6 +62,8 @@ set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_dbg.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/mb_system_pcie.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 #set UTIL_LIB           ${BACKEND_DIR}/util_lib.tcl
 
@@ -130,7 +136,7 @@ regenerate_bd_layout
 
 
 ## Create the Wrapper file
-set BD_FILE [get_files "*ares_pb.bd"]
+set BD_FILE [get_files "ares_pb.bd"]
 set BD_WRAPPER_FILE [make_wrapper -files [get_files "$BD_FILE"] -top]
 add_files -norecurse -force $BD_WRAPPER_FILE
 
