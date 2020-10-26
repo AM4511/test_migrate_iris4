@@ -78,7 +78,7 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	WriteSPI_Bit(0x3800, 0, 1);
 
 	read = ReadSPI(0x3800);
-	if (read == 0x31)
+	if (read == 0x31 || read == 0x33)
 		printf("XGS sequencer enable!!!\n\n\n");
 
 	// Par defaut XGS mets une latence de UN frame pour les registre OFFSET_LAT_COMP et GAIN_LAT_COMP, nous les ecritures registres sont allignees au EO_FOT
@@ -157,7 +157,7 @@ void CXGS_Ctrl::XGS_SetConfigFPGA(void) {
 
 	// Set FPGA COlor Configuration
 	sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_COLOR = SensorParams.IS_COLOR;
-	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
+	rXGSptr.ACQ.SENSOR_CTRL.u32            = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 
 }

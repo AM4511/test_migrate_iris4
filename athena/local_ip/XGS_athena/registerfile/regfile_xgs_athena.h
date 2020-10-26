@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x6AADD448
+* Register file CRC32 : 0x1366738E
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -66,13 +66,15 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_ANA_ADDRESS            0x1A4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_Y_START_ADDRESS         0x1A8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_Y_SIZE_ADDRESS          0x1AC
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_START_ADDRESS        0x1B0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_SIZE_ADDRESS         0x1B4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_M_LINES_ADDRESS             0x1B8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GR_ADDRESS               0x1BC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_ADDRESS               0x1C0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_ADDRESS                0x1C4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_ADDRESS                0x1C8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_G_ADDRESS          0x1CC
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_ADDRESS         0x1D0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_ADDRESS           0x1D8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_ADDRESS            0x1DC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
@@ -893,50 +895,13 @@ typedef union
 
    struct
    {
-      M_UINT32 Y_SIZE   : 10;  /* Bits(9:0), Y SIZE */
-      M_UINT32 RESERVED : 6;   /* Bits(15:10), null */
-      M_UINT32 RSVD0    : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 Y_SIZE                 : 10;  /* Bits(9:0), Y SIZE */
+      M_UINT32 RESERVED               : 6;   /* Bits(15:10), null */
+      M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[2] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_Y_SIZE_TYPE;
-
-
-/**************************************************************************
-* Register name : SENSOR_ROI2_Y_START
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 Y_START  : 10;  /* Bits(9:0), Y START */
-      M_UINT32 RESERVED : 6;   /* Bits(15:10), null */
-      M_UINT32 RSVD0    : 16;  /* Bits(31:16), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_START_TYPE;
-
-
-/**************************************************************************
-* Register name : SENSOR_ROI2_Y_SIZE
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 Y_SIZE   : 10;  /* Bits(9:0), Y SIZE */
-      M_UINT32 RESERVED : 6;   /* Bits(15:10), null */
-      M_UINT32 RSVD0    : 16;  /* Bits(31:16), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_SIZE_TYPE;
 
 
 /**************************************************************************
@@ -1027,13 +992,91 @@ typedef union
 
    struct
    {
-      M_UINT32 DP_OFFSET_B            : 12;  /* Bits(11:0), null */
-      M_UINT32 RESERVED               : 4;   /* Bits(15:12), null */
-      M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[5] ;      /* Reserved space below */
+      M_UINT32 DP_OFFSET_B : 12;  /* Bits(11:0), null */
+      M_UINT32 RESERVED    : 4;   /* Bits(15:12), null */
+      M_UINT32 RSVD0       : 16;  /* Bits(31:16), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE;
+
+
+/**************************************************************************
+* Register name : SENSOR_GAIN_DIG_G
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DG_FACTOR_GB : 7;   /* Bits(6:0), null */
+      M_UINT32 RESERVED0    : 1;   /* Bits(7:7), null */
+      M_UINT32 DG_FACTOR_GR : 7;   /* Bits(14:8), null */
+      M_UINT32 RESERVED1    : 1;   /* Bits(15:15), null */
+      M_UINT32 RSVD0        : 16;  /* Bits(31:16), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_G_TYPE;
+
+
+/**************************************************************************
+* Register name : SENSOR_GAIN_DIG_RB
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 DG_FACTOR_B            : 7;   /* Bits(6:0), null */
+      M_UINT32 RESERVED0              : 1;   /* Bits(7:7), null */
+      M_UINT32 DG_FACTOR_R            : 7;   /* Bits(14:8), null */
+      M_UINT32 RESERVED1              : 1;   /* Bits(15:15), null */
+      M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_TYPE;
+
+
+/**************************************************************************
+* Register name : FPGA_ROI_X_START
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 X_START : 13;  /* Bits(12:0), X START */
+      M_UINT32 RSVD0   : 19;  /* Bits(31:13), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_TYPE;
+
+
+/**************************************************************************
+* Register name : FPGA_ROI_X_SIZE
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 X_SIZE : 13;  /* Bits(12:0), X SIZE */
+      M_UINT32 RSVD0  : 19;  /* Bits(31:13), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_TYPE;
 
 
 /**************************************************************************
@@ -1863,13 +1906,15 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_ANA_TYPE        SENSOR_GAIN_ANA;         /* Address offset: 0xa4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_Y_START_TYPE     SENSOR_ROI_Y_START;      /* Address offset: 0xa8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI_Y_SIZE_TYPE      SENSOR_ROI_Y_SIZE;       /* Address offset: 0xac */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_START_TYPE    SENSOR_ROI2_Y_START;     /* Address offset: 0xb0 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_ROI2_Y_SIZE_TYPE     SENSOR_ROI2_Y_SIZE;      /* Address offset: 0xb4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_M_LINES_TYPE         SENSOR_M_LINES;          /* Address offset: 0xb8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GR_TYPE           SENSOR_DP_GR;            /* Address offset: 0xbc */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_GB_TYPE           SENSOR_DP_GB;            /* Address offset: 0xc0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_R_TYPE            SENSOR_DP_R;             /* Address offset: 0xc4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xc8 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_G_TYPE      SENSOR_GAIN_DIG_G;       /* Address offset: 0xcc */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_TYPE     SENSOR_GAIN_DIG_RB;      /* Address offset: 0xd0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_TYPE       FPGA_ROI_X_START;        /* Address offset: 0xd8 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_TYPE        FPGA_ROI_X_SIZE;         /* Address offset: 0xdc */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */

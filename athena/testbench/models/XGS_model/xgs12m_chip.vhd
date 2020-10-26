@@ -369,6 +369,9 @@ architecture behaviour of xgs12m_chip is
   signal nested_readout    : std_logic;
   signal x_subsampling     : std_logic;
   signal y_subsampling     : std_logic;
+  signal x_subsampling_DB  : std_logic;
+  signal y_subsampling_DB  : std_logic;
+
   signal y_reversed        : std_logic;
   signal swap_top_bottom   : std_logic;
   signal sequencer_enable  : std_logic;
@@ -495,8 +498,8 @@ begin
       cmc_patgen_en   => cmc_patgen_en,
       active_ctxt     => active_ctxt,
       nested_readout  => nested_readout,
-      x_subsampling   => x_subsampling,
-      y_subsampling   => y_subsampling,
+      x_subsampling   => x_subsampling_DB,
+      y_subsampling   => y_subsampling_DB,
       y_reversed      => y_reversed,
       swap_top_bottom => swap_top_bottom,
 
@@ -974,6 +977,8 @@ begin
     frame_length_DB <= frame_length;
     roi_size_DB     <= roi_size;
     roi_start_DB    <= roi_start;
+	x_subsampling_DB<= x_subsampling;
+    y_subsampling_DB<= y_subsampling;
   --end if;
   end process;
 

@@ -94,6 +94,7 @@ signal frame           : t_frame_type;
 signal frame_nxt       : std_logic;
 signal frame_valid     : std_logic;
 signal line_count      : integer range 0 to 2**16-1;
+signal line_count_out_mux      : integer range 0 to 2**16-1;
 signal frame_count_int : std_logic_vector(7 downto 0);
 type t_debug_frame_line is array(0 to 31) of std_logic_vector(11 downto 0);
 signal debug_frame_line0: t_debug_frame_line;
@@ -188,7 +189,7 @@ Create_XGS_Image : process(xgs_model_GenImage)
              random1 := 16#00D#;
           elsif(j<4136) then           --Interpolation+valid    
             if(test_pattern_mode="000") then 		  
-              random1 := rand_int(0, 4095);                 -- random
+              random1 := rand_int(0, 1023)*4;               -- random 10 bits msb
             elsif(test_pattern_mode="001") then 
 			  random1 :=  (line_count+j-32) mod 4096;	    -- ramp 12 bits 
             else			  
@@ -255,7 +256,7 @@ begin
     else
       if(frame_valid='0' and trigger_int='1') then
         frame_valid <= '1';
-      elsif(line_count = to_integer(unsigned(frame_length)) + roi_start )then
+      elsif(line_count >= to_integer(unsigned(frame_length)) + roi_start )then
         frame_valid <= '0';
       else
         frame_valid <= frame_valid;  
@@ -289,35 +290,42 @@ begin
       else
         frame(1)(j) <= X"EB5";
       end if;		  
-    end loop; 
- 
+    end loop;  
       
   end if;
 end process FRAME_CONTENT;
+
+
 
 LINE_COUNT_PROC : process(dataline_nxt, frame_valid)
 begin
   frame_nxt <= '0';
   if frame_valid = '0' then
-    --line_count     <= 0;
-    line_count     <= roi_start;
-    
+    line_count          <= roi_start;  --utilise pour load image : linecount= roi_start => ligne embedded frame(0), les autres frame(1) : lignes valides 
+    line_count_out_mux  <= roi_start;  --utilise pour le mux d'ouput: ligne paire/impaire : la ligne embedded toujours paire! (support subsampling!)
   --jmansill
-  elsif(slave_triggered_mode='1' and dataline_nxt='1') then 
-    if line_count = to_integer(unsigned(frame_length) + roi_start) then
-      frame_nxt  <= '0';
-      line_count <= 0;  --ici on va rester a length+1
-    else      
-      line_count <= line_count + 1;
-    end if;
-    
-  elsif(slave_triggered_mode='0' and  dataline_nxt = '1') then
-    if line_count = to_integer(unsigned(frame_length) + roi_start) then
-      frame_nxt  <= '1';
-      line_count <= 0;
-    else      
-      line_count <= line_count + 1;
-    end if;
+  elsif(dataline_nxt='1') then 
+    if line_count >= to_integer(unsigned(frame_length) + roi_start) then
+      if(slave_triggered_mode='0') then
+	    frame_nxt          <= '1';      --trig next frame if master mode
+	  else
+	  	frame_nxt          <= '0';
+      end if; 
+      line_count         <= 0;  
+      line_count_out_mux <= 0;  
+    else
+	  if(line_count= roi_start) then   --if embedded, then go to first line of frame line_count=0 is embedded line
+        line_count         <= roi_start+1 ;
+        line_count_out_mux <= roi_start+1 ;
+	  else
+	    line_count_out_mux <= line_count_out_mux + 1; -- for outmux increment always +1 (pour ne pas perdre info ligne paire ou impaire)
+	    if(y_subsampling='0') then      
+          line_count <= line_count + 1;
+	    else 
+          line_count <= line_count + 2;	  
+        end if;	
+	  end if;	
+    end if;  
   end if;
    
 end process LINE_COUNT_PROC;
@@ -334,8 +342,7 @@ begin
   --order data lines according to data sent on HiSPi data lanes as specified by the silicon.
   for j in 0 to 2*G_NUM_PHY-1 loop
     for i in 0 to G_PXL_PER_COLRAM-1 loop
-      --if line_count = 0 then
-      if line_count = roi_start then       
+      if line_count_out_mux = roi_start then       
        case frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";   -- il y a t'il une raison pq le pixel0 est converti a 1 ici?????
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
@@ -344,7 +351,7 @@ begin
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;        
-      elsif (line_count mod 2 = 0) then
+      elsif (line_count_out_mux mod 2 = 0 ) then  --Ligne paire
         case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
@@ -353,7 +360,7 @@ begin
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
         end case;
-      else 
+      else                                          --Ligne impaire
  	    case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
           when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
           when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);

@@ -239,7 +239,8 @@ module testbench();
 	Cscoreboard #(.AXIS_DATA_WIDTH(AXIS_DATA_WIDTH), .AXIS_USER_WIDTH(AXIS_USER_WIDTH)) scoreboard;
 	CImage XGS_imageSRC;
 	CImage XGS_image;
-	
+	CImage XGS_imageDPC;
+
 	// Define the interfaces
 	axi_lite_interface #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH)) pcie_axi(pcie_clk);
 	axi_stream_interface #(.T_DATA_WIDTH(AXIS_DATA_WIDTH), .T_USER_WIDTH(AXIS_USER_WIDTH)) tx_axis(pcie_clk, pcie_reset_n);
@@ -627,7 +628,7 @@ module testbench();
 		scoreboard = new(tx_axis);
 		XGS_imageSRC   = new();
 		XGS_image      = new();
-	
+		XGS_imageDPC   = new();
 		
 		fork
 			// Start the scorboard
@@ -650,11 +651,20 @@ module testbench();
 				int EXP_FOT_TIME;
 				int reg_value;
 
+				int MODEL_X_START;
+				int MODEL_X_END;
+				
+				int ROI_X_START;
+				int ROI_X_SIZE;
+                int ROI_X_END;
 				int ROI_Y_START;
 				int ROI_Y_SIZE;
+                int ROI_Y_END;
+                int SUB_X;
+				int SUB_Y; 
 
-				int ROI_X_START;
-				int ROI_X_END;
+                int REG_DPC_PATTERN0_CFG;
+                int DPC_PATTERN;
 
 				//int EXPOSURE=50;
 				int KEEP_OUT_TRIG_START_sysclk;
@@ -675,10 +685,10 @@ module testbench();
 				int monitor_2_reg;
 
 				int test_nb_images;
-
+                
 				test_nb_images=0;
 				fstart = 'hA0000000;
-				line_size = P_ROI_WIDTH + 2*P_INTERPOLATION;
+				line_size = P_ROI_WIDTH;
 				line_pitch = 'h2000;
 
 
@@ -800,7 +810,7 @@ module testbench();
 					$display("XGS Model ID detected is 0x358, XGS5M");
 				end
 				else begin
-					$error("XGS Model ID detected is %d", data_rd);
+					$error("XGS Model ID detected is %0d", data_rd);
 				end
 
 
@@ -927,8 +937,11 @@ module testbench();
 				///////////////////////////////////////////////////
 				// XGS Controller : Subsampling
 				///////////////////////////////////////////////////
-				$display("  5.6 Write SENSOR_SUBSAMPLING register @0x%h", SENSOR_SUBSAMPLING_OFFSET);
-				host.write(SENSOR_SUBSAMPLING_OFFSET, 0);
+				//$display("  5.6 Write SENSOR_SUBSAMPLING register @0x%h", SENSOR_SUBSAMPLING_OFFSET);
+				//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h8); //SUBY
+				//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h1); //SUBX
+				//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h9); //SUBX+Y
+				host.write(SENSOR_SUBSAMPLING_OFFSET, 0); //NO SUB
 
 
 				///////////////////////////////////////////////////
@@ -1031,92 +1044,148 @@ module testbench();
 				//   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
 				//				
 				//--------------------------------------------------
-				GenImage_XGS(2);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog
-				XGS_imageSRC.reduce_bit_depth();                     // Converti Image 14bpp a 8bpp (LSR 4)        		
-				
+				//GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
+				GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog			
 
 				///////////////////////////////////////////////////
 				// Program X Origin of valid data, in HiSPI
 				///////////////////////////////////////////////////
 				// X origin 
-				//ROI_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
-				//ROI_X_END    = ROI_X_START+4096-1;              			
-//				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
-//				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1;              			
-				ROI_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + 0;
-				ROI_X_END    = ROI_X_START+P_ROI_WIDTH-1 + 2*P_INTERPOLATION;              			
-				reg_value = (ROI_X_END<<16) + ROI_X_START;
+				//MODEL_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
+				//MODEL_X_END    = MODEL_X_START+4096-1;  
+				
+				//Image centree max 4096             			
+				//MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
+				//MODEL_X_END    = MODEL_X_START+P_ROI_WIDTH-1;              			
+				
+				//Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
+				MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
+				MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;              			
+				
+				reg_value = (MODEL_X_END<<16) + MODEL_X_START;
 				host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 
 
                 ///////////////////////////////////////////////////
 				// DPC
 				///////////////////////////////////////////////////
-	            host.write(DPC_LIST_CTRL, 0);
-				host.write(DPC_LIST_CTRL, (0<<15)+(1<<13) );     //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
-            
+	            REG_DPC_PATTERN0_CFG = 1;
 
-                for (i = 0; i < 8; i++)
-	            begin
-	            	host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
-	            	host.write(DPC_LIST_DATA1, (i<<16)+i);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-	            	host.write(DPC_LIST_DATA2,  0);                              // DPC_LIST_CORR_PATTERN = 0;
-	            	host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
+				host.write(DPC_LIST_CTRL, 0);
+				host.write(DPC_LIST_CTRL, (0<<15)+(1<<13) );                    //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
+
+            	DPC_PATTERN = 85; 
+                for (i = 0; i < 16; i++)
+	            begin				
+					host.write(DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+					host.write(DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            	host.write(DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+	            	host.write(DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+					
+					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
 				end
-                host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<13) +  i );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
-                host.write(DPC_LIST_CTRL,  (8<<16) + (0<<15)+(1<<14) + (1<<13) +  i );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
-                 
-				// Sigle pixel correction (bypassed) 
-	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + 0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD
-	            //host.write(DPC_LIST_DATA1, (2<<16)+2);                       // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-	            //host.write(DPC_LIST_DATA2,  85);                             // DPC_LIST_CORR_PATTERN = 0;
-	            //host.write(DPC_LIST_CTRL,  (0<<15)+(1<<13) + (1<<12) + 0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + SS            
-                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<13) +  0 );            // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT
-                //host.write(DPC_LIST_CTRL,  (1<<16) + (0<<15)+(1<<14) + (1<<13) +  0 );  // DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1, DPC_LIST_ADD + DPC_LIST_COUNT + DCP ENABLE
-	            
+				
+				DPC_PATTERN  = 170;
+                for (i = 16; i < 63; i++)
+	            begin				
+					host.write(DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+					host.write(DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+	            	host.write(DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+	            	host.write(DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+					
+					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+				end
+
+                host.write(DPC_LIST_CTRL,  (i<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
+                XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
+                XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
+
+
+
+                //-------------------------------
+                // Back pressure configuration
+				//-------------------------------
+                tready_packet_delai_cfg    = 1; //random backpressure
+				tready_packet_random_min   = 1; 
+	            tready_packet_random_max   = 31;	
 
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
-				///////////////////////////////////////////////////
-                tready_packet_delai_cfg    = 1; //random backpressure
-				tready_packet_random_min   = 1; 
-	            tready_packet_random_max   = 31;				
-	           
-				ROI_Y_START = 0;    // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 4;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #0, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				///////////////////////////////////////////////////	           
+				ROI_X_START = 0;
+				ROI_X_SIZE  = P_ROI_WIDTH; // Xsize sans interpolation(pour l'instant) 
+				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
+				
+				ROI_Y_START = 4;           // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
+
+				SUB_X       = 0;
+				SUB_Y       = 1;
+
+				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
+				host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) ); 				
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 				test_nb_images++;
 
+				// Prediction	 	
 				XGS_image = XGS_imageSRC.copy;
-				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
+                XGS_image.reduce_bit_depth(10);                         // Converti Image 12bpp a 10bpp  
+				XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
+				XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
+				XGS_image.sub(SUB_X, SUB_Y);
+
+				XGS_imageDPC = XGS_image.copy;				
+				XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
+                XGS_image = XGS_imageDPC.copy;
+				XGS_imageDPC = null;				
+                 
+				XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
 				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);
 
 				
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////	
-				//ROI_Y_START = 3088;    // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 12;      // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!					
-				ROI_Y_START = 0;         // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 28;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				ROI_Y_SIZE  = 64;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				$display("IMAGE Trigger #1, Xstart=%d, Xend=%d (Xsize=%d)), Ystart=%d, Ysize=%d", ROI_X_START, ROI_X_END,  (ROI_X_END-ROI_X_START+1), ROI_Y_START, ROI_Y_SIZE);
+				ROI_X_START = 0;
+				ROI_X_SIZE  = P_ROI_WIDTH; // Xsize sans interpolation(pour l'instant) 
+				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
+				
+				ROI_Y_START = 0;             // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
+
+				SUB_X       = 0;
+				SUB_Y       = 1;
+
+				$display("IMAGE Trigger #1, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
 				host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
+				host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) ); 				
 				host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /xgs_ctrl_period));  // Exposure 50us @100mhz
 				host.write(GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
 				test_nb_images++;
 
+                // Prediction
 				XGS_image = XGS_imageSRC.copy;
-				XGS_image.crop(ROI_X_START, ROI_X_END, ROI_Y_START, (ROI_Y_START + ROI_Y_SIZE-1) );
-				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);					
-              
+                XGS_image.reduce_bit_depth(10);                         // Converti Image 12bpp a 10bpp    
+				XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
+				XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
+				XGS_image.sub(SUB_X, SUB_Y);
+
+				XGS_imageDPC = XGS_image.copy;				
+				XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
+                XGS_image = XGS_imageDPC.copy;
+				XGS_imageDPC = null;			
+
+                XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
+				scoreboard.predict_img(XGS_image, fstart, line_size, line_pitch);				
+           
 				
 				///////////////////////////////////////////////////
 				// Wait for 2 end of DMA irq event

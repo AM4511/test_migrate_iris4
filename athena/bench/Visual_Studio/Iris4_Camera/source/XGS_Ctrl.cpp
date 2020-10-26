@@ -295,11 +295,11 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 	if (f_dump_Open != TRUE)
 	{
 		f_dump_Open = TRUE;
-		f_dump = fopen("PythonDump_All_Regs.txt", "w+t");
+		f_dump = fopen("XGSDump_All_Regs.txt", "w+t");
 
 		if (f_dump == NULL)
 		{
-			printf("ERROR when trying to open file PythonDump_All_Regs.txt \n");
+			printf("ERROR when trying to open file XGSDump_All_Regs.txt \n");
 			exit(1);
 		}
 		else
@@ -323,6 +323,11 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 			}
 
 			for (int i = 0x3e0e; i < 0x3e84; i = i + 2)
+			{
+				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
+			}
+
+			for (int i = 0x4000; i < 0x7000; i = i + 2)
 			{
 				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
 			}
@@ -423,8 +428,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);
 
 		if (((DataRead & 0x7c) >> 2) == 0x18)
 			printf("XGS Resolution is 5Mp\n");
@@ -473,8 +480,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);  
 
 		if(((DataRead&0x1c)>>2) == 0)
 		  printf("XGS Resolution is 12Mp\n");
@@ -493,10 +502,18 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf("XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3)  == 1)
+		if ((DataRead & 0x3) == 1) {
 			printf("XGS is COLOR\n");
-		if ((DataRead & 0x3) == 2)
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
 			printf("XGS is MONO\n");
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
 
 		XGS12M_SetGrabParamsInit12000(6);
 		XGS12M_LoadDCF(6);
@@ -509,8 +526,10 @@ void CXGS_Ctrl::InitXGS()
 		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
+		Sleep(50);                   //Comme dans le code de onsemi
 		DataRead = ReadSPI(0x3012);
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
+		Sleep(50);  
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
 			printf("XGS Resolution is 16Mp\n");
@@ -529,10 +548,18 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf("XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3) == 1)
+		if ((DataRead & 0x3) == 1) {
 			printf("XGS is COLOR\n");
-		if ((DataRead & 0x3) == 2)
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
 			printf("XGS is MONO\n");
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
 
 		XGS16M_SetGrabParamsInit16000(6);
 		XGS16M_LoadDCF(6);
@@ -687,14 +714,25 @@ void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
 
 }
 
+
 //----------------------------------------------------
 //  setXGSDigGain    
 //----------------------------------------------------
 void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 {
-	DigGain = DigGain & 0x7f;
-	WriteSPI(0x3846, (DigGain << 8) + DigGain);
-	WriteSPI(0x3848, (DigGain << 8) + DigGain);
+	double gain_double;
+	
+	DigGain     = DigGain & 0x7f;
+	gain_double = double(DigGain / 32.0);
+	
+	// Program same gain for all components
+	// This may be used to White balance images...
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_G.f.DG_FACTOR_GB = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_G.f.DG_FACTOR_GR = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_R = DigGain;
+	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_B = DigGain;
+
+	printf("Digital gain set to 0x%X, factor is %1.5f \n", DigGain, gain_double);
 }
 
 
@@ -925,14 +963,14 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.f.Y_SIZE  = (GrabParams.Y_SIZE)/4;
 	rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32       = sXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32;
 
-	if (sXGSptr.ACQ.GRAB_CTRL.f.GRAB_ROI2_EN == 1)
-	{
-		sXGSptr.ACQ.SENSOR_ROI2_Y_START.f.Y_START = GrabParams.Y_START_ROI2/4;
-		rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32       = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
-
-		sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_SIZE2)/4;	
-		rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32        = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
-	}
+	//if (sXGSptr.ACQ.GRAB_CTRL.f.GRAB_ROI2_EN == 1)
+	//{
+	//	sXGSptr.ACQ.SENSOR_ROI2_Y_START.f.Y_START = GrabParams.Y_START_ROI2/4;
+	//	rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32       = sXGSptr.ACQ.SENSOR_ROI2_Y_START.u32;
+	//
+	//	sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.f.Y_SIZE   = (GrabParams.Y_SIZE2)/4;	
+	//	rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32        = sXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32;
+	//}
 	
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS       = GrabParams.Exposure;
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_LEV_MODE = GrabParams.EXPOSURE_LEV_MODE;
@@ -1093,8 +1131,8 @@ void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
 			fprintf(f_dump, "0x1a4\tACQ.SENSOR_GAIN_ANA      0x%08X\n", rXGSptr.ACQ.SENSOR_GAIN_ANA.u32);
 			fprintf(f_dump, "0x1a8\tACQ.SENSOR_ROI_Y_START   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_START.u32);
 			fprintf(f_dump, "0x1ac\tACQ.SENSOR_ROI_Y_SIZE    0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32);
-			fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
-			fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
+			//fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
+			//fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
 			fprintf(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
 			//fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
 			fprintf(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
