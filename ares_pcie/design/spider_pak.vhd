@@ -93,6 +93,8 @@ package body Spider_pak is
           tmp1 := tmp;
         end if;
       end loop;
+      -- Error : return -1
+      return (-1);
     end if;
   end log2;
 

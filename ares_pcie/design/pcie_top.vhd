@@ -10,9 +10,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+
 library work;
-use work.int_queue_pak.all;
+--use work.int_queue_pak.all;
 use work.pciepack.all;
+use work.regfile_ares_pack.all;
 
 
 entity pcie_top is
@@ -47,8 +49,7 @@ entity pcie_top is
     ---------------------------------------------------------------------
     int_status : in std_logic_vector;  -- pour les interrupt classique seulement
     int_event  : in std_logic_vector;  -- pour envoyer un MSI, 1 bit par vecteur
-
-    regfile : in INTERRUPT_QUEUE_TYPE;  -- definit dans int_queue_pak
+    regfile    : inout REGFILE_ARES_TYPE := INIT_REGFILE_ARES_TYPE;
 
     ---------------------------------------------------------------------
     -- Register file interface
@@ -97,7 +98,7 @@ entity pcie_top is
     ---------------------------------------------------------------------------
     -- AXI windowing
     ---------------------------------------------------------------------------
-    axi_window : inout AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
+    --axi_window : inout AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
 
     ---------------------------------------------------------------------------
     -- Write Address Channel
@@ -1582,7 +1583,7 @@ begin
       tlp_abort_cntr_init  => tlp_abort_cntr_init,
       tlp_abort_cntr_value => tlp_abort_cntr_value,
 
-      axi_window   => axi_window,
+      axi_window   => regfile.axi_window,
       axim_awready => axim_awready,
       axim_awvalid => axim_awvalid,
       axim_awid    => axim_awid,
@@ -1717,8 +1718,7 @@ begin
       queue_int_out => queue_int_status(0),
       msi_req       => msi_req(0),
       msi_ack       => msi_ack(0),
-
-      regfile => regfile,
+      regfile       => regfile.INTERRUPT_QUEUE,
 
       ---------------------------------------------------------------------
       -- transmit interface

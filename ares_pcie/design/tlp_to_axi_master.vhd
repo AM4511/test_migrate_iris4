@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.pciepack.all;
+use work.regfile_ares_pack.all;
 
 
 entity tlp_to_axi_master is

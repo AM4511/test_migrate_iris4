@@ -23,8 +23,8 @@ use UNISIM.vcomponents.all;
 
 library work;
 use work.spider_pak.all;
-use work.regfile_ares_pack.all;
 use work.pciepack.all;
+use work.regfile_ares_pack.all;
 
 entity ares_pcie is
   generic(
@@ -175,8 +175,7 @@ architecture functional of ares_pcie is
       ---------------------------------------------------------------------
       int_status : in std_logic_vector;  -- pour les interrupt classique seulement
       int_event  : in std_logic_vector;  -- pour envoyer un MSI, 1 bit par vecteur
-
-      regfile : in INTERRUPT_QUEUE_TYPE;  -- definit dans int_queue_pak
+      regfile    : inout REGFILE_ARES_TYPE := INIT_REGFILE_ARES_TYPE;
 
       ---------------------------------------------------------------------
       -- Register file interface
@@ -225,7 +224,7 @@ architecture functional of ares_pcie is
       ---------------------------------------------------------------------------
       -- AXI windowing
       ---------------------------------------------------------------------------
-      axi_window : inout AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
+      --axi_window : inout AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
 
       ---------------------------------------------------------------------------
       -- Write Address Channel
@@ -840,7 +839,7 @@ architecture functional of ares_pcie is
   signal AGENT_ACK  : std_logic_vector(1 downto 0);
   signal AGENT_DONE : std_logic_vector(1 downto 0);
 
-  signal axi_window : AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
+  --signal axi_window : AXI_WINDOW_TYPE_ARRAY := INIT_AXI_WINDOW_TYPE_ARRAY;
 
   signal host2axi_araddr   : std_logic_vector (31 downto 0);
   signal host2axi_arburst  : std_logic_vector (1 downto 0);
@@ -892,22 +891,22 @@ begin
   -- TLP_TO_AXI_MASTER : Only one 16MB window aperture pointing to the
   -- axi_quad_spi base address in IP-Integrator
   -----------------------------------------------------------------------------
-  axi_window(0).ctrl.enable           <= '1';
-  axi_window(0).pci_bar0_start.value  <= "00000000000000000000000000";
-  axi_window(0).pci_bar0_stop.value   <= "00111111111111111111111100";
-  axi_window(0).axi_translation.value <= X"45000000";  -- Static address
-                                                       -- extracted from IP-Integrator
+  -- axi_window(0).ctrl.enable           <= '1';
+  -- axi_window(0).pci_bar0_start.value  <= "00000000000000000000000000";
+  -- axi_window(0).pci_bar0_stop.value   <= "00111111111111111111111100";
+  -- axi_window(0).axi_translation.value <= X"45000000";  -- Static address
+  --                                                      -- extracted from IP-Integrator
 
 
   -----------------------------------------------------------------------------
   -- Unused windows are disabled
   -----------------------------------------------------------------------------
-  G_axi_window_unused : for i in 1 to 3 generate
-    axi_window(i).ctrl.enable           <= '0';
-    axi_window(i).pci_bar0_start.value  <= (others => '0');
-    axi_window(i).pci_bar0_stop.value   <= (others => '0');
-    axi_window(i).axi_translation.value <= (others => '0');
-  end generate G_axi_window_unused;
+  -- G_axi_window_unused : for i in 1 to 3 generate
+  --   axi_window(i).ctrl.enable           <= '0';
+  --   axi_window(i).pci_bar0_start.value  <= (others => '0');
+  --   axi_window(i).pci_bar0_stop.value   <= (others => '0');
+  --   axi_window(i).axi_translation.value <= (others => '0');
+  -- end generate G_axi_window_unused;
 
 
   -- NCSI clock output to I210 is aligned with Data but inverted  
@@ -1073,8 +1072,9 @@ begin
       ---------------------------------------------------------------------
       int_status => int_status,
       int_event  => int_event,
+      regfile    => regfile,
 
-      regfile => regfile.INTERRUPT_QUEUE,
+      -- regfile => regfile.INTERRUPT_QUEUE,
 
       ---------------------------------------------------------------------
       -- Register file interface
@@ -1090,7 +1090,7 @@ begin
       ---------------------------------------------------------------------------
       -- AXI window
       ---------------------------------------------------------------------------
-      axi_window => axi_window,
+      --axi_window => axi_window,
 
       ---------------------------------------------------------------------------
       -- Write Address Channel

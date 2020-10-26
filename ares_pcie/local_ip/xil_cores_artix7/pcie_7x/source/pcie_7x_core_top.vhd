@@ -88,7 +88,7 @@ entity pcie_7x_core_top is
 
     BAR0                                           : bit_vector := X"FFFF800C";
     BAR1                                           : bit_vector := X"FFFFFFFF";
-    BAR2                                           : bit_vector := X"FF00000C";
+    BAR2                                           : bit_vector := X"FC00000C";
     BAR3                                           : bit_vector := X"FFFFFFFF";
     BAR4                                           : bit_vector := X"00000000";
     BAR5                                           : bit_vector := X"00000000";

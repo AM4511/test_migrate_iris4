@@ -39,87 +39,87 @@ package pciepack is
   --type STD32_LOGIC_VECTOR is array (natural range <>) of std_logic_vector(31 downto 0);
 
 
-  ------------------------------------------------------------------------------------------
-  -- Register Name: ctrl
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_CTRL_TYPE is record
-    enable : std_logic;
-  end record AXI_WINDOW_CTRL_TYPE;
+  -- ------------------------------------------------------------------------------------------
+  -- -- Register Name: ctrl
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_CTRL_TYPE is record
+  --   enable : std_logic;
+  -- end record AXI_WINDOW_CTRL_TYPE;
 
-  constant INIT_AXI_WINDOW_CTRL_TYPE : AXI_WINDOW_CTRL_TYPE := (
-    enable => 'Z'
-    );
+  -- constant INIT_AXI_WINDOW_CTRL_TYPE : AXI_WINDOW_CTRL_TYPE := (
+  --   enable => 'Z'
+  --   );
 
-  -- Casting functions:
-  function to_std_logic_vector(reg       : AXI_WINDOW_CTRL_TYPE) return std_logic_vector;
-  function to_AXI_WINDOW_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_CTRL_TYPE;
+  -- -- Casting functions:
+  -- function to_std_logic_vector(reg       : AXI_WINDOW_CTRL_TYPE) return std_logic_vector;
+  -- function to_AXI_WINDOW_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_CTRL_TYPE;
 
-  ------------------------------------------------------------------------------------------
-  -- Register Name: pci_bar0_start
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_PCI_BAR0_START_TYPE is record
-    value : std_logic_vector(25 downto 0);
-  end record AXI_WINDOW_PCI_BAR0_START_TYPE;
+  -- ------------------------------------------------------------------------------------------
+  -- -- Register Name: pci_bar0_start
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_PCI_BAR0_START_TYPE is record
+  --   value : std_logic_vector(25 downto 0);
+  -- end record AXI_WINDOW_PCI_BAR0_START_TYPE;
 
-  constant INIT_AXI_WINDOW_PCI_BAR0_START_TYPE : AXI_WINDOW_PCI_BAR0_START_TYPE := (
-    value => (others => 'Z')
-    );
+  -- constant INIT_AXI_WINDOW_PCI_BAR0_START_TYPE : AXI_WINDOW_PCI_BAR0_START_TYPE := (
+  --   value => (others => 'Z')
+  --   );
 
-  -- Casting functions:
-  function to_std_logic_vector(reg                 : AXI_WINDOW_PCI_BAR0_START_TYPE) return std_logic_vector;
-  function to_AXI_WINDOW_PCI_BAR0_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_START_TYPE;
+  -- -- Casting functions:
+  -- function to_std_logic_vector(reg                 : AXI_WINDOW_PCI_BAR0_START_TYPE) return std_logic_vector;
+  -- function to_AXI_WINDOW_PCI_BAR0_START_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_START_TYPE;
 
-  ------------------------------------------------------------------------------------------
-  -- Register Name: pci_bar0_stop
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_PCI_BAR0_STOP_TYPE is record
-    value : std_logic_vector(25 downto 0);
-  end record AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+  -- ------------------------------------------------------------------------------------------
+  -- -- Register Name: pci_bar0_stop
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_PCI_BAR0_STOP_TYPE is record
+  --   value : std_logic_vector(25 downto 0);
+  -- end record AXI_WINDOW_PCI_BAR0_STOP_TYPE;
 
-  constant INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE : AXI_WINDOW_PCI_BAR0_STOP_TYPE := (
-    value => (others => 'Z')
-    );
+  -- constant INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE : AXI_WINDOW_PCI_BAR0_STOP_TYPE := (
+  --   value => (others => 'Z')
+  --   );
 
-  -- Casting functions:
-  function to_std_logic_vector(reg                : AXI_WINDOW_PCI_BAR0_STOP_TYPE) return std_logic_vector;
-  function to_AXI_WINDOW_PCI_BAR0_STOP_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+  -- -- Casting functions:
+  -- function to_std_logic_vector(reg                : AXI_WINDOW_PCI_BAR0_STOP_TYPE) return std_logic_vector;
+  -- function to_AXI_WINDOW_PCI_BAR0_STOP_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_PCI_BAR0_STOP_TYPE;
 
-  ------------------------------------------------------------------------------------------
-  -- Register Name: axi_translation
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_AXI_TRANSLATION_TYPE is record
-    value : std_logic_vector(31 downto 0);
-  end record AXI_WINDOW_AXI_TRANSLATION_TYPE;
+  -- ------------------------------------------------------------------------------------------
+  -- -- Register Name: axi_translation
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_AXI_TRANSLATION_TYPE is record
+  --   value : std_logic_vector(31 downto 0);
+  -- end record AXI_WINDOW_AXI_TRANSLATION_TYPE;
 
-  constant INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE : AXI_WINDOW_AXI_TRANSLATION_TYPE := (
-    value => (others => 'Z')
-    );
+  -- constant INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE : AXI_WINDOW_AXI_TRANSLATION_TYPE := (
+  --   value => (others => 'Z')
+  --   );
 
-  -- Casting functions:
-  function to_std_logic_vector(reg                  : AXI_WINDOW_AXI_TRANSLATION_TYPE) return std_logic_vector;
-  function to_AXI_WINDOW_AXI_TRANSLATION_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_AXI_TRANSLATION_TYPE;
-  ------------------------------------------------------------------------------------------
-  -- Section Name: axi_window
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_TYPE is record
-    ctrl            : AXI_WINDOW_CTRL_TYPE;
-    pci_bar0_start  : AXI_WINDOW_PCI_BAR0_START_TYPE;
-    pci_bar0_stop   : AXI_WINDOW_PCI_BAR0_STOP_TYPE;
-    axi_translation : AXI_WINDOW_AXI_TRANSLATION_TYPE;
-  end record AXI_WINDOW_TYPE;
+  -- -- Casting functions:
+  -- function to_std_logic_vector(reg                  : AXI_WINDOW_AXI_TRANSLATION_TYPE) return std_logic_vector;
+  -- function to_AXI_WINDOW_AXI_TRANSLATION_TYPE(stdlv : std_logic_vector(31 downto 0)) return AXI_WINDOW_AXI_TRANSLATION_TYPE;
+  -- ------------------------------------------------------------------------------------------
+  -- -- Section Name: axi_window
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_TYPE is record
+  --   ctrl            : AXI_WINDOW_CTRL_TYPE;
+  --   pci_bar0_start  : AXI_WINDOW_PCI_BAR0_START_TYPE;
+  --   pci_bar0_stop   : AXI_WINDOW_PCI_BAR0_STOP_TYPE;
+  --   axi_translation : AXI_WINDOW_AXI_TRANSLATION_TYPE;
+  -- end record AXI_WINDOW_TYPE;
 
-  constant INIT_AXI_WINDOW_TYPE : AXI_WINDOW_TYPE := (
-    ctrl            => INIT_AXI_WINDOW_CTRL_TYPE,
-    pci_bar0_start  => INIT_AXI_WINDOW_PCI_BAR0_START_TYPE,
-    pci_bar0_stop   => INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE,
-    axi_translation => INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE
-    );
+  -- constant INIT_AXI_WINDOW_TYPE : AXI_WINDOW_TYPE := (
+  --   ctrl            => INIT_AXI_WINDOW_CTRL_TYPE,
+  --   pci_bar0_start  => INIT_AXI_WINDOW_PCI_BAR0_START_TYPE,
+  --   pci_bar0_stop   => INIT_AXI_WINDOW_PCI_BAR0_STOP_TYPE,
+  --   axi_translation => INIT_AXI_WINDOW_AXI_TRANSLATION_TYPE
+  --   );
 
-  ------------------------------------------------------------------------------------------
-  -- Array type: AXI_WINDOW_TYPE
-  ------------------------------------------------------------------------------------------
-  type AXI_WINDOW_TYPE_ARRAY is array (3 downto 0) of AXI_WINDOW_TYPE;
-  constant INIT_AXI_WINDOW_TYPE_ARRAY : AXI_WINDOW_TYPE_ARRAY := (others => INIT_AXI_WINDOW_TYPE);
+  -- ------------------------------------------------------------------------------------------
+  -- -- Array type: AXI_WINDOW_TYPE
+  -- ------------------------------------------------------------------------------------------
+  -- type AXI_WINDOW_TYPE_ARRAY is array (3 downto 0) of AXI_WINDOW_TYPE;
+  -- constant INIT_AXI_WINDOW_TYPE_ARRAY : AXI_WINDOW_TYPE_ARRAY := (others => INIT_AXI_WINDOW_TYPE);
 
   ---------------------------------------------------------------------------------
   -- PCIe - Streamer constants
