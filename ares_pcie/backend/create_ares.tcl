@@ -22,6 +22,7 @@ puts "Running ${myself}"
 #			  * FPGA_BUILD_DATE = current date (epoch HEX)
 #         The RPC2_CTRL now configure the tap delay from the GUI of the ip-core
 # 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
+#         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
 #         
 		   
