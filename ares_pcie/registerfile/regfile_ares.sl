@@ -135,6 +135,21 @@ Register("mapping", 0x50, 4, "null");
 		Field("irq_io", 0, 0, "wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 %=================================================================
+% SECTION NAME	: TLP
+%=================================================================
+Section("tlp", 0, 0x70);
+
+Register("timeout", 0x70, 4, "TLP transaction timeout value");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x1DCD650, 0xffffffff, 0xffffffff, TEST, 0, 0, "TLP timeout value");
+			FieldValue("500 ms", 31250000);
+
+Register("transaction_abort_cntr", 0x74, 4, "TLP transaction abort counter");
+		Field("clr", 31, 31, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Clear transaction abort counter value");
+			FieldValue("No effect", 0);
+			FieldValue("clr the counter value to 0", 1);
+		Field("value", 30, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Counter value");
+
+%=================================================================
 % SECTION NAME	: SPI
 %=================================================================
 Section("SPI", 0, 0xe0);

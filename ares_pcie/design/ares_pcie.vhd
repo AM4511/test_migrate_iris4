@@ -869,9 +869,7 @@ architecture functional of ares_pcie is
   signal host2axi_bready   : std_logic;
   signal host2axi_bresp    : std_logic_vector (1 downto 0);
   signal host2axi_bvalid   : std_logic;
-  signal host2axi_clk      : std_logic;
   signal host2axi_rdata    : std_logic_vector (31 downto 0);
-  signal host2axi_reset_n  : std_logic;
   signal host2axi_rid      : std_logic_vector (0 to 0);
   signal host2axi_rlast    : std_logic;
   signal host2axi_rready   : std_logic;
@@ -1369,9 +1367,9 @@ begin
       host2axi_bready          => host2axi_bready,
       host2axi_bresp           => host2axi_bresp,
       host2axi_bvalid          => host2axi_bvalid,
-      host2axi_clk             => host2axi_clk,
+      host2axi_clk             => pclk,
       host2axi_rdata           => host2axi_rdata,
-      host2axi_reset_n         => host2axi_reset_n,
+      host2axi_reset_n         => preset_n,
       host2axi_rid             => host2axi_rid,
       host2axi_rlast           => host2axi_rlast,
       host2axi_rready          => host2axi_rready,

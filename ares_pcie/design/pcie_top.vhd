@@ -1021,9 +1021,9 @@ architecture functional of pcie_top is
   constant BAR2             : integer := 2;
   constant NO_BAR           : integer := 7;
 
-  signal tlp_timeout_value    : std_logic_vector(31 downto 0);
-  signal tlp_abort_cntr_init  : std_logic;
-  signal tlp_abort_cntr_value : std_logic_vector(30 downto 0);
+  --signal tlp_timeout_value    : std_logic_vector(31 downto 0);
+  -- signal tlp_abort_cntr_init  : std_logic;
+  -- signal tlp_abort_cntr_value : std_logic_vector(30 downto 0);
 
 begin
 
@@ -1579,9 +1579,9 @@ begin
       tlp_out_lower_address  => tlp_out_lower_address(AXI_AGENT_NUMBER),
 
       -- TLP Status
-      tlp_timeout_value    => tlp_timeout_value,
-      tlp_abort_cntr_init  => tlp_abort_cntr_init,
-      tlp_abort_cntr_value => tlp_abort_cntr_value,
+      tlp_timeout_value    => regfile.tlp.timeout.value,
+      tlp_abort_cntr_init  => regfile.tlp.transaction_abort_cntr.clr,
+      tlp_abort_cntr_value => regfile.tlp.transaction_abort_cntr.value,
 
       axi_window   => regfile.axi_window,
       axim_awready => axim_awready,

@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xA3F695BB
+* Register file CRC32 : 0xFB853239
 *
 * COPYRIGHT (c) 2020 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -39,6 +39,8 @@
 #define FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_LOW_ADDRESS                    0x0048
 #define FPGA_REGFILE_ARES_INTERRUPT_QUEUE_ADDR_HIGH_ADDRESS                   0x004C
 #define FPGA_REGFILE_ARES_INTERRUPT_QUEUE_MAPPING_ADDRESS                     0x0050
+#define FPGA_REGFILE_ARES_TLP_TIMEOUT_ADDRESS                                 0x0070
+#define FPGA_REGFILE_ARES_TLP_TRANSACTION_ABORT_CNTR_ADDRESS                  0x0074
 #define FPGA_REGFILE_ARES_SPI_SPIREGIN_ADDRESS                                0x00E0
 #define FPGA_REGFILE_ARES_SPI_SPIREGOUT_ADDRESS                               0x00E8
 #define FPGA_REGFILE_ARES_ARBITER_ARBITER_CAPABILITIES_ADDRESS                0x00F0
@@ -325,6 +327,41 @@ typedef union
    } f;
 
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_MAPPING_TYPE;
+
+
+/**************************************************************************
+* Register name : timeout
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 value : 32;  /* Bits(31:0), TLP timeout value */
+   } f;
+
+} FPGA_REGFILE_ARES_TLP_TIMEOUT_TYPE;
+
+
+/**************************************************************************
+* Register name : transaction_abort_cntr
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 value : 31;  /* Bits(30:0), Counter value */
+      M_UINT32 clr   : 1;   /* Bits(31:31), Clear transaction abort counter value */
+   } f;
+
+} FPGA_REGFILE_ARES_TLP_TRANSACTION_ABORT_CNTR_TYPE;
 
 
 /**************************************************************************
@@ -1536,6 +1573,15 @@ typedef struct
 } FPGA_REGFILE_ARES_INTERRUPT_QUEUE_TYPE;
 
 /**************************************************************************
+* Section name   : tlp
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_ARES_TLP_TIMEOUT_TYPE                timeout;                 /* Address offset: 0x0 */
+   FPGA_REGFILE_ARES_TLP_TRANSACTION_ABORT_CNTR_TYPE transaction_abort_cntr;  /* Address offset: 0x4 */
+} FPGA_REGFILE_ARES_TLP_TYPE;
+
+/**************************************************************************
 * Section name   : spi
 ***************************************************************************/
 typedef struct
@@ -1718,12 +1764,14 @@ typedef struct
    FPGA_REGFILE_ARES_DEVICE_SPECIFIC_TYPE    device_specific;     /* Section; Base address offset: 0x0 */
    M_UINT32                                  rsvd0[6];            /* Padding; Size (24 Bytes) */
    FPGA_REGFILE_ARES_INTERRUPT_QUEUE_TYPE    interrupt_queue;     /* Section; Base address offset: 0x40 */
-   M_UINT32                                  rsvd1[35];           /* Padding; Size (140 Bytes) */
+   M_UINT32                                  rsvd1[7];            /* Padding; Size (28 Bytes) */
+   FPGA_REGFILE_ARES_TLP_TYPE                tlp;                 /* Section; Base address offset: 0x70 */
+   M_UINT32                                  rsvd2[26];           /* Padding; Size (104 Bytes) */
    FPGA_REGFILE_ARES_SPI_TYPE                spi;                 /* Section; Base address offset: 0xe0 */
    FPGA_REGFILE_ARES_ARBITER_TYPE            arbiter;             /* Section; Base address offset: 0xf0 */
-   M_UINT32                                  rsvd2[1];            /* Padding; Size (4 Bytes) */
+   M_UINT32                                  rsvd3[1];            /* Padding; Size (4 Bytes) */
    FPGA_REGFILE_ARES_AXI_WINDOW_TYPE         axi_window[4];       /* Section; Base address offset: 0x100 */
-   M_UINT32                                  rsvd3[48];           /* Padding; Size (192 Bytes) */
+   M_UINT32                                  rsvd4[48];           /* Padding; Size (192 Bytes) */
    FPGA_REGFILE_ARES_IO_TYPE                 io[2];               /* Section; Base address offset: 0x200 */
    FPGA_REGFILE_ARES_QUADRATURE_TYPE         quadrature[1];       /* Section; Base address offset: 0x300 */
    FPGA_REGFILE_ARES_TICKTABLE_TYPE          ticktable[1];        /* Section; Base address offset: 0x380 */
@@ -1735,7 +1783,7 @@ typedef struct
    FPGA_REGFILE_ARES_MICROBLAZE_TYPE         microblaze;          /* Section; Base address offset: 0xa00 */
    FPGA_REGFILE_ARES_ANALOGOUTPUT_TYPE       analogoutput;        /* Section; Base address offset: 0xa80 */
    FPGA_REGFILE_ARES_EOFM_TYPE               eofm;                /* Section; Base address offset: 0xb00 */
-   M_UINT32                                  rsvd4[1343];         /* Padding; Size (5372 Bytes) */
+   M_UINT32                                  rsvd5[1343];         /* Padding; Size (5372 Bytes) */
    FPGA_REGFILE_ARES_PRODCONS_TYPE           prodcons[2];         /* External section; Base address offset: 0x2000 */
 } FPGA_REGFILE_ARES_TYPE;
 
