@@ -25,6 +25,7 @@ puts "Running ${myself}"
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
 #         
 # 0.0.5 : Connect the microblaze debugger directly to the memory blocks (local memory and hyperram)
+#         Debugged PCIe BAR2 accesses
 #
 
 set FPGA_MAJOR_VERSION     0
