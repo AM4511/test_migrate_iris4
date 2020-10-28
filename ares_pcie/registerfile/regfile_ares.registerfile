@@ -163,6 +163,25 @@
       </fields>
     </registers>
   </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="tlp" alias="Transaction Layer protocol" description="This section contains the registers related to the TLP transactions logic." baseAddress="70" endAddress="74">
+    <registers name="timeout" alias="TLP transaction timeout value" description="Set the time out value. &#xD;&#xA;&#xD;&#xA; When a transaction is initiate the counter is incremented at every.  Each count tick is 16 ns. The reset value is 500 ms">
+      <fields name="value" alias="TLP timeout value" description="Units are in clock tick. 1 Clock tick = 16 ns." size="32" valueAtReset="1DCD650">
+        <possibleValues>&lt;matrox_column_delimiter>value=31250000&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>500 ms&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="transaction_abort_cntr" alias="TLP transaction abort counter" description="This register calculate the number of transaction that aborted du to a transaction timeout or an internal error. This purpose of this counter is mainly for debugging. Transaction abort should not occur in normal operation.  " offsetFromParent="4">
+      <fields name="clr" alias="Clear transaction abort counter value" description="This write autoclear field reset the counter value to 0." lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>clr the counter value to 0&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="value" alias="Counter value" description="" size="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="SPI" description="Cette section est laisse ici pour faire un fichier .H unifie mais les registre sous-jacent ne sont pas implante dans le FPGA." baseAddress="E0" endAddress="EC">
     <registers name="SPIREGIN" alias="SPI Register In" useReservedSpaceBelow="true" disableReadBack="true">
       <fields name="SPI_ENABLE" alias="SPI ENABLE" description="This bit enables the Output enable of the pin of the FPGA. This is needed to put the SPI interface in hi-Z when not using it." lsb="24">
@@ -222,6 +241,20 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Ask for a device resource&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="axi_window" baseAddress="100" endAddress="13C" useMultiples="true" numberOfMultiples="4">
+    <registers name="ctrl" alias="PCIe Bar 0 start address">
+      <fields name="enable"/>
+    </registers>
+    <registers name="pci_bar0_start" alias="PCIe Bar 0 window start offset" offsetFromParent="4">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="pci_bar0_stop" alias="PCIe Bar 0 window stop offset" offsetFromParent="8">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="axi_translation" alias="Axi offset translation" description="32 bits window offset in the axi space" offsetFromParent="C">
+      <fields name="value" size="32" readOnlyMsb="1" useFieldResolution="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="IO" description="This sections are for IO banks used to interface to external world.&#xD;&#xA;Bank0 is UserInput&#xD;&#xA;Bank1 is UserOutput" baseAddress="200" endAddress="2FC" useMultiples="true" totalSize="32" useTotalSize="true">

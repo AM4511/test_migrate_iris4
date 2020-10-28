@@ -135,6 +135,21 @@ Register("mapping", 0x50, 4, "null");
 		Field("irq_io", 0, 0, "wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 %=================================================================
+% SECTION NAME	: TLP
+%=================================================================
+Section("tlp", 0, 0x70);
+
+Register("timeout", 0x70, 4, "TLP transaction timeout value");
+		Field("value", 31, 0, "rd|wr", 0x0, 0x1DCD650, 0xffffffff, 0xffffffff, TEST, 0, 0, "TLP timeout value");
+			FieldValue("500 ms", 31250000);
+
+Register("transaction_abort_cntr", 0x74, 4, "TLP transaction abort counter");
+		Field("clr", 31, 31, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Clear transaction abort counter value");
+			FieldValue("No effect", 0);
+			FieldValue("clr the counter value to 0", 1);
+		Field("value", 30, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Counter value");
+
+%=================================================================
 % SECTION NAME	: SPI
 %=================================================================
 Section("SPI", 0, 0xe0);
@@ -194,6 +209,39 @@ for(i = 0; i < 2; i++)
 		Field("req", 0, 0, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "REQuest resource");
 			FieldValue("Nothing", 0);
 			FieldValue("Ask for a device resource", 1);
+}
+
+%=================================================================
+% SECTION NAME	: AXI_WINDOW
+%=================================================================
+Section("axi_window", 0, 0x100);
+
+variable axi_windowTags = UChar_Type[4];
+
+for(i = 0; i < 4; i++)
+{
+	axi_windowTags[i] = i;
+}
+
+Group("axi_window", "DECTAG", axi_windowTags);
+
+for(i = 0; i < 4; i++)
+{
+
+	Register("ctrl", 0x100 + i*0x10, 4, "ctrl*", "axi_window", i, "PCIe Bar 0 start address");
+		Field("enable", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+	Register("pci_bar0_start", 0x104 + i*0x10, 4, "pci_bar0_start*", "axi_window", i, "PCIe Bar 0 window start offset");
+		Field("value", 25, 2, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("valuelsbRO", 1, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+	Register("pci_bar0_stop", 0x108 + i*0x10, 4, "pci_bar0_stop*", "axi_window", i, "PCIe Bar 0 window stop offset");
+		Field("value", 25, 2, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("valuelsbRO", 1, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+	Register("axi_translation", 0x10c + i*0x10, 4, "axi_translation*", "axi_window", i, "Axi offset translation");
+		Field("value", 31, 2, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("valuelsbRO", 1, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 }
 
 %=================================================================

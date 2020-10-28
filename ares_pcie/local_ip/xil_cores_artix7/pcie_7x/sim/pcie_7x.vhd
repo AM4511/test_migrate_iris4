@@ -814,7 +814,7 @@ BEGIN
       c_pcie_fast_config => 0,
       bar_0 => "FFFF800C",
       bar_1 => "FFFFFFFF",
-      bar_2 => "FF00000C",
+      bar_2 => "FC00000C",
       bar_3 => "FFFFFFFF",
       bar_4 => "00000000",
       bar_5 => "00000000",
