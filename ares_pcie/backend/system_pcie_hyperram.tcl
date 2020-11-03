@@ -454,6 +454,8 @@ proc create_root_design { parentCell } {
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
+   CONFIG.ENABLE_ADVANCED_OPTIONS {1} \
+   CONFIG.M00_HAS_DATA_FIFO {0} \
    CONFIG.NUM_MI {1} \
    CONFIG.NUM_SI {6} \
    CONFIG.SYNCHRONIZATION_STAGES {2} \
@@ -511,15 +513,18 @@ proc create_root_design { parentCell } {
   # Create instance: microblaze_0, and set properties
   set microblaze_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 microblaze_0 ]
   set_property -dict [ list \
-   CONFIG.C_ADDR_TAG_BITS {10} \
+   CONFIG.C_ADDR_TAG_BITS {11} \
+   CONFIG.C_AREA_OPTIMIZED {2} \
    CONFIG.C_CACHE_BYTE_SIZE {32768} \
-   CONFIG.C_DCACHE_ADDR_TAG {10} \
+   CONFIG.C_DCACHE_ADDR_TAG {11} \
    CONFIG.C_DCACHE_BYTE_SIZE {32768} \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
    CONFIG.C_D_LMB {1} \
    CONFIG.C_I_LMB {1} \
    CONFIG.C_RESET_MSR_EIP {0} \
+   CONFIG.C_USE_BRANCH_TARGET_CACHE {1} \
+   CONFIG.C_USE_STACK_PROTECTION {1} \
    CONFIG.G_TEMPLATE_LIST {9} \
  ] $microblaze_0
 
@@ -554,9 +559,10 @@ proc create_root_design { parentCell } {
   set rpc2_ctrl_controller_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:rpc2_ctrl_controller:1.0 rpc2_ctrl_controller_0 ]
   set_property -dict [ list \
    CONFIG.C_AXI_MEM_ADDR_WIDTH {25} \
+   CONFIG.C_AXI_MEM_ID_WIDTH {4} \
    CONFIG.C_ENABLE_WP {true} \
    CONFIG.DPRAM_MACRO_TYPE {0} \
-   CONFIG.INPUT_FIXED_DELAY {14} \
+   CONFIG.INPUT_FIXED_DELAY {11} \
  ] $rpc2_ctrl_controller_0
 
   # Create instance: system_pll, and set properties
@@ -722,11 +728,11 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xlconstant_0_dout [get_bd_pins axi_ethernet_0/mdio_mdio_i] [get_bd_pins logic_0/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_SG] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_MM2S] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_S2MM] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_SG] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_MM2S] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces axi_ethernet_0_dma/Data_S2MM] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
   create_bd_addr_seg -range 0x00008000 -offset 0x00000000 [get_bd_addr_spaces mdm_0/Data] [get_bd_addr_segs microblaze_0_local_memory/dlmb_bram_if_cntlr/SLMB1/Mem] SEG_dlmb_bram_if_cntlr_Mem
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces mdm_0/Data] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces mdm_0/Data] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
   create_bd_addr_seg -range 0x00010000 -offset 0x44A00000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs Lpc_to_AXI_prodcons_0/S00_AXI/S00_AXI_reg] SEG_Lpc_to_AXI_prodcons_0_S00_AXI_reg
   create_bd_addr_seg -range 0x00010000 -offset 0x44A10000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs Lpc_to_AXI_prodcons_1/S00_AXI/S00_AXI_reg] SEG_Lpc_to_AXI_prodcons_1_S00_AXI_reg
   create_bd_addr_seg -range 0x00040000 -offset 0x40C00000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs axi_ethernet_0/s_axi/Reg0] SEG_axi_ethernet_0_Reg0
@@ -740,8 +746,8 @@ proc create_root_design { parentCell } {
   create_bd_addr_seg -range 0x00008000 -offset 0x00000000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs microblaze_0_local_memory/dlmb_bram_if_cntlr/SLMB/Mem] SEG_dlmb_bram_if_cntlr_Mem
   create_bd_addr_seg -range 0x00008000 -offset 0x00000000 [get_bd_addr_spaces microblaze_0/Instruction] [get_bd_addr_segs microblaze_0_local_memory/ilmb_bram_if_cntlr/SLMB/Mem] SEG_ilmb_bram_if_cntlr_Mem
   create_bd_addr_seg -range 0x00001000 -offset 0x41400000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs mdm_0/S_AXI/Reg] SEG_mdm_1_Reg
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
-  create_bd_addr_seg -range 0x02000000 -offset 0x80000000 [get_bd_addr_spaces microblaze_0/Instruction] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
+  create_bd_addr_seg -range 0x04000000 -offset 0x80000000 [get_bd_addr_spaces microblaze_0/Instruction] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIm/Mem] SEG_rpc2_ctrl_controller_0_Mem
   create_bd_addr_seg -range 0x00001000 -offset 0x46000000 [get_bd_addr_spaces microblaze_0/Data] [get_bd_addr_segs rpc2_ctrl_controller_0/AXIr/reg] SEG_rpc2_ctrl_controller_0_reg
   create_bd_addr_seg -range 0x00010000 -offset 0x45000000 [get_bd_addr_spaces host2axi] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
 

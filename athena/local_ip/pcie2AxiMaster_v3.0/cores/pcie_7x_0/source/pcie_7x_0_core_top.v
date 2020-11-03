@@ -97,7 +97,7 @@ module pcie_7x_0_core_top # (
   parameter [3:0]   CPL_TIMEOUT_RANGES_SUPPORTED = 4'h2,
 
   parameter integer DEV_CAP_ENDPOINT_L0S_LATENCY = 0,
-  parameter integer DEV_CAP_ENDPOINT_L1_LATENCY = 0,
+  parameter integer DEV_CAP_ENDPOINT_L1_LATENCY = 7,
   parameter         DEV_CAP_EXT_TAG_SUPPORTED = "FALSE",
   parameter integer DEV_CAP_MAX_PAYLOAD_SUPPORTED = 1,
   parameter integer DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT = 0,
@@ -126,7 +126,7 @@ module pcie_7x_0_core_top # (
   parameter [7:0]   INTERRUPT_PIN = 8'h1,
 
   parameter [9:0]   LAST_CONFIG_DWORD = 10'h3FF,
-  parameter         LINK_CAP_ASPM_OPTIONALITY = "TRUE",
+  parameter         LINK_CAP_ASPM_OPTIONALITY = "FALSE",
   parameter         LINK_CAP_DLL_LINK_ACTIVE_REPORTING_CAP = "FALSE",
   parameter         LINK_CAP_LINK_BANDWIDTH_NOTIFICATION_CAP = "FALSE",
   parameter [3:0]   LINK_CAP_MAX_LINK_SPEED = 4'h1,

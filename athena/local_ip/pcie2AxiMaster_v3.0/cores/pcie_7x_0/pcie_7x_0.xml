@@ -3330,7 +3330,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:74f9d447</spirit:value>
+            <spirit:value>9:190b0b47</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3345,11 +3345,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:39 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:53 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:4fdc4f29</spirit:value>
+            <spirit:value>9:1ec2dafb</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3365,11 +3365,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:44 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:4fdc4f29</spirit:value>
+            <spirit:value>9:1ec2dafb</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3380,7 +3380,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:4fdc4f29</spirit:value>
+            <spirit:value>9:1ec2dafb</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3396,11 +3396,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:44 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:4fdc4f29</spirit:value>
+            <spirit:value>9:1ec2dafb</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3416,11 +3416,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:44 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:d7a7756c</spirit:value>
+            <spirit:value>9:6f9399a9</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3436,11 +3436,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:44 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:d7a7756c</spirit:value>
+            <spirit:value>9:6f9399a9</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3454,11 +3454,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Wed Sep 16 15:30:44 UTC 2020</spirit:value>
+            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:4fdc4f29</spirit:value>
+            <spirit:value>9:1ec2dafb</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -10064,11 +10064,11 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>ep_l1_accpt_lat</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ep_l1_accpt_lat">000</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.ep_l1_accpt_lat">111</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_ep_l1_accpt_lat</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_ep_l1_accpt_lat">0</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_ep_l1_accpt_lat">7</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_cpl_timeout_disable_sup</spirit:name>
@@ -10540,7 +10540,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_link_cap_aspm_optionality</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_link_cap_aspm_optionality">TRUE</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_link_cap_aspm_optionality">FALSE</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_aer_cap_on</spirit:name>
@@ -11803,7 +11803,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Acceptable_L1_Latency</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Acceptable_L1_Latency" spirit:choiceRef="choice_pairs_dbee2759" spirit:order="407">Maximum_of_1_us</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Acceptable_L1_Latency" spirit:choiceRef="choice_pairs_dbee2759" spirit:order="407">No_limit</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Cpl_Finite</spirit:name>
@@ -12243,7 +12243,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>ASPM_Optionality</spirit:name>
-      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.ASPM_Optionality" spirit:order="510">true</spirit:value>
+      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.ASPM_Optionality" spirit:order="510">false</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>AER_Enabled</spirit:name>

@@ -149,7 +149,7 @@ set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
 
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
-set_property PACKAGE_PIN V16 [get_ports hb_rwds]
+set_property PACKAGE_PIN N17 [get_ports hb_rwds]
 #deplace sur pin MRCC par jflarin
 #set_property PACKAGE_PIN N17 [get_ports hb_rwds]
 #pin negative, ne fonctionnera pas pour aller vers BUFIO, juste un test pour l'instant
@@ -312,6 +312,7 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
 
 
 
