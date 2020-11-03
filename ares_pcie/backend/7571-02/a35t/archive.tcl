@@ -1,7 +1,7 @@
 # ##################################################################################
 # File         : archive.tcl
 # Description  : TCL script used to release the hallux fpga project. 
-# Example      : source $env(IRIS4)/ares_pcie/backend/artix7/archive.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/archive.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -21,9 +21,9 @@ set top_entity_name [get_property top [current_fileset]]
 regexp xc7a([0-9]+)t [get_property part [current_project]] dummy_var device_number
 
 # Allons chercher le BUILD_ID
-set buildid_generic [lsearch -inline [get_property generic [current_fileset]] "FPGA_BUILD_DATE=*"]
-set buildid [regsub -nocase "FPGA_BUILD_DATE=" $buildid_generic "" ]
-puts stdout [format "Build date is: 0x%s" $buildid]
+set buildid_generic [lsearch -inline [get_property generic [current_fileset]] "BUILD_ID=*"]
+set buildid [regsub -nocase "BUILD_ID=" $buildid_generic "" ]
+puts stdout [format "Build date is: %s" $buildid]
 
 # Extract the FPGA Major version
 set generic [lsearch -inline [get_property generic [current_fileset]] "FPGA_MAJOR_VERSION=*"]
@@ -80,7 +80,7 @@ file mkdir $pre_release_registerfile_dir
 file mkdir $pre_release_vivado_dir
 
 # Copy SDK dir
-#file copy   -force  $SDK_DIR $pre_release_sdk_dir
+file copy   -force  $SDK_DIR $pre_release_sdk_dir
 file copy   -force  $OUTPUT_DIR $pre_release_dir
 
 # Copie du fichier de probe 

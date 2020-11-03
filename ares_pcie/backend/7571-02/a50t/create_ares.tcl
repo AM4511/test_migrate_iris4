@@ -2,9 +2,10 @@
 # File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/create_ares.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a50t/create_ares.tcl
 # 
 # write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
+#
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -27,13 +28,14 @@ puts "Running ${myself}"
 # 0.0.5 : Connect the microblaze debugger directly to the memory blocks (local memory and hyperram)
 #         Debugged PCIe BAR2 accesses
 #
-
+# 0.0.6 : New firmware name scheme. Required to support the new 7571-02 PCB (FPGA pinout modification)
+#
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 5
+set FPGA_SUB_MINOR_VERSION 6
 
 
-set BASE_NAME  ares_xc7a50t
+set BASE_NAME  ares_7571_02_a50t
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -51,7 +53,7 @@ set WORKDIR     $env(IRIS4)/ares_pcie
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
 set VIVADO_DIR   D:/vivado
-set BACKEND_DIR  ${WORKDIR}/backend
+set BACKEND_DIR  ${WORKDIR}/backend/7571-02/a50t
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}
 

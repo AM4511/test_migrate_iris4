@@ -15,13 +15,6 @@ set_property BITSTREAM.CONFIG.CONFIGFALLBACK ENABLE [current_design]
 set_property BITSTREAM.CONFIG.UNUSEDPIN Pullnone [current_design]
 
 
-# The following constraints patch bad constraint6s defined in the axi_ethernetlite
-set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlite*RX_FF_I}]
-set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlite*TX_FF_I}]
-set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlite*DVD_FF}]
-set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlite*RER_FF}]
-set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlite*TEN_FF}]
-
 #################################################################
 ## Data for the power report
 #################################################################
@@ -33,6 +26,7 @@ set_property IOB FALSE [get_cells -hierarchical -filter {NAME =~*axi_ethernetlit
 # set_property IOB FALSE [get_cells mii_interface/rx*_to_mac*reg]
 # set_property IOB FALSE [get_cells {mii_interface/rx*_to_mac*reg[*]}]
 # current_instance -quiet
+
 
 
 
