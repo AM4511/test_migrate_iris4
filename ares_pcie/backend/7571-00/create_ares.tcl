@@ -24,6 +24,7 @@ puts "Running ${myself}"
 # 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
 #         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
+#         Set pcie deviceID to 0x5055 and sub-systemID to 0x0600
 #         
 # 0.0.5 : Connect the microblaze debugger directly to the memory blocks (local memory and hyperram)
 #         Debugged PCIe BAR2 accesses

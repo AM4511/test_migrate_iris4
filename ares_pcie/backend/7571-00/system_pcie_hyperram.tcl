@@ -562,7 +562,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_AXI_MEM_ID_WIDTH {4} \
    CONFIG.C_ENABLE_WP {true} \
    CONFIG.DPRAM_MACRO_TYPE {0} \
-   CONFIG.INPUT_FIXED_DELAY {11} \
+   CONFIG.INPUT_FIXED_DELAY {14} \
  ] $rpc2_ctrl_controller_0
 
   # Create instance: system_pll, and set properties
