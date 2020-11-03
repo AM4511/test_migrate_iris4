@@ -2,11 +2,11 @@
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares_pack
--- Created on          : 2020/10/27 12:36:01
+-- Created on          : 2020/11/03 23:33:02
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xFB853239
+-- Register file CRC32 : 0x7A83C19D
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -284,12 +284,14 @@ package regfile_ares_pack is
    -- Register Name: FPGA_ID
    ------------------------------------------------------------------------------------------
    type DEVICE_SPECIFIC_FPGA_ID_TYPE is record
+      FPGA_STRAPS    : std_logic_vector(3 downto 0);
       PROFINET_LED   : std_logic;
       PB_DEBUG_COM   : std_logic;
       FPGA_ID        : std_logic_vector(4 downto 0);
    end record DEVICE_SPECIFIC_FPGA_ID_TYPE;
 
    constant INIT_DEVICE_SPECIFIC_FPGA_ID_TYPE : DEVICE_SPECIFIC_FPGA_ID_TYPE := (
+      FPGA_STRAPS     => (others=> 'Z'),
       PROFINET_LED    => 'Z',
       PB_DEBUG_COM    => 'Z',
       FPGA_ID         => (others=> 'Z')
@@ -2001,6 +2003,7 @@ package body regfile_ares_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 28) := reg.FPGA_STRAPS;
       output(12) := reg.PROFINET_LED;
       output(10) := reg.PB_DEBUG_COM;
       output(4 downto 0) := reg.FPGA_ID;
@@ -2014,6 +2017,7 @@ package body regfile_ares_pack is
    function to_DEVICE_SPECIFIC_FPGA_ID_TYPE(stdlv : std_logic_vector(31 downto 0)) return DEVICE_SPECIFIC_FPGA_ID_TYPE is
    variable output : DEVICE_SPECIFIC_FPGA_ID_TYPE;
    begin
+      output.FPGA_STRAPS := stdlv(31 downto 28);
       output.PROFINET_LED := stdlv(12);
       output.PB_DEBUG_COM := stdlv(10);
       output.FPGA_ID := stdlv(4 downto 0);
@@ -3719,11 +3723,11 @@ end package body;
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares
--- Created on          : 2020/10/27 12:36:01
+-- Created on          : 2020/11/03 23:33:02
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xFB853239
+-- Register file CRC32 : 0x7A83C19D
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -5728,6 +5732,13 @@ rb_Device_specific_BUILDID(31 downto 0) <= regfile.Device_specific.BUILDID.VALUE
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(4) <= (hit(4)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: FPGA_STRAPS(3 downto 0)
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_Device_specific_FPGA_ID(31 downto 28) <= regfile.Device_specific.FPGA_ID.FPGA_STRAPS;
+
 
 ------------------------------------------------------------------------------------------
 -- Field name: PROFINET_LED

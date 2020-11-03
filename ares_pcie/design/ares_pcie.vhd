@@ -31,8 +31,7 @@ entity ares_pcie is
     BUILD_ID        : integer := 0;     -- Generic passed in .tcl script
     SIMULATION      : integer := 0;
     PCIe_LANES      : integer := 1;
-    --FPGA_ID                   : integer := 8;                          -- Ares for y7478-00
-    FPGA_ID         : integer := 9;     -- Ares for y7478-01
+    FPGA_ID         : integer := 17;     -- 0x11 : Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
     NB_USER_IN      : integer := 4;
     NB_USER_OUT     : integer := 3;
     GOLDEN          : boolean := false;  -- le code Golden n'a pas de Microblaze
@@ -1861,6 +1860,15 @@ begin
   -- Field type: RO
   ------------------------------------------------------------------------------------------
   regfile.Device_specific.FPGA_ID.FPGA_ID <= conv_std_logic_vector(FPGA_ID, regfile.Device_specific.FPGA_ID.FPGA_ID'length);
+
+
+  ------------------------------------------------------------------------------------------
+  -- Field name  : FPGA_STRAPS(3 downto 0)
+  -- Field type  : RO
+  -- Description : Board straps. Pull-down resistors installed on the PCB,
+  --               pull-ups are FPGA internal (on the IO).  
+  ------------------------------------------------------------------------------------------
+  regfile.Device_specific.FPGA_ID.FPGA_STRAPS <= fpga_straps;
 
 
 
