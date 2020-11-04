@@ -78,6 +78,11 @@
       </fields>
     </registers>
     <registers name="FPGA_ID" offsetFromParent="20">
+      <fields name="FPGA_STRAPS" alias="FPGA Strapping" description="This read only field gives the value of 4 PCB straps (not used at the moment). Each bit of this  field is directly connect to an FPGA IO. Each IO is connected an external pull down and an FPGA internal pullup (See the 7571-XX schematics). By default only the FPGA pullups are activated, therefore the value 0xF is returned." lsb="28" size="4" valueAtReset="F" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for future use&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No strapping installed (Default value)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="PROFINET_LED" description="This bit selects if the User Leds are controlled from the FPGA memory space, controlled by the host processor, or if the User Leds are controlled by the Microblaze running Profinet stack" lsb="12">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Host processor control&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Microblaze control&lt;/matrox_column_delimiter></possibleValues>
@@ -99,8 +104,11 @@
         <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=18&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=19&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=20-31&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -159,6 +167,25 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="IRQ_IO" description="This bit indicates that an interrupt has been detected on the User Inputs." readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="tlp" alias="Transaction Layer protocol" description="This section contains the registers related to the TLP transactions logic." baseAddress="70" endAddress="74">
+    <registers name="timeout" alias="TLP transaction timeout value" description="Set the time out value. &#xD;&#xA;&#xD;&#xA; When a transaction is initiate the counter is incremented at every.  Each count tick is 16 ns. The reset value is 500 ms">
+      <fields name="value" alias="TLP timeout value" description="Units are in clock tick. 1 Clock tick = 16 ns." size="32" valueAtReset="1DCD650">
+        <possibleValues>&lt;matrox_column_delimiter>value=31250000&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>500 ms&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="transaction_abort_cntr" alias="TLP transaction abort counter" description="This register calculate the number of transaction that aborted du to a transaction timeout or an internal error. This purpose of this counter is mainly for debugging. Transaction abort should not occur in normal operation.  " offsetFromParent="4">
+      <fields name="clr" alias="Clear transaction abort counter value" description="This write autoclear field reset the counter value to 0." lsb="31" readWrite="false" writeOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>clr the counter value to 0&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="value" alias="Counter value" description="" size="31" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -222,6 +249,20 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Ask for a device resource&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="axi_window" baseAddress="100" endAddress="13C" useMultiples="true" numberOfMultiples="4">
+    <registers name="ctrl" alias="PCIe Bar 0 start address">
+      <fields name="enable"/>
+    </registers>
+    <registers name="pci_bar0_start" alias="PCIe Bar 0 window start offset" offsetFromParent="4">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="pci_bar0_stop" alias="PCIe Bar 0 window stop offset" offsetFromParent="8">
+      <fields name="value" size="26" readOnlyMsb="1" useFieldResolution="true"/>
+    </registers>
+    <registers name="axi_translation" alias="Axi offset translation" description="32 bits window offset in the axi space" offsetFromParent="C">
+      <fields name="value" size="32" readOnlyMsb="1" useFieldResolution="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="IO" description="This sections are for IO banks used to interface to external world.&#xD;&#xA;Bank0 is UserInput&#xD;&#xA;Bank1 is UserOutput" baseAddress="200" endAddress="2FC" useMultiples="true" totalSize="32" useTotalSize="true">

@@ -68,7 +68,7 @@ use xpm.vcomponents.all;
 entity pcie_7x_core_top is
   generic (
     CFG_VEND_ID                                    : std_logic_vector := X"102B";
-    CFG_DEV_ID                                     : std_logic_vector := X"5e10";
+    CFG_DEV_ID                                     : std_logic_vector := X"5055";
     CFG_REV_ID                                     : std_logic_vector := X"00";
     CFG_SUBSYS_VEND_ID                             : std_logic_vector := X"102B";
     CFG_SUBSYS_ID                                  : std_logic_vector := X"0600";
@@ -88,8 +88,8 @@ entity pcie_7x_core_top is
 
     BAR0                                           : bit_vector := X"FFFF800C";
     BAR1                                           : bit_vector := X"FFFFFFFF";
-    BAR2                                           : bit_vector := X"00000000";
-    BAR3                                           : bit_vector := X"00000000";
+    BAR2                                           : bit_vector := X"FC00000C";
+    BAR3                                           : bit_vector := X"FFFFFFFF";
     BAR4                                           : bit_vector := X"00000000";
     BAR5                                           : bit_vector := X"00000000";
 

@@ -24,7 +24,8 @@ library ieee;
   use ieee.std_logic_unsigned.all;
   use ieee.numeric_std.all;
 library work;
-  use work.int_queue_pak.all;
+  --use work.int_queue_pak.all;
+  use work.regfile_ares_pack.all;
 
 entity pcie_int_queue is
   port (
