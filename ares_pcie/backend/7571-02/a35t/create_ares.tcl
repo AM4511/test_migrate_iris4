@@ -2,14 +2,15 @@
 # File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/a35T-1/create_ares_a35t.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a35t/create_ares.tcl
 #
-# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
+#   write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-02/a35t/system_pcie_hyperram.tcl
+#
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
 
-
+# ################################################################
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : Set HyperRam freq to 125MHz, automatically generate HDF file
@@ -23,35 +24,57 @@ puts "Running ${myself}"
 # 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
 #         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
+#         Set pcie deviceID to 0x5055 and sub-systemID to 0x0600
 #         
 # 0.0.5 : Connect the microblaze debugger directly to the memory blocks (local memory and hyperram)
 #         Debugged PCIe BAR2 accesses
 #
-
+# 0.0.6 : New firmware name scheme. Required to support the new 7571-02 PCB (FPGA pinout modification)
+#             ** The new name scheme is: ares_<PCB_VERSION>_<FPGA_DEVICE>_<BUILD_ID>
+#         Updated register file :
+#                  @0x0020 (FPGA_ID[4:0]) Added new bits definition on field Device_specific.FPGA_ID.FPGA_ID
+#                  @0x0020 (FPGA_ID[31:28]) Created new field Device_specific.FPGA_ID.FPGA_STRAPS (report the FPGA PCB straps)
+#         Enabled pull-ups on fpga_straps IO pins.
+#         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
+#         Set the correct FPGA_ID to 0x12 (d'17)
+# ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 5
+set FPGA_SUB_MINOR_VERSION 6
 
 
-set BASE_NAME  ares_xc7a50t
-set DEVICE "xc7a50ticpg236-1L"
+set BASE_NAME  ares_7571_02_a35t
+set DEVICE "xc7a35ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
+# #################################################################
+#  ARES FPGA_ID (FPGA DEVICE ID MAP) :
+# #################################################################
+# 0x00 Reserved
+# 0x01 Spartan6 LX9 fpga used on Y7449-00 (deprecated)
+# 0x02 Spartan6 LX16 fpga used on Y7449-01,02
+# 0x03 Artix7 A35T fpga used on Y7471-00 (deprecated)
+# 0x04 Artix7 A50T fpga used on Y7471-01
+# 0x05 Artix7 A50T fpga used on Y7471-02
+# 0x06 Artix7 A50T fpga used on Y7449-03
+# 0x07 Artix7 Spider PCIe on Advanced IO board
+# 0x08 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)
+# 0x09 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)
+# 0x0A:0x0F   Reserved
+# 0x10 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]
+# 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
+# 0x12 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02
+# 0x13 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02
+set FPGA_ID 18; # 0x12 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02
 
-# FPGA_DEVICE_ID (DEVICE ID MAP) :
-#  0      : xc7a50ticpg236-1L
-#  1      : xc7a35ticpg236-1L
-#  2      : TBD
-#  Others : reserved
-set FPGA_DEVICE_ID 0
+set FPGA_GOLDEN     "false"
 
 
-set WORKDIR     $env(IRIS4)/ares_pcie
-
+set WORKDIR      $env(IRIS4)/ares_pcie
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
 set VIVADO_DIR   D:/vivado
-set BACKEND_DIR  ${WORKDIR}/backend
+set BACKEND_DIR  ${WORKDIR}/backend/7571-02/a35t
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}
 
@@ -71,10 +94,6 @@ set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
 
-# Top level generics
-#source ${UTIL_LIB}
-set FPGA_GOLDEN     "false"
-set FPGA_ID          17; # 0x11 : Iris GTX, Artix7 Ares PCIe, Artix7 A50T
 
 
 
@@ -85,10 +104,8 @@ set FPGA_BUILD_DATE [clock seconds]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 puts "BUILD DATE =  ${BUILD_TIME}  ($HEX_BUILD_DATE)"
-#set FPGA_BUILD_ID    [get_fpga_build_id ${FPGA_BUILD_DATE}]
 
 set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
-
 set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
 set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
@@ -129,8 +146,6 @@ set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 source ${AXI_SYSTEM_BD_FILE}
 regenerate_bd_layout
-#validate_bd_design
-#save_bd_design
 
 
 ## Create the Wrapper file
@@ -154,7 +169,6 @@ source ${FILESET_SCRIPT}
 ################################################
 # Top level Generics
 ################################################
-#set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set generic_list [list    \
 GOLDEN=${FPGA_GOLDEN}     \
 BUILD_ID=${FPGA_BUILD_DATE} \
@@ -247,6 +261,3 @@ if [string match "route_design Complete, Failed Timing!" $route_status] {
  }
 
 puts "** Done."
-
-
-

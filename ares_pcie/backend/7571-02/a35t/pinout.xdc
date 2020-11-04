@@ -24,12 +24,15 @@ set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[0]}]
 
+set_property PULLUP true [get_ports {fpga_straps[3]}]
+set_property PULLUP true [get_ports {fpga_straps[2]}]
+set_property PULLUP true [get_ports {fpga_straps[1]}]
+set_property PULLUP true [get_ports {fpga_straps[0]}]
 
 ####################################################
 ## eSPI interface
 ####################################################
 set_property PACKAGE_PIN J17 [get_ports espi_reset_n]
-# set_property PACKAGE_PIN K17 [get_ports espi_clk]
 set_property PACKAGE_PIN K17 [get_ports espi_clk]
 set_property PACKAGE_PIN E19 [get_ports espi_alert_n]
 set_property PACKAGE_PIN L18 [get_ports espi_cs_n]
@@ -43,11 +46,9 @@ set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 ####################################################
 ## PCIe interface
 ####################################################
+set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
-#set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {ares_pb_i/ares_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
-#set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {ares_pb_i/ares_pb_i/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
-set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
@@ -120,18 +121,6 @@ set_property PACKAGE_PIN P18 [get_ports hb_ck]
 set_property PACKAGE_PIN R18 [get_ports hb_ck_n]
 set_property PACKAGE_PIN T17 [get_ports hb_cs_n]
 
-# ###################################################
-# This was the pinout before board design review
-# set_property PACKAGE_PIN W13 [get_ports {hb_dq[0]}]
-# set_property PACKAGE_PIN V13 [get_ports {hb_dq[1]}]
-# set_property PACKAGE_PIN W14 [get_ports {hb_dq[2]}]
-# set_property PACKAGE_PIN V14 [get_ports {hb_dq[3]}]
-# set_property PACKAGE_PIN U14 [get_ports {hb_dq[4]}]
-# set_property PACKAGE_PIN W15 [get_ports {hb_dq[5]}]
-# set_property PACKAGE_PIN V15 [get_ports {hb_dq[6]}]
-# set_property PACKAGE_PIN U15 [get_ports {hb_dq[7]}]
-# ###################################################
-
 
 # ###################################################
 # This is the new Hyper bus pinout after the design
@@ -149,15 +138,14 @@ set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
 
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
-set_property PACKAGE_PIN N17 [get_ports hb_rwds]
-#deplace sur pin MRCC par jflarin
-#set_property PACKAGE_PIN N17 [get_ports hb_rwds]
-#pin negative, ne fonctionnera pas pour aller vers BUFIO, juste un test pour l'instant
-#set_property PACKAGE_PIN P17 [get_ports hb_rwds]
 
-# set_property PACKAGE_PIN U16 [get_ports hb_wp_n]
-# set_property PACKAGE_PIN U19 [get_ports hb_int_n]
-# set_property PACKAGE_PIN V19 [get_ports hb_rsto_n]
+# IMPORTANT The following pin Has been moved from V16 
+# on PCB 7571-00 to N17 on PCB 7571-02. See JIRA IRIS4-242
+# 
+set_property PACKAGE_PIN N17 [get_ports hb_rwds]
+
+
+
 
 
 set_property PACKAGE_PIN V2 [get_ports pwm_out]
@@ -170,10 +158,6 @@ set_property PACKAGE_PIN R3 [get_ports {user_data_in[3]}]
 set_property PACKAGE_PIN T3 [get_ports {user_data_out[0]}]
 set_property PACKAGE_PIN U8 [get_ports {user_data_out[1]}]
 set_property PACKAGE_PIN U7 [get_ports {user_data_out[2]}]
-
-
-
-#set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xsystem_pb_wrapper/system_pb_i/host_if_system/pcie2AxiMaster_0/U0/xxil_pcie/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 
 
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[1]}]
@@ -207,8 +191,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {user_data_in[0]}]
 ###############################################################
 # Hyperram
 ###############################################################
-# set_property IOSTANDARD LVCMOS18 [get_ports hb_rsto_n]
-# set_property IOSTANDARD LVCMOS18 [get_ports hb_int_n]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[7]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[6]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {hb_dq[5]}]
@@ -312,15 +294,3 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
-
-
-
-
-
-
-
-
-
-
-
-
