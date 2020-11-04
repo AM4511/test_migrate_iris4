@@ -78,6 +78,11 @@
       </fields>
     </registers>
     <registers name="FPGA_ID" offsetFromParent="20">
+      <fields name="FPGA_STRAPS" alias="FPGA Strapping" description="This read only field gives the value of 4 PCB straps (not used at the moment). Each bit of this  field is directly connect to an FPGA IO. Each IO is connected an external pull down and an FPGA internal pullup (See the 7571-XX schematics). By default only the FPGA pullups are activated, therefore the value 0xF is returned." lsb="28" size="4" valueAtReset="F" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>range=0-14&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for future use&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No strapping installed (Default value)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="PROFINET_LED" description="This bit selects if the User Leds are controlled from the FPGA memory space, controlled by the host processor, or if the User Leds are controlled by the Microblaze running Profinet stack" lsb="12">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Host processor control&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Microblaze control&lt;/matrox_column_delimiter></possibleValues>
@@ -99,8 +104,11 @@
         <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=9&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=10&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved for Artix7 Eris (LPC) on Y7478-01&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=16&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=17&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=18&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=19&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>range=20-31&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>

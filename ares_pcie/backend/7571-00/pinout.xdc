@@ -24,6 +24,10 @@ set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[0]}]
 
+set_property PULLUP true [get_ports {fpga_straps[3]}]
+set_property PULLUP true [get_ports {fpga_straps[2]}]
+set_property PULLUP true [get_ports {fpga_straps[1]}]
+set_property PULLUP true [get_ports {fpga_straps[0]}]
 
 ####################################################
 ## eSPI interface

@@ -74,6 +74,8 @@ Register("buildid", 0x1c, 4, "null");
 		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "EPOCH date value");
 
 Register("fpga_id", 0x20, 4, "null");
+		Field("fpga_straps", 31, 28, "rd", 0x0, 0xF, 0x0, 0x0, NO_TEST, 0, 0, "FPGA Strapping");
+			FieldValue("No strapping installed (Default value)", 15);
 		Field("profinet_led", 12, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("User Leds are under Host processor control", 0);
 			FieldValue("User Leds are under Microblaze control", 1);
@@ -91,8 +93,10 @@ Register("fpga_id", 0x20, 4, "null");
 			FieldValue("Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)", 8);
 			FieldValue("Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)", 9);
 			FieldValue("Reserved for Artix7 Eris (LPC) on Y7478-01", 10);
-			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A35T", 16);
-			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A50T", 17);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]", 16);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]", 17);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02", 18);
+			FieldValue("Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02", 19);
 
 Register("led_override", 0x24, 4, "null");
 		Field("red_orange_flash", 25, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
