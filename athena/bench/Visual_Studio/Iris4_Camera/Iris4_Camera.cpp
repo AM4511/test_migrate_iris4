@@ -412,14 +412,19 @@ int main(void)
 
 
 			case 'h':
-				XGS_Data->HiSpiCalibrate();
+				XGS_Data->HiSpiCalibrate(1);
+				printf("You can do multiple calibrations with test '#' \n");
 				break;
             
 			case '#':
-				for (int i= 0; i < 1000000; i++)
-				{
-					XGS_Data->HiSpiCalibrate();	
-					printf("%d\n", i);
+				printf("\nEnter number of HISPI calibrations to do : ");
+				scanf_s("%d", &data);
+				printf("\n");
+				for (int i= 0; i < data+1; i++)
+				{   
+					printf("\rCalibration #%d", i);
+					if ( XGS_Data->HiSpiCalibrate(0) == 0) break;
+
 				}
 				break;
 

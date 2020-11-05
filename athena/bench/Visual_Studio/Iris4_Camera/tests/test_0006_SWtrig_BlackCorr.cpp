@@ -67,7 +67,7 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//-------------------------------------------
 	// Calibrate and enable FPGA HiSPI interface
 	//-------------------------------------------
-	XGS_Data->HiSpiCalibrate();
+	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
     //
