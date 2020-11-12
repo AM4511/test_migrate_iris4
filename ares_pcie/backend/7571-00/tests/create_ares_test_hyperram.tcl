@@ -1,6 +1,8 @@
 # ##################################################################################
-# File         : create_ares.tcl
-# Description  : TCL script used to create the MIOX fpga project. 
+# File         : create_ares_test_hyperram.tcl
+# Description  : TCL script used to create the ares FPGA firmware for the IRIS-GTX 
+#                project and instantiate an HyperRam memory test in the microblaze 
+#                local memory. 
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/7571-00/tests/create_ares_test_hyperram.tcl
 # 
