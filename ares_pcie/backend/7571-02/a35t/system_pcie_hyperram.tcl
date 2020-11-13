@@ -43,7 +43,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7a50ticpg236-1L
+   create_project project_1 myproj -part xc7a35ticpg236-1L
 }
 
 
@@ -511,10 +511,11 @@ proc create_root_design { parentCell } {
   # Create instance: microblaze_0, and set properties
   set microblaze_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 microblaze_0 ]
   set_property -dict [ list \
-   CONFIG.C_ADDR_TAG_BITS {10} \
-   CONFIG.C_CACHE_BYTE_SIZE {32768} \
-   CONFIG.C_DCACHE_ADDR_TAG {10} \
-   CONFIG.C_DCACHE_BYTE_SIZE {32768} \
+   CONFIG.C_ADDR_TAG_BITS {12} \
+   CONFIG.C_AREA_OPTIMIZED {2} \
+   CONFIG.C_CACHE_BYTE_SIZE {16384} \
+   CONFIG.C_DCACHE_ADDR_TAG {12} \
+   CONFIG.C_DCACHE_BYTE_SIZE {16384} \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
    CONFIG.C_D_LMB {1} \
@@ -763,7 +764,6 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -775,4 +775,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
