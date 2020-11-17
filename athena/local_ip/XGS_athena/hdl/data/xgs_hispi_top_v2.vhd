@@ -73,9 +73,9 @@ entity xgs_hispi_top_v2 is
     sclk_tvalid : out std_logic;
     sclk_tuser  : out std_logic_vector(3 downto 0);
     sclk_tlast  : out std_logic;
-    sclk_tdata  : out std_logic_vector(63 downto 0)
+    sclk_tdata  : out std_logic_vector(79 downto 0)
     );
-end entity xgs_hispi_top;
+end entity xgs_hispi_top_v2;
 
 
 architecture rtl of xgs_hispi_top_v2 is
@@ -83,9 +83,10 @@ architecture rtl of xgs_hispi_top_v2 is
 
   component hispi_phy_v2 is
     generic (
-      LANE_PER_PHY : integer := 3;      -- Physical lane
-      PIXEL_SIZE   : integer := 12;     -- Pixel size in bits
-      PHY_ID       : integer := 0
+      LANE_PER_PHY   : integer := 3;    -- Physical lane
+      PIXEL_SIZE     : integer := 12;   -- Pixel size in bits
+      WORD_PTR_WIDTH : integer := 6;
+      PHY_ID         : integer := 0
       );
     port (
       ---------------------------------------------------------------------------
@@ -110,7 +111,7 @@ architecture rtl of xgs_hispi_top_v2 is
       regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
       ---------------------------------------------------------------------------
-      -- sclk clock domain
+      -- System clock domain
       ---------------------------------------------------------------------------
       sclk                   : in  std_logic;
       sclk_reset             : in  std_logic;
@@ -118,20 +119,25 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_start_calibration : in  std_logic;
       sclk_calibration_done  : out std_logic;
 
-      -- Read fifo interface
-      sclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
-      sclk_fifo_read_sync       : out std4_logic_vector(LANE_PER_PHY-1 downto 0)
+      ---------------------------------------------------------------------------
+      -- Line buffer interface
+      ---------------------------------------------------------------------------
+      sclk_buffer_ready    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_read_en  : in  std_logic;
+      sclk_buffer_lane_id  : in  std_logic_vector(1 downto 0);
+      sclk_buffer_id       : in  std_logic_vector(1 downto 0);
+      sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
+      sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+      sclk_buffer_sync     : out std_logic_vector(3 downto 0);
+      sclk_buffer_data     : out std_logic_vector(29 downto 0)
       );
   end component;
 
 
-
-  component axi_line_streamer is
+  component axi_line_streamer_v2 is
     generic (
-      NUMB_LINE_BUFFER          : integer;
+      LANE_PER_PHY              : integer := 3;  -- Physical lane
+      MUX_RATIO                 : integer := 4;
       LINE_BUFFER_PTR_WIDTH     : integer := 1;
       LINE_BUFFER_DATA_WIDTH    : integer := 64;
       LINE_BUFFER_ADDRESS_WIDTH : integer := 10
@@ -143,17 +149,17 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk       : in std_logic;
       sclk_reset : in std_logic;
 
-
       ---------------------------------------------------------------------------
       -- Control interface
       ---------------------------------------------------------------------------
-      streamer_en    : in  std_logic;
-      streamer_busy  : out std_logic;
-      transfert_done : out std_logic;
-      init_frame     : in  std_logic;
+      streamer_en     : in  std_logic;
+      streamer_busy   : out std_logic;
+      transfert_done  : out std_logic;
+      init_frame      : in  std_logic;
+      nb_lane_enabled : in  std_logic_vector(2 downto 0);
 
       ---------------------------------------------------------------------------
-      -- Register interface
+      -- Register interface (ROI parameters)
       ---------------------------------------------------------------------------
       x_row_start : in std_logic_vector(12 downto 0);
       x_row_stop  : in std_logic_vector(12 downto 0);
@@ -161,15 +167,23 @@ architecture rtl of xgs_hispi_top_v2 is
       y_row_stop  : in std_logic_vector(11 downto 0);
 
       ---------------------------------------------------------------------------
-      -- Line buffer I/F
+      -- Lane_decode I/F
       ---------------------------------------------------------------------------
-      line_buffer_clr     : out std_logic;
-      line_buffer_ready   : in  std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-      line_buffer_read    : out std_logic;
-      line_buffer_ptr     : out std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-      line_buffer_address : out std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-      line_buffer_row_id  : in  std_logic_vector(11 downto 0);
-      line_buffer_data    : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
+      sclk_buffer_lane_id     : in std_logic_vector(1 downto 0);
+      sclk_buffer_id          : in std_logic_vector(1 downto 0);
+      sclk_buffer_mux_id      : in std_logic_vector(1 downto 0);
+      sclk_buffer_word_ptr    : in std_logic_vector(5 downto 0);
+      sclk_buffer_read_en     : in std_logic;
+
+      -- Even lanes
+      sclk_buffer_ready_even : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_sync_even  : in std_logic_vector(3 downto 0);
+      sclk_buffer_data_even  : in std_logic_vector(29 downto 0);
+
+      -- Odd lanes
+      sclk_buffer_ready_odd : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_sync_odd  : in std_logic_vector(3 downto 0);
+      sclk_buffer_data_odd  : in std_logic_vector(29 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Master stream interface
@@ -178,7 +192,7 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_tvalid : out std_logic;
       sclk_tuser  : out std_logic_vector(3 downto 0);
       sclk_tlast  : out std_logic;
-      sclk_tdata  : out std_logic_vector(63 downto 0)
+      sclk_tdata  : out std_logic_vector(79 downto 0)
       );
   end component;
 
@@ -187,6 +201,7 @@ architecture rtl of xgs_hispi_top_v2 is
   constant C_S_AXI_DATA_WIDTH : integer              := 32;
   constant NUMB_LINE_BUFFER   : integer range 2 to 4 := 4;
   constant LANE_PER_PHY       : integer              := NUMBER_OF_LANE/2;
+  constant MUX_RATIO          : integer              := 4;
 
   constant LINE_BUFFER_DATA_WIDTH    : integer := 64;
   constant LINE_BUFFER_ADDRESS_WIDTH : integer := 11;
@@ -243,6 +258,22 @@ architecture rtl of xgs_hispi_top_v2 is
   signal bottom_fifo_read_sync       : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal state                       : FSM_TYPE := S_IDLE;
   signal state_mapping               : std_logic_vector(3 downto 0);
+
+  signal sclk_buffer_ready      : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal sclk_buffer_ready_even : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_sync_even  : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data_even  : std_logic_vector(29 downto 0);
+  signal sclk_buffer_ready_odd  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_sync_odd   : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data_odd   : std_logic_vector(29 downto 0);
+  signal sclk_buffer_read_en    : std_logic;
+  signal sclk_buffer_lane_id    : std_logic_vector(1 downto 0);
+  signal sclk_buffer_id         : std_logic_vector(1 downto 0);
+  signal sclk_buffer_mux_id     : std_logic_vector(1 downto 0);
+  signal sclk_buffer_word_ptr   : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+  signal sclk_buffer_sync       : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data       : std_logic_vector(29 downto 0);
+
 
   signal row_id           : std_logic_vector(11 downto 0);
   signal row_last         : std_logic;
@@ -593,32 +624,35 @@ begin
   -- Description : TOP lanes hispi phy. Provides one serdes for interfacing
   --               all the XGS sensor top lanes.
   -----------------------------------------------------------------------------
-  xtop_hispi_phy : hispi_phy_v2
+  xhispi_phy_top : hispi_phy_v2
     generic map(
-      LANE_PER_PHY    => LANE_PER_PHY,
-      PIXEL_SIZE      => PIXEL_SIZE,
-      WORD_PTR_WIDTH  => WORD_PTR_WIDTH,
-      PHY_ID          => 0
+      LANE_PER_PHY   => LANE_PER_PHY,
+      PIXEL_SIZE     => PIXEL_SIZE,
+      WORD_PTR_WIDTH => WORD_PTR_WIDTH,
+      PHY_ID         => 0
       )
     port map(
-      hispi_serial_clk_p        => hispi_io_clk_p(0),
-      hispi_serial_clk_n        => hispi_io_clk_n(0),
-      hispi_serial_input_p      => top_lanes_p,
-      hispi_serial_input_n      => top_lanes_n,
-      hispi_pix_clk             => hispi_pix_clk,
-      rclk                      => rclk,
-      rclk_reset                => rclk_reset,
-      regfile                   => regfile,
-      sclk                      => sclk,
-      sclk_reset                => sclk_reset,
-      sclk_reset_phy            => sclk_reset_phy,
-      sclk_start_calibration    => sclk_start_calibration,
-      sclk_calibration_done     => sclk_calibration_done(0),
-      sclk_fifo_read_en         => top_fifo_read_en,
-      sclk_fifo_empty           => top_fifo_empty,
-      sclk_fifo_read_data_valid => top_fifo_read_data_valid,
-      sclk_fifo_read_data       => top_fifo_read_data,
-      sclk_fifo_read_sync       => top_fifo_read_sync
+      hispi_serial_clk_p     => hispi_io_clk_p(0),
+      hispi_serial_clk_n     => hispi_io_clk_n(0),
+      hispi_serial_input_p   => top_lanes_p,
+      hispi_serial_input_n   => top_lanes_n,
+      hispi_pix_clk          => hispi_pix_clk,
+      rclk                   => rclk,
+      rclk_reset             => rclk_reset,
+      regfile                => regfile,
+      sclk                   => sclk,
+      sclk_reset             => sclk_reset,
+      sclk_reset_phy         => sclk_reset_phy,
+      sclk_start_calibration => sclk_start_calibration,
+      sclk_calibration_done  => sclk_calibration_done(0),
+      sclk_buffer_read_en    => sclk_buffer_read_en,
+      sclk_buffer_lane_id    => sclk_buffer_lane_id,
+      sclk_buffer_id         => sclk_buffer_id,
+      sclk_buffer_mux_id     => sclk_buffer_lane_id,
+      sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
+      sclk_buffer_ready      => sclk_buffer_ready_even,
+      sclk_buffer_sync       => sclk_buffer_sync_even,
+      sclk_buffer_data       => sclk_buffer_data_even
       );
 
 
@@ -627,33 +661,36 @@ begin
   -- Description : Bottom lanes hispi phy. Provides one serdes for interfacing
   --               all the XGS sensor bottom lanes.
   -----------------------------------------------------------------------------
-  xbottom_hispi_phy : hispi_phy
+  xhispi_phy_bottom : hispi_phy_v2
     generic map(
-      LANE_PER_PHY => LANE_PER_PHY,
-      PIXEL_SIZE   => PIXEL_SIZE,
-      PHY_ID       => 1
+      LANE_PER_PHY   => LANE_PER_PHY,
+      PIXEL_SIZE     => PIXEL_SIZE,
+      WORD_PTR_WIDTH => WORD_PTR_WIDTH,
+      PHY_ID         => 1
       )
     port map(
-      hispi_serial_clk_p        => hispi_io_clk_p(1),
-      hispi_serial_clk_n        => hispi_io_clk_n(1),
-      hispi_serial_input_p      => bottom_lanes_p,
-      hispi_serial_input_n      => bottom_lanes_n,
-      hispi_pix_clk             => open,
-      rclk                      => rclk,
-      rclk_reset                => rclk_reset,
-      regfile                   => regfile,
-      sclk                      => sclk,
-      sclk_reset                => sclk_reset,
-      sclk_reset_phy            => sclk_reset_phy,
-      sclk_start_calibration    => sclk_start_calibration,
-      sclk_calibration_done     => sclk_calibration_done(1),
-      sclk_fifo_read_en         => bottom_fifo_read_en,
-      sclk_fifo_empty           => bottom_fifo_empty,
-      sclk_fifo_read_data_valid => bottom_fifo_read_data_valid,
-      sclk_fifo_read_data       => bottom_fifo_read_data,
-      sclk_fifo_read_sync       => bottom_fifo_read_sync
+      hispi_serial_clk_p     => hispi_io_clk_p(1),
+      hispi_serial_clk_n     => hispi_io_clk_n(1),
+      hispi_serial_input_p   => bottom_lanes_p,
+      hispi_serial_input_n   => bottom_lanes_n,
+      hispi_pix_clk          => open,
+      rclk                   => rclk,
+      rclk_reset             => rclk_reset,
+      regfile                => regfile,
+      sclk                   => sclk,
+      sclk_reset             => sclk_reset,
+      sclk_reset_phy         => sclk_reset_phy,
+      sclk_start_calibration => sclk_start_calibration,
+      sclk_calibration_done  => sclk_calibration_done(1),
+      sclk_buffer_read_en    => sclk_buffer_read_en,
+      sclk_buffer_lane_id    => sclk_buffer_lane_id,
+      sclk_buffer_id         => sclk_buffer_id,
+      sclk_buffer_mux_id     => sclk_buffer_lane_id,
+      sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
+      sclk_buffer_ready      => sclk_buffer_ready_odd,
+      sclk_buffer_sync       => sclk_buffer_sync_odd,
+      sclk_buffer_data       => sclk_buffer_data_odd
       );
-
 
 
   init_lane_packer <= '1' when (state = S_INIT) else
@@ -1007,41 +1044,45 @@ begin
   end process;
 
 
-
-
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  xaxi_line_streamer : axi_line_streamer
+  xaxi_line_streamer : axi_line_streamer_v2
     generic map(
-      NUMB_LINE_BUFFER          => NUMB_LINE_BUFFER,
+      LANE_PER_PHY              => LANE_PER_PHY,
+      MUX_RATIO                 => MUX_RATIO,
       LINE_BUFFER_PTR_WIDTH     => LINE_BUFFER_PTR_WIDTH,
       LINE_BUFFER_DATA_WIDTH    => LINE_BUFFER_DATA_WIDTH,
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
       )
     port map (
-      sclk                => sclk,
-      sclk_reset          => sclk_reset,
-      streamer_en         => '1',
-      streamer_busy       => open,
-      transfert_done      => transfert_done,
-      init_frame          => init_frame,
-      x_row_start         => x_row_start,
-      x_row_stop          => x_row_stop,
-      y_row_start         => y_row_start,
-      y_row_stop          => y_row_stop,
-      line_buffer_clr     => line_buffer_clr,
-      line_buffer_ready   => line_buffer_ready,
-      line_buffer_read    => line_buffer_read,
-      line_buffer_ptr     => line_buffer_ptr,
-      line_buffer_address => line_buffer_address,
-      line_buffer_row_id  => line_buffer_row_id,
-      line_buffer_data    => line_buffer_data,
-      sclk_tready         => sclk_tready,
-      sclk_tvalid         => sclk_tvalid,
-      sclk_tuser          => sclk_tuser,
-      sclk_tlast          => sclk_tlast,
-      sclk_tdata          => sclk_tdata
+      sclk                    => sclk,
+      sclk_reset              => sclk_reset,
+      streamer_en             => '1',
+      streamer_busy           => open,
+      transfert_done          => transfert_done,
+      init_frame              => init_frame,
+      nb_lane_enabled         => nb_lane_enabled,
+      x_row_start             => x_row_start,
+      x_row_stop              => x_row_stop,
+      y_row_start             => y_row_start,
+      y_row_stop              => y_row_stop,
+      sclk_buffer_lane_id     => sclk_buffer_lane_id,
+      sclk_buffer_id          => sclk_buffer_id,
+      sclk_buffer_mux_id      => sclk_buffer_mux_id,
+      sclk_buffer_word_ptr    => sclk_buffer_word_ptr,
+      sclk_buffer_read_en     => sclk_buffer_read_en,
+      sclk_buffer_ready_even  => sclk_buffer_ready_even,
+      sclk_buffer_sync_even   => sclk_buffer_sync_even,
+      sclk_buffer_data_even   => sclk_buffer_data_even,
+      sclk_buffer_ready_odd   => sclk_buffer_ready_odd,
+      sclk_buffer_sync_odd    => sclk_buffer_sync_odd,
+      sclk_buffer_data_odd    => sclk_buffer_data_odd,
+      sclk_tready             => sclk_tready,
+      sclk_tvalid             => sclk_tvalid,
+      sclk_tuser              => sclk_tuser,
+      sclk_tlast              => sclk_tlast,
+      sclk_tdata              => sclk_tdata
       );
 
 
