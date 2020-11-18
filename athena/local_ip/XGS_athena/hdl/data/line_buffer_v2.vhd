@@ -21,14 +21,17 @@ entity line_buffer_v2 is
     ---------------------------------------------------------------------
     -- Pixel clock domain
     ---------------------------------------------------------------------
-    pclk         : in std_logic;
-    pclk_reset   : in std_logic;
-    pclk_init    : in std_logic;
-    pclk_valid   : in std_logic;
-    pclk_data    : in PIXEL_ARRAY(2 downto 0);
-    pclk_sync    : in std_logic_vector(3 downto 0);
-    pclk_row_id  : in std_logic_vector(1 downto 0);
-    pclk_lane_id : in std_logic_vector(1 downto 0);
+    pclk                : in  std_logic;
+    pclk_reset          : in  std_logic;
+    pclk_init           : in  std_logic;
+    pclk_write_en       : in  std_logic;
+    pclk_data           : in  PIXEL_ARRAY(2 downto 0);
+    pclk_sync           : in  std_logic_vector(3 downto 0);
+    pclk_buffer_id      : in  std_logic_vector(1 downto 0);
+    pclk_mux_id         : in  std_logic_vector(1 downto 0);
+    pclk_word_ptr       : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    pclk_set_buff_ready : in  std_logic_vector(3 downto 0);
+    pclk_buff_ready     : out std_logic_vector(3 downto 0);
 
 
     ---------------------------------------------------------------------
@@ -36,6 +39,7 @@ entity line_buffer_v2 is
     ---------------------------------------------------------------------
     sclk           : in  std_logic;
     sclk_reset     : in  std_logic;
+    sclk_empty     : out std_logic;
     sclk_read_en   : in  std_logic;
     sclk_buffer_id : in  std_logic_vector(1 downto 0);
     sclk_mux_id    : in  std_logic_vector(1 downto 0);
@@ -50,6 +54,21 @@ architecture rtl of line_buffer_v2 is
 
   attribute mark_debug : string;
   attribute keep       : string;
+
+
+  component mtx_resync is
+    port
+      (
+        aClk  : in  std_logic;
+        aClr  : in  std_logic;
+        aDin  : in  std_logic;
+        bclk  : in  std_logic;
+        bclr  : in  std_logic;
+        bDout : out std_logic;
+        bRise : out std_logic;
+        bFall : out std_logic
+        );
+  end component;
 
 
   component dualPortRamVar is
@@ -71,8 +90,9 @@ architecture rtl of line_buffer_v2 is
         );
   end component;
 
-  type PCLK_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_EOL, S_EOF, S_DONE);
+  --type PCLK_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_EOL, S_EOF, S_DONE);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
+  type WORD_COUNT_ARRAY is array (3 downto 0) of unsigned(WORD_PTR_WIDTH+2-1 downto 0);
 
   constant LINE_PTR_WIDTH    : integer := 2;
   constant LANE_PTR_WIDTH    : integer := 2;
@@ -84,132 +104,45 @@ architecture rtl of line_buffer_v2 is
   constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
   constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
 
-  signal pclk_word_ptr      : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal pclk_init_word_ptr : std_logic;
-  signal pclk_incr_word_ptr : std_logic;
-  signal pclk_state         : PCLK_FSM_TYPE := S_IDLE;
-  signal pclk_write_en      : std_logic;
+  --signal pclk_state         : PCLK_FSM_TYPE := S_IDLE;
   signal pclk_write_address : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
   signal pclk_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  --signal pclk_word_count    : WORD_COUNT_ARRAY;
 
 
-  signal sclk_read_address : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
-  signal sclk_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-
+  signal sclk_read_address     : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
+  signal sclk_read_data        : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  signal sclk_buffer_empty     : std_logic;
+  signal sclk_set_buff_ready   : std_logic_vector(3 downto 0);
+  signal sclk_buff_ready_ff    : std_logic_vector(3 downto 0);
+  signal sclk_word_count_array : WORD_COUNT_ARRAY;
 
 begin
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_pclk_state
-  -- Description : Read side FSM
-  -----------------------------------------------------------------------------
-  P_pclk_state : process (pclk) is
-  begin
-    if (rising_edge(pclk)) then
-      if (pclk_reset = '1')then
-        pclk_state <= S_IDLE;
-      else
-
-        case pclk_state is
-          -------------------------------------------------------------------
-          -- S_IDLE : Parking state
-          -------------------------------------------------------------------
-          when S_IDLE =>
-            if (pclk_init = '1') then
-              pclk_state <= S_WAIT_LINE;
-            end if;
-
-          -------------------------------------------------------------------
-          -- S_WAIT_LINE : Wait for a new line available for transfer
-          -------------------------------------------------------------------
-          when S_WAIT_LINE =>
-            if (pclk_sync(0) = '1') then
-              pclk_state <= S_SOL;
-            else
-              pclk_state <= S_WAIT_LINE;
-            end if;
-
-          -------------------------------------------------------------------
-          -- S_INIT : Initialize the DMA transfer
-          -------------------------------------------------------------------
-          when S_SOL =>
-            pclk_state <= S_WRITE;
-
-          -------------------------------------------------------------------
-          --  S_TRANSFER : the DMA transfer occurs in this state
-          -------------------------------------------------------------------
-          when S_WRITE =>
-            if (pclk_sync(3) = '1'and pclk_write_en = '1') then
-              pclk_state <= S_EOL;
-            elsif (pclk_sync(1) = '1'and pclk_write_en = '1') then
-              pclk_state <= S_EOF;
-            else
-              pclk_state <= S_WRITE;
-            end if;
-
-
-          -------------------------------------------------------------------
-          -- S_EOL : Indicates a full line transfer has completed
-          -------------------------------------------------------------------
-          when S_EOL =>
-            pclk_state <= S_WAIT_LINE;
-
-          -------------------------------------------------------------------
-          -- S_EOF : Indicates a full line transfer has completed
-          -------------------------------------------------------------------
-          when S_EOF =>
-            pclk_state <= S_DONE;
-
-          -------------------------------------------------------------------
-          -- S_DONE : What more to say? When we are done,... yes we are!
-          -------------------------------------------------------------------
-          when S_DONE =>
-            pclk_state <= S_IDLE;
-
-          -------------------------------------------------------------------
-          -- 
-          -------------------------------------------------------------------
-          when others =>
-            null;
-        end case;
-      end if;
-    end if;
-  end process;
 
   -----------------------------------------------------------------------------
-  -- Word ptr init
+  -- Module      :
+  -- Description : 
   -----------------------------------------------------------------------------
-  pclk_init_word_ptr <= '1' when (pclk_init = '1') else
-                        '1' when ((pclk_sync(3) = '1' or pclk_sync(3) = '1') and pclk_write_en = '1') else
-                        '0';
-
-  -----------------------------------------------------------------------------
-  -- Buffer write en 
-  -----------------------------------------------------------------------------
-  pclk_incr_word_ptr <= '1' when (pclk_write_en = '1' and pclk_lane_id = "11") else
-                        '0';
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_pclk_word_ptr : process (pclk) is
-  begin
-    if (rising_edge(pclk)) then
-      if (pclk_reset = '1')then
-        pclk_word_ptr <= (others => '0');
-      else
-        if (pclk_init_word_ptr = '1') then
-          pclk_word_ptr <= (others => '0');
-        elsif (pclk_incr_word_ptr = '1') then
-          pclk_word_ptr <= pclk_word_ptr + 1;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_pclk_work_count : process (pclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1')then
+  --       pclk_word_count <= (others => (others => '0'));
+  --     else
+  --       if (pclk_write_en = '1') then
+  --         for i in 0 to 3 loop
+  --           if (i = to_integer(unsigned(pclk_buffer_id))) then
+  --             pclk_word_count(i) <= unsigned(pclk_word_ptr);
+  --           end if;
+  --         end loop;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
-  pclk_write_address <= pclk_row_id & pclk_lane_id & std_logic_vector(pclk_word_ptr);
+  pclk_write_address <= pclk_buffer_id & pclk_mux_id & pclk_word_ptr;
 
 
 
@@ -240,12 +173,125 @@ begin
       );
 
 
-  sclk_read_address <= sclk_buffer_id & sclk_mux_id & std_logic_vector(sclk_word_ptr);
-  sclk_sync         <= sclk_read_data(33 downto 30);
-  -- sclk_data(0)         <= to_pixel(sclk_read_data(9 downto 0));
-  -- sclk_data(1)         <= to_pixel(sclk_read_data(19 downto 10));
-  -- sclk_data(2)         <= to_pixel(sclk_read_data(29 downto 20));
 
+  G_resync : for i in 0 to 3 generate
+
+
+    M_sclk_set_buff_ready_resync : mtx_resync
+      port map (
+        aClk  => pclk,
+        aClr  => pclk_reset,
+        aDin  => pclk_set_buff_ready(i),
+        bclk  => sclk,
+        bclr  => sclk_reset,
+        bDout => open,
+        bRise => sclk_set_buff_ready(i),
+        bFall => open
+        );
+
+    M_pclk_set_buff_ready_resync : mtx_resync
+      port map (
+        aClk  => sclk,
+        aClr  => sclk_reset,
+        aDin  => sclk_buff_ready_ff(i),
+        bclk  => pclk,
+        bclr  => pclk_reset,
+        bDout => pclk_buff_ready(i),
+        bRise => open,
+        bFall => open
+        );
+
+  end generate G_resync;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     :sclk_buff_ready_ff
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sclk_buff_ready_ff : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_buff_ready_ff <= (others => '0');
+      else
+        for i in 0 to 3 loop
+          if (sclk_set_buff_ready(i) = '1') then
+            sclk_buff_ready_ff(i) <= '1';
+          elsif (i = to_integer(unsigned(sclk_buffer_id)) and sclk_buffer_empty = '1') then
+            sclk_buff_ready_ff(i) <= '0';
+          end if;
+        end loop;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     :
+  -- Description : 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  P_sclk_word_count_array : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_word_count_array <= (others => (others => '0'));
+      else
+        for i in 0 to 3 loop
+          if (sclk_set_buff_ready(i) = '1') then
+            -- synthesis translate_off
+            -- Test the buffer is empty. It must always be empty before
+            -- starting filling, otherwise it is an overflow
+            assert (sclk_word_count_array(i) = 0) report "line buffer overrun" severity error;
+            -- synthesis translate_on
+
+            -- pclk_word_count(i) is assumed to be stabled
+            -- when sclk_set_buff_ready(i) = '1'
+            sclk_word_count_array(i) <= unsigned(pclk_word_ptr) & "11";
+
+
+
+          elsif (i = to_integer(unsigned(sclk_buffer_id)) and sclk_read_en = '1') then
+            -- synthesis translate_off
+            -- Test the buffer is not empty. It must always contain data when
+            -- reading from it, otherwise it is an underflow
+            assert (sclk_word_count_array(i) > 0) report "line buffer underrun" severity error;
+            -- synthesis translate_on
+
+            sclk_word_count_array(i) <= sclk_word_count_array(i)-1;
+          end if;
+        end loop;
+      end if;
+    end if;
+  end process;
+
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_buff_empty
+  -- Description : Indicates if line buffer pointed by sclk_buffer_id is empty  
+  -----------------------------------------------------------------------------
+  P_sclk_buff_empty : process (sclk_buffer_id, sclk_word_count_array) is
+    variable i : integer range 0 to 3;
+  begin
+
+    i := to_integer(unsigned(sclk_buffer_id));
+    
+    if (sclk_word_count_array(i) = (sclk_word_count_array(i)'range => '0'))then
+      sclk_buffer_empty <= '1';
+    else
+      sclk_buffer_empty <= '0';
+    end if;
+  end process;
+
+
+  sclk_empty <= sclk_buffer_empty;
+
+
+  sclk_read_address <= sclk_buffer_id & sclk_mux_id & sclk_word_ptr;
+  sclk_sync <= sclk_read_data(33 downto 30);
   sclk_data <= sclk_read_data(29 downto 0);
 
 end rtl;

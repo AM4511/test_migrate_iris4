@@ -120,9 +120,14 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_calibration_done  : out std_logic;
 
       ---------------------------------------------------------------------------
+      -- Sync
+      ---------------------------------------------------------------------------
+      sclk_sof : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
+
+      ---------------------------------------------------------------------------
       -- Line buffer interface
       ---------------------------------------------------------------------------
-      sclk_buffer_ready    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_empty    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
       sclk_buffer_read_en  : in  std_logic;
       sclk_buffer_lane_id  : in  std_logic_vector(1 downto 0);
       sclk_buffer_id       : in  std_logic_vector(1 downto 0);
@@ -169,19 +174,19 @@ architecture rtl of xgs_hispi_top_v2 is
       ---------------------------------------------------------------------------
       -- Lane_decode I/F
       ---------------------------------------------------------------------------
-      sclk_buffer_lane_id     : in std_logic_vector(1 downto 0);
-      sclk_buffer_id          : in std_logic_vector(1 downto 0);
-      sclk_buffer_mux_id      : in std_logic_vector(1 downto 0);
-      sclk_buffer_word_ptr    : in std_logic_vector(5 downto 0);
-      sclk_buffer_read_en     : in std_logic;
+      sclk_buffer_lane_id  : out std_logic_vector(1 downto 0);
+      sclk_buffer_id       : out std_logic_vector(1 downto 0);
+      sclk_buffer_mux_id   : out std_logic_vector(1 downto 0);
+      sclk_buffer_word_ptr : out std_logic_vector(5 downto 0);
+      sclk_buffer_read_en  : out std_logic;
 
       -- Even lanes
-      sclk_buffer_ready_even : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_empty_even : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
       sclk_buffer_sync_even  : in std_logic_vector(3 downto 0);
       sclk_buffer_data_even  : in std_logic_vector(29 downto 0);
 
       -- Odd lanes
-      sclk_buffer_ready_odd : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_empty_odd : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
       sclk_buffer_sync_odd  : in std_logic_vector(3 downto 0);
       sclk_buffer_data_odd  : in std_logic_vector(29 downto 0);
 
@@ -259,11 +264,13 @@ architecture rtl of xgs_hispi_top_v2 is
   signal state                       : FSM_TYPE := S_IDLE;
   signal state_mapping               : std_logic_vector(3 downto 0);
 
-  signal sclk_buffer_ready      : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  signal sclk_buffer_ready_even : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_empty      : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal sclk_buffer_empty_even : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_sof_even          : std_logic_vector(LANE_PER_PHY - 1 downto 0);
   signal sclk_buffer_sync_even  : std_logic_vector(3 downto 0);
   signal sclk_buffer_data_even  : std_logic_vector(29 downto 0);
-  signal sclk_buffer_ready_odd  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_empty_odd  : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_sof_odd           : std_logic_vector(LANE_PER_PHY - 1 downto 0);
   signal sclk_buffer_sync_odd   : std_logic_vector(3 downto 0);
   signal sclk_buffer_data_odd   : std_logic_vector(29 downto 0);
   signal sclk_buffer_read_en    : std_logic;
@@ -447,7 +454,8 @@ begin
       if (sclk_reset = '1') then
         x_row_start <= (others => '0');
       else
-        if (sof_flag = '1') then
+        --if (sof_flag = '1') then
+        if (state = S_INIT) then
           --ToDO should come from register
           x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
         end if;
@@ -466,7 +474,7 @@ begin
       if (sclk_reset = '1') then
         x_row_stop <= (others => '0');
       else
-        if (sof_flag = '1') then
+        if (state = S_INIT) then
           x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
         end if;
       end if;
@@ -485,7 +493,8 @@ begin
       if (sclk_reset = '1') then
         y_row_start <= (others => '0');
       else
-        if (sof_flag = '1') then
+        --if (sof_flag = '1') then
+        if (state = S_INIT) then
           y_row_start <= hispi_ystart;
         end if;
       end if;
@@ -505,7 +514,8 @@ begin
       if (sclk_reset = '1') then
         y_row_stop <= (others => '0');
       else
-        if (sof_flag = '1') then
+        --if (sof_flag = '1') then
+        if (state = S_INIT) then
           start      := unsigned(hispi_ystart);
           size       := unsigned(hispi_ysize);
           y_row_stop <= std_logic_vector(start + (size - 1));
@@ -645,12 +655,13 @@ begin
       sclk_reset_phy         => sclk_reset_phy,
       sclk_start_calibration => sclk_start_calibration,
       sclk_calibration_done  => sclk_calibration_done(0),
+      sclk_sof               => sclk_sof_even,
+      sclk_buffer_empty      => sclk_buffer_empty_even,
       sclk_buffer_read_en    => sclk_buffer_read_en,
       sclk_buffer_lane_id    => sclk_buffer_lane_id,
       sclk_buffer_id         => sclk_buffer_id,
-      sclk_buffer_mux_id     => sclk_buffer_lane_id,
+      sclk_buffer_mux_id     => sclk_buffer_mux_id,
       sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-      sclk_buffer_ready      => sclk_buffer_ready_even,
       sclk_buffer_sync       => sclk_buffer_sync_even,
       sclk_buffer_data       => sclk_buffer_data_even
       );
@@ -682,12 +693,13 @@ begin
       sclk_reset_phy         => sclk_reset_phy,
       sclk_start_calibration => sclk_start_calibration,
       sclk_calibration_done  => sclk_calibration_done(1),
+      sclk_sof               => sclk_sof_odd,
+      sclk_buffer_empty      => sclk_buffer_empty_odd,
       sclk_buffer_read_en    => sclk_buffer_read_en,
       sclk_buffer_lane_id    => sclk_buffer_lane_id,
       sclk_buffer_id         => sclk_buffer_id,
-      sclk_buffer_mux_id     => sclk_buffer_lane_id,
+      sclk_buffer_mux_id     => sclk_buffer_mux_id,
       sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-      sclk_buffer_ready      => sclk_buffer_ready_odd,
       sclk_buffer_sync       => sclk_buffer_sync_odd,
       sclk_buffer_data       => sclk_buffer_data_odd
       );
@@ -711,7 +723,7 @@ begin
       if (sclk_reset = '1')then
         sof_flag <= '0';
       else
-        if (state = S_PACK and top_fifo_read_sync(0)(0) = '1' and top_fifo_read_data_valid(0) = '1') then
+        if (state = S_IDLE and sclk_sof_even(0) = '1') then
           sof_flag <= '1';
         else
           sof_flag <= '0';
@@ -719,6 +731,10 @@ begin
       end if;
     end if;
   end process;
+
+  -- synthesis translate_off
+  assert (not(state /= S_IDLE and sclk_sof_even(0) = '1')) report "Detected SOF when not IDLE" severity error;
+  -- synthesis translate_on
 
 
   -----------------------------------------------------------------------------
@@ -799,7 +815,8 @@ begin
           when S_IDLE =>
             if (sclk_calibration_pending = '1') then
               state <= S_START_CALIBRATION;
-            elsif (data_pending = '1') then
+            --elsif (data_pending = '1') then
+            elsif (sof_flag = '1') then
               state <= S_INIT;
             end if;
 
@@ -993,7 +1010,8 @@ begin
       if (sclk_reset = '1') then
         line_cntr <= (others => '0');
       else
-        if (sof_flag = '1') then
+        --if (sof_flag = '1') then
+        if (state = S_INIT) then
           line_cntr <= unsigned(hispi_ystart);
         elsif (state = S_DONE) then
           line_cntr <= line_cntr+1;
@@ -1008,7 +1026,9 @@ begin
 
 
 
-  init_frame <= sof_flag;
+ -- init_frame <= sof_flag;
+  init_frame <= '1' when (state = S_INIT) else
+                '0';
 
   -----------------------------------------------------------------------------
   -- 
@@ -1056,33 +1076,33 @@ begin
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
       )
     port map (
-      sclk                    => sclk,
-      sclk_reset              => sclk_reset,
-      streamer_en             => '1',
-      streamer_busy           => open,
-      transfert_done          => transfert_done,
-      init_frame              => init_frame,
-      nb_lane_enabled         => nb_lane_enabled,
-      x_row_start             => x_row_start,
-      x_row_stop              => x_row_stop,
-      y_row_start             => y_row_start,
-      y_row_stop              => y_row_stop,
-      sclk_buffer_lane_id     => sclk_buffer_lane_id,
-      sclk_buffer_id          => sclk_buffer_id,
-      sclk_buffer_mux_id      => sclk_buffer_mux_id,
-      sclk_buffer_word_ptr    => sclk_buffer_word_ptr,
-      sclk_buffer_read_en     => sclk_buffer_read_en,
-      sclk_buffer_ready_even  => sclk_buffer_ready_even,
-      sclk_buffer_sync_even   => sclk_buffer_sync_even,
-      sclk_buffer_data_even   => sclk_buffer_data_even,
-      sclk_buffer_ready_odd   => sclk_buffer_ready_odd,
-      sclk_buffer_sync_odd    => sclk_buffer_sync_odd,
-      sclk_buffer_data_odd    => sclk_buffer_data_odd,
-      sclk_tready             => sclk_tready,
-      sclk_tvalid             => sclk_tvalid,
-      sclk_tuser              => sclk_tuser,
-      sclk_tlast              => sclk_tlast,
-      sclk_tdata              => sclk_tdata
+      sclk                   => sclk,
+      sclk_reset             => sclk_reset,
+      streamer_en            => '1',
+      streamer_busy          => open,
+      transfert_done         => transfert_done,
+      init_frame             => init_frame,
+      nb_lane_enabled        => nb_lane_enabled,
+      x_row_start            => x_row_start,
+      x_row_stop             => x_row_stop,
+      y_row_start            => y_row_start,
+      y_row_stop             => y_row_stop,
+      sclk_buffer_lane_id    => sclk_buffer_lane_id,
+      sclk_buffer_id         => sclk_buffer_id,
+      sclk_buffer_mux_id     => sclk_buffer_mux_id,
+      sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
+      sclk_buffer_read_en    => sclk_buffer_read_en,
+      sclk_buffer_empty_even => sclk_buffer_empty_even,
+      sclk_buffer_sync_even  => sclk_buffer_sync_even,
+      sclk_buffer_data_even  => sclk_buffer_data_even,
+      sclk_buffer_empty_odd  => sclk_buffer_empty_odd,
+      sclk_buffer_sync_odd   => sclk_buffer_sync_odd,
+      sclk_buffer_data_odd   => sclk_buffer_data_odd,
+      sclk_tready            => sclk_tready,
+      sclk_tvalid            => sclk_tvalid,
+      sclk_tuser             => sclk_tuser,
+      sclk_tlast             => sclk_tlast,
+      sclk_tdata             => sclk_tdata
       );
 
 

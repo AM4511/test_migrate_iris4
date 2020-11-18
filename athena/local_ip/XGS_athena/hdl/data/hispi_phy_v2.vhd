@@ -63,14 +63,19 @@ entity hispi_phy_v2 is
     sclk_calibration_done  : out std_logic;
 
     ---------------------------------------------------------------------------
+    -- Sync
+    ---------------------------------------------------------------------------
+    sclk_sof : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
+
+    ---------------------------------------------------------------------------
     -- Line buffer interface
     ---------------------------------------------------------------------------
+    sclk_buffer_empty    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
     sclk_buffer_read_en  : in  std_logic;
     sclk_buffer_lane_id  : in  std_logic_vector(1 downto 0);
     sclk_buffer_id       : in  std_logic_vector(1 downto 0);
     sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-    sclk_buffer_ready    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
     sclk_buffer_sync     : out std_logic_vector(3 downto 0);
     sclk_buffer_data     : out std_logic_vector(29 downto 0)
     );
@@ -156,9 +161,14 @@ architecture rtl of hispi_phy_v2 is
       sclk_reset : in std_logic;
 
       ---------------------------------------------------------------------------
+      -- Sync
+      ---------------------------------------------------------------------------
+      sclk_sof : out std_logic;
+
+      ---------------------------------------------------------------------------
       -- Line buffer interface
       ---------------------------------------------------------------------------
-      sclk_buffer_ready    : out std_logic;
+      sclk_buffer_empty    : out std_logic;
       sclk_buffer_read_en  : in  std_logic;
       sclk_buffer_id       : in  std_logic_vector(1 downto 0);
       sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
@@ -259,7 +269,7 @@ architecture rtl of hispi_phy_v2 is
   signal rclk_tap_histogram          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal sclk_buffer_read_en_vect : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sclk_buffer_ready_vect   : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_empty_vect   : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_sync_vect    : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_data_vect    : std30_logic_vector(LANE_PER_PHY-1 downto 0);
 
@@ -402,7 +412,6 @@ begin
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
 
-
     ---------------------------------------------------------------------------
     -- Put the lane decoder in reset if not used (4 lanes sensors)
     ---------------------------------------------------------------------------
@@ -429,8 +438,8 @@ begin
     sclk_buffer_read_en_vect(i) <= sclk_buffer_read_en when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
                                    '0';
 
-    -- sclk_buffer_ready <= sclk_buffer_ready_vect(i) when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
-    --                      '0';
+    -- sclk_buffer_empty <= sclk_buffer_empty_vect(i) when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
+    --                      (others => '0');
 
 
     sclk_buffer_sync <= sclk_buffer_sync_vect(i) when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
@@ -470,7 +479,8 @@ begin
         regfile                => regfile,
         sclk                   => sclk,
         sclk_reset             => sclk_reset,
-        sclk_buffer_ready      => sclk_buffer_ready(i),
+        sclk_sof               => sclk_sof(i),
+        sclk_buffer_empty      => sclk_buffer_empty(i),
         sclk_buffer_read_en    => sclk_buffer_read_en_vect(i),
         sclk_buffer_id         => sclk_buffer_id,
         sclk_buffer_mux_id     => sclk_buffer_mux_id,

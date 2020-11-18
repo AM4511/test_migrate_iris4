@@ -64,15 +64,20 @@ entity lane_decoder_v2 is
     sclk_reset : in std_logic;
 
     ---------------------------------------------------------------------------
+    -- Sync
+    ---------------------------------------------------------------------------
+    sclk_sof              : out std_logic;
+    
+    ---------------------------------------------------------------------------
     -- Line buffer interface
     ---------------------------------------------------------------------------
-    sclk_buffer_ready    : out std_logic;
-    sclk_buffer_read_en  : in  std_logic;
-    sclk_buffer_id       : in  std_logic_vector(1 downto 0);
-    sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
-    sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-    sclk_buffer_sync     : out std_logic_vector(3 downto 0);
-    sclk_buffer_data     : out std_logic_vector(29 downto 0)
+    sclk_buffer_empty     : out std_logic;
+    sclk_buffer_read_en   : in  std_logic;
+    sclk_buffer_id        : in  std_logic_vector(1 downto 0);
+    sclk_buffer_mux_id    : in  std_logic_vector(1 downto 0);
+    sclk_buffer_word_ptr  : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    sclk_buffer_sync      : out std_logic_vector(3 downto 0);
+    sclk_buffer_data      : out std_logic_vector(29 downto 0)
     );
 end entity lane_decoder_v2;
 
@@ -157,30 +162,33 @@ architecture rtl of lane_decoder_v2 is
       WORD_PTR_WIDTH : integer := 6
       );
     port (
-      ---------------------------------------------------------------------
-      -- Pixel clock domain
-      ---------------------------------------------------------------------
-      pclk         : in std_logic;
-      pclk_reset   : in std_logic;
-      pclk_init    : in std_logic;
-      pclk_valid   : in std_logic;
-      pclk_data    : in PIXEL_ARRAY(2 downto 0);
-      pclk_sync    : in std_logic_vector(3 downto 0);
-      pclk_row_id  : in std_logic_vector(1 downto 0);
-      pclk_lane_id : in std_logic_vector(1 downto 0);
+    ---------------------------------------------------------------------
+    -- Pixel clock domain
+    ---------------------------------------------------------------------
+    pclk                : in  std_logic;
+    pclk_reset          : in  std_logic;
+    pclk_init           : in  std_logic;
+    pclk_write_en       : in  std_logic;
+    pclk_data           : in  PIXEL_ARRAY(2 downto 0);
+    pclk_sync           : in  std_logic_vector(3 downto 0);
+    pclk_buffer_id      : in  std_logic_vector(1 downto 0);
+    pclk_mux_id         : in  std_logic_vector(1 downto 0);
+    pclk_word_ptr       : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    pclk_set_buff_ready : in  std_logic_vector(3 downto 0);
+    pclk_buff_ready     : out std_logic_vector(3 downto 0);
 
-
-      ---------------------------------------------------------------------
-      -- Line buffer interface
-      ---------------------------------------------------------------------
-      sclk           : in  std_logic;
-      sclk_reset     : in  std_logic;
-      sclk_read_en   : in  std_logic;
-      sclk_buffer_id : in  std_logic_vector(1 downto 0);
-      sclk_mux_id    : in  std_logic_vector(1 downto 0);
-      sclk_word_ptr  : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-      sclk_sync      : out std_logic_vector(3 downto 0);
-      sclk_data      : out std_logic_vector(29 downto 0)
+    ---------------------------------------------------------------------
+    -- Line buffer interface
+    ---------------------------------------------------------------------
+    sclk                : in  std_logic;
+    sclk_reset          : in  std_logic;
+    sclk_empty          : out std_logic;
+    sclk_read_en        : in  std_logic;
+    sclk_buffer_id      : in  std_logic_vector(1 downto 0);
+    sclk_mux_id         : in  std_logic_vector(1 downto 0);
+    sclk_word_ptr       : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    sclk_sync           : out std_logic_vector(3 downto 0);
+    sclk_data           : out std_logic_vector(29 downto 0)
       );
   end component;
 
@@ -205,6 +213,7 @@ architecture rtl of lane_decoder_v2 is
   attribute keep       : string;
 
 
+
   constant HISPI_WORDS_PER_SYNC_CODE : integer := 4;
   constant PIX_SHIFT_REGISTER_SIZE   : integer := PIXEL_SIZE * HISPI_WORDS_PER_SYNC_CODE;
   constant FIFO_ADDRESS_WIDTH        : integer := 10;  -- jmansill 1024 locationsde 32bits : 32K : 1 block memoire 36Kbits
@@ -225,20 +234,25 @@ architecture rtl of lane_decoder_v2 is
   signal pclk_embedded           : std_logic;
   signal pclk_sof_pending        : std_logic;
   signal pclk_sof_flag           : std_logic;
+  signal pclk_set_buff_ready     : std_logic_vector(3 downto 0);
+  signal pclk_buff_ready         : std_logic_vector(3 downto 0);
 
-  signal pclk_buffer_init    : std_logic;
-  signal pclk_buffer_valid   : std_logic;
-  signal pclk_buffer_data    : PIXEL_ARRAY(2 downto 0);
-  signal pclk_buffer_sync    : std_logic_vector(3 downto 0);
-  signal pclk_buffer_row_id  : std_logic_vector(1 downto 0);
-  signal pclk_buffer_lane_id : std_logic_vector(1 downto 0);
+  signal pclk_buffer_init   : std_logic;
+  --signal pclk_buffer_valid  : std_logic;
+  signal pclk_buffer_data   : PIXEL_ARRAY(2 downto 0);
+  signal pclk_buffer_sync   : std_logic_vector(3 downto 0);
+  signal pclk_buffer_id     : unsigned(1 downto 0);
+  signal pclk_buffer_mux_id : unsigned(1 downto 0);
+  signal pclk_word_ptr      : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal pclk_init_word_ptr : std_logic;
+  signal pclk_incr_word_ptr : std_logic;
 
   signal pclk_buffer_overrun : std_logic;
   signal pclk_buffer_wen     : std_logic;
   --signal pclk_buffer_wdata   : std_logic_vector (FIFO_DATA_WIDTH-1 downto 0);
   signal pclk_buffer_full    : std_logic;
   signal pclk_state          : FSM_STATE_TYPE := S_DISABLED;
-  signal pclk_dataCntr       : unsigned(3 downto 0);  -- Modulo 12 counter
+  signal pclk_phase_cntr     : unsigned(3 downto 0);  -- Modulo 12 counter
   signal pclk_packer_valid   : std_logic;
   signal pclk_sync           : std_logic_vector (3 downto 0);
   signal pclk_sync_error     : std_logic;
@@ -253,6 +267,12 @@ architecture rtl of lane_decoder_v2 is
   signal pclk_crc_error     : std_logic;
   signal pclk_computed_crc1 : std_logic_vector(11 downto 0);
   signal pclk_computed_crc2 : std_logic_vector(11 downto 0);
+  signal pclk_eol           : std_logic;
+  signal pclk_sof           : std_logic;
+  --signal pclk_sol           : std_logic;
+  signal sclk_eol           : std_logic;
+  --signal sclk_sol           : std_logic;
+
 
   signal sclk_buffer_empty_int           : std_logic;
   signal sclk_buffer_underrun            : std_logic;
@@ -398,6 +418,17 @@ begin
                  '0';
 
 
+  pclk_eol <= '1' when (pclk_state = S_EOL) else
+              '0';
+
+
+  -- pclk_sol <= '1' when (pclk_state = S_SOL) else
+  --             '0';
+
+  pclk_sof <= '1' when (pclk_state = S_SOF) else
+              '0';
+
+
   -----------------------------------------------------------------------------
   -- Detect CRC error
   -----------------------------------------------------------------------------
@@ -418,7 +449,7 @@ begin
         pclk_packer_valid <= '0';
       else
         if (pclk_state = S_AIL and pclk_embedded = '0') then
-          case pclk_dataCntr is
+          case pclk_phase_cntr is
             -------------------------------------------------------------------
             -- Phase 0 : Packing pixel from lane 0 in pclk_packer_0
             -------------------------------------------------------------------
@@ -479,8 +510,8 @@ begin
             -- Phase 8 : Packing pixel from lane 0 in pclk_packer_0 and ready to flush
             -------------------------------------------------------------------
             when "1000" =>
-              pclk_packer_valid           <= '1';
-              pclk_packer_0(2) <= pclk_pixel;
+              pclk_packer_valid <= '1';
+              pclk_packer_0(2)  <= pclk_pixel;
 
             -------------------------------------------------------------------
             -- Phase 9 : Packing pixel from lane 1 in pclk_packer_1 and ready to flush
@@ -521,44 +552,42 @@ begin
   -- Process     : pclk_pclk_packer_mux 
   -- Description : 4-to-1 Multiplexer
   -----------------------------------------------------------------------------
-  pclk_packer_mux <= pclk_packer_0 when (pclk_dataCntr = "1001") else
-                     pclk_packer_1 when (pclk_dataCntr = "1010") else
-                     pclk_packer_2 when (pclk_dataCntr = "1011") else
-                     pclk_packer_3 when (pclk_dataCntr = "0000") else
+  pclk_packer_mux <= pclk_packer_0 when (pclk_phase_cntr = "1001") else
+                     pclk_packer_1 when (pclk_phase_cntr = "1010") else
+                     pclk_packer_2 when (pclk_phase_cntr = "1011") else
+                     pclk_packer_3 when (pclk_phase_cntr = "0000") else
                      (others => (others => '0'));
 
 
 
   -----------------------------------------------------------------------------
-  -- Process     : P_pclk_dataCntr
-  -- Description : Modulo 8 phase counter. Used to de-interlace data from
+  -- Process     : P_pclk_phase_cntr
+  -- Description : Modulo 12 phase counter. Used to de-interlace data from
   --               4 lanes. 
   -----------------------------------------------------------------------------
-  P_pclk_dataCntr : process (pclk) is
+  P_pclk_phase_cntr : process (pclk) is
   begin
     if (rising_edge(pclk)) then
       if (pclk_reset = '1') then
         -- initialize with max count value
-        pclk_dataCntr <= (others => '0');
+        pclk_phase_cntr <= (others => '0');
       else
         -- Align the counter phase with the line sync
         if (pclk_state = S_SOF or pclk_state = S_SOL) then
-          pclk_dataCntr <= (others => '0');
+          pclk_phase_cntr <= (others => '0');
         -- As long as valid pixels are received, count modulo 12
         -- then wrap around.
         elsif (pclk_hispi_phy_en = '1'and pclk_state = S_AIL) then
-          if (pclk_dataCntr = "1011") then
+          if (pclk_phase_cntr = "1011") then
             -- Modulo 12; we wrap around
-            pclk_dataCntr <= (others => '0');
+            pclk_phase_cntr <= (others => '0');
           else
-            pclk_dataCntr <= pclk_dataCntr + 1;
+            pclk_phase_cntr <= pclk_phase_cntr + 1;
           end if;
         end if;
       end if;
     end if;
   end process;
-
-
 
 
   -----------------------------------------------------------------------------
@@ -594,6 +623,33 @@ begin
 
   pclk_sync_error <= '1' when (pclk_state = S_ERROR) else
                      '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Module      :
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_pclk_set_buff_ready : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1')then
+        pclk_set_buff_ready <= (others => '0');
+      else
+        if (pclk_state = S_EOL and pclk_embedded = '0') then
+          for i in 0 to 3 loop
+            if (i = to_integer(pclk_buffer_id)) then
+              pclk_set_buff_ready(i) <= '1';
+            else
+              pclk_set_buff_ready(i) <= '0';
+            end if;
+          end loop;  -- i
+        else
+          pclk_set_buff_ready <= (others => '0');
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
@@ -638,37 +694,107 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_buffer_id
+  -- Description : Modulo 4 buffer counter. 
+  -----------------------------------------------------------------------------
+  P_pclk_buffer_id : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        pclk_buffer_id <= (others => '0');
+      else
+        if (pclk_state = S_SOF) then
+          pclk_buffer_id <= (others => '0');
+        elsif (pclk_state = S_EOL and pclk_embedded = '0') then
+          pclk_buffer_id <= pclk_buffer_id + 1;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
-  pclk_buffer_init<= '1' when (pclk_state = S_SOF) else
-                     '0';
+  -----------------------------------------------------------------------------
+  -- Process     : P_pclk_buffer_mux_id
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_pclk_buffer_mux_id : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1') then
+        pclk_buffer_mux_id <= (others => '0');
+      else
+        if (pclk_state = S_AIL) then
+          pclk_buffer_mux_id <= pclk_phase_cntr(1 downto 0);
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Word ptr init
+  -----------------------------------------------------------------------------
+  pclk_init_word_ptr <= '1' when (pclk_state = S_SOL) else
+                        '0';
+
+  -----------------------------------------------------------------------------
+  -- Buffer write en 
+  -----------------------------------------------------------------------------
+  pclk_incr_word_ptr <= '1' when (pclk_state = S_AIL and pclk_buffer_wen = '1' and pclk_buffer_mux_id = "11") else
+                        '0';
 
 
-  pclk_buffer_valid<= pclk_buffer_wen;
-  pclk_buffer_data<= pclk_packer_mux;
-  pclk_buffer_sync<= pclk_sync;
-  
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_pclk_word_ptr : process (pclk) is
+  begin
+    if (rising_edge(pclk)) then
+      if (pclk_reset = '1')then
+        pclk_word_ptr <= (others => '0');
+      else
+        if (pclk_init_word_ptr = '1') then
+          pclk_word_ptr <= (others => '0');
+        elsif (pclk_incr_word_ptr = '1') then
+          pclk_word_ptr <= pclk_word_ptr + 1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  pclk_buffer_init <= '1' when (pclk_state = S_SOF) else
+                      '0';
+
+
+  --pclk_buffer_valid <= pclk_buffer_wen;
+  pclk_buffer_data  <= pclk_packer_mux;
+  pclk_buffer_sync  <= pclk_sync;
+
   xline_buffer_v2 : line_buffer_v2
     generic map(
       WORD_PTR_WIDTH => WORD_PTR_WIDTH
       )
     port map(
-      pclk           => pclk,
-      pclk_reset     => pclk_reset,
-      pclk_init      => pclk_buffer_init,
-      pclk_valid     => pclk_buffer_valid,
-      pclk_data      => pclk_buffer_data,
-      pclk_sync      => pclk_buffer_sync,
-      pclk_row_id    => pclk_buffer_row_id,
-      pclk_lane_id   => pclk_buffer_lane_id,
-      sclk           => sclk,
-      sclk_reset     => sclk_reset,
-      sclk_read_en   => sclk_buffer_read_en,
-      sclk_buffer_id => sclk_buffer_id,
-      sclk_mux_id    => sclk_buffer_mux_id,
-      sclk_word_ptr  => sclk_buffer_word_ptr,
-      sclk_sync      => sclk_buffer_sync,
-      sclk_data      => sclk_buffer_data
+      pclk                => pclk,
+      pclk_reset          => pclk_reset,
+      pclk_init           => pclk_buffer_init,
+      pclk_write_en       => pclk_buffer_wen,
+      pclk_data           => pclk_buffer_data,
+      pclk_sync           => pclk_buffer_sync,
+      pclk_buffer_id      => std_logic_vector(pclk_buffer_id),
+      pclk_mux_id         => std_logic_vector(pclk_buffer_mux_id),
+      pclk_word_ptr       => std_logic_vector(pclk_word_ptr),
+      pclk_set_buff_ready => pclk_set_buff_ready,
+      pclk_buff_ready     => pclk_buff_ready,
+      sclk                => sclk,
+      sclk_reset          => sclk_reset,
+      sclk_empty          => sclk_buffer_empty,
+      sclk_read_en        => sclk_buffer_read_en,
+      sclk_buffer_id      => sclk_buffer_id,
+      sclk_mux_id         => sclk_buffer_mux_id,
+      sclk_word_ptr       => sclk_buffer_word_ptr,
+      sclk_sync           => sclk_buffer_sync,
+      sclk_data           => sclk_buffer_data
       );
 
 
@@ -814,6 +940,42 @@ begin
 
   regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_SYNC_ERROR_set <= '1' when (rclk_sync_error = '1' and rclk_enable_hispi = '1') else
                                                                    '0';
+
+
+
+
+  -----------------------------------------------------------------------------
+  -- Resync 
+  -----------------------------------------------------------------------------
+  M_sclk_sof : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_sof,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => open,
+      bRise => sclk_sof,
+      bFall => open
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- Resync 
+  -----------------------------------------------------------------------------
+  M_sclk_eol : mtx_resync
+    port map
+    (
+      aClk  => pclk,
+      aClr  => pclk_reset,
+      aDin  => pclk_eol,
+      bclk  => sclk,
+      bclr  => sclk_reset,
+      bDout => open,
+      bRise => sclk_eol,
+      bFall => open
+      );
 
 
 
