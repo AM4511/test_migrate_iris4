@@ -77,7 +77,7 @@ entity hispi_phy_v2 is
     sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
     sclk_buffer_sync     : out std_logic_vector(3 downto 0);
-    sclk_buffer_data     : out std_logic_vector(29 downto 0)
+    sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
     );
 
 end entity hispi_phy_v2;
@@ -174,7 +174,7 @@ architecture rtl of hispi_phy_v2 is
       sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
       sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
       sclk_buffer_sync     : out std_logic_vector(3 downto 0);
-      sclk_buffer_data     : out std_logic_vector(29 downto 0)
+      sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
       );
   end component;
 
@@ -220,7 +220,8 @@ architecture rtl of hispi_phy_v2 is
   type SHIFT_REG_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (HISPI_SHIFT_REGISTER_SIZE - 1 downto 0);
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
-
+  type PIXEL_ARRAY_MUX_TYPE is array (LANE_PER_PHY - 1 downto 0) of PIXEL_ARRAY(2 downto 0);
+  
   signal bitslip : std_logic_vector(LANE_PER_PHY-1 downto 0) := (others => '0');
 
   signal hclk                         : std_logic;
@@ -271,7 +272,7 @@ architecture rtl of hispi_phy_v2 is
   signal sclk_buffer_read_en_vect : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_empty_vect   : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_sync_vect    : std4_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sclk_buffer_data_vect    : std30_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_data_vect    : PIXEL_ARRAY_MUX_TYPE;
 
 --   attribute mark_debug of hclk_reset_vect              : signal is "true";
 --   attribute mark_debug of hclk_reset                   : signal is "true";
@@ -408,6 +409,21 @@ begin
     end if;
   end process;
 
+  
+  P_sclk_buffer_data: process (sclk_buffer_lane_id, sclk_buffer_data_vect) is
+  begin
+    for i in 0 to 3 loop
+      if (i = to_integer(unsigned(sclk_buffer_lane_id))) then
+        sclk_buffer_data <= sclk_buffer_data_vect(i);
+        exit;
+      else
+        sclk_buffer_data <=  (others => (others => '0'));
+      end if;
+    end loop;
+  end process;
+
+
+                       
 
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
@@ -442,11 +458,6 @@ begin
     --                      (others => '0');
 
 
-    sclk_buffer_sync <= sclk_buffer_sync_vect(i) when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
-                        (others => '0');
-
-    sclk_buffer_data <= sclk_buffer_data_vect(i) when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
-                        (others => '0');
 
     ---------------------------------------------------------------------------
     -- Lane decoder module

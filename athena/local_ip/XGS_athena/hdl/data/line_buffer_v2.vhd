@@ -248,7 +248,7 @@ begin
 
             -- pclk_word_count(i) is assumed to be stabled
             -- when sclk_set_buff_ready(i) = '1'
-            sclk_word_count_array(i) <= unsigned(pclk_word_ptr) & "11";
+            sclk_word_count_array(i) <= unsigned(pclk_word_ptr) & "00";
 
 
 

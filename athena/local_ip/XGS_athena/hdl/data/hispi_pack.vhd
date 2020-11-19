@@ -14,6 +14,7 @@ package hispi_pack is
 
   function to_pixel(stdlv            : std_logic_vector(9 downto 0)) return PIXEL_TYPE;
   function to_std_logic_vector(pixel : PIXEL_TYPE) return std_logic_vector;
+  function to_std_logic_vector(pixel_vect : PIXEL_ARRAY) return std_logic_vector;
 
 end package hispi_pack;
 
@@ -32,12 +33,29 @@ package body hispi_pack is
 
   --------------------------------------------------------------------------------
   -- Function Name: std_logic_vector
-  -- Description: Cast from SYSTEM_VERSION_TYPE to std_logic_vector
+  -- Description: Cast from PIXE_TYPE to std_logic_vector
   --------------------------------------------------------------------------------
   function to_std_logic_vector(pixel : PIXEL_TYPE) return std_logic_vector is
     variable slv : std_logic_vector(pixel'range);
   begin
     slv := pixel;
+    return slv;
+  end to_std_logic_vector;
+
+  --------------------------------------------------------------------------------
+  -- Function Name: std_logic_vector
+  -- Description: Cast from SYSTEM_VERSION_TYPE to std_logic_vector
+  --------------------------------------------------------------------------------
+  function to_std_logic_vector(pixel_vect : PIXEL_ARRAY) return std_logic_vector is
+    variable slv : std_logic_vector((pixel_vect'length*10)-1 downto 0);
+    variable lsb : integer;
+    variable msb : integer;
+  begin
+    for i in pixel_vect'range loop
+      lsb := i*10;
+      msb := lsb+9;
+      slv(msb downto lsb) := pixel_vect(i);
+    end loop;  -- i
     return slv;
   end to_std_logic_vector;
 

@@ -11,6 +11,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.hispi_pack.all;
 
 entity axi_line_streamer_v2 is
   generic (
@@ -34,6 +36,7 @@ entity axi_line_streamer_v2 is
     streamer_busy   : out std_logic;
     transfert_done  : out std_logic;
     init_frame      : in  std_logic;
+    frame_done      : out std_logic;
     nb_lane_enabled : in  std_logic_vector(2 downto 0);
 
     ---------------------------------------------------------------------------
@@ -54,14 +57,14 @@ entity axi_line_streamer_v2 is
     sclk_buffer_read_en  : out std_logic;
 
     -- Even lanes
-    sclk_buffer_empty_even : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    sclk_buffer_sync_even  : in std_logic_vector(3 downto 0);
-    sclk_buffer_data_even  : in std_logic_vector(29 downto 0);
+    sclk_buffer_empty_top : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+    sclk_buffer_sync_top  : in std_logic_vector(3 downto 0);
+    sclk_buffer_data_top  : in PIXEL_ARRAY(2 downto 0);
 
     -- Odd lanes
-    sclk_buffer_empty_odd : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    sclk_buffer_sync_odd  : in std_logic_vector(3 downto 0);
-    sclk_buffer_data_odd  : in std_logic_vector(29 downto 0);
+    sclk_buffer_empty_bottom : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+    sclk_buffer_sync_bottom  : in std_logic_vector(3 downto 0);
+    sclk_buffer_data_bottom  : in PIXEL_ARRAY(2 downto 0);
 
     ---------------------------------------------------------------------------
     -- AXI Master stream interface
@@ -116,18 +119,18 @@ architecture rtl of axi_line_streamer_v2 is
   constant ADDRWIDTH : integer                              := 10;
   constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range) := "111001";  --0x39
 
-  signal sclk_fifo_write_en   : std_logic;
-  signal sclk_fifo_write_data : std_logic_vector(DATAWIDTH - 1 downto 0);
-  signal sclk_fifo_read_en    : std_logic;
-  signal sclk_fifo_read_data  : std_logic_vector(DATAWIDTH - 1 downto 0);
-  signal sclk_fifo_usedw      : std_logic_vector(ADDRWIDTH downto 0);
-  signal sclk_fifo_empty      : std_logic;
-  signal sclk_fifo_full       : std_logic;
+  signal sclk_fifo_write_en       : std_logic;
+  signal sclk_fifo_write_data     : PIXEL_ARRAY(7 downto 0);
+  signal sclk_fifo_write_data_slv : std_logic_vector(79 downto 0);
+  signal sclk_fifo_read_en        : std_logic;
+  signal sclk_fifo_read_data      : std_logic_vector(DATAWIDTH - 1 downto 0);
+  signal sclk_fifo_usedw          : std_logic_vector(ADDRWIDTH downto 0);
+  signal sclk_fifo_empty          : std_logic;
+  signal sclk_fifo_full           : std_logic;
 
   signal m_wait          : std_logic;
   signal state           : FSM_TYPE;
   signal burst_length    : integer;
-  signal buffer_address  : integer               := 0;
   signal read_en         : std_logic;
   signal read_data_valid : std_logic;
   signal first_row       : std_logic;
@@ -136,7 +139,7 @@ architecture rtl of axi_line_streamer_v2 is
   signal pixel_ptr       : integer range 0 to 16 := 0;
   signal line_cntr       : unsigned(11 downto 0);
 
-  signal sclk_data_packer : std_logic_vector(119 downto 0);
+  signal sclk_data_packer : PIXEL_ARRAY(17 downto 0);
   signal sclk_load_data   : std_logic;
   signal last_data        : std_logic;
 
@@ -150,11 +153,11 @@ architecture rtl of axi_line_streamer_v2 is
   signal word_cntr_init    : std_logic;
   signal mux_id_cntr       : unsigned(1 downto 0);
   signal mux_id_cntr_en    : std_logic;
-  signal mux_id_cntr_init  : std_logic;
-  signal current_x_start  : std_logic_vector(12 downto 0);
-  signal current_x_stop   : std_logic_vector(12 downto 0);
-  signal current_y_start  : std_logic_vector(11 downto 0);
-  signal current_y_stop   : std_logic_vector(11 downto 0);
+  signal current_x_start   : std_logic_vector(12 downto 0);
+  signal current_x_stop    : std_logic_vector(12 downto 0);
+  signal current_y_start   : std_logic_vector(11 downto 0);
+  signal current_y_stop    : std_logic_vector(11 downto 0);
+  signal odd_line          : std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -168,9 +171,6 @@ begin
   m_wait <= '1' when (sclk_tready = '0' and read_data_valid = '1' and sclk_tvalid_int = '1') else
             '0';
 
-
-  read_en <= '1' when (state = S_DATA_PHASE) else
-             '0';
 
 
 
@@ -209,14 +209,14 @@ begin
           when S_WAIT_SOL =>
             -- When 6 lanes enabled and data vailable on the 6 lanes
             if (nb_lane_enabled = "110" and
-                sclk_buffer_empty_even(2 downto 0) = "000" and
-                sclk_buffer_empty_odd(2 downto 0) = "000"
+                sclk_buffer_empty_top(2 downto 0) = "000" and
+                sclk_buffer_empty_bottom(2 downto 0) = "000"
                 ) then
               state <= S_SOL;
             -- When 4 lanes enabled and data vailable on the 4 lanes
             elsif (nb_lane_enabled = "100" and
-                   sclk_buffer_empty_even(1 downto 0) = "00" and
-                   sclk_buffer_empty_odd(1 downto 0) = "00"
+                   sclk_buffer_empty_top(1 downto 0) = "00" and
+                   sclk_buffer_empty_bottom(1 downto 0) = "00"
                    ) then
               state <= S_SOL;
             else
@@ -286,6 +286,9 @@ begin
     end if;
   end process P_state;
 
+  -- Indicates the frame is completely packed
+  frame_done <= '1' when (state = S_DONE) else
+                '0';
 
   -----------------------------------------------------------------------------
   -- Process     : P_current_x_start
@@ -387,13 +390,6 @@ begin
   end process;
 
 
-  --row_id <= std_logic_vector(line_cntr);
-
-  -- last_row <= '1' when (std_logic_vector(line_cntr) = current_y_stop and state /= S_IDLE) else
-  --             '0';
-
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_first_row
   -- Description : 
@@ -414,8 +410,6 @@ begin
   end process;
 
 
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_last_row
   -- Description : 
@@ -430,6 +424,8 @@ begin
           last_row <= '0';
         elsif (state = S_SOL and (line_cntr = unsigned(current_y_stop))) then
           last_row <= '1';
+        elsif (state = S_EOF) then
+          last_row <= '0';
         end if;
       end if;
     end if;
@@ -437,24 +433,11 @@ begin
 
 
 
+  read_en <= '1' when (state = S_DATA_PHASE) else
+             '0';
 
 
-
-
-
-
-
-
-
-
-  sclk_buffer_read_en <= '1' when (state = S_DATA_PHASE) else
-                         '0';
-
-
-
-  buffer_id_cntr_en <= '1' when (STATE = S_EOL) else
-                       '0';
-
+  sclk_buffer_read_en <= read_en;
 
   -----------------------------------------------------------------------------
   -- Process     : P_buffer_id_cntr
@@ -475,6 +458,9 @@ begin
     end if;
   end process;
 
+
+  buffer_id_cntr_en <= '1' when (STATE = S_EOL) else
+                       '0';
 
   sclk_buffer_id <= std_logic_vector(buffer_id_cntr);
 
@@ -574,7 +560,46 @@ begin
   sclk_buffer_lane_id <= std_logic_vector(to_unsigned(lane_id_cntr, sclk_buffer_lane_id'length));
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_load_data
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sclk_load_data : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_load_data <= '0';
+      else
+        sclk_load_data <= read_en;
+      end if;
+    end if;
+  end process;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_pixel_ptr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_pixel_ptr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        pixel_ptr <= 0;
+      else
+        if (state = S_SOL) then
+          pixel_ptr <= 0;
+        elsif (sclk_load_data = '1') then
+          if (pixel_ptr < 8) then
+            pixel_ptr <= pixel_ptr + 6;
+          else
+            pixel_ptr <= pixel_ptr + (6 - 8);
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  odd_line <= line_cntr(0);
 
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_data_packer
@@ -589,44 +614,116 @@ begin
         ---------------------------------------------------------------------
         case pixel_ptr is
           when 0 =>
-            sclk_data_packer(9 downto 0)   <= sclk_buffer_data_even(9 downto 0);
-            sclk_data_packer(19 downto 10) <= sclk_buffer_data_odd(9 downto 0);
+            if (odd_line = '1') then
+              sclk_data_packer(0) <= sclk_buffer_data_top(0);
+              sclk_data_packer(1) <= sclk_buffer_data_bottom(0);
 
-            sclk_data_packer(29 downto 20) <= sclk_buffer_data_even(19 downto 10);
-            sclk_data_packer(39 downto 30) <= sclk_buffer_data_odd(19 downto 10);
+              sclk_data_packer(2) <= sclk_buffer_data_top(1);
+              sclk_data_packer(3) <= sclk_buffer_data_bottom(1);
 
-            sclk_data_packer(49 downto 40) <= sclk_buffer_data_even(29 downto 20);
-            sclk_data_packer(59 downto 50) <= sclk_buffer_data_odd(29 downto 20);
+              sclk_data_packer(4) <= sclk_buffer_data_top(2);
+              sclk_data_packer(5) <= sclk_buffer_data_bottom(2);
+            else
+              sclk_data_packer(0) <= sclk_buffer_data_bottom(0);
+              sclk_data_packer(1) <= sclk_buffer_data_top(0);
 
-          when 2 =>
-            sclk_data_packer(29 downto 20) <= sclk_buffer_data_even(9 downto 0);
-            sclk_data_packer(39 downto 30) <= sclk_buffer_data_odd(9 downto 0);
+              sclk_data_packer(2) <= sclk_buffer_data_bottom(1);
+              sclk_data_packer(3) <= sclk_buffer_data_top(1);
 
-            sclk_data_packer(49 downto 40) <= sclk_buffer_data_even(19 downto 10);
-            sclk_data_packer(59 downto 50) <= sclk_buffer_data_odd(19 downto 10);
-
-            sclk_data_packer(69 downto 60) <= sclk_buffer_data_even(29 downto 20);
-            sclk_data_packer(79 downto 70) <= sclk_buffer_data_odd(29 downto 20);
-
-          when 4 =>
-            sclk_data_packer(49 downto 40) <= sclk_buffer_data_even(9 downto 0);
-            sclk_data_packer(59 downto 50) <= sclk_buffer_data_odd(9 downto 0);
-
-            sclk_data_packer(69 downto 60) <= sclk_buffer_data_even(19 downto 10);
-            sclk_data_packer(79 downto 70) <= sclk_buffer_data_odd(19 downto 10);
-
-            sclk_data_packer(89 downto 80) <= sclk_buffer_data_even(29 downto 20);
-            sclk_data_packer(99 downto 90) <= sclk_buffer_data_odd(29 downto 20);
+              sclk_data_packer(4) <= sclk_buffer_data_bottom(2);
+              sclk_data_packer(5) <= sclk_buffer_data_top(2);
+            end if;
+            sclk_data_packer(11 downto 6) <= (others => (others => '-'));
 
           when 6 =>
-            sclk_data_packer(69 downto 60) <= sclk_buffer_data_even(9 downto 0);
-            sclk_data_packer(79 downto 70) <= sclk_buffer_data_odd(9 downto 0);
+            if (odd_line = '1') then
+              sclk_data_packer(6) <= sclk_buffer_data_top(0);
+              sclk_data_packer(7) <= sclk_buffer_data_bottom(0);
 
-            sclk_data_packer(89 downto 80) <= sclk_buffer_data_even(19 downto 10);
-            sclk_data_packer(99 downto 90) <= sclk_buffer_data_odd(19 downto 10);
+              sclk_data_packer(8) <= sclk_buffer_data_top(1);
+              sclk_data_packer(9) <= sclk_buffer_data_bottom(1);
 
-            sclk_data_packer(109 downto 100) <= sclk_buffer_data_even(29 downto 20);
-            sclk_data_packer(119 downto 110) <= sclk_buffer_data_odd(29 downto 20);
+              sclk_data_packer(10) <= sclk_buffer_data_top(2);
+              sclk_data_packer(11) <= sclk_buffer_data_bottom(2);
+            else
+              sclk_data_packer(6) <= sclk_buffer_data_bottom(0);
+              sclk_data_packer(7) <= sclk_buffer_data_top(0);
+
+              sclk_data_packer(8) <= sclk_buffer_data_bottom(1);
+              sclk_data_packer(9) <= sclk_buffer_data_top(1);
+
+              sclk_data_packer(10) <= sclk_buffer_data_bottom(2);
+              sclk_data_packer(11) <= sclk_buffer_data_top(2);
+            end if;
+
+          when 8 =>
+            if (odd_line = '1') then
+              sclk_data_packer(0) <= sclk_buffer_data_top(0);
+              sclk_data_packer(1) <= sclk_buffer_data_bottom(0);
+
+              sclk_data_packer(2) <= sclk_buffer_data_top(1);
+              sclk_data_packer(3) <= sclk_buffer_data_bottom(1);
+
+              sclk_data_packer(4) <= sclk_buffer_data_top(2);
+              sclk_data_packer(5) <= sclk_buffer_data_bottom(2);
+            else
+              sclk_data_packer(0) <= sclk_buffer_data_bottom(0);
+              sclk_data_packer(1) <= sclk_buffer_data_top(0);
+
+              sclk_data_packer(2) <= sclk_buffer_data_bottom(1);
+              sclk_data_packer(3) <= sclk_buffer_data_top(1);
+
+              sclk_data_packer(4) <= sclk_buffer_data_bottom(2);
+              sclk_data_packer(5) <= sclk_buffer_data_top(2);
+            end if;
+            sclk_data_packer(11 downto 6) <= (others => (others => '-'));
+            
+          when 10 =>
+            sclk_data_packer(1 downto 0)   <= sclk_data_packer(9 downto 8);
+            if (odd_line = '1') then
+              sclk_data_packer(2) <= sclk_buffer_data_top(0);
+              sclk_data_packer(3) <= sclk_buffer_data_bottom(0);
+
+              sclk_data_packer(4) <= sclk_buffer_data_top(1);
+              sclk_data_packer(5) <= sclk_buffer_data_bottom(1);
+
+              sclk_data_packer(6) <= sclk_buffer_data_top(2);
+              sclk_data_packer(7) <= sclk_buffer_data_bottom(2);
+            else
+              sclk_data_packer(2) <= sclk_buffer_data_bottom(0);
+              sclk_data_packer(3) <= sclk_buffer_data_top(0);
+
+              sclk_data_packer(4) <= sclk_buffer_data_bottom(1);
+              sclk_data_packer(5) <= sclk_buffer_data_top(1);
+
+              sclk_data_packer(6) <= sclk_buffer_data_bottom(2);
+              sclk_data_packer(7) <= sclk_buffer_data_top(2);
+            end if;
+            sclk_data_packer(11 downto 8) <= (others => (others => '-'));
+            
+            --OK
+          when 12 =>
+            sclk_data_packer(3 downto 0)   <= sclk_data_packer(11 downto 8);
+            if (odd_line = '1') then
+              sclk_data_packer(4) <= sclk_buffer_data_top(0);
+              sclk_data_packer(5) <= sclk_buffer_data_bottom(0);
+
+              sclk_data_packer(6) <= sclk_buffer_data_top(1);
+              sclk_data_packer(7) <= sclk_buffer_data_bottom(1);
+
+              sclk_data_packer(8) <= sclk_buffer_data_top(2);
+              sclk_data_packer(9) <= sclk_buffer_data_bottom(2);
+            else
+              sclk_data_packer(4) <= sclk_buffer_data_bottom(0);
+              sclk_data_packer(5) <= sclk_buffer_data_top(0);
+
+              sclk_data_packer(6) <= sclk_buffer_data_bottom(1);
+              sclk_data_packer(7) <= sclk_buffer_data_top(1);
+
+              sclk_data_packer(8) <= sclk_buffer_data_bottom(2);
+              sclk_data_packer(9) <= sclk_buffer_data_top(2);
+            end if;
+            sclk_data_packer(11 downto 10) <= (others => (others => '-'));
 
           when others =>
             null;
@@ -636,9 +733,11 @@ begin
   end process;
 
 
-  sclk_fifo_write_en <= '1' when (sclk_load_data = '1' and pixel_ptr > 4) else
+  sclk_fifo_write_en <= '1' when (sclk_load_data = '1' and pixel_ptr > 7) else
                         '0';
-  sclk_fifo_write_data <= sclk_data_packer(79 downto 0);
+
+  sclk_fifo_write_data     <= sclk_data_packer(7 downto 0);
+  sclk_fifo_write_data_slv <= to_std_logic_vector(sclk_fifo_write_data);
 
   xoutput_fifo : mtxSCFIFO
     generic map (
@@ -649,40 +748,13 @@ begin
       clk   => sclk,
       sclr  => sclk_reset,
       wren  => sclk_fifo_write_en,
-      data  => sclk_fifo_write_data,
+      data  => sclk_fifo_write_data_slv,
       rden  => sclk_fifo_read_en,
       q     => sclk_fifo_read_data,
       usedw => sclk_fifo_usedw,
       empty => sclk_fifo_empty,
       full  => sclk_fifo_full
       );
-
-
-  -- last_row <= '1' when (line_buffer_row_id = y_row_stop and state /= S_IDLE) else
-  --             '0';
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_address
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_line_buffer_address : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        buffer_address <= 0;
-      else
-        if (state = S_LOAD_BURST_CNTR) then
-          buffer_address <= to_integer(unsigned(current_x_start))*2/8;
-        elsif (state = S_DATA_PHASE and read_en = '1') then
-          buffer_address <= buffer_address+1;
-        end if;
-      end if;
-    end if;
-  end process;
-
-  -- line_buffer_address <= std_logic_vector(to_unsigned(buffer_address, line_buffer_address 'length));
-  -- line_buffer_read    <= read_en;
 
 
   -----------------------------------------------------------------------------

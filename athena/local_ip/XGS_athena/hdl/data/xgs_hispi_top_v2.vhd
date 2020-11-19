@@ -21,6 +21,7 @@ use UNISIM.vcomponents.all;
 library work;
 use work.regfile_xgs_athena_pack.all;
 use work.mtx_types_pkg.all;
+use work.hispi_pack.all;
 
 
 entity xgs_hispi_top_v2 is
@@ -134,7 +135,7 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
       sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
       sclk_buffer_sync     : out std_logic_vector(3 downto 0);
-      sclk_buffer_data     : out std_logic_vector(29 downto 0)
+      sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
       );
   end component;
 
@@ -162,6 +163,7 @@ architecture rtl of xgs_hispi_top_v2 is
       transfert_done  : out std_logic;
       init_frame      : in  std_logic;
       nb_lane_enabled : in  std_logic_vector(2 downto 0);
+      frame_done      : out std_logic;
 
       ---------------------------------------------------------------------------
       -- Register interface (ROI parameters)
@@ -170,10 +172,6 @@ architecture rtl of xgs_hispi_top_v2 is
       x_stop  : in std_logic_vector(12 downto 0);
       y_start : in std_logic_vector(11 downto 0);
       y_size  : in std_logic_vector(11 downto 0);
-      -- x_row_start : in std_logic_vector(12 downto 0);
-      -- x_row_stop  : in std_logic_vector(12 downto 0);
-      -- y_row_start : in std_logic_vector(11 downto 0);
-      -- y_row_stop  : in std_logic_vector(11 downto 0);
 
       ---------------------------------------------------------------------------
       -- Lane_decode I/F
@@ -185,14 +183,14 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_buffer_read_en  : out std_logic;
 
       -- Even lanes
-      sclk_buffer_empty_even : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-      sclk_buffer_sync_even  : in std_logic_vector(3 downto 0);
-      sclk_buffer_data_even  : in std_logic_vector(29 downto 0);
+      sclk_buffer_empty_top : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_sync_top  : in std_logic_vector(3 downto 0);
+      sclk_buffer_data_top  : in PIXEL_ARRAY(2 downto 0);
 
       -- Odd lanes
-      sclk_buffer_empty_odd : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-      sclk_buffer_sync_odd  : in std_logic_vector(3 downto 0);
-      sclk_buffer_data_odd  : in std_logic_vector(29 downto 0);
+      sclk_buffer_empty_bottom : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
+      sclk_buffer_sync_bottom  : in std_logic_vector(3 downto 0);
+      sclk_buffer_data_bottom  : in PIXEL_ARRAY(2 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Master stream interface
@@ -231,8 +229,6 @@ architecture rtl of xgs_hispi_top_v2 is
   signal rclk_reset          : std_logic;
   signal rclk_irq_error_vect : std_logic_vector(3 downto 0);
   signal sclk_reset          : std_logic;
-  -- signal new_line_pending    : std_logic;
-  -- signal new_frame_pending   : std_logic;
   signal data_pending        : std_logic;
 
   signal sclk_reset_phy : std_logic;
@@ -268,25 +264,24 @@ architecture rtl of xgs_hispi_top_v2 is
   signal state                       : FSM_TYPE := S_IDLE;
   signal state_mapping               : std_logic_vector(3 downto 0);
 
-  signal sclk_buffer_empty      : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
-  signal sclk_buffer_empty_even : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sclk_sof_even          : std_logic_vector(LANE_PER_PHY - 1 downto 0);
-  signal sclk_buffer_sync_even  : std_logic_vector(3 downto 0);
-  signal sclk_buffer_data_even  : std_logic_vector(29 downto 0);
-  signal sclk_buffer_empty_odd  : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sclk_sof_odd           : std_logic_vector(LANE_PER_PHY - 1 downto 0);
-  signal sclk_buffer_sync_odd   : std_logic_vector(3 downto 0);
-  signal sclk_buffer_data_odd   : std_logic_vector(29 downto 0);
-  signal sclk_buffer_read_en    : std_logic;
-  signal sclk_buffer_lane_id    : std_logic_vector(1 downto 0);
-  signal sclk_buffer_id         : std_logic_vector(1 downto 0);
-  signal sclk_buffer_mux_id     : std_logic_vector(1 downto 0);
-  signal sclk_buffer_word_ptr   : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-  signal sclk_buffer_sync       : std_logic_vector(3 downto 0);
-  signal sclk_buffer_data       : std_logic_vector(29 downto 0);
+  signal sclk_buffer_empty        : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
+  signal sclk_buffer_empty_top    : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_sof_top             : std_logic_vector(LANE_PER_PHY - 1 downto 0);
+  signal sclk_buffer_sync_top     : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data_top     : PIXEL_ARRAY(2 downto 0);
+  signal sclk_buffer_empty_bottom : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_sof_bottom          : std_logic_vector(LANE_PER_PHY - 1 downto 0);
+  signal sclk_buffer_sync_bottom  : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data_bottom  : PIXEL_ARRAY(2 downto 0);
+  signal sclk_buffer_read_en      : std_logic;
+  signal sclk_buffer_lane_id      : std_logic_vector(1 downto 0);
+  signal sclk_buffer_id           : std_logic_vector(1 downto 0);
+  signal sclk_buffer_mux_id       : std_logic_vector(1 downto 0);
+  signal sclk_buffer_word_ptr     : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+  signal sclk_buffer_sync         : std_logic_vector(3 downto 0);
+  signal sclk_buffer_data         : std_logic_vector(29 downto 0);
 
 
-  --signal row_id           : std_logic_vector(11 downto 0);
   signal row_last         : std_logic;
   signal packer_busy      : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal all_packer_idle  : std_logic;
@@ -305,13 +300,14 @@ architecture rtl of xgs_hispi_top_v2 is
 
   signal transfert_done : std_logic;
   signal init_frame     : std_logic;
+  signal frame_done     : std_logic;
 
-  signal lane_packer_ack    : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_req    : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_write  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal lane_packer_addr   : PACKER_ADDR_ARRAY_TYPE;
-  signal lane_packer_data   : PACKER_DATA_ARRAY_TYPE;
-  signal lane_packer_enable : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_ack   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_req   : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_write : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
+  signal lane_packer_addr  : PACKER_ADDR_ARRAY_TYPE;
+  signal lane_packer_data  : PACKER_DATA_ARRAY_TYPE;
+  --signal lane_packer_enable : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
 
   signal nxtBuffer         : std_logic;
   signal line_buffer_clr   : std_logic;
@@ -321,11 +317,8 @@ architecture rtl of xgs_hispi_top_v2 is
   signal buff_addr  : std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
   signal buff_data  : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
 
---  signal sync            : std_logic_vector(1 downto 0);
   signal hispi_eof_pulse : std_logic_vector(3 downto 0);
   signal buffer_enable   : std_logic;
-  -- signal y_row_start     : std_logic_vector(11 downto 0);
-  -- signal y_row_stop      : std_logic_vector(11 downto 0);
 
   signal line_buffer_read    : std_logic;
   signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -451,87 +444,6 @@ begin
 
   x_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
   x_stop  <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_x_row_start
-  -- Description : Units in pixels
-  -----------------------------------------------------------------------------
-  -- P_x_row_start : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       x_row_start <= (others => '0');
-  --     else
-  --       --if (sof_flag = '1') then
-  --       if (state = S_INIT) then
-  --         --ToDO should come from register
-  --         x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-  -- y_start <= hispi_ystart;
-  -- y_size  <= hispi_ysize
-  -----------------------------------------------------------------------------
-  -- Process     : P_row_stop
-  -- Description : Units in pixels
-  -----------------------------------------------------------------------------
-  -- P_x_row_stop : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       x_row_stop <= (others => '0');
-  --     else
-  --       if (state = S_INIT) then
-  --         x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_row_start
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_y_row_start : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       y_row_start <= (others => '0');
-  --     else
-  --       --if (sof_flag = '1') then
-  --       if (state = S_INIT) then
-  --         y_row_start <= hispi_ystart;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_row_stop
-  -- Description :
-  -----------------------------------------------------------------------------
-  -- P_y_row_stop : process (sclk) is
-  --   variable start : unsigned(11 downto 0);
-  --   variable size  : unsigned(11 downto 0);
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       y_row_stop <= (others => '0');
-  --     else
-  --       --if (sof_flag = '1') then
-  --       if (state = S_INIT) then
-  --         start      := unsigned(hispi_ystart);
-  --         size       := unsigned(hispi_ysize);
-  --         y_row_stop <= std_logic_vector(start + (size - 1));
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -664,15 +576,15 @@ begin
       sclk_reset_phy         => sclk_reset_phy,
       sclk_start_calibration => sclk_start_calibration,
       sclk_calibration_done  => sclk_calibration_done(0),
-      sclk_sof               => sclk_sof_even,
-      sclk_buffer_empty      => sclk_buffer_empty_even,
+      sclk_sof               => sclk_sof_top,
+      sclk_buffer_empty      => sclk_buffer_empty_top,
       sclk_buffer_read_en    => sclk_buffer_read_en,
       sclk_buffer_lane_id    => sclk_buffer_lane_id,
       sclk_buffer_id         => sclk_buffer_id,
       sclk_buffer_mux_id     => sclk_buffer_mux_id,
       sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-      sclk_buffer_sync       => sclk_buffer_sync_even,
-      sclk_buffer_data       => sclk_buffer_data_even
+      sclk_buffer_sync       => sclk_buffer_sync_top,
+      sclk_buffer_data       => sclk_buffer_data_top
       );
 
 
@@ -702,15 +614,15 @@ begin
       sclk_reset_phy         => sclk_reset_phy,
       sclk_start_calibration => sclk_start_calibration,
       sclk_calibration_done  => sclk_calibration_done(1),
-      sclk_sof               => sclk_sof_odd,
-      sclk_buffer_empty      => sclk_buffer_empty_odd,
+      sclk_sof               => sclk_sof_bottom,
+      sclk_buffer_empty      => sclk_buffer_empty_bottom,
       sclk_buffer_read_en    => sclk_buffer_read_en,
       sclk_buffer_lane_id    => sclk_buffer_lane_id,
       sclk_buffer_id         => sclk_buffer_id,
       sclk_buffer_mux_id     => sclk_buffer_mux_id,
       sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-      sclk_buffer_sync       => sclk_buffer_sync_odd,
-      sclk_buffer_data       => sclk_buffer_data_odd
+      sclk_buffer_sync       => sclk_buffer_sync_bottom,
+      sclk_buffer_data       => sclk_buffer_data_bottom
       );
 
 
@@ -732,7 +644,7 @@ begin
       if (sclk_reset = '1')then
         sof_flag <= '0';
       else
-        if (state = S_IDLE and sclk_sof_even(0) = '1') then
+        if (state = S_IDLE and sclk_sof_top(0) = '1') then
           sof_flag <= '1';
         else
           sof_flag <= '0';
@@ -742,7 +654,7 @@ begin
   end process;
 
   -- synthesis translate_off
-  assert (not(state /= S_IDLE and sclk_sof_even(0) = '1')) report "Detected SOF when not IDLE" severity error;
+  assert (not(state /= S_IDLE and sclk_sof_top(0) = '1')) report "Detected SOF when not IDLE" severity error;
   -- synthesis translate_on
 
 
@@ -869,38 +781,41 @@ begin
           --          in the line buffer.
           ---------------------------------------------------------------------
           when S_PACK =>
-            if (bottom_fifo_read_sync(0)(1) = '1') then
+            if (frame_done = '1') then
               state <= S_EOF;
+              -- if (bottom_fifo_read_sync(0)(1) = '1') then
+              --   state <= S_EOF;
 
-            elsif (bottom_fifo_read_sync(0)(3) = '1') then
-              state <= S_EOL;
+            -- elsif (bottom_fifo_read_sync(0)(3) = '1') then
+            --   state <= S_EOL;
             else
               state <= S_PACK;
 
             end if;
 
-          ---------------------------------------------------------------------
-          -- S_EOL : End of line detected 
-          ---------------------------------------------------------------------
-          when S_EOL =>
-            state <= S_FLUSH_PACKER;
+            ---------------------------------------------------------------------
+            -- S_EOL : End of line detected 
+            ---------------------------------------------------------------------
+            -- when S_EOL =>
+            --   state <= S_FLUSH_PACKER;
 
 
           ---------------------------------------------------------------------
           -- S_EOF : End of frame detected
           ---------------------------------------------------------------------
           when S_EOF =>
-            state <= S_FLUSH_PACKER;
+            state <= S_DONE;
+            --state <= S_FLUSH_PACKER;
 
-          ---------------------------------------------------------------------
-          -- 
-          ---------------------------------------------------------------------
-          when S_FLUSH_PACKER =>
-            if (all_packer_idle = '1') then
-              state <= S_DONE;
-            else
-              state <= S_FLUSH_PACKER;
-            end if;
+            ---------------------------------------------------------------------
+            -- 
+            ---------------------------------------------------------------------
+            -- when S_FLUSH_PACKER =>
+            --   if (all_packer_idle = '1') then
+            --     state <= S_DONE;
+            --   else
+            --     state <= S_FLUSH_PACKER;
+            --   end if;
 
 
 
@@ -1008,70 +923,10 @@ begin
   hispi_eof <= hispi_eof_pulse(hispi_eof_pulse'left);
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_line_cntr
-  -- Description : Count the complete number of lines received in the current
-  --               frame
-  -----------------------------------------------------------------------------
-  -- P_line_cntr : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       line_cntr <= (others => '0');
-  --     else
-  --       --if (sof_flag = '1') then
-  --       if (state = S_INIT) then
-  --         line_cntr <= unsigned(hispi_ystart);
-  --       elsif (state = S_DONE) then
-  --         line_cntr <= line_cntr+1;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -- row_id <= std_logic_vector(line_cntr);
-
-
-
 
   -- init_frame <= sof_flag;
   init_frame <= '1' when (state = S_INIT) else
                 '0';
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_lane_packer_enable : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        lane_packer_enable <= (others => '0');
-      else
-        -----------------------------------------------------------------------
-        -- In the init state we activate the required lane_packers
-        -----------------------------------------------------------------------
-        if (state = S_INIT) then
-          if (nb_lane_enabled = "100") then
-            -- 4 lanes enabled => 2 packers required
-            lane_packer_enable <= "011";
-          elsif (nb_lane_enabled = "110") then
-            -- 6 lanes enabled => 3 packers required
-            lane_packer_enable <= "111";
-          else
-            -- Others not supported case => all packers disabled
-            lane_packer_enable <= (others => '0');
-          end if;
-        -----------------------------------------------------------------------
-        -- At the end of line or end of frame, we disable all packers 
-        -----------------------------------------------------------------------
-        elsif (state = S_EOL or state = S_EOF or state = S_IDLE) then
-          lane_packer_enable <= (others => '0');
-        end if;
-      end if;
-    end if;
-  end process;
-
 
   -----------------------------------------------------------------------------
   -- 
@@ -1085,33 +940,34 @@ begin
       LINE_BUFFER_ADDRESS_WIDTH => LINE_BUFFER_ADDRESS_WIDTH
       )
     port map (
-      sclk                   => sclk,
-      sclk_reset             => sclk_reset,
-      streamer_en            => '1',
-      streamer_busy          => open,
-      transfert_done         => transfert_done,
-      init_frame             => init_frame,
-      nb_lane_enabled        => nb_lane_enabled,
-      x_start                => x_start,
-      x_stop                 => x_stop,
-      y_start                => hispi_ystart,
-      y_size                 => hispi_ysize,
-      sclk_buffer_lane_id    => sclk_buffer_lane_id,
-      sclk_buffer_id         => sclk_buffer_id,
-      sclk_buffer_mux_id     => sclk_buffer_mux_id,
-      sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-      sclk_buffer_read_en    => sclk_buffer_read_en,
-      sclk_buffer_empty_even => sclk_buffer_empty_even,
-      sclk_buffer_sync_even  => sclk_buffer_sync_even,
-      sclk_buffer_data_even  => sclk_buffer_data_even,
-      sclk_buffer_empty_odd  => sclk_buffer_empty_odd,
-      sclk_buffer_sync_odd   => sclk_buffer_sync_odd,
-      sclk_buffer_data_odd   => sclk_buffer_data_odd,
-      sclk_tready            => sclk_tready,
-      sclk_tvalid            => sclk_tvalid,
-      sclk_tuser             => sclk_tuser,
-      sclk_tlast             => sclk_tlast,
-      sclk_tdata             => sclk_tdata
+      sclk                     => sclk,
+      sclk_reset               => sclk_reset,
+      streamer_en              => '1',
+      streamer_busy            => open,
+      transfert_done           => transfert_done,
+      init_frame               => init_frame,
+      frame_done               => frame_done,
+      nb_lane_enabled          => nb_lane_enabled,
+      x_start                  => x_start,
+      x_stop                   => x_stop,
+      y_start                  => hispi_ystart,
+      y_size                   => hispi_ysize,
+      sclk_buffer_lane_id      => sclk_buffer_lane_id,
+      sclk_buffer_id           => sclk_buffer_id,
+      sclk_buffer_mux_id       => sclk_buffer_mux_id,
+      sclk_buffer_word_ptr     => sclk_buffer_word_ptr,
+      sclk_buffer_read_en      => sclk_buffer_read_en,
+      sclk_buffer_empty_top    => sclk_buffer_empty_top,
+      sclk_buffer_sync_top     => sclk_buffer_sync_top,
+      sclk_buffer_data_top     => sclk_buffer_data_top,
+      sclk_buffer_empty_bottom => sclk_buffer_empty_bottom,
+      sclk_buffer_sync_bottom  => sclk_buffer_sync_bottom,
+      sclk_buffer_data_bottom  => sclk_buffer_data_bottom,
+      sclk_tready              => sclk_tready,
+      sclk_tvalid              => sclk_tvalid,
+      sclk_tuser               => sclk_tuser,
+      sclk_tlast               => sclk_tlast,
+      sclk_tdata               => sclk_tdata
       );
 
 
@@ -1125,11 +981,11 @@ begin
       when S_START_CALIBRATION => state_mapping <= "0100";
       when S_CALIBRATE         => state_mapping <= "0101";
       when S_PACK              => state_mapping <= "0110";
-      when S_FLUSH_PACKER      => state_mapping <= "0111";
+--      when S_FLUSH_PACKER      => state_mapping <= "0111";
 --      when S_SOF               => state_mapping <= "1000";
       when S_EOF               => state_mapping <= "1001";
       when S_SOL               => state_mapping <= "1010";
-      when S_EOL               => state_mapping <= "1011";
+--      when S_EOL               => state_mapping <= "1011";
       when S_DONE              => state_mapping <= "1111";
       when others              => state_mapping <= "1110";  --Reserved
     end case;

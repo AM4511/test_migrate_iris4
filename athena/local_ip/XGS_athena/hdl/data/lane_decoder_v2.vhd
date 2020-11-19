@@ -77,7 +77,7 @@ entity lane_decoder_v2 is
     sclk_buffer_mux_id    : in  std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr  : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
     sclk_buffer_sync      : out std_logic_vector(3 downto 0);
-    sclk_buffer_data      : out std_logic_vector(29 downto 0)
+    sclk_buffer_data      : out PIXEL_ARRAY(2 downto 0)
     );
 end entity lane_decoder_v2;
 
@@ -238,7 +238,6 @@ architecture rtl of lane_decoder_v2 is
   signal pclk_buff_ready         : std_logic_vector(3 downto 0);
 
   signal pclk_buffer_init   : std_logic;
-  --signal pclk_buffer_valid  : std_logic;
   signal pclk_buffer_data   : PIXEL_ARRAY(2 downto 0);
   signal pclk_buffer_sync   : std_logic_vector(3 downto 0);
   signal pclk_buffer_id     : unsigned(1 downto 0);
@@ -247,19 +246,13 @@ architecture rtl of lane_decoder_v2 is
   signal pclk_init_word_ptr : std_logic;
   signal pclk_incr_word_ptr : std_logic;
 
-  signal pclk_buffer_overrun : std_logic;
   signal pclk_buffer_wen     : std_logic;
-  --signal pclk_buffer_wdata   : std_logic_vector (FIFO_DATA_WIDTH-1 downto 0);
-  signal pclk_buffer_full    : std_logic;
   signal pclk_state          : FSM_STATE_TYPE := S_DISABLED;
   signal pclk_phase_cntr     : unsigned(3 downto 0);  -- Modulo 12 counter
   signal pclk_packer_valid   : std_logic;
   signal pclk_sync           : std_logic_vector (3 downto 0);
   signal pclk_sync_error     : std_logic;
-  signal pclk_packer_0_valid : std_logic;
-  signal pclk_packer_1_valid : std_logic;
-  signal pclk_packer_2_valid : std_logic;
-  signal pclk_packer_3_valid : std_logic;
+ 
 
   signal pclk_crc_enable    : std_logic := '1';
   signal pclk_crc_init      : std_logic;
@@ -269,16 +262,9 @@ architecture rtl of lane_decoder_v2 is
   signal pclk_computed_crc2 : std_logic_vector(11 downto 0);
   signal pclk_eol           : std_logic;
   signal pclk_sof           : std_logic;
-  --signal pclk_sol           : std_logic;
   signal sclk_eol           : std_logic;
-  --signal sclk_sol           : std_logic;
 
 
-  signal sclk_buffer_empty_int           : std_logic;
-  signal sclk_buffer_underrun            : std_logic;
-  signal sclk_buffer_rdata               : std_logic_vector (FIFO_DATA_WIDTH-1 downto 0);
-  signal sclk_buffer_read_data_valid_int : std_logic;
-  signal sclk_buffer_read_data           : std_logic_vector (35 downto 0);
   signal rclk_enable_hispi               : std_logic;
   signal rclk_enable_datapath            : std_logic;
   signal rclk_buffer_overrun             : std_logic;
@@ -294,7 +280,7 @@ architecture rtl of lane_decoder_v2 is
   signal rclk_crc_error                  : std_logic;
 
   signal async_idle_character : std_logic_vector(PIXEL_SIZE-1 downto 0);
-
+  signal sclk_buffer_data_slv : std_logic_vector(29 downto 0);
 
 
 begin
@@ -436,8 +422,9 @@ begin
                     '1' when (pclk_state = S_CRC2 and pclk_computed_crc2 /= pclk_data) else
                     '0';
 
-  --pclk_data_10bits <= pclk_data(11 downto 2);
-  pclk_pixel <= to_pixel(pclk_data(9 downto 0));
+  pclk_pixel <= pclk_data(11 downto 2);
+  --pclk_pixel <= to_pixel(pclk_data(9 downto 0));
+  
   -----------------------------------------------------------------------------
   -- Process     : P_packer
   -- Description : Generates the packar_x_valid flag one per lane
@@ -612,11 +599,6 @@ begin
 
   pclk_sof_flag <= '1' when (pclk_state = S_SOL and pclk_sof_pending = '1') else
                    '0';
-
-
-  -- pclk_buffer_wen <= '1' when (pclk_state = S_AIL and pclk_packer_valid = '1') else
-  --                    '1' when (pclk_sync(1) = '1' or pclk_sync(3) = '1') else
-  --                    '0';
 
   pclk_buffer_wen <= '1' when (pclk_state = S_AIL and pclk_packer_valid = '1') else
                      '0';
@@ -794,10 +776,14 @@ begin
       sclk_mux_id         => sclk_buffer_mux_id,
       sclk_word_ptr       => sclk_buffer_word_ptr,
       sclk_sync           => sclk_buffer_sync,
-      sclk_data           => sclk_buffer_data
+      sclk_data           => sclk_buffer_data_slv
       );
 
+  sclk_buffer_data(0) <= to_pixel(sclk_buffer_data_slv(9 downto 0));
+  sclk_buffer_data(1) <= to_pixel(sclk_buffer_data_slv(19 downto 10));
+  sclk_buffer_data(2) <= to_pixel(sclk_buffer_data_slv(29 downto 20));
 
+  
   -----------------------------------------------------------------------------
   -- Resync rclk_cal_busy
   -----------------------------------------------------------------------------

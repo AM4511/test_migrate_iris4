@@ -1044,8 +1044,8 @@ module testbench();
 				//   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
 				//				
 				//--------------------------------------------------
-				//GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
-				GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
+				//GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog			
 
 				///////////////////////////////////////////////////
@@ -1157,7 +1157,8 @@ module testbench();
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 				
 				ROI_Y_START = 0;             // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
