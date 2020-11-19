@@ -39,10 +39,10 @@ entity axi_line_streamer_v2 is
     ---------------------------------------------------------------------------
     -- Register interface (ROI parameters)
     ---------------------------------------------------------------------------
-    x_row_start : in std_logic_vector(12 downto 0);
-    x_row_stop  : in std_logic_vector(12 downto 0);
-    y_row_start : in std_logic_vector(11 downto 0);
-    y_row_stop  : in std_logic_vector(11 downto 0);
+    x_start : in std_logic_vector(12 downto 0);
+    x_stop  : in std_logic_vector(12 downto 0);
+    y_start : in std_logic_vector(11 downto 0);
+    y_size  : in std_logic_vector(11 downto 0);
 
     ---------------------------------------------------------------------------
     -- Lane_decode I/F
@@ -112,9 +112,9 @@ architecture rtl of axi_line_streamer_v2 is
                     S_EOF
                     );
 
-  constant DATAWIDTH : integer := 80;
-  constant ADDRWIDTH : integer := 10;
-  constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range):= "111001";  --0x39
+  constant DATAWIDTH : integer                              := 80;
+  constant ADDRWIDTH : integer                              := 10;
+  constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range) := "111001";  --0x39
 
   signal sclk_fifo_write_en   : std_logic;
   signal sclk_fifo_write_data : std_logic_vector(DATAWIDTH - 1 downto 0);
@@ -127,16 +127,14 @@ architecture rtl of axi_line_streamer_v2 is
   signal m_wait          : std_logic;
   signal state           : FSM_TYPE;
   signal burst_length    : integer;
-  --signal burst_cntr      : integer               := 0;
   signal buffer_address  : integer               := 0;
   signal read_en         : std_logic;
   signal read_data_valid : std_logic;
   signal first_row       : std_logic;
   signal last_row        : std_logic;
-  --signal buffer_read_ptr : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal start_transfer  : std_logic;
   signal sclk_tvalid_int : std_logic;
   signal pixel_ptr       : integer range 0 to 16 := 0;
+  signal line_cntr       : unsigned(11 downto 0);
 
   signal sclk_data_packer : std_logic_vector(119 downto 0);
   signal sclk_load_data   : std_logic;
@@ -145,14 +143,19 @@ architecture rtl of axi_line_streamer_v2 is
   signal buffer_id_cntr    : unsigned(sclk_buffer_id'range);
   signal buffer_id_cntr_en : std_logic;
   signal lane_id_cntr      : integer range 0 to LANE_PER_PHY-1;
+  signal lane_id_cntr_max  : integer range 0 to LANE_PER_PHY-1;
   signal lane_id_cntr_en   : std_logic;
   signal word_cntr         : unsigned(sclk_buffer_word_ptr'range);
   signal word_cntr_en      : std_logic;
   signal word_cntr_init    : std_logic;
-  signal mux_id_cntr : unsigned(1 downto 0);
-  signal mux_id_cntr_en : std_logic;
-  signal mux_id_cntr_init : std_logic;
-  
+  signal mux_id_cntr       : unsigned(1 downto 0);
+  signal mux_id_cntr_en    : std_logic;
+  signal mux_id_cntr_init  : std_logic;
+  signal current_x_start  : std_logic_vector(12 downto 0);
+  signal current_x_stop   : std_logic_vector(12 downto 0);
+  signal current_y_start  : std_logic_vector(11 downto 0);
+  signal current_y_stop   : std_logic_vector(11 downto 0);
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
@@ -173,7 +176,8 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_state
-  -- Description : Streamer main FSM. Control the stream transfer.
+  -- Description : Line streamer main FSM. Control the data packing and the
+  --               stream transfer.
   -----------------------------------------------------------------------------
   P_state : process (sclk) is
   begin
@@ -236,12 +240,12 @@ begin
           --                buffer 
           ---------------------------------------------------------------------
           when S_DATA_PHASE =>
-            if (last_data='1') then
+            if (last_data = '1') then
               state <= S_LAST_DATA;
             else
               state <= S_DATA_PHASE;
             end if;
-        
+
 
           ---------------------------------------------------------------------
           -- S_LAST_DATA : Indicates the last data beat of the current data
@@ -282,15 +286,176 @@ begin
     end if;
   end process P_state;
 
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_current_x_start
+  -- Description : Units in pixels
+  -----------------------------------------------------------------------------
+  P_current_x_start : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        current_x_start <= (others => '0');
+      else
+        --if (sof_flag = '1') then
+        if (state = S_SOF) then
+          --ToDO should come from register
+          current_x_start <= x_start;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_current_x_stop
+  -- Description : Units in pixels
+  -----------------------------------------------------------------------------
+  P_current_x_stop : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        current_x_stop <= (others => '0');
+      else
+        if (state = S_SOF) then
+          current_x_stop <= x_stop;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_current_y_start
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_current_y_start : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        current_y_start <= (others => '0');
+      else
+        --if (sof_flag = '1') then
+        if (state = S_SOF) then
+          current_y_start <= y_start;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_current_y_stop
+  -- Description :
+  -----------------------------------------------------------------------------
+  P_current_y_stop : process (sclk) is
+    variable start : unsigned(11 downto 0);
+    variable size  : unsigned(11 downto 0);
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        current_y_stop <= (others => '0');
+      else
+        --if (sof_flag = '1') then
+        if (state = S_SOF) then
+          start          := unsigned(y_start);
+          size           := unsigned(y_size);
+          current_y_stop <= std_logic_vector(start + (size - 1));
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_line_cntr
+  -- Description : Count the complete number of lines received in the current
+  --               frame
+  -----------------------------------------------------------------------------
+  P_line_cntr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        line_cntr <= (others => '0');
+      else
+        --if (sof_flag = '1') then
+        if (state = S_SOF) then
+          line_cntr <= unsigned(y_start);
+        elsif (state = S_EOL) then
+          line_cntr <= line_cntr+1;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  --row_id <= std_logic_vector(line_cntr);
+
+  -- last_row <= '1' when (std_logic_vector(line_cntr) = current_y_stop and state /= S_IDLE) else
+  --             '0';
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_first_row
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_first_row : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        first_row <= '0';
+      else
+        if (init_frame = '1') then
+          first_row <= '1';
+        elsif (state = S_EOL) then
+          first_row <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_last_row
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_last_row : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        last_row <= '0';
+      else
+        if (state = S_SOF) then
+          last_row <= '0';
+        elsif (state = S_SOL and (line_cntr = unsigned(current_y_stop))) then
+          last_row <= '1';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+
+
+
+
+
+
+
+
+
+
+
   sclk_buffer_read_en <= '1' when (state = S_DATA_PHASE) else
                          '0';
 
 
 
-  buffer_id_cntr_en <= '1' when (false) else
+  buffer_id_cntr_en <= '1' when (STATE = S_EOL) else
                        '0';
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_buffer_id_cntr
   -- Description : 
@@ -310,10 +475,10 @@ begin
     end if;
   end process;
 
-  
+
   sclk_buffer_id <= std_logic_vector(buffer_id_cntr);
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_word_cntr
   -- Description : 
@@ -364,14 +529,14 @@ begin
       end if;
     end if;
   end process;
-  
-  mux_id_cntr_en<= '1' when (word_cntr = MAX_BURST and word_cntr_en = '1') else
-                   '0';
-  
-  sclk_buffer_mux_id<=std_logic_vector(mux_id_cntr);
 
-  
- 
+  mux_id_cntr_en <= '1' when (word_cntr = MAX_BURST and word_cntr_en = '1') else
+                    '0';
+
+  sclk_buffer_mux_id <= std_logic_vector(mux_id_cntr);
+
+
+
   -----------------------------------------------------------------------------
   -- Process     : P_lane_id_cntr
   -- Description : 
@@ -385,50 +550,30 @@ begin
         if (state = S_SOF) then
           lane_id_cntr <= 0;
         elsif (lane_id_cntr_en = '1') then
-          lane_id_cntr <= lane_id_cntr + 1;
-
+          if (lane_id_cntr = lane_id_cntr_max) then
+            lane_id_cntr <= 0;
+          else
+            lane_id_cntr <= lane_id_cntr + 1;
+          end if;
         end if;
       end if;
     end if;
   end process;
 
-   lane_id_cntr_en <= '1' when (mux_id_cntr = "11" and mux_id_cntr_en = '1') else
-                      '0';
+  lane_id_cntr_en <= '1' when (mux_id_cntr = "11" and mux_id_cntr_en = '1') else
+                     '0';
 
 
-  last_data <= '1' when (lane_id_cntr = LANE_PER_PHY and lane_id_cntr_en = '1') else
+  last_data <= '1' when (lane_id_cntr = lane_id_cntr_max and lane_id_cntr_en = '1') else
                '0';
-  
-  sclk_buffer_lane_id<= std_logic_vector(to_unsigned(lane_id_cntr, sclk_buffer_lane_id'length));
-  
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  -- P_start_transfer : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       start_transfer <= '0';
-  --     else
-  --       -----------------------------------------------------------------------
-  --       -- In the init state we activate the required lane_packers
-  --       -----------------------------------------------------------------------
-  --       if (state = S_WAIT_SOL) then
 
-  --         for i in 0 to LANE_PER_PHY-1 loop
-  --           if (i = lane_id_cntr and sclk_buffer_empty_even(i) = '1' and sclk_buffer_empty_odd(i) = '1') then
-  --             start_transfer <= '1';
-  --           else
-  --             start_transfer <= '0';
-  --           end if;
-  --         end loop;  -- i
+  lane_id_cntr_max <= 1 when (nb_lane_enabled = "100") else
+                      2 when (nb_lane_enabled = "110") else
+                      0;
 
-  --       else
-  --         start_transfer <= '0';
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
+  sclk_buffer_lane_id <= std_logic_vector(to_unsigned(lane_id_cntr, sclk_buffer_lane_id'length));
+
+
 
 
   -----------------------------------------------------------------------------
@@ -513,117 +658,9 @@ begin
       );
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_first_row
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_first_row : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        first_row <= '0';
-      else
-        if (init_frame = '1') then
-          first_row <= '1';
-        elsif (state = S_EOL) then
-          first_row <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
   -- last_row <= '1' when (line_buffer_row_id = y_row_stop and state /= S_IDLE) else
   --             '0';
 
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_burst_length
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_burst_length : process (sclk) is
-  --   variable xstart  : integer;
-  --   variable xstop   : integer;
-  --   variable xlength : integer;
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       burst_length <= 0;
-  --     else
-  --       xstart  := to_integer(unsigned(x_row_start));
-  --       xstop   := to_integer(unsigned(x_row_stop));
-  --       xlength := xstop - xstart + 1;
-  --       if (state = S_LOAD_BURST_CNTR) then
-  --         burst_length <= (xlength/4);
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_read_ptr
-  -- Description : Units in QWORD (2Bytes per pix / 8 bytes per QWORDS)
-  -----------------------------------------------------------------------------
-  -- P_buffer_read_ptr : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       buffer_read_ptr <= (others => '0');
-  --     else
-  --       if (init_frame = '1') then
-  --         buffer_read_ptr <= (others => '0');
-  --       elsif (state = S_EOL) then
-  --         buffer_read_ptr <= buffer_read_ptr+1;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
---  line_buffer_ptr <= std_logic_vector(buffer_read_ptr);
-
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_line_buffer_clr
-  -- Description : Clear the line buffer ready flag from  line_buffer module
-  -----------------------------------------------------------------------------
-  -- P_line_buffer_clr : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       line_buffer_clr <= '0';
-  --     else
-  --       if (state = S_LAST_DATA) then
-  --         line_buffer_clr <= '1';
-  --       else
-  --         line_buffer_clr <= '0';
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_burst_cntr
-  -- Description : 
-  -----------------------------------------------------------------------------
-  -- P_burst_cntr : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       burst_cntr <= 0;
-  --     else
-  --       if (state = S_LOAD_BURST_CNTR) then
-  --         burst_cntr <= 0;
-  --       elsif (state = S_DATA_PHASE and read_en = '1') then
-  --         burst_cntr <= burst_cntr+1;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
 
   -----------------------------------------------------------------------------
   -- Process     : P_buffer_address
@@ -636,7 +673,7 @@ begin
         buffer_address <= 0;
       else
         if (state = S_LOAD_BURST_CNTR) then
-          buffer_address <= to_integer(unsigned(x_row_start))*2/8;
+          buffer_address <= to_integer(unsigned(current_x_start))*2/8;
         elsif (state = S_DATA_PHASE and read_en = '1') then
           buffer_address <= buffer_address+1;
         end if;
@@ -759,7 +796,8 @@ begin
   end process;
 
 
-  sclk_tvalid <= sclk_tvalid_int;
+  --sclk_tvalid <= sclk_tvalid_int;
+  sclk_tvalid <= '0';
 
 
   -----------------------------------------------------------------------------

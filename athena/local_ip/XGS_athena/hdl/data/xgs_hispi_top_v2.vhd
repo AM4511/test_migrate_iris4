@@ -166,10 +166,14 @@ architecture rtl of xgs_hispi_top_v2 is
       ---------------------------------------------------------------------------
       -- Register interface (ROI parameters)
       ---------------------------------------------------------------------------
-      x_row_start : in std_logic_vector(12 downto 0);
-      x_row_stop  : in std_logic_vector(12 downto 0);
-      y_row_start : in std_logic_vector(11 downto 0);
-      y_row_stop  : in std_logic_vector(11 downto 0);
+      x_start : in std_logic_vector(12 downto 0);
+      x_stop  : in std_logic_vector(12 downto 0);
+      y_start : in std_logic_vector(11 downto 0);
+      y_size  : in std_logic_vector(11 downto 0);
+      -- x_row_start : in std_logic_vector(12 downto 0);
+      -- x_row_stop  : in std_logic_vector(12 downto 0);
+      -- y_row_start : in std_logic_vector(11 downto 0);
+      -- y_row_stop  : in std_logic_vector(11 downto 0);
 
       ---------------------------------------------------------------------------
       -- Lane_decode I/F
@@ -282,7 +286,7 @@ architecture rtl of xgs_hispi_top_v2 is
   signal sclk_buffer_data       : std_logic_vector(29 downto 0);
 
 
-  signal row_id           : std_logic_vector(11 downto 0);
+  --signal row_id           : std_logic_vector(11 downto 0);
   signal row_last         : std_logic;
   signal packer_busy      : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
   signal all_packer_idle  : std_logic;
@@ -296,6 +300,8 @@ architecture rtl of xgs_hispi_top_v2 is
   signal frame_cntr : integer;
   signal line_cntr  : unsigned(11 downto 0);
   signal line_valid : std_logic;
+  signal x_start    : std_logic_vector(12 downto 0);
+  signal x_stop     : std_logic_vector(12 downto 0);
 
   signal transfert_done : std_logic;
   signal init_frame     : std_logic;
@@ -318,10 +324,8 @@ architecture rtl of xgs_hispi_top_v2 is
 --  signal sync            : std_logic_vector(1 downto 0);
   signal hispi_eof_pulse : std_logic_vector(3 downto 0);
   signal buffer_enable   : std_logic;
-  signal x_row_start     : std_logic_vector(12 downto 0);
-  signal x_row_stop      : std_logic_vector(12 downto 0);
-  signal y_row_start     : std_logic_vector(11 downto 0);
-  signal y_row_stop      : std_logic_vector(11 downto 0);
+  -- signal y_row_start     : std_logic_vector(11 downto 0);
+  -- signal y_row_stop      : std_logic_vector(11 downto 0);
 
   signal line_buffer_read    : std_logic;
   signal line_buffer_ptr     : std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
@@ -444,42 +448,47 @@ begin
 
   regfile.HISPI.STATUS.FSM <= state_mapping;
 
+
+  x_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
+  x_stop  <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
+
   -----------------------------------------------------------------------------
   -- Process     : P_x_row_start
   -- Description : Units in pixels
   -----------------------------------------------------------------------------
-  P_x_row_start : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        x_row_start <= (others => '0');
-      else
-        --if (sof_flag = '1') then
-        if (state = S_INIT) then
-          --ToDO should come from register
-          x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_x_row_start : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       x_row_start <= (others => '0');
+  --     else
+  --       --if (sof_flag = '1') then
+  --       if (state = S_INIT) then
+  --         --ToDO should come from register
+  --         x_row_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
-
+  -- y_start <= hispi_ystart;
+  -- y_size  <= hispi_ysize
   -----------------------------------------------------------------------------
   -- Process     : P_row_stop
   -- Description : Units in pixels
   -----------------------------------------------------------------------------
-  P_x_row_stop : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        x_row_stop <= (others => '0');
-      else
-        if (state = S_INIT) then
-          x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_x_row_stop : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       x_row_stop <= (others => '0');
+  --     else
+  --       if (state = S_INIT) then
+  --         x_row_stop <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
 
@@ -487,42 +496,42 @@ begin
   -- Process     : P_row_start
   -- Description : 
   -----------------------------------------------------------------------------
-  P_y_row_start : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        y_row_start <= (others => '0');
-      else
-        --if (sof_flag = '1') then
-        if (state = S_INIT) then
-          y_row_start <= hispi_ystart;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_y_row_start : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       y_row_start <= (others => '0');
+  --     else
+  --       --if (sof_flag = '1') then
+  --       if (state = S_INIT) then
+  --         y_row_start <= hispi_ystart;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
   -- Process     : P_row_stop
   -- Description :
   -----------------------------------------------------------------------------
-  P_y_row_stop : process (sclk) is
-    variable start : unsigned(11 downto 0);
-    variable size  : unsigned(11 downto 0);
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        y_row_stop <= (others => '0');
-      else
-        --if (sof_flag = '1') then
-        if (state = S_INIT) then
-          start      := unsigned(hispi_ystart);
-          size       := unsigned(hispi_ysize);
-          y_row_stop <= std_logic_vector(start + (size - 1));
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_y_row_stop : process (sclk) is
+  --   variable start : unsigned(11 downto 0);
+  --   variable size  : unsigned(11 downto 0);
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       y_row_stop <= (others => '0');
+  --     else
+  --       --if (sof_flag = '1') then
+  --       if (state = S_INIT) then
+  --         start      := unsigned(hispi_ystart);
+  --         size       := unsigned(hispi_ysize);
+  --         y_row_stop <= std_logic_vector(start + (size - 1));
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
@@ -1004,29 +1013,29 @@ begin
   -- Description : Count the complete number of lines received in the current
   --               frame
   -----------------------------------------------------------------------------
-  P_line_cntr : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        line_cntr <= (others => '0');
-      else
-        --if (sof_flag = '1') then
-        if (state = S_INIT) then
-          line_cntr <= unsigned(hispi_ystart);
-        elsif (state = S_DONE) then
-          line_cntr <= line_cntr+1;
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_line_cntr : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1') then
+  --       line_cntr <= (others => '0');
+  --     else
+  --       --if (sof_flag = '1') then
+  --       if (state = S_INIT) then
+  --         line_cntr <= unsigned(hispi_ystart);
+  --       elsif (state = S_DONE) then
+  --         line_cntr <= line_cntr+1;
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
-  row_id <= std_logic_vector(line_cntr);
+  -- row_id <= std_logic_vector(line_cntr);
 
 
 
 
- -- init_frame <= sof_flag;
+  -- init_frame <= sof_flag;
   init_frame <= '1' when (state = S_INIT) else
                 '0';
 
@@ -1083,10 +1092,10 @@ begin
       transfert_done         => transfert_done,
       init_frame             => init_frame,
       nb_lane_enabled        => nb_lane_enabled,
-      x_row_start            => x_row_start,
-      x_row_stop             => x_row_stop,
-      y_row_start            => y_row_start,
-      y_row_stop             => y_row_stop,
+      x_start                => x_start,
+      x_stop                 => x_stop,
+      y_start                => hispi_ystart,
+      y_size                 => hispi_ysize,
       sclk_buffer_lane_id    => sclk_buffer_lane_id,
       sclk_buffer_id         => sclk_buffer_id,
       sclk_buffer_mux_id     => sclk_buffer_mux_id,
