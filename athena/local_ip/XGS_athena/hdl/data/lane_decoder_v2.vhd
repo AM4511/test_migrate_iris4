@@ -8,7 +8,8 @@
 --                 pclk
 --                 fifo_read_clk
 --
--- TODO          : 
+-- TODO          : Remove sync in the line buffer. Sync are recreated in
+--                 axi_line_streamer 
 -------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

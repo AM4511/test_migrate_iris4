@@ -74,7 +74,7 @@ entity xgs_hispi_top_v2 is
     sclk_tvalid : out std_logic;
     sclk_tuser  : out std_logic_vector(3 downto 0);
     sclk_tlast  : out std_logic;
-    sclk_tdata  : out std_logic_vector(79 downto 0)
+    sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
     );
 end entity xgs_hispi_top_v2;
 
@@ -199,7 +199,7 @@ architecture rtl of xgs_hispi_top_v2 is
       sclk_tvalid : out std_logic;
       sclk_tuser  : out std_logic_vector(3 downto 0);
       sclk_tlast  : out std_logic;
-      sclk_tdata  : out std_logic_vector(79 downto 0)
+      sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
       );
   end component;
 

@@ -55,6 +55,7 @@ use UNISIM.vcomponents.all;
 
 library work;
 use work.regfile_xgs_athena_pack.all;
+use work.hispi_pack.all;
 
 
 entity XGS_athena is
@@ -357,7 +358,7 @@ architecture struct of XGS_athena is
       sclk_tvalid : out std_logic;
       sclk_tuser  : out std_logic_vector(3 downto 0);
       sclk_tlast  : out std_logic;
-      sclk_tdata  : out std_logic_vector(79 downto 0)
+      sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
       );
   end component;
 
@@ -385,7 +386,7 @@ architecture struct of XGS_athena is
       sclk_tvalid : in  std_logic;
       sclk_tuser  : in  std_logic_vector(3 downto 0);
       sclk_tlast  : in  std_logic;
-      sclk_tdata  : in  std_logic_vector(79 downto 0);
+      sclk_tdata  : in  PIXEL_ARRAY(7 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Slave interface
@@ -746,7 +747,7 @@ architecture struct of XGS_athena is
   signal sclk_tvalid : std_logic;
   signal sclk_tlast  : std_logic;
   signal sclk_tuser  : std_logic_vector(3 downto 0);
-  signal sclk_tdata  : std_logic_vector(79 downto 0);
+  signal sclk_tdata  : PIXEL_ARRAY(7 downto 0);
 
   -- AXI drive by mono pipeline --sys_clk : 62.5mhz
   signal aclk_tready  : std_logic;

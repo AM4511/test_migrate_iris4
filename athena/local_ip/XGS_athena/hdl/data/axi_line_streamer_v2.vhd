@@ -73,7 +73,7 @@ entity axi_line_streamer_v2 is
     sclk_tvalid : out std_logic;
     sclk_tuser  : out std_logic_vector(3 downto 0);
     sclk_tlast  : out std_logic;
-    sclk_tdata  : out std_logic_vector(79 downto 0)
+    sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
     );
 end axi_line_streamer_v2;
 
@@ -114,35 +114,50 @@ architecture rtl of axi_line_streamer_v2 is
                     S_EOL,
                     S_EOF
                     );
+  type OUTPUT_FSM_TYPE is (S_IDLE,
+                           S_SOF,
+                           S_PREFETCH,
+                           S_TRANSFER,
+                           S_EOF,
+                           S_DONE
+                           );
 
-  constant DATAWIDTH : integer                              := 80;
+  constant DATAWIDTH : integer                              := 84;
   constant ADDRWIDTH : integer                              := 10;
   constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range) := "111001";  --0x39
 
-  signal sclk_fifo_write_en       : std_logic;
-  signal sclk_fifo_write_data     : PIXEL_ARRAY(7 downto 0);
-  signal sclk_fifo_write_data_slv : std_logic_vector(79 downto 0);
-  signal sclk_fifo_read_en        : std_logic;
-  signal sclk_fifo_read_data      : std_logic_vector(DATAWIDTH - 1 downto 0);
-  signal sclk_fifo_usedw          : std_logic_vector(ADDRWIDTH downto 0);
-  signal sclk_fifo_empty          : std_logic;
-  signal sclk_fifo_full           : std_logic;
+  signal sclk_fifo_write_en              : std_logic;
+  signal sclk_fifo_write_data            : PIXEL_ARRAY(7 downto 0);
+  signal sclk_fifo_write_data_slv        : std_logic_vector(79 downto 0);
+  signal sclk_fifo_write_sync            : std_logic_vector(3 downto 0);
+  signal sclk_fifo_write_aggregated_data : std_logic_vector(DATAWIDTH - 1 downto 0);
+  signal sclk_data_packer_rdy            : std_logic;
 
-  signal m_wait          : std_logic;
-  signal state           : FSM_TYPE;
-  signal burst_length    : integer;
-  signal read_en         : std_logic;
-  signal read_data_valid : std_logic;
-  signal first_row       : std_logic;
-  signal last_row        : std_logic;
-  signal sclk_tvalid_int : std_logic;
-  signal pixel_ptr       : integer range 0 to 16 := 0;
-  signal line_cntr       : unsigned(11 downto 0);
+  signal sclk_fifo_read_en       : std_logic;
+  signal sclk_fifo_read_data_slv : std_logic_vector(79 downto 0);
+  signal sclk_fifo_read_data     : PIXEL_ARRAY(7 downto 0);
+  signal sclk_fifo_read_sync     : std_logic_vector(3 downto 0);
+  signal sclk_fifo_usedw         : std_logic_vector(ADDRWIDTH downto 0);
+  signal sclk_fifo_empty         : std_logic;
+  signal sclk_fifo_full          : std_logic;
 
-  signal sclk_data_packer : PIXEL_ARRAY(17 downto 0);
-  signal sclk_load_data   : std_logic;
-  signal last_data        : std_logic;
+  signal m_wait     : std_logic;
+  signal state      : FSM_TYPE;
+  signal strm_state : OUTPUT_FSM_TYPE;
 
+  signal burst_length      : integer;
+  signal read_en           : std_logic;
+  signal read_data_valid   : std_logic;
+  signal first_row         : std_logic;
+  signal last_row          : std_logic;
+  signal sclk_tvalid_int   : std_logic;
+  signal pixel_ptr         : integer range 0 to 16 := 0;
+  signal pixel_cntr        : unsigned(12 downto 0);
+  signal line_cntr         : unsigned(11 downto 0);
+  signal sclk_valid_x_roi  : std_logic;
+  signal sclk_data_packer  : PIXEL_ARRAY(17 downto 0);
+  signal sclk_load_data    : std_logic;
+  signal last_data         : std_logic;
   signal buffer_id_cntr    : unsigned(sclk_buffer_id'range);
   signal buffer_id_cntr_en : std_logic;
   signal lane_id_cntr      : integer range 0 to LANE_PER_PHY-1;
@@ -153,10 +168,10 @@ architecture rtl of axi_line_streamer_v2 is
   signal word_cntr_init    : std_logic;
   signal mux_id_cntr       : unsigned(1 downto 0);
   signal mux_id_cntr_en    : std_logic;
-  signal current_x_start   : std_logic_vector(12 downto 0);
-  signal current_x_stop    : std_logic_vector(12 downto 0);
-  signal current_y_start   : std_logic_vector(11 downto 0);
-  signal current_y_stop    : std_logic_vector(11 downto 0);
+  signal current_x_start   : unsigned(12 downto 0);
+  signal current_x_stop    : unsigned(12 downto 0);
+  signal current_y_start   : unsigned(11 downto 0);
+  signal current_y_stop    : unsigned(11 downto 0);
   signal odd_line          : std_logic;
 
   -----------------------------------------------------------------------------
@@ -168,7 +183,10 @@ architecture rtl of axi_line_streamer_v2 is
 begin
 
 
-  m_wait <= '1' when (sclk_tready = '0' and read_data_valid = '1' and sclk_tvalid_int = '1') else
+  -- m_wait <= '1' when (sclk_tready = '0' and read_data_valid = '1' and sclk_tvalid_int = '1') else
+  --           '0';
+
+  m_wait <= '1' when (sclk_tready = '0') else
             '0';
 
 
@@ -303,7 +321,7 @@ begin
         --if (sof_flag = '1') then
         if (state = S_SOF) then
           --ToDO should come from register
-          current_x_start <= x_start;
+          current_x_start <= unsigned(x_start);
         end if;
       end if;
     end if;
@@ -321,7 +339,7 @@ begin
         current_x_stop <= (others => '0');
       else
         if (state = S_SOF) then
-          current_x_stop <= x_stop;
+          current_x_stop <= unsigned(x_stop);
         end if;
       end if;
     end if;
@@ -339,7 +357,7 @@ begin
       else
         --if (sof_flag = '1') then
         if (state = S_SOF) then
-          current_y_start <= y_start;
+          current_y_start <= unsigned(y_start);
         end if;
       end if;
     end if;
@@ -361,7 +379,7 @@ begin
         if (state = S_SOF) then
           start          := unsigned(y_start);
           size           := unsigned(y_size);
-          current_y_stop <= std_logic_vector(start + (size - 1));
+          current_y_stop <= start + (size - 1);
         end if;
       end if;
     end if;
@@ -422,7 +440,7 @@ begin
       else
         if (state = S_SOF) then
           last_row <= '0';
-        elsif (state = S_SOL and (line_cntr = unsigned(current_y_stop))) then
+        elsif (state = S_SOL and (line_cntr = current_y_stop)) then
           last_row <= '1';
         elsif (state = S_EOF) then
           last_row <= '0';
@@ -598,6 +616,33 @@ begin
     end if;
   end process;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_pixel_cntr
+  -- Description : Count the total data loaded in the line packer
+  -----------------------------------------------------------------------------
+  P_pixel_cntr : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        pixel_cntr <= (others => '0');
+      else
+        if (state = S_SOL) then
+          pixel_cntr <= (others => '0');
+        elsif (state = S_DATA_PHASE and sclk_data_packer_rdy = '1') then
+          pixel_cntr <= pixel_cntr + 8;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sclk_data_packer_rdy <= '1' when (pixel_ptr > 7) else
+                          '0';
+
+  sclk_valid_x_roi <= '1' when (state =  S_DATA_PHASE and
+                                 (pixel_cntr >= current_x_start) and
+                                 (pixel_cntr <= current_x_stop)
+                                 ) else
+                      '0';
 
   odd_line <= line_cntr(0);
 
@@ -677,9 +722,9 @@ begin
               sclk_data_packer(5) <= sclk_buffer_data_top(2);
             end if;
             sclk_data_packer(11 downto 6) <= (others => (others => '-'));
-            
+
           when 10 =>
-            sclk_data_packer(1 downto 0)   <= sclk_data_packer(9 downto 8);
+            sclk_data_packer(1 downto 0) <= sclk_data_packer(9 downto 8);
             if (odd_line = '1') then
               sclk_data_packer(2) <= sclk_buffer_data_top(0);
               sclk_data_packer(3) <= sclk_buffer_data_bottom(0);
@@ -700,10 +745,10 @@ begin
               sclk_data_packer(7) <= sclk_buffer_data_top(2);
             end if;
             sclk_data_packer(11 downto 8) <= (others => (others => '-'));
-            
-            --OK
+
+          --OK
           when 12 =>
-            sclk_data_packer(3 downto 0)   <= sclk_data_packer(11 downto 8);
+            sclk_data_packer(3 downto 0) <= sclk_data_packer(11 downto 8);
             if (odd_line = '1') then
               sclk_data_packer(4) <= sclk_buffer_data_top(0);
               sclk_data_packer(5) <= sclk_buffer_data_bottom(0);
@@ -732,12 +777,42 @@ begin
     end if;
   end process;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_fifo_write_sync
+  -- Description : Inferred sync markers
+  -----------------------------------------------------------------------------
+  P_sclk_fifo_write_sync : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_fifo_write_sync <= (others => '0');
+      else
+        if (state = S_SOF) then
+          sclk_fifo_write_sync <= "0001";
+        elsif (state = S_SOL) then
+          sclk_fifo_write_sync(2) <= '1';
+        elsif (state = S_DATA_PHASE and pixel_cntr(12 downto 3) = (current_x_stop(12 downto 3) - 1)) then
+          -- EOL detected
+          sclk_fifo_write_sync(3) <= '1';
+          if (last_row = '1') then
+            -- Also an EOF detected
+            sclk_fifo_write_sync(1) <= '1';
+          end if;
+        elsif (sclk_fifo_write_en = '1') then
+          sclk_fifo_write_sync <= (others => '0');
+        end if;
+      end if;
+    end if;
+  end process;
 
-  sclk_fifo_write_en <= '1' when (sclk_load_data = '1' and pixel_ptr > 7) else
+
+  sclk_fifo_write_en <= '1' when (sclk_load_data = '1' and pixel_ptr > 7 and sclk_valid_x_roi = '1') else
                         '0';
 
-  sclk_fifo_write_data     <= sclk_data_packer(7 downto 0);
-  sclk_fifo_write_data_slv <= to_std_logic_vector(sclk_fifo_write_data);
+  sclk_fifo_write_data            <= sclk_data_packer(7 downto 0);
+  sclk_fifo_write_data_slv        <= to_std_logic_vector(sclk_fifo_write_data);
+  sclk_fifo_write_aggregated_data <= sclk_fifo_write_sync & sclk_fifo_write_data_slv;
+
 
   xoutput_fifo : mtxSCFIFO
     generic map (
@@ -745,77 +820,98 @@ begin
       ADDRWIDTH => ADDRWIDTH
       )
     port map (
-      clk   => sclk,
-      sclr  => sclk_reset,
-      wren  => sclk_fifo_write_en,
-      data  => sclk_fifo_write_data_slv,
-      rden  => sclk_fifo_read_en,
-      q     => sclk_fifo_read_data,
-      usedw => sclk_fifo_usedw,
-      empty => sclk_fifo_empty,
-      full  => sclk_fifo_full
+      clk             => sclk,
+      sclr            => sclk_reset,
+      wren            => sclk_fifo_write_en,
+      data            => sclk_fifo_write_aggregated_data,
+      rden            => sclk_fifo_read_en,
+      q(79 downto 0)  => sclk_fifo_read_data_slv,
+      q(83 downto 80) => sclk_fifo_read_sync,
+      usedw           => sclk_fifo_usedw,
+      empty           => sclk_fifo_empty,
+      full            => sclk_fifo_full
       );
 
+  sclk_fifo_read_data(0) <= sclk_fifo_read_data_slv(9 downto 0);
+  sclk_fifo_read_data(1) <= sclk_fifo_read_data_slv(19 downto 10);
+  sclk_fifo_read_data(2) <= sclk_fifo_read_data_slv(29 downto 20);
+  sclk_fifo_read_data(3) <= sclk_fifo_read_data_slv(39 downto 30);
+  sclk_fifo_read_data(4) <= sclk_fifo_read_data_slv(49 downto 40);
+  sclk_fifo_read_data(5) <= sclk_fifo_read_data_slv(59 downto 50);
+  sclk_fifo_read_data(6) <= sclk_fifo_read_data_slv(69 downto 60);
+  sclk_fifo_read_data(7) <= sclk_fifo_read_data_slv(79 downto 70);
 
   -----------------------------------------------------------------------------
-  -- Process     : P_sclk_tuser
-  -- Description : In the AXI stream video protocol TUSER is used as the SOF
-  --               sync marker.
-  --
-  --               USER[3 2 1 0]  SYNC
-  --               ===================
-  --                    0 0 0 1   SOF
-  --                    0 0 1 0   EOF
-  --                    0 1 0 0   SOL
-  --                    1 0 0 0   EOL
-  --                    1 1 0 0   HEADER
-  --                    others    RESERVED
+  -- Process     : P_strm_state
+  -- Description : 
   -----------------------------------------------------------------------------
-  P_sclk_tuser : process (sclk) is
+  P_strm_state : process (sclk) is
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        sclk_tuser <= "0000";
+        strm_state <= S_IDLE;
+
       else
-        if (m_wait = '0') then
+        case strm_state is
+
           ---------------------------------------------------------------------
-          -- Start of frame
+          -- S_IDLE : Parking state
           ---------------------------------------------------------------------
-          --if (state = S_DATA_PHASE and burst_cntr = 1) then
-          if (true) then
-            -- Start of frame
-            if (first_row = '1') then
-              sclk_tuser <= "0001";
-            -- Start of line
+          when S_IDLE =>
+            if (state = S_SOF) then
+              strm_state <= S_SOF;
             else
-              sclk_tuser <= "0100";
-            end if;
-
-
-          ---------------------------------------------------------------------
-          -- End of line/frame
-          ---------------------------------------------------------------------
-          elsif (state = S_LAST_DATA) then
-            -- End of frame
-            if (last_row = '1') then
-              sclk_tuser <= "0010";
-
-            -- End of line
-            else
-              sclk_tuser <= "1000";
-
+              strm_state <= S_IDLE;
             end if;
 
           ---------------------------------------------------------------------
-          -- Continue
+          -- S_PREFETCH : 
           ---------------------------------------------------------------------
-          else
-            sclk_tuser <= "0000";
-          end if;
-        end if;
+          when S_SOF =>
+            if (sclk_fifo_empty = '0') then
+              strm_state <= S_PREFETCH;
+
+            else
+              strm_state <= S_SOF;
+            end if;
+
+          ---------------------------------------------------------------------
+          -- S_PREFETCH : 
+          ---------------------------------------------------------------------
+          when S_PREFETCH =>
+            strm_state <= S_TRANSFER;
+
+          ---------------------------------------------------------------------
+          -- S_TRANSFER
+          ---------------------------------------------------------------------
+          when S_TRANSFER =>
+            if (sclk_fifo_read_sync(1) = '1') then
+              strm_state <= S_EOF;
+            end if;
+
+          when S_EOF =>
+            strm_state <= S_DONE;
+
+
+          ---------------------------------------------------------------------
+          -- S_DONE
+          ---------------------------------------------------------------------
+          when S_DONE =>
+            strm_state <= S_IDLE;
+
+          ---------------------------------------------------------------------
+          -- 
+          ---------------------------------------------------------------------
+          when others =>
+            null;
+        end case;
       end if;
     end if;
-  end process;
+  end process P_strm_state;
+
+
+  sclk_fifo_read_en <= '1' when ((strm_state = S_PREFETCH or strm_state = S_TRANSFER) and sclk_fifo_empty = '0' and m_wait = '0') else
+                       '0';
 
 
 
@@ -838,10 +934,18 @@ begin
       if (sclk_reset = '1') then
         read_data_valid <= '0';
       else
-        if (read_en = '1') then
+        -- Following a read request in the fifo, data will be available and
+        -- valid on the next clock cycle. Note, the sclk_fifo_read_en is
+        -- asserted only when m_wait = '0'
+        if (sclk_fifo_read_en = '1') then
           read_data_valid <= '1';
+        -- If no wait states on the AXI stream interface and no read request we
+        -- assume the current data has been consumed on is not valid anymore
         elsif (m_wait = '0') then
           read_data_valid <= '0';
+
+        -- If a wait states is requested on the AXI stream interface and
+        -- the current valid state remains unchanged.
         else
           read_data_valid <= read_data_valid;
         end if;
@@ -858,10 +962,10 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        sclk_tvalid_int <= '0';
+        sclk_tvalid <= '0';
       else
         if (m_wait = '0') then
-          sclk_tvalid_int <= read_data_valid;
+          sclk_tvalid <= read_data_valid;
         end if;
       end if;
     end if;
@@ -869,26 +973,24 @@ begin
 
 
   --sclk_tvalid <= sclk_tvalid_int;
-  sclk_tvalid <= '0';
-
+  --sclk_tvalid <= '0';
 
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tdata
   -- Description : AXI Stream video interface : data bus
   -----------------------------------------------------------------------------
-
-  -- P_sclk_tdata : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (sclk_reset = '1') then
-  --       sclk_tdata <= (others => '0');
-  --     else
-  --       if (m_wait = '0' and read_data_valid = '1') then
-  --         sclk_tdata <= line_buffer_data;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
+  P_sclk_tdata : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tdata <= (others => (others => '0'));
+      else
+        if (m_wait = '0' and read_data_valid = '1') then
+          sclk_tdata <= sclk_fifo_read_data;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -903,10 +1005,42 @@ begin
         sclk_tlast <= '0';
       else
         if (m_wait = '0') then
-          if (state = S_LAST_DATA) then
-            sclk_tlast <= '1';
+          if (read_data_valid = '1') then
+            sclk_tlast <= sclk_fifo_read_sync(3);
           else
             sclk_tlast <= '0';
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_tuser
+  -- Description : In the AXI stream video protocol TUSER is used as the SOF
+  --               sync marker.
+  --
+  --               USER[3 2 1 0]  SYNC
+  --               ===================
+  --                    0 - 0 1   SOF
+  --                    - 0 1 0   EOF
+  --                    0 1 0 -   SOL
+  --                    1 0 - 0   EOL
+  --                    1 1 0 0   HEADER
+  --                    others    RESERVED
+  -----------------------------------------------------------------------------
+  P_sclk_tuser : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_tuser <= "0000";
+      else
+        if (m_wait = '0') then
+          if (read_data_valid = '1') then
+            sclk_tuser <= sclk_fifo_read_sync;
+          else
+            sclk_tuser <= "0000";
           end if;
         end if;
       end if;

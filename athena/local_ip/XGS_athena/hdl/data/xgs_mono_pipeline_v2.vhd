@@ -8,6 +8,7 @@ use UNISIM.vcomponents.all;
 
 library work;
 use work.regfile_xgs_athena_pack.all;
+use work.hispi_pack.all;
 
 
 entity xgs_mono_pipeline is
@@ -33,7 +34,7 @@ entity xgs_mono_pipeline is
     sclk_tvalid : in  std_logic;
     sclk_tuser  : in  std_logic_vector(3 downto 0);
     sclk_tlast  : in  std_logic;
-    sclk_tdata  : in  std_logic_vector(79 downto 0);
+    sclk_tdata  : in  PIXEL_ARRAY(7 downto 0);
 
     ---------------------------------------------------------------------------
     -- AXI Slave interface
@@ -97,7 +98,7 @@ architecture rtl of xgs_mono_pipeline is
   signal sclk_load_data     : std_logic;
   signal sclk_last_data     : std_logic;
   signal sclk_sync_packer   : std_logic_vector (3 downto 0);
-  signal sclk_data_packer   : std_logic_vector (79 downto 0);
+  signal sclk_data_packer   : PIXEL_ARRAY(7 downto 0);
   signal sclk_packer_valid  : std_logic;
   signal sclk_pix_cntr      : integer;
   signal sclk_pix_cntr_en   : std_logic;
@@ -196,7 +197,7 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset_n = '0') then
-        sclk_data_packer <= (others => '0');
+        sclk_data_packer <= (others =>(others => '0'));
       else
         if (sclk_load_data = '1') then
           sclk_data_packer <= sclk_tdata;
@@ -312,7 +313,7 @@ begin
   -----------------------------------------------------------------------------
   -- FiFo sclk_data bus agregation
   -----------------------------------------------------------------------------
-  sclk_data(79 downto 0)  <= sclk_data_packer;
+  sclk_data(79 downto 0)  <= to_std_logic_vector(sclk_data_packer);
   sclk_data(83 downto 80) <= sclk_sync_packer;
   sclk_data(84)           <= sclk_last_data;
 
