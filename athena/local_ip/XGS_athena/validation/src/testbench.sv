@@ -1070,6 +1070,7 @@ module testbench();
                 ///////////////////////////////////////////////////
 				// DPC
 				///////////////////////////////////////////////////
+				/*
 	            REG_DPC_PATTERN0_CFG = 1;
 
 				host.write(DPC_LIST_CTRL, 0);
@@ -1101,7 +1102,7 @@ module testbench();
                 XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
                 XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
 
-
+				*/
 
                 //-------------------------------
                 // Back pressure configuration

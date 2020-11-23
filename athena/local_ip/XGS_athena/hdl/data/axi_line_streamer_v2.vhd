@@ -972,9 +972,6 @@ begin
   end process;
 
 
-  --sclk_tvalid <= sclk_tvalid_int;
-  --sclk_tvalid <= '0';
-
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tdata
   -- Description : AXI Stream video interface : data bus

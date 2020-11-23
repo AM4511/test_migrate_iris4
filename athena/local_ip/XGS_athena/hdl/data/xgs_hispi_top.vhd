@@ -232,7 +232,7 @@ architecture rtl of xgs_hispi_top_v2 is
   signal top_fifo_empty              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data_valid    : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_fifo_read_data          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal top_fifo_read_sync          : std4_logic_vector(LANE_PER_PHY-1 downto 0);
+  --signal top_fifo_read_sync          : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_cal_done             : std_logic;
   signal bottom_lanes_p              : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n              : std_logic_vector(LANE_PER_PHY-1 downto 0);
@@ -240,7 +240,7 @@ architecture rtl of xgs_hispi_top_v2 is
   signal bottom_fifo_empty           : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data_valid : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_fifo_read_data       : std32_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal bottom_fifo_read_sync       : std4_logic_vector(LANE_PER_PHY-1 downto 0);
+--  signal bottom_fifo_read_sync       : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal state                       : FSM_TYPE := S_IDLE;
   signal state_mapping               : std_logic_vector(3 downto 0);
 
@@ -668,20 +668,20 @@ begin
   -- Process     : P_sof_flag
   -- Description : 
   -----------------------------------------------------------------------------
-  P_sof_flag : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1')then
-        sof_flag <= '0';
-      else
-        if (state = S_PACK and top_fifo_read_sync(0)(0) = '1' and top_fifo_read_data_valid(0) = '1') then
-          sof_flag <= '1';
-        else
-          sof_flag <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_sof_flag : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (sclk_reset = '1')then
+  --       sof_flag <= '0';
+  --     else
+  --       if (state = S_PACK and top_fifo_read_sync(0)(0) = '1' and top_fifo_read_data_valid(0) = '1') then
+  --         sof_flag <= '1';
+  --       else
+  --         sof_flag <= '0';
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------

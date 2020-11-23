@@ -240,7 +240,7 @@ architecture rtl of lane_decoder_v2 is
 
   signal pclk_buffer_init   : std_logic;
   signal pclk_buffer_data   : PIXEL_ARRAY(2 downto 0);
-  signal pclk_buffer_sync   : std_logic_vector(3 downto 0);
+  --signal pclk_buffer_sync   : std_logic_vector(3 downto 0);
   signal pclk_buffer_id     : unsigned(1 downto 0);
   signal pclk_buffer_mux_id : unsigned(1 downto 0);
   signal pclk_word_ptr      : unsigned(WORD_PTR_WIDTH-1 downto 0);
@@ -751,7 +751,7 @@ begin
 
   --pclk_buffer_valid <= pclk_buffer_wen;
   pclk_buffer_data  <= pclk_packer_mux;
-  pclk_buffer_sync  <= pclk_sync;
+  --pclk_buffer_sync  <= pclk_sync;
 
   xline_buffer_v2 : line_buffer_v2
     generic map(
@@ -763,7 +763,7 @@ begin
       pclk_init           => pclk_buffer_init,
       pclk_write_en       => pclk_buffer_wen,
       pclk_data           => pclk_buffer_data,
-      pclk_sync           => pclk_buffer_sync,
+      pclk_sync           => pclk_sync,
       pclk_buffer_id      => std_logic_vector(pclk_buffer_id),
       pclk_mux_id         => std_logic_vector(pclk_buffer_mux_id),
       pclk_word_ptr       => std_logic_vector(pclk_word_ptr),

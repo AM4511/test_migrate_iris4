@@ -273,7 +273,8 @@ architecture rtl of hispi_phy_v2 is
   signal sclk_buffer_empty_vect   : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_sync_vect    : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_data_vect    : PIXEL_ARRAY_MUX_TYPE;
-
+  signal sclk_buffer_data_mux_sel  :  integer range 0 to 3;
+    
 --   attribute mark_debug of hclk_reset_vect              : signal is "true";
 --   attribute mark_debug of hclk_reset                   : signal is "true";
 --   attribute mark_debug of hclk_state                   : signal is "true";
@@ -409,15 +410,34 @@ begin
     end if;
   end process;
 
+
+  P_sclk_buffer_data_mux_sel: process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_buffer_data_mux_sel <= 0;
+      else
+        if (sclk_buffer_read_en = '1') then
+          sclk_buffer_data_mux_sel <= to_integer(unsigned(sclk_buffer_lane_id));
+        end if;
+      end if;
+    end if;
+  end process;
+
   
-  P_sclk_buffer_data: process (sclk_buffer_lane_id, sclk_buffer_data_vect) is
+
+  
+  P_sclk_buffer_data: process (sclk_buffer_lane_id, sclk_buffer_data_vect, sclk_buffer_sync_vect) is
   begin
     for i in 0 to 3 loop
-      if (i = to_integer(unsigned(sclk_buffer_lane_id))) then
+--      if (i = to_integer(unsigned(sclk_buffer_lane_id))) then
+      if (i = sclk_buffer_data_mux_sel) then
         sclk_buffer_data <= sclk_buffer_data_vect(i);
+        sclk_buffer_sync <= sclk_buffer_sync_vect(i);
         exit;
       else
-        sclk_buffer_data <=  (others => (others => '0'));
+        sclk_buffer_data <= (others => (others => '0'));
+        sclk_buffer_sync <= (others => '0');
       end if;
     end loop;
   end process;
