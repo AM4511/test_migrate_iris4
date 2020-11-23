@@ -616,6 +616,7 @@ begin
     end if;
   end process;
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_pixel_cntr
   -- Description : Count the total data loaded in the line packer
@@ -628,24 +629,28 @@ begin
       else
         if (state = S_SOL) then
           pixel_cntr <= (others => '0');
-        elsif (state = S_DATA_PHASE and sclk_data_packer_rdy = '1') then
+        elsif (sclk_data_packer_rdy = '1') then
           pixel_cntr <= pixel_cntr + 8;
         end if;
       end if;
     end if;
   end process;
 
-  sclk_data_packer_rdy <= '1' when (pixel_ptr > 7) else
+  
+  sclk_data_packer_rdy <= '1' when (state = S_DATA_PHASE and  pixel_ptr > 7) else
                           '0';
 
+  
   sclk_valid_x_roi <= '1' when (state =  S_DATA_PHASE and
                                  (pixel_cntr >= current_x_start) and
                                  (pixel_cntr <= current_x_stop)
                                  ) else
                       '0';
 
+  
   odd_line <= line_cntr(0);
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_data_packer
   -- Description : 
@@ -791,7 +796,7 @@ begin
           sclk_fifo_write_sync <= "0001";
         elsif (state = S_SOL) then
           sclk_fifo_write_sync(2) <= '1';
-        elsif (state = S_DATA_PHASE and pixel_cntr(12 downto 3) = (current_x_stop(12 downto 3) - 1)) then
+        elsif (sclk_data_packer_rdy = '1' and pixel_cntr(12 downto 3) = (current_x_stop(12 downto 3) - 1)) then
           -- EOL detected
           sclk_fifo_write_sync(3) <= '1';
           if (last_row = '1') then

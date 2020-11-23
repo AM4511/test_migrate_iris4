@@ -425,12 +425,9 @@ begin
   end process;
 
   
-
-  
   P_sclk_buffer_data: process (sclk_buffer_lane_id, sclk_buffer_data_vect, sclk_buffer_sync_vect) is
   begin
     for i in 0 to 3 loop
---      if (i = to_integer(unsigned(sclk_buffer_lane_id))) then
       if (i = sclk_buffer_data_mux_sel) then
         sclk_buffer_data <= sclk_buffer_data_vect(i);
         sclk_buffer_sync <= sclk_buffer_sync_vect(i);
