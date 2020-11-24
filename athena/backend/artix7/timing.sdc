@@ -131,13 +131,13 @@ set_false_path -fall_from [get_clocks io_hispi_clk_bottom] -fall_to [get_clocks 
 # ###################################################################################################################
 # Timing exception
 # ###################################################################################################################
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[1]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[3]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[5]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[1]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[3]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[5]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
 
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[0]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[2]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
-set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[4]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[0]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/pins[0].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[2]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/pins[1].iserdese2_master/DDLY}]
+set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[4]}] -to [get_pins {xsystem_pb_wrapper/system_pb_i/XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/pins[2].iserdese2_master/DDLY}]
 
 
 # Report Timing Template
@@ -157,32 +157,32 @@ create_generated_clock -name axiClk62MHz -source $src_pin -master_clock [get_clo
 # ###################################################################################################################
 # Rename generated clock : hclk
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 create_generated_clock -name hclk_bottom -source $src_pin -master_clock [get_clocks io_hispi_clk_bottom] $clk_pin
 
 
 # ###################################################################################################################
 # Rename generated clock : hclk_1
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks io_hispi_clk_top] $clk_pin
 
 
 # ###################################################################################################################
 # Top pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/I"}] 
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xtop_hispi_phy/xpclk_buffer/O"}]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/O"}]
 create_generated_clock -name pclk_top -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_top] -add $clk_pin
 
 
 # ###################################################################################################################
 # Bottom pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/I"}] 
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xbottom_hispi_phy/xpclk_buffer/O"}]
+set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/I"}] 
+set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/O"}]
 create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
 
 

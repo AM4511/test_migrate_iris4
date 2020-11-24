@@ -155,7 +155,7 @@ module testbench();
 
 	logic pcie_reset_n = 0;
 
-	`define _XGS5M_
+	`define _XGS12M_
   
 	////////////////////////////////////////////////////////////
 	// XGS 5000 Sensor parameter definitions
@@ -1070,7 +1070,6 @@ module testbench();
                 ///////////////////////////////////////////////////
 				// DPC
 				///////////////////////////////////////////////////
-				/*
 	            REG_DPC_PATTERN0_CFG = 1;
 
 				host.write(DPC_LIST_CTRL, 0);
@@ -1102,14 +1101,13 @@ module testbench();
                 XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
                 XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
 
-				*/
 
                 //-------------------------------
                 // Back pressure configuration
 				//-------------------------------
                 tready_packet_delai_cfg    = 1; //random backpressure
 				tready_packet_random_min   = 1; 
-	            tready_packet_random_max   = 31;	
+	            tready_packet_random_max   = 25;	
 
 
 				///////////////////////////////////////////////////
@@ -1158,8 +1156,8 @@ module testbench();
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 				
 				ROI_Y_START = 0;             // Doit etre multiple de 4 
-				//ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
@@ -1197,8 +1195,8 @@ module testbench();
 				end
 				
 				// Changeons le backpressure apres la premiere image								
-                tready_packet_delai_cfg = 0;   // Static backpressure
-                tready_packet_delai     = 0;  // ok
+                //tready_packet_delai_cfg = 0;   // Static backpressure
+                //tready_packet_delai     = 0;  // ok
                 //tready_packet_delai   = 28;  // overrun	
 
 

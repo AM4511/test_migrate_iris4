@@ -30,13 +30,20 @@ puts "Running ${myself}"
 # 0.1.0 : Fixed the PHY BIT LOCK ERROR   (See JIRA : IRIS4-248)
 #         Changed the project name created by thhe backend script. Now the buildID is given as HEX (easier to match in hex with bench tools)
 #
+# 0.2.0 : Redesigne the xgs_hispi_top module. Significantly reduced the number of ram block required 
+#             Removed the central line buffer
+#             Each lane_decoder contains its own local line_buffer (split in 4 sub-buffers for 4 lines)
+#             Remove the lane_packer module. Now the top and bottom lanes are packed in the axi_line_streamer module
+#         UPDATED THE REGISTERFILE. 
+#             Removed HISPI.LANE_PACKER_STATUS registers
+#
+
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     1
+set FPGA_MINOR_VERSION     2
 set FPGA_SUB_MINOR_VERSION 0
 
 
 set BASE_NAME athena
-#set DEVICE "xc7a35ticpg236-1L"
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
@@ -111,10 +118,6 @@ set_property  ip_repo_paths  [list ${LOCAL_IP_DIR} ${IPCORES_DIR} ] [current_pro
 update_ip_catalog
 
 set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
-
-
-
-
 
 
 ################################################

@@ -32,7 +32,7 @@ Register("tag", 0x0, 4, "null");
 
 Register("version", 0x4, 4, "Register file version");
 		Field("major", 23, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("minor", 15, 8, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("minor", 15, 8, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("hw", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 Register("capability", 0x8, 4, "Register file version");
@@ -564,24 +564,7 @@ for(i = 0; i < 6; i++)
 		Field("value", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 }
 
-variable lane_packer_statusTags = UChar_Type[3];
-
-for(i = 0; i < 3; i++)
-{
-	lane_packer_statusTags[i] = i;
-}
-
-Group("lane_packer_status", "DECTAG", lane_packer_statusTags);
-
-for(i = 0; i < 3; i++)
-{
-
-	Register("lane_packer_status", 0x454 + i*0x4, 4, "lane_packer_status*", "lane_packer_status", i, "null");
-		Field("fifo_underrun", 1, 1, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("fifo_overrun", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-}
-
-Register("debug", 0x460, 4, "null");
+Register("debug", 0x454, 4, "null");
 		Field("manual_calib_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("load_taps", 30, 30, "rd|wr", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 		Field("tap_lane_5", 29, 25, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

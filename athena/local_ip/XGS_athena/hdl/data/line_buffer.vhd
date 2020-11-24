@@ -1,82 +1,73 @@
--------------------------------------------------------------------------------
--- MODULE      : line_buffer
---
--- DESCRIPTION : 
---
--------------------------------------------------------------------------------
+-----------------------------------------------------------------------
+-- MODULE        : line_buffer
+-- 
+-- DESCRIPTION   : 
+--              
+-----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
-use ieee.std_logic_textio.all;
-use std.textio.all;
 
--- Work library
 library work;
-use work.mtx_types_pkg.all;
+use work.hispi_pack.all;
 
 
 entity line_buffer is
   generic (
-    NUMB_LINE_BUFFER          : integer range 2 to 4 := 2;
-    LINE_BUFFER_PTR_WIDTH     : integer              := 1;
-    LINE_BUFFER_ADDRESS_WIDTH : integer              := 11;
-    LINE_BUFFER_DATA_WIDTH    : integer              := 64;
-    NUMB_LANE_PACKER          : integer              := 3
+    WORD_PTR_WIDTH : integer := 6
     );
   port (
-    sysclk : in std_logic;
-    sysrst : in std_logic;
+    ---------------------------------------------------------------------
+    -- Pixel clock domain
+    ---------------------------------------------------------------------
+    pclk                : in  std_logic;
+    pclk_reset          : in  std_logic;
+    pclk_init           : in  std_logic;
+    pclk_write_en       : in  std_logic;
+    pclk_data           : in  PIXEL_ARRAY(2 downto 0);
+    pclk_sync           : in  std_logic_vector(3 downto 0);
+    pclk_buffer_id      : in  std_logic_vector(1 downto 0);
+    pclk_mux_id         : in  std_logic_vector(1 downto 0);
+    pclk_word_ptr       : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    pclk_set_buff_ready : in  std_logic_vector(3 downto 0);
+    pclk_buff_ready     : out std_logic_vector(3 downto 0);
 
-    ------------------------------------------------------------------------------------
-    -- Interface name: System
-    -- Description: 
-    ------------------------------------------------------------------------------------
-    row_id        : in std_logic_vector(11 downto 0);
-    buffer_enable : in std_logic;
-    init_frame    : in std_logic;
 
-    ------------------------------------------------------------------------------------
-    -- Interface name: Buffer control
-    -- Description: 
-    ------------------------------------------------------------------------------------
-    nxtBuffer : in std_logic;
-
-    ------------------------------------------------------------------------------------
-    -- Interface name: registerFileIF
-    -- Description: 
-    ------------------------------------------------------------------------------------
-    lane_packer_req : in  std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-    lane_packer_ack : out std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-    buff_write      : in  std_logic;
-    buff_addr       : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    buff_data       : in  std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-
-    ------------------------------------------------------------------------------------
-    -- Interface name: registerFileIF
-    -- Description: 
-    ------------------------------------------------------------------------------------
-    line_buffer_clr     : in  std_logic;
-    line_buffer_ready   : out std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-    line_buffer_read    : in  std_logic;
-    line_buffer_ptr     : in  std_logic_vector(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-    line_buffer_address : in  std_logic_vector(LINE_BUFFER_ADDRESS_WIDTH-1 downto 0);
-    line_buffer_row_id  : out std_logic_vector(11 downto 0);
-    line_buffer_data    : out std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0)
+    ---------------------------------------------------------------------
+    -- Line buffer interface
+    ---------------------------------------------------------------------
+    sclk           : in  std_logic;
+    sclk_reset     : in  std_logic;
+    sclk_empty     : out std_logic;
+    sclk_read_en   : in  std_logic;
+    sclk_buffer_id : in  std_logic_vector(1 downto 0);
+    sclk_mux_id    : in  std_logic_vector(1 downto 0);
+    sclk_word_ptr  : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    sclk_sync      : out std_logic_vector(3 downto 0);
+    sclk_data      : out std_logic_vector(29 downto 0)
     );
-end entity line_buffer;
+end line_buffer;
 
 
 architecture rtl of line_buffer is
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
-  component round_robin is
-    generic (NUM_REQUESTER : integer := 7);
-    port (
-      clk   : in  std_logic;
-      rst_n : in  std_logic;
-      req   : in  std_logic_vector(NUM_REQUESTER-1 downto 0);
-      grant : out std_logic_vector(NUM_REQUESTER-1 downto 0)
-      );
+
+  component mtx_resync is
+    port
+      (
+        aClk  : in  std_logic;
+        aClr  : in  std_logic;
+        aDin  : in  std_logic;
+        bclk  : in  std_logic;
+        bclr  : in  std_logic;
+        bDout : out std_logic;
+        bRise : out std_logic;
+        bFall : out std_logic
+        );
   end component;
 
 
@@ -99,200 +90,154 @@ architecture rtl of line_buffer is
         );
   end component;
 
-  constant BUFFER_ADDRESS_WIDTH : integer := LINE_BUFFER_PTR_WIDTH+LINE_BUFFER_ADDRESS_WIDTH;
+  --type PCLK_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_EOL, S_EOF, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
+  type WORD_COUNT_ARRAY is array (3 downto 0) of unsigned(WORD_PTR_WIDTH+2-1 downto 0);
 
-  type ROW_ID_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(line_buffer_row_id'range);
-  type ROW_INFO_ARRAY is array (0 to NUMB_LINE_BUFFER-1) of std_logic_vector(1 downto 0);
+  constant LINE_PTR_WIDTH    : integer := 2;
+  constant LANE_PTR_WIDTH    : integer := 2;
+  constant BUFFER_ADDR_WIDTH : integer := LINE_PTR_WIDTH + LANE_PTR_WIDTH + WORD_PTR_WIDTH;  -- in bits
+  constant BUFFER_DATA_WIDTH : integer := 36;
 
-  signal sysrst_n         : std_logic;
-  signal lane_grant       : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal write_buffer_ptr : unsigned(LINE_BUFFER_PTR_WIDTH-1 downto 0);
-  signal pixel_id         : natural := 0;
-  signal buffer_row_id    : ROW_ID_ARRAY;
-  signal buffer_row_info  : ROW_INFO_ARRAY;
 
-  signal current_buffer_ready : std_logic;
-  signal buffer_write_en      : std_logic;
-  signal buffer_write_address : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal buffer_write_data    : std_logic_vector(LINE_BUFFER_DATA_WIDTH-1 downto 0);
-  signal buffer_read_address  : std_logic_vector(BUFFER_ADDRESS_WIDTH-1 downto 0);
-  signal nxtBuffer_ff         : std_logic;
-  signal buffer_ready         : std_logic_vector(NUMB_LINE_BUFFER-1 downto 0);
-  signal lane_packer_req_int  : std_logic_vector(NUMB_LANE_PACKER-1 downto 0);
-  signal req_enable           : std_logic;
+
+  constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
+  constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
+
+  --signal pclk_state         : PCLK_FSM_TYPE := S_IDLE;
+  signal pclk_write_address : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
+  signal pclk_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  --signal pclk_word_count    : WORD_COUNT_ARRAY;
+
+
+  signal sclk_read_address     : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
+  signal sclk_read_data        : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  signal sclk_buffer_empty     : std_logic;
+  signal sclk_set_buff_ready   : std_logic_vector(3 downto 0);
+  signal sclk_buff_ready_ff    : std_logic_vector(3 downto 0);
+  signal sclk_word_count_array : WORD_COUNT_ARRAY;
 
 begin
 
-  sysrst_n <= not sysrst;
 
-  xround_robin : round_robin
-    generic map(
-      NUM_REQUESTER => NUMB_LANE_PACKER
-      )
-    port map(
-      clk   => sysclk,
-      rst_n => sysrst_n,
-      req   => lane_packer_req_int,
-      grant => lane_grant
-      );
+  pclk_write_address <= pclk_buffer_id & pclk_mux_id & pclk_word_ptr;
 
-  lane_packer_ack <= lane_grant;
 
-  lane_packer_req_int <= lane_packer_req when (req_enable = '1') else
-                         (others => '0');
 
+  pclk_write_data(9 downto 0)   <= to_std_logic_vector(pclk_data(0));
+  pclk_write_data(19 downto 10) <= to_std_logic_vector(pclk_data(1));
+  pclk_write_data(29 downto 20) <= to_std_logic_vector(pclk_data(2));
+  pclk_write_data(33 downto 30) <= pclk_sync;
+  pclk_write_data(35 downto 34) <= "00";  -- Not used for now
 
 
   -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_req_enable : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        req_enable <= '0';
-      else
-        if (buffer_enable = '1') then
-          for i in 0 to NUMB_LINE_BUFFER-1 loop
-            if (i = to_integer(write_buffer_ptr)) then
-              if (buffer_ready(i) = '0') then
-                -- If line buffer empty we allow lane packer to write in
-                -- the current line buffer
-                req_enable <= '1';
-              else
-                -- If line buffer full we do not allow lane packer to write in
-                -- the current line buffer
-                req_enable <= '0';
-              end if;
-              exit;
-            end if;
-          end loop;
-        else
-          req_enable <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  buffer_write_en      <= buff_write;
-  buffer_write_address <= std_logic_vector(write_buffer_ptr) & buff_addr;
-  buffer_write_data    <= buff_data;
-
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_write_buffer_ptr : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        write_buffer_ptr <= (others => '0');
-      else
-        if (init_frame = '1') then
-          write_buffer_ptr <= (others => '0');
-        elsif (nxtBuffer = '1') then
-          write_buffer_ptr <= write_buffer_ptr+1;
-        end if;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_buffer_ready : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        buffer_ready <= (others => '0');
-      else
-        if (init_frame = '1') then
-          buffer_ready <= (others => '0');
-        else
-          for i in 0 to NUMB_LINE_BUFFER-1 loop
-            -- On the write side
-            if (i = to_integer(write_buffer_ptr) and nxtBuffer = '1') then
-              buffer_ready(i) <= '1';
-            -- On the read side
-            elsif (i = to_integer(unsigned(line_buffer_ptr)) and (line_buffer_clr = '1')) then
-              buffer_ready(i) <= '0';
-            end if;
-          end loop;
-        end if;
-      end if;
-    end if;
-  end process;
-
-  line_buffer_ready <= buffer_ready;
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_nxtBuffer_ff : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        nxtBuffer_ff <= '0';
-      else
-        nxtBuffer_ff <= nxtBuffer;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_buffer_row_id : process (sysclk) is
-  begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        buffer_row_id <= (others => (others => '0'));
-      else
-        for i in 0 to NUMB_LINE_BUFFER-1 loop
-          if (i = to_integer(write_buffer_ptr) and buff_write = '1') then
-            buffer_row_id(i) <= row_id;
-          end if;
-        end loop;
-      end if;
-    end if;
-  end process;
-
-
-  -----------------------------------------------------------------------------
-  -- 
+  -- Line buffer (2xline buffer size to support double buffering)
   -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
-      DATAWIDTH => LINE_BUFFER_DATA_WIDTH,
-      ADDRWIDTH => BUFFER_ADDRESS_WIDTH
+      DATAWIDTH => BUFFER_DATA_WIDTH,
+      ADDRWIDTH => BUFFER_ADDR_WIDTH
       )
     port map(
-      data      => buffer_write_data,
-      rdaddress => buffer_read_address,
-      rdclock   => sysclk,
-      rden      => line_buffer_read,
-      wraddress => buffer_write_address,
-      wrclock   => sysclk,
-      wren      => buffer_write_en,
-      q         => line_buffer_data
+      data      => pclk_write_data,
+      rdaddress => sclk_read_address,
+      rdclock   => sclk,
+      rden      => sclk_read_en,
+      wraddress => pclk_write_address,
+      wrclock   => pclk,
+      wren      => pclk_write_en,
+      q         => sclk_read_data
       );
 
-  buffer_read_address <= line_buffer_ptr & line_buffer_address;
 
-  P_line_buffer_row_id : process (sysclk) is
+
+  G_resync : for i in 0 to 3 generate
+
+
+    M_sclk_set_buff_ready_resync : mtx_resync
+      port map (
+        aClk  => pclk,
+        aClr  => pclk_reset,
+        aDin  => pclk_set_buff_ready(i),
+        bclk  => sclk,
+        bclr  => sclk_reset,
+        bDout => open,
+        bRise => sclk_set_buff_ready(i),
+        bFall => open
+        );
+
+    M_pclk_set_buff_ready_resync : mtx_resync
+      port map (
+        aClk  => sclk,
+        aClr  => sclk_reset,
+        aDin  => sclk_buff_ready_ff(i),
+        bclk  => pclk,
+        bclr  => pclk_reset,
+        bDout => pclk_buff_ready(i),
+        bRise => open,
+        bFall => open
+        );
+
+  end generate G_resync;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     :sclk_buff_ready_ff
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sclk_buff_ready_ff : process (sclk) is
   begin
-    if (rising_edge(sysclk)) then
-      if (sysrst = '1')then
-        line_buffer_row_id <= (others => '0');
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_buff_ready_ff <= (others => '0');
       else
-        for i in 0 to NUMB_LINE_BUFFER-1 loop
-          if (i = to_integer(unsigned(line_buffer_ptr))) then
-            line_buffer_row_id <= buffer_row_id(i);
+        for i in 0 to 3 loop
+          if (sclk_set_buff_ready(i) = '1') then
+            sclk_buff_ready_ff(i) <= '1';
+          elsif (i = to_integer(unsigned(sclk_buffer_id)) and sclk_buffer_empty = '1') then
+            sclk_buff_ready_ff(i) <= '0';
+          end if;
+        end loop;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     :
+  -- Description : 
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!!
+  -----------------------------------------------------------------------------
+  P_sclk_word_count_array : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_word_count_array <= (others => (others => '0'));
+      else
+        for i in 0 to 3 loop
+          if (sclk_set_buff_ready(i) = '1') then
+            -- synthesis translate_off
+            -- Test the buffer is empty. It must always be empty before
+            -- starting filling, otherwise it is an overflow
+            assert (sclk_word_count_array(i) = 0) report "line buffer overrun" severity error;
+            -- synthesis translate_on
+
+            -- pclk_word_count(i) is assumed to be stabled
+            -- when sclk_set_buff_ready(i) = '1'
+            sclk_word_count_array(i) <= unsigned(pclk_word_ptr) & "00";
+
+
+
+          elsif (i = to_integer(unsigned(sclk_buffer_id)) and sclk_read_en = '1') then
+            -- synthesis translate_off
+            -- Test the buffer is not empty. It must always contain data when
+            -- reading from it, otherwise it is an underflow
+            assert (sclk_word_count_array(i) > 0) report "line buffer underrun" severity error;
+            -- synthesis translate_on
+
+            sclk_word_count_array(i) <= sclk_word_count_array(i)-1;
           end if;
         end loop;
       end if;
@@ -301,4 +246,31 @@ begin
 
 
 
-end architecture rtl;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_buff_empty
+  -- Description : Indicates if line buffer pointed by sclk_buffer_id is empty  
+  -----------------------------------------------------------------------------
+  P_sclk_buff_empty : process (sclk_buffer_id, sclk_word_count_array) is
+    variable i : integer range 0 to 3;
+  begin
+
+    i := to_integer(unsigned(sclk_buffer_id));
+    
+    if (sclk_word_count_array(i) = (sclk_word_count_array(i)'range => '0'))then
+      sclk_buffer_empty <= '1';
+    else
+      sclk_buffer_empty <= '0';
+    end if;
+  end process;
+
+
+  sclk_empty <= sclk_buffer_empty;
+
+
+  sclk_read_address <= sclk_buffer_id & sclk_mux_id & sclk_word_ptr;
+  sclk_sync <= sclk_read_data(33 downto 30);
+  sclk_data <= sclk_read_data(29 downto 0);
+
+end rtl;
+
