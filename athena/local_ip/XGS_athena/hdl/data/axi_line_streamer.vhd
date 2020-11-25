@@ -186,7 +186,26 @@ architecture rtl of axi_line_streamer is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of m_wait : signal is "true";
+  attribute mark_debug of m_wait               : signal is "true";
+  attribute mark_debug of sclk_buffer_lane_id  : signal is "true";
+  attribute mark_debug of sclk_buffer_id       : signal is "true";
+  attribute mark_debug of sclk_buffer_mux_id   : signal is "true";
+  attribute mark_debug of sclk_buffer_word_ptr : signal is "true";
+  attribute mark_debug of sclk_buffer_read_en  : signal is "true";
+
+  attribute mark_debug of sclk_buffer_empty_top : signal is "true";
+  attribute mark_debug of sclk_buffer_sync_top  : signal is "true";
+  attribute mark_debug of sclk_buffer_data_top  : signal is "true";
+
+  attribute mark_debug of sclk_buffer_empty_bottom : signal is "true";
+  attribute mark_debug of sclk_buffer_sync_bottom  : signal is "true";
+  attribute mark_debug of sclk_buffer_data_bottom  : signal is "true";
+
+  attribute mark_debug of sclk_tready : signal is "true";
+  attribute mark_debug of sclk_tvalid : signal is "true";
+  attribute mark_debug of sclk_tuser  : signal is "true";
+  attribute mark_debug of sclk_tlast  : signal is "true";
+  attribute mark_debug of sclk_tdata  : signal is "true";
 
 
 begin

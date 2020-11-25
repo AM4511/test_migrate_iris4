@@ -255,16 +255,15 @@ architecture rtl of lane_decoder is
   signal pclk_sync_error   : std_logic;
 
 
-  signal pclk_buffer_overrun   : std_logic;
-  signal pclk_crc_enable       : std_logic := '1';
-  signal pclk_crc_init         : std_logic;
-  signal pclk_crc_en           : std_logic;
-  signal pclk_crc_error        : std_logic;
-  signal pclk_computed_crc1    : std_logic_vector(11 downto 0);
-  signal pclk_computed_crc2    : std_logic_vector(11 downto 0);
-  signal pclk_eol              : std_logic;
-  signal pclk_sof              : std_logic;
-  signal sclk_eol              : std_logic;
+  signal pclk_buffer_overrun : std_logic;
+  signal pclk_crc_enable     : std_logic := '1';
+  signal pclk_crc_init       : std_logic;
+  signal pclk_crc_en         : std_logic;
+  signal pclk_crc_error      : std_logic;
+  signal pclk_computed_crc1  : std_logic_vector(11 downto 0);
+  signal pclk_computed_crc2  : std_logic_vector(11 downto 0);
+  signal pclk_eol            : std_logic;
+  signal pclk_sof            : std_logic;
 
   signal rclk_enable_hispi    : std_logic;
   signal rclk_enable_datapath : std_logic;
@@ -284,6 +283,21 @@ architecture rtl of lane_decoder is
   signal sclk_buffer_data_slv  : std_logic_vector(29 downto 0);
   signal sclk_buffer_empty_int : std_logic;
   signal sclk_buffer_underrun  : std_logic;
+
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of sclk_buffer_underrun  : signal is "true";
+  attribute mark_debug of sclk_buffer_empty_int : signal is "true";
+  attribute mark_debug of sclk_buffer_read_en   : signal is "true";
+
+  attribute mark_debug of pclk_state          : signal is "true";
+  attribute mark_debug of pclk_buffer_id      : signal is "true";
+  attribute mark_debug of pclk_set_buff_ready : signal is "true";
+  attribute mark_debug of pclk_buff_ready     : signal is "true";
+  attribute mark_debug of pclk_embedded       : signal is "true";
+  attribute mark_debug of pclk_buffer_overrun : signal is "true";
+
 
 begin
 
@@ -925,7 +939,7 @@ begin
   regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).PHY_SYNC_ERROR_set <= '1' when (rclk_sync_error = '1' and rclk_enable_hispi = '1') else
                                                                    '0';
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_pclk_buffer_overrun
   -- Description : 
@@ -939,6 +953,9 @@ begin
         for i in 0 to 3 loop
           if (pclk_set_buff_ready(i) = '1' and pclk_buff_ready(i) = '1') then
             pclk_buffer_overrun <= '1';
+            -- synthesis translate_off
+            assert (false) report "Detected buffer overrun in lane_decoder" severity error;
+            -- synthesis translate_on
             exit;
           else
             pclk_buffer_overrun <= '0';
@@ -947,11 +964,6 @@ begin
       end if;
     end if;
   end process;
-
-
-  -- synthesis translate_off
-  assert (not(rising_edge(pclk_buffer_overrun))) report "Detected buffer overrun in lane_decoder" severity error;
-  -- synthesis translate_on
 
 
   M_rclk_buffer_overrun : mtx_resync
@@ -966,7 +978,8 @@ begin
       bRise => rclk_buffer_overrun,
       bFall => open
       );
-  
+
+
   regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).FIFO_OVERRUN_set <= '1' when (rclk_buffer_overrun = '1') else
                                                                  '0';
 
@@ -977,13 +990,16 @@ begin
   -----------------------------------------------------------------------------
   P_sclk_buffer_underrun : process (sclk) is
   begin
-    if (rising_edge(rclk)) then
+    if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
         sclk_buffer_underrun <= '0';
       else
         if (sclk_buffer_read_en = '1') then
-          if (sclk_buffer_empty_int = '1' or (unsigned(sclk_buffer_word_ptr) > MAX_BURST)) then
+          if (sclk_buffer_empty_int = '1') then
             sclk_buffer_underrun <= '1';
+            -- synthesis translate_off
+            assert (false) report "Detected buffer underrun in lane_decoder" severity error;
+          -- synthesis translate_on
           else
             sclk_buffer_underrun <= '0';
           end if;
@@ -994,10 +1010,7 @@ begin
     end if;
   end process;
 
-  
-  -- synthesis translate_off
-  assert (not(rising_edge(sclk_buffer_underrun))) report "Detected buffer underrun in lane_decoder" severity error;
-  -- synthesis translate_on
+
 
 
   M_rclk_buffer_underrun : mtx_resync
@@ -1013,9 +1026,9 @@ begin
       bFall => open
       );
 
-  
-  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).FIFO_UNDERRUN_set <=  '1' when (rclk_buffer_underrun = '1' )else
-                                                                   '0';
+
+  regfile.HISPI.LANE_DECODER_STATUS(LANE_ID).FIFO_UNDERRUN_set <= '1' when (rclk_buffer_underrun = '1')else
+                                                                  '0';
 
   -----------------------------------------------------------------------------
   -- Resync 
@@ -1032,25 +1045,6 @@ begin
       bRise => sclk_sof,
       bFall => open
       );
-
-
-  -----------------------------------------------------------------------------
-  -- Resync 
-  -----------------------------------------------------------------------------
-  M_sclk_eol : mtx_resync
-    port map
-    (
-      aClk  => pclk,
-      aClr  => pclk_reset,
-      aDin  => pclk_eol,
-      bclk  => sclk,
-      bclr  => sclk_reset,
-      bDout => open,
-      bRise => sclk_eol,
-      bFall => open
-      );
-
-
 
 
 

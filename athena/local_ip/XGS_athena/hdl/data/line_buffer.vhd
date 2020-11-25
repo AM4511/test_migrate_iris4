@@ -90,7 +90,6 @@ architecture rtl of line_buffer is
         );
   end component;
 
-  --type PCLK_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_EOL, S_EOF, S_DONE);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
   type WORD_COUNT_ARRAY is array (3 downto 0) of unsigned(WORD_PTR_WIDTH+2-1 downto 0);
 
@@ -104,10 +103,8 @@ architecture rtl of line_buffer is
   constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
   constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
 
-  --signal pclk_state         : PCLK_FSM_TYPE := S_IDLE;
   signal pclk_write_address : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
   signal pclk_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-  --signal pclk_word_count    : WORD_COUNT_ARRAY;
 
 
   signal sclk_read_address     : std_logic_vector(BUFFER_ADDR_WIDTH - 1 downto 0);
@@ -117,8 +114,18 @@ architecture rtl of line_buffer is
   signal sclk_buff_ready_ff    : std_logic_vector(3 downto 0);
   signal sclk_word_count_array : WORD_COUNT_ARRAY;
 
+  
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of sclk_buffer_empty     : signal is "true";
+  attribute mark_debug of sclk_set_buff_ready   : signal is "true";
+  attribute mark_debug of sclk_buff_ready_ff    : signal is "true";
+  attribute mark_debug of sclk_word_count_array : signal is "true";
+
 begin
 
+  refaire le changement de domaine d'horloge.Ca plante sur le bench. Se baser sur le fifo asynchrone pour le buffer_id. Ajouter les flag full et empty. Je switch maintenant et temporairement sur sur ARES
 
   pclk_write_address <= pclk_buffer_id & pclk_mux_id & pclk_word_ptr;
 
@@ -245,8 +252,6 @@ begin
   end process;
 
 
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_buff_empty
   -- Description : Indicates if line buffer pointed by sclk_buffer_id is empty  
@@ -256,7 +261,7 @@ begin
   begin
 
     i := to_integer(unsigned(sclk_buffer_id));
-    
+
     if (sclk_word_count_array(i) = (sclk_word_count_array(i)'range => '0'))then
       sclk_buffer_empty <= '1';
     else
@@ -269,8 +274,8 @@ begin
 
 
   sclk_read_address <= sclk_buffer_id & sclk_mux_id & sclk_word_ptr;
-  sclk_sync <= sclk_read_data(33 downto 30);
-  sclk_data <= sclk_read_data(29 downto 0);
+  sclk_sync         <= sclk_read_data(33 downto 30);
+  sclk_data         <= sclk_read_data(29 downto 0);
 
 end rtl;
 

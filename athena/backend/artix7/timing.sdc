@@ -40,11 +40,6 @@ create_clock -period 10.000 -name pcie_clk_p -waveform {0.000 5.000} [get_ports 
 # data     _XXXX____Rise_Data____XXXX____Fall_Data____XXXX_
 #
 ####################################################################################################################
-set clock_period        2.570;             # Period of input clock (full-period)
-set dv_bre              0.386;             # Data valid before the rising clock edge (60% *clock_period/2) /2
-set dv_are              0.386;             # Data valid after the rising clock edge
-set dv_bfe              0.386;             # Data valid before the falling clock edge
-set dv_afe              0.386;             # Data valid after the falling clock edge
 
 
 # set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bfe] [get_ports $input_ports];
@@ -52,71 +47,59 @@ set dv_afe              0.386;             # Data valid after the falling clock 
 # set_input_delay -clock $input_clock -max [expr $input_clock_period/2 - $dv_bre] [get_ports $input_ports] -clock_fall -add_delay;
 # set_input_delay -clock $input_clock -min $dv_afe                                [get_ports $input_ports] -clock_fall -add_delay;
 
-set max_delay_rise_edge [expr $clock_period/2 - $dv_bfe]
-set min_delay_rise_edge $dv_are 
 
-set max_delay_fall_edge [expr $clock_period/2 - $dv_bre]
-set min_delay_fall_edge $dv_afe 
 
 
 
 # #####################################################################################
 # IO LANES HiSPi Top interface
 # #####################################################################################
-set PORT_NAME [get_ports xgs_hispi_sclk_p[0]]
-create_clock -period ${clock_period}  -name io_hispi_clk_top    -waveform {0.000 1.285} ${PORT_NAME}
+create_clock -period 2.570 -name io_hispi_clk_top -waveform {0.000 1.285} [get_ports {xgs_hispi_sclk_p[0]}]
 
 # HiSPi Lane 0
-set PORT_NAME [get_ports xgs_hispi_sdata_p[0]]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[0]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[0]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[0]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[0]}]
 
 # HiSPi Lane 8
-set PORT_NAME [get_ports xgs_hispi_sdata_p[2]]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[2]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[2]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[2]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[2]}]
 
 # HiSPi Lane 16
-set PORT_NAME [get_ports xgs_hispi_sdata_p[4]]
-set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[4]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[4]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[4]}]
+set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[4]}]
 
 
 # #####################################################################################
 # IO LANES HiSPi Bottom interface
 # #####################################################################################
-set PORT_NAME [get_ports xgs_hispi_sclk_p[1]]
-create_clock -period ${clock_period}  -name io_hispi_clk_bottom -waveform {0.000 1.285} ${PORT_NAME}
+create_clock -period 2.570 -name io_hispi_clk_bottom -waveform {0.000 1.285} [get_ports {xgs_hispi_sclk_p[1]}]
 
 
 # HiSPi Lane 1
-set PORT_NAME [get_ports xgs_hispi_sdata_p[1]]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[1]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[1]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[1]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[1]}]
 
 
 # HiSPi Lane 9
-set PORT_NAME [get_ports xgs_hispi_sdata_p[3]]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[3]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[3]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[3]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[3]}]
 
 
 # HiSPi Lane 17
-set PORT_NAME [get_ports xgs_hispi_sdata_p[5]]
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay ${min_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay ${max_delay_rise_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay ${min_delay_fall_edge} ${PORT_NAME}
-set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay ${max_delay_fall_edge} ${PORT_NAME}
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[5]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[5]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[5]}]
+set_input_delay -clock [get_clocks io_hispi_clk_bottom] -clock_fall -max -add_delay 0.899 [get_ports {xgs_hispi_sdata_p[5]}]
 
 
 
@@ -143,78 +126,64 @@ set_false_path -hold -from [get_ports {xgs_hispi_sdata_p[4]}] -to [get_pins {xsy
 # Report Timing Template
 # report_timing -rise_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_rise  -file src_sync_cntr_ddr_in_rise.txt;
 # report_timing -fall_from [get_ports $input_ports] -max_paths 20 -nworst 2 -delay_type min_max -name src_sync_cntr_ddr_in_fall  -file src_sync_cntr_ddr_in_fall.txt;
-          
+
 
 
 # ###################################################################################################################
 # Rename generated clock : userclk1
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1"}] 
-set clk_pin [get_pins -hier -filter {NAME =~"*pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2"}]
-create_generated_clock -name axiClk62MHz -source $src_pin -master_clock [get_clocks txoutclk_x0y0] $clk_pin
+create_generated_clock -name axiClk62MHz -source [get_pins -hier -filter {NAME =~"*/pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKIN1"}] -master_clock txoutclk_x0y0 [get_pins -hier -filter {NAME =~"*pcie_7x_0_xil_wrapper/inst/inst/gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT2"}]
 
 
 # ###################################################################################################################
 # Rename generated clock : hclk
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
-create_generated_clock -name hclk_bottom -source $src_pin -master_clock [get_clocks io_hispi_clk_bottom] $clk_pin
+create_generated_clock -name hclk_bottom -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}] -master_clock io_hispi_clk_bottom [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 
 
 # ###################################################################################################################
 # Rename generated clock : hclk_1
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}]
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
-create_generated_clock -name hclk_top -source $src_pin -master_clock [get_clocks io_hispi_clk_top] $clk_pin
+create_generated_clock -name hclk_top -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/I"}] -master_clock io_hispi_clk_top [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xhispi_phy_xilinx/inst/clkout_buf_inst/O"}]
 
 
 # ###################################################################################################################
 # Top pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/I"}] 
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/O"}]
-create_generated_clock -name pclk_top -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_top] -add $clk_pin
+create_generated_clock -name pclk_top -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/I"}] -divide_by 2 -add -master_clock hclk_top [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_top/xpclk_buffer/O"}]
 
 
 # ###################################################################################################################
 # Bottom pixel clock (Generated clock)
 # ###################################################################################################################
-set src_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/I"}] 
-set clk_pin [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/O"}]
-create_generated_clock -name pclk_bottom -source $src_pin -divide_by 2 -master_clock [get_clocks hclk_bottom] -add $clk_pin
+create_generated_clock -name pclk_bottom -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/I"}] -divide_by 2 -add -master_clock hclk_bottom [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/O"}]
 
 
 # ###################################################################################################################
 # Rename generated clock : refclk200MHz
 # ###################################################################################################################
-set src_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1] 
-set clk_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]
-create_generated_clock -name refclk200MHz -source $src_pin -master_clock [get_clocks ref_clk] $clk_pin
+create_generated_clock -name refclk200MHz -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT0]
 
 
 # ###################################################################################################################
 # Rename generated clock : sclk100MHz
 # ###################################################################################################################
-set src_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1]
-set clk_pin [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT1]
-create_generated_clock -name sclk100MHz -source $src_pin -master_clock [get_clocks ref_clk] $clk_pin
+create_generated_clock -name sclk100MHz -source [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKIN1] -master_clock ref_clk [get_pins xsystem_pb_wrapper/system_pb_i/clk_wiz_0/inst/mmcm_adv_inst/CLKOUT1]
 
 
 # ###################################################################################################################
 # Clock domain crossing false path
 # ###################################################################################################################
-set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_top] 
-set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_bottom] 
-set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_top] 
-set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_bottom] 
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_top]
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks hclk_bottom]
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_top]
+set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks pclk_bottom]
 set_clock_groups -asynchronous -group [get_clocks axiClk62MHz] -group [get_clocks sclk100MHz]
 
-set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks hclk_top] 
-set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks hclk_bottom] 
-set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks pclk_top] 
-set_clock_groups -asynchronous -group [get_clocks sclk100MHz]  -group [get_clocks pclk_bottom] 
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz] -group [get_clocks hclk_top]
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz] -group [get_clocks hclk_bottom]
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz] -group [get_clocks pclk_top]
+set_clock_groups -asynchronous -group [get_clocks sclk100MHz] -group [get_clocks pclk_bottom]
 
 
 # ###################################################################################################################
@@ -275,6 +244,7 @@ set_false_path -to [get_ports exposure_out]
 set_false_path -to [get_ports strobe_out]
 set_false_path -to [get_ports trig_rdy_out]
 set_false_path -from [get_ports ext_trig]
+
 
 
 

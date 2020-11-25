@@ -1,5 +1,6 @@
-set_property PACKAGE_PIN D19 [get_ports {cfg_spi_sd[1]}]
+set_property PACKAGE_PIN D18 [get_ports {cfg_spi_sd[0]}]
 set_property PACKAGE_PIN K19 [get_ports cfg_spi_cs_n]
+set_property PACKAGE_PIN D19 [get_ports {cfg_spi_sd[1]}]
 
 
 #----------------------------------------------
@@ -101,7 +102,6 @@ set_property DRIVE 8 [get_ports {cfg_spi_sd[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {cfg_spi_sd[1]}]
 set_property SLEW SLOW [get_ports {cfg_spi_sd[1]}]
 
-set_property PACKAGE_PIN D18 [get_ports {cfg_spi_sd[0]}]
 set_property DRIVE 8 [get_ports {cfg_spi_sd[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {cfg_spi_sd[0]}]
 set_property SLEW SLOW [get_ports {cfg_spi_sd[0]}]
@@ -326,6 +326,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports temp_alertN]
 
 set_property PACKAGE_PIN A18 [get_ports xgs_power_good]
 set_property IOSTANDARD LVCMOS33 [get_ports xgs_power_good]
+
 
 
 
