@@ -1,0 +1,6 @@
+set_property PULLUP true [get_ports {ncsi_rxd[1]}]
+set_property PULLUP true [get_ports {ncsi_rxd[0]}]
+set_property PULLUP true [get_ports {user_data_in[3]}]
+set_property PULLUP true [get_ports {user_data_in[2]}]
+set_property PULLUP true [get_ports {user_data_in[1]}]
+set_property PULLUP true [get_ports {user_data_in[0]}]
