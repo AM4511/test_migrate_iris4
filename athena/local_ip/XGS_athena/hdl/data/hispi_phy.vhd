@@ -70,13 +70,12 @@ entity hispi_phy is
     ---------------------------------------------------------------------------
     -- Line buffer interface
     ---------------------------------------------------------------------------
+    sclk_transfer_done   : in  std_logic;
     sclk_buffer_empty    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
     sclk_buffer_read_en  : in  std_logic;
     sclk_buffer_lane_id  : in  std_logic_vector(1 downto 0);
-    sclk_buffer_id       : in  std_logic_vector(1 downto 0);
     sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-    sclk_buffer_sync     : out std_logic_vector(3 downto 0);
     sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
     );
 
@@ -168,12 +167,11 @@ architecture rtl of hispi_phy is
       ---------------------------------------------------------------------------
       -- Line buffer interface
       ---------------------------------------------------------------------------
+      sclk_transfer_done   : in  std_logic;
       sclk_buffer_empty    : out std_logic;
       sclk_buffer_read_en  : in  std_logic;
-      sclk_buffer_id       : in  std_logic_vector(1 downto 0);
       sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
       sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-      sclk_buffer_sync     : out std_logic_vector(3 downto 0);
       sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
       );
   end component;
@@ -221,7 +219,7 @@ architecture rtl of hispi_phy is
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
   type PIXEL_ARRAY_MUX_TYPE is array (LANE_PER_PHY - 1 downto 0) of PIXEL_ARRAY(2 downto 0);
-  
+
   signal bitslip : std_logic_vector(LANE_PER_PHY-1 downto 0) := (others => '0');
 
   signal hclk                         : std_logic;
@@ -269,10 +267,9 @@ architecture rtl of hispi_phy is
   signal rclk_tap_histogram          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
   signal sclk_buffer_read_en_vect : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sclk_buffer_sync_vect    : std4_logic_vector(LANE_PER_PHY-1 downto 0);
   signal sclk_buffer_data_vect    : PIXEL_ARRAY_MUX_TYPE;
-  signal sclk_buffer_data_mux_sel  :  integer range 0 to LANE_PER_PHY-1;
-    
+  signal sclk_buffer_data_mux_sel : integer range 0 to LANE_PER_PHY-1;
+
 
 begin
 
@@ -407,26 +404,24 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_buffer_data
   -- Description : Data mux used to extract data from each lane_decoder
   -----------------------------------------------------------------------------
-  P_sclk_buffer_data : process (sclk_buffer_lane_id, sclk_buffer_data_vect, sclk_buffer_sync_vect) is
+  P_sclk_buffer_data : process (sclk_buffer_lane_id, sclk_buffer_data_vect) is
   begin
-    for i in 0 to  LANE_PER_PHY-1 loop
+    for i in 0 to LANE_PER_PHY-1 loop
       if (i = sclk_buffer_data_mux_sel) then
         sclk_buffer_data <= sclk_buffer_data_vect(i);
-        sclk_buffer_sync <= sclk_buffer_sync_vect(i);
         exit;
       else
         sclk_buffer_data <= (others => (others => '0'));
-        sclk_buffer_sync <= (others => '0');
       end if;
     end loop;
   end process;
 
-                       
+
 
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
@@ -488,12 +483,11 @@ begin
         sclk                   => sclk,
         sclk_reset             => sclk_reset,
         sclk_sof               => sclk_sof(i),
+        sclk_transfer_done     => sclk_transfer_done,
         sclk_buffer_empty      => sclk_buffer_empty(i),
         sclk_buffer_read_en    => sclk_buffer_read_en_vect(i),
-        sclk_buffer_id         => sclk_buffer_id,
         sclk_buffer_mux_id     => sclk_buffer_mux_id,
         sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
-        sclk_buffer_sync       => sclk_buffer_sync_vect(i),
         sclk_buffer_data       => sclk_buffer_data_vect(i)
         );
   end generate G_lane_decoder;
@@ -571,7 +565,6 @@ begin
       if (hclk_manual_calibration_en = '1') then
         hclk_delay_tap_in <= rclk_manual_calibration_tap;
       elsif (hclk_state = S_LOAD_RESULT) then
-        --hclk_delay_tap_in <= pclk_cal_tap_value;
         hclk_delay_tap_in((5*i)+4 downto (5*i)) <= pclk_cal_tap_value(i);
       else
         -- During calibration we use the tap counter value

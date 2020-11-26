@@ -50,20 +50,21 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Lane_decode I/F
     ---------------------------------------------------------------------------
+    sclk_transfer_done   : out std_logic;
     sclk_buffer_lane_id  : out std_logic_vector(1 downto 0);
-    sclk_buffer_id       : out std_logic_vector(1 downto 0);
+    --sclk_buffer_id       : out std_logic_vector(1 downto 0);
     sclk_buffer_mux_id   : out std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr : out std_logic_vector(5 downto 0);
     sclk_buffer_read_en  : out std_logic;
 
     -- Even lanes
     sclk_buffer_empty_top : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    sclk_buffer_sync_top  : in std_logic_vector(3 downto 0);
+    --sclk_buffer_sync_top  : in std_logic_vector(3 downto 0);
     sclk_buffer_data_top  : in PIXEL_ARRAY(2 downto 0);
 
     -- Odd lanes
     sclk_buffer_empty_bottom : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    sclk_buffer_sync_bottom  : in std_logic_vector(3 downto 0);
+    --sclk_buffer_sync_bottom  : in std_logic_vector(3 downto 0);
     sclk_buffer_data_bottom  : in PIXEL_ARRAY(2 downto 0);
 
     ---------------------------------------------------------------------------
@@ -147,33 +148,31 @@ architecture rtl of axi_line_streamer is
   signal state      : FSM_TYPE;
   signal strm_state : OUTPUT_FSM_TYPE;
 
-  signal burst_length      : integer;
-  signal read_en           : std_logic;
-  signal read_data_valid   : std_logic;
-  signal first_row         : std_logic;
-  signal last_row          : std_logic;
-  signal pixel_ptr         : integer range 0 to 16 := 0;
-  signal pixel_cntr        : unsigned(12 downto 0);
-  signal line_cntr         : unsigned(11 downto 0);
-  signal sclk_valid_x_roi  : std_logic;
-  signal sclk_data_packer  : PIXEL_ARRAY(17 downto 0);
-  signal sclk_load_data    : std_logic;
-  signal last_data         : std_logic;
-  signal buffer_id_cntr    : unsigned(sclk_buffer_id'range);
-  signal buffer_id_cntr_en : std_logic;
-  signal lane_id_cntr      : integer range 0 to LANE_PER_PHY-1;
-  signal lane_id_cntr_max  : integer range 0 to LANE_PER_PHY-1;
-  signal lane_id_cntr_en   : std_logic;
-  signal word_cntr         : unsigned(sclk_buffer_word_ptr'range);
-  signal word_cntr_en      : std_logic;
-  signal word_cntr_init    : std_logic;
-  signal mux_id_cntr       : unsigned(1 downto 0);
-  signal mux_id_cntr_en    : std_logic;
-  signal current_x_start   : unsigned(12 downto 0);
-  signal current_x_stop    : unsigned(12 downto 0);
-  signal current_y_start   : unsigned(11 downto 0);
-  signal current_y_stop    : unsigned(11 downto 0);
-  signal odd_line          : std_logic;
+  signal burst_length     : integer;
+  signal read_en          : std_logic;
+  signal read_data_valid  : std_logic;
+  signal first_row        : std_logic;
+  signal last_row         : std_logic;
+  signal pixel_ptr        : integer range 0 to 16 := 0;
+  signal pixel_cntr       : unsigned(12 downto 0);
+  signal line_cntr        : unsigned(11 downto 0);
+  signal sclk_valid_x_roi : std_logic;
+  signal sclk_data_packer : PIXEL_ARRAY(17 downto 0);
+  signal sclk_load_data   : std_logic;
+  signal last_data        : std_logic;
+  signal lane_id_cntr     : integer range 0 to LANE_PER_PHY-1;
+  signal lane_id_cntr_max : integer range 0 to LANE_PER_PHY-1;
+  signal lane_id_cntr_en  : std_logic;
+  signal word_cntr        : unsigned(sclk_buffer_word_ptr'range);
+  signal word_cntr_en     : std_logic;
+  signal word_cntr_init   : std_logic;
+  signal mux_id_cntr      : unsigned(1 downto 0);
+  signal mux_id_cntr_en   : std_logic;
+  signal current_x_start  : unsigned(12 downto 0);
+  signal current_x_stop   : unsigned(12 downto 0);
+  signal current_y_start  : unsigned(11 downto 0);
+  signal current_y_stop   : unsigned(11 downto 0);
+  signal odd_line         : std_logic;
 
   signal stream_pace_cntr      : unsigned(3 downto 0);
   signal incr_stream_pace_cntr : std_logic;
@@ -188,17 +187,14 @@ architecture rtl of axi_line_streamer is
   -----------------------------------------------------------------------------
   attribute mark_debug of m_wait               : signal is "true";
   attribute mark_debug of sclk_buffer_lane_id  : signal is "true";
-  attribute mark_debug of sclk_buffer_id       : signal is "true";
   attribute mark_debug of sclk_buffer_mux_id   : signal is "true";
   attribute mark_debug of sclk_buffer_word_ptr : signal is "true";
   attribute mark_debug of sclk_buffer_read_en  : signal is "true";
 
   attribute mark_debug of sclk_buffer_empty_top : signal is "true";
-  attribute mark_debug of sclk_buffer_sync_top  : signal is "true";
   attribute mark_debug of sclk_buffer_data_top  : signal is "true";
 
   attribute mark_debug of sclk_buffer_empty_bottom : signal is "true";
-  attribute mark_debug of sclk_buffer_sync_bottom  : signal is "true";
   attribute mark_debug of sclk_buffer_data_bottom  : signal is "true";
 
   attribute mark_debug of sclk_tready : signal is "true";
@@ -213,8 +209,6 @@ begin
 
   m_wait <= '1' when (sclk_tready = '0') else
             '0';
-
-
 
 
   -----------------------------------------------------------------------------
@@ -301,11 +295,13 @@ begin
               state <= S_EOL;
             end if;
 
+
           ---------------------------------------------------------------------
           -- S_EOL : End Of Line state
           ---------------------------------------------------------------------
           when S_EOL =>
             state <= S_WAIT_SOL;
+
 
           ---------------------------------------------------------------------
           -- S_EOF : End Of frame state
@@ -313,11 +309,13 @@ begin
           when S_EOF =>
             state <= S_DONE;
 
+
           ---------------------------------------------------------------------
           -- S_DONE
           ---------------------------------------------------------------------
           when S_DONE =>
             state <= S_IDLE;
+
 
           ---------------------------------------------------------------------
           -- 
@@ -381,7 +379,6 @@ begin
       if (sclk_reset = '1') then
         current_y_start <= (others => '0');
       else
-        --if (sof_flag = '1') then
         if (state = S_SOF) then
           current_y_start <= unsigned(y_start);
         end if;
@@ -482,30 +479,10 @@ begin
 
   sclk_buffer_read_en <= read_en;
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_id_cntr
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_buffer_id_cntr : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1') then
-        buffer_id_cntr <= (others => '0');
-      else
-        if (state = S_SOF) then
-          buffer_id_cntr <= (others => '0');
-        elsif (buffer_id_cntr_en = '1') then
-          buffer_id_cntr <= buffer_id_cntr + 1;
-        end if;
-      end if;
-    end if;
-  end process;
 
 
-  buffer_id_cntr_en <= '1' when (STATE = S_EOL) else
-                       '0';
-
-  sclk_buffer_id <= std_logic_vector(buffer_id_cntr);
+  sclk_transfer_done <= '1' when (STATE = S_EOL or state = S_EOF) else
+                        '0';
 
 
   -----------------------------------------------------------------------------
@@ -1020,9 +997,6 @@ begin
 
 
 
-
-
-
   -----------------------------------------------------------------------------
   -- Process     : P_read_data_valid
   -- Description : Indicates data that the read data from the buffer is
@@ -1073,6 +1047,7 @@ begin
 
   sclk_tvalid <= sclk_tvalid_int;
 
+  
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tdata
   -- Description : AXI Stream video interface : data bus
