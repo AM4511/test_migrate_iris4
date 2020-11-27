@@ -34,7 +34,6 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     streamer_en     : in  std_logic;
     streamer_busy   : out std_logic;
-    transfert_done  : out std_logic;
     init_frame      : in  std_logic;
     frame_done      : out std_logic;
     nb_lane_enabled : in  std_logic_vector(2 downto 0);
@@ -52,19 +51,16 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     sclk_transfer_done   : out std_logic;
     sclk_buffer_lane_id  : out std_logic_vector(1 downto 0);
-    --sclk_buffer_id       : out std_logic_vector(1 downto 0);
     sclk_buffer_mux_id   : out std_logic_vector(1 downto 0);
     sclk_buffer_word_ptr : out std_logic_vector(5 downto 0);
     sclk_buffer_read_en  : out std_logic;
 
     -- Even lanes
     sclk_buffer_empty_top : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    --sclk_buffer_sync_top  : in std_logic_vector(3 downto 0);
     sclk_buffer_data_top  : in PIXEL_ARRAY(2 downto 0);
 
     -- Odd lanes
     sclk_buffer_empty_bottom : in std_logic_vector(LANE_PER_PHY - 1 downto 0);
-    --sclk_buffer_sync_bottom  : in std_logic_vector(3 downto 0);
     sclk_buffer_data_bottom  : in PIXEL_ARRAY(2 downto 0);
 
     ---------------------------------------------------------------------------
@@ -536,11 +532,12 @@ begin
     end if;
   end process;
 
+  
   mux_id_cntr_en <= '1' when (word_cntr = MAX_BURST and word_cntr_en = '1') else
                     '0';
 
+  
   sclk_buffer_mux_id <= std_logic_vector(mux_id_cntr);
-
 
 
   -----------------------------------------------------------------------------
@@ -643,10 +640,9 @@ begin
                           '0';
 
 
-  sclk_valid_x_roi                          <= '1' when (state = S_DATA_PHASE and
+  sclk_valid_x_roi <= '1' when (state = S_DATA_PHASE and
                                 (pixel_cntr >= current_x_start) and
-                                (pixel_cntr <= current_x_stop)
-                                ) else
+                                (pixel_cntr <= current_x_stop)) else
                       '0';
 
 
@@ -986,15 +982,8 @@ begin
   end process;
 
 
-
-
-  transfert_done <= '1' when (state = S_DONE) else
-                    '0';
-
-
   streamer_busy <= '1' when (state /= S_IDLE) else
                    '0';
-
 
 
   -----------------------------------------------------------------------------
@@ -1047,7 +1036,7 @@ begin
 
   sclk_tvalid <= sclk_tvalid_int;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tdata
   -- Description : AXI Stream video interface : data bus
