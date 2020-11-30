@@ -43,61 +43,18 @@ entity xgs12m_chip is
     );
 
   port (
-  
+   
     xgs_model_GenImage : in std_logic;
 	
-    VAAHV_NPIX  : inout std_logic;
-    VREF1_BOT_0 : inout std_logic;
-    VREF1_BOT_1 : inout std_logic;
-    VREF1_TOP_0 : inout std_logic;
-    VREF1_TOP_1 : inout std_logic;
-    ATEST_BTM   : inout std_logic;
-    ATEST_TOP   : inout std_logic;
-    ASPARE_TOP  : inout std_logic;
-    ASPARE_BTM  : inout std_logic;
-
-    VRESPD_HI_0  : inout std_logic;
-    VRESPD_HI_1  : inout std_logic;
-    VRESFD_HI_0  : inout std_logic;
-    VRESFD_HI_1  : inout std_logic;
-    VSG_HI_0     : inout std_logic;
-    VSG_HI_1     : inout std_logic;
-    VRS_HI_0     : inout std_logic;
-    VRS_HI_1     : inout std_logic;
-    VTX1_HI_0    : inout std_logic;
-    VTX1_HI_1    : inout std_logic;
-    VTX0_HI_0    : inout std_logic;
-    VTX0_HI_1    : inout std_logic;
-    VRESFD_LO1_0 : inout std_logic;
-    VRESFD_LO1_1 : inout std_logic;
-    VRESFD_LO2_0 : inout std_logic;
-    VRESFD_LO2_1 : inout std_logic;
-    VRESPD_LO1_0 : inout std_logic;
-    VRESPD_LO1_1 : inout std_logic;
-    VSG_LO1_0    : inout std_logic;
-    VSG_LO1_1    : inout std_logic;
-    VTX1_LO1_0   : inout std_logic;
-    VTX1_LO1_1   : inout std_logic;
-    VTX1_LO2_0   : inout std_logic;
-    VTX1_LO2_1   : inout std_logic;
-    VTX0_LO1_0   : inout std_logic;
-    VTX0_LO1_1   : inout std_logic;
-    VPSUB_LO_0   : inout std_logic;
-    VPSUB_LO_1   : inout std_logic;
-
     SCLK        : in  std_logic;
     SDATA       : in  std_logic;
     TRIGGER_INT : in  std_logic := '0';
-    TEST        : in  std_logic;
+
     RESET_B     : in  std_logic;
     EXTCLK      : in  std_logic;
     FWSI_EN     : in  std_logic;
     CS          : in  std_logic;
     SDATAOUT    : out std_logic;
-
-    DSPARE0 : inout std_logic;
-    DSPARE1 : inout std_logic;
-    DSPARE2 : inout std_logic;
 
     MONITOR0 : inout std_logic;
     MONITOR1 : inout std_logic;
@@ -253,6 +210,7 @@ architecture behaviour of xgs12m_chip is
       line_time : out std_logic_vector(15 downto 0);
 
       --Output to Image module
+	  xgs_model_GenImage_reg : out std_logic;
       slave_triggered_mode : out std_logic;
       frame_length         : out std_logic_vector(15 downto 0);
       roi_start            : out integer range G_PXL_ARRAY_ROWS downto 0;
@@ -390,6 +348,9 @@ architecture behaviour of xgs12m_chip is
 
   signal NEW_LINE            : std_logic := '0';
 
+  signal xgs_model_GenImage_hw_or_sw : std_logic :='0';
+  signal xgs_model_GenImage_reg      : std_logic :='0';
+
 begin
 
 
@@ -453,7 +414,8 @@ begin
       line_time => line_time,
 
       --Output to Image module
-      slave_triggered_mode => slave_triggered_mode,
+      xgs_model_GenImage_reg => xgs_model_GenImage_reg,
+	  slave_triggered_mode => slave_triggered_mode,
       frame_length         => frame_length,
       roi_start            => roi_start,
       roi_size             => roi_size,
@@ -474,6 +436,9 @@ begin
       test_data_greenb     => test_data_greenb
       );
 
+
+  xgs_model_GenImage_hw_or_sw <= xgs_model_GenImage or xgs_model_GenImage_reg;
+
   xgs_image_inst : xgs_image
     generic map(G_XGS45M         => 0,
                 G_NUM_PHY        => G_NUM_PHY,
@@ -481,7 +446,7 @@ begin
                 G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)
     port map(
 	
-	  xgs_model_GenImage => xgs_model_GenImage,
+	  xgs_model_GenImage     => xgs_model_GenImage_hw_or_sw,
 
       trigger_int     => TRIGGER_READOUT,
 
@@ -828,51 +793,10 @@ begin
   end generate GEN_5M_xgs_hiSpi;
 
 
-  VAAHV_NPIX  <= 'Z';
-  VREF1_BOT_0 <= 'Z';
-  VREF1_BOT_1 <= 'Z';
-  VREF1_TOP_0 <= 'Z';
-  VREF1_TOP_1 <= 'Z';
-  ATEST_BTM   <= 'Z';
-  ATEST_TOP   <= 'Z';
-  ASPARE_TOP  <= 'Z';
-  ASPARE_BTM  <= 'Z';
-
-  VRESPD_HI_0  <= 'Z';
-  VRESPD_HI_1  <= 'Z';
-  VRESFD_HI_0  <= 'Z';
-  VRESFD_HI_1  <= 'Z';
-  VSG_HI_0     <= 'Z';
-  VSG_HI_1     <= 'Z';
-  VRS_HI_0     <= 'Z';
-  VRS_HI_1     <= 'Z';
-  VTX1_HI_0    <= 'Z';
-  VTX1_HI_1    <= 'Z';
-  VTX0_HI_0    <= 'Z';
-  VTX0_HI_1    <= 'Z';
-  VRESFD_LO1_0 <= 'Z';
-  VRESFD_LO1_1 <= 'Z';
-  VRESFD_LO2_0 <= 'Z';
-  VRESFD_LO2_1 <= 'Z';
-  VRESPD_LO1_0 <= 'Z';
-  VRESPD_LO1_1 <= 'Z';
-  VSG_LO1_0    <= 'Z';
-  VSG_LO1_1    <= 'Z';
-  VTX1_LO1_0   <= 'Z';
-  VTX1_LO1_1   <= 'Z';
-  VTX1_LO2_0   <= 'Z';
-  VTX1_LO2_1   <= 'Z';
-  VTX0_LO1_0   <= 'Z';
-  VTX0_LO1_1   <= 'Z';
-  VPSUB_LO_0   <= 'Z';
-  VPSUB_LO_1   <= 'Z';
 
   --FWSI_EN      <= 'Z';
   --CS           <= 'Z';
 
-  DSPARE0 <= 'Z';
-  DSPARE1 <= 'Z';
-  DSPARE2 <= 'Z';
 
   MONITOR0 <= INTEGRATION;
   MONITOR1 <= EFOT;

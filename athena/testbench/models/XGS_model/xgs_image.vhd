@@ -45,7 +45,7 @@ entity xgs_image is
           G_PXL_PER_COLRAM   : integer := 174
           );
   port(
-       xgs_model_GenImage  : in std_logic; 
+       xgs_model_GenImage  : in std_logic:='0'; 
        trigger_int         : in std_logic;
        
        dataline            : out t_dataline(0 to G_NUM_PHY*4*G_PXL_PER_COLRAM-1);
