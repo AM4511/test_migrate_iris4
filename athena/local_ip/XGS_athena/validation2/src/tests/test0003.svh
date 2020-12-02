@@ -69,7 +69,7 @@ class Test0003 extends CTest;
 		        host.reset(20);
 		        #100us;
 
-		        super.Vlib.setXGS_sensor(5000);
+		        super.Vlib.setXGS_sensor(16000);
 
 		        super.Vlib.setDMA('hA0000000, 'h2000);
 		        super.Vlib.setXGSmodel();
