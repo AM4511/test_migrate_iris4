@@ -35,6 +35,11 @@ use work.xgs_model_pkg.all;
 
 entity xgs12m_chip is
   generic(
+  
+    G_xgs_image_file_dec      : string                        := string'("XGS_image_dec.pgm"); 
+    G_xgs_image_file_hex12    : string                        := string'("XGS_image_hex12.pgm");
+    G_xgs_image_file_hex8     : string                        := string'("XGS_image_hex8.pgm");
+
     constant G_MODEL_ID       : std_logic_vector(15 downto 0) := X"0058";
     constant G_REV_ID         : std_logic_vector(15 downto 0) := X"0002";
     constant G_NUM_PHY        : integer                       := 6;
@@ -235,7 +240,12 @@ architecture behaviour of xgs12m_chip is
   end component;
 
   component xgs_image is
-    generic(G_XGS45M         : integer := 0;
+    generic(
+            G_xgs_image_file_dec      : string;
+            G_xgs_image_file_hex12    : string;
+            G_xgs_image_file_hex8     : string;
+	
+	        G_XGS45M         : integer := 0;
             G_NUM_PHY        : integer := 6;
             G_PXL_ARRAY_ROWS : integer := 3100;
             G_PXL_PER_COLRAM : integer := 174
@@ -440,7 +450,12 @@ begin
   xgs_model_GenImage_hw_or_sw <= xgs_model_GenImage or xgs_model_GenImage_reg;
 
   xgs_image_inst : xgs_image
-    generic map(G_XGS45M         => 0,
+    generic map(
+	            G_xgs_image_file_dec    => G_xgs_image_file_dec,   
+                G_xgs_image_file_hex12  => G_xgs_image_file_hex12, 
+                G_xgs_image_file_hex8   => G_xgs_image_file_hex8,  
+	
+	            G_XGS45M         => 0,
                 G_NUM_PHY        => G_NUM_PHY,
                 G_PXL_ARRAY_ROWS => G_PXL_ARRAY_ROWS,
                 G_PXL_PER_COLRAM => G_PXL_PER_COLRAM)

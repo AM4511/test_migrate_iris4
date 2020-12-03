@@ -23,6 +23,8 @@ class Test0002 extends CTest;
 	CImage XGS_image;
 	CImage XGS_imageDPC;
 
+    int XGS_Model;
+
     int EXPOSURE;    
 	int ROI_X_START;
 	int ROI_X_SIZE;
@@ -66,10 +68,16 @@ class Test0002 extends CTest;
 
 
 			begin    
+
+                //-------------------------------------------------
+				// SELECTION DU MODELE XGS  
+                //-------------------------------------------------
+                XGS_Model = 12000;
+
 		        host.reset(20);
 		        #100us;
 
-		        super.Vlib.setXGS_sensor(12000);
+		        super.Vlib.setXGS_sensor(XGS_Model);
 
 		        super.Vlib.setDMA('hA0000000, 'h2000);
 		        super.Vlib.setXGSmodel();
@@ -78,10 +86,6 @@ class Test0002 extends CTest;
 		        super.Vlib.setHISPI_X_window();
 		        super.Vlib.testI2Csemaphore();
 			    #200us;
-
-
-
-
 
 
 		        //-------------------------------------------------
@@ -95,7 +99,7 @@ class Test0002 extends CTest;
 				//--------------------------------------------------
 				//super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
 				super.Vlib.GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_imageSRC.load_image;                                        // Load le .pgm dans la class SystemVerilog			
+				XGS_imageSRC.load_image(XGS_Model);                             // Load le .pgm dans la class SystemVerilog			
 
 
 		        ///////////////////////////////////////////////////
@@ -143,7 +147,7 @@ class Test0002 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 4;           // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < 1000 est le MAX qu'on peut mettre a cause du modele!!!, attention!
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;

@@ -156,11 +156,15 @@ module system_top(
 	//---------------------------------------
 	xgs12m_chip
 		#(
+    		.G_xgs_image_file_dec   ("XGS_image_5000_dec.pgm"), 
+    		.G_xgs_image_file_hex12 ("XGS_image_5000_hex12.pgm"),
+    		.G_xgs_image_file_hex8  ("XGS_image_5000_hex8.pgm"),
 			.G_MODEL_ID         (16'h0358),
 			.G_REV_ID           (16'h0000),
 			.G_NUM_PHY          (4),
 			.G_PXL_PER_COLRAM   (174),      
-			.G_PXL_ARRAY_ROWS   (2078)
+			//.G_PXL_ARRAY_ROWS   (2078)
+			.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_5000
 		(		
@@ -251,36 +255,35 @@ module system_top(
 	//---------------------------------------
 	xgs12m_chip
 		#(
+	   		.G_xgs_image_file_dec   ("XGS_image_12000_dec.pgm"), 
+	   		.G_xgs_image_file_hex12 ("XGS_image_12000_hex12.pgm"),
+	   		.G_xgs_image_file_hex8  ("XGS_image_12000_hex8.pgm"),
 			.G_MODEL_ID         (16'h0058),
 			.G_REV_ID           (16'h0002),
 			.G_NUM_PHY          (6),
 			.G_PXL_PER_COLRAM   (174),      
-			.G_PXL_ARRAY_ROWS   (3102)
+			//.G_PXL_ARRAY_ROWS   (3102)
+			.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_12000
 		(		
 			.xgs_model_GenImage(1'b0), 
-			 
-			.TRIGGER_INT(xgs_trig_int_12000),
 
+			.TRIGGER_INT(xgs_trig_int_12000),
 			.MONITOR0(xgs_monitor0_12000),
 			.MONITOR1(xgs_monitor1_12000),
 			.MONITOR2(xgs_monitor2_12000),
-
 			.RESET_B(xgs_reset_n_12000),
 			.EXTCLK(refclk_12000),
 			.FWSI_EN(1'b1),
-
 			.SCLK(xgs_sclk_12000),
 			.SDATA(xgs_sdout_12000),
 			.CS(xgs_cs_n_12000),
 			.SDATAOUT(xgs_sdin_12000),
-
 			.D_CLK_0_N(),
 			.D_CLK_0_P(),
 			.D_CLK_1_N(),
 			.D_CLK_1_P(),
-
 			.D_CLK_2_N(if_hispi_12000.hclk_n[0]),
 			.D_CLK_2_P(if_hispi_12000.hclk_p[0]),
 			.D_CLK_3_N(if_hispi_12000.hclk_n[1]),
@@ -289,7 +292,6 @@ module system_top(
 			.D_CLK_4_P(),
 			.D_CLK_5_N(),
 			.D_CLK_5_P(),
-
 			.DATA_0_N (if_hispi_12000.data_n[0]),
 			.DATA_0_P (if_hispi_12000.data_p[0]),
 			.DATA_1_P (if_hispi_12000.data_p[1]),
@@ -340,99 +342,104 @@ module system_top(
 			.DATA_23_P()
 		);
 
-//    //---------------------------------------
-//	//  MODELE XGS 16000
-//	//---------------------------------------
-//	xgs12m_chip
-//		#(
-//			.G_MODEL_ID         (16'h0258),
-//			.G_REV_ID           (16'h0000),
-//			.G_NUM_PHY          (6),
-//			.G_PXL_PER_COLRAM   (174),      
-//			.G_PXL_ARRAY_ROWS   (4030)
-//		)
-//		XGS_MODEL_16000
-//		(		
-//			.xgs_model_GenImage(1'b0), 
-//			 
-//			.TRIGGER_INT(xgs_trig_int_16000),
-//
-//			.MONITOR0(xgs_monitor0_16000),
-//			.MONITOR1(xgs_monitor1_16000),
-//			.MONITOR2(xgs_monitor2_16000),
-//
-//			.RESET_B(xgs_reset_n_16000),
-//			.EXTCLK(refclk_16000),
-//			.FWSI_EN(1'b1),
-//
-//			.SCLK(xgs_sclk_16000),
-//			.SDATA(xgs_sdout_16000),
-//			.CS(xgs_cs_n_16000),
-//			.SDATAOUT(xgs_sdin_16000),
-//
-//			.D_CLK_0_N(),
-//			.D_CLK_0_P(),
-//			.D_CLK_1_N(),
-//			.D_CLK_1_P(),
-//
-//			.D_CLK_2_N(if_hispi_16000.hclk_n[0]),
-//			.D_CLK_2_P(if_hispi_16000.hclk_p[0]),
-//			.D_CLK_3_N(if_hispi_16000.hclk_n[1]),
-//			.D_CLK_3_P(if_hispi_16000.hclk_p[1]),
-//			.D_CLK_4_N(),
-//			.D_CLK_4_P(),
-//			.D_CLK_5_N(),
-//			.D_CLK_5_P(),
-//
-//			.DATA_0_N (if_hispi_16000.data_n[0]),
-//			.DATA_0_P (if_hispi_16000.data_p[0]),
-//			.DATA_1_P (if_hispi_16000.data_p[1]),
-//			.DATA_1_N (if_hispi_16000.data_n[1]),
-//			.DATA_2_P (),
-//			.DATA_2_N (),
-//			.DATA_3_P (),
-//			.DATA_3_N (),
-//			.DATA_4_N (),
-//			.DATA_4_P (),
-//			.DATA_5_N (),
-//			.DATA_5_P (),
-//			.DATA_6_N (),
-//			.DATA_6_P (),
-//			.DATA_7_N (),
-//			.DATA_7_P (),
-//			.DATA_8_N (if_hispi_16000.data_n[2]),
-//			.DATA_8_P (if_hispi_16000.data_p[2]),
-//			.DATA_9_N (if_hispi_16000.data_n[3]),
-//			.DATA_9_P (if_hispi_16000.data_p[3]),
-//			.DATA_10_N(),
-//			.DATA_10_P(),
-//			.DATA_11_N(),
-//			.DATA_11_P(),
-//			.DATA_12_N(),
-//			.DATA_12_P(),
-//			.DATA_13_N(),
-//			.DATA_13_P(),
-//			.DATA_14_N(),
-//			.DATA_14_P(),
-//			.DATA_15_N(),
-//			.DATA_15_P(),
-//			.DATA_16_N(if_hispi_16000.data_n[4]),
-//			.DATA_16_P(if_hispi_16000.data_p[4]),
-//			.DATA_17_N(if_hispi_16000.data_n[5]),
-//			.DATA_17_P(if_hispi_16000.data_p[5]),
-//			.DATA_18_N(),
-//			.DATA_18_P(),
-//			.DATA_19_N(),
-//			.DATA_19_P(),
-//			.DATA_20_N(),
-//			.DATA_20_P(),
-//			.DATA_21_N(),
-//			.DATA_21_P(),
-//			.DATA_22_N(),
-//			.DATA_22_P(),
-//			.DATA_23_N(),
-//			.DATA_23_P()
-//		);
+    //---------------------------------------
+	//  MODELE XGS 16000
+	//---------------------------------------
+	xgs12m_chip
+		#(
+    		.G_xgs_image_file_dec   ("XGS_image_16000_dec.pgm"), 
+    		.G_xgs_image_file_hex12 ("XGS_image_16000_hex12.pgm"),
+   		    .G_xgs_image_file_hex8  ("XGS_image_16000_hex8.pgm"),
+
+			.G_MODEL_ID         (16'h0258),
+			.G_REV_ID           (16'h0000),
+			.G_NUM_PHY          (6),
+			.G_PXL_PER_COLRAM   (174),      
+			//.G_PXL_ARRAY_ROWS   (4030)
+			.G_PXL_ARRAY_ROWS   (1000)
+		)
+		XGS_MODEL_16000
+		(		
+			.xgs_model_GenImage(1'b0), 
+			 
+			.TRIGGER_INT(xgs_trig_int_16000),
+
+			.MONITOR0(xgs_monitor0_16000),
+			.MONITOR1(xgs_monitor1_16000),
+			.MONITOR2(xgs_monitor2_16000),
+
+			.RESET_B(xgs_reset_n_16000),
+			.EXTCLK(refclk_16000),
+			.FWSI_EN(1'b1),
+
+			.SCLK(xgs_sclk_16000),
+			.SDATA(xgs_sdout_16000),
+			.CS(xgs_cs_n_16000),
+			.SDATAOUT(xgs_sdin_16000),
+
+			.D_CLK_0_N(),
+			.D_CLK_0_P(),
+			.D_CLK_1_N(),
+			.D_CLK_1_P(),
+
+			.D_CLK_2_N(if_hispi_16000.hclk_n[0]),
+			.D_CLK_2_P(if_hispi_16000.hclk_p[0]),
+			.D_CLK_3_N(if_hispi_16000.hclk_n[1]),
+			.D_CLK_3_P(if_hispi_16000.hclk_p[1]),
+			.D_CLK_4_N(),
+			.D_CLK_4_P(),
+			.D_CLK_5_N(),
+			.D_CLK_5_P(),
+
+			.DATA_0_N (if_hispi_16000.data_n[0]),
+			.DATA_0_P (if_hispi_16000.data_p[0]),
+			.DATA_1_P (if_hispi_16000.data_p[1]),
+			.DATA_1_N (if_hispi_16000.data_n[1]),
+			.DATA_2_P (),
+			.DATA_2_N (),
+			.DATA_3_P (),
+			.DATA_3_N (),
+			.DATA_4_N (),
+			.DATA_4_P (),
+			.DATA_5_N (),
+			.DATA_5_P (),
+			.DATA_6_N (),
+			.DATA_6_P (),
+			.DATA_7_N (),
+			.DATA_7_P (),
+			.DATA_8_N (if_hispi_16000.data_n[2]),
+			.DATA_8_P (if_hispi_16000.data_p[2]),
+			.DATA_9_N (if_hispi_16000.data_n[3]),
+			.DATA_9_P (if_hispi_16000.data_p[3]),
+			.DATA_10_N(),
+			.DATA_10_P(),
+			.DATA_11_N(),
+			.DATA_11_P(),
+			.DATA_12_N(),
+			.DATA_12_P(),
+			.DATA_13_N(),
+			.DATA_13_P(),
+			.DATA_14_N(),
+			.DATA_14_P(),
+			.DATA_15_N(),
+			.DATA_15_P(),
+			.DATA_16_N(if_hispi_16000.data_n[4]),
+			.DATA_16_P(if_hispi_16000.data_p[4]),
+			.DATA_17_N(if_hispi_16000.data_n[5]),
+			.DATA_17_P(if_hispi_16000.data_p[5]),
+			.DATA_18_N(),
+			.DATA_18_P(),
+			.DATA_19_N(),
+			.DATA_19_P(),
+			.DATA_20_N(),
+			.DATA_20_P(),
+			.DATA_21_N(),
+			.DATA_21_P(),
+			.DATA_22_N(),
+			.DATA_22_P(),
+			.DATA_23_N(),
+			.DATA_23_P()
+		);
 
     always @(*) begin
 

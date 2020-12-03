@@ -325,6 +325,9 @@ class CVlib;
 		else if(data_rd==16'h0358) begin
 			$display("XGS Model ID detected is 0x358, XGS5M");
 		end
+		else if(data_rd==16'h0258) begin
+			$display("XGS Model ID detected is 0x258, XGS16M");
+		end
 		else begin
 			$error("XGS Model ID detected is %0d", data_rd);
 		end

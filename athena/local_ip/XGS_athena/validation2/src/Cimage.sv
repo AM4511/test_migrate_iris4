@@ -98,7 +98,7 @@ class CImage;
 
     endfunction
 
-    task load_image ();
+    task load_image (int XGSmodel);
 
         integer fileId;
         int i;
@@ -106,9 +106,18 @@ class CImage;
 
         string chaine;
     
-	    $display("System Verilog load of PGM file in memory");
+	      $display("System Verilog load of PGM file in memory");
 		
-        fileId = $fopen( "XGS_image_hex12.pgm", "r" );   
+        if(XGSmodel==5000) begin
+          fileId = $fopen( "XGS_image_5000_hex12.pgm", "r" );   
+        end 
+        if(XGSmodel==12000) begin
+          fileId = $fopen( "XGS_image_12000_hex12.pgm", "r" );   
+        end 
+        if(XGSmodel==16000) begin
+          fileId = $fopen( "XGS_image_16000_hex12.pgm", "r" );   
+        end 
+
         //if (fileId)  $display(".PGM File was opened successfully");
         //else         $display(".PGM File was NOT opened successfully");
 		

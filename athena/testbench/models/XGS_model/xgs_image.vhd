@@ -39,7 +39,12 @@ library work;
 use work.xgs_model_pkg.all;
 
 entity xgs_image is
-  generic(G_XGS45M           : integer := 0;
+  generic(
+          G_xgs_image_file_dec      : string;
+          G_xgs_image_file_hex12    : string;
+          G_xgs_image_file_hex8     : string;
+  
+          G_XGS45M           : integer := 0;
           G_NUM_PHY          : integer := 6;
           G_PXL_ARRAY_ROWS   : integer := 3100;
           G_PXL_PER_COLRAM   : integer := 174
@@ -129,9 +134,9 @@ Create_XGS_Image : process(xgs_model_GenImage)
       round(r * real(max_val - min_val + 1) + real(min_val) - 0.5));
   end function;
 
-  file xgs_image_file_dec      : text open write_mode is "XGS_image_dec.pgm";
-  file xgs_image_file_hex12    : text open write_mode is "XGS_image_hex12.pgm";
-  file xgs_image_file_hex8     : text open write_mode is "XGS_image_hex8.pgm";
+  file xgs_image_file_dec      : text open write_mode is G_xgs_image_file_dec;  --"XGS_image_dec.pgm";
+  file xgs_image_file_hex12    : text open write_mode is G_xgs_image_file_hex12;--"XGS_image_hex12.pgm";
+  file xgs_image_file_hex8     : text open write_mode is G_xgs_image_file_hex8; --"XGS_image_hex8.pgm";
 
   variable hex_value        : std_logic_vector(11 downto 0); 
   variable row_dec          : line;
@@ -177,6 +182,10 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  write(row_dec, string'("4095"));
 	  writeline(xgs_image_file_dec, row_dec);	  
 	  
+	  deallocate(row_hex12);
+	  deallocate(row_hex8);
+	  deallocate(row_dec);	
+	
       --for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
       for line_count in 0 to (G_PXL_ARRAY_ROWS-1) loop -- Fixed by AM
       
@@ -216,16 +225,18 @@ Create_XGS_Image : process(xgs_model_GenImage)
           hwrite(row_hex12, hex_value );
           write(row_hex12, ' ');      
           
-	      --hwrite(row_hex8, hex_value(11 downto 4) ) ;
 		  hwrite(row_hex8, hex_value(7 downto 0) ) ;
-
           write(row_hex8, ' ');        		 		 
         end loop; 
 
         writeline(xgs_image_file_dec,   row_dec);
         writeline(xgs_image_file_hex12, row_hex12);    
         writeline(xgs_image_file_hex8,  row_hex8);      
-	   
+		
+	   	deallocate(row_hex12);
+	    deallocate(row_hex8);
+	    deallocate(row_dec);	
+		
       end loop; 
 
 	  report "XGS Image generation Done.";
