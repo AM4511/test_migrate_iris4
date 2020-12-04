@@ -38,13 +38,15 @@ proc r {args} {
 	set IP                     ${ATHENA}/local_ip/XGS_athena
 	
 	puts "MY IP ${IP}"
-
+    
+	transcript file transcript.log
+ 
     if {[llength $args] == 1} {
 	  set testnumber [lindex $args 0]
       puts "Running Simulation with defined test${testnumber}"
-	  vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=${testnumber}
+	  vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=${testnumber} -wlf "vsim.wlf"
     } else {
-      vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf 
+      vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -wlf "vsim.wlf"
     }
 
 	run -all
@@ -57,7 +59,9 @@ proc r {args} {
 proc s {args} {
     .main clear
 
+    # Liste de tests dans la suite de tests
 	set testlist [list 0001 0002 0003]
+
     set currtest 1
 	
   	set ATHENA                 $::env(IRIS4)/athena
@@ -65,7 +69,7 @@ proc s {args} {
      
     foreach i $testlist {  
        puts "Running runsim with test${i}"	
-	   vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=$i -quiet -l  "test${i}_vsim.log"  -nostdout -keepstdout 
+	   vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=$i  -l "test${i}_vsim.log" -wlf "test${i}_vsim.wlf"  
        run -all
 	   if { [examine /testbench/nb_errors] != "32'h00000000"} {
 	     puts "ERROR IN SIMULATION test${i}!!!"	
@@ -79,6 +83,8 @@ proc s {args} {
 	   quit -sim
 	}   
     
+	transcript file transcript.log
+	
 	# Print all results
 	puts " "
 	puts " "
@@ -91,13 +97,10 @@ proc s {args} {
 		incr currtest
 	}
 	
+	
   
 	
 }
-
-
-
-
 
 
 

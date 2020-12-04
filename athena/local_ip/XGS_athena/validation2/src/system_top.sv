@@ -163,8 +163,8 @@ module system_top(
 			.G_REV_ID           (16'h0000),
 			.G_NUM_PHY          (4),
 			.G_PXL_PER_COLRAM   (174),      
-			//.G_PXL_ARRAY_ROWS   (2078)
-			.G_PXL_ARRAY_ROWS   (1000)
+			.G_PXL_ARRAY_ROWS   (2078)
+			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_5000
 		(		
@@ -262,8 +262,8 @@ module system_top(
 			.G_REV_ID           (16'h0002),
 			.G_NUM_PHY          (6),
 			.G_PXL_PER_COLRAM   (174),      
-			//.G_PXL_ARRAY_ROWS   (3102)
-			.G_PXL_ARRAY_ROWS   (1000)
+			.G_PXL_ARRAY_ROWS   (3102)
+			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_12000
 		(		
@@ -355,8 +355,8 @@ module system_top(
 			.G_REV_ID           (16'h0000),
 			.G_NUM_PHY          (6),
 			.G_PXL_PER_COLRAM   (174),      
-			//.G_PXL_ARRAY_ROWS   (4030)
-			.G_PXL_ARRAY_ROWS   (1000)
+			.G_PXL_ARRAY_ROWS   (4030)
+			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_16000
 		(		

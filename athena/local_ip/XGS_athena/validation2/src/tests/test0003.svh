@@ -146,11 +146,11 @@ class Test0003 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 4;           // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < 1000 est le MAX qu'on peut mettre a cause du modele!!!, attention!
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
-				SUB_Y       = 1;
+				SUB_Y       = 0;
 
 			    EXPOSURE    = 50; // exposure=50us
 
@@ -186,7 +186,7 @@ class Test0003 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 0;           // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 128;         // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < 1000 est le MAX qu'on peut mettre a cause du modele!!!, attention!
+				ROI_Y_SIZE  = 128;         // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
