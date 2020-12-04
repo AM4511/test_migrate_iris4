@@ -39,13 +39,18 @@ library work;
 use work.xgs_model_pkg.all;
 
 entity xgs_image is
-  generic(G_XGS45M           : integer := 0;
+  generic(
+          G_xgs_image_file_dec      : string;
+          G_xgs_image_file_hex12    : string;
+          G_xgs_image_file_hex8     : string;
+  
+          G_XGS45M           : integer := 0;
           G_NUM_PHY          : integer := 6;
           G_PXL_ARRAY_ROWS   : integer := 3100;
           G_PXL_PER_COLRAM   : integer := 174
           );
   port(
-       xgs_model_GenImage  : in std_logic; 
+       xgs_model_GenImage  : in std_logic:='0'; 
        trigger_int         : in std_logic;
        
        dataline            : out t_dataline(0 to G_NUM_PHY*4*G_PXL_PER_COLRAM-1);
@@ -102,7 +107,7 @@ signal debug_frame_line1: t_debug_frame_line;
 signal debug_frame_line2: t_debug_frame_line;
 
 type XGS_image_array is array (0 to G_PXL_ARRAY_ROWS, 0 to G_PXL_ARRAY_COLUMNS) of integer range 0 to 4095;
-signal XGS_image : XGS_image_array;
+--signal XGS_image : XGS_image_array;
 
 begin
 
@@ -110,13 +115,14 @@ frame_count <= frame_count_int;
 
 
 
---------------------------------------------------
 --
--- Generation de lèimage a utiliser dans le test
+-- Deplace le contenu de Create_XGS_Image ici pour etre en mesure d'utiliser une variable aulieu d'un signal pour l'image
+-- Ca prends moins de memoire ds modelsim et ca crash pas avec les 3 modeles
 --
---------------------------------------------------
-Create_XGS_Image : process(xgs_model_GenImage)
-
+--Frame generation based on mode setting
+FRAME_CONTENT : process(xgs_model_GenImage, trigger_int, dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
+  
+  variable XGS_image : XGS_image_array;
   variable seed1, seed2 : integer := 69;
   variable random1              : integer;
 
@@ -129,9 +135,9 @@ Create_XGS_Image : process(xgs_model_GenImage)
       round(r * real(max_val - min_val + 1) + real(min_val) - 0.5));
   end function;
 
-  file xgs_image_file_dec      : text open write_mode is "XGS_image_dec.pgm";
-  file xgs_image_file_hex12    : text open write_mode is "XGS_image_hex12.pgm";
-  file xgs_image_file_hex8     : text open write_mode is "XGS_image_hex8.pgm";
+  file xgs_image_file_dec      : text open write_mode is G_xgs_image_file_dec;  --"XGS_image_dec.pgm";
+  file xgs_image_file_hex12    : text open write_mode is G_xgs_image_file_hex12;--"XGS_image_hex12.pgm";
+  file xgs_image_file_hex8     : text open write_mode is G_xgs_image_file_hex8; --"XGS_image_hex8.pgm";
 
   variable hex_value        : std_logic_vector(11 downto 0); 
   variable row_dec          : line;
@@ -177,6 +183,10 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  write(row_dec, string'("4095"));
 	  writeline(xgs_image_file_dec, row_dec);	  
 	  
+	  deallocate(row_hex12);
+	  deallocate(row_hex8);
+	  deallocate(row_dec);	
+	
       --for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
       for line_count in 0 to (G_PXL_ARRAY_ROWS-1) loop -- Fixed by AM
       
@@ -207,7 +217,7 @@ Create_XGS_Image : process(xgs_model_GenImage)
 		    report "random1=4096 WAFFF????";
 		  end if;  
 		  
-		  XGS_image(line_count, j) <= random1; 
+		  XGS_image(line_count, j) := random1; 
 		  
 		  write(row_dec, random1);
           write(row_dec, ' ');
@@ -216,16 +226,18 @@ Create_XGS_Image : process(xgs_model_GenImage)
           hwrite(row_hex12, hex_value );
           write(row_hex12, ' ');      
           
-	      --hwrite(row_hex8, hex_value(11 downto 4) ) ;
 		  hwrite(row_hex8, hex_value(7 downto 0) ) ;
-
           write(row_hex8, ' ');        		 		 
         end loop; 
 
         writeline(xgs_image_file_dec,   row_dec);
         writeline(xgs_image_file_hex12, row_hex12);    
         writeline(xgs_image_file_hex8,  row_hex8);      
-	   
+		
+	   	deallocate(row_hex12);
+	    deallocate(row_hex8);
+	    deallocate(row_dec);	
+		
       end loop; 
 
 	  report "XGS Image generation Done.";
@@ -233,16 +245,10 @@ Create_XGS_Image : process(xgs_model_GenImage)
 	  file_close(xgs_image_file_hex12);
 	  file_close(xgs_image_file_hex8);	 
 	  
-	end if;  
+	end if;    
   
-end process Create_XGS_Image;
-
-
-
---Frame generation based on mode setting
-FRAME_CONTENT : process(trigger_int, dataline_nxt, sequencer_enable, frame_nxt) --jmansill : Oue... pas fort pas mettre c signal dans la liste de sensibilite (gracieusite de onsemi)...
   
-begin
+--begin
   if sequencer_enable = '0' then
     frame_count_int <= (others => '0');
     frame_valid <= '0';

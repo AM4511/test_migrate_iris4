@@ -64,6 +64,7 @@ entity xgs_sensor_config is
        line_time           : out std_logic_vector(15 downto 0);
 
        --Output to Image module
+	   xgs_model_GenImage_reg : out std_logic;
        slave_triggered_mode: out std_logic;
        frame_length        : out std_logic_vector(15 downto 0);
        roi_start           : out integer range G_PXL_ARRAY_ROWS downto 0;
@@ -128,11 +129,22 @@ begin
     register_map(1026) <= X"1111";    --Address 0x3804 - contexts_reg
     register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
     register_map(1812) <= X"2507";    --Address 0x3E28 - hispi_control_common
-    register_map(1817) <= X"03A6";    --Address 0x3E32 - hispi_blanking_data
+    register_map(1817) <= X"03A6";    --Address 0x3E32 - hispi_blanking_data	
   elsif reg_wr = '1' then
     register_map(to_integer(unsigned(reg_addr(11 downto 1)))) <= reg_wr_data;
   end if;
 end process REG_WRITE;
+
+
+REG_WRITE_LOAD_IM : process(reg_addr, reg_wr, RESET_B)
+begin
+  if RESET_B = '0' then
+    xgs_model_GenImage_reg <= '0';
+  elsif(reg_wr = '1' and reg_addr(11 downto 0)= "000000001000")then --add=0x8 bit 0, load IMAGE
+    xgs_model_GenImage_reg <= reg_wr_data(0);
+  end if;
+end process REG_WRITE_LOAD_IM;
+
 
 SENSOR_FSM_STATE_PROC : process(RESET_B, register_map, sensor_state)
 begin
@@ -235,5 +247,7 @@ y_reversed          <= register_map(1031)(1);
 --This is fixed to context0 registers
 x_subsampling       <= register_map(1054)(0);  
 y_subsampling       <= register_map(1054)(3);
+
+
 
 end behaviour;
