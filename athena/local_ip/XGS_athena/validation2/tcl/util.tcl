@@ -54,7 +54,7 @@ proc r {args} {
 
 
 #####################################################
-# Run simulation with a test list
+# Run simulation with a testlist
 #####################################################
 proc s {args} {
     .main clear
@@ -89,7 +89,7 @@ proc s {args} {
 	puts " "
 	puts " "
     puts "---------------------------------"
-    puts " Results of test list simuation  "
+    puts " Results of testlist simulation  "
     puts "---------------------------------"
 	set currtest 1
     foreach i $testlist {
