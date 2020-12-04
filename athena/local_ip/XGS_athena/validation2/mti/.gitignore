@@ -5,3 +5,4 @@ XGS_athena.mpf
 vish_stacktrace.vstf
 vsim.wlf
 wave.do
+*.log

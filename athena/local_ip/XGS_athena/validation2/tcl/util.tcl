@@ -29,7 +29,7 @@ proc n {} {
 }
 
 #####################################################
-# Runsim
+# Run simimulation with one test
 #####################################################
 proc r {args} {
 	puts "Running runsim"
@@ -51,12 +51,14 @@ proc r {args} {
 }
 
 
+#####################################################
+# Run simulation with a test list
+#####################################################
 proc s {args} {
     .main clear
 
 	set testlist [list 0001 0002 0003]
-	set testlistresult [list 0 0 0]
-    set testnumber 0
+    set currtest 1
 	
   	set ATHENA                 $::env(IRIS4)/athena
 	set IP                     ${ATHENA}/local_ip/XGS_athena
@@ -67,20 +69,29 @@ proc s {args} {
        run -all
 	   if { [examine /testbench/nb_errors] != "32'h00000000"} {
 	     puts "ERROR IN SIMULATION test${i}!!!"	
-         #set test${i}_result FAIL		 
+         set testresult_array(${currtest}) FAIL	
+         incr currtest
 	   }  else {
 	 	 puts "SIMULATION PASSED test${i}!!!"	
-		 #set test${i}_result PASS	
+         set testresult_array(${currtest}) PASS	
+		 incr currtest
 	   }
 	   quit -sim
-	   #.main clear
-
-       #foreach i $testlist {  
-	   #   puts "test${i}_result " $test${i}_result
-	   # 
-	   #}
-
-    }
+	}   
+    
+	# Print all results
+	puts " "
+	puts " "
+    puts "---------------------------------"
+    puts " Results of test list simuation  "
+    puts "---------------------------------"
+	set currtest 1
+    foreach i $testlist {
+	    puts "test${i}_result : $testresult_array(${currtest})" 
+		incr currtest
+	}
+	
+  
 	
 }
 
