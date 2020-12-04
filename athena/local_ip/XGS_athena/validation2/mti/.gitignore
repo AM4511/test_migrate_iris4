@@ -6,3 +6,4 @@ vish_stacktrace.vstf
 vsim.wlf
 wave.do
 *.log
+*.wlf

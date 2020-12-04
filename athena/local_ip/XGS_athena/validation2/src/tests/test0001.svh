@@ -153,7 +153,47 @@ class Test0001 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 4;           // Doit etre multiple de 4 
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < 1000 est le MAX qu'on peut mettre a cause du modele!!!, attention!
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
+				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
+
+				SUB_X       = 0;
+				SUB_Y       = 0;
+
+			    EXPOSURE    = 50; // exposure=50us
+
+				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
+				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
+				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
+				super.Vlib.host.write(super.Vlib.SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) ); 				
+				super.Vlib.host.write(super.Vlib.EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0));             // Exposure 50us @100mhz
+				super.Vlib.host.write(super.Vlib.GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+				test_nb_images++;
+
+				// Prediction	 	
+				XGS_image = XGS_imageSRC.copy;
+		        XGS_image.reduce_bit_depth(10);                                               // Converti Image 12bpp a 10bpp  
+				XGS_image.cropXdummy(super.Vlib.MODEL_X_START, super.Vlib.MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
+				XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
+				XGS_image.sub(SUB_X, SUB_Y);
+
+				XGS_imageDPC = XGS_image.copy;				
+				XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
+		        XGS_image = XGS_imageDPC.copy;
+				XGS_imageDPC = null;				
+
+				XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
+				scoreboard.predict_img(XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+
+
+				///////////////////////////////////////////////////
+				// Trigger ROI #1
+				///////////////////////////////////////////////////	           
+				ROI_X_START = 0;
+				ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant) 
+				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
+
+				ROI_Y_START = 0;           // Doit etre multiple de 4 
+				ROI_Y_SIZE  = 128;         // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
@@ -184,9 +224,14 @@ class Test0001 extends CTest;
 				XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
 				scoreboard.predict_img(XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
 
-                super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
-                #250us;
-				
+
+				///////////////////////////////////////////////////
+				// Wait for the 2 images
+				///////////////////////////////////////////////////	   
+                super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+                #250us;			
+
+
 		        super.say_goodbye();  
 		    end
 
