@@ -517,24 +517,24 @@
       <fields name="DP_OFFSET_B" description="Sensor Analog data pedestal for B pixels (Black offset)" size="12" valueAtReset="100"/>
     </registers>
     <registers name="SENSOR_GAIN_DIG_G" description="XGS Context0 : R0x3846 " offsetFromParent="CC">
-      <fields name="reserved1" lsb="15"/>
+      <fields name="reserved1" lsb="15" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_GR" description="Digital Gain Factor for GREEN-R Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" lsb="8" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="reserved0" lsb="7"/>
+      <fields name="reserved0" lsb="7" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_GB" description="Digital Gain Factor for GREEN-B Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
     <registers name="SENSOR_GAIN_DIG_RB" description="XGS Context0 : R0x3848" offsetFromParent="D0" useReservedSpaceBelow="true">
-      <fields name="reserved1" lsb="15"/>
+      <fields name="reserved1" lsb="15" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_R" description="Digital Gain Factor for RED Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" lsb="8" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="reserved0" lsb="7"/>
+      <fields name="reserved0" lsb="7" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_B" description="Digital Gain Factor for BLUE Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

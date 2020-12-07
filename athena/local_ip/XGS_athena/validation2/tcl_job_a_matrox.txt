@@ -1,0 +1,85 @@
+set testlist [list 0001 0002 0003]
+set m 0
+
+foreach i $testlist {
+    incr m
+    set Current_test $i
+    puts "member $m is $Current_test"
+}
+
+
+
+
+
+
+For handling elaboration errors at the startup of simulations you can associate a callback using the onElabError command. Your callback can set a global variable that you examine later:
+
+onElabError {global vsim_init_failure; set vsim_init_failure 1}
+...
+set vsim_init_failure 0
+vsim $sim_name
+if {$vsim_init_failure} ...
+
+
+
+
+
+puts "Lancement du script de test regressifs de simulation"
+source ./create_gaia_ID1.tcl
+#open_project ./Gaia_ID1.xpr
+if { $argc == 1} {
+  set testnumber [lindex $argv 0]
+  set_property -name {xsim.simulate.xsim.more_options} -value "-testplusarg +TestNumber=$testnumber" -objects [get_filesets sim_1]
+  launch_simulation
+  set testresults [get_value /tb/nb_errors]
+} else {
+  puts "Il doit y avoir EXACTEMENT 1 parametre a l'appel de simulation_regressive.bat et c'est le numero du test sur 4 chiffres!"
+  set testresults 1
+}
+
+puts $testresults
+
+exit $testresults
+#0 veut dire pas d'erreur, 1 ou plus veut dire qu'il y a une erreur.
+
+
+runStatus
+This command returns the current state of your simulation to stdout after issuing a run or step
+command.
+Syntax
+runStatus [-full]
+Arguments
+• -full
+(optional) Appends additional information to the output of the runStatus command.
+Returns
+Table 2-3 (runStatus Command States) and Table 2-4 (runStatus -full Command Information)
+show outputs of the runStatus command.
+Table 2-3. runStatus Command States
+State Description
+ready The design is loaded and is ready to run.
+break The simulation stopped before completing the requested run.
+error The simulation stopped due to an error condition.
+loading The simulation is currently elaborating.
+nodesign There is no design loaded.
+checkpoint A checkpoint is being created, do not interrupt this process.
+cready The design is loaded and is ready to run in C debug mode.
+initializing The user interface initialization is in progress.
+Table 2-4. runStatus -full Command Information
+-full Information Description
+bkpt stopped at breakpoint
+bkpt_builtin stopped at breakpoint on builtin process
+end reached end of requested run
+fatal_error encountered fatal error (such as, divide by 0)
+iteration_limit iteration limit reached, possible feedback loop
+silent_halt mti_BreakSilent() called,
+step run -step completed
+step_builtin run -step completed on builtin process
+Commands
+runStatus
+ModelSim Reference Manual, v10.1c 221
+step_wait_suspend run -step completed, time advanced.
+user_break run interrupted do to break-key or ^C (SIGINT)
+user_halt mti_Break() called.
+user_stop stop or finish requested from vpi, stop command, etc.
+gate_oscillation Verilog gate iteration limit reached.
+simulation_stop pli stop_simulation() called.

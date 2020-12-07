@@ -66,7 +66,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------------------
 	// Calibrate FPGA HiSPI interface
 	//---------------------------------
-	XGS_Data->HiSpiCalibrate();
+	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
     //

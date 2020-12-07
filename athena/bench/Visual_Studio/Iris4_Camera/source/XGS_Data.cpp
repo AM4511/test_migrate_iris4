@@ -113,13 +113,14 @@ void CXGS_Data::HiSpiClr(void)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[5].u32;
 
 	// RESET all LANE_PACKER_STATUS ERRORS (R/W2C)
-	/*sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
+	/*
+	sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
 	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
 	sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
 	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
 	sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
-	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;*/
-
+	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
+	*/
 	// UN-RESET HISPI
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
     rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
@@ -129,10 +130,10 @@ void CXGS_Data::HiSpiClr(void)
 //--------------------------------------------------------------------
 // Cette fonction Calibre l'interface HiSPI
 //--------------------------------------------------------------------
-void CXGS_Data::HiSpiCalibrate(void)
+int CXGS_Data::HiSpiCalibrate(int echoo)
 {
 	int count = 0;
-
+	
 	//clear old flags
 	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
@@ -147,7 +148,7 @@ void CXGS_Data::HiSpiCalibrate(void)
 	
     //At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
-		printf("\nStarting HiSPI calibration...  ");
+		if(echoo==1) printf("\nStarting HiSPI calibration...  ");
 		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
@@ -173,19 +174,25 @@ void CXGS_Data::HiSpiCalibrate(void)
 			printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
 			printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
 			printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
-			/*printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
-			printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
-			printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);*/
-
+			//printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
+			//printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
+			//printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+			return 0;
 		}
 
 		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
-			printf("Calibration OK \n");
+			if (echoo == 1) printf("Calibration OK \n");
 			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+			return 1;
 		}
-	} else
+	}
+	else {
 		printf("Sensor not poweredUP!!! \n");
+		return 0;
+	}
+	printf("Why the heck we ended up here??? \n");
+	return 0;
 }
 
 
@@ -315,7 +322,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		Reg_HISPI_PACK_STATUS[i] = Register;
 		if ( (Register & 0x00000001) == 0x001) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_OVERRUN", i);              error_detect = 1; }
 		if ( (Register & 0x00000002) == 0x002) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_UNDERRUN", i);				error_detect = 1; }
-	}	*/						   
+	}		*/					   
 
 	if (error_detect == 1)
 	{
@@ -364,7 +371,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		case 'q':
 			Stop_test = 1;
 			HiSpiClr();
-			HiSpiCalibrate();
+			HiSpiCalibrate(1);
 			break;
 
 		case 'c':
@@ -376,7 +383,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 			printf("\n(r) Recovering...\n");
 			Stop_test = 0;
 			HiSpiClr();
-			HiSpiCalibrate();
+			HiSpiCalibrate(1);
 			break;
 		}
 	}

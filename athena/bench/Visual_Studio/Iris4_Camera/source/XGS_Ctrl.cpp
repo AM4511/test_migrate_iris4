@@ -225,6 +225,8 @@ void CXGS_Ctrl::WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write, M_UINT32 data
 	Sleep(1);
 	if (verify != NewValue) {
 		printf("\n\nSPI VERIFY FAIL\n\n\n");
+		printf("Press enter to exit!!!\n\n");
+		_getch();
 		exit(1);
 	}
 
@@ -277,7 +279,11 @@ void CXGS_Ctrl::PollRegSPI(M_UINT32 address, M_UINT32 maskN, M_UINT32 Data2Poll,
 		if (nb_iter > TimeOut)
 		{
 			printf("CXGS_Ctrl::PollReg :  nombre maximum de polling atteint dans la fonction de polling du XGS controller! EXIT");
+			printf("Press enter to exit!!!\n\n");
+			_getch();
+
 			exit(1);
+
 		}
 	}
 	printf("XGS polling @ add =0x%X, received data 0x%X\n", address, DataRead);
@@ -384,6 +390,8 @@ void CXGS_Ctrl::InitXGS()
 			iter++;
 			if (iter == 1000) {
 				printf("fail!\n\n");
+				printf("Press enter to exit!!!\n\n");
+				_getch();
 				exit(1);
 			}
 		}
@@ -406,11 +414,15 @@ void CXGS_Ctrl::InitXGS()
 		iter++;
 		if (iter == 1000) {
 			printf("Powerup done fail\n\n");
+			printf("Press enter to exit!!!\n\n");
+			_getch();
 			exit(1);
 		}
 	}
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT==0) { //powerup fail
 		printf("Powerup stat fail\n");
+		printf("Press enter to exit!!!\n\n");
+		_getch();
 		exit(1);
 	}
 	printf("XGS Powerup done OK\n\n");
@@ -572,6 +584,8 @@ void CXGS_Ctrl::InitXGS()
 	else
 	{
 		printf("\n\nSenseur XGS id=0x%X non reconnu. EXIT \n\n", DataRead);
+		printf("Press enter to exit!!!\n\n");
+		_getch();
 		exit(1);
 	}
 
@@ -641,6 +655,8 @@ void CXGS_Ctrl::DisableXGS()
 			iter++;
 			if (iter == 1000) {
 				printf("fail!\n");
+				printf("Press enter to exit!!!\n\n");
+				_getch();
 				exit(1);
 			}
 		}
