@@ -131,43 +131,43 @@ architecture rtl of xgs_mono_pipeline is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of aclk_tready          : signal is "true";
-  attribute mark_debug of aclk_tvalid          : signal is "true";
-  attribute mark_debug of aclk_tuser           : signal is "true";
-  attribute mark_debug of aclk_tlast           : signal is "true";
-  attribute mark_debug of aclk_tdata           : signal is "true";
+  -- attribute mark_debug of aclk_tready          : signal is "true";
+  -- attribute mark_debug of aclk_tvalid          : signal is "true";
+  -- attribute mark_debug of aclk_tuser           : signal is "true";
+  -- attribute mark_debug of aclk_tlast           : signal is "true";
+  -- attribute mark_debug of aclk_tdata           : signal is "true";
   
-  attribute mark_debug of aclk_read_data       : signal is "true";
-  attribute mark_debug of aclk_empty           : signal is "true";
-  attribute mark_debug of aclk_tvalid_int      : signal is "true";
-  attribute mark_debug of aclk_read_data_valid : signal is "true";
-  attribute mark_debug of aclk_tlast_int       : signal is "true";
-  attribute mark_debug of aclk_sync_packer     : signal is "true";
-  attribute mark_debug of aclk_tlast_packer    : signal is "true";
-  attribute mark_debug of aclk_pix_cntr        : signal is "true";
-  attribute mark_debug of aclk_pix_cntr_en     : signal is "true";
-  attribute mark_debug of aclk_pix_cntr_init   : signal is "true";
-  attribute mark_debug of aclk_tuser_int       : signal is "true";
-  attribute mark_debug of aclk_row_cntr        : signal is "true";
+  -- attribute mark_debug of aclk_read_data       : signal is "true";
+  -- attribute mark_debug of aclk_empty           : signal is "true";
+  -- attribute mark_debug of aclk_tvalid_int      : signal is "true";
+  -- attribute mark_debug of aclk_read_data_valid : signal is "true";
+  -- attribute mark_debug of aclk_tlast_int       : signal is "true";
+  -- attribute mark_debug of aclk_sync_packer     : signal is "true";
+  -- attribute mark_debug of aclk_tlast_packer    : signal is "true";
+  -- attribute mark_debug of aclk_pix_cntr        : signal is "true";
+  -- attribute mark_debug of aclk_pix_cntr_en     : signal is "true";
+  -- attribute mark_debug of aclk_pix_cntr_init   : signal is "true";
+  -- attribute mark_debug of aclk_tuser_int       : signal is "true";
+  -- attribute mark_debug of aclk_row_cntr        : signal is "true";
 
-  attribute mark_debug of sclk_wen             : signal is "true";
-  attribute mark_debug of sclk_data            : signal is "true";
-  attribute mark_debug of sclk_full            : signal is "true";
-  attribute mark_debug of sclk_load_data       : signal is "true";
-  attribute mark_debug of sclk_last_data       : signal is "true";
-  attribute mark_debug of sclk_sync_packer     : signal is "true";
-  attribute mark_debug of sclk_data_packer     : signal is "true";
-  attribute mark_debug of sclk_packer_valid    : signal is "true";
-  attribute mark_debug of sclk_pix_cntr        : signal is "true";
-  attribute mark_debug of sclk_pix_cntr_en     : signal is "true";
-  attribute mark_debug of sclk_pix_cntr_init   : signal is "true";
-  attribute mark_debug of aclk_read            : signal is "true";
+  -- attribute mark_debug of sclk_wen             : signal is "true";
+  -- attribute mark_debug of sclk_data            : signal is "true";
+  -- attribute mark_debug of sclk_full            : signal is "true";
+  -- attribute mark_debug of sclk_load_data       : signal is "true";
+  -- attribute mark_debug of sclk_last_data       : signal is "true";
+  -- attribute mark_debug of sclk_sync_packer     : signal is "true";
+  -- attribute mark_debug of sclk_data_packer     : signal is "true";
+  -- attribute mark_debug of sclk_packer_valid    : signal is "true";
+  -- attribute mark_debug of sclk_pix_cntr        : signal is "true";
+  -- attribute mark_debug of sclk_pix_cntr_en     : signal is "true";
+  -- attribute mark_debug of sclk_pix_cntr_init   : signal is "true";
+  -- attribute mark_debug of aclk_read            : signal is "true";
 
-  attribute mark_debug of sclk_tready : signal is "true";
-  attribute mark_debug of sclk_tvalid : signal is "true";
-  attribute mark_debug of sclk_tuser  : signal is "true";
-  attribute mark_debug of sclk_tlast  : signal is "true";
-  attribute mark_debug of sclk_tdata  : signal is "true";
+  -- attribute mark_debug of sclk_tready : signal is "true";
+  -- attribute mark_debug of sclk_tvalid : signal is "true";
+  -- attribute mark_debug of sclk_tuser  : signal is "true";
+  -- attribute mark_debug of sclk_tlast  : signal is "true";
+  -- attribute mark_debug of sclk_tdata  : signal is "true";
 
 
 begin

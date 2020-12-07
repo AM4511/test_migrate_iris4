@@ -409,7 +409,7 @@ begin
   -- Process     : P_sclk_buffer_data
   -- Description : Data mux used to extract data from each lane_decoder
   -----------------------------------------------------------------------------
-  P_sclk_buffer_data : process (sclk_buffer_lane_id, sclk_buffer_data_vect) is
+  P_sclk_buffer_data : process (sclk_buffer_data_mux_sel, sclk_buffer_data_vect) is
   begin
     for i in 0 to LANE_PER_PHY-1 loop
       if (i = sclk_buffer_data_mux_sel) then
