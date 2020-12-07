@@ -31,13 +31,14 @@ add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/s
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_xgs_ctrl_calib_req
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/top_lanes_p
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/top_lanes_n
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sof_flag
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/bottom_lanes_p
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/bottom_lanes_n
+add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/frame_overrun_error
 add wave -noupdate -expand -group xgs_hispi_top -color Cyan /testbench/DUT/x_xgs_hispi_top/state
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/state_mapping
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_buffer_empty_top
-add wave -noupdate -expand -group xgs_hispi_top -expand /testbench/DUT/x_xgs_hispi_top/sclk_sof_top
+add wave -noupdate -expand -group xgs_hispi_top -color {Blue Violet} /testbench/DUT/x_xgs_hispi_top/sclk_sof_pending
+add wave -noupdate -expand -group xgs_hispi_top -expand -subitemconfig {/testbench/DUT/x_xgs_hispi_top/sclk_sof_top(0) {-color Magenta -height 15}} /testbench/DUT/x_xgs_hispi_top/sclk_sof_top
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_buffer_data_top
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_buffer_empty_bottom
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_buffer_data_bottom
@@ -47,10 +48,8 @@ add wave -noupdate -expand -group xgs_hispi_top -expand -group {Line buffer addr
 add wave -noupdate -expand -group xgs_hispi_top -expand -group {Line buffer address} -color Gold /testbench/DUT/x_xgs_hispi_top/sclk_buffer_word_ptr
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/sclk_transfer_done
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/nb_lane_enabled
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/x_start
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/x_stop
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/init_frame
-add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/frame_done
+add wave -noupdate -expand -group xgs_hispi_top -color Khaki /testbench/DUT/x_xgs_hispi_top/init_frame
+add wave -noupdate -expand -group xgs_hispi_top -color Khaki /testbench/DUT/x_xgs_hispi_top/frame_done
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/enable_hispi
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_fifo_overrun
 add wave -noupdate -expand -group xgs_hispi_top /testbench/DUT/x_xgs_hispi_top/aggregated_fifo_underrun
@@ -66,7 +65,7 @@ add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI stream out} 
 add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI stream out} /testbench/DUT/x_xgs_hispi_top/sclk_tlast
 add wave -noupdate -expand -group xgs_hispi_top -expand -group {AXI stream out} /testbench/DUT/x_xgs_hispi_top/sclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1186344495 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2266927355 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 303
 configure wave -valuecolwidth 100
@@ -82,4 +81,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {112958059 ps}
+WaveRestoreZoom {2258268444 ps} {2273067254 ps}

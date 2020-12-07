@@ -1122,7 +1122,7 @@ module testbench();
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
-				SUB_Y       = 1;
+				SUB_Y       = 0;
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);

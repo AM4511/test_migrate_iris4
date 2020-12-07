@@ -32,7 +32,6 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Control interface
     ---------------------------------------------------------------------------
-    streamer_en     : in  std_logic;
     streamer_busy   : out std_logic;
     init_frame      : in  std_logic;
     frame_done      : out std_logic;
@@ -100,6 +99,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug : string;
   attribute keep       : string;
 
+  
   type FSM_TYPE is (S_IDLE,
                     S_SOF,
                     S_WAIT_SOL,
@@ -107,21 +107,26 @@ architecture rtl of axi_line_streamer is
                     S_LOAD_BURST_CNTR,
                     S_DATA_PHASE,
                     S_LAST_DATA,
-                    S_DONE,
                     S_EOL,
-                    S_EOF
+                    S_EOF,
+                    S_WAIT_STREAMER_DONE,
+                    S_DONE
                     );
+
+  
   type OUTPUT_FSM_TYPE is (S_IDLE,
                            S_SOF,
                            S_PREFETCH,
                            S_TRANSFER,
                            S_WAIT_ROW,
-                           S_EOL, S_EOF,
+                           S_EOL,
+                           S_EOF,
                            S_DONE
                            );
 
+  
   constant DATAWIDTH : integer                              := 84;
-  constant ADDRWIDTH : integer                              := 11;
+  constant ADDRWIDTH : integer                              := 12;
   constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range) := "111001";  --0x39
 
   signal sclk_fifo_write_en              : std_logic;
@@ -144,7 +149,9 @@ architecture rtl of axi_line_streamer is
   signal state      : FSM_TYPE;
   signal strm_state : OUTPUT_FSM_TYPE;
 
-  signal burst_length     : integer;
+
+  signal frame_pending : std_logic;
+
   signal read_en          : std_logic;
   signal read_data_valid  : std_logic;
   signal first_row        : std_logic;
@@ -153,7 +160,7 @@ architecture rtl of axi_line_streamer is
   signal pixel_cntr       : unsigned(12 downto 0);
   signal line_cntr        : unsigned(11 downto 0);
   signal sclk_valid_x_roi : std_logic;
-  signal sclk_data_packer : PIXEL_ARRAY(17 downto 0);
+  signal sclk_data_packer : PIXEL_ARRAY(11 downto 0);
   signal sclk_load_data   : std_logic;
   signal last_data        : std_logic;
   signal lane_id_cntr     : integer range 0 to LANE_PER_PHY-1;
@@ -170,7 +177,7 @@ architecture rtl of axi_line_streamer is
   signal current_y_stop   : unsigned(11 downto 0);
   signal odd_line         : std_logic;
 
-  signal stream_pace_cntr      : unsigned(3 downto 0);
+  signal stream_pace_cntr      : unsigned(1 downto 0);
   signal incr_stream_pace_cntr : std_logic;
   signal decr_stream_pace_cntr : std_logic;
 
@@ -181,28 +188,104 @@ architecture rtl of axi_line_streamer is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of m_wait               : signal is "true";
-  attribute mark_debug of sclk_buffer_lane_id  : signal is "true";
-  attribute mark_debug of sclk_buffer_mux_id   : signal is "true";
-  attribute mark_debug of sclk_buffer_word_ptr : signal is "true";
-  attribute mark_debug of sclk_buffer_read_en  : signal is "true";
-
-  attribute mark_debug of sclk_buffer_empty_top : signal is "true";
-  attribute mark_debug of sclk_buffer_data_top  : signal is "true";
-
+  attribute mark_debug of sclk_reset               : signal is "true";
+  attribute mark_debug of streamer_busy            : signal is "true";
+  attribute mark_debug of init_frame               : signal is "true";
+  attribute mark_debug of frame_done               : signal is "true";
+  attribute mark_debug of nb_lane_enabled          : signal is "true";
+  attribute mark_debug of x_start                  : signal is "true";
+  attribute mark_debug of x_stop                   : signal is "true";
+  attribute mark_debug of y_start                  : signal is "true";
+  attribute mark_debug of y_size                   : signal is "true";
+  attribute mark_debug of sclk_transfer_done       : signal is "true";
+  attribute mark_debug of sclk_buffer_lane_id      : signal is "true";
+  attribute mark_debug of sclk_buffer_mux_id       : signal is "true";
+  attribute mark_debug of sclk_buffer_word_ptr     : signal is "true";
+  attribute mark_debug of sclk_buffer_read_en      : signal is "true";
+  attribute mark_debug of sclk_buffer_empty_top    : signal is "true";
+  attribute mark_debug of sclk_buffer_data_top     : signal is "true";
   attribute mark_debug of sclk_buffer_empty_bottom : signal is "true";
   attribute mark_debug of sclk_buffer_data_bottom  : signal is "true";
+  attribute mark_debug of sclk_tready              : signal is "true";
+  attribute mark_debug of sclk_tvalid              : signal is "true";
+  attribute mark_debug of sclk_tuser               : signal is "true";
+  attribute mark_debug of sclk_tlast               : signal is "true";
+  attribute mark_debug of sclk_tdata               : signal is "true";
 
-  attribute mark_debug of sclk_tready : signal is "true";
-  attribute mark_debug of sclk_tvalid : signal is "true";
-  attribute mark_debug of sclk_tuser  : signal is "true";
-  attribute mark_debug of sclk_tlast  : signal is "true";
-  attribute mark_debug of sclk_tdata  : signal is "true";
 
+  attribute mark_debug of sclk_fifo_write_en              : signal is "true";
+  attribute mark_debug of sclk_fifo_write_data            : signal is "true";
+  attribute mark_debug of sclk_fifo_write_data_slv        : signal is "true";
+  attribute mark_debug of sclk_fifo_write_sync            : signal is "true";
+  attribute mark_debug of sclk_fifo_write_aggregated_data : signal is "true";
+  attribute mark_debug of sclk_data_packer_rdy            : signal is "true";
+  attribute mark_debug of sclk_tvalid_int                 : signal is "true";
+  attribute mark_debug of sclk_fifo_read_en               : signal is "true";
+  attribute mark_debug of sclk_fifo_read_data_slv         : signal is "true";
+  attribute mark_debug of sclk_fifo_read_data             : signal is "true";
+  attribute mark_debug of sclk_fifo_read_sync             : signal is "true";
+  attribute mark_debug of sclk_fifo_usedw                 : signal is "true";
+  attribute mark_debug of sclk_fifo_empty                 : signal is "true";
+  attribute mark_debug of sclk_fifo_full                  : signal is "true";
+  attribute mark_debug of m_wait                          : signal is "true";
+  attribute mark_debug of state                           : signal is "true";
+  attribute mark_debug of strm_state                      : signal is "true";
+  attribute mark_debug of read_en                         : signal is "true";
+  attribute mark_debug of read_data_valid                 : signal is "true";
+  attribute mark_debug of first_row                       : signal is "true";
+  attribute mark_debug of last_row                        : signal is "true";
+  attribute mark_debug of pixel_ptr                       : signal is "true";
+  attribute mark_debug of pixel_cntr                      : signal is "true";
+  attribute mark_debug of line_cntr                       : signal is "true";
+  attribute mark_debug of sclk_valid_x_roi                : signal is "true";
+  attribute mark_debug of sclk_data_packer                : signal is "true";
+  attribute mark_debug of sclk_load_data                  : signal is "true";
+  attribute mark_debug of last_data                       : signal is "true";
+  attribute mark_debug of lane_id_cntr                    : signal is "true";
+  attribute mark_debug of lane_id_cntr_max                : signal is "true";
+  attribute mark_debug of lane_id_cntr_en                 : signal is "true";
+  attribute mark_debug of word_cntr                       : signal is "true";
+  attribute mark_debug of word_cntr_en                    : signal is "true";
+  attribute mark_debug of word_cntr_init                  : signal is "true";
+  attribute mark_debug of mux_id_cntr                     : signal is "true";
+  attribute mark_debug of mux_id_cntr_en                  : signal is "true";
+  attribute mark_debug of current_x_start                 : signal is "true";
+  attribute mark_debug of current_x_stop                  : signal is "true";
+  attribute mark_debug of current_y_start                 : signal is "true";
+  attribute mark_debug of current_y_stop                  : signal is "true";
+  attribute mark_debug of odd_line                        : signal is "true";
+  attribute mark_debug of stream_pace_cntr                : signal is "true";
+  attribute mark_debug of incr_stream_pace_cntr           : signal is "true";
+  attribute mark_debug of decr_stream_pace_cntr           : signal is "true";
+  attribute mark_debug of stream_cntr                     : signal is "true";
+  attribute mark_debug of stream_cntr_en                  : signal is "true";
+  attribute mark_debug of stream_cntr_init                : signal is "true";
+  attribute mark_debug of frame_pending                   : signal is "true";
+  
 
 begin
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_frame_pending
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_frame_pending : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        frame_pending <= '0';
+      else
+        if (init_frame = '1') then
+          frame_pending <= '1';
+        elsif (state = S_SOF) then
+          frame_pending <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  
   m_wait <= '1' when (sclk_tready = '0') else
             '0';
 
@@ -215,7 +298,7 @@ begin
   P_state : process (sclk) is
   begin
     if (rising_edge(sclk)) then
-      if (sclk_reset = '1' or streamer_en = '0') then
+      if (sclk_reset = '1') then
         state <= S_IDLE;
 
       else
@@ -224,12 +307,13 @@ begin
           -- S_IDLE : Parking state
           ---------------------------------------------------------------------
           when S_IDLE =>
-            if (init_frame = '1') then
+            if (frame_pending = '1') then
               state <= S_SOF;
             else
               state <= S_IDLE;
             end if;
 
+            
           ---------------------------------------------------------------------
           -- S_SOF : Indicate the SOF
           ---------------------------------------------------------------------
@@ -243,13 +327,15 @@ begin
             -- When 6 lanes enabled and data vailable on the 6 lanes
             if (nb_lane_enabled = "110" and
                 sclk_buffer_empty_top(2 downto 0) = "000" and
-                sclk_buffer_empty_bottom(2 downto 0) = "000"
+                sclk_buffer_empty_bottom(2 downto 0) = "000" and
+                stream_pace_cntr < "11"
                 ) then
               state <= S_SOL;
             -- When 4 lanes enabled and data vailable on the 4 lanes
             elsif (nb_lane_enabled = "100" and
                    sclk_buffer_empty_top(1 downto 0) = "00" and
-                   sclk_buffer_empty_bottom(1 downto 0) = "00"
+                   sclk_buffer_empty_bottom(1 downto 0) = "00"and
+                   stream_pace_cntr < "11"
                    ) then
               state <= S_SOL;
             else
@@ -303,11 +389,21 @@ begin
           -- S_EOF : End Of frame state
           ---------------------------------------------------------------------
           when S_EOF =>
-            state <= S_DONE;
-
+            state <= S_WAIT_STREAMER_DONE;
 
           ---------------------------------------------------------------------
-          -- S_DONE
+          -- S_WAIT_STREAMER_DONE : Make sure the streamer state machine has
+          -- complete the transfer of the previous frame.
+          ---------------------------------------------------------------------
+          when S_WAIT_STREAMER_DONE =>
+            if (strm_state = S_DONE) then
+              state <= S_DONE;
+            else
+              state <= S_WAIT_STREAMER_DONE;
+            end if;
+
+          ---------------------------------------------------------------------
+          -- S_DONE : Full frame streamed
           ---------------------------------------------------------------------
           when S_DONE =>
             state <= S_IDLE;
@@ -324,7 +420,7 @@ begin
   end process P_state;
 
 
-  -- Indicates the frame is completely packed
+  -- Indicates the frame is completely streamed
   frame_done <= '1' when (state = S_DONE) else
                 '0';
 
@@ -436,7 +532,7 @@ begin
       if (sclk_reset = '1') then
         first_row <= '0';
       else
-        if (init_frame = '1') then
+        if (state = S_SOF) then
           first_row <= '1';
         elsif (state = S_EOL) then
           first_row <= '0';
@@ -532,11 +628,11 @@ begin
     end if;
   end process;
 
-  
+
   mux_id_cntr_en <= '1' when (word_cntr = MAX_BURST and word_cntr_en = '1') else
                     '0';
 
-  
+
   sclk_buffer_mux_id <= std_logic_vector(mux_id_cntr);
 
 
@@ -640,7 +736,7 @@ begin
                           '0';
 
 
-  sclk_valid_x_roi <= '1' when (state = S_DATA_PHASE and
+  sclk_valid_x_roi                          <= '1' when (state = S_DATA_PHASE and
                                 (pixel_cntr >= current_x_start) and
                                 (pixel_cntr <= current_x_stop)) else
                       '0';
@@ -857,7 +953,7 @@ begin
       if (sclk_reset = '1') then
         stream_pace_cntr <= (others => '0');
       else
-        if (init_frame = '1') then
+        if (state = S_SOF) then
           stream_pace_cntr <= (others => '0');
         elsif (incr_stream_pace_cntr = '1' and decr_stream_pace_cntr = '0') then
           stream_pace_cntr <= stream_pace_cntr + 1;
@@ -1068,7 +1164,7 @@ begin
       else
         if (m_wait = '0') then
           if (read_data_valid = '1') then
-            sclk_tlast <= sclk_fifo_read_sync(3);
+            sclk_tlast <= sclk_fifo_read_sync(3) or sclk_fifo_read_sync(1);
           else
             sclk_tlast <= '0';
           end if;

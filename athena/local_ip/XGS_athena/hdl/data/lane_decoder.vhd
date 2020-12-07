@@ -231,7 +231,6 @@ architecture rtl of lane_decoder is
   signal pclk_embedded           : std_logic;
   signal pclk_sof_pending        : std_logic;
   signal pclk_sof_flag           : std_logic;
-  signal pclk_set_buff_ready     : std_logic_vector(3 downto 0);
 
   signal pclk_buffer_init : std_logic;
   signal pclk_buffer_data : PIXEL_ARRAY(2 downto 0);
@@ -265,7 +264,6 @@ architecture rtl of lane_decoder is
   signal rclk_buffer_overrun  : std_logic;
   signal rclk_buffer_underrun : std_logic;
   signal rclk_sync_error      : std_logic;
-  signal rclk_tap_histogram   : std_logic_vector(31 downto 0);
   signal rclk_cal_busy_rise   : std_logic;
   signal rclk_cal_busy_fall   : std_logic;
   signal rclk_cal_done        : std_logic;
@@ -279,17 +277,53 @@ architecture rtl of lane_decoder is
   signal sclk_buffer_underrun  : std_logic;
   signal sclk_lane_enable      : std_logic;
 
+  
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of sclk_buffer_underrun  : signal is "true";
-  attribute mark_debug of sclk_buffer_empty_int : signal is "true";
-  attribute mark_debug of sclk_buffer_read_en   : signal is "true";
+  attribute mark_debug of pclk_bit_locked         : signal is "true";
+  attribute mark_debug of pclk_cal_busy_int       : signal is "true";
+  attribute mark_debug of pclk_cal_error          : signal is "true";
+  attribute mark_debug of pclk_hispi_phy_en       : signal is "true";
+  attribute mark_debug of pclk_hispi_data_path_en : signal is "true";
+  attribute mark_debug of pclk_embedded           : signal is "true";
+  attribute mark_debug of pclk_sof_pending        : signal is "true";
+  attribute mark_debug of pclk_sof_flag           : signal is "true";
+  attribute mark_debug of pclk_buffer_init        : signal is "true";
+  attribute mark_debug of pclk_nxt_buffer         : signal is "true";
+  attribute mark_debug of pclk_full               : signal is "true";
+  attribute mark_debug of pclk_buffer_mux_id      : signal is "true";
+  attribute mark_debug of pclk_word_ptr           : signal is "true";
+  attribute mark_debug of pclk_init_word_ptr      : signal is "true";
+  attribute mark_debug of pclk_incr_word_ptr      : signal is "true";
+  attribute mark_debug of pclk_buffer_wen         : signal is "true";
+  attribute mark_debug of pclk_state              : signal is "true";
+  attribute mark_debug of pclk_phase_cntr         : signal is "true";
+  attribute mark_debug of pclk_packer_valid       : signal is "true";
+  attribute mark_debug of pclk_sync_error         : signal is "true";
+  attribute mark_debug of pclk_buffer_overrun     : signal is "true";
+  attribute mark_debug of pclk_eol                : signal is "true";
+  attribute mark_debug of pclk_sof                : signal is "true";
+  attribute mark_debug of pclk_cal_en             : signal is "true";
+  attribute mark_debug of pclk_cal_start_monitor  : signal is "true";
+  attribute mark_debug of pclk_tap_cntr           : signal is "true";
+  attribute mark_debug of pclk_valid              : signal is "true";
+  attribute mark_debug of pclk_cal_monitor_done   : signal is "true";
+  attribute mark_debug of pclk_cal_busy           : signal is "true";
+  attribute mark_debug of pclk_cal_tap_value      : signal is "true";
+  attribute mark_debug of pclk_tap_histogram      : signal is "true";
 
-  attribute mark_debug of pclk_state          : signal is "true";
-  attribute mark_debug of pclk_set_buff_ready : signal is "true";
-  attribute mark_debug of pclk_embedded       : signal is "true";
-  attribute mark_debug of pclk_buffer_overrun : signal is "true";
+  attribute mark_debug of sclk_buffer_empty_int : signal is "true";
+  attribute mark_debug of sclk_buffer_underrun  : signal is "true";
+  attribute mark_debug of sclk_lane_enable      : signal is "true";
+  attribute mark_debug of sclk_sof              : signal is "true";
+  attribute mark_debug of sclk_transfer_done    : signal is "true";
+  attribute mark_debug of sclk_buffer_empty     : signal is "true";
+  attribute mark_debug of sclk_buffer_read_en   : signal is "true";
+  attribute mark_debug of sclk_buffer_mux_id    : signal is "true";
+  attribute mark_debug of sclk_buffer_word_ptr  : signal is "true";
+  attribute mark_debug of sclk_buffer_data      : signal is "true";
+
 
 
 begin
@@ -521,7 +555,7 @@ begin
               pclk_packer_2(2)  <= pclk_pixel;
 
             -------------------------------------------------------------------
-            -- Phase 1 : Packing pixel from lane 3 in pclk_packer_3 and ready to flush
+            -- Phase 11 : Packing pixel from lane 3 in pclk_packer_3 and ready to flush
             -------------------------------------------------------------------
             when "1011" =>
               pclk_packer_valid <= '1';
@@ -612,8 +646,13 @@ begin
                      '0';
 
 
+  -----------------------------------------------------------------------------
+  -- Increment the line buffer pointer at the end of line
+  -----------------------------------------------------------------------------
   pclk_nxt_buffer <= '1' when (pclk_state = S_EOL and pclk_embedded = '0') else
+                     '1' when (pclk_state = S_EOF) else
                      '0';
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_pclk_buffer_mux_id

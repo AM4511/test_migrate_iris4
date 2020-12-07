@@ -51,7 +51,7 @@ entity xgs_mono_pipeline is
     aclk_tuser  : out std_logic_vector(3 downto 0);
     aclk_tlast  : out std_logic;
     aclk_tdata  : out std_logic_vector(79 downto 0)
-    --aclk_tdata  : out std_logic_vector(63 downto 0)
+   --aclk_tdata  : out std_logic_vector(63 downto 0)
     );
 end xgs_mono_pipeline;
 
@@ -83,11 +83,14 @@ architecture rtl of xgs_mono_pipeline is
         );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
 
   type OUTPUT_FSM_TYPE is (S_IDLE, S_PREFETCH, S_TRANSFER, S_DONE);
 
   signal aclk_state : OUTPUT_FSM_TYPE;
+
 
   -----------------------------------------------------------------------------
   -- SCLK clock domain
@@ -121,14 +124,54 @@ architecture rtl of xgs_mono_pipeline is
   signal aclk_pix_cntr_en     : std_logic;
   signal aclk_pix_cntr_init   : std_logic;
   signal aclk_tuser_int       : std_logic_vector(3 downto 0);
-  --signal aclk_tack            : std_logic;
-  --signal aclk_dbg_data        : PIXEL_ARRAY(7 downto 0);
+
+  signal aclk_row_cntr        : integer;
+
+  
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of aclk_tready          : signal is "true";
+  attribute mark_debug of aclk_tvalid          : signal is "true";
+  attribute mark_debug of aclk_tuser           : signal is "true";
+  attribute mark_debug of aclk_tlast           : signal is "true";
+  attribute mark_debug of aclk_tdata           : signal is "true";
+  
+  attribute mark_debug of aclk_read_data       : signal is "true";
+  attribute mark_debug of aclk_empty           : signal is "true";
+  attribute mark_debug of aclk_tvalid_int      : signal is "true";
+  attribute mark_debug of aclk_read_data_valid : signal is "true";
+  attribute mark_debug of aclk_tlast_int       : signal is "true";
+  attribute mark_debug of aclk_sync_packer     : signal is "true";
+  attribute mark_debug of aclk_tlast_packer    : signal is "true";
+  attribute mark_debug of aclk_pix_cntr        : signal is "true";
+  attribute mark_debug of aclk_pix_cntr_en     : signal is "true";
+  attribute mark_debug of aclk_pix_cntr_init   : signal is "true";
+  attribute mark_debug of aclk_tuser_int       : signal is "true";
+  attribute mark_debug of aclk_row_cntr        : signal is "true";
+
+  attribute mark_debug of sclk_wen             : signal is "true";
+  attribute mark_debug of sclk_data            : signal is "true";
+  attribute mark_debug of sclk_full            : signal is "true";
+  attribute mark_debug of sclk_load_data       : signal is "true";
+  attribute mark_debug of sclk_last_data       : signal is "true";
+  attribute mark_debug of sclk_sync_packer     : signal is "true";
+  attribute mark_debug of sclk_data_packer     : signal is "true";
+  attribute mark_debug of sclk_packer_valid    : signal is "true";
+  attribute mark_debug of sclk_pix_cntr        : signal is "true";
+  attribute mark_debug of sclk_pix_cntr_en     : signal is "true";
+  attribute mark_debug of sclk_pix_cntr_init   : signal is "true";
+  attribute mark_debug of aclk_read            : signal is "true";
+
+  attribute mark_debug of sclk_tready : signal is "true";
+  attribute mark_debug of sclk_tvalid : signal is "true";
+  attribute mark_debug of sclk_tuser  : signal is "true";
+  attribute mark_debug of sclk_tlast  : signal is "true";
+  attribute mark_debug of sclk_tdata  : signal is "true";
 
 
 begin
-  -- aclk_tack<= '1' when (aclk_tvalid_int = '1' and aclk_tready = '1') else
-  --             '0';
-  
+
 
   sclk_reset <= not sclk_reset_n;
 
@@ -202,7 +245,7 @@ begin
         sclk_sync_packer <= "0000";
       else
         if (sclk_load_data = '1') then
-            sclk_sync_packer <= sclk_tuser;
+          sclk_sync_packer <= sclk_tuser;
         end if;
       end if;
     end if;
@@ -389,22 +432,6 @@ begin
       else
         if ((aclk_tready = '1' or aclk_tvalid_int = '0')and aclk_read_data_valid = '1') then
           aclk_tdata <= aclk_read_data(79 downto 0);
-          -- aclk_tdata(7 downto 0)   <= aclk_read_data(9 downto 2);
-          -- aclk_tdata(15 downto 8)  <= aclk_read_data(19 downto 12);
-          -- aclk_tdata(23 downto 16) <= aclk_read_data(29 downto 22);
-          -- aclk_tdata(31 downto 24) <= aclk_read_data(39 downto 32);
-          -- aclk_tdata(39 downto 32) <= aclk_read_data(49 downto 42);
-          -- aclk_tdata(47 downto 40) <= aclk_read_data(59 downto 52);
-          -- aclk_tdata(55 downto 48) <= aclk_read_data(69 downto 62);
-          -- aclk_tdata(63 downto 56) <= aclk_read_data(79 downto 72);
-          -- aclk_dbg_data(0)         <= to_pixel(aclk_read_data(9 downto 0));   
-          -- aclk_dbg_data(1)         <= to_pixel(aclk_read_data(19 downto 10));   
-          -- aclk_dbg_data(2)         <= to_pixel(aclk_read_data(29 downto 20));   
-          -- aclk_dbg_data(3)         <= to_pixel(aclk_read_data(39 downto 30));   
-          -- aclk_dbg_data(4)         <= to_pixel(aclk_read_data(49 downto 40));   
-          -- aclk_dbg_data(5)         <= to_pixel(aclk_read_data(59 downto 50));   
-          -- aclk_dbg_data(6)         <= to_pixel(aclk_read_data(69 downto 60));   
-          -- aclk_dbg_data(7)         <= to_pixel(aclk_read_data(79 downto 70));   
         end if;
       end if;
     end if;
@@ -492,6 +519,30 @@ begin
           end if;
         end if;
       end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_row_cntr
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_aclk_row_cntr : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset_n = '0') then
+        aclk_row_cntr <= 0;
+      else
+        if (aclk_tready = '1' or aclk_tvalid_int = '0') then
+          if (aclk_sync_packer(0) = '1') then
+            aclk_row_cntr <= 0;
+          elsif (aclk_sync_packer(1) = '1' or aclk_sync_packer(3) = '1') then
+            if (aclk_read_data_valid = '1') then
+              aclk_row_cntr <= aclk_row_cntr + 1;
+            end if;
+          end if;
+        end if;
+      end if;
+
     end if;
   end process;
 

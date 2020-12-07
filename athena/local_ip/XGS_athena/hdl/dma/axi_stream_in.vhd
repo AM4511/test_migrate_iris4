@@ -118,40 +118,40 @@ architecture rtl of axi_stream_in is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  -- attribute mark_debug of wr_state                 : signal is "true";
-  -- attribute mark_debug of rd_state                 : signal is "true";
-  -- attribute mark_debug of buffer_write_en          : signal is "true";
-  -- attribute mark_debug of buffer_write_address     : signal is "true";
-  -- attribute mark_debug of buffer_write_ptr         : signal is "true";
-  -- attribute mark_debug of buffer_write_data        : signal is "true";
-  -- attribute mark_debug of buffer_read_en           : signal is "true";
-  -- attribute mark_debug of buffer_read_address      : signal is "true";
-  -- attribute mark_debug of buffer_read_data         : signal is "true";
-  -- attribute mark_debug of last_row                 : signal is "true";
-  -- attribute mark_debug of read_sync                : signal is "true";
-  -- attribute mark_debug of init_line_ptr            : signal is "true";
-  -- attribute mark_debug of incr_wr_line_ptr         : signal is "true";
-  -- attribute mark_debug of incr_rd_line_ptr         : signal is "true";
-  -- attribute mark_debug of wr_line_ptr              : signal is "true";
-  -- attribute mark_debug of rd_line_ptr              : signal is "true";
-  -- attribute mark_debug of line_ptr_mask            : signal is "true";
-  -- attribute mark_debug of distance_cntr            : signal is "true";
-  -- attribute mark_debug of max_distance             : signal is "true";
-  -- attribute mark_debug of line_buffer_full         : signal is "true";
-  -- attribute mark_debug of line_buffer_empty        : signal is "true";
-  -- attribute mark_debug of numb_line_buffer         : signal is "true";
-  -- attribute mark_debug of s_axis_tready            : signal is "true";
-  -- attribute mark_debug of s_axis_tvalid            : signal is "true";
-  -- attribute mark_debug of s_axis_tdata             : signal is "true";
-  -- attribute mark_debug of s_axis_tlast             : signal is "true";
-  -- attribute mark_debug of s_axis_tuser             : signal is "true";
-  -- attribute mark_debug of start_of_frame           : signal is "true";
-  -- attribute mark_debug of line_ready               : signal is "true";
-  -- attribute mark_debug of line_transfered          : signal is "true";
-  -- attribute mark_debug of end_of_dma               : signal is "true";
-  -- attribute mark_debug of line_buffer_read_en      : signal is "true";
-  -- attribute mark_debug of line_buffer_read_address : signal is "true";
-  -- attribute mark_debug of line_buffer_read_data    : signal is "true";
+  attribute mark_debug of wr_state                 : signal is "true";
+  attribute mark_debug of rd_state                 : signal is "true";
+  attribute mark_debug of buffer_write_en          : signal is "true";
+  attribute mark_debug of buffer_write_address     : signal is "true";
+  attribute mark_debug of buffer_write_ptr         : signal is "true";
+  attribute mark_debug of buffer_write_data        : signal is "true";
+  attribute mark_debug of buffer_read_en           : signal is "true";
+  attribute mark_debug of buffer_read_address      : signal is "true";
+  attribute mark_debug of buffer_read_data         : signal is "true";
+  attribute mark_debug of last_row                 : signal is "true";
+  attribute mark_debug of read_sync                : signal is "true";
+  attribute mark_debug of init_line_ptr            : signal is "true";
+  attribute mark_debug of incr_wr_line_ptr         : signal is "true";
+  attribute mark_debug of incr_rd_line_ptr         : signal is "true";
+  attribute mark_debug of wr_line_ptr              : signal is "true";
+  attribute mark_debug of rd_line_ptr              : signal is "true";
+  attribute mark_debug of line_ptr_mask            : signal is "true";
+  attribute mark_debug of distance_cntr            : signal is "true";
+  attribute mark_debug of max_distance             : signal is "true";
+  attribute mark_debug of line_buffer_full         : signal is "true";
+  attribute mark_debug of line_buffer_empty        : signal is "true";
+  attribute mark_debug of numb_line_buffer         : signal is "true";
+  attribute mark_debug of s_axis_tready            : signal is "true";
+  attribute mark_debug of s_axis_tvalid            : signal is "true";
+  attribute mark_debug of s_axis_tdata             : signal is "true";
+  attribute mark_debug of s_axis_tlast             : signal is "true";
+  attribute mark_debug of s_axis_tuser             : signal is "true";
+  attribute mark_debug of start_of_frame           : signal is "true";
+  attribute mark_debug of line_ready               : signal is "true";
+  attribute mark_debug of line_transfered          : signal is "true";
+  attribute mark_debug of end_of_dma               : signal is "true";
+  attribute mark_debug of line_buffer_read_en      : signal is "true";
+  attribute mark_debug of line_buffer_read_address : signal is "true";
+  attribute mark_debug of line_buffer_read_data    : signal is "true";
 
 
 begin

@@ -157,7 +157,7 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Control interface
       ---------------------------------------------------------------------------
-      streamer_en     : in  std_logic;
+      --streamer_en     : in  std_logic;
       streamer_busy   : out std_logic;
       init_frame      : in  std_logic;
       nb_lane_enabled : in  std_logic_vector(2 downto 0);
@@ -199,6 +199,8 @@ architecture rtl of xgs_hispi_top is
       );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   constant C_S_AXI_ADDR_WIDTH : integer              := 8;
   constant C_S_AXI_DATA_WIDTH : integer              := 32;
@@ -220,6 +222,7 @@ architecture rtl of xgs_hispi_top is
                     S_START_CALIBRATION,
                     S_CALIBRATE,
                     S_SOF,
+                    S_INIT,
                     S_FRAME,
                     S_EOF,
                     S_DONE);
@@ -239,10 +242,10 @@ architecture rtl of xgs_hispi_top is
   signal sclk_calibration_done        : std_logic_vector(1 downto 0);
   signal sclk_xgs_ctrl_calib_req_Meta : std_logic;
   signal sclk_xgs_ctrl_calib_req      : std_logic;
+  signal sclk_sof_pending             : std_logic;
 
   signal top_lanes_p    : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal top_lanes_n    : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  signal sof_flag       : std_logic;
   signal bottom_lanes_p : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal bottom_lanes_n : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal state          : FSM_TYPE := S_IDLE;
@@ -279,11 +282,24 @@ architecture rtl of xgs_hispi_top is
   signal aggregated_bit_lock_error : std_logic_vector(NUMBER_OF_LANE-1 downto 0);
 
   -- Status lane packer (slpack)
-  signal fifo_error : std_logic;
-  signal crc_error  : std_logic;
+  signal fifo_error          : std_logic;
+  signal crc_error           : std_logic;
+  signal frame_overrun_error : std_logic;
+  signal hispi_eof_pulse     : std_logic_vector(2 downto 0);
 
-  signal hispi_eof_pulse : std_logic_vector(2 downto 0);
-  
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of sclk_sof_pending         : signal is "true";
+  attribute mark_debug of hispi_calibration_active : signal is "true";
+  attribute mark_debug of sclk_calibration_pending : signal is "true";
+  attribute mark_debug of state                    : signal is "true";
+  attribute mark_debug of init_frame               : signal is "true";
+  attribute mark_debug of fifo_error               : signal is "true";
+  attribute mark_debug of crc_error                : signal is "true";
+  attribute mark_debug of frame_overrun_error      : signal is "true";
+  attribute mark_debug of sclk_sof_top             : signal is "true";
+
 begin
 
   rclk_reset <= not rclk_reset_n;
@@ -377,7 +393,7 @@ begin
   -- Process     : P_sclk_roi
   -- Description : 
   -----------------------------------------------------------------------------
-  -- WARNING CLOCK DOMAIN CROSSING??
+  -- WARNING CLOCK DOMAIN CROSSING!!!!
   -----------------------------------------------------------------------------
   P_sclk_roi : process (sclk) is
   begin
@@ -388,7 +404,8 @@ begin
         sclk_y_start <= (others => '0');
         sclk_y_size  <= (others => '0');
       else
-        if (sof_flag = '1') then
+        if (state = S_SOF) then
+          -- Store the current frame ROI context
           sclk_x_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
           sclk_x_stop  <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
           sclk_y_start <= hispi_ystart;
@@ -398,7 +415,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_xgs_ctrl_calib_req
   -- Description : Flag sent by the XGS_controller to initiate a calibrartion
@@ -463,6 +480,49 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- Process     : P_sclk_sof_pending
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_sclk_sof_pending : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        sclk_sof_pending <= '0';
+      else
+        if (sclk_sof_top(0) = '1') then
+          sclk_sof_pending <= '1';
+        elsif (state = S_SOF) then
+          sclk_sof_pending <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_frame_overrun_error
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_frame_overrun_error : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1') then
+        frame_overrun_error <= '0';
+      else
+        if (sclk_sof_pending = '1' and sclk_sof_top(0) = '1') then
+          frame_overrun_error <= '1';
+          -- synthesis translate_off
+          assert (false) report "Frame overrun!!!" severity error;
+          -- synthesis translate_on
+        else
+          frame_overrun_error <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
   -- Process     : P_sclk_calibration_pending
   -- Description : 
   -----------------------------------------------------------------------------
@@ -472,16 +532,14 @@ begin
       if (sclk_reset = '1') then
         sclk_calibration_pending <= '0';
       else
-        if (state = S_CALIBRATE) then
-          sclk_calibration_pending <= '0';
-        elsif (sclk_calibration_req = '1') then
+        if (sclk_calibration_req = '1') then
           sclk_calibration_pending <= '1';
+        elsif (state = S_START_CALIBRATION) then
+          sclk_calibration_pending <= '0';
         end if;
       end if;
     end if;
   end process;
-
-
 
 
   -----------------------------------------------------------------------------
@@ -573,28 +631,6 @@ begin
 
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_sof_flag
-  -- Description : 
-  -----------------------------------------------------------------------------
-  P_sof_flag : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (sclk_reset = '1')then
-        sof_flag <= '0';
-      else
-        if (state = S_IDLE and sclk_sof_top(0) = '1') then
-          sof_flag <= '1';
-        else
-          sof_flag <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
-  -- synthesis translate_off
-  assert (not(state /= S_IDLE and sclk_sof_top(0) = '1')) report "Detected SOF when not IDLE" severity error;
-  -- synthesis translate_on
 
 
   -----------------------------------------------------------------------------
@@ -648,10 +684,10 @@ begin
           -- S_IDLE : Parking state (Wait for a frame or PHY calibration req.)
           ---------------------------------------------------------------------
           when S_IDLE =>
-            if (sclk_calibration_pending = '1') then
-              state <= S_START_CALIBRATION;
-            elsif (sof_flag = '1') then
+            if (sclk_sof_pending = '1') then
               state <= S_SOF;
+            elsif (sclk_calibration_pending = '1') then
+              state <= S_START_CALIBRATION;
             end if;
 
           ---------------------------------------------------------------------
@@ -674,6 +710,12 @@ begin
           -- S_SOF : Initialize the IP state
           ---------------------------------------------------------------------
           when S_SOF =>
+            state <= S_INIT;
+
+          ---------------------------------------------------------------------
+          -- S_INIT : Initialize the streamer
+          ---------------------------------------------------------------------
+          when S_INIT =>
             state <= S_FRAME;
 
           ---------------------------------------------------------------------
@@ -719,26 +761,22 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-         hispi_eof_pulse <= (others => '0');
+        hispi_eof_pulse <= (others => '0');
       else
-       if (state = S_EOF) then
-         hispi_eof_pulse <= (others => '1');
-       else
-         hispi_eof_pulse <= hispi_eof_pulse(1 downto 0) & '0';
-       end if;
+        if (state = S_EOF) then
+          hispi_eof_pulse <= (others => '1');
+        else
+          hispi_eof_pulse <= hispi_eof_pulse(1 downto 0) & '0';
+        end if;
       end if;
     end if;
   end process;
 
-  
-  hispi_eof<= hispi_eof_pulse(2);
-
-  
-  -- hispi_eof <= '1' when (state = S_EOF) else
-  --              '0';
+  -- Flag for the XGS_controller
+  hispi_eof <= hispi_eof_pulse(2);
 
 
-  init_frame <= '1' when (state = S_SOF) else
+  init_frame <= '1' when (state = S_INIT) else
                 '0';
 
   -----------------------------------------------------------------------------
@@ -755,7 +793,6 @@ begin
     port map (
       sclk                     => sclk,
       sclk_reset               => sclk_reset,
-      streamer_en              => '1',
       streamer_busy            => open,
       init_frame               => init_frame,
       frame_done               => frame_done,

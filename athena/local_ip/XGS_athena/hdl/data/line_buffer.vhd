@@ -108,11 +108,35 @@ architecture rtl of line_buffer is
   signal sclk_used_buffer  : std_logic_vector(1 downto 0);
   signal sclk_init         : std_logic;
 
-  
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
+  attribute mark_debug of pclk_init          : signal is "true";
+  attribute mark_debug of pclk_write_en      : signal is "true";
+  attribute mark_debug of pclk_nxt_buffer    : signal is "true";
+  attribute mark_debug of pclk_full          : signal is "true";
+  attribute mark_debug of pclk_mux_id        : signal is "true";
+  attribute mark_debug of pclk_word_ptr      : signal is "true";
   attribute mark_debug of pclk_write_address : signal is "true";
+  attribute mark_debug of pclk_buffer_ptr    : signal is "true";
+
+
+  ---------------------------------------------------------------------
+  -- Line buffer interface
+  ---------------------------------------------------------------------
+  attribute mark_debug of sclk_lane_enable   : signal is "true";
+  attribute mark_debug of sclk_read_en       : signal is "true";
+  attribute mark_debug of sclk_empty         : signal is "true";
+  attribute mark_debug of sclk_transfer_done : signal is "true";
+  attribute mark_debug of sclk_mux_id        : signal is "true";
+  attribute mark_debug of sclk_word_ptr      : signal is "true";
+  attribute mark_debug of sclk_read_address  : signal is "true";
+  attribute mark_debug of sclk_buffer_ptr    : signal is "true";
+  attribute mark_debug of sclk_full          : signal is "true";
+  attribute mark_debug of sclk_buffer_rdy    : signal is "true";
+  attribute mark_debug of sclk_used_buffer   : signal is "true";
+  attribute mark_debug of sclk_init          : signal is "true";
 
 
 begin
@@ -137,9 +161,6 @@ begin
       end if;
     end if;
   end process;
-
-
-
 
 
   pclk_write_data(9 downto 0)   <= to_std_logic_vector(pclk_data(0));
