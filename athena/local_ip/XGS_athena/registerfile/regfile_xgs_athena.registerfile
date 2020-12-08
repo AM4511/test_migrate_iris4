@@ -98,7 +98,7 @@
       <fields name="REVERSE_X" lsb="8"/>
     </registers>
     <registers name="OUTPUT_BUFFER" alias="Output line buffer" offsetFromParent="38">
-      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="This is an elastic line buffer. This fields records maximum number of line buffer that was used for transfering data. This field is cleared by the system reset and can also be cleared by the field&#xD;&#xA;&#xD;&#xA;registerfile.DMA.OUTPUT_BUFFER.CLR_MAX_LINE_BUFF_CNT&#xD;&#xA;&#xD;&#xA;" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="LINE_PTR_WIDTH" alias="Line pointer size (in bits)" description="Set the line pointer size (in bits)&#xD;&#xA; 3 = 3 bits wide : The full memory buffer is divided in 8 sub line buffers " lsb="24" size="2" valueAtReset="2" readOnlyMsb="2">
@@ -108,10 +108,10 @@
         <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 8 line buffers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="Indicate to the software the size of the DMA output line buffer address bus in bits. For example for a 11 bits address bus, the buffer size in bytes is :&#xD;&#xA;&#xD;&#xA;2pow(11) * 8 bytes = 16KB (16384 bytes)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="" lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
+      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="Indicates that the DMA line buffer was full while the XGS sensor was still pushing data. When this occures the Athena rely on the buffering (FiFo) along the data path as the last ressort to absorb the pcie back pressure. This should not occur.  " lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Back pressure detected on PCIe&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
