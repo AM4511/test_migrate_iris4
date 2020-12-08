@@ -72,7 +72,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------------------
 	// Calibrate FPGA HiSPI interface
 	//---------------------------------
-	XGS_Data->HiSpiCalibrate();
+	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
     //

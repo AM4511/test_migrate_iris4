@@ -7,9 +7,9 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;1.3.x : First functionnal revision with a single list of multiple Ethernet frames&#xD;&#xA;1.4.x : Second revision. Implements multiple list of frames" offsetFromParent="4">
+    <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;0.1.0  : First functionnal revision&#xD;&#xA;0.2.0  : Removed tha lane_packer module" offsetFromParent="4">
       <fields name="MAJOR" lsb="16" size="8" readWrite="false" staticVal="true"/>
-      <fields name="MINOR" lsb="8" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="MINOR" lsb="8" size="8" valueAtReset="2" readWrite="false" staticVal="true"/>
       <fields name="HW" size="8" readWrite="false" staticVal="true"/>
     </registers>
     <registers name="CAPABILITY" alias="Register file version" offsetFromParent="8">
@@ -98,7 +98,7 @@
       <fields name="REVERSE_X" lsb="8"/>
     </registers>
     <registers name="OUTPUT_BUFFER" alias="Output line buffer" offsetFromParent="38">
-      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+      <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="This is an elastic line buffer. This fields records maximum number of line buffer that was used for transfering data. This field is cleared by the system reset and can also be cleared by the field&#xD;&#xA;&#xD;&#xA;registerfile.DMA.OUTPUT_BUFFER.CLR_MAX_LINE_BUFF_CNT&#xD;&#xA;&#xD;&#xA;" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="LINE_PTR_WIDTH" alias="Line pointer size (in bits)" description="Set the line pointer size (in bits)&#xD;&#xA; 3 = 3 bits wide : The full memory buffer is divided in 8 sub line buffers " lsb="24" size="2" valueAtReset="2" readOnlyMsb="2">
@@ -108,10 +108,10 @@
         <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>The buffer is divided in 8 line buffers&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
+      <fields name="ADDRESS_BUS_WIDTH" alias="Line buffer address size in bits" description="Indicate to the software the size of the DMA output line buffer address bus in bits. For example for a 11 bits address bus, the buffer size in bytes is :&#xD;&#xA;&#xD;&#xA;2pow(11) * 8 bytes = 16KB (16384 bytes)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" lsb="20" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="" lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
+      <fields name="PCIE_BACK_PRESSURE" alias="PCIE link back pressure detected" description="Indicates that the DMA line buffer was full while the XGS sensor was still pushing data. When this occures the Athena rely on the buffering (FiFo) along the data path as the last ressort to absorb the pcie back pressure. This should not occur.  " lsb="4" readWrite="false" readWriteToClear="true" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Back pressure detected on PCIe&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -517,24 +517,24 @@
       <fields name="DP_OFFSET_B" description="Sensor Analog data pedestal for B pixels (Black offset)" size="12" valueAtReset="100"/>
     </registers>
     <registers name="SENSOR_GAIN_DIG_G" description="XGS Context0 : R0x3846 " offsetFromParent="CC">
-      <fields name="reserved1" lsb="15"/>
+      <fields name="reserved1" lsb="15" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_GR" description="Digital Gain Factor for GREEN-R Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" lsb="8" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="reserved0" lsb="7"/>
+      <fields name="reserved0" lsb="7" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_GB" description="Digital Gain Factor for GREEN-B Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
     <registers name="SENSOR_GAIN_DIG_RB" description="XGS Context0 : R0x3848" offsetFromParent="D0" useReservedSpaceBelow="true">
-      <fields name="reserved1" lsb="15"/>
+      <fields name="reserved1" lsb="15" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_R" description="Digital Gain Factor for RED Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" lsb="8" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="reserved0" lsb="7"/>
+      <fields name="reserved0" lsb="7" readWrite="false" staticVal="true"/>
       <fields name="DG_FACTOR_B" description="Digital Gain Factor for BLUE Pixels&#xD;&#xA;&#xD;&#xA;The digital gain can be configured to separate levels for each color channel (GR, GB, R and B). The digital gain factor ranges from 1/32 to 2 in steps of 1/32 (64 steps) and its configuration can berepresented by the equation below:&#xD;&#xA;Digital gain = Dg_factor/32&#xD;&#xA;Dg_factor=0x20 is unitary gain 1.000&#xD;&#xA;Dg_factor=0x40 is  gain x2.00000&#xD;&#xA;Dg_factor=0x01 is  gain x0.03125&#xD;&#xA;Dg_factor=0x7f is  gain x3.96875" size="7" valueAtReset="20">
         <possibleValues>&lt;matrox_column_delimiter>range=1-127&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any value in range&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -627,7 +627,7 @@
       <fields name="VALUE" description="This register sets the timer duration. When the counter reaches the value programmed in this register the counter will be reseted to 0. The trigger will be generated when the counter reaches value 0x1. &#xD;&#xA;&#xD;&#xA;This register is double buffered with TIMERSTART register." size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="460">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="454">
     <registers name="CTRL">
       <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
@@ -756,11 +756,7 @@
     <registers name="TAP_HISTOGRAM" offsetFromParent="3C" useMultiples="true" numberOfMultiples="6">
       <fields name="VALUE" size="32" readWrite="false" readOnly="true"/>
     </registers>
-    <registers name="LANE_PACKER_STATUS" offsetFromParent="54" useMultiples="true" numberOfMultiples="3">
-      <fields name="FIFO_UNDERRUN" lsb="1" readWrite="false" readWriteToClear="true"/>
-      <fields name="FIFO_OVERRUN" readWrite="false" readWriteToClear="true"/>
-    </registers>
-    <registers name="DEBUG" offsetFromParent="60">
+    <registers name="DEBUG" offsetFromParent="54">
       <fields name="MANUAL_CALIB_EN" lsb="31"/>
       <fields name="LOAD_TAPS" lsb="30" readWrite="false" writeOnly="true"/>
       <fields name="TAP_LANE_5" lsb="25" size="5"/>

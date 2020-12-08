@@ -76,7 +76,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------------------
 	// Calibrate FPGA HiSPI interface
 	//---------------------------------
-	XGS_Data->HiSpiCalibrate();
+	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
     //

@@ -518,7 +518,7 @@ BEGIN
       else
         if (GRAB_CMD='1' or acquisition_start_SFNC='1') then
           GRAB_CMD_DONE                <= '0';
-        elsif(sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high-1)='1') then
+        elsif(sensor_reconf_WF_pipe(sensor_reconf_WF_pipe'high)='1') then
           GRAB_CMD_DONE                <= '1';
         end if;
       end if;

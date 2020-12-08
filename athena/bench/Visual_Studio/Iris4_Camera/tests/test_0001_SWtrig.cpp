@@ -62,7 +62,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//-------------------------------------------
 	// Calibrate and enable FPGA HiSPI interface
 	//-------------------------------------------
-	XGS_Data->HiSpiCalibrate();
+	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
     //

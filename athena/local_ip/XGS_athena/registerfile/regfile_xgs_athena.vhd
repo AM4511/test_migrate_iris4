@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/10/20 12:18:55
--- Created by          : imaval
+-- Created on          : 2020/12/08 12:44:59
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1366738E
+-- Register file CRC32 : 0x232CD2D4
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -95,10 +95,7 @@ package regfile_xgs_athena_pack is
    constant K_HISPI_TAP_HISTOGRAM_3_ADDR      : natural := 16#448#;
    constant K_HISPI_TAP_HISTOGRAM_4_ADDR      : natural := 16#44c#;
    constant K_HISPI_TAP_HISTOGRAM_5_ADDR      : natural := 16#450#;
-   constant K_HISPI_LANE_PACKER_STATUS_0_ADDR : natural := 16#454#;
-   constant K_HISPI_LANE_PACKER_STATUS_1_ADDR : natural := 16#458#;
-   constant K_HISPI_LANE_PACKER_STATUS_2_ADDR : natural := 16#45c#;
-   constant K_HISPI_DEBUG_ADDR                : natural := 16#460#;
+   constant K_HISPI_DEBUG_ADDR                : natural := 16#454#;
    constant K_DPC_DPC_CAPABILITIES_ADDR       : natural := 16#480#;
    constant K_DPC_DPC_LIST_CTRL_ADDR          : natural := 16#484#;
    constant K_DPC_DPC_LIST_STAT_ADDR          : natural := 16#488#;
@@ -1364,32 +1361,6 @@ package regfile_xgs_athena_pack is
    function to_HISPI_TAP_HISTOGRAM_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_TAP_HISTOGRAM_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: LANE_PACKER_STATUS
-   ------------------------------------------------------------------------------------------
-   type HISPI_LANE_PACKER_STATUS_TYPE is record
-      FIFO_UNDERRUN  : std_logic;
-      FIFO_UNDERRUN_set: std_logic;
-      FIFO_OVERRUN   : std_logic;
-      FIFO_OVERRUN_set: std_logic;
-   end record HISPI_LANE_PACKER_STATUS_TYPE;
-
-   constant INIT_HISPI_LANE_PACKER_STATUS_TYPE : HISPI_LANE_PACKER_STATUS_TYPE := (
-      FIFO_UNDERRUN   => 'Z',
-      FIFO_UNDERRUN_set => 'Z',
-      FIFO_OVERRUN    => 'Z',
-      FIFO_OVERRUN_set => 'Z'
-   );
-
-   ------------------------------------------------------------------------------------------
-   -- Array type: HISPI_LANE_PACKER_STATUS_TYPE
-   ------------------------------------------------------------------------------------------
-   type HISPI_LANE_PACKER_STATUS_TYPE_ARRAY is array (2 downto 0) of HISPI_LANE_PACKER_STATUS_TYPE;
-   constant INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY : HISPI_LANE_PACKER_STATUS_TYPE_ARRAY := (others => INIT_HISPI_LANE_PACKER_STATUS_TYPE);
-   -- Casting functions:
-   function to_std_logic_vector(reg : HISPI_LANE_PACKER_STATUS_TYPE) return std_logic_vector;
-   function to_HISPI_LANE_PACKER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_PACKER_STATUS_TYPE;
-   
-   ------------------------------------------------------------------------------------------
    -- Register Name: DEBUG
    ------------------------------------------------------------------------------------------
    type HISPI_DEBUG_TYPE is record
@@ -1758,7 +1729,6 @@ package regfile_xgs_athena_pack is
       FRAME_CFG_X_VALID: HISPI_FRAME_CFG_X_VALID_TYPE;
       LANE_DECODER_STATUS: HISPI_LANE_DECODER_STATUS_TYPE_ARRAY;
       TAP_HISTOGRAM  : HISPI_TAP_HISTOGRAM_TYPE_ARRAY;
-      LANE_PACKER_STATUS: HISPI_LANE_PACKER_STATUS_TYPE_ARRAY;
       DEBUG          : HISPI_DEBUG_TYPE;
    end record HISPI_TYPE;
 
@@ -1772,7 +1742,6 @@ package regfile_xgs_athena_pack is
       FRAME_CFG_X_VALID => INIT_HISPI_FRAME_CFG_X_VALID_TYPE,
       LANE_DECODER_STATUS => INIT_HISPI_LANE_DECODER_STATUS_TYPE_ARRAY,
       TAP_HISTOGRAM   => INIT_HISPI_TAP_HISTOGRAM_TYPE_ARRAY,
-      LANE_PACKER_STATUS => INIT_HISPI_LANE_PACKER_STATUS_TYPE_ARRAY,
       DEBUG           => INIT_HISPI_DEBUG_TYPE
    );
 
@@ -3606,31 +3575,6 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from HISPI_LANE_PACKER_STATUS_TYPE to std_logic_vector
-   --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : HISPI_LANE_PACKER_STATUS_TYPE) return std_logic_vector is
-   variable output : std_logic_vector(31 downto 0);
-   begin
-      output := (others=>'0'); -- Unassigned bits set to low
-      output(1) := reg.FIFO_UNDERRUN;
-      output(0) := reg.FIFO_OVERRUN;
-      return output;
-   end to_std_logic_vector;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_HISPI_LANE_PACKER_STATUS_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to HISPI_LANE_PACKER_STATUS_TYPE
-   --------------------------------------------------------------------------------
-   function to_HISPI_LANE_PACKER_STATUS_TYPE(stdlv : std_logic_vector(31 downto 0)) return HISPI_LANE_PACKER_STATUS_TYPE is
-   variable output : HISPI_LANE_PACKER_STATUS_TYPE;
-   begin
-      output.FIFO_UNDERRUN := stdlv(1);
-      output.FIFO_OVERRUN := stdlv(0);
-      return output;
-   end to_HISPI_LANE_PACKER_STATUS_TYPE;
-
-   --------------------------------------------------------------------------------
-   -- Function Name: to_std_logic_vector
    -- Description: Cast from HISPI_DEBUG_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
    function to_std_logic_vector(reg : HISPI_DEBUG_TYPE) return std_logic_vector is
@@ -3938,11 +3882,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/10/20 12:18:55
--- Created by          : imaval
+-- Created on          : 2020/12/08 12:44:59
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x1366738E
+-- Register file CRC32 : 0x232CD2D4
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3990,8 +3934,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(91 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(90 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(88 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(87 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -4073,9 +4017,6 @@ signal rb_HISPI_TAP_HISTOGRAM_2                                    : std_logic_v
 signal rb_HISPI_TAP_HISTOGRAM_3                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_TAP_HISTOGRAM_4                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_TAP_HISTOGRAM_5                                    : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_0                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_1                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_HISPI_LANE_PACKER_STATUS_2                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_HISPI_DEBUG                                              : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_CAPABILITIES                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_DPC_DPC_LIST_CTRL                                        : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -4158,13 +4099,9 @@ signal field_rw_ACQ_SENSOR_DP_GR_DP_OFFSET_GR                      : std_logic_v
 signal field_rw_ACQ_SENSOR_DP_GB_DP_OFFSET_GB                      : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_GB
 signal field_rw_ACQ_SENSOR_DP_R_DP_OFFSET_R                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_R
 signal field_rw_ACQ_SENSOR_DP_B_DP_OFFSET_B                        : std_logic_vector(11 downto 0);                   -- Field: DP_OFFSET_B
-signal field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1                    : std_logic;                                       -- Field: reserved1
 signal field_rw_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GR                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_GR
-signal field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0                    : std_logic;                                       -- Field: reserved0
 signal field_rw_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GB                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_GB
-signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1                   : std_logic;                                       -- Field: reserved1
 signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_R                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_R
-signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0                   : std_logic;                                       -- Field: reserved0
 signal field_rw_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_B                 : std_logic_vector(6 downto 0);                    -- Field: DG_FACTOR_B
 signal field_rw_ACQ_FPGA_ROI_X_START_X_START                       : std_logic_vector(12 downto 0);                   -- Field: X_START
 signal field_rw_ACQ_FPGA_ROI_X_SIZE_X_SIZE                         : std_logic_vector(12 downto 0);                   -- Field: X_SIZE
@@ -4232,12 +4169,6 @@ signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_PHY_BIT_LOCKED_ERROR : std_logic; 
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_CALIBRATION_ERROR    : std_logic;                                       -- Field: CALIBRATION_ERROR
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_UNDERRUN        : std_logic;                                       -- Field: FIFO_UNDERRUN
 signal field_rw2c_HISPI_LANE_DECODER_STATUS_5_FIFO_OVERRUN         : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN         : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN          : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN         : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN          : std_logic;                                       -- Field: FIFO_OVERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN         : std_logic;                                       -- Field: FIFO_UNDERRUN
-signal field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN          : std_logic;                                       -- Field: FIFO_OVERRUN
 signal field_rw_HISPI_DEBUG_MANUAL_CALIB_EN                        : std_logic;                                       -- Field: MANUAL_CALIB_EN
 signal field_wautoclr_HISPI_DEBUG_LOAD_TAPS                        : std_logic;                                       -- Field: LOAD_TAPS
 signal field_rw_HISPI_DEBUG_TAP_LANE_5                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_5
@@ -4363,22 +4294,19 @@ hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else 
 hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	TAP_HISTOGRAM[3]
 hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	TAP_HISTOGRAM[4]
 hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#450#,12)))	else '0'; -- Addr:  0x0450	TAP_HISTOGRAM[5]
-hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else '0'; -- Addr:  0x0454	LANE_PACKER_STATUS[0]
-hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#458#,12)))	else '0'; -- Addr:  0x0458	LANE_PACKER_STATUS[1]
-hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#45c#,12)))	else '0'; -- Addr:  0x045C	LANE_PACKER_STATUS[2]
-hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#460#,12)))	else '0'; -- Addr:  0x0460	DEBUG
-hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_CAPABILITIES
-hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_CTRL
-hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_STAT
-hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA1
-hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
-hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
-hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
-hit(88) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
-hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
-hit(90) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
+hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else '0'; -- Addr:  0x0454	DEBUG
+hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_CAPABILITIES
+hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_CTRL
+hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_STAT
+hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA1
+hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
+hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
+hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
+hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
+hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
+hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
 
-hit(91) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(88) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4465,9 +4393,6 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_HISPI_TAP_HISTOGRAM_3,
                             rb_HISPI_TAP_HISTOGRAM_4,
                             rb_HISPI_TAP_HISTOGRAM_5,
-                            rb_HISPI_LANE_PACKER_STATUS_0,
-                            rb_HISPI_LANE_PACKER_STATUS_1,
-                            rb_HISPI_LANE_PACKER_STATUS_2,
                             rb_HISPI_DEBUG,
                             rb_DPC_DPC_CAPABILITIES,
                             rb_DPC_DPC_LIST_CTRL,
@@ -4791,20 +4716,8 @@ begin
       when 16#450# =>
          readBackMux <= rb_HISPI_TAP_HISTOGRAM_5;
 
-      -- [0x454]: /HISPI/LANE_PACKER_STATUS_0
+      -- [0x454]: /HISPI/DEBUG
       when 16#454# =>
-         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_0;
-
-      -- [0x458]: /HISPI/LANE_PACKER_STATUS_1
-      when 16#458# =>
-         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_1;
-
-      -- [0x45c]: /HISPI/LANE_PACKER_STATUS_2
-      when 16#45C# =>
-         readBackMux <= rb_HISPI_LANE_PACKER_STATUS_2;
-
-      -- [0x460]: /HISPI/DEBUG
-      when 16#460# =>
          readBackMux <= rb_HISPI_DEBUG;
 
       -- [0x480]: /DPC/DPC_CAPABILITIES
@@ -4914,7 +4827,7 @@ regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 -- Field name: MINOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(1),8));
+rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(2),8));
 regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
@@ -7423,27 +7336,11 @@ wEn(43) <= (hit(43)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_G(15) <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1;
-regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1;
+rb_ACQ_SENSOR_GAIN_DIG_G(15) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_G.reserved1 <= rb_ACQ_SENSOR_GAIN_DIG_G(15);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_G_reserved1
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_G_reserved1 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1 <= '0';
-      else
-         if(wEn(43) = '1' and bitEnN(15) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved1 <= reg_writedata(15);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_G_reserved1;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_GR(14 downto 8)
@@ -7473,27 +7370,11 @@ end process P_ACQ_SENSOR_GAIN_DIG_G_DG_FACTOR_GR;
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved0
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_G(7) <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0;
-regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 <= field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0;
+rb_ACQ_SENSOR_GAIN_DIG_G(7) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_G.reserved0 <= rb_ACQ_SENSOR_GAIN_DIG_G(7);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_G_reserved0
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_G_reserved0 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0 <= '0';
-      else
-         if(wEn(43) = '1' and bitEnN(7) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_G_reserved0 <= reg_writedata(7);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_G_reserved0;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_GB(6 downto 0)
@@ -7532,27 +7413,11 @@ wEn(44) <= (hit(44)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved1
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_RB(15) <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
-regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
+rb_ACQ_SENSOR_GAIN_DIG_RB(15) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved1 <= rb_ACQ_SENSOR_GAIN_DIG_RB(15);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_RB_reserved1
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_RB_reserved1 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1 <= '0';
-      else
-         if(wEn(44) = '1' and bitEnN(15) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved1 <= reg_writedata(15);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_RB_reserved1;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_R(14 downto 8)
@@ -7582,27 +7447,11 @@ end process P_ACQ_SENSOR_GAIN_DIG_RB_DG_FACTOR_R;
 
 ------------------------------------------------------------------------------------------
 -- Field name: reserved0
--- Field type: RW
+-- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_ACQ_SENSOR_GAIN_DIG_RB(7) <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
-regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 <= field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
+rb_ACQ_SENSOR_GAIN_DIG_RB(7) <= '0';
+regfile.ACQ.SENSOR_GAIN_DIG_RB.reserved0 <= rb_ACQ_SENSOR_GAIN_DIG_RB(7);
 
-
-------------------------------------------------------------------------------------------
--- Process: P_ACQ_SENSOR_GAIN_DIG_RB_reserved0
-------------------------------------------------------------------------------------------
-P_ACQ_SENSOR_GAIN_DIG_RB_reserved0 : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0 <= '0';
-      else
-         if(wEn(44) = '1' and bitEnN(7) = '0') then
-            field_rw_ACQ_SENSOR_GAIN_DIG_RB_reserved0 <= reg_writedata(7);
-         end if;
-      end if;
-   end if;
-end process P_ACQ_SENSOR_GAIN_DIG_RB_reserved0;
 
 ------------------------------------------------------------------------------------------
 -- Field name: DG_FACTOR_B(6 downto 0)
@@ -9945,205 +9794,10 @@ rb_HISPI_TAP_HISTOGRAM_5(31 downto 0) <= regfile.HISPI.TAP_HISTOGRAM(5).VALUE;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: HISPI_LANE_PACKER_STATUS_0
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(77) <= (hit(77)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_UNDERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_0(1) <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
-      else
-         if(wEn(77) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN or regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_UNDERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_UNDERRUN;
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_OVERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_0(0) <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
-      else
-         if(wEn(77) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN or regfile.HISPI.LANE_PACKER_STATUS(0).FIFO_OVERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_0_FIFO_OVERRUN;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
--- Register name: HISPI_LANE_PACKER_STATUS_1
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(78) <= (hit(78)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_UNDERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_1(1) <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
-      else
-         if(wEn(78) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN or regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_UNDERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_UNDERRUN;
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_OVERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_1(0) <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
-      else
-         if(wEn(78) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN or regfile.HISPI.LANE_PACKER_STATUS(1).FIFO_OVERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_1_FIFO_OVERRUN;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
--- Register name: HISPI_LANE_PACKER_STATUS_2
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
-wEn(79) <= (hit(79)) and (reg_write);
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_UNDERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_2(1) <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
-      else
-         if(wEn(79) = '1' and reg_writedata(1) = '1' and bitEnN(1) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN or regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_UNDERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_UNDERRUN;
-
-------------------------------------------------------------------------------------------
--- Field name: FIFO_OVERRUN
--- Field type: RW2C
-------------------------------------------------------------------------------------------
-rb_HISPI_LANE_PACKER_STATUS_2(0) <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
-regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
-
-
-------------------------------------------------------------------------------------------
--- Process: P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN
-------------------------------------------------------------------------------------------
-P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
-      else
-         if(wEn(79) = '1' and reg_writedata(0) = '1' and bitEnN(0) = '0') then
-            -- Clear the field to '0'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= '0';
-         else
-            -- Set the field to '1'
-            field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN <= field_rw2c_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN or regfile.HISPI.LANE_PACKER_STATUS(2).FIFO_OVERRUN_set;
-         end if;
-      end if;
-   end if;
-end process P_HISPI_LANE_PACKER_STATUS_2_FIFO_OVERRUN;
-
-
-
-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------
 -- Register name: HISPI_DEBUG
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(80) <= (hit(80)) and (reg_write);
+wEn(77) <= (hit(77)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: MANUAL_CALIB_EN
@@ -10162,7 +9816,7 @@ begin
       if (resetN = '0') then
          field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= '0';
       else
-         if(wEn(80) = '1' and bitEnN(31) = '0') then
+         if(wEn(77) = '1' and bitEnN(31) = '0') then
             field_rw_HISPI_DEBUG_MANUAL_CALIB_EN <= reg_writedata(31);
          end if;
       end if;
@@ -10186,7 +9840,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
       else
-         if(wEn(80) = '1' and bitEnN(30) = '0') then
+         if(wEn(77) = '1' and bitEnN(30) = '0') then
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= reg_writedata(30);
          else
             field_wautoclr_HISPI_DEBUG_LOAD_TAPS <= '0';
@@ -10213,7 +9867,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_5 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  29 downto 25  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_5(j-25) <= reg_writedata(j);
             end if;
          end loop;
@@ -10239,7 +9893,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_4 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  24 downto 20  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_4(j-20) <= reg_writedata(j);
             end if;
          end loop;
@@ -10265,7 +9919,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_3 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  19 downto 15  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_3(j-15) <= reg_writedata(j);
             end if;
          end loop;
@@ -10291,7 +9945,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_2 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  14 downto 10  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_2(j-10) <= reg_writedata(j);
             end if;
          end loop;
@@ -10317,7 +9971,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_1 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  9 downto 5  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_1(j-5) <= reg_writedata(j);
             end if;
          end loop;
@@ -10343,7 +9997,7 @@ begin
          field_rw_HISPI_DEBUG_TAP_LANE_0 <= std_logic_vector(to_unsigned(integer(0),5));
       else
          for j in  4 downto 0  loop
-            if(wEn(80) = '1' and bitEnN(j) = '0') then
+            if(wEn(77) = '1' and bitEnN(j) = '0') then
                field_rw_HISPI_DEBUG_TAP_LANE_0(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10358,7 +10012,7 @@ end process P_HISPI_DEBUG_TAP_LANE_0;
 -- Register name: DPC_DPC_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(81) <= (hit(81)) and (reg_write);
+wEn(78) <= (hit(78)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: DPC_LIST_LENGTH(11 downto 0)
@@ -10381,7 +10035,7 @@ rb_DPC_DPC_CAPABILITIES(3 downto 0) <= regfile.DPC.DPC_CAPABILITIES.DPC_VER;
 -- Register name: DPC_DPC_LIST_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(82) <= (hit(82)) and (reg_write);
+wEn(79) <= (hit(79)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_reset
@@ -10400,7 +10054,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(29) = '0') then
+         if(wEn(79) = '1' and bitEnN(29) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset <= reg_writedata(29);
          end if;
       end if;
@@ -10424,7 +10078,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(28) = '0') then
+         if(wEn(79) = '1' and bitEnN(28) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem <= reg_writedata(28);
          end if;
       end if;
@@ -10449,7 +10103,7 @@ begin
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_count <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  27 downto 16  loop
-            if(wEn(82) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_CTRL_dpc_list_count(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10474,7 +10128,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(15) = '0') then
+         if(wEn(79) = '1' and bitEnN(15) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_pattern0_cfg <= reg_writedata(15);
          end if;
       end if;
@@ -10498,7 +10152,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(14) = '0') then
+         if(wEn(79) = '1' and bitEnN(14) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_enable <= reg_writedata(14);
          end if;
       end if;
@@ -10522,7 +10176,7 @@ begin
       if (resetN = '0') then
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(13) = '0') then
+         if(wEn(79) = '1' and bitEnN(13) = '0') then
             field_rw_DPC_DPC_LIST_CTRL_dpc_list_WRn <= reg_writedata(13);
          end if;
       end if;
@@ -10546,7 +10200,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
       else
-         if(wEn(82) = '1' and bitEnN(12) = '0') then
+         if(wEn(79) = '1' and bitEnN(12) = '0') then
             field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= reg_writedata(12);
          else
             field_wautoclr_DPC_DPC_LIST_CTRL_dpc_list_ss <= '0';
@@ -10573,7 +10227,7 @@ begin
          field_rw_DPC_DPC_LIST_CTRL_dpc_list_add <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  11 downto 0  loop
-            if(wEn(82) = '1' and bitEnN(j) = '0') then
+            if(wEn(79) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_CTRL_dpc_list_add(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10588,7 +10242,7 @@ end process P_DPC_DPC_LIST_CTRL_dpc_list_add;
 -- Register name: DPC_DPC_LIST_STAT
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(83) <= (hit(83)) and (reg_write);
+wEn(80) <= (hit(80)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_underrun
@@ -10611,7 +10265,7 @@ rb_DPC_DPC_LIST_STAT(30) <= regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun;
 -- Register name: DPC_DPC_LIST_DATA1
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(84) <= (hit(84)) and (reg_write);
+wEn(81) <= (hit(81)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_y(27 downto 16)
@@ -10631,7 +10285,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y <= std_logic_vector(to_unsigned(integer(0),12));
       else
          for j in  27 downto 16  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(81) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10657,7 +10311,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x <= std_logic_vector(to_unsigned(integer(0),13));
       else
          for j in  12 downto 0  loop
-            if(wEn(84) = '1' and bitEnN(j) = '0') then
+            if(wEn(81) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10672,7 +10326,7 @@ end process P_DPC_DPC_LIST_DATA1_dpc_list_corr_x;
 -- Register name: DPC_DPC_LIST_DATA2
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(85) <= (hit(85)) and (reg_write);
+wEn(82) <= (hit(82)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_pattern(7 downto 0)
@@ -10692,7 +10346,7 @@ begin
          field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  7 downto 0  loop
-            if(wEn(85) = '1' and bitEnN(j) = '0') then
+            if(wEn(82) = '1' and bitEnN(j) = '0') then
                field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10707,7 +10361,7 @@ end process P_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern;
 -- Register name: DPC_DPC_LIST_DATA1_RD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(86) <= (hit(86)) and (reg_write);
+wEn(83) <= (hit(83)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_y(11 downto 0)
@@ -10730,7 +10384,7 @@ rb_DPC_DPC_LIST_DATA1_RD(12 downto 0) <= regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_
 -- Register name: DPC_DPC_LIST_DATA2_RD
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(87) <= (hit(87)) and (reg_write);
+wEn(84) <= (hit(84)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_list_corr_pattern(7 downto 0)
@@ -10746,7 +10400,7 @@ rb_DPC_DPC_LIST_DATA2_RD(7 downto 0) <= regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_c
 -- Register name: LUT_LUT_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(88) <= (hit(88)) and (reg_write);
+wEn(85) <= (hit(85)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LUT_SIZE_CONFIG(11 downto 0)
@@ -10769,7 +10423,7 @@ rb_LUT_LUT_CAPABILITIES(3 downto 0) <= regfile.LUT.LUT_CAPABILITIES.LUT_VER;
 -- Register name: LUT_LUT_CTRL
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(89) <= (hit(89)) and (reg_write);
+wEn(86) <= (hit(86)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LUT_BYPASS
@@ -10788,7 +10442,7 @@ begin
       if (resetN = '0') then
          field_rw_LUT_LUT_CTRL_LUT_BYPASS <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(28) = '0') then
+         if(wEn(86) = '1' and bitEnN(28) = '0') then
             field_rw_LUT_LUT_CTRL_LUT_BYPASS <= reg_writedata(28);
          end if;
       end if;
@@ -10813,7 +10467,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_DATA_W <= std_logic_vector(to_unsigned(integer(0),8));
       else
          for j in  23 downto 16  loop
-            if(wEn(89) = '1' and bitEnN(j) = '0') then
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_DATA_W(j-16) <= reg_writedata(j);
             end if;
          end loop;
@@ -10839,7 +10493,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_SEL <= std_logic_vector(to_unsigned(integer(0),4));
       else
          for j in  15 downto 12  loop
-            if(wEn(89) = '1' and bitEnN(j) = '0') then
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_SEL(j-12) <= reg_writedata(j);
             end if;
          end loop;
@@ -10864,7 +10518,7 @@ begin
       if (resetN = '0') then
          field_rw_LUT_LUT_CTRL_LUT_WRN <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(11) = '0') then
+         if(wEn(86) = '1' and bitEnN(11) = '0') then
             field_rw_LUT_LUT_CTRL_LUT_WRN <= reg_writedata(11);
          end if;
       end if;
@@ -10888,7 +10542,7 @@ begin
       if (resetN = '0') then
          field_wautoclr_LUT_LUT_CTRL_LUT_SS <= '0';
       else
-         if(wEn(89) = '1' and bitEnN(10) = '0') then
+         if(wEn(86) = '1' and bitEnN(10) = '0') then
             field_wautoclr_LUT_LUT_CTRL_LUT_SS <= reg_writedata(10);
          else
             field_wautoclr_LUT_LUT_CTRL_LUT_SS <= '0';
@@ -10915,7 +10569,7 @@ begin
          field_rw_LUT_LUT_CTRL_LUT_ADD <= std_logic_vector(to_unsigned(integer(0),10));
       else
          for j in  9 downto 0  loop
-            if(wEn(89) = '1' and bitEnN(j) = '0') then
+            if(wEn(86) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_ADD(j-0) <= reg_writedata(j);
             end if;
          end loop;
@@ -10930,7 +10584,7 @@ end process P_LUT_LUT_CTRL_LUT_ADD;
 -- Register name: LUT_LUT_RB
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
-wEn(90) <= (hit(90)) and (reg_write);
+wEn(87) <= (hit(87)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: LUT_RB
@@ -10969,7 +10623,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(91) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(88) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -11014,7 +10668,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(91) = '1') then
+         if (reg_read = '1' and hit(88) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -11062,7 +10716,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(91)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(88)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

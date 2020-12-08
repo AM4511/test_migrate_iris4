@@ -37,7 +37,7 @@ public:
 	void PrintTime();
 
 	void HiSpiClr();
-	void HiSpiCalibrate();
+	int HiSpiCalibrate(int echoo);
 	void SetDMA();
 	M_UINT32 HiSpiCheck();
 
