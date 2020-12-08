@@ -60,31 +60,31 @@ architecture rtl of tap_controller is
   -----------------------------------------------------------------------------
   -- Debug attributes
   -----------------------------------------------------------------------------
-  attribute mark_debug of pclk_reset             : signal is "true";
-  attribute mark_debug of pclk_idle_character    : signal is "true";
-  attribute mark_debug of pclk_lane_enable       : signal is "true";
-  attribute mark_debug of pclk_pixel             : signal is "true";
-  attribute mark_debug of pclk_tap_cntr          : signal is "true";
-  attribute mark_debug of pclk_cal_en            : signal is "true";
-  attribute mark_debug of pclk_cal_start_monitor : signal is "true";
-  attribute mark_debug of pclk_cal_monitor_done  : signal is "true";
-  attribute mark_debug of pclk_cal_busy          : signal is "true";
-  attribute mark_debug of pclk_cal_error         : signal is "true";
-  attribute mark_debug of pclk_cal_tap_value     : signal is "true";
-  attribute mark_debug of pclk_tap_histogram     : signal is "true";
+  -- attribute mark_debug of pclk_reset             : signal is "true";
+  -- attribute mark_debug of pclk_idle_character    : signal is "true";
+  -- attribute mark_debug of pclk_lane_enable       : signal is "true";
+  -- attribute mark_debug of pclk_pixel             : signal is "true";
+  -- attribute mark_debug of pclk_tap_cntr          : signal is "true";
+  -- attribute mark_debug of pclk_cal_en            : signal is "true";
+  -- attribute mark_debug of pclk_cal_start_monitor : signal is "true";
+  -- attribute mark_debug of pclk_cal_monitor_done  : signal is "true";
+  -- attribute mark_debug of pclk_cal_busy          : signal is "true";
+  -- attribute mark_debug of pclk_cal_error         : signal is "true";
+  -- attribute mark_debug of pclk_cal_tap_value     : signal is "true";
+  -- attribute mark_debug of pclk_tap_histogram     : signal is "true";
 
-  attribute mark_debug of state                       : signal is "true";
-  attribute mark_debug of valid_pixel_cntr            : signal is "true";
-  attribute mark_debug of pixel_cntr                  : signal is "true";
-  attribute mark_debug of valid_idle_sequence         : signal is "true";
-  attribute mark_debug of valid_window                : signal is "true";
-  attribute mark_debug of window_low                  : signal is "true";
-  attribute mark_debug of window_size                 : signal is "true";
-  attribute mark_debug of best_window_low             : signal is "true";
-  attribute mark_debug of best_window_size            : signal is "true";
-  attribute mark_debug of best_window_center          : signal is "true";
-  attribute mark_debug of pclk_cal_monitor_done_pulse : signal is "true";
-  attribute mark_debug of tap_histogram               : signal is "true";
+  -- attribute mark_debug of state                       : signal is "true";
+  -- attribute mark_debug of valid_pixel_cntr            : signal is "true";
+  -- attribute mark_debug of pixel_cntr                  : signal is "true";
+  -- attribute mark_debug of valid_idle_sequence         : signal is "true";
+  -- attribute mark_debug of valid_window                : signal is "true";
+  -- attribute mark_debug of window_low                  : signal is "true";
+  -- attribute mark_debug of window_size                 : signal is "true";
+  -- attribute mark_debug of best_window_low             : signal is "true";
+  -- attribute mark_debug of best_window_size            : signal is "true";
+  -- attribute mark_debug of best_window_center          : signal is "true";
+  -- attribute mark_debug of pclk_cal_monitor_done_pulse : signal is "true";
+  -- attribute mark_debug of tap_histogram               : signal is "true";
 
 
 

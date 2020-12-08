@@ -113,13 +113,14 @@ void CXGS_Data::HiSpiClr(void)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32   = sXGSptr.HISPI.LANE_DECODER_STATUS[5].u32;
 
 	// RESET all LANE_PACKER_STATUS ERRORS (R/W2C)
+	/*
 	sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
 	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[0].u32;
 	sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
 	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[1].u32;
 	sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
 	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32    = sXGSptr.HISPI.LANE_PACKER_STATUS[2].u32;
-
+	*/
 	// UN-RESET HISPI
 	sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI      = 0;
     rXGSptr.HISPI.CTRL.u32                 = sXGSptr.HISPI.CTRL.u32;
@@ -141,9 +142,9 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
 
-	rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
+	//rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
+	//rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
+	//rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
 	
     //At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
@@ -173,9 +174,9 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 			printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
 			printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
 			printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
-			printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
-			printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
-			printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
+			//printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
+			//printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
+			//printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);
 			return 0;
 		}
 
@@ -190,6 +191,8 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 		printf("Sensor not poweredUP!!! \n");
 		return 0;
 	}
+	printf("Why the heck we ended up here??? \n");
+	return 0;
 }
 
 
@@ -313,13 +316,13 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		if ( (Register & 0x00008000)  == 0x8000) { printf("\nLANE_DECODER_STATUS_[%d], CRC_ERROR", i);			    error_detect = 1; }
 	}
 
-	for (M_UINT32 i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
+	/*for (M_UINT32 i = 0; i < (rXGSptr.HISPI.PHY.f.NB_LANES/2); i++)
 	{
 		Register                 = rXGSptr.HISPI.LANE_PACKER_STATUS[i].u32;
 		Reg_HISPI_PACK_STATUS[i] = Register;
 		if ( (Register & 0x00000001) == 0x001) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_OVERRUN", i);              error_detect = 1; }
 		if ( (Register & 0x00000002) == 0x002) { printf("\nLANE_PACKER_STATUS_[%d], FIFO_UNDERRUN", i);				error_detect = 1; }
-	}							   
+	}		*/					   
 
 	if (error_detect == 1)
 	{

@@ -1044,8 +1044,8 @@ module testbench();
 				//   2 : Ramp 8bpp (MSB, +16pixel 12bpp)	
 				//				
 				//--------------------------------------------------
-				//GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
-				GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
+				//GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				XGS_imageSRC.load_image;                             // Load le .pgm dans la class SystemVerilog			
 
 				///////////////////////////////////////////////////
@@ -1102,13 +1102,12 @@ module testbench();
                 XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
 
 
-
                 //-------------------------------
                 // Back pressure configuration
 				//-------------------------------
                 tready_packet_delai_cfg    = 1; //random backpressure
 				tready_packet_random_min   = 1; 
-	            tready_packet_random_max   = 31;	
+	            tready_packet_random_max   = 25;	
 
 
 				///////////////////////////////////////////////////
@@ -1123,7 +1122,7 @@ module testbench();
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
-				SUB_Y       = 1;
+				SUB_Y       = 0;
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
 				host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
@@ -1158,6 +1157,7 @@ module testbench();
 				
 				ROI_Y_START = 0;             // Doit etre multiple de 4 
 				ROI_Y_SIZE  = 128;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
+				//ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) <= 3100 est le max qu'on peut mettre, attention!
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
@@ -1195,8 +1195,8 @@ module testbench();
 				end
 				
 				// Changeons le backpressure apres la premiere image								
-                tready_packet_delai_cfg = 0;   // Static backpressure
-                tready_packet_delai     = 0;  // ok
+                //tready_packet_delai_cfg = 0;   // Static backpressure
+                //tready_packet_delai     = 0;  // ok
                 //tready_packet_delai   = 28;  // overrun	
 
 
