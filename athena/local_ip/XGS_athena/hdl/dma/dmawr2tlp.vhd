@@ -199,6 +199,8 @@ architecture rtl of dmawr2tlp is
       );
   end component;
 
+  attribute mark_debug : string;
+  attribute keep       : string;
 
   constant C_S_AXI_ADDR_WIDTH  : integer := 8;
   constant C_S_AXI_DATA_WIDTH  : integer := 32;
@@ -223,6 +225,7 @@ architecture rtl of dmawr2tlp is
   signal line_ptr_width              : std_logic_vector(1 downto 0);
   signal max_line_buffer_cnt         : std_logic_vector(3 downto 0);
   signal pcie_back_pressure_detected : std_logic;
+  signal dbg_fifo_error              : std_logic;
 
 
   -----------------------------------------------------------------------------
@@ -233,7 +236,11 @@ architecture rtl of dmawr2tlp is
   signal dma_context_P1      : DMA_CONTEXT_TYPE;
   signal dma_context_mux     : DMA_CONTEXT_TYPE;
 
-
+  -----------------------------------------------------------------------------
+  -- Debug attributes 
+  -----------------------------------------------------------------------------
+  attribute mark_debug of   dbg_fifo_error              : signal is "true";
+ 
 begin
 
 
@@ -253,6 +260,11 @@ begin
   regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
   regfile.DMA.TLP.CFG_MAX_PLD   <= cfg_setmaxpld;
   regfile.DMA.TLP.BUS_MASTER_EN <= cfg_bus_mast_en;
+
+
+  -- Debug probe
+  dbg_fifo_error <=  regfile.HISPI.STATUS.FIFO_ERROR;
+  
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline

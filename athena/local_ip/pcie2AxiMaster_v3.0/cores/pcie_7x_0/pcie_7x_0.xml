@@ -3330,7 +3330,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:190b0b47</spirit:value>
+            <spirit:value>9:6c81576b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3345,11 +3345,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:53 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:44 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1ec2dafb</spirit:value>
+            <spirit:value>9:61e97741</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3365,11 +3365,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1ec2dafb</spirit:value>
+            <spirit:value>9:61e97741</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3380,7 +3380,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1ec2dafb</spirit:value>
+            <spirit:value>9:61e97741</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3396,11 +3396,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1ec2dafb</spirit:value>
+            <spirit:value>9:61e97741</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3416,11 +3416,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:6f9399a9</spirit:value>
+            <spirit:value>9:35420393</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3436,11 +3436,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:48 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:6f9399a9</spirit:value>
+            <spirit:value>9:35420393</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3454,11 +3454,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Thu Oct 29 14:17:57 UTC 2020</spirit:value>
+            <spirit:value>Tue Dec 08 15:20:48 UTC 2020</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:1ec2dafb</spirit:value>
+            <spirit:value>9:61e97741</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -10032,11 +10032,11 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>mps</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.mps">001</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.mps">010</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>cmps</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.cmps">1</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.cmps">2</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>ext_tag_fld_sup</spirit:name>
@@ -10088,15 +10088,15 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_perf_level_high</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_perf_level_high">FALSE</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_perf_level_high">TRUE</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_tx_last_tlp</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_tx_last_tlp">13</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_tx_last_tlp">29</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_rx_ram_limit</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_rx_ram_limit">1FF</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_rx_ram_limit">7FF</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_fc_ph</spirit:name>
@@ -10104,7 +10104,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_fc_pd</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_fc_pd">32</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_fc_pd">64</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_fc_nph</spirit:name>
@@ -10120,7 +10120,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_fc_cpld</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_fc_cpld">114</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.c_fc_cpld">850</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>c_cpl_inf</spirit:name>
@@ -11783,7 +11783,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Max_Payload_Size</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Max_Payload_Size" spirit:choiceRef="choice_pairs_3f2631bf" spirit:order="402">256_bytes</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Max_Payload_Size" spirit:choiceRef="choice_pairs_3f2631bf" spirit:order="402">512_bytes</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Extended_Tag_Field</spirit:name>
@@ -11823,7 +11823,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Perf_Level</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Perf_Level" spirit:choiceRef="choice_list_46d2cd6c" spirit:order="410">Good</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Perf_Level" spirit:choiceRef="choice_list_46d2cd6c" spirit:order="410">High</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Dll_Link_Active_Cap</spirit:name>

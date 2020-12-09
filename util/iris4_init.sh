@@ -41,6 +41,7 @@ fi
 export PROJECT_NAME="iris4"
 export ARES="${IRIS4}/ares_pcie"
 export ATHENA="${IRIS4}/athena"
+export XGS="${IRIS4}/athena/local_ip/XGS_athena"
 #export IPCORES="${ATHENA}/ipcores"
 export LOCAL_IP="${ATHENA}/local_ip"
 export PCIE2AXIMASTER="${LOCAL_IP}/pcie2AxiMaster_v3.0"
@@ -56,5 +57,6 @@ alias ares='cd ${ARES}'
 alias athena='cd ${ATHENA}'
 alias util='cd ${UTIL}'
 alias pcie2AxiMaster='cd ${PCIE2AXIMASTER}'
+alias xgs='cd ${XGS}'
 
 

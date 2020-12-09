@@ -71,10 +71,9 @@ ${DATA_SRC_PATH}/hispi_pack.vhd \
 ${DATA_SRC_PATH}/hispi_crc.vhd \
 ${DATA_SRC_PATH}/bit_split.vhd \
 ${DATA_SRC_PATH}/tap_controller.vhd \
+${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/lane_decoder.vhd \
 ${DATA_SRC_PATH}/hispi_phy.vhd \
-${DATA_SRC_PATH}/lane_packer.vhd \
-${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
 
@@ -100,6 +99,43 @@ ${DUT_SRC_PATH}/XGS_athena.vhd
 ]
 
 
+# set dut_fileset [join [list  [subst { 
+# ${REGISTERFILE_PATH}/regfile_xgs_athena.vhd \
+# ${CTRL_SRC_PATH}/led_status.vhd \
+# ${CTRL_SRC_PATH}/xgs_power.vhd \
+# ${CTRL_SRC_PATH}/xgs_spi.vhd \
+# ${CTRL_SRC_PATH}/xgs_ctrl.vhd \
+# ${CTRL_SRC_PATH}/XGS_controller_top.vhd \
+# ${DATA_SRC_PATH}/hispi_pack.vhd \
+# ${DATA_SRC_PATH}/hispi_crc.vhd \
+# ${DATA_SRC_PATH}/bit_split.vhd \
+# ${DATA_SRC_PATH}/tap_controller.vhd \
+# ${DATA_SRC_PATH}/line_buffer_v2.vhd \
+# ${DATA_SRC_PATH}/lane_decoder_v2.vhd \
+# ${DATA_SRC_PATH}/hispi_phy_v2.vhd \
+# ${DATA_SRC_PATH}/axi_line_streamer_v2.vhd \
+# ${DATA_SRC_PATH}/xgs_hispi_top_v2.vhd \
+# ${DATA_SRC_PATH}/lut/Infered_RAM_lut.vhd \
+# ${DATA_SRC_PATH}/lut/axi_lut.vhd \
+# ${DATA_SRC_PATH}/dpc/Infered_RAM.vhd \
+# ${DATA_SRC_PATH}/dpc/dpc_package.vhd \
+# ${DATA_SRC_PATH}/dpc/dpc_kernel_10x3.vhd \
+# ${DATA_SRC_PATH}/dpc/dpc_kernel_proc.vhd \
+# ${DATA_SRC_PATH}/dpc/dpc_filter.vhd \
+# ${DATA_SRC_PATH}/xgs_mono_pipeline_v2.vhd \
+# ${DMA_SRC_PATH}/dma_pack.vhd \
+# ${DMA_SRC_PATH}/axi_stream_in.vhd \
+# ${DMA_SRC_PATH}/dma_write.vhd \
+# ${DMA_SRC_PATH}/regfile_dmawr2tlp.vhd \
+# ${DMA_SRC_PATH}/dmawr2tlp.vhd \
+# ${SYSMON_SRC_PATH}/system_monitor.vhd \
+# ${DUT_SRC_PATH}/XGS_athena_v2.vhd
+# }
+# ]
+# ]
+# ]
+
+
 set model_file_list [join [list  [subst { 
 [file normalize "${XGS_MODEL_DIR}/xgs_model_pkg.vhd"]\
 [file normalize "${XGS_MODEL_DIR}/xgs_sensor_config.vhd"]\
@@ -115,9 +151,9 @@ set model_file_list [join [list  [subst {
 
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
+${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
 ${TESTBENCH_SRC_PATH}/Cimage.sv \
-${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/hispi_interface.sv \
 ${TESTBENCH_SRC_PATH}/tlp_interface.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd 

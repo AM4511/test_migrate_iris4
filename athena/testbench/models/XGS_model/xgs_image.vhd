@@ -338,7 +338,15 @@ end process LINE_COUNT_PROC;
 
 emb_data       <= '1' when (line_count = roi_start) else '0';
 first_line     <= '1' when line_count = roi_start else '0'; 
-last_line      <= '1' when line_count = roi_start+roi_size else '0'; 
+  --last_line      <= '1' when line_count = roi_start+roi_size                          else '0';
+
+  -- [AM] Fixed the last_line flag. This flag should take into account the
+  -- sub-sampling factor. The EOF sync was not generated because the last _line
+  -- flag was not asserted when the subsampling factor was enabled.
+  last_line <= '1' when (line_count = roi_start+roi_size) and (y_subsampling = '0') else
+               '1' when (line_count = roi_start+roi_size-1) and (y_subsampling = '1') else
+               '0';
+
 dataline_valid <= '1' when frame_valid = '1' and line_count <= (roi_start+roi_size) else '0';
 
 

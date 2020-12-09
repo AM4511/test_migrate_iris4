@@ -26,9 +26,10 @@ use work.hispi_pack.all;
 
 entity hispi_phy is
   generic (
-    LANE_PER_PHY : integer := 3;        -- Physical lane
-    PIXEL_SIZE   : integer := 12;       -- Pixel size in bits
-    PHY_ID       : integer := 0
+    LANE_PER_PHY   : integer := 3;      -- Physical lane
+    PIXEL_SIZE     : integer := 12;     -- Pixel size in bits
+    WORD_PTR_WIDTH : integer := 6;
+    PHY_ID         : integer := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ entity hispi_phy is
     regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
     ---------------------------------------------------------------------------
-    -- sclk clock domain
+    -- System clock domain
     ---------------------------------------------------------------------------
     sclk                   : in  std_logic;
     sclk_reset             : in  std_logic;
@@ -61,18 +62,21 @@ entity hispi_phy is
     sclk_start_calibration : in  std_logic;
     sclk_calibration_done  : out std_logic;
 
-    -- Read fifo interface
-    sclk_fifo_read_en         : in  std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_fifo_empty           : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_fifo_read_data_valid : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_fifo_read_data       : out std32_logic_vector(LANE_PER_PHY-1 downto 0);
-    sclk_fifo_read_sync       : out std4_logic_vector(LANE_PER_PHY-1 downto 0)
+    ---------------------------------------------------------------------------
+    -- Sync
+    ---------------------------------------------------------------------------
+    sclk_sof : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
 
-    -- Flags 
-    -- sclk_sof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    -- sclk_eof_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    -- sclk_sol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0);
-    -- sclk_eol_flag : out std_logic_vector(LANE_PER_PHY-1 downto 0)
+    ---------------------------------------------------------------------------
+    -- Line buffer interface
+    ---------------------------------------------------------------------------
+    sclk_transfer_done   : in  std_logic;
+    sclk_buffer_empty    : out std_logic_vector(LANE_PER_PHY - 1 downto 0);
+    sclk_buffer_read_en  : in  std_logic;
+    sclk_buffer_lane_id  : in  std_logic_vector(1 downto 0);
+    sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
+    sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+    sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
     );
 
 end entity hispi_phy;
@@ -116,6 +120,7 @@ architecture rtl of hispi_phy is
       PHY_OUTPUT_WIDTH : integer := 6;   -- Physical lane
       PIXEL_SIZE       : integer := 12;  -- Pixel size in bits
       LANE_DATA_WIDTH  : integer := 32;
+      WORD_PTR_WIDTH   : integer := 6;
       LANE_ID          : integer := 0
       );
     port (
@@ -148,25 +153,26 @@ architecture rtl of hispi_phy is
       rclk_reset : in    std_logic;
       regfile    : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
-      ---------------------------------------------------------------------------
-      -- sclk clock domain
-      ---------------------------------------------------------------------------
+      ---------------------------------------------------------------------
+      -- System clock domain
+      ---------------------------------------------------------------------
       sclk       : in std_logic;
       sclk_reset : in std_logic;
 
-      -- Read fifo interface
-      sclk_fifo_read_en         : in  std_logic;
-      sclk_fifo_empty           : out std_logic;
-      sclk_fifo_read_data_valid : out std_logic;
-      sclk_fifo_read_data       : out std_logic_vector(LANE_DATA_WIDTH-1 downto 0);
-      sclk_fifo_read_sync       : out std_logic_vector(3 downto 0)
+      ---------------------------------------------------------------------------
+      -- Sync
+      ---------------------------------------------------------------------------
+      sclk_sof : out std_logic;
 
-      -- Flags
-      -- sclk_embeded_data : out std_logic;
-      -- sclk_sof_flag : out std_logic;
-      -- sclk_eof_flag : out std_logic;
-      -- sclk_sol_flag : out std_logic;
-      -- sclk_eol_flag : out std_logic
+      ---------------------------------------------------------------------------
+      -- Line buffer interface
+      ---------------------------------------------------------------------------
+      sclk_transfer_done   : in  std_logic;
+      sclk_buffer_empty    : out std_logic;
+      sclk_buffer_read_en  : in  std_logic;
+      sclk_buffer_mux_id   : in  std_logic_vector(1 downto 0);
+      sclk_buffer_word_ptr : in  std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+      sclk_buffer_data     : out PIXEL_ARRAY(2 downto 0)
       );
   end component;
 
@@ -212,6 +218,7 @@ architecture rtl of hispi_phy is
   type SHIFT_REG_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (HISPI_SHIFT_REGISTER_SIZE - 1 downto 0);
   type REG_ALIGNED_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (PIXEL_SIZE- 1 downto 0);
   type LANE_DATA_ARRAY is array (LANE_PER_PHY - 1 downto 0) of std_logic_vector (DESERIALIZATION_RATIO - 1 downto 0);
+  type PIXEL_ARRAY_MUX_TYPE is array (LANE_PER_PHY - 1 downto 0) of PIXEL_ARRAY(2 downto 0);
 
   signal bitslip : std_logic_vector(LANE_PER_PHY-1 downto 0) := (others => '0');
 
@@ -249,7 +256,6 @@ architecture rtl of hispi_phy is
   signal pclk_cal_monitor_done  : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_cal_busy          : std_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_valid             : std_logic_vector(LANE_PER_PHY-1 downto 0);
-  --signal pclk_cal_tap_value     : std_logic_vector((5*LANE_PER_PHY)-1 downto 0);
   signal pclk_cal_tap_value     : std5_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_tap_histogram     : std32_logic_vector(LANE_PER_PHY-1 downto 0);
   signal pclk_tap_cntr          : std_logic_vector(4 downto 0) := (others => '0');
@@ -260,25 +266,9 @@ architecture rtl of hispi_phy is
   signal rclk_nb_lanes               : std_logic_vector(2 downto 0);
   signal rclk_tap_histogram          : std32_logic_vector(LANE_PER_PHY-1 downto 0);
 
-
-  attribute mark_debug of hclk_reset_vect              : signal is "true";
-  attribute mark_debug of hclk_reset                   : signal is "true";
-  attribute mark_debug of hclk_state                   : signal is "true";
-  attribute mark_debug of hclk_start_calibration       : signal is "true";
-  attribute mark_debug of hclk_serdes_data             : signal is "true";
-  attribute mark_debug of hclk_manual_calibration_load : signal is "true";
-
-  attribute mark_debug of pclk_cal_en        : signal is "true";
-  attribute mark_debug of pclk_cal_busy      : signal is "true";
---  attribute mark_debug of pclk_cal_load_tap  : signal is "true";
-  attribute mark_debug of pclk_cal_tap_value : signal is "true";
-
-  attribute mark_debug of rclk_latch_cal_status : signal is "true";
-  attribute mark_debug of hclk_delay_reset      : signal is "true";
-  attribute mark_debug of hclk_delay_tap_in     : signal is "true";
-  attribute mark_debug of hclk_delay_tap_out    : signal is "true";
-  attribute mark_debug of hclk_delay_data_ce    : signal is "true";
-  attribute mark_debug of hclk_delay_data_inc   : signal is "true";
+  signal sclk_buffer_read_en_vect : std_logic_vector(LANE_PER_PHY-1 downto 0);
+  signal sclk_buffer_data_vect    : PIXEL_ARRAY_MUX_TYPE;
+  signal sclk_buffer_data_mux_sel : integer range 0 to LANE_PER_PHY-1;
 
 
 begin
@@ -397,6 +387,42 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_buffer_data_mux_sel
+  -- Description : Pipelined mux selector for the sclk_buffer_data
+  -----------------------------------------------------------------------------
+  P_sclk_buffer_data_mux_sel : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (sclk_reset = '1')then
+        sclk_buffer_data_mux_sel <= 0;
+      else
+        if (sclk_buffer_read_en = '1') then
+          sclk_buffer_data_mux_sel <= to_integer(unsigned(sclk_buffer_lane_id));
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_sclk_buffer_data
+  -- Description : Data mux used to extract data from each lane_decoder
+  -----------------------------------------------------------------------------
+  P_sclk_buffer_data : process (sclk_buffer_data_mux_sel, sclk_buffer_data_vect) is
+  begin
+    for i in 0 to LANE_PER_PHY-1 loop
+      if (i = sclk_buffer_data_mux_sel) then
+        sclk_buffer_data <= sclk_buffer_data_vect(i);
+        exit;
+      else
+        sclk_buffer_data <= (others => (others => '0'));
+      end if;
+    end loop;
+  end process;
+
+
+
   G_lane_decoder : for i in 0 to LANE_PER_PHY-1 generate
 
     ---------------------------------------------------------------------------
@@ -420,50 +446,51 @@ begin
 
 
     ---------------------------------------------------------------------------
+    -- Lane buffer read interface
+    ---------------------------------------------------------------------------
+    sclk_buffer_read_en_vect(i) <= sclk_buffer_read_en when (i = to_integer(unsigned(sclk_buffer_lane_id))) else
+                                   '0';
+
+    ---------------------------------------------------------------------------
     -- Lane decoder module
     ---------------------------------------------------------------------------
-    inst_lane_decoder : lane_decoder
+    xlane_decoder : lane_decoder
       generic map(
         PHY_OUTPUT_WIDTH => DESERIALIZATION_RATIO,
         PIXEL_SIZE       => PIXEL_SIZE,
         LANE_DATA_WIDTH  => LANE_DATA_WIDTH,
+        WORD_PTR_WIDTH   => WORD_PTR_WIDTH,
         LANE_ID          => (2*i) + PHY_ID
         )
       port map(
-        hclk                      => hclk,
-        hclk_reset                => hclk_lane_reset(i),
-        hclk_lane_enable          => hclk_lane_enable(i),
-        hclk_data_lane            => hclk_lane_data(i),
-        pclk                      => pclk,
-        pclk_reset                => pclk_reset,
-        pclk_cal_en               => pclk_cal_en,
-        pclk_cal_start_monitor    => pclk_cal_start_monitor,
-        pclk_tap_cntr             => pclk_tap_cntr,
-        pclk_valid                => pclk_valid(i),
-        pclk_cal_monitor_done     => pclk_cal_monitor_done(i),
-        pclk_cal_busy             => pclk_cal_busy(i),
-        pclk_cal_tap_value        => pclk_cal_tap_value(i),
-        pclk_tap_histogram        => pclk_tap_histogram(i),
-        rclk                      => rclk,
-        rclk_reset                => rclk_reset,
-        regfile                   => regfile,
-        sclk                      => sclk,
-        sclk_reset                => sclk_reset,
-        sclk_fifo_read_en         => sclk_fifo_read_en(i),
-        sclk_fifo_empty           => sclk_fifo_empty(i),
-        sclk_fifo_read_data_valid => sclk_fifo_read_data_valid(i),
-        sclk_fifo_read_data       => sclk_fifo_read_data(i),
-        sclk_fifo_read_sync       => sclk_fifo_read_sync(i) 
-        -- sclk_sof_flag             => sclk_sof_flag(i),
-        -- sclk_eof_flag             => sclk_eof_flag(i),
-        -- sclk_sol_flag             => sclk_sol_flag(i),
-        -- sclk_eol_flag             => sclk_eol_flag(i)
+        hclk                   => hclk,
+        hclk_reset             => hclk_lane_reset(i),
+        hclk_lane_enable       => hclk_lane_enable(i),
+        hclk_data_lane         => hclk_lane_data(i),
+        pclk                   => pclk,
+        pclk_reset             => pclk_reset,
+        pclk_cal_en            => pclk_cal_en,
+        pclk_cal_start_monitor => pclk_cal_start_monitor,
+        pclk_tap_cntr          => pclk_tap_cntr,
+        pclk_valid             => pclk_valid(i),
+        pclk_cal_monitor_done  => pclk_cal_monitor_done(i),
+        pclk_cal_busy          => pclk_cal_busy(i),
+        pclk_cal_tap_value     => pclk_cal_tap_value(i),
+        pclk_tap_histogram     => pclk_tap_histogram(i),
+        rclk                   => rclk,
+        rclk_reset             => rclk_reset,
+        regfile                => regfile,
+        sclk                   => sclk,
+        sclk_reset             => sclk_reset,
+        sclk_sof               => sclk_sof(i),
+        sclk_transfer_done     => sclk_transfer_done,
+        sclk_buffer_empty      => sclk_buffer_empty(i),
+        sclk_buffer_read_en    => sclk_buffer_read_en_vect(i),
+        sclk_buffer_mux_id     => sclk_buffer_mux_id,
+        sclk_buffer_word_ptr   => sclk_buffer_word_ptr,
+        sclk_buffer_data       => sclk_buffer_data_vect(i)
         );
-
-
   end generate G_lane_decoder;
-
-
 
 
 
@@ -538,7 +565,6 @@ begin
       if (hclk_manual_calibration_en = '1') then
         hclk_delay_tap_in <= rclk_manual_calibration_tap;
       elsif (hclk_state = S_LOAD_RESULT) then
-        --hclk_delay_tap_in <= pclk_cal_tap_value;
         hclk_delay_tap_in((5*i)+4 downto (5*i)) <= pclk_cal_tap_value(i);
       else
         -- During calibration we use the tap counter value
@@ -744,7 +770,7 @@ begin
 
   pclk_cal_en <= hclk_cal_en_pulse(0);
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_calibration_pending
   -- Description : 
@@ -764,7 +790,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_hclk_state
   -- Description : Calibration FSM
@@ -789,14 +815,14 @@ begin
               hclk_state <= S_IDLE;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_INIT : Initialize the calibration process.
           -------------------------------------------------------------------
           when S_INIT =>
             hclk_state <= S_LOAD_TAP_CNTR;
 
-            
+
           -------------------------------------------------------------------
           -- S_RESET_TAP_CNTR : 
           -------------------------------------------------------------------
@@ -808,7 +834,7 @@ begin
               hclk_state <= S_LOAD_TAP_CNTR;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_STABILIZE_TIME : Wait for the IDLE detection mechanism to
           --                    stabilize
@@ -821,7 +847,7 @@ begin
               hclk_state     <= S_STABILIZE_TIME;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_START_MONITOR : Ask the tap controller to start monitoring valid
           --                   IDLE characters
@@ -829,7 +855,7 @@ begin
           when S_START_MONITOR =>
             hclk_state <= S_MONITOR;
 
-            
+
           -------------------------------------------------------------------
           -- S_MONITOR : Wait until the IDLE characters monitoring process is
           --             completed
@@ -847,14 +873,14 @@ begin
               end if;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_INCR_TAP : 
           -------------------------------------------------------------------
           when S_INCR_TAP_CNTR =>
             hclk_state <= S_LOAD_TAP_CNTR;
 
-            
+
           -------------------------------------------------------------------
           -- S_WAIT_RESULT : 
           -------------------------------------------------------------------
@@ -864,21 +890,21 @@ begin
               hclk_state <= S_LOAD_RESULT;
             end if;
 
-            
+
           -------------------------------------------------------------------
           -- S_LOAD_RESULT : 
           -------------------------------------------------------------------
           when S_LOAD_RESULT =>
             hclk_state <= S_DONE;
 
-            
+
           -------------------------------------------------------------------
           -- S_DONE : 
           -------------------------------------------------------------------
           when S_DONE =>
             hclk_state <= S_IDLE;
 
-            
+
           -------------------------------------------------------------------
           -- 
           -------------------------------------------------------------------

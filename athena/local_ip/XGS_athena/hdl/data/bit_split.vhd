@@ -89,21 +89,21 @@ architecture rtl of bit_split is
   -----------------------------------------------------------------------------
   -- Debug attributes
   -----------------------------------------------------------------------------
-  attribute mark_debug of hclk_reset     : signal is "true";
-  attribute mark_debug of hclk_data_lane : signal is "true";
-  attribute mark_debug of hclk_idle_char : signal is "true";
+  -- attribute mark_debug of hclk_reset     : signal is "true";
+  -- attribute mark_debug of hclk_data_lane : signal is "true";
+  -- attribute mark_debug of hclk_idle_char : signal is "true";
 
-  attribute mark_debug of hclk_data           : signal is "true";
-  attribute mark_debug of hclk_phase          : signal is "true";
-  attribute mark_debug of hclk_shift_register : signal is "true";
-  attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
-  attribute mark_debug of hclk_idle_detected  : signal is "true";
-  attribute mark_debug of hclk_lock_cntr      : signal is "true";
-  attribute mark_debug of hclk_bit_locked     : signal is "true";
+  -- attribute mark_debug of hclk_data           : signal is "true";
+  -- attribute mark_debug of hclk_phase          : signal is "true";
+  -- attribute mark_debug of hclk_shift_register : signal is "true";
+  -- attribute mark_debug of hclk_lsb_ptr_reg    : signal is "true";
+  -- attribute mark_debug of hclk_idle_detected  : signal is "true";
+  -- attribute mark_debug of hclk_lock_cntr      : signal is "true";
+  -- attribute mark_debug of hclk_bit_locked     : signal is "true";
 
-  attribute mark_debug of hclk_idle_detect_en : signal is "true";
-  attribute mark_debug of pclk_bit_locked     : signal is "true";
-  attribute mark_debug of pclk_data           : signal is "true";
+  -- attribute mark_debug of hclk_idle_detect_en : signal is "true";
+  -- attribute mark_debug of pclk_bit_locked     : signal is "true";
+  -- attribute mark_debug of pclk_data           : signal is "true";
 
 
 begin

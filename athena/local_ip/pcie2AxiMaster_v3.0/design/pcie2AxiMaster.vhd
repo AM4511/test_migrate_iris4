@@ -1020,16 +1020,17 @@ architecture struct of pcie2AxiMaster is
   signal tlp_error_overrun : std_logic := '0';
   signal tlp_next_address  : std_logic_vector(regfile.debug.DMA_DEBUG1.ADD_START'range);
 
-  attribute mark_debug of curr_debug_dma_state : signal is "true";
-  attribute mark_debug of tlp_error_add        : signal is "true";
-  attribute mark_debug of tlp_error_overrun    : signal is "true";
-  attribute mark_debug of tlp_next_address     : signal is "true";
-
+ 
   -- Arbiter signals
   signal AGENT_REQ  : std_logic_vector(1 downto 0);
   signal AGENT_REC  : std_logic_vector(1 downto 0);
   signal AGENT_ACK  : std_logic_vector(1 downto 0);
   signal AGENT_DONE : std_logic_vector(1 downto 0);
+
+  -- attribute mark_debug of curr_debug_dma_state : signal is "true";
+  -- attribute mark_debug of tlp_error_add        : signal is "true";
+  -- attribute mark_debug of tlp_error_overrun    : signal is "true";
+  -- attribute mark_debug of tlp_next_address     : signal is "true";
 
 
 
