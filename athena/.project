@@ -24,4 +24,10 @@
 			<locationURI>svext://athena</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>XGS_athena</name>
+			<value>$%7BPROJECT_LOC%7D/local_ip/XGS_athena</value>
+		</variable>
+	</variableList>
 </projectDescription>

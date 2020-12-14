@@ -8,9 +8,9 @@
       </fields>
     </registers>
     <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;0.1.0  : First functionnal revision&#xD;&#xA;0.2.0  : Removed tha lane_packer module" offsetFromParent="4">
-      <fields name="MAJOR" lsb="16" size="8" readWrite="false" staticVal="true"/>
+      <fields name="MAJOR" lsb="16" size="8" valueAtReset="a" readWrite="false" staticVal="true"/>
       <fields name="MINOR" lsb="8" size="8" valueAtReset="2" readWrite="false" staticVal="true"/>
-      <fields name="HW" size="8" readWrite="false" staticVal="true"/>
+      <fields name="HW" size="8" valueAtReset="3" readWrite="false" staticVal="true"/>
     </registers>
     <registers name="CAPABILITY" alias="Register file version" offsetFromParent="8">
       <fields name="VALUE" size="8" readWrite="false" staticVal="true"/>

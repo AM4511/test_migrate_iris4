@@ -9,7 +9,7 @@
  * TODO: Add class documentation
  */
 
-
+import fdkide_pkg::*;
 
 
 class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, int NUMB_OUTPUT_IO=1);
@@ -123,7 +123,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 	endtask
 
 
-    //////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////
 	//
 	// Task  : wait_events
 	//
@@ -142,7 +142,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 				$display("%0t Event #%0d/%0d detected on gpio.input_io[%0d]",$time, event_cntr, number_of_events, eventID);
 
 				if(event_cntr == number_of_events) begin
-				  return;
+					return;
 				end
 			end
 			else timeout_cntr--;
@@ -292,6 +292,49 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 
 	endtask
 
+	//////////////////////////////////////////////////////////////
+	//
+	// Task  : reg_write
+	//
+	// Description : Produce AXI Lite register Write transaction
+	//
+	//////////////////////////////////////////////////////////////
+	task reg_write (
+		input Cregister register,
+		input int timeout_count = 1000,
+		input int verbose = 1
+		);
+		
+		int inputAddr;
+		int inputData;	
+		int inputStrb;
+ 
+		inputAddr = register.get_address();
+		inputData = register.data;
+		inputStrb = 'hf;
+		this.write (inputAddr, inputData,inputStrb,timeout_count,verbose);	
+	endtask
+
+	
+	//////////////////////////////////////////////////////////////
+	//
+	// Task  : reg_read
+	//
+	// Description : Execute AXI Lite Read transaction
+	//
+	//////////////////////////////////////////////////////////////
+	task reg_read (
+		inout Cregister register,
+		input int timeout_count = 1000,
+		input int verbose = 1
+		);
+		longint readData;
+		
+		longint inputAddr = register.get_address();
+		this.read (inputAddr,readData,timeout_count,verbose);
+		register.data = readData;
+	endtask
+	
 
 	//////////////////////////////////////////////////////////////
 	//
@@ -405,14 +448,14 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		readData = axil.rdata;
 		if(verbose) $display("\t\tRead data: 0x%h",readData);
 
-		//		assert ((axil.rdata & readMask) == expectedData)
-		//			$display("%t  Data: 0x%h",$time,axil.rdata);
-		//		else
-		//		begin
-		//			string message;
-		//			$sformat(message, "%t  Returned data: 0x%h",$time,axil.rdata);
-		//			this.throw_error(message);
-		//		end
+			//		assert ((axil.rdata & readMask) == expectedData)
+			//			$display("%t  Data: 0x%h",$time,axil.rdata);
+			//		else
+			//		begin
+			//			string message;
+			//			$sformat(message, "%t  Returned data: 0x%h",$time,axil.rdata);
+			//			this.throw_error(message);
+			//		end
 
 		/////////////////////////////////////////////////////////
 		// Validate read response status
