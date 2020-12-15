@@ -52,9 +52,9 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n**************************************\n");
-	printf(    "*    Executing Test0002_2xROIcpp    *\n");
-	printf(    "**************************************\n\n");
+	printf_s("\n\n**************************************\n");
+	printf_s(    "*    Executing Test0002_2xROIcpp    *\n");
+	printf_s(    "**************************************\n\n");
 
 
 
@@ -77,17 +77,17 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	ImageBufferAddr      = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
-	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+	printf_s("Adresse buffer display (MemPtr) = 0x%llx \n", ImageBufferAddr);
+	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 	// Init Display with correct X-Y parameters 
 	ImageBufferAddr2      = LayerCreateGrabBuffer(&MilGrabBuffer2, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch2 = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer2, &MilDisplay2, 1);
-	printf("Adresse buffer display 2 (MemPtr) = 0x%llx \n", ImageBufferAddr2);
-	printf("Line Pitch buffer display 2(MemPtr) = 0x%llx \n", ImageBufferLinePitch2);
+	printf_s("Adresse buffer display 2 (MemPtr) = 0x%llx \n", ImageBufferAddr2);
+	printf_s("Line Pitch buffer display 2(MemPtr) = 0x%llx \n", ImageBufferLinePitch2);
 
-	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
+	//printf_s("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
 	//ch = _getch();
 	ch = '1';
 
@@ -95,7 +95,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		DisplayOn = false;
 	else
 		DisplayOn = true;
-	printf("\n");
+	printf_s("\n");
 
 
 	//---------------------
@@ -120,13 +120,13 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::IMMEDIATE, TRIGGER_ACT::RISING);
 
 
 
 
 
-	printf("\n\nTest started at : ");
+	printf_s("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
 
 
@@ -156,20 +156,20 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// START GRAB 
 	//---------------------
-	printf("\n");
-	printf("\n  (q) Quit this test");
-	printf("\n  (f) Dump image to .tiff file");
-	printf("\n  (d) Dump XGS controller registers(PCIe)");
-	printf("\n  (g) Change Analog Gain");
-	printf("\n  (b) Change Black Offset(XGS Data Pedestal)");
-	printf("\n  (e) Exposure Incr/Decr gap");
-	printf("\n  (+) Increase Exposure");
-	printf("\n  (-) Decrease Exposure");
-	printf("\n  (p) Pause grab");
-	printf("\n  (y) Set new ROI (Y-only)");
-	printf("\n  (r) Read current ROI configuration in XGS");
-	printf("\n  (S) Subsampling mode");
-	printf("\n\n");
+	printf_s("\n");
+	printf_s("\n  (q) Quit this test");
+	printf_s("\n  (f) Dump image to .tiff file");
+	printf_s("\n  (d) Dump XGS controller registers(PCIe)");
+	printf_s("\n  (g) Change Analog Gain");
+	printf_s("\n  (b) Change Black Offset(XGS Data Pedestal)");
+	printf_s("\n  (e) Exposure Incr/Decr gap");
+	printf_s("\n  (+) Increase Exposure");
+	printf_s("\n  (-) Decrease Exposure");
+	printf_s("\n  (p) Pause grab");
+	printf_s("\n  (y) Set new ROI (Y-only)");
+	printf_s("\n  (r) Read current ROI configuration in XGS");
+	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n\n");
 
 	unsigned long fps_reg;
 	
@@ -304,12 +304,12 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			{
 			case 'q':
 				Sortie = 1;
-				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+				XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
 				XGS_Data->HiSpiClr();
 				XGS_Ctrl->DisableXGS();
-				printf("\n\n");
-				printf("Exit! \n");
+				printf_s("\n\n");
+				printf_s("Exit! \n");
 				break;
 
 			case 'd':
@@ -325,28 +325,28 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				MIL_TEXT_CHAR FileName[50];
 				MosSprintf(FileName, 50, MIL_TEXT("./Images_dump/Image_Test0001_%d.tiff"), FileDumpNum);
 #if M_MIL_UNICODE_API
-				printf("\nPrinting .tiff file: %S\n", FileName);
+				printf_s("\nPrinting .tiff file: %S\n", FileName);
 #else
-				printf("\nPrinting .tiff file: %s\n", FileName);
+				printf_s("\nPrinting .tiff file: %s\n", FileName);
 #endif
 				MbufSave(FileName, MilGrabBuffer);
 				break;
 
 
 			case 'e':
-				printf("\nEnter the ExposureIncr/Decr in us : ");
+				printf_s("\nEnter the ExposureIncr/Decr in us : ");
 				scanf_s("%d", &ExposureIncr);
-				printf("\n");
+				printf_s("\n");
 				break;
 
 			case '+':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() + ExposureIncr);
-				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
+				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
 				break;
 
 			case '-':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() - ExposureIncr);
-				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
+				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
 				break;
 
 			case 'g':
@@ -356,11 +356,11 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					XGS_Ctrl->setAnalogGain(4);
 				else if (GrabParams->ANALOG_GAIN == 7) //if curr=4x -> set 1x
 					XGS_Ctrl->setAnalogGain(1);
-				printf("\n");
+				printf_s("\n");
 				break;
 
 			case 'b':
-				printf("\nEnter Black Offset in HEX (Data Pedestal, 0-0xfff LSB12) : 0x");
+				printf_s("\nEnter Black Offset in HEX (Data Pedestal, 0-0xfff LSB12) : 0x");
 				scanf_s("%x", &BlackOffset);
 				XGS_Ctrl->setBlackRef(BlackOffset);			
 				break;
@@ -378,7 +378,7 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	}
 
 	fps_reg = XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.u32;
-	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+	printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
 	// Free MIL Display
@@ -395,9 +395,9 @@ void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//----------------------
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
 
-	printf("\n\n********************************\n");
-	printf("*    End of Test0000.cpp    *\n");
-	printf("********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s("*    End of Test0000.cpp    *\n");
+	printf_s("********************************\n\n");
 
    }
 

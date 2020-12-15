@@ -35,14 +35,14 @@ void AsyncAbortThread_0005(void* In)
 	while (StopAbortThread_0005 == FALSE)
 	{
 		if(!AcquireOsMutex(&AbortRunning_0005))
-			printf("\nError acquiring mutex.\n");
+			printf_s("\nError acquiring mutex.\n");
 
 		nb_aborts_ok = nb_aborts_ok + XGS_Ctrl->GrabAbort();                  // Abort in FPGA
 
-		printf(" NB Aborts: %d    \r", nb_aborts_ok);
+		printf_s(" NB Aborts: %d    \r", nb_aborts_ok);
 
 		if(!ReleaseOsMutex(&AbortRunning_0005))
-			printf("\nError releasing mutex.\n");
+			printf_s("\nError releasing mutex.\n");
 
 		//VarDelai = (rand1(750) + 250); // Delai entre 250ms et 1000 ms
 		VarDelai = rand1(250) + 500;
@@ -62,7 +62,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	srand1((unsigned)clock());
 
 	if(!CreateOsMutex(&AbortRunning_0005))
-		printf("\nError creating mutex.\n");
+		printf_s("\nError creating mutex.\n");
 
 	#ifdef __linux__
 	pthread_t pthreadid;
@@ -100,9 +100,9 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0005    *\n");
-	printf(    "********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s(    "*    Executing Test0005    *\n");
+	printf_s(    "********************************\n\n");
 
 
 
@@ -125,8 +125,8 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	ImageBufferAddr      = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2* SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 
 	//---------------------
@@ -152,7 +152,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::SW_TRIG, TRIGGER_ACT::RISING);
 
 
 	//---------------------
@@ -163,7 +163,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 
-	printf("\n\nTest started at : ");
+	printf_s("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
 
 	//------------------------------------
@@ -193,12 +193,12 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// START GRAB 
 	//---------------------
-	printf("\n");
+	printf_s("\n");
 
-	printf("\n  (q) Quit this test");
-	printf("\n  (A) Start second thread aborting (to be tested)");
-	printf("\n  (r) Start randomize");
-	printf("\n\n");
+	printf_s("\n  (q) Quit this test");
+	printf_s("\n  (A) Start second thread aborting (to be tested)");
+	printf_s("\n  (r) Start randomize");
+	printf_s("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
@@ -214,7 +214,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		// Waiting for second async thread to fininsh the grab abort before start another grab
 		if(!AcquireOsMutex(&AbortRunning_0005))
-			printf("\nError acquiring mutex.\n");
+			printf_s("\nError acquiring mutex.\n");
 
 		if (random == 1)
 		{
@@ -232,13 +232,13 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		if (OverrunPixel != 0)
 		{
 			Overrun++;
-			printf("\rDMA Overflow detected: %d\n", Overrun);
+			printf_s("\rDMA Overflow detected: %d\n", Overrun);
 			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
 		}
 
 
 		if(!ReleaseOsMutex(&AbortRunning_0005))
-			printf("\nError releasing mutex.\n");
+			printf_s("\nError releasing mutex.\n");
 
 		if (DisplayOn)
 		{
@@ -254,7 +254,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'A':
 				#ifdef __linux__
 				if(pthread_create(&pthreadid, NULL, AsyncAbortThread_0005, XGS_Ctrl) != 0)
-					printf("\nError creating abort thread.\n");
+					printf_s("\nError creating abort thread.\n");
 				#else
 				_beginthread(AsyncAbortThread_0005, NULL, XGS_Ctrl);
 				#endif
@@ -264,29 +264,29 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				if (random == 0)
 				{
 					random = 1;
-					printf("\nEnter Const exp in us : ");
+					printf_s("\nEnter Const exp in us : ");
 					scanf_s("%d", &const_exp);
-					printf("\nEnter Random exp max in us : ");
+					printf_s("\nEnter Random exp max in us : ");
 					scanf_s("%d", &rand_exp_max);
 
-					printf("\nExposure, Exposure delay, and Strobe randomnized.\n");
+					printf_s("\nExposure, Exposure delay, and Strobe randomnized.\n");
 				}
 				else
 				{
 					random = 0;
-					printf("\nFixed Exposure.\n");
+					printf_s("\nFixed Exposure.\n");
 				}
 				break;
 
 
 			case 'q':
 				Sortie = 1;
-				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+				XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
 				XGS_Data->HiSpiClr();
 				XGS_Ctrl->DisableXGS();
-				printf("\n\n");
-				printf("Exit! \n");
+				printf_s("\n\n");
+				printf_s("Exit! \n");
 				break;
 
 
@@ -300,7 +300,7 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+	printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
 	// Free MIL Display
@@ -319,11 +319,11 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	StopAbortThread_0005 = TRUE;
 	Sleep(1500);
 	if(!DestroyOsMutex(&AbortRunning_0005))
-		printf("\nError destroying mutex.\n");
+		printf_s("\nError destroying mutex.\n");
 
-	printf("\n\n********************************\n");
-	printf("*    End of Test0005.cpp    *\n");
-	printf("********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s("*    End of Test0005.cpp    *\n");
+	printf_s("********************************\n\n");
 
    }
 

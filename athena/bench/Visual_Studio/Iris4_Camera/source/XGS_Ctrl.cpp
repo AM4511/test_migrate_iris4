@@ -38,9 +38,9 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 	GrabParams = {
 		0,              //TRIGGER_OVERLAP_BUFFn
 		1,              //TRIGGER OVERLAP 
-		NONE,           //TRIGGER_SOURCE;
-		RISING,         //TRIGGER_ACTIVATION;
-		EXP_TIMED_MODE, //EXPOSURE_LEV_MODE;
+		TRIGGER_SRC::NONE,           //TRIGGER_SOURCE;
+		TRIGGER_ACT::RISING,         //TRIGGER_ACTIVATION;
+		LEVEL_EXP_MODE::EXP_TIMED_MODE, //EXPOSURE_LEV_MODE;
 
 		0x4c4b4,       //ExposureSS, 5us
 		0x0,           //ExposureDS,
@@ -180,16 +180,16 @@ void CXGS_Ctrl::WriteSPI_BURST(const M_UINT32 table[], int NbElements)
 	int i;
 	M_UINT32 add;
 	M_UINT32 data;
-	printf("   SPI WRITE BURST : ");
+	printf_s("   SPI WRITE BURST : ");
 	for (i = 0; i < (NbElements - 1); i++)
 	{
 		add = table[0] + (i * 2);
 		data = table[i + 1];
 		WriteSPI(add, data);
-		//printf("\nSPI WRITE BURST : number=%d add=0x%X data=0x%X", i, add, data);
+		//printf_s("\nSPI WRITE BURST : number=%d add=0x%X data=0x%X", i, add, data);
 	}
-	//printf("\n");
-	printf("\r   SPI WRITE BURST : total writes=%d\n", i);
+	//printf_s("\n");
+	printf_s("\r   SPI WRITE BURST : total writes=%d\n", i);
 
 }
 
@@ -224,9 +224,9 @@ void CXGS_Ctrl::WriteSPI_Bit(M_UINT32 address, M_UINT32 Bit2Write, M_UINT32 data
 	M_UINT32 verify = ReadSPI(address);
 	Sleep(1);
 	if (verify != NewValue) {
-		printf("\n\nSPI VERIFY FAIL\n\n\n");
-		printf("Press enter to exit!!!\n\n");
-		_getch();
+		printf_s("\n\nSPI VERIFY FAIL\n\n\n");
+		printf_s("Press enter to exit!!!\n\n");
+		getch_return = _getch();
 		exit(1);
 	}
 
@@ -278,15 +278,15 @@ void CXGS_Ctrl::PollRegSPI(M_UINT32 address, M_UINT32 maskN, M_UINT32 Data2Poll,
 
 		if (nb_iter > TimeOut)
 		{
-			printf("CXGS_Ctrl::PollReg :  nombre maximum de polling atteint dans la fonction de polling du XGS controller! EXIT");
-			printf("Press enter to exit!!!\n\n");
-			_getch();
+			printf_s("CXGS_Ctrl::PollReg :  nombre maximum de polling atteint dans la fonction de polling du XGS controller! EXIT");
+			printf_s("Press enter to exit!!!\n\n");
+			getch_return = _getch();
 
 			exit(1);
 
 		}
 	}
-	printf("XGS polling @ add =0x%X, received data 0x%X\n", address, DataRead);
+	printf_s("XGS polling @ add =0x%X, received data 0x%X\n", address, DataRead);
 
 }
 
@@ -305,37 +305,37 @@ void CXGS_Ctrl::ReadSPI_DumpFile()
 
 		if (f_dump == NULL)
 		{
-			printf("ERROR when trying to open file XGSDump_All_Regs.txt \n");
+			printf_s("ERROR when trying to open file XGSDump_All_Regs.txt \n");
 			exit(1);
 		}
 		else
 		{
-			printf("\nDump of XGSregisters into file PythonDump_All_Regs.txt  \n");
-			fprintf(f_dump, "XGS SPI REgister Dump\n\n");
-			fprintf(f_dump, "Add\tData\n\n");
+			printf_s("\nDump of XGSregisters into file PythonDump_All_Regs.txt  \n");
+			fprintf_s(f_dump, "XGS SPI REgister Dump\n\n");
+			fprintf_s(f_dump, "Add\tData\n\n");
 			
-			fprintf(f_dump, "0x%04X\t0x%04X\n",    0x0, ReadSPI(0x0000));
-			fprintf(f_dump, "0x%04X\t0x%04X\n",    0x2, ReadSPI(0x0002));
+			fprintf_s(f_dump, "0x%04X\t0x%04X\n",    0x0, ReadSPI(0x0000));
+			fprintf_s(f_dump, "0x%04X\t0x%04X\n",    0x2, ReadSPI(0x0002));
 			
-			fprintf(f_dump, "0x%04X\t0x%04X\n", 0x3012, ReadSPI(0x3012));
+			fprintf_s(f_dump, "0x%04X\t0x%04X\n", 0x3012, ReadSPI(0x3012));
 
-			fprintf(f_dump, "0x%04X\t0x%04X\n", 0x3602, ReadSPI(0x3602));
+			fprintf_s(f_dump, "0x%04X\t0x%04X\n", 0x3602, ReadSPI(0x3602));
 
-			fprintf(f_dump, "0x%04X\t0x%04X\n", 0x3700, ReadSPI(0x3700));
+			fprintf_s(f_dump, "0x%04X\t0x%04X\n", 0x3700, ReadSPI(0x3700));
 
 			for (int i = 0x3800; i < 0x38c0; i = i + 2)
 			{
-				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
+				fprintf_s(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
 			}
 
 			for (int i = 0x3e0e; i < 0x3e84; i = i + 2)
 			{
-				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
+				fprintf_s(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
 			}
 
 			for (int i = 0x4000; i < 0x7000; i = i + 2)
 			{
-				fprintf(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
+				fprintf_s(f_dump, "0x%04X\t0x%04X\n", i, ReadSPI(i));
 			}
 			fclose(f_dump);
 			f_dump_Open = FALSE;
@@ -359,7 +359,7 @@ void CXGS_Ctrl::DumpRegSPI(M_UINT32 SPI_START, M_UINT32 NB_REG)
 	{
 	  address = SPI_START + (nb_reg2read * 2);
 	  dataread = ReadSPI(address);
-	  printf("Add=0x%X \tData=0x%X \n", address, dataread);
+	  printf_s("Add=0x%X \tData=0x%X \n", address, dataread);
 	}
 
 }
@@ -376,7 +376,7 @@ void CXGS_Ctrl::InitXGS()
 
 	// Sensor already POWERED, POWERDOWN!
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE == 1 && rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT == 1) {
-		printf("XGS already Powerup, powerdown ");
+		printf_s("XGS already Powerup, powerdown ");
 		
 		sXGSptr.ACQ.SENSOR_CTRL.f.SENSOR_POWERDOWN = 1;
 		rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
@@ -389,13 +389,13 @@ void CXGS_Ctrl::InitXGS()
 			DataRead = rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERDOWN;
 			iter++;
 			if (iter == 1000) {
-				printf("fail!\n\n");
-				printf("Press enter to exit!!!\n\n");
-				_getch();
+				printf_s("fail!\n\n");
+				printf_s("Press enter to exit!!!\n\n");
+				getch_return = _getch();
 				exit(1);
 			}
 		}
-		printf("done!\n\n");
+		printf_s("done!\n\n");
 	}
 	Sleep(100);
 
@@ -413,19 +413,19 @@ void CXGS_Ctrl::InitXGS()
 		DataRead = rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE;
 		iter++;
 		if (iter == 1000) {
-			printf("Powerup done fail\n\n");
-			printf("Press enter to exit!!!\n\n");
-			_getch();
+			printf_s("Powerup done fail\n\n");
+			printf_s("Press enter to exit!!!\n\n");
+			getch_return = _getch();
 			exit(1);
 		}
 	}
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT==0) { //powerup fail
-		printf("Powerup stat fail\n");
-		printf("Press enter to exit!!!\n\n");
-		_getch();
+		printf_s("Powerup stat fail\n");
+		printf_s("Press enter to exit!!!\n\n");
+		getch_return = _getch();
 		exit(1);
 	}
-	printf("XGS Powerup done OK\n\n");
+	printf_s("XGS Powerup done OK\n\n");
 
 	Sleep(100);
 
@@ -435,9 +435,9 @@ void CXGS_Ctrl::InitXGS()
 
 	DataRead = ReadSPI(0x0);
 	if (DataRead == 0x0358) {
-		printf("XGS Model ID detected is 0x358, XGS5M, ");
+		printf_s("XGS Model ID detected is 0x358, XGS5M, ");
 		DataRead = ReadSPI(0x2);
-		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
+		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		Sleep(50);                   //Comme dans le code de onsemi
@@ -446,38 +446,38 @@ void CXGS_Ctrl::InitXGS()
 		Sleep(50);
 
 		if (((DataRead & 0x7c) >> 2) == 0x18)
-			printf("XGS Resolution is 5Mp\n");
+			printf_s("XGS Resolution is 5Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x19)
-			printf("XGS Resolution is 3Mp\n");
+			printf_s("XGS Resolution is 3Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x1a)
-			printf("XGS Resolution is 2Mp\n");
+			printf_s("XGS Resolution is 2Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x1b)
-			printf("XGS Resolution is 1.3Mp\n");
+			printf_s("XGS Resolution is 1.3Mp\n");
 
 		if (((DataRead & 0x600) >> 5) == 0)
-			printf("XGS Speedgrade is 16 ports\n");
+			printf_s("XGS Speedgrade is 16 ports\n");
 		if (((DataRead & 0x600) >> 5) == 1)
-			printf("XGS Speedgrade is 12 ports\n");
+			printf_s("XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x600) >> 5) == 2)
-			printf("XGS Speedgrade is 8 ports\n");
+			printf_s("XGS Speedgrade is 8 ports\n");
 		if (((DataRead & 0x600) >> 5) == 3)
-			printf("XGS Speedgrade is 4 ports\n");
+			printf_s("XGS Speedgrade is 4 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf("XGS Lens Shift is 0 degree\n");
+			printf_s("XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf("XGS Lens Shift is 7.3 degree\n");
+			printf_s("XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf("XGS is COLOR\n");
+			printf_s("XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf("XGS is MONO\n");
+			printf_s("XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -487,9 +487,9 @@ void CXGS_Ctrl::InitXGS()
 	}
 
 	else if (DataRead == 0x0058) {
-		printf("XGS Model ID detected is 0x58, XGS12M\n");
+		printf_s("XGS Model ID detected is 0x58, XGS12M\n");
 		DataRead = ReadSPI(0x2);
-		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
+		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		Sleep(50);                   //Comme dans le code de onsemi
@@ -498,32 +498,32 @@ void CXGS_Ctrl::InitXGS()
 		Sleep(50);  
 
 		if(((DataRead&0x1c)>>2) == 0)
-		  printf("XGS Resolution is 12Mp\n");
+		  printf_s("XGS Resolution is 12Mp\n");
 		if (((DataRead & 0x1c)>> 2) == 3)
-			printf("XGS Resolution is 8Mp\n");
+			printf_s("XGS Resolution is 8Mp\n");
 
 		if (((DataRead & 0x60) >> 5) == 0)
-			printf("XGS Speedgrade is 24 ports\n");
+			printf_s("XGS Speedgrade is 24 ports\n");
 		if (((DataRead & 0x60) >> 5) == 1)
-			printf("XGS Speedgrade is 12 ports\n");
+			printf_s("XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x60) >> 5) == 3)
-			printf("XGS Speedgrade is 6 ports\n");
+			printf_s("XGS Speedgrade is 6 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf("XGS Lens Shift is 0 degree\n");
+			printf_s("XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf("XGS Lens Shift is 7.3 degree\n");
+			printf_s("XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf("XGS is COLOR\n");
+			printf_s("XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf("XGS is MONO\n");
+			printf_s("XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -533,9 +533,9 @@ void CXGS_Ctrl::InitXGS()
 
 	//16Mpix family
 	else if (DataRead == 0x0258) {
-		printf("XGS Model ID detected is 0x258, XGS16M\n");
+		printf_s("XGS Model ID detected is 0x258, XGS16M\n");
 		DataRead = ReadSPI(0x2);
-		printf("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
+		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
 		WriteSPI_Bit(0x3700, 5, 1);  //Enable reading from OTPM
 		Sleep(50);                   //Comme dans le code de onsemi
@@ -544,32 +544,32 @@ void CXGS_Ctrl::InitXGS()
 		Sleep(50);  
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
-			printf("XGS Resolution is 16Mp\n");
+			printf_s("XGS Resolution is 16Mp\n");
 
 		if (((DataRead & 0x60) >> 9) == 0)
-			printf("XGS Speedgrade is 24 ports\n");
+			printf_s("XGS Speedgrade is 24 ports\n");
 		if (((DataRead & 0x60) >> 9) == 1)
-			printf("XGS Speedgrade is 18 ports\n");
+			printf_s("XGS Speedgrade is 18 ports\n");
 		if (((DataRead & 0x60) >> 9) == 2)
-			printf("XGS Speedgrade is 12 ports\n");
+			printf_s("XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x60) >> 9) == 3)
-			printf("XGS Speedgrade is 6 ports\n");
+			printf_s("XGS Speedgrade is 6 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf("XGS Lens Shift is 0 degree\n");
+			printf_s("XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf("XGS Lens Shift is 7.3 degree\n");
+			printf_s("XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf("XGS is COLOR\n");
+			printf_s("XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf("XGS is MONO\n");
+			printf_s("XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -583,9 +583,9 @@ void CXGS_Ctrl::InitXGS()
 
 	else
 	{
-		printf("\n\nSenseur XGS id=0x%X non reconnu. EXIT \n\n", DataRead);
-		printf("Press enter to exit!!!\n\n");
-		_getch();
+		printf_s("\n\nSenseur XGS id=0x%X non reconnu. EXIT \n\n", DataRead);
+		printf_s("Press enter to exit!!!\n\n");
+		getch_return = _getch();
 		exit(1);
 	}
 
@@ -611,9 +611,9 @@ void CXGS_Ctrl::PrintTime(void)
 	buf = ctime(&ltime);
 	if (!buf)
 	{
-		printf("Invalid Arguments for ctime.\n");
+		printf_s("Invalid Arguments for ctime.\n");
 	}
-	printf("Current time is %s", buf);
+	printf_s("Current time is %s", buf);
 
 }
 
@@ -629,7 +629,7 @@ void CXGS_Ctrl::DisableXGS()
 
 	// Sensor already POWERED, POWERDOWN!
 	if (rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_DONE == 1 && rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERUP_STAT == 1) {
-		printf("\n\nDisabling XGS (disable clk and reset)... ");
+		printf_s("\n\nDisabling XGS (disable clk and reset)... ");
 
 		//1. Disable CAPTURE if output is active by disabling
 		//	 the sequencer(general_config0_reg[0] = 0).
@@ -654,13 +654,13 @@ void CXGS_Ctrl::DisableXGS()
 			DataRead = rXGSptr.ACQ.SENSOR_STAT.f.SENSOR_POWERDOWN;
 			iter++;
 			if (iter == 1000) {
-				printf("fail!\n");
-				printf("Press enter to exit!!!\n\n");
-				_getch();
+				printf_s("fail!\n");
+				printf_s("Press enter to exit!!!\n\n");
+				getch_return = _getch();
 				exit(1);
 			}
 		}
-		printf("done!\n");
+		printf_s("done!\n");
 	}
 	Sleep(100);
 }
@@ -685,11 +685,11 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
 
 	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
-		printf("Exposure set to %dus\n", exposure_ss_us);
+		printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
 	}
 	else {
-		printf("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+		printf_s("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
 	}
 	
 }
@@ -702,7 +702,7 @@ void CXGS_Ctrl::setExposure_(M_UINT32 exposure_ss_us)
 		CurrExposure = exposure_ss_us;
 	}
 	else {
-		printf("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+		printf_s("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
 	}
 
 }
@@ -716,15 +716,15 @@ void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
 
 	if (gain == 1) {
 		GrabParams.ANALOG_GAIN = 1;
-		printf("AnalogGain set to 1x\n");
+		printf_s("AnalogGain set to 1x\n");
 	}
 	else if (gain == 2) {
 		GrabParams.ANALOG_GAIN = 3;
-		printf("AnalogGain set to 2x\n");
+		printf_s("AnalogGain set to 2x\n");
 	}
 	else if (gain == 4) {
 		GrabParams.ANALOG_GAIN = 7;
-		printf("AnalogGain set to 4x\n");
+		printf_s("AnalogGain set to 4x\n");
 	}
 
 
@@ -748,7 +748,7 @@ void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_R = DigGain;
 	rXGSptr.ACQ.SENSOR_GAIN_DIG_RB.f.DG_FACTOR_B = DigGain;
 
-	printf("Digital gain set to 0x%X, factor is %1.5f \n", DigGain, gain_double);
+	printf_s("Digital gain set to 0x%X, factor is %1.5f \n", DigGain, gain_double);
 }
 
 
@@ -758,7 +758,7 @@ void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 void CXGS_Ctrl::setBlackRef(int value)
 {
 	GrabParams.BLACK_OFFSET = value;
-	printf("Black Offset (Data Pedestal) set to 0x%X\n", value);
+	printf_s("Black Offset (Data Pedestal) set to 0x%X\n", value);
 }
 
 //----------------------------------------------------
@@ -805,7 +805,7 @@ void CXGS_Ctrl::WaitEndExpReadout(void)
 		loop_nb++;
 		if (loop_nb == 2000)
 		{
-			printf("ERROR TIMEOUT : GRAB IDLE=0, depuis 2 secondes!\n");
+			printf_s("ERROR TIMEOUT : GRAB IDLE=0, depuis 2 secondes!\n");
 			return;
 		}
 		Sleep(1);
@@ -816,13 +816,13 @@ void CXGS_Ctrl::WaitEndExpReadout(void)
 	loop_nb = 0;
 
 	while (rXGSptr.ACQ.GRAB_STAT.f.GRAB_READOUT == 1)
-		//printf("\n NB loop in wait for GRAB_IDLE %d", loop_nb);
+		//printf_s("\n NB loop in wait for GRAB_IDLE %d", loop_nb);
 	{
 		//wait for grab idle
 		loop_nb++;
 		if (loop_nb == 2000)
 		{
-			printf("ERROR TIMEOUT : GRAB Readout=1, depuis 2 secondes!\n");
+			printf_s("ERROR TIMEOUT : GRAB Readout=1, depuis 2 secondes!\n");
 			return;
 		}
 		Sleep(1);
@@ -848,38 +848,38 @@ int CXGS_Ctrl::GrabAbort()
 	{
 		if (loop_nb == 1000)
 		{
-			printf("\n\nGRAB NOT ABORTED FOR 2 seconds, something gone wrong!\n\n");
+			printf_s("\n\nGRAB NOT ABORTED FOR 2 seconds, something gone wrong!\n\n");
 
-			printf("  Grab Idle        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_IDLE);
-			printf("  Grab Active      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_ACTIVE);
-			printf("  Grab Pending     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_PENDING);
-			printf("  Grab Exposure    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_EXPOSURE);
-			printf("  Grab Readout     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_READOUT);
-			printf("  Grab FOT         = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_FOT);
-			printf("  GRAB_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.GRAB_MNGR_STAT);
-			printf("  TIMER_MNGR_STATE = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TIMER_MNGR_STAT);
-			printf("  TRIG_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TRIG_MNGR_STAT);
-			printf("  Grab TRIG RDY    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.TRIGGER_RDY);
-			printf("  SPI FIFO_EMPTY   = %d\n",   rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY);
-			printf("  ABORT_DONE       = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_DONE);
-			printf("  ABORT_PET        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_PET);
-			printf("  ABORT_DELAI      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_DELAI);
+			printf_s("  Grab Idle        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_IDLE);
+			printf_s("  Grab Active      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_ACTIVE);
+			printf_s("  Grab Pending     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_PENDING);
+			printf_s("  Grab Exposure    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_EXPOSURE);
+			printf_s("  Grab Readout     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_READOUT);
+			printf_s("  Grab FOT         = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_FOT);
+			printf_s("  GRAB_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.GRAB_MNGR_STAT);
+			printf_s("  TIMER_MNGR_STATE = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TIMER_MNGR_STAT);
+			printf_s("  TRIG_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TRIG_MNGR_STAT);
+			printf_s("  Grab TRIG RDY    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.TRIGGER_RDY);
+			printf_s("  SPI FIFO_EMPTY   = %d\n",   rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY);
+			printf_s("  ABORT_DONE       = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_DONE);
+			printf_s("  ABORT_PET        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_PET);
+			printf_s("  ABORT_DELAI      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.ABORT_DELAI);
 
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 0)
-				printf("  ABORT_MNGR_STATE = Idle\n");
+				printf_s("  ABORT_MNGR_STATE = Idle\n");
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 1)
-				printf("  ABORT_MNGR_STATE = Abort_states\n");
+				printf_s("  ABORT_MNGR_STATE = Abort_states\n");
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 2)
-				printf("  ABORT_MNGR_STATE = Abort_cmd_flags\n");
+				printf_s("  ABORT_MNGR_STATE = Abort_cmd_flags\n");
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 3)
-				printf("  ABORT_MNGR_STATE = Abort_ser_fifo\n");
+				printf_s("  ABORT_MNGR_STATE = Abort_ser_fifo\n");
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 4)
-				printf("  ABORT_MNGR_STATE = Abort_dma\n");
+				printf_s("  ABORT_MNGR_STATE = Abort_dma\n");
 			if (rXGSptr.ACQ.GRAB_STAT.f.ABORT_MNGR_STAT == 5)
-				printf("  ABORT_MNGR_STATE = Abort_irq\n");
+				printf_s("  ABORT_MNGR_STATE = Abort_irq\n");
 
-			printf("\n\nPress any key to continue.\n\n");
-			_getch();
+			printf_s("\n\nPress any key to continue.\n\n");
+			getch_return = _getch();
 			break;
 		}
 		Sleep(1);
@@ -899,25 +899,25 @@ int CXGS_Ctrl::GrabAbort()
 		rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY == 0
 		)
 	{
-		printf("\n\nGRAB ABORT NOT FINISH AS IT SHOULD!!\n\n");
+		printf_s("\n\nGRAB ABORT NOT FINISH AS IT SHOULD!!\n\n");
 
-		printf("Grab Idle        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_IDLE);
-		printf("Grab Active      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_ACTIVE);
-		printf("Grab Pending     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_PENDING);
-		printf("Grab Exposure    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_EXPOSURE);
-		printf("Grab Readout     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_READOUT);
-		printf("Grab FOT         = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_FOT);
-		printf("GRAB_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.GRAB_MNGR_STAT);
-		printf("TIMER_MNGR_STATE = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TIMER_MNGR_STAT);
-		printf("TRIG_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TRIG_MNGR_STAT);
-		printf("Grab TRIG RDY    = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.TRIGGER_RDY);
-		printf("SPI FIFO_EMPTY   = %d\n\n", rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY);
-		printf("ABORT_DONE       = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_DONE);
-		printf("ABORT_PET        = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_PET);
-		printf("ABORT_DELAI      = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_DELAI);
+		printf_s("Grab Idle        = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_IDLE);
+		printf_s("Grab Active      = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_ACTIVE);
+		printf_s("Grab Pending     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_PENDING);
+		printf_s("Grab Exposure    = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_EXPOSURE);
+		printf_s("Grab Readout     = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_READOUT);
+		printf_s("Grab FOT         = %d\n",   rXGSptr.ACQ.GRAB_STAT.f.GRAB_FOT);
+		printf_s("GRAB_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.GRAB_MNGR_STAT);
+		printf_s("TIMER_MNGR_STATE = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TIMER_MNGR_STAT);
+		printf_s("TRIG_MNGR_STATE  = 0x%x\n", rXGSptr.ACQ.GRAB_STAT.f.TRIG_MNGR_STAT);
+		printf_s("Grab TRIG RDY    = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.TRIGGER_RDY);
+		printf_s("SPI FIFO_EMPTY   = %d\n\n", rXGSptr.ACQ.ACQ_SER_STAT.f.SER_FIFO_EMPTY);
+		printf_s("ABORT_DONE       = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_DONE);
+		printf_s("ABORT_PET        = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_PET);
+		printf_s("ABORT_DELAI      = %d\n\n", rXGSptr.ACQ.GRAB_STAT.f.ABORT_DELAI);
 
 		return(0);
-		_getch();
+		getch_return = _getch();
 
 	}
 
@@ -941,7 +941,7 @@ void CXGS_Ctrl::SetGrabCMD(unsigned long Throttling, int DoSleep)
 	{
 		if (loop_nb == max_iter)
 		{
-			printf("\n\nERROR : GRAB_PENDING TIMEOUT ! in proccess XGS_Ctrl->SetGrabCMD(void) \n");
+			printf_s("\n\nERROR : GRAB_PENDING TIMEOUT ! in proccess XGS_Ctrl->SetGrabCMD(void) \n");
 			//PrintFPGAGrabLogicState();
 			break;
 		}
@@ -989,7 +989,7 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	//}
 	
 	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_SS       = GrabParams.Exposure;
-	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_LEV_MODE = GrabParams.EXPOSURE_LEV_MODE;
+	sXGSptr.ACQ.EXP_CTRL1.f.EXPOSURE_LEV_MODE = static_cast<M_UINT32>(GrabParams.EXPOSURE_LEV_MODE);
 	rXGSptr.ACQ.EXP_CTRL1.u32                 = sXGSptr.ACQ.EXP_CTRL1.u32;
 
 	sXGSptr.ACQ.TRIGGER_DELAY.f.TRIGGER_DELAY = GrabParams.TRIGGER_DELAY;
@@ -1054,8 +1054,8 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32 = sXGSptr.ACQ.SENSOR_SUBSAMPLING.u32;
 
 	//rXGSptr.ACQ.GRAB_CTRL.f.BUFFER_ID                     = GrabParams.GRAB_BUFFER_ID;
-	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_ACT                   = GrabParams.TRIGGER_ACTIVATION;
-	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_SRC                   = GrabParams.TRIGGER_SOURCE;
+	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_ACT                   = static_cast<M_UINT32>(GrabParams.TRIGGER_ACTIVATION);
+	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_SRC                   = static_cast<M_UINT32>(GrabParams.TRIGGER_SOURCE);
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP               = GrabParams.TRIGGER_OVERLAP;
 	sXGSptr.ACQ.GRAB_CTRL.f.TRIGGER_OVERLAP_BUFFN         = GrabParams.TRIGGER_OVERLAP_BUFFN;
 	rXGSptr.ACQ.GRAB_CTRL.u32                             = sXGSptr.ACQ.GRAB_CTRL.u32;
@@ -1078,12 +1078,12 @@ void CXGS_Ctrl::SW_snapshot(int DoSleep)
 		{
 			//if (rUNIT.ERROR_CONDITION.f.REVX_OVERRUN == 1)
 			//{
-			//	printf("DMA GRAB OVERRUN detected in SW_snapshot!!!");
-			//	printf("\n\n");
+			//	printf_s("DMA GRAB OVERRUN detected in SW_snapshot!!!");
+			//	printf_s("\n\n");
 			//	rUNIT.ERROR_CONDITION.f.REVX_OVERRUN = 1;
 			//	Sleep(1000);
 			//}
-			printf("\n\nERROR : TRIGGER_RDY TIMEOUT ! in proccess Camera->SW_snapshot(void) \n");
+			printf_s("\n\nERROR : TRIGGER_RDY TIMEOUT ! in proccess Camera->SW_snapshot(void) \n");
 			break;
 		}
 		loop_nb++;
@@ -1117,53 +1117,53 @@ void CXGS_Ctrl::XGS_PCIeCtrl_DumpFile(void)
 
 		if (f_dump == NULL)
 		{
-			printf("ERROR when trying to open file : XGS_CTRL PCIe_reg.txt\n");
+			printf_s("ERROR when trying to open file : XGS_CTRL PCIe_reg.txt\n");
 			exit(1);
 		}
 		else
 		{
-			printf("\nDump of PCIe CRTL XGS registers into file: XGS_CTRL PCIe_reg.txt ");
-			fprintf(f_dump, "XGS CTRL REgister Dump\n\n");
-			fprintf(f_dump, "Add\tRegister Name\tData\n\n");
+			printf_s("\nDump of PCIe CRTL XGS registers into file: XGS_CTRL PCIe_reg.txt ");
+			fprintf_s(f_dump, "XGS CTRL REgister Dump\n\n");
+			fprintf_s(f_dump, "Add\tRegister Name\tData\n\n");
 			
-			fprintf(f_dump, "0x100\tACQ.GRAB_CTRL            0x%08X\n", rXGSptr.ACQ.GRAB_CTRL.u32);
-			fprintf(f_dump, "0x108\tACQ.GRAB_STAT            0x%08X\n", rXGSptr.ACQ.GRAB_STAT.u32);
-			fprintf(f_dump, "0x110\tACQ.READOUT_CFG1         0x%08X\n", rXGSptr.ACQ.READOUT_CFG1.u32);
-			fprintf(f_dump, "0x118\tACQ.READOUT_CFG2         0x%08X\n", rXGSptr.ACQ.READOUT_CFG2.u32);
-			fprintf(f_dump, "0x120\tACQ.READOUT_CFG3         0x%08X\n", rXGSptr.ACQ.READOUT_CFG3.u32);
-			fprintf(f_dump, "0x124\tACQ.READOUT_CFG4         0x%08X\n", rXGSptr.ACQ.READOUT_CFG4.u32);
-			fprintf(f_dump, "0x128\tACQ.EXP_CTRL1            0x%08X\n", rXGSptr.ACQ.EXP_CTRL1.u32);
-			fprintf(f_dump, "0x130\tACQ.EXP_CTRL2            0x%08X\n", rXGSptr.ACQ.EXP_CTRL2.u32);
-			fprintf(f_dump, "0x138\tACQ.EXP_CTRL3            0x%08X\n", rXGSptr.ACQ.EXP_CTRL3.u32);
-			fprintf(f_dump, "0x140\tACQ.TRIGGER_DELAY        0x%08X\n", rXGSptr.ACQ.TRIGGER_DELAY.u32);
-			fprintf(f_dump, "0x148\tACQ.STROBE_CTRL1         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL1.u32);
-			fprintf(f_dump, "0x150\tACQ.STROBE_CTRL2         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL2.u32);
-			fprintf(f_dump, "0x158\tACQ.ACQ_SER_CTRL         0x%08X\n", rXGSptr.ACQ.ACQ_SER_CTRL.u32);
-			fprintf(f_dump, "0x160\tACQ.ACQ_SER_ADDATA       0x%08X\n", rXGSptr.ACQ.ACQ_SER_ADDATA.u32);
-			fprintf(f_dump, "0x168\tACQ.ACQ_SER_STAT         0x%08X\n", rXGSptr.ACQ.ACQ_SER_STAT.u32);
-			fprintf(f_dump, "0x190\tACQ.SENSOR_CTRL          0x%08X\n", rXGSptr.ACQ.SENSOR_CTRL.u32);
-			fprintf(f_dump, "0x198\tACQ.SENSOR_STAT          0x%08X\n", rXGSptr.ACQ.SENSOR_STAT.u32);
-			fprintf(f_dump, "0x1a0\tACQ.SENSOR_SUBSAMPLING   0x%08X\n", rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32);
-			fprintf(f_dump, "0x1a4\tACQ.SENSOR_GAIN_ANA      0x%08X\n", rXGSptr.ACQ.SENSOR_GAIN_ANA.u32);
-			fprintf(f_dump, "0x1a8\tACQ.SENSOR_ROI_Y_START   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_START.u32);
-			fprintf(f_dump, "0x1ac\tACQ.SENSOR_ROI_Y_SIZE    0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32);
-			//fprintf(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
-			//fprintf(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
-			fprintf(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
-			//fprintf(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
-			fprintf(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
-			fprintf(f_dump, "0x1e8\tACQ.TRIGGER_MISSED       0x%08X\n", rXGSptr.ACQ.TRIGGER_MISSED.u32);
-			fprintf(f_dump, "0x1f0\tACQ.SENSOR_FPS           0x%08X\n", rXGSptr.ACQ.SENSOR_FPS.u32);
-			fprintf(f_dump, "0x2a0\tACQ.DEBUG                0x%08X\n", rXGSptr.ACQ.DEBUG.u32);
-			fprintf(f_dump, "0x2a8\tACQ.DEBUG_CNTR1          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR1.u32);
-			//fprintf(f_dump, "0x2b0\tACQ.DEBUG_CNTR2          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR2.u32);
-			//fprintf(f_dump, "0x2b4\tACQ.DEBUG_CNTR3          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR3.u32);
-			fprintf(f_dump, "0x2b8\tACQ.EXP_FOT              0x%08X\n", rXGSptr.ACQ.EXP_FOT.u32);
-			fprintf(f_dump, "0x2c0\tACQ.ACQ_SFNC             0x%08X\n", rXGSptr.ACQ.ACQ_SFNC.u32);
+			fprintf_s(f_dump, "0x100\tACQ.GRAB_CTRL            0x%08X\n", rXGSptr.ACQ.GRAB_CTRL.u32);
+			fprintf_s(f_dump, "0x108\tACQ.GRAB_STAT            0x%08X\n", rXGSptr.ACQ.GRAB_STAT.u32);
+			fprintf_s(f_dump, "0x110\tACQ.READOUT_CFG1         0x%08X\n", rXGSptr.ACQ.READOUT_CFG1.u32);
+			fprintf_s(f_dump, "0x118\tACQ.READOUT_CFG2         0x%08X\n", rXGSptr.ACQ.READOUT_CFG2.u32);
+			fprintf_s(f_dump, "0x120\tACQ.READOUT_CFG3         0x%08X\n", rXGSptr.ACQ.READOUT_CFG3.u32);
+			fprintf_s(f_dump, "0x124\tACQ.READOUT_CFG4         0x%08X\n", rXGSptr.ACQ.READOUT_CFG4.u32);
+			fprintf_s(f_dump, "0x128\tACQ.EXP_CTRL1            0x%08X\n", rXGSptr.ACQ.EXP_CTRL1.u32);
+			fprintf_s(f_dump, "0x130\tACQ.EXP_CTRL2            0x%08X\n", rXGSptr.ACQ.EXP_CTRL2.u32);
+			fprintf_s(f_dump, "0x138\tACQ.EXP_CTRL3            0x%08X\n", rXGSptr.ACQ.EXP_CTRL3.u32);
+			fprintf_s(f_dump, "0x140\tACQ.TRIGGER_DELAY        0x%08X\n", rXGSptr.ACQ.TRIGGER_DELAY.u32);
+			fprintf_s(f_dump, "0x148\tACQ.STROBE_CTRL1         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL1.u32);
+			fprintf_s(f_dump, "0x150\tACQ.STROBE_CTRL2         0x%08X\n", rXGSptr.ACQ.STROBE_CTRL2.u32);
+			fprintf_s(f_dump, "0x158\tACQ.ACQ_SER_CTRL         0x%08X\n", rXGSptr.ACQ.ACQ_SER_CTRL.u32);
+			fprintf_s(f_dump, "0x160\tACQ.ACQ_SER_ADDATA       0x%08X\n", rXGSptr.ACQ.ACQ_SER_ADDATA.u32);
+			fprintf_s(f_dump, "0x168\tACQ.ACQ_SER_STAT         0x%08X\n", rXGSptr.ACQ.ACQ_SER_STAT.u32);
+			fprintf_s(f_dump, "0x190\tACQ.SENSOR_CTRL          0x%08X\n", rXGSptr.ACQ.SENSOR_CTRL.u32);
+			fprintf_s(f_dump, "0x198\tACQ.SENSOR_STAT          0x%08X\n", rXGSptr.ACQ.SENSOR_STAT.u32);
+			fprintf_s(f_dump, "0x1a0\tACQ.SENSOR_SUBSAMPLING   0x%08X\n", rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32);
+			fprintf_s(f_dump, "0x1a4\tACQ.SENSOR_GAIN_ANA      0x%08X\n", rXGSptr.ACQ.SENSOR_GAIN_ANA.u32);
+			fprintf_s(f_dump, "0x1a8\tACQ.SENSOR_ROI_Y_START   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_START.u32);
+			fprintf_s(f_dump, "0x1ac\tACQ.SENSOR_ROI_Y_SIZE    0x%08X\n", rXGSptr.ACQ.SENSOR_ROI_Y_SIZE.u32);
+			//fprintf_s(f_dump, "0x1b0\tACQ.SENSOR_ROI2_Y_START  0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_START.u32);
+			//fprintf_s(f_dump, "0x1b4\tACQ.SENSOR_ROI2_Y_SIZE   0x%08X\n", rXGSptr.ACQ.SENSOR_ROI2_Y_SIZE.u32);
+			fprintf_s(f_dump, "0x1d8\tACQ.SENSOR_M_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_M_LINES.u32);
+			//fprintf_s(f_dump, "0x1dc\tACQ.SENSOR_F_LINES       0x%08X\n", rXGSptr.ACQ.SENSOR_F_LINES.u32);
+			fprintf_s(f_dump, "0x1e0\tACQ.DEBUG_PINS           0x%08X\n", rXGSptr.ACQ.DEBUG_PINS.u32);
+			fprintf_s(f_dump, "0x1e8\tACQ.TRIGGER_MISSED       0x%08X\n", rXGSptr.ACQ.TRIGGER_MISSED.u32);
+			fprintf_s(f_dump, "0x1f0\tACQ.SENSOR_FPS           0x%08X\n", rXGSptr.ACQ.SENSOR_FPS.u32);
+			fprintf_s(f_dump, "0x2a0\tACQ.DEBUG                0x%08X\n", rXGSptr.ACQ.DEBUG.u32);
+			fprintf_s(f_dump, "0x2a8\tACQ.DEBUG_CNTR1          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR1.u32);
+			//fprintf_s(f_dump, "0x2b0\tACQ.DEBUG_CNTR2          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR2.u32);
+			//fprintf_s(f_dump, "0x2b4\tACQ.DEBUG_CNTR3          0x%08X\n", rXGSptr.ACQ.DEBUG_CNTR3.u32);
+			fprintf_s(f_dump, "0x2b8\tACQ.EXP_FOT              0x%08X\n", rXGSptr.ACQ.EXP_FOT.u32);
+			fprintf_s(f_dump, "0x2c0\tACQ.ACQ_SFNC             0x%08X\n", rXGSptr.ACQ.ACQ_SFNC.u32);
 
 			fclose(f_dump);
 			f_dump_Open = FALSE;
-			printf(" done.");
+			printf_s(" done.");
 
 		}
 	}
@@ -1251,7 +1251,7 @@ double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_
 void CXGS_Ctrl::setTriggerDelay(M_UINT32 TRIGGER_DELAY_us, int PrintInfo)
 {
 	GrabParams.TRIGGER_DELAY = (M_UINT32)((M_UINT64)TRIGGER_DELAY_us * 1000 / SystemPeriodNanoSecond); // Exposure in us	
-	if (PrintInfo == 1) printf("\nTrigger Delai set to %d us\n", TRIGGER_DELAY_us);
+	if (PrintInfo == 1) printf_s("\nTrigger Delai set to %d us\n", TRIGGER_DELAY_us);
 
 }
 
@@ -1271,8 +1271,8 @@ void CXGS_Ctrl::enableStrobe(int STROBE_MODE, M_UINT32 STROBE_START_us, M_UINT32
 
 	if (PrintInfo == 1)
 	{
-		if (STROBE_MODE == 0) printf("Strobe enable, StartSTROBE during EXPOSURE, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
-		if (STROBE_MODE == 1) printf("Strobe enable, StartSTROBE during TRIG DELAY, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
+		if (STROBE_MODE == 0) printf_s("Strobe enable, StartSTROBE during EXPOSURE, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
+		if (STROBE_MODE == 1) printf_s("Strobe enable, StartSTROBE during TRIG DELAY, START=%d us, END=%d us \n", STROBE_START_us, STROBE_END_us);
 	}
 }
 
@@ -1313,15 +1313,15 @@ void CXGS_Ctrl::FPGASystemMon(void)
 	time_t t;
 	struct tm* now;
 
-	printf("\n\n************************************************************************");
-	printf("\n*  FPGA MONITOR   ");
+	printf_s("\n\n************************************************************************");
+	printf_s("\n*  FPGA MONITOR   ");
 
 	t = time(0);   // get time now
 	now = localtime(&t);
 
-	printf("%d:%02d:%02d, %d/%d/%d\n*", now->tm_hour, now->tm_min, now->tm_sec, now->tm_mday, (now->tm_mon + 1), (now->tm_year + 1900));
+	printf_s("%d:%02d:%02d, %d/%d/%d\n*", now->tm_hour, now->tm_min, now->tm_sec, now->tm_mday, (now->tm_mon + 1), (now->tm_year + 1900));
 
-	printf("\n*   Tcurr     Tmax     Tmin  VCC_int  VCC_AUX   VCC_BRAM\n");
+	printf_s("\n*   Tcurr     Tmax     Tmin  VCC_int  VCC_AUX   VCC_BRAM\n");
 
 	TCURR    = ((((rXGSptr.SYSMONXIL.TEMP.u16) & 0xfff0) >> 4) * 503.975 / 4096.0) - 273.15;
 	TMAX     = ((((rXGSptr.SYSMONXIL.TEMP_MAX.u16) & 0xfff0) >> 4) * 503.975 / 4096.0) - 273.15;
@@ -1330,8 +1330,8 @@ void CXGS_Ctrl::FPGASystemMon(void)
 	VCC_AUX  = ((((rXGSptr.SYSMONXIL.VCCAUX.u16) & 0xfff0) >> 4) / 4096.0) * 3.0;
 	VCC_BRAM = ((((rXGSptr.SYSMONXIL.VCCBRAM.u16) & 0xfff0) >> 4) / 4096.0) * 3.0;
 
-	printf("\r*  %5.2fC   %5.2fC   %5.2fC   %5.2fV   %5.2fV     %5.2fV\n", TCURR, TMAX, TMIN, VCC_INT, VCC_AUX, VCC_BRAM);
+	printf_s("\r*  %5.2fC   %5.2fC   %5.2fC   %5.2fV   %5.2fV     %5.2fV\n", TCURR, TMAX, TMIN, VCC_INT, VCC_AUX, VCC_BRAM);
 
-	printf("************************************************************************\n\n");
+	printf_s("************************************************************************\n\n");
 }
 

@@ -64,7 +64,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    GrabParams.BLACK_OFFSET           = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN            = 0x1;        // gain=1
 						          
-   printf("XGS12M Sensor detected, ");
+   printf_s("XGS12M Sensor detected, ");
    }
 
 
@@ -104,27 +104,27 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
-	printf("XGS OTPM version : 0x%X\n", otpmversion);
+	printf_s("XGS OTPM version : 0x%X\n", otpmversion);
 	WriteSPI(0x3700, 0x0000);
 	//Sleep(50);
 
 	if (otpmversion <= 1) {
 
-		printf("\n\nLa version otpm est v%d, load de la version longue de la dcf (WIP Rev: %d)\n", otpmversion, XGS12K_WIP);
+		printf_s("\n\nLa version otpm est v%d, load de la version longue de la dcf (WIP Rev: %d)\n", otpmversion, XGS12K_WIP);
 
-		printf("XGS Loading required register uploads\n");
+		printf_s("XGS Loading required register uploads\n");
 		XGS12M_Req_Reg_Up_0();
-		printf("XGS Loading timing uploads");
+		printf_s("XGS Loading timing uploads");
 		XGS12M_Timing_Up();
 	}
 	else
 	if (otpmversion == 2) {
-		  printf("XGS Reduced uploads required for OTPM version: v%d (WIP Rev: %d)\n", otpmversion, XGS12K_WIP);
+		  printf_s("XGS Reduced uploads required for OTPM version: v%d (WIP Rev: %d)\n", otpmversion, XGS12K_WIP);
 		  XGS12M_Req_Reg_Up_2();
     }
 	else
 	if (otpmversion > 2) {
-		printf("XGS Reduced uploads required for OTPM version: v%d (WIP Rev: %d), new DCF from Onsemi maybe available\n", otpmversion, XGS12K_WIP);
+		printf_s("XGS Reduced uploads required for OTPM version: v%d (WIP Rev: %d), new DCF from Onsemi maybe available\n", otpmversion, XGS12K_WIP);
 		XGS12M_Req_Reg_Up_2();
 	}
 
@@ -137,7 +137,7 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 //----------------------------------------------------
 void CXGS_Ctrl::XGS12M_Enable6lanes(void) {
 
-	printf("XGS Initializing 6 HiSPI lanes\n");
+	printf_s("XGS Initializing 6 HiSPI lanes\n");
 	// mux mode dependent uploads
 	// Loading 6 lanes 12 bit specific settings
 	WriteSPI(0x38C4, 0x0600);

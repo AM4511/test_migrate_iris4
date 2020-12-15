@@ -140,7 +140,7 @@ void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
    {
    char title[15];
 
-   sprintf(title, "MIL Display %d", DisplayNum);
+   sprintf_s(title, "MIL Display %d", DisplayNum);
 
    //---------------------
    //
@@ -158,7 +158,7 @@ void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
 //   {
 //   char title[50];
 //
-//   sprintf(title, "MIL Display %s", DisplayInfo);
+//   sprintf_s(title, "MIL Display %s", DisplayInfo);
 //
 //   //---------------------
 //   //
