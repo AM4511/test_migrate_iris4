@@ -142,13 +142,26 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
 	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
 
-	//rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
-	//rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
-	//rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
-	
+
     //At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
 		if(echoo==1) printf("\nStarting HiSPI calibration...  ");
+
+		// to test the idelai crontroller reset
+		sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 1;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		Sleep(1);
+		sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+
+		do
+		{
+			Sleep(1);
+			count++;
+			if (count == 100) break;
+		} while (rXGSptr.HISPI.IDELAYCTRL_STATUS.f.PLL_LOCKED == 0);
+
+
 		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
@@ -174,6 +187,15 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 			printf("  LANE_DECODER_STATUS_3 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32);
 			printf("  LANE_DECODER_STATUS_4 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32);
 			printf("  LANE_DECODER_STATUS_5 : 0x%X\n", rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32);
+			
+			printf("  TAP_HISTOGRAM_0 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[0].u32);
+			printf("  TAP_HISTOGRAM_1 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[1].u32);
+			printf("  TAP_HISTOGRAM_2 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[2].u32);
+			printf("  TAP_HISTOGRAM_3 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[3].u32);
+			printf("  TAP_HISTOGRAM_4 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[4].u32);
+			printf("  TAP_HISTOGRAM_5 : 0x%08X\n", rXGSptr.HISPI.TAP_HISTOGRAM[5].u32);
+
+
 			//printf("  LANE_PACKER_STATUS_0  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[0].u32);
 			//printf("  LANE_PACKER_STATUS_1  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[1].u32);
 			//printf("  LANE_PACKER_STATUS_2  : 0x%X\n", rXGSptr.HISPI.LANE_PACKER_STATUS[2].u32);

@@ -1235,7 +1235,7 @@ double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_
 	// Pas de FOT ici
 	double Lines_In_Frame = double( 3 + (double)sXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR + 1 + (double)(Y_SIZE / (1 + SUBSAMPLING_Y)) + 7 + 7);
 
-	double Sensor_EXP_max = (Lines_In_Frame * (M_UINT64)sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0)
+	double Sensor_EXP_max = (Lines_In_Frame * (double) (sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * SensorPeriodNanoSecond / 1000.0))
 		                    - double(SensorParams.FOTn_2_EXP / 1000) + double(SensorParams.ReadOutN_2_TrigN / 1000.0) + double(SensorParams.EXP_FOT_TIME / 1000.0);
 	//EXP_FOT_TIME comprend : SensorParams.TrigN_2_FOT + 5360
 
