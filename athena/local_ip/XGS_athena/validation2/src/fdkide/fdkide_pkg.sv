@@ -9,6 +9,8 @@
  */
 package fdkide_pkg;
 
+	typedef enum {RW, RO, WO, RW2C, RW2S} FDK_FIELD_TYPE;
+
 	typedef class Cnode;
 	typedef class Caddressable;
 	typedef class Cfield;
@@ -22,6 +24,7 @@ package fdkide_pkg;
 	`include "Cregister.svh"
 	`include "Csection.svh"
 	`include "Cexternal.svh"
+	
 	
 endpackage
 

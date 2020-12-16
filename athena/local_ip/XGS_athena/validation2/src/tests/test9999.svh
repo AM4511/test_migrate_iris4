@@ -9,14 +9,13 @@ import tests_pkg::*;
 import driver_pkg::*;
 import xgs_athena_pkg::*;
 import fdkide_pkg::*;
-import regfile_pack::*;
+import regfile_xgs_athena_pkg::*;
+import athena_pkg::*;
+import xgs_pkg::*;
 
 
 
 class Test9999 extends CTest;
-
-	//parameter AXIS_DATA_WIDTH  = 64;
-	//parameter AXIS_USER_WIDTH  = 4;
 
 	Cdriver_axil  host;
 	virtual axi_stream_interface tx_axis_if;
@@ -53,6 +52,8 @@ class Test9999 extends CTest;
 
 
 			begin    
+				Cathena athena;
+				Cxgs12M xgs_sensor;
 				int register_value; 
 				int field_value; 
 				Cregister curr_register;
@@ -69,6 +70,11 @@ class Test9999 extends CTest;
 				host.reset(20);
 				#100us;
 
+				xgs_sensor = new(host, "XGS12M");
+				athena = new(host, xgs_sensor);
+				athena.turn_on_xgs();
+				athena.set_dma('hdeadbeef, 'h1000, 'h1000);
+				
 				//-------------------------------------------------
 				// Read the version register
 				//-------------------------------------------------

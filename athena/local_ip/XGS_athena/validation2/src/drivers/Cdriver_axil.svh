@@ -308,11 +308,24 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		int inputAddr;
 		int inputData;	
 		int inputStrb;
- 
+ 		Cfield field;
+ 	
 		inputAddr = register.get_address();
 		inputData = register.data;
 		inputStrb = 'hf;
-		this.write (inputAddr, inputData,inputStrb,timeout_count,verbose);	
+		this.write (inputAddr, inputData,inputStrb,timeout_count,verbose);
+		
+		//Emulate the auto clear done in the real hardware register
+		foreach (register.children[i]) begin
+			$cast(field, register.children[i]);	
+			if (field.field_type == WO) begin
+				field.set(0);
+			end else if (field.field_type == RW2C) begin
+				field.set(0);
+			end
+		end
+			
+		register.clr_dirty();
 	endtask
 
 	
@@ -335,6 +348,62 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		register.data = readData;
 	endtask
 	
+	//////////////////////////////////////////////////////////////
+	//
+	// Task  : reg_poll
+	//
+	// Description : Polling
+	//
+	//////////////////////////////////////////////////////////////
+	task reg_poll (
+		input Cnode node,
+		input int expectedData = 1,
+		input int mask = 'hffffffff,
+		input time polling_period = 1us,
+		input int max_iteration = 1000
+		);
+		
+		Cregister register;
+		Cfield field;
+		int reg_mask;
+		longint reg_addr;
+		int msb;
+		int lsb;
+		int size;
+		int reg_expected_data;
+		
+		//////////////////////////////////////////////////////////
+		// Node is a field
+		//////////////////////////////////////////////////////////
+		if ($cast(field, node)) begin
+			$cast(register,field.parent);
+			lsb = field.right;
+			msb = field.left;
+			size = msb-lsb+1;
+			reg_mask = (~(-1 << size) << lsb);
+			reg_expected_data = expectedData << lsb;
+			reg_addr = register.get_address();
+
+		end 		
+		//////////////////////////////////////////////////////////
+		// Node is a register
+		//////////////////////////////////////////////////////////
+		else if ($cast(register, node))begin
+			reg_mask = mask;
+			reg_expected_data = expectedData;
+			reg_addr = register.get_address();
+	
+		end
+		
+		this.poll (
+				.inputAddr(reg_addr),
+				.expectedData(expectedData),
+				.mask(reg_mask),
+				.polling_period(polling_period),
+				.max_iteration(max_iteration)
+			);
+		
+	endtask
 
 	//////////////////////////////////////////////////////////////
 	//

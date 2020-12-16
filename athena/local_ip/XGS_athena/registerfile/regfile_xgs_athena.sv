@@ -2,7 +2,7 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : <MODULENAME>
- ** Created on          : 2020/12/14 16:44:36
+ ** Created on          : 2020/12/16 10:23:48
  ** Created by          : <USERNAME>
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20201209-1553
@@ -12,8 +12,10 @@
  **  All Rights Reserved
  **
  *****************************************************************************/
-package regfile_pack;
+package regfile_xgs_athena_pkg;
 	import fdkide_pkg::*;
+	
+	
 class Creg_system_tag extends Cregister;
    Cfield VALUE;
    
@@ -25,7 +27,7 @@ class Creg_system_tag extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 23, 0, 'h58544d);
+      this.VALUE = new(this, "VALUE", RO, 23, 0, 'h58544d);
    endfunction
 
 endclass
@@ -44,9 +46,9 @@ class Creg_system_version extends Cregister;
 
 
       // Member instatiation
-      this.MAJOR = new(this, "MAJOR", 23, 16, 'ha);
-      this.MINOR = new(this, "MINOR", 15, 8, 'h2);
-      this.HW = new(this, "HW", 7, 0, 'h3);
+      this.MAJOR = new(this, "MAJOR", RO, 23, 16, 'ha);
+      this.MINOR = new(this, "MINOR", RO, 15, 8, 'h2);
+      this.HW = new(this, "HW", RO, 7, 0, 'h3);
    endfunction
 
 endclass
@@ -63,7 +65,7 @@ class Creg_system_capability extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 7, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RO, 7, 0, 'h0);
    endfunction
 
 endclass
@@ -80,7 +82,7 @@ class Creg_system_scratchpad extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -119,7 +121,7 @@ class Creg_dma_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.GRAB_QUEUE_EN = new(this, "GRAB_QUEUE_EN", 0, 0, 'h0);
+      this.GRAB_QUEUE_EN = new(this, "GRAB_QUEUE_EN", RW, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -136,7 +138,7 @@ class Creg_dma_fstart extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -153,7 +155,7 @@ class Creg_dma_fstart_high extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -170,7 +172,7 @@ class Creg_dma_fstart_g extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -187,7 +189,7 @@ class Creg_dma_fstart_g_high extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -204,7 +206,7 @@ class Creg_dma_fstart_r extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -221,7 +223,7 @@ class Creg_dma_fstart_r_high extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -238,7 +240,7 @@ class Creg_dma_line_pitch extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 15, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 15, 0, 'h0);
    endfunction
 
 endclass
@@ -255,7 +257,7 @@ class Creg_dma_line_size extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 13, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 13, 0, 'h0);
    endfunction
 
 endclass
@@ -275,10 +277,10 @@ class Creg_dma_csc extends Cregister;
 
 
       // Member instatiation
-      this.COLOR_SPACE = new(this, "COLOR_SPACE", 26, 24, 'h0);
-      this.DUP_LAST_LINE = new(this, "DUP_LAST_LINE", 23, 23, 'h0);
-      this.REVERSE_Y = new(this, "REVERSE_Y", 9, 9, 'h0);
-      this.REVERSE_X = new(this, "REVERSE_X", 8, 8, 'h0);
+      this.COLOR_SPACE = new(this, "COLOR_SPACE", RW, 26, 24, 'h0);
+      this.DUP_LAST_LINE = new(this, "DUP_LAST_LINE", RW, 23, 23, 'h0);
+      this.REVERSE_Y = new(this, "REVERSE_Y", RW, 9, 9, 'h0);
+      this.REVERSE_X = new(this, "REVERSE_X", RW, 8, 8, 'h0);
    endfunction
 
 endclass
@@ -299,11 +301,11 @@ class Creg_dma_output_buffer extends Cregister;
 
 
       // Member instatiation
-      this.MAX_LINE_BUFF_CNT = new(this, "MAX_LINE_BUFF_CNT", 31, 28, 'h0);
-      this.LINE_PTR_WIDTH = new(this, "LINE_PTR_WIDTH", 25, 24, 'h2);
-      this.ADDRESS_BUS_WIDTH = new(this, "ADDRESS_BUS_WIDTH", 23, 20, 'h0);
-      this.PCIE_BACK_PRESSURE = new(this, "PCIE_BACK_PRESSURE", 4, 4, 'h0);
-      this.CLR_MAX_LINE_BUFF_CNT = new(this, "CLR_MAX_LINE_BUFF_CNT", 0, 0, 'h0);
+      this.MAX_LINE_BUFF_CNT = new(this, "MAX_LINE_BUFF_CNT", RO, 31, 28, 'h0);
+      this.LINE_PTR_WIDTH = new(this, "LINE_PTR_WIDTH", RW, 25, 24, 'h2);
+      this.ADDRESS_BUS_WIDTH = new(this, "ADDRESS_BUS_WIDTH", RO, 23, 20, 'h0);
+      this.PCIE_BACK_PRESSURE = new(this, "PCIE_BACK_PRESSURE", RW2C, 4, 4, 'h0);
+      this.CLR_MAX_LINE_BUFF_CNT = new(this, "CLR_MAX_LINE_BUFF_CNT", WO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -322,9 +324,9 @@ class Creg_dma_tlp extends Cregister;
 
 
       // Member instatiation
-      this.MAX_PAYLOAD = new(this, "MAX_PAYLOAD", 27, 16, 'h0);
-      this.BUS_MASTER_EN = new(this, "BUS_MASTER_EN", 3, 3, 'h0);
-      this.CFG_MAX_PLD = new(this, "CFG_MAX_PLD", 2, 0, 'h0);
+      this.MAX_PAYLOAD = new(this, "MAX_PAYLOAD", RO, 27, 16, 'h0);
+      this.BUS_MASTER_EN = new(this, "BUS_MASTER_EN", RO, 3, 3, 'h0);
+      this.CFG_MAX_PLD = new(this, "CFG_MAX_PLD", RO, 2, 0, 'h0);
    endfunction
 
 endclass
@@ -388,16 +390,16 @@ class Creg_acq_grab_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.RESET_GRAB = new(this, "RESET_GRAB", 31, 31, 'h0);
-      this.GRAB_ROI2_EN = new(this, "GRAB_ROI2_EN", 29, 29, 'h0);
-      this.ABORT_GRAB = new(this, "ABORT_GRAB", 28, 28, 'h0);
-      this.TRIGGER_OVERLAP_BUFFn = new(this, "TRIGGER_OVERLAP_BUFFn", 16, 16, 'h0);
-      this.TRIGGER_OVERLAP = new(this, "TRIGGER_OVERLAP", 15, 15, 'h1);
-      this.TRIGGER_ACT = new(this, "TRIGGER_ACT", 14, 12, 'h0);
-      this.TRIGGER_SRC = new(this, "TRIGGER_SRC", 10, 8, 'h0);
-      this.GRAB_SS = new(this, "GRAB_SS", 4, 4, 'h0);
-      this.BUFFER_ID = new(this, "BUFFER_ID", 1, 1, 'h0);
-      this.GRAB_CMD = new(this, "GRAB_CMD", 0, 0, 'h0);
+      this.RESET_GRAB = new(this, "RESET_GRAB", RW, 31, 31, 'h0);
+      this.GRAB_ROI2_EN = new(this, "GRAB_ROI2_EN", RW, 29, 29, 'h0);
+      this.ABORT_GRAB = new(this, "ABORT_GRAB", WO, 28, 28, 'h0);
+      this.TRIGGER_OVERLAP_BUFFn = new(this, "TRIGGER_OVERLAP_BUFFn", RW, 16, 16, 'h0);
+      this.TRIGGER_OVERLAP = new(this, "TRIGGER_OVERLAP", RW, 15, 15, 'h1);
+      this.TRIGGER_ACT = new(this, "TRIGGER_ACT", RW, 14, 12, 'h0);
+      this.TRIGGER_SRC = new(this, "TRIGGER_SRC", RW, 10, 8, 'h0);
+      this.GRAB_SS = new(this, "GRAB_SS", WO, 4, 4, 'h0);
+      this.BUFFER_ID = new(this, "BUFFER_ID", RW, 1, 1, 'h0);
+      this.GRAB_CMD = new(this, "GRAB_CMD", WO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -428,21 +430,21 @@ class Creg_acq_grab_stat extends Cregister;
 
 
       // Member instatiation
-      this.GRAB_CMD_DONE = new(this, "GRAB_CMD_DONE", 31, 31, 'h0);
-      this.ABORT_PET = new(this, "ABORT_PET", 30, 30, 'h0);
-      this.ABORT_DELAI = new(this, "ABORT_DELAI", 29, 29, 'h0);
-      this.ABORT_DONE = new(this, "ABORT_DONE", 28, 28, 'h0);
-      this.TRIGGER_RDY = new(this, "TRIGGER_RDY", 24, 24, 'h0);
-      this.ABORT_MNGR_STAT = new(this, "ABORT_MNGR_STAT", 22, 20, 'h0);
-      this.TRIG_MNGR_STAT = new(this, "TRIG_MNGR_STAT", 19, 16, 'h0);
-      this.TIMER_MNGR_STAT = new(this, "TIMER_MNGR_STAT", 14, 12, 'h0);
-      this.GRAB_MNGR_STAT = new(this, "GRAB_MNGR_STAT", 11, 8, 'h0);
-      this.GRAB_FOT = new(this, "GRAB_FOT", 6, 6, 'h0);
-      this.GRAB_READOUT = new(this, "GRAB_READOUT", 5, 5, 'h0);
-      this.GRAB_EXPOSURE = new(this, "GRAB_EXPOSURE", 4, 4, 'h0);
-      this.GRAB_PENDING = new(this, "GRAB_PENDING", 2, 2, 'h0);
-      this.GRAB_ACTIVE = new(this, "GRAB_ACTIVE", 1, 1, 'h0);
-      this.GRAB_IDLE = new(this, "GRAB_IDLE", 0, 0, 'h0);
+      this.GRAB_CMD_DONE = new(this, "GRAB_CMD_DONE", RO, 31, 31, 'h0);
+      this.ABORT_PET = new(this, "ABORT_PET", RO, 30, 30, 'h0);
+      this.ABORT_DELAI = new(this, "ABORT_DELAI", RO, 29, 29, 'h0);
+      this.ABORT_DONE = new(this, "ABORT_DONE", RO, 28, 28, 'h0);
+      this.TRIGGER_RDY = new(this, "TRIGGER_RDY", RO, 24, 24, 'h0);
+      this.ABORT_MNGR_STAT = new(this, "ABORT_MNGR_STAT", RO, 22, 20, 'h0);
+      this.TRIG_MNGR_STAT = new(this, "TRIG_MNGR_STAT", RO, 19, 16, 'h0);
+      this.TIMER_MNGR_STAT = new(this, "TIMER_MNGR_STAT", RO, 14, 12, 'h0);
+      this.GRAB_MNGR_STAT = new(this, "GRAB_MNGR_STAT", RO, 11, 8, 'h0);
+      this.GRAB_FOT = new(this, "GRAB_FOT", RO, 6, 6, 'h0);
+      this.GRAB_READOUT = new(this, "GRAB_READOUT", RO, 5, 5, 'h0);
+      this.GRAB_EXPOSURE = new(this, "GRAB_EXPOSURE", RO, 4, 4, 'h0);
+      this.GRAB_PENDING = new(this, "GRAB_PENDING", RO, 2, 2, 'h0);
+      this.GRAB_ACTIVE = new(this, "GRAB_ACTIVE", RO, 1, 1, 'h0);
+      this.GRAB_IDLE = new(this, "GRAB_IDLE", RO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -461,9 +463,9 @@ class Creg_acq_readout_cfg1 extends Cregister;
 
 
       // Member instatiation
-      this.FOT_LENGTH_LINE = new(this, "FOT_LENGTH_LINE", 28, 24, 'h0);
-      this.EO_FOT_SEL = new(this, "EO_FOT_SEL", 16, 16, 'h0);
-      this.FOT_LENGTH = new(this, "FOT_LENGTH", 15, 0, 'h0);
+      this.FOT_LENGTH_LINE = new(this, "FOT_LENGTH_LINE", RW, 28, 24, 'h0);
+      this.EO_FOT_SEL = new(this, "EO_FOT_SEL", RW, 16, 16, 'h0);
+      this.FOT_LENGTH = new(this, "FOT_LENGTH", RW, 15, 0, 'h0);
    endfunction
 
 endclass
@@ -481,8 +483,8 @@ class Creg_acq_readout_cfg_frame_line extends Cregister;
 
 
       // Member instatiation
-      this.DUMMY_LINES = new(this, "DUMMY_LINES", 23, 16, 'h0);
-      this.CURR_FRAME_LINES = new(this, "CURR_FRAME_LINES", 12, 0, 'h0);
+      this.DUMMY_LINES = new(this, "DUMMY_LINES", RW, 23, 16, 'h0);
+      this.CURR_FRAME_LINES = new(this, "CURR_FRAME_LINES", RO, 12, 0, 'h0);
    endfunction
 
 endclass
@@ -499,7 +501,7 @@ class Creg_acq_readout_cfg2 extends Cregister;
 
 
       // Member instatiation
-      this.READOUT_LENGTH = new(this, "READOUT_LENGTH", 28, 0, 'h0);
+      this.READOUT_LENGTH = new(this, "READOUT_LENGTH", RO, 28, 0, 'h0);
    endfunction
 
 endclass
@@ -516,7 +518,7 @@ class Creg_acq_readout_cfg3 extends Cregister;
 
 
       // Member instatiation
-      this.LINE_TIME = new(this, "LINE_TIME", 15, 0, 'h16e);
+      this.LINE_TIME = new(this, "LINE_TIME", RW, 15, 0, 'h16e);
    endfunction
 
 endclass
@@ -534,8 +536,8 @@ class Creg_acq_readout_cfg4 extends Cregister;
 
 
       // Member instatiation
-      this.KEEP_OUT_TRIG_ENA = new(this, "KEEP_OUT_TRIG_ENA", 16, 16, 'h0);
-      this.KEEP_OUT_TRIG_START = new(this, "KEEP_OUT_TRIG_START", 15, 0, 'hffff);
+      this.KEEP_OUT_TRIG_ENA = new(this, "KEEP_OUT_TRIG_ENA", RW, 16, 16, 'h0);
+      this.KEEP_OUT_TRIG_START = new(this, "KEEP_OUT_TRIG_START", RW, 15, 0, 'hffff);
    endfunction
 
 endclass
@@ -553,8 +555,8 @@ class Creg_acq_exp_ctrl1 extends Cregister;
 
 
       // Member instatiation
-      this.EXPOSURE_LEV_MODE = new(this, "EXPOSURE_LEV_MODE", 28, 28, 'h0);
-      this.EXPOSURE_SS = new(this, "EXPOSURE_SS", 27, 0, 'h0);
+      this.EXPOSURE_LEV_MODE = new(this, "EXPOSURE_LEV_MODE", RW, 28, 28, 'h0);
+      this.EXPOSURE_SS = new(this, "EXPOSURE_SS", RW, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -571,7 +573,7 @@ class Creg_acq_exp_ctrl2 extends Cregister;
 
 
       // Member instatiation
-      this.EXPOSURE_DS = new(this, "EXPOSURE_DS", 27, 0, 'h0);
+      this.EXPOSURE_DS = new(this, "EXPOSURE_DS", RW, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -588,7 +590,7 @@ class Creg_acq_exp_ctrl3 extends Cregister;
 
 
       // Member instatiation
-      this.EXPOSURE_TS = new(this, "EXPOSURE_TS", 27, 0, 'h0);
+      this.EXPOSURE_TS = new(this, "EXPOSURE_TS", RW, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -605,7 +607,7 @@ class Creg_acq_trigger_delay extends Cregister;
 
 
       // Member instatiation
-      this.TRIGGER_DELAY = new(this, "TRIGGER_DELAY", 27, 0, 'h0);
+      this.TRIGGER_DELAY = new(this, "TRIGGER_DELAY", RW, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -624,9 +626,9 @@ class Creg_acq_strobe_ctrl1 extends Cregister;
 
 
       // Member instatiation
-      this.STROBE_E = new(this, "STROBE_E", 31, 31, 'h0);
-      this.STROBE_POL = new(this, "STROBE_POL", 28, 28, 'h0);
-      this.STROBE_START = new(this, "STROBE_START", 27, 0, 'h0);
+      this.STROBE_E = new(this, "STROBE_E", RW, 31, 31, 'h0);
+      this.STROBE_POL = new(this, "STROBE_POL", RW, 28, 28, 'h0);
+      this.STROBE_START = new(this, "STROBE_START", RW, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -646,10 +648,10 @@ class Creg_acq_strobe_ctrl2 extends Cregister;
 
 
       // Member instatiation
-      this.STROBE_MODE = new(this, "STROBE_MODE", 31, 31, 'h0);
-      this.STROBE_B_EN = new(this, "STROBE_B_EN", 29, 29, 'h0);
-      this.STROBE_A_EN = new(this, "STROBE_A_EN", 28, 28, 'h1);
-      this.STROBE_END = new(this, "STROBE_END", 27, 0, 'hfffffff);
+      this.STROBE_MODE = new(this, "STROBE_MODE", RW, 31, 31, 'h0);
+      this.STROBE_B_EN = new(this, "STROBE_B_EN", RW, 29, 29, 'h0);
+      this.STROBE_A_EN = new(this, "STROBE_A_EN", RW, 28, 28, 'h1);
+      this.STROBE_END = new(this, "STROBE_END", RW, 27, 0, 'hfffffff);
    endfunction
 
 endclass
@@ -669,10 +671,10 @@ class Creg_acq_acq_ser_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.SER_RWn = new(this, "SER_RWn", 16, 16, 'h1);
-      this.SER_CMD = new(this, "SER_CMD", 9, 8, 'h0);
-      this.SER_RF_SS = new(this, "SER_RF_SS", 4, 4, 'h0);
-      this.SER_WF_SS = new(this, "SER_WF_SS", 0, 0, 'h0);
+      this.SER_RWn = new(this, "SER_RWn", RW, 16, 16, 'h1);
+      this.SER_CMD = new(this, "SER_CMD", RW, 9, 8, 'h0);
+      this.SER_RF_SS = new(this, "SER_RF_SS", WO, 4, 4, 'h0);
+      this.SER_WF_SS = new(this, "SER_WF_SS", WO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -690,8 +692,8 @@ class Creg_acq_acq_ser_addata extends Cregister;
 
 
       // Member instatiation
-      this.SER_DAT = new(this, "SER_DAT", 31, 16, 'h0);
-      this.SER_ADD = new(this, "SER_ADD", 14, 0, 'h0);
+      this.SER_DAT = new(this, "SER_DAT", RW, 31, 16, 'h0);
+      this.SER_ADD = new(this, "SER_ADD", RW, 14, 0, 'h0);
    endfunction
 
 endclass
@@ -710,9 +712,9 @@ class Creg_acq_acq_ser_stat extends Cregister;
 
 
       // Member instatiation
-      this.SER_FIFO_EMPTY = new(this, "SER_FIFO_EMPTY", 24, 24, 'h0);
-      this.SER_BUSY = new(this, "SER_BUSY", 16, 16, 'h0);
-      this.SER_DAT_R = new(this, "SER_DAT_R", 15, 0, 'h0);
+      this.SER_FIFO_EMPTY = new(this, "SER_FIFO_EMPTY", RO, 24, 24, 'h0);
+      this.SER_BUSY = new(this, "SER_BUSY", RO, 16, 16, 'h0);
+      this.SER_DAT_R = new(this, "SER_DAT_R", RO, 15, 0, 'h0);
    endfunction
 
 endclass
@@ -734,12 +736,12 @@ class Creg_acq_sensor_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.SENSOR_REFRESH_TEMP = new(this, "SENSOR_REFRESH_TEMP", 24, 24, 'h0);
-      this.SENSOR_POWERDOWN = new(this, "SENSOR_POWERDOWN", 16, 16, 'h0);
-      this.SENSOR_COLOR = new(this, "SENSOR_COLOR", 8, 8, 'h0);
-      this.SENSOR_REG_UPDATE = new(this, "SENSOR_REG_UPDATE", 4, 4, 'h1);
-      this.SENSOR_RESETN = new(this, "SENSOR_RESETN", 1, 1, 'h1);
-      this.SENSOR_POWERUP = new(this, "SENSOR_POWERUP", 0, 0, 'h0);
+      this.SENSOR_REFRESH_TEMP = new(this, "SENSOR_REFRESH_TEMP", WO, 24, 24, 'h0);
+      this.SENSOR_POWERDOWN = new(this, "SENSOR_POWERDOWN", WO, 16, 16, 'h0);
+      this.SENSOR_COLOR = new(this, "SENSOR_COLOR", RW, 8, 8, 'h0);
+      this.SENSOR_REG_UPDATE = new(this, "SENSOR_REG_UPDATE", RW, 4, 4, 'h1);
+      this.SENSOR_RESETN = new(this, "SENSOR_RESETN", RW, 1, 1, 'h1);
+      this.SENSOR_POWERUP = new(this, "SENSOR_POWERUP", WO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -763,14 +765,14 @@ class Creg_acq_sensor_stat extends Cregister;
 
 
       // Member instatiation
-      this.SENSOR_TEMP = new(this, "SENSOR_TEMP", 31, 24, 'h0);
-      this.SENSOR_TEMP_VALID = new(this, "SENSOR_TEMP_VALID", 23, 23, 'h0);
-      this.SENSOR_POWERDOWN = new(this, "SENSOR_POWERDOWN", 16, 16, 'h0);
-      this.SENSOR_RESETN = new(this, "SENSOR_RESETN", 13, 13, 'h0);
-      this.SENSOR_OSC_EN = new(this, "SENSOR_OSC_EN", 12, 12, 'h0);
-      this.SENSOR_VCC_PG = new(this, "SENSOR_VCC_PG", 8, 8, 'h0);
-      this.SENSOR_POWERUP_STAT = new(this, "SENSOR_POWERUP_STAT", 1, 1, 'h0);
-      this.SENSOR_POWERUP_DONE = new(this, "SENSOR_POWERUP_DONE", 0, 0, 'h0);
+      this.SENSOR_TEMP = new(this, "SENSOR_TEMP", RO, 31, 24, 'h0);
+      this.SENSOR_TEMP_VALID = new(this, "SENSOR_TEMP_VALID", RO, 23, 23, 'h0);
+      this.SENSOR_POWERDOWN = new(this, "SENSOR_POWERDOWN", RO, 16, 16, 'h0);
+      this.SENSOR_RESETN = new(this, "SENSOR_RESETN", RO, 13, 13, 'h0);
+      this.SENSOR_OSC_EN = new(this, "SENSOR_OSC_EN", RO, 12, 12, 'h0);
+      this.SENSOR_VCC_PG = new(this, "SENSOR_VCC_PG", RO, 8, 8, 'h0);
+      this.SENSOR_POWERUP_STAT = new(this, "SENSOR_POWERUP_STAT", RO, 1, 1, 'h0);
+      this.SENSOR_POWERUP_DONE = new(this, "SENSOR_POWERUP_DONE", RO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -791,11 +793,11 @@ class Creg_acq_sensor_subsampling extends Cregister;
 
 
       // Member instatiation
-      this.reserved1 = new(this, "reserved1", 15, 4, 'h0);
-      this.ACTIVE_SUBSAMPLING_Y = new(this, "ACTIVE_SUBSAMPLING_Y", 3, 3, 'h0);
-      this.reserved0 = new(this, "reserved0", 2, 2, 'h0);
-      this.M_SUBSAMPLING_Y = new(this, "M_SUBSAMPLING_Y", 1, 1, 'h0);
-      this.SUBSAMPLING_X = new(this, "SUBSAMPLING_X", 0, 0, 'h0);
+      this.reserved1 = new(this, "reserved1", RO, 15, 4, 'h0);
+      this.ACTIVE_SUBSAMPLING_Y = new(this, "ACTIVE_SUBSAMPLING_Y", RW, 3, 3, 'h0);
+      this.reserved0 = new(this, "reserved0", RO, 2, 2, 'h0);
+      this.M_SUBSAMPLING_Y = new(this, "M_SUBSAMPLING_Y", RW, 1, 1, 'h0);
+      this.SUBSAMPLING_X = new(this, "SUBSAMPLING_X", RW, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -814,9 +816,9 @@ class Creg_acq_sensor_gain_ana extends Cregister;
 
 
       // Member instatiation
-      this.reserved1 = new(this, "reserved1", 15, 11, 'h0);
-      this.ANALOG_GAIN = new(this, "ANALOG_GAIN", 10, 8, 'h1);
-      this.reserved0 = new(this, "reserved0", 7, 0, 'h0);
+      this.reserved1 = new(this, "reserved1", RO, 15, 11, 'h0);
+      this.ANALOG_GAIN = new(this, "ANALOG_GAIN", RW, 10, 8, 'h1);
+      this.reserved0 = new(this, "reserved0", RO, 7, 0, 'h0);
    endfunction
 
 endclass
@@ -834,8 +836,8 @@ class Creg_acq_sensor_roi_y_start extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 10, 'h0);
-      this.Y_START = new(this, "Y_START", 9, 0, 'h0);
+      this.reserved = new(this, "reserved", RO, 15, 10, 'h0);
+      this.Y_START = new(this, "Y_START", RW, 9, 0, 'h0);
    endfunction
 
 endclass
@@ -853,8 +855,8 @@ class Creg_acq_sensor_roi_y_size extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 10, 'h0);
-      this.Y_SIZE = new(this, "Y_SIZE", 9, 0, 'h302);
+      this.reserved = new(this, "reserved", RO, 15, 10, 'h0);
+      this.Y_SIZE = new(this, "Y_SIZE", RW, 9, 0, 'h302);
    endfunction
 
 endclass
@@ -873,9 +875,9 @@ class Creg_acq_sensor_m_lines extends Cregister;
 
 
       // Member instatiation
-      this.M_LINES_DISPLAY = new(this, "M_LINES_DISPLAY", 15, 15, 'h0);
-      this.M_SUPPRESSED = new(this, "M_SUPPRESSED", 14, 10, 'h0);
-      this.M_LINES_SENSOR = new(this, "M_LINES_SENSOR", 9, 0, 'h8);
+      this.M_LINES_DISPLAY = new(this, "M_LINES_DISPLAY", RW, 15, 15, 'h0);
+      this.M_SUPPRESSED = new(this, "M_SUPPRESSED", RW, 14, 10, 'h0);
+      this.M_LINES_SENSOR = new(this, "M_LINES_SENSOR", RW, 9, 0, 'h8);
    endfunction
 
 endclass
@@ -893,8 +895,8 @@ class Creg_acq_sensor_dp_gr extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 12, 'h0);
-      this.DP_OFFSET_GR = new(this, "DP_OFFSET_GR", 11, 0, 'h100);
+      this.reserved = new(this, "reserved", RO, 15, 12, 'h0);
+      this.DP_OFFSET_GR = new(this, "DP_OFFSET_GR", RW, 11, 0, 'h100);
    endfunction
 
 endclass
@@ -912,8 +914,8 @@ class Creg_acq_sensor_dp_gb extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 12, 'h0);
-      this.DP_OFFSET_GB = new(this, "DP_OFFSET_GB", 11, 0, 'h100);
+      this.reserved = new(this, "reserved", RO, 15, 12, 'h0);
+      this.DP_OFFSET_GB = new(this, "DP_OFFSET_GB", RW, 11, 0, 'h100);
    endfunction
 
 endclass
@@ -931,8 +933,8 @@ class Creg_acq_sensor_dp_r extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 12, 'h0);
-      this.DP_OFFSET_R = new(this, "DP_OFFSET_R", 11, 0, 'h100);
+      this.reserved = new(this, "reserved", RO, 15, 12, 'h0);
+      this.DP_OFFSET_R = new(this, "DP_OFFSET_R", RW, 11, 0, 'h100);
    endfunction
 
 endclass
@@ -950,8 +952,8 @@ class Creg_acq_sensor_dp_b extends Cregister;
 
 
       // Member instatiation
-      this.reserved = new(this, "reserved", 15, 12, 'h0);
-      this.DP_OFFSET_B = new(this, "DP_OFFSET_B", 11, 0, 'h100);
+      this.reserved = new(this, "reserved", RO, 15, 12, 'h0);
+      this.DP_OFFSET_B = new(this, "DP_OFFSET_B", RW, 11, 0, 'h100);
    endfunction
 
 endclass
@@ -971,10 +973,10 @@ class Creg_acq_sensor_gain_dig_g extends Cregister;
 
 
       // Member instatiation
-      this.reserved1 = new(this, "reserved1", 15, 15, 'h0);
-      this.DG_FACTOR_GR = new(this, "DG_FACTOR_GR", 14, 8, 'h20);
-      this.reserved0 = new(this, "reserved0", 7, 7, 'h0);
-      this.DG_FACTOR_GB = new(this, "DG_FACTOR_GB", 6, 0, 'h20);
+      this.reserved1 = new(this, "reserved1", RO, 15, 15, 'h0);
+      this.DG_FACTOR_GR = new(this, "DG_FACTOR_GR", RW, 14, 8, 'h20);
+      this.reserved0 = new(this, "reserved0", RO, 7, 7, 'h0);
+      this.DG_FACTOR_GB = new(this, "DG_FACTOR_GB", RW, 6, 0, 'h20);
    endfunction
 
 endclass
@@ -994,10 +996,10 @@ class Creg_acq_sensor_gain_dig_rb extends Cregister;
 
 
       // Member instatiation
-      this.reserved1 = new(this, "reserved1", 15, 15, 'h0);
-      this.DG_FACTOR_R = new(this, "DG_FACTOR_R", 14, 8, 'h20);
-      this.reserved0 = new(this, "reserved0", 7, 7, 'h0);
-      this.DG_FACTOR_B = new(this, "DG_FACTOR_B", 6, 0, 'h20);
+      this.reserved1 = new(this, "reserved1", RO, 15, 15, 'h0);
+      this.DG_FACTOR_R = new(this, "DG_FACTOR_R", RW, 14, 8, 'h20);
+      this.reserved0 = new(this, "reserved0", RO, 7, 7, 'h0);
+      this.DG_FACTOR_B = new(this, "DG_FACTOR_B", RW, 6, 0, 'h20);
    endfunction
 
 endclass
@@ -1014,7 +1016,7 @@ class Creg_acq_fpga_roi_x_start extends Cregister;
 
 
       // Member instatiation
-      this.X_START = new(this, "X_START", 12, 0, 'h0);
+      this.X_START = new(this, "X_START", RW, 12, 0, 'h0);
    endfunction
 
 endclass
@@ -1031,7 +1033,7 @@ class Creg_acq_fpga_roi_x_size extends Cregister;
 
 
       // Member instatiation
-      this.X_SIZE = new(this, "X_SIZE", 12, 0, 'h0);
+      this.X_SIZE = new(this, "X_SIZE", RW, 12, 0, 'h0);
    endfunction
 
 endclass
@@ -1051,10 +1053,10 @@ class Creg_acq_debug_pins extends Cregister;
 
 
       // Member instatiation
-      this.Debug3_sel = new(this, "Debug3_sel", 28, 24, 'h1f);
-      this.Debug2_sel = new(this, "Debug2_sel", 20, 16, 'h1f);
-      this.Debug1_sel = new(this, "Debug1_sel", 12, 8, 'h1f);
-      this.Debug0_sel = new(this, "Debug0_sel", 4, 0, 'h1f);
+      this.Debug3_sel = new(this, "Debug3_sel", RW, 28, 24, 'h1f);
+      this.Debug2_sel = new(this, "Debug2_sel", RW, 20, 16, 'h1f);
+      this.Debug1_sel = new(this, "Debug1_sel", RW, 12, 8, 'h1f);
+      this.Debug0_sel = new(this, "Debug0_sel", RW, 4, 0, 'h1f);
    endfunction
 
 endclass
@@ -1072,8 +1074,8 @@ class Creg_acq_trigger_missed extends Cregister;
 
 
       // Member instatiation
-      this.TRIGGER_MISSED_RST = new(this, "TRIGGER_MISSED_RST", 28, 28, 'h0);
-      this.TRIGGER_MISSED_CNTR = new(this, "TRIGGER_MISSED_CNTR", 15, 0, 'h0);
+      this.TRIGGER_MISSED_RST = new(this, "TRIGGER_MISSED_RST", WO, 28, 28, 'h0);
+      this.TRIGGER_MISSED_CNTR = new(this, "TRIGGER_MISSED_CNTR", RO, 15, 0, 'h0);
    endfunction
 
 endclass
@@ -1090,7 +1092,7 @@ class Creg_acq_sensor_fps extends Cregister;
 
 
       // Member instatiation
-      this.SENSOR_FPS = new(this, "SENSOR_FPS", 15, 0, 'h0);
+      this.SENSOR_FPS = new(this, "SENSOR_FPS", RO, 15, 0, 'h0);
    endfunction
 
 endclass
@@ -1107,7 +1109,7 @@ class Creg_acq_sensor_fps2 extends Cregister;
 
 
       // Member instatiation
-      this.SENSOR_FPS = new(this, "SENSOR_FPS", 19, 0, 'h0);
+      this.SENSOR_FPS = new(this, "SENSOR_FPS", RO, 19, 0, 'h0);
    endfunction
 
 endclass
@@ -1126,9 +1128,9 @@ class Creg_acq_debug extends Cregister;
 
 
       // Member instatiation
-      this.DEBUG_RST_CNTR = new(this, "DEBUG_RST_CNTR", 28, 28, 'h1);
-      this.LED_TEST_COLOR = new(this, "LED_TEST_COLOR", 2, 1, 'h0);
-      this.LED_TEST = new(this, "LED_TEST", 0, 0, 'h0);
+      this.DEBUG_RST_CNTR = new(this, "DEBUG_RST_CNTR", RW, 28, 28, 'h1);
+      this.LED_TEST_COLOR = new(this, "LED_TEST_COLOR", RW, 2, 1, 'h0);
+      this.LED_TEST = new(this, "LED_TEST", RW, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1145,7 +1147,7 @@ class Creg_acq_debug_cntr1 extends Cregister;
 
 
       // Member instatiation
-      this.SENSOR_FRAME_DURATION = new(this, "SENSOR_FRAME_DURATION", 27, 0, 'h0);
+      this.SENSOR_FRAME_DURATION = new(this, "SENSOR_FRAME_DURATION", RO, 27, 0, 'h0);
    endfunction
 
 endclass
@@ -1163,8 +1165,8 @@ class Creg_acq_exp_fot extends Cregister;
 
 
       // Member instatiation
-      this.EXP_FOT = new(this, "EXP_FOT", 16, 16, 'h1);
-      this.EXP_FOT_TIME = new(this, "EXP_FOT_TIME", 11, 0, 'h9ee);
+      this.EXP_FOT = new(this, "EXP_FOT", RW, 16, 16, 'h1);
+      this.EXP_FOT_TIME = new(this, "EXP_FOT_TIME", RW, 11, 0, 'h9ee);
    endfunction
 
 endclass
@@ -1181,7 +1183,7 @@ class Creg_acq_acq_sfnc extends Cregister;
 
 
       // Member instatiation
-      this.RELOAD_GRAB_PARAMS = new(this, "RELOAD_GRAB_PARAMS", 0, 0, 'h1);
+      this.RELOAD_GRAB_PARAMS = new(this, "RELOAD_GRAB_PARAMS", RW, 0, 0, 'h1);
    endfunction
 
 endclass
@@ -1200,9 +1202,9 @@ class Creg_acq_timer_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.ADAPTATIVE = new(this, "ADAPTATIVE", 8, 8, 'h1);
-      this.TIMERSTOP = new(this, "TIMERSTOP", 4, 4, 'h0);
-      this.TIMERSTART = new(this, "TIMERSTART", 0, 0, 'h0);
+      this.ADAPTATIVE = new(this, "ADAPTATIVE", RW, 8, 8, 'h1);
+      this.TIMERSTOP = new(this, "TIMERSTOP", WO, 4, 4, 'h0);
+      this.TIMERSTART = new(this, "TIMERSTART", WO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1219,7 +1221,7 @@ class Creg_acq_timer_delay extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -1236,7 +1238,7 @@ class Creg_acq_timer_duration extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RW, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -1355,11 +1357,11 @@ class Creg_hispi_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.SW_CLR_IDELAYCTRL = new(this, "SW_CLR_IDELAYCTRL", 4, 4, 'h0);
-      this.SW_CLR_HISPI = new(this, "SW_CLR_HISPI", 3, 3, 'h0);
-      this.SW_CALIB_SERDES = new(this, "SW_CALIB_SERDES", 2, 2, 'h0);
-      this.ENABLE_DATA_PATH = new(this, "ENABLE_DATA_PATH", 1, 1, 'h0);
-      this.ENABLE_HISPI = new(this, "ENABLE_HISPI", 0, 0, 'h0);
+      this.SW_CLR_IDELAYCTRL = new(this, "SW_CLR_IDELAYCTRL", RW, 4, 4, 'h0);
+      this.SW_CLR_HISPI = new(this, "SW_CLR_HISPI", RW, 3, 3, 'h0);
+      this.SW_CALIB_SERDES = new(this, "SW_CALIB_SERDES", WO, 2, 2, 'h0);
+      this.ENABLE_DATA_PATH = new(this, "ENABLE_DATA_PATH", RW, 1, 1, 'h0);
+      this.ENABLE_HISPI = new(this, "ENABLE_HISPI", RW, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1381,12 +1383,12 @@ class Creg_hispi_status extends Cregister;
 
 
       // Member instatiation
-      this.FSM = new(this, "FSM", 31, 28, 'h0);
-      this.CRC_ERROR = new(this, "CRC_ERROR", 4, 4, 'h0);
-      this.PHY_BIT_LOCKED_ERROR = new(this, "PHY_BIT_LOCKED_ERROR", 3, 3, 'h0);
-      this.FIFO_ERROR = new(this, "FIFO_ERROR", 2, 2, 'h0);
-      this.CALIBRATION_ERROR = new(this, "CALIBRATION_ERROR", 1, 1, 'h0);
-      this.CALIBRATION_DONE = new(this, "CALIBRATION_DONE", 0, 0, 'h0);
+      this.FSM = new(this, "FSM", RO, 31, 28, 'h0);
+      this.CRC_ERROR = new(this, "CRC_ERROR", RO, 4, 4, 'h0);
+      this.PHY_BIT_LOCKED_ERROR = new(this, "PHY_BIT_LOCKED_ERROR", RO, 3, 3, 'h0);
+      this.FIFO_ERROR = new(this, "FIFO_ERROR", RO, 2, 2, 'h0);
+      this.CALIBRATION_ERROR = new(this, "CALIBRATION_ERROR", RO, 1, 1, 'h0);
+      this.CALIBRATION_DONE = new(this, "CALIBRATION_DONE", RO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1403,7 +1405,7 @@ class Creg_hispi_idelayctrl_status extends Cregister;
 
 
       // Member instatiation
-      this.PLL_LOCKED = new(this, "PLL_LOCKED", 0, 0, 'h0);
+      this.PLL_LOCKED = new(this, "PLL_LOCKED", RO, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1420,7 +1422,7 @@ class Creg_hispi_idle_character extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 11, 0, 'h3A6);
+      this.VALUE = new(this, "VALUE", RW, 11, 0, 'h3A6);
    endfunction
 
 endclass
@@ -1439,9 +1441,9 @@ class Creg_hispi_phy extends Cregister;
 
 
       // Member instatiation
-      this.PIXEL_PER_LANE = new(this, "PIXEL_PER_LANE", 25, 16, 'hAE);
-      this.MUX_RATIO = new(this, "MUX_RATIO", 10, 8, 'h4);
-      this.NB_LANES = new(this, "NB_LANES", 2, 0, 'h0);
+      this.PIXEL_PER_LANE = new(this, "PIXEL_PER_LANE", RW, 25, 16, 'hAE);
+      this.MUX_RATIO = new(this, "MUX_RATIO", RO, 10, 8, 'h4);
+      this.NB_LANES = new(this, "NB_LANES", RW, 2, 0, 'h0);
    endfunction
 
 endclass
@@ -1459,8 +1461,8 @@ class Creg_hispi_frame_cfg extends Cregister;
 
 
       // Member instatiation
-      this.LINES_PER_FRAME = new(this, "LINES_PER_FRAME", 27, 16, 'hc1e);
-      this.PIXELS_PER_LINE = new(this, "PIXELS_PER_LINE", 12, 0, 'h1050);
+      this.LINES_PER_FRAME = new(this, "LINES_PER_FRAME", RW, 27, 16, 'hc1e);
+      this.PIXELS_PER_LINE = new(this, "PIXELS_PER_LINE", RW, 12, 0, 'h1050);
    endfunction
 
 endclass
@@ -1478,8 +1480,8 @@ class Creg_hispi_frame_cfg_x_valid extends Cregister;
 
 
       // Member instatiation
-      this.X_END = new(this, "X_END", 28, 16, 'h1023);
-      this.X_START = new(this, "X_START", 12, 0, 'h24);
+      this.X_END = new(this, "X_END", RW, 28, 16, 'h1023);
+      this.X_START = new(this, "X_START", RW, 12, 0, 'h24);
    endfunction
 
 endclass
@@ -1504,15 +1506,15 @@ class Creg_hispi_lane_decoder_status extends Cregister;
 
 
       // Member instatiation
-      this.CRC_ERROR = new(this, "CRC_ERROR", 15, 15, 'h0);
-      this.PHY_SYNC_ERROR = new(this, "PHY_SYNC_ERROR", 14, 14, 'h0);
-      this.PHY_BIT_LOCKED_ERROR = new(this, "PHY_BIT_LOCKED_ERROR", 13, 13, 'h0);
-      this.PHY_BIT_LOCKED = new(this, "PHY_BIT_LOCKED", 12, 12, 'h0);
-      this.CALIBRATION_TAP_VALUE = new(this, "CALIBRATION_TAP_VALUE", 8, 4, 'h0);
-      this.CALIBRATION_ERROR = new(this, "CALIBRATION_ERROR", 3, 3, 'h0);
-      this.CALIBRATION_DONE = new(this, "CALIBRATION_DONE", 2, 2, 'h0);
-      this.FIFO_UNDERRUN = new(this, "FIFO_UNDERRUN", 1, 1, 'h0);
-      this.FIFO_OVERRUN = new(this, "FIFO_OVERRUN", 0, 0, 'h0);
+      this.CRC_ERROR = new(this, "CRC_ERROR", RW2C, 15, 15, 'h0);
+      this.PHY_SYNC_ERROR = new(this, "PHY_SYNC_ERROR", RW2C, 14, 14, 'h0);
+      this.PHY_BIT_LOCKED_ERROR = new(this, "PHY_BIT_LOCKED_ERROR", RW2C, 13, 13, 'h0);
+      this.PHY_BIT_LOCKED = new(this, "PHY_BIT_LOCKED", RO, 12, 12, 'h0);
+      this.CALIBRATION_TAP_VALUE = new(this, "CALIBRATION_TAP_VALUE", RO, 8, 4, 'h0);
+      this.CALIBRATION_ERROR = new(this, "CALIBRATION_ERROR", RW2C, 3, 3, 'h0);
+      this.CALIBRATION_DONE = new(this, "CALIBRATION_DONE", RO, 2, 2, 'h0);
+      this.FIFO_UNDERRUN = new(this, "FIFO_UNDERRUN", RW2C, 1, 1, 'h0);
+      this.FIFO_OVERRUN = new(this, "FIFO_OVERRUN", RW2C, 0, 0, 'h0);
    endfunction
 
 endclass
@@ -1529,7 +1531,7 @@ class Creg_hispi_tap_histogram extends Cregister;
 
 
       // Member instatiation
-      this.VALUE = new(this, "VALUE", 31, 0, 'h0);
+      this.VALUE = new(this, "VALUE", RO, 31, 0, 'h0);
    endfunction
 
 endclass
@@ -1553,14 +1555,14 @@ class Creg_hispi_debug extends Cregister;
 
 
       // Member instatiation
-      this.MANUAL_CALIB_EN = new(this, "MANUAL_CALIB_EN", 31, 31, 'h0);
-      this.LOAD_TAPS = new(this, "LOAD_TAPS", 30, 30, 'h0);
-      this.TAP_LANE_5 = new(this, "TAP_LANE_5", 29, 25, 'h0);
-      this.TAP_LANE_4 = new(this, "TAP_LANE_4", 24, 20, 'h0);
-      this.TAP_LANE_3 = new(this, "TAP_LANE_3", 19, 15, 'h0);
-      this.TAP_LANE_2 = new(this, "TAP_LANE_2", 14, 10, 'h0);
-      this.TAP_LANE_1 = new(this, "TAP_LANE_1", 9, 5, 'h0);
-      this.TAP_LANE_0 = new(this, "TAP_LANE_0", 4, 0, 'h0);
+      this.MANUAL_CALIB_EN = new(this, "MANUAL_CALIB_EN", RW, 31, 31, 'h0);
+      this.LOAD_TAPS = new(this, "LOAD_TAPS", WO, 30, 30, 'h0);
+      this.TAP_LANE_5 = new(this, "TAP_LANE_5", RW, 29, 25, 'h0);
+      this.TAP_LANE_4 = new(this, "TAP_LANE_4", RW, 24, 20, 'h0);
+      this.TAP_LANE_3 = new(this, "TAP_LANE_3", RW, 19, 15, 'h0);
+      this.TAP_LANE_2 = new(this, "TAP_LANE_2", RW, 14, 10, 'h0);
+      this.TAP_LANE_1 = new(this, "TAP_LANE_1", RW, 9, 5, 'h0);
+      this.TAP_LANE_0 = new(this, "TAP_LANE_0", RW, 4, 0, 'h0);
    endfunction
 
 endclass
@@ -1622,8 +1624,8 @@ class Creg_dpc_dpc_capabilities extends Cregister;
 
 
       // Member instatiation
-      this.DPC_LIST_LENGTH = new(this, "DPC_LIST_LENGTH", 27, 16, 'h0);
-      this.DPC_VER = new(this, "DPC_VER", 3, 0, 'h0);
+      this.DPC_LIST_LENGTH = new(this, "DPC_LIST_LENGTH", RO, 27, 16, 'h0);
+      this.DPC_VER = new(this, "DPC_VER", RO, 3, 0, 'h0);
    endfunction
 
 endclass
@@ -1647,14 +1649,14 @@ class Creg_dpc_dpc_list_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.dpc_fifo_reset = new(this, "dpc_fifo_reset", 29, 29, 'h0);
-      this.dpc_firstlast_line_rem = new(this, "dpc_firstlast_line_rem", 28, 28, 'h0);
-      this.dpc_list_count = new(this, "dpc_list_count", 27, 16, 'h0);
-      this.dpc_pattern0_cfg = new(this, "dpc_pattern0_cfg", 15, 15, 'h0);
-      this.dpc_enable = new(this, "dpc_enable", 14, 14, 'h0);
-      this.dpc_list_WRn = new(this, "dpc_list_WRn", 13, 13, 'h0);
-      this.dpc_list_ss = new(this, "dpc_list_ss", 12, 12, 'h0);
-      this.dpc_list_add = new(this, "dpc_list_add", 11, 0, 'h0);
+      this.dpc_fifo_reset = new(this, "dpc_fifo_reset", RW, 29, 29, 'h0);
+      this.dpc_firstlast_line_rem = new(this, "dpc_firstlast_line_rem", RW, 28, 28, 'h0);
+      this.dpc_list_count = new(this, "dpc_list_count", RW, 27, 16, 'h0);
+      this.dpc_pattern0_cfg = new(this, "dpc_pattern0_cfg", RW, 15, 15, 'h0);
+      this.dpc_enable = new(this, "dpc_enable", RW, 14, 14, 'h0);
+      this.dpc_list_WRn = new(this, "dpc_list_WRn", RW, 13, 13, 'h0);
+      this.dpc_list_ss = new(this, "dpc_list_ss", WO, 12, 12, 'h0);
+      this.dpc_list_add = new(this, "dpc_list_add", RW, 11, 0, 'h0);
    endfunction
 
 endclass
@@ -1672,8 +1674,8 @@ class Creg_dpc_dpc_list_stat extends Cregister;
 
 
       // Member instatiation
-      this.dpc_fifo_underrun = new(this, "dpc_fifo_underrun", 31, 31, 'h0);
-      this.dpc_fifo_overrun = new(this, "dpc_fifo_overrun", 30, 30, 'h0);
+      this.dpc_fifo_underrun = new(this, "dpc_fifo_underrun", RO, 31, 31, 'h0);
+      this.dpc_fifo_overrun = new(this, "dpc_fifo_overrun", RO, 30, 30, 'h0);
    endfunction
 
 endclass
@@ -1691,8 +1693,8 @@ class Creg_dpc_dpc_list_data1 extends Cregister;
 
 
       // Member instatiation
-      this.dpc_list_corr_y = new(this, "dpc_list_corr_y", 27, 16, 'h0);
-      this.dpc_list_corr_x = new(this, "dpc_list_corr_x", 12, 0, 'h0);
+      this.dpc_list_corr_y = new(this, "dpc_list_corr_y", RW, 27, 16, 'h0);
+      this.dpc_list_corr_x = new(this, "dpc_list_corr_x", RW, 12, 0, 'h0);
    endfunction
 
 endclass
@@ -1709,7 +1711,7 @@ class Creg_dpc_dpc_list_data2 extends Cregister;
 
 
       // Member instatiation
-      this.dpc_list_corr_pattern = new(this, "dpc_list_corr_pattern", 7, 0, 'h0);
+      this.dpc_list_corr_pattern = new(this, "dpc_list_corr_pattern", RW, 7, 0, 'h0);
    endfunction
 
 endclass
@@ -1727,8 +1729,8 @@ class Creg_dpc_dpc_list_data1_rd extends Cregister;
 
 
       // Member instatiation
-      this.dpc_list_corr_y = new(this, "dpc_list_corr_y", 27, 16, 'h0);
-      this.dpc_list_corr_x = new(this, "dpc_list_corr_x", 12, 0, 'h0);
+      this.dpc_list_corr_y = new(this, "dpc_list_corr_y", RO, 27, 16, 'h0);
+      this.dpc_list_corr_x = new(this, "dpc_list_corr_x", RO, 12, 0, 'h0);
    endfunction
 
 endclass
@@ -1745,7 +1747,7 @@ class Creg_dpc_dpc_list_data2_rd extends Cregister;
 
 
       // Member instatiation
-      this.dpc_list_corr_pattern = new(this, "dpc_list_corr_pattern", 7, 0, 'h0);
+      this.dpc_list_corr_pattern = new(this, "dpc_list_corr_pattern", RO, 7, 0, 'h0);
    endfunction
 
 endclass
@@ -1791,8 +1793,8 @@ class Creg_lut_lut_capabilities extends Cregister;
 
 
       // Member instatiation
-      this.LUT_SIZE_CONFIG = new(this, "LUT_SIZE_CONFIG", 27, 16, 'h0);
-      this.LUT_VER = new(this, "LUT_VER", 3, 0, 'h0);
+      this.LUT_SIZE_CONFIG = new(this, "LUT_SIZE_CONFIG", RO, 27, 16, 'h0);
+      this.LUT_VER = new(this, "LUT_VER", RO, 3, 0, 'h0);
    endfunction
 
 endclass
@@ -1814,12 +1816,12 @@ class Creg_lut_lut_ctrl extends Cregister;
 
 
       // Member instatiation
-      this.LUT_BYPASS = new(this, "LUT_BYPASS", 28, 28, 'h0);
-      this.LUT_DATA_W = new(this, "LUT_DATA_W", 23, 16, 'h0);
-      this.LUT_SEL = new(this, "LUT_SEL", 15, 12, 'h0);
-      this.LUT_WRN = new(this, "LUT_WRN", 11, 11, 'h0);
-      this.LUT_SS = new(this, "LUT_SS", 10, 10, 'h0);
-      this.LUT_ADD = new(this, "LUT_ADD", 9, 0, 'h0);
+      this.LUT_BYPASS = new(this, "LUT_BYPASS", RW, 28, 28, 'h0);
+      this.LUT_DATA_W = new(this, "LUT_DATA_W", RW, 23, 16, 'h0);
+      this.LUT_SEL = new(this, "LUT_SEL", RW, 15, 12, 'h0);
+      this.LUT_WRN = new(this, "LUT_WRN", RW, 11, 11, 'h0);
+      this.LUT_SS = new(this, "LUT_SS", WO, 10, 10, 'h0);
+      this.LUT_ADD = new(this, "LUT_ADD", RW, 9, 0, 'h0);
    endfunction
 
 endclass
@@ -1836,7 +1838,7 @@ class Creg_lut_lut_rb extends Cregister;
 
 
       // Member instatiation
-      this.LUT_RB = new(this, "LUT_RB", 7, 0, 'h0);
+      this.LUT_RB = new(this, "LUT_RB", RO, 7, 0, 'h0);
    endfunction
 
 endclass
@@ -1873,7 +1875,7 @@ class Creg_sysmonxil_temp extends Cregister;
 
 
       // Member instatiation
-      this.SMTEMP = new(this, "SMTEMP", 15, 4, 'h0);
+      this.SMTEMP = new(this, "SMTEMP", RO, 15, 4, 'h0);
    endfunction
 
 endclass
@@ -1890,7 +1892,7 @@ class Creg_sysmonxil_vccint extends Cregister;
 
 
       // Member instatiation
-      this.SMVINT = new(this, "SMVINT", 15, 4, 'h0);
+      this.SMVINT = new(this, "SMVINT", RO, 15, 4, 'h0);
    endfunction
 
 endclass
@@ -1907,7 +1909,7 @@ class Creg_sysmonxil_vccaux extends Cregister;
 
 
       // Member instatiation
-      this.SMVAUX = new(this, "SMVAUX", 15, 4, 'h0);
+      this.SMVAUX = new(this, "SMVAUX", RO, 15, 4, 'h0);
    endfunction
 
 endclass
@@ -1924,7 +1926,7 @@ class Creg_sysmonxil_vccbram extends Cregister;
 
 
       // Member instatiation
-      this.SMVBRAM = new(this, "SMVBRAM", 15, 4, 'h0);
+      this.SMVBRAM = new(this, "SMVBRAM", RO, 15, 4, 'h0);
    endfunction
 
 endclass
@@ -1941,7 +1943,7 @@ class Creg_sysmonxil_temp_max extends Cregister;
 
 
       // Member instatiation
-      this.SMTMAX = new(this, "SMTMAX", 15, 4, 'h0);
+      this.SMTMAX = new(this, "SMTMAX", RO, 15, 4, 'h0);
    endfunction
 
 endclass
@@ -1958,7 +1960,7 @@ class Creg_sysmonxil_temp_min extends Cregister;
 
 
       // Member instatiation
-      this.SMTMIN = new(this, "SMTMIN", 15, 4, 'h0);
+      this.SMTMIN = new(this, "SMTMIN", RO, 15, 4, 'h0);
    endfunction
 
 endclass
