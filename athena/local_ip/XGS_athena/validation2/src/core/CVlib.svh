@@ -7,9 +7,9 @@
 //
 `timescale 1ns / 1ps
 
-package CVlibPkg;
-import core_pkg::*;   //Cstatus is inside
+//import core_pkg::*;   //Cstatus is inside
 import driver_pkg::*;
+import core_pkg::Cstatus;
 
 
 
@@ -615,7 +615,4 @@ class CVlib;
 
 
 
-endclass : CVlib
-
-
-endpackage : CVlibPkg
+endclass

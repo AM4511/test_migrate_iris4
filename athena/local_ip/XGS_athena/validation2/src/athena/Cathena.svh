@@ -211,6 +211,106 @@ class Cathena;
 
 
 	endtask
+	
+	
+	//---------------------------------------
+	//  Program XGS MODEL
+	//---------------------------------------
+	task setXGScontroller();
+
+		real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
+		real xgs_ctrl_period;
+		int EXP_FOT_TIME;
+		int MLines;
+		int MLines_supressed;
+		int KEEP_OUT_TRIG_START_sysclk;
+		int KEEP_OUT_TRIG_END_sysclk;
+
+		// PROGRAM XGS CONTROLLER
+		$display("5. SPI configure the XGS_athena IP-Core controller section");
+
+		// A minimum delay is required before we can start
+		// SPI transactions [AM] Why? Can this be removed?
+		#50us;
+
+			// XGS Controller : SENSOR REG_UPDATE =1
+			// Give SPI control to XGS controller   : SENSOR REG_UPDATE =1
+		$display("  5.1 Write register : %s", regfile.ACQ.SENSOR_CTRL.get_path());
+		//host.write(SENSOR_CTRL_OFFSET, 16'h0012);
+		this.regfile.ACQ.SENSOR_CTRL.SENSOR_RESETN.set(1);
+		this.regfile.ACQ.SENSOR_CTRL.SENSOR_REG_UPDATE.set(1);
+		this.host.reg_write(regfile.ACQ.SENSOR_CTRL);
+
+
+		// XGS Controller : set the line time (in pixel clock)	
+		$display("  5.2 Write READOUT_CFG3 (line time) register %s", this.regfile.ACQ.READOUT_CFG3.get_path());
+		this.regfile.ACQ.READOUT_CFG3.LINE_TIME.set(this.line_time);
+		this.host.reg_write(this.regfile.ACQ.READOUT_CFG3);
+		
+		// XGS Controller : exposure time during FOT
+		$display("  5.3 Write EXP_FOT (exposure time during FOT) register %s", this.regfile.ACQ.EXP_FOT.get_path());
+		xgs_ctrl_period     = 16.0; // Ref clock preiod
+		xgs_bitrate_period  = (1000.0/32.4)/(2.0);  // 30.864197ns /2
+		EXP_FOT_TIME        = 5360;  //5.36us calculated from start of FOT to end of real exposure
+		
+		this.regfile.ACQ.EXP_FOT.EXP_FOT_TIME.set(EXP_FOT_TIME);
+		this.regfile.ACQ.EXP_FOT.EXP_FOT.set(1);   //Enable EXP during FOT
+		this.host.reg_write(this.regfile.ACQ.EXP_FOT);
+
+		// XGS Controller : Keepout trigger zone
+		$display("  5.4 Write READOUT_CFG4 (Keepout trigger zone) register %s", this.regfile.ACQ.READOUT_CFG4.get_path());
+
+		KEEP_OUT_TRIG_START_sysclk = ((line_time*xgs_bitrate_period) - 100 ) / xgs_ctrl_period;  //START Keepout trigger zone (100ns)
+		KEEP_OUT_TRIG_END_sysclk   = (line_time*xgs_bitrate_period)/xgs_ctrl_period;             //END   Keepout trigger zone (100ns), this is more for testing, monitor will reset the counter
+		//host.write(READOUT_CFG4_OFFSET, (KEEP_OUT_TRIG_END_sysclk<<16) + KEEP_OUT_TRIG_START_sysclk);
+		this.regfile.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_START.set(KEEP_OUT_TRIG_START_sysclk);
+		this.regfile.ACQ.READOUT_CFG4.KEEP_OUT_TRIG_ENA.set(KEEP_OUT_TRIG_END_sysclk);
+		this.host.reg_write(this.regfile.ACQ.READOUT_CFG4);
+		
+		//host.write(READOUT_CFG3_OFFSET, (0<<16) + line_time);      //Enable KEEP_OUT ZONE[bit 16]
+		this.regfile.ACQ.READOUT_CFG3.LINE_TIME.set((0<<16) + line_time); //[AM] WHY this line?
+		this.host.reg_write(this.regfile.ACQ.READOUT_CFG3);
+
+
+
+		// XGS Controller : M_lines
+		$display("  5.5 Write SENSOR_M_LINES register %s", this.regfile.ACQ.SENSOR_M_LINES);
+		MLines           = 0;
+		MLines_supressed = 0;
+		//host.write(SENSOR_M_LINES_OFFSET, (MLines_supressed<<10)+ MLines);    //M_LINE REGISTER
+		this.regfile.ACQ.SENSOR_M_LINES.M_LINES_SENSOR.set(MLines);
+		this.regfile.ACQ.SENSOR_M_LINES.M_SUPPRESSED.set(MLines_supressed);
+		this.host.reg_write(this.regfile.ACQ.SENSOR_M_LINES);
+		
+		// XGS Controller : Subsampling
+		//$display("  5.6 Write SENSOR_SUBSAMPLING register @0x%h", SENSOR_SUBSAMPLING_OFFSET);
+		//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h8); //SUBY
+		//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h1); //SUBX
+		//host.write(SENSOR_SUBSAMPLING_OFFSET, 'h9); //SUBX+Y
+		//host.write(SENSOR_SUBSAMPLING_OFFSET, 0); //NO SUB
+
+		// XGS Controller : Analog gain
+		$display("  5.7 Write SENSOR_GAIN_ANA register %s", this.regfile.ACQ.SENSOR_GAIN_ANA);
+		//host.write(SENSOR_GAIN_ANA_OFFSET, 2<<8);
+		this.regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN.set(2);
+	endtask				
+
+
+	////////////////////////////////////////////////////////////////
+	// Task : GenImage_XGS
+	////////////////////////////////////////////////////////////////
+	task automatic GenImage_XGS(input int ImgPattern);
+		//super.super.xgs_model_GenImage = 1'b0;      
+		xgs_spi_write(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
+		//host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!  
+		this.host.reg_poll(regfile.ACQ.ACQ_SER_STAT.SER_BUSY, .expectedData(0), .polling_period(1us));
+
+		#1ns;
+		xgs_spi_write(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
+		#10us;		
+		xgs_spi_write(8, 16'h0000);
+	endtask : GenImage_XGS	
+	
 
 endclass
 

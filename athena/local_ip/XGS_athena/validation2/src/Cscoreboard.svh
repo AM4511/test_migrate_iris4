@@ -1,5 +1,5 @@
 import xgs_athena_pkg::*;
-//import CImagePkg::*;
+import image_pkg::*;
 //import CscoreboardPkg::*;
 
 
@@ -186,7 +186,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	/////////////////////////////////////////////////////////////////////////
 	// Prediction de la rampe simple sans aucun processing
 	/////////////////////////////////////////////////////////////////////////
-    task predict_img(input CImage Image, longint fstart, int line_size, int line_pitch);
+    task predict_img(input Cimage Image, longint fstart, int line_size, int line_pitch);
 
        int Initial_X_pix;
        int nbElements=0;	   

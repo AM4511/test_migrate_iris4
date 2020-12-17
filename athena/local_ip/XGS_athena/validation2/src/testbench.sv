@@ -7,9 +7,9 @@
  
 
 `timescale 1ns / 1ps
-
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
+import tests_pkg::*;
 
 
 
@@ -17,7 +17,7 @@ module testbench;
 
  	parameter AXIL_DATA_WIDTH  = 32;
 	parameter AXIL_ADDR_WIDTH  = 11;
-  parameter AXIS_DATA_WIDTH  = 64;
+    parameter AXIS_DATA_WIDTH  = 64;
 	parameter AXIS_USER_WIDTH  = 4;
 	parameter GPIO_NUMB_INPUT  = 1;
 	parameter GPIO_NUMB_OUTPUT = 2;
@@ -41,11 +41,12 @@ module testbench;
   Test0001 test0001;
   Test0002 test0002;  
   Test0003 test0003;  
+  Test2000 test2000;  
   Test9999 test9999;  
  
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
-  CTest t;
-  CTestProxy top_string_factory[string];
+  Ctest t;
+  CtestProxy top_string_factory[string];
   string test_number_string;
   string test_index;
 

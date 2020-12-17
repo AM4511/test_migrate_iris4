@@ -1,23 +1,19 @@
 /****************************************************************************
- * xgs_athena_pkg.sv
+ * image_pkg.sv
  ****************************************************************************/
 
 /**
- * Package: xgs_athena_pkg
+ * Package: image_pkg
  *
  * TODO: Add package documentation
  */
 
-package xgs_athena_pkg;
-	import core_pkg::*;
-	import driver_pkg::*;
-	
-	typedef class Cscoreboard;
-	`include "Cscoreboard.svh"
+package image_pkg;
 
-
+	typedef class Cimage;
 	
-endpackage : xgs_athena_pkg
+	`include "Cimage.svh"
+endpackage
 
 
 

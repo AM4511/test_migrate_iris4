@@ -1,8 +1,8 @@
-import CVlibPkg::*;
-import core_pkg::*;
 import driver_pkg::*;
+import core_pkg::Cstatus;
+import core_pkg::CVlib;
 
-virtual class CTest;
+virtual class Ctest;
 
    
     string name; 
@@ -56,19 +56,19 @@ virtual class CTest;
     endfunction
 
     
-endclass : CTest
+endclass
 
 // Pour faire un Factory (voir https://fr.wikipedia.org/wiki/Fabrique_(patron_de_conception) ).
 // On cree un Proxy pour creer chacun des tests derives
-virtual class CTestProxy;
-  pure virtual function CTest createTest(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
-endclass : CTestProxy
+virtual class CtestProxy;
+  pure virtual function Ctest createTest(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
+endclass : CtestProxy
 
 
-CTestProxy factory[CTestProxy];
+CtestProxy factory[CtestProxy];
 
 
-class objectRegistry#(type T) extends CTestProxy;
+class objectRegistry#(type T) extends CtestProxy;
   
   // Allocation du test, remplace new()
   virtual function T createTest(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);

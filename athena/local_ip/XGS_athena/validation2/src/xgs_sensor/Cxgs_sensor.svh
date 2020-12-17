@@ -8,39 +8,21 @@
  * TODO: Add class documentation
  */
 import driver_pkg::*;
+import image_pkg::*;
 
 class Cxgs_sensor;
 
 	Cdriver_axil host; 
 	string name;
-		  
-//	P_MODEL_ID       =  16'h0358;
-//	P_REV_ID         =  16'h0000;
-//	P_NUM_LANES      =  4;
-//	P_PXL_PER_COLRAM =  174;
-//	P_PXL_ARRAY_ROWS =  2078;
-//		  
-//	P_INTERPOLATION  =  4;
-//	P_LEFT_DUMMY_0   =  50;
-//	P_LEFT_BLACKREF  =  34;
-//	P_LEFT_DUMMY_1   =  4;
-//	P_ROI_WIDTH      =  2592;
-//	P_RIGHT_DUMMY_0  =  4;
-//	P_RIGHT_BLACKREF =  42;
-//	P_RIGHT_DUMMY_1  =  50;
-//		  
-//	P_TOP_DUMMY       =  7;
-//	P_BOTTOM_DUMMY_0  =  4;
-//	P_BOTTOM_BLACKREF =  8;
-//	P_BOTTOM_DUMMY_1  =  3;
-//	P_LINE_PTR_WIDTH  =  2;
-	
-	
+
 	int model_id;
 	int rev_id;
 	int numb_of_lane;
+	int lane_mux_ratio;
 	int pixel_per_colomn;
 	int pixel_rows;
+	int x_size;
+	int y_size;
 		  
 	int interpolation_width;
 	int left_dummy_0;
@@ -63,6 +45,7 @@ class Cxgs_sensor;
 		int model_id,
 		int rev_id, 
 		int numb_of_lane, 
+		int lane_mux_ratio,
 		int pixel_per_column,
 		int pixel_rows,
 		int interpolation_width,
@@ -85,6 +68,7 @@ class Cxgs_sensor;
 		this.model_id = model_id;
 		this.rev_id = rev_id;
 		this.numb_of_lane = numb_of_lane;
+		this.lane_mux_ratio = lane_mux_ratio;
 		this.pixel_per_colomn = pixel_per_colomn;
 		this.pixel_rows = pixel_rows;
 		this.interpolation_width = interpolation_width;
@@ -100,9 +84,35 @@ class Cxgs_sensor;
 		this.bottom_black_ref=bottom_black_ref;
 		this.bottom_dummy_1=bottom_dummy_1;
 		this.line_ptr_width=line_ptr_width;
+		
+		// Calculated parameters
+		this.x_size = this.pixel_per_colomn*this.numb_of_lane*this.lane_mux_ratio*2;
+		this.y_size=this.pixel_rows;
+
 	endfunction
 
-
+	
+	function Cimage get_image();
+		Cimage sensor_image;
+		int xgs_model;
+		case (this.model_id)
+			'h58: begin
+				xgs_model = 12000;
+			end
+			'h358: begin
+				xgs_model = 5000;
+			end
+			'h258: begin
+				xgs_model = 16000;
+			end
+			default: begin
+				return null;
+			end
+		endcase
+		sensor_image = new();
+		sensor_image.load_image(xgs_model);	
+		return sensor_image;
+	endfunction
 
 
 endclass

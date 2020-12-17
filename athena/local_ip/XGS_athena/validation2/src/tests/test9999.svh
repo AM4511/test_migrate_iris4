@@ -5,17 +5,18 @@
  * Description : Send a single frame
  *
  **********************************************************************/
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
 import xgs_athena_pkg::*;
 import fdkide_pkg::*;
 import regfile_xgs_athena_pkg::*;
 import athena_pkg::*;
 import xgs_pkg::*;
+import image_pkg::*;
 
 
 
-class Test9999 extends CTest;
+class Test9999 extends Ctest;
 
 	Cdriver_axil  host;
 	virtual axi_stream_interface tx_axis_if;

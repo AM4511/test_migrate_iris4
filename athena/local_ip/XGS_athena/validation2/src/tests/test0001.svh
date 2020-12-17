@@ -4,13 +4,13 @@
 //
 //
 
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
 import xgs_athena_pkg::*;
+import image_pkg::*;
 
 
-
-class Test0001 extends CTest;
+class Test0001 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -19,9 +19,9 @@ class Test0001 extends CTest;
     virtual axi_stream_interface tx_axis_if;
 
 	Cscoreboard  scoreboard;
-	CImage XGS_imageSRC;
-	CImage XGS_image;
-	CImage XGS_imageDPC;
+	Cimage XGS_imageSRC;
+	Cimage XGS_image;
+	Cimage XGS_imageDPC;
 
     int XGS_Model;
 

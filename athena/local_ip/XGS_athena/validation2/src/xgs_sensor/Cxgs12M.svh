@@ -16,6 +16,7 @@ class Cxgs12M extends Cxgs_sensor;
 				.model_id('h58),
 				.rev_id('h2),
 				.numb_of_lane(6),
+				.lane_mux_ratio(4),
 				.pixel_per_column(174),
 				.pixel_rows(3102), 
 				.interpolation_width(4), 

@@ -1,12 +1,15 @@
 /**
  * Filelist: sve.f
 */
++incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/image
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/athena
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/xgs_sensor
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/drivers
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/fdkide
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src
 +incdir+${workspace_loc}/athena/local_ip/XGS_athena/registerfile
+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/image/Cimage.svh
+${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/image/image_pkg.sv
 ${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/xgs_sensor/Cxgs_sensor.svh
 ${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/xgs_sensor/xgs_pkg.sv
 ${workspace_loc}/athena/local_ip/XGS_athena/validation2/src/athena/Cathena.svh
