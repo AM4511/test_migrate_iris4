@@ -56,7 +56,7 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
    GrabParams.BLACK_OFFSET             = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN              = 0x1;        // gain=1
 						          
-   printf("XGS16M Sensor detected, ");
+   printf_s("XGS16M Sensor detected, ");
    }
 
 
@@ -108,7 +108,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
-	printf("XGS OTPM version : 0x%X\n", otpmversion);
+	printf_s("XGS OTPM version : 0x%X\n", otpmversion);
 	WriteSPI(0x3700, 0x0000);
 	//Sleep(50);
 
@@ -152,7 +152,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 		WriteSPI(0x3412, 0xAEB0);
 
 		//[Hidden:Timing_Up]
-		printf("XGS Loading timing uploads\n");
+		printf_s("XGS Loading timing uploads\n");
 
 		WriteSPI_BURST(REG_BURST1,  sizeof(REG_BURST1) / sizeof(M_UINT32));
 		WriteSPI_BURST(REG_BURST2,  sizeof(REG_BURST2) / sizeof(M_UINT32));
@@ -170,7 +170,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 
 	
 	if (otpmversion > 0) {
-		printf("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17169)\n", otpmversion);
+		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17169)\n", otpmversion);
 		exit(1);
 	}
 
@@ -182,7 +182,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 //----------------------------------------------------
 void CXGS_Ctrl::XGS16M_Enable6lanes(void) {
 
-	printf("XGS Initializing 6 HiSPI lanes\n");
+	printf_s("XGS Initializing 6 HiSPI lanes\n");
 	// mux mode dependent uploads
 	// Loading 6 lanes 12 bit specific settings
 

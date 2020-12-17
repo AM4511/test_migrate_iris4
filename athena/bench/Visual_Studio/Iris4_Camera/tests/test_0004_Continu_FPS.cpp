@@ -57,9 +57,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0004.cpp    *\n");
-	printf(    "********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s(    "*    Executing Test0004.cpp    *\n");
+	printf_s(    "********************************\n\n");
 
 
 	//------------------------------
@@ -81,8 +81,8 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     // Init Display with correct X-Y parameters 
 	ImageBufferAddr     = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 	//LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 
@@ -109,7 +109,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(IMMEDIATE, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::IMMEDIATE, TRIGGER_ACT::RISING);
 
 
 	//---------------------
@@ -121,7 +121,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
-	printf("\n\nTest started at : ");
+	printf_s("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
 
 
@@ -129,10 +129,10 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// START GRAB 
 	//---------------------
-	printf("\n");
-	printf("\n  (q) Quit this test");
-	printf("\n  (s) Start FPS test");
-	printf("\n\n");
+	printf_s("\n");
+	printf_s("\n  (q) Quit this test");
+	printf_s("\n  (s) Start FPS test");
+	printf_s("\n\n");
 
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -173,24 +173,24 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			{
 			case 'q':
 				Sortie = 1;
-				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+				XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
 				XGS_Data->HiSpiClr();
 				XGS_Ctrl->DisableXGS();
-				printf("\n\n");
-				printf("Exit! \n");
+				printf_s("\n\n");
+				printf_s("Exit! \n");
 				break;
 
 
 			case 's':
 				M_UINT32 TimePerLoop=20;
-				printf("Test FPS started with TimePerLoop=%d\n\n", TimePerLoop);
+				printf_s("Test FPS started with TimePerLoop=%d\n\n", TimePerLoop);
 
 
 				//-------------------------------------------------
 				// 1.0 Put minimum exposure and see how FPS is behave
 				//--------------------------------------------------
-				printf("1) Minimum ExposureTime FPS test\n\n");
+				printf_s("1) Minimum ExposureTime FPS test\n\n");
 
 				for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
 					XGS_Ctrl->setExposure_(100);
@@ -226,7 +226,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					if (OverrunPixel != 0)
 						break;
 
-					printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+					printf_s("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf    \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 					ROI_Y_SIZE_vector_ExpMax[i] = Sensor_EXP_max;
 					ROI_Y_SIZE_vector_FPSMax[i] = Sensor_FPS_PRED;
@@ -235,7 +235,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				} //end for
 				if (OverrunPixel != 0)
-					printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
+					printf_s("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
 
 
@@ -248,7 +248,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					//-----------------------------------------------------------------------------
 					// 2.0 Lets put the exposure max theoric (-1Line) and see if the FPS still ok
 					//------------------------------------------------------------------------------
-					printf("\n2) Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
+					printf_s("\n2) Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
 					for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
 						XGS_Ctrl->setExposure_((M_UINT32)(ROI_Y_SIZE_vector_ExpMax[i] - ((double)XGS_Ctrl->sXGSptr.ACQ.READOUT_CFG3.f.LINE_TIME * (double)XGS_Ctrl->SensorPeriodNanoSecond / 1000.0)));
 						GrabCmdCnt = 0;
@@ -283,13 +283,13 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+						printf_s("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 
 					} //end for
 					if (OverrunPixel != 0)
-						printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
+						printf_s("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
 				}
 
@@ -301,9 +301,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					//-----------------------------------------------------------------------------
 					// 3.0 Lets program an internal HW timer to generate Max FPS with Max Exp(-1L)
 					//------------------------------------------------------------------------------
-					XGS_Ctrl->SetGrabMode(HW_TRIG, TIMER);
+					XGS_Ctrl->SetGrabMode(TRIGGER_SRC::HW_TRIG, TRIGGER_ACT::TIMER);
 
-					printf("\n3) Adaptative HW Timer with Maximum FPS and Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
+					printf_s("\n3) Adaptative HW Timer with Maximum FPS and Maximum ExposureTime(Exp_Max -1 Line) FPS test\n\n");
 					for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
 						XGS_Ctrl->StopHWTimer();
 
@@ -340,18 +340,18 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 						double Sensor_EXP_max  = XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y);
 
 						if (XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR != 0)
-							printf("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);
+							printf_s("Some trigger missed detected(%d)\n", XGS_Ctrl->rXGSptr.ACQ.TRIGGER_MISSED.f.TRIGGER_MISSED_CNTR);
 
 						if (OverrunPixel != 0)
 							break;
 
-						printf("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
+						printf_s("Y_SIZE: %4d\t Exp: %dus  \tSensor: %0.2lf     \t Predicted: %0.2lf \tExp_Max: ~%.0lfus\n", ROI_Y_SIZE_vector[i], XGS_Ctrl->getExposure(), Sensor_FPS, Sensor_FPS_PRED, Sensor_EXP_max);
 
 						XGS_Ctrl->WaitEndExpReadout();
 
 					} //end for
 					if (OverrunPixel != 0)
-						printf("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
+						printf_s("\n\nImage Overrun detected test STOPED computer crash possibility \n(Overrun pixel image : Image Start address= 0x%llX, Image End address 0x%llX, pixel value= 0x%X, Ysize=%d, LinePitch=0x%llX, GrabCount=%d)\n\n", ImageBufferAddr, ImageBufferAddr + (ROI_Y_SIZE_vector[i] * MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL)) - 0x4, OverrunPixel, ROI_Y_SIZE_vector[i], MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), GrabCmdCnt);
 
 				}
 
@@ -359,7 +359,7 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 			} //end switch
 
-			printf("\nEnd loop, press 's' or 'q'\n");
+			printf_s("\nEnd loop, press 's' or 'q'\n");
 
 
 		}  // end kb hit
@@ -378,9 +378,9 @@ void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//----------------------
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
 
-	printf("\n\n********************************\n");
-	printf("*    End of Test0000.cpp    *\n");
-	printf("********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s("*    End of Test0000.cpp    *\n");
+	printf_s("********************************\n\n");
 
    }
 

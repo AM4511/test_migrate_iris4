@@ -58,7 +58,7 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	// Enable PLL and Analog blocks: REG = 0x3700, 0x001c
 	WriteSPI(0x3700, 0x001c);
 
-	printf("Polling for initialisation complete\n");
+	printf_s("Polling for initialisation complete\n");
 
 	// Check if initialization is complete (REG 0x3706[7:0] = 0xEB): POLL_REG = 0x3706, 0x00FF, != 0xEB, DELAY = 25, TIMEOUT = 500
 	PollRegSPI(0x3706, 0x00FF, 0xEB, 25, 40);
@@ -66,7 +66,7 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 	// Slave mode + Trigger mode
 	M_UINT32 GeneralConfig0 = ReadSPI(0x3800);
 	WriteSPI(0x3800, GeneralConfig0 | 0x30);
-	if ((ReadSPI(0x3800) & 0x30) == 0x30) printf("XGS is now in Slave trigger mode.\n");
+	if ((ReadSPI(0x3800) & 0x30) == 0x30) printf_s("XGS is now in Slave trigger mode.\n");
 
 	//Color BIT
 	if(SensorParams.IS_COLOR==0)
@@ -79,7 +79,7 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 
 	read = ReadSPI(0x3800);
 	if (read == 0x31 || read == 0x33)
-		printf("XGS sequencer enable!!!\n\n\n");
+		printf_s("XGS sequencer enable!!!\n\n\n");
 
 	// Par defaut XGS mets une latence de UN frame pour les registre OFFSET_LAT_COMP et GAIN_LAT_COMP, nous les ecritures registres sont allignees au EO_FOT
 	// alors on ne veux pas une latence de 1 frame. Mettre OFFSET_LAT_COMP et GAIN_LAT_COMP a 0
