@@ -135,25 +135,23 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 	int count = 0;
 	
 	//clear old flags
-	rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
-	rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
-
 
     //At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
 		if(echoo==1) printf_s("\nStarting HiSPI calibration...  ");
 
-		// to test the idelai crontroller reset
+		// Disable Hispi/datapath during idelai reset
+		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 0;
+		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 0;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+
+		// Reset the idelai crontroller --> ceci cause des phy bit lock error
 		sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
 		Sleep(1);
 		sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
-
+	
 		do
 		{
 			Sleep(1);
@@ -161,8 +159,16 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 			if (count == 100) break;
 		} while (rXGSptr.HISPI.IDELAYCTRL_STATUS.f.PLL_LOCKED == 0);
 
+		// Clear all error flags
+		rXGSptr.HISPI.LANE_DECODER_STATUS[0].u32 = 0xffffffff; //all flags are R or RWc2
+		rXGSptr.HISPI.LANE_DECODER_STATUS[1].u32 = 0xffffffff; //all flags are R or RWc2
+		rXGSptr.HISPI.LANE_DECODER_STATUS[2].u32 = 0xffffffff; //all flags are R or RWc2
+		rXGSptr.HISPI.LANE_DECODER_STATUS[3].u32 = 0xffffffff; //all flags are R or RWc2
+		rXGSptr.HISPI.LANE_DECODER_STATUS[4].u32 = 0xffffffff; //all flags are R or RWc2
+		rXGSptr.HISPI.LANE_DECODER_STATUS[5].u32 = 0xffffffff; //all flags are R or RWc2
 
-		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 1;
+
+		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI    = 1;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
