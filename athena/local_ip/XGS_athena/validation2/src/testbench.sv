@@ -80,6 +80,7 @@ module testbench;
       top_string_factory["Test0001"] = objectRegistry#(Test0001)::get();
       top_string_factory["Test0002"] = objectRegistry#(Test0002)::get();
       top_string_factory["Test0003"] = objectRegistry#(Test0003)::get();
+      top_string_factory["Test2000"] = objectRegistry#(Test2000)::get();
       top_string_factory["Test9999"] = objectRegistry#(Test9999)::get();
 
       tb_RESETn = 1'b0;

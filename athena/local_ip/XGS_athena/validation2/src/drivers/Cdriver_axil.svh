@@ -308,12 +308,19 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		int inputAddr;
 		int inputData;	
 		int inputStrb;
- 		Cfield field;
+		string path;
+		Cfield field;
  	
 		inputAddr = register.get_address();
 		inputData = register.data;
 		inputStrb = 'hf;
-		this.write (inputAddr, inputData,inputStrb,timeout_count,verbose);
+		
+		// Verbose the transaction
+		path = register.get_path();
+		if(verbose) $display("%t AXI write register\t: %s\t@addr: 0x%h; data: 0x%h", $time, path, inputAddr, inputData);
+		
+		// Call low level axi write
+		this.write (inputAddr, inputData,inputStrb,timeout_count,0);
 		
 		//Emulate the auto clear done in the real hardware register
 		foreach (register.children[i]) begin
@@ -341,10 +348,20 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		input int timeout_count = 1000,
 		input int verbose = 1
 		);
+		string path;
 		longint readData;
+		int inputAddr;
 		
-		longint inputAddr = register.get_address();
-		this.read (inputAddr,readData,timeout_count,verbose);
+		
+		inputAddr = register.get_address();
+
+		// Verbose the transaction
+		path = register.get_path();
+		if(verbose) $display("%t AXI read register\t: %s\t@addr: 0x%h", $time, path, inputAddr);
+
+		
+		// Call low level axi read
+		this.read (inputAddr,readData,timeout_count,0);
 		register.data = readData;
 	endtask
 	
@@ -360,18 +377,20 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		input int expectedData = 1,
 		input int mask = 'hffffffff,
 		input time polling_period = 1us,
-		input int max_iteration = 1000
+		input int max_iteration = 1000,
+		input int verbose = 1
 		);
 		
 		Cregister register;
 		Cfield field;
 		int reg_mask;
-		longint reg_addr;
+		int reg_addr;
 		int msb;
 		int lsb;
 		int size;
 		int reg_expected_data;
-		
+		string path;
+
 		//////////////////////////////////////////////////////////
 		// Node is a field
 		//////////////////////////////////////////////////////////
@@ -384,7 +403,12 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 			reg_expected_data = expectedData << lsb;
 			reg_addr = register.get_address();
 
+			// Verbose the transaction
+			path = node.get_path();
+			if(verbose) $display("%t AXI poll field\t: %s\t@addr: 0x%h; expected data: 0x%h", $time, path, reg_addr, reg_expected_data);
+
 		end 		
+		
 		//////////////////////////////////////////////////////////
 		// Node is a register
 		//////////////////////////////////////////////////////////
@@ -392,6 +416,10 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 			reg_mask = mask;
 			reg_expected_data = expectedData;
 			reg_addr = register.get_address();
+			
+			// Verbose the transaction
+			path = node.get_path();
+			if(verbose) $display("%t AXI poll register\t: %s\t@addr: 0x%h; expected data: 0x%h", $time, path, reg_addr, reg_expected_data);
 	
 		end
 		
@@ -400,7 +428,8 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 				.expectedData(expectedData),
 				.mask(reg_mask),
 				.polling_period(polling_period),
-				.max_iteration(max_iteration)
+				.max_iteration(max_iteration),
+				.verbose(0)
 			);
 		
 	endtask
@@ -417,7 +446,8 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		input int expectedData,
 		input int mask = 'hffffffff,
 		input time polling_period = 10us,
-		input int max_iteration = 1000
+		input int max_iteration = 1000,
+		input int verbose = 1
 		);
 		int masked_data;
 		int axi_data;
@@ -427,7 +457,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		//////////////////////////////////////////////////////////
 		// Start polling
 		//////////////////////////////////////////////////////////
-		$display("Polling @0x%h ", inputAddr);
+		if(verbose) $display("Polling @0x%h ", inputAddr);
 		do
 		begin
 			// Wait for the timeout value
@@ -444,7 +474,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		end
 		while(masked_data != expectedData);
 
-		$display("Polling succeded in %d iterations!!!", iteration_cntr);
+		if(verbose) $display("Polling succeded in %d iterations!!!", iteration_cntr);
 	endtask // poll
 
 

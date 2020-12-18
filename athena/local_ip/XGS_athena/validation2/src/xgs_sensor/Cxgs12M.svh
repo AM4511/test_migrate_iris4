@@ -9,9 +9,8 @@
  */
 class Cxgs12M extends Cxgs_sensor;
 
-	function new(Cdriver_axil host, string name="xgs12M");
+	function new(string name="xgs12M");
 		super.new(
-				.host(host), 
 				.name(name), 
 				.model_id('h58),
 				.rev_id('h2),

@@ -12,7 +12,7 @@ import image_pkg::*;
 
 class Cxgs_sensor;
 
-	Cdriver_axil host; 
+	//Cdriver_axil host; 
 	string name;
 
 	int model_id;
@@ -40,7 +40,7 @@ class Cxgs_sensor;
 	int line_ptr_width;
 	
 	function new(
-		Cdriver_axil host, 
+		//Cdriver_axil host, 
 		string name, 
 		int model_id,
 		int rev_id, 
@@ -63,7 +63,7 @@ class Cxgs_sensor;
 		int line_ptr_width
 		);
 		
-		this.host = host;
+		//this.host = host;
 		this.name = name;
 		this.model_id = model_id;
 		this.rev_id = rev_id;
@@ -89,9 +89,10 @@ class Cxgs_sensor;
 		this.x_size = this.pixel_per_colomn*this.numb_of_lane*this.lane_mux_ratio*2;
 		this.y_size=this.pixel_rows;
 
-	endfunction
 
+	endfunction
 	
+
 	function Cimage get_image();
 		Cimage sensor_image;
 		int xgs_model;

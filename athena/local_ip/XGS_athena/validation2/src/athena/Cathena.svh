@@ -39,31 +39,14 @@ class Cathena;
 	endfunction
 
 	
-	//---------------------------------------
-	//  DMA PARAMS
-	//---------------------------------------
-	task set_dma(longint fstart, int line_pitch, int line_size, int address_buss_width = 2);
-		regfile.DMA.FSTART.VALUE.set(fstart);
-		this.host.reg_write(regfile.DMA.FSTART);
-		
-		regfile.DMA.FSTART_HIGH.VALUE.set(fstart>>32);
-		this.host.reg_write(regfile.DMA.FSTART_HIGH);
-		
-		regfile.DMA.LINE_PITCH.VALUE.set(line_pitch);
-		this.host.reg_write(regfile.DMA.LINE_PITCH);
-		
-		regfile.DMA.LINE_SIZE.VALUE.set(line_size);
-		this.host.reg_write(regfile.DMA.LINE_SIZE);
-		
-		regfile.DMA.OUTPUT_BUFFER.ADDRESS_BUS_WIDTH.set(address_buss_width);
-		this.host.reg_write(regfile.DMA.OUTPUT_BUFFER);
-	endtask
-
 
 	////////////////////////////////////////////////////////////////
 	// Task : xgs_spi_write
 	////////////////////////////////////////////////////////////////
-	task automatic xgs_spi_write(input int add, input int data);
+	task automatic xgs_spi_write(input int add, input int data, input int verbose = 1);
+		
+		if(verbose) $display("%t XGS spi write @addr: 0x%h; data: 0x%h", $time, add, data);
+		
 		// Address data
 		regfile.ACQ.ACQ_SER_ADDATA.SER_ADD.set(add);
 		regfile.ACQ.ACQ_SER_ADDATA.SER_DAT.set(data);
@@ -74,18 +57,21 @@ class Cathena;
 		regfile.ACQ.ACQ_SER_CTRL.SER_RWn.set(0);
 		regfile.ACQ.ACQ_SER_CTRL.SER_WF_SS.set(1);
 		this.host.reg_write(regfile.ACQ.ACQ_SER_CTRL);
+		if(verbose) $display("%t XGS spi write done\n", $time);
 	endtask
 
 
 	////////////////////////////////////////////////////////////////
 	// Task : xgs_spi_read
 	////////////////////////////////////////////////////////////////
-	task automatic xgs_spi_read(input int add, output int data);
+	task automatic xgs_spi_read(input int add, output int data, input int verbose = 1);
 		int data_rd;
 		int axi_addr;
 		int axi_poll_mask;
 		int axi_expected_value;
 		Cregister r;
+
+		if(verbose) $display("%t XGS spi read @addr: 0x%h", $time, add);
 
 		// Set the transaction address
 		regfile.ACQ.ACQ_SER_ADDATA.SER_ADD.set(add);
@@ -110,6 +96,7 @@ class Cathena;
 		r = regfile.ACQ.ACQ_SER_STAT;
 		this.host.reg_read(r);
 		data= regfile.ACQ.ACQ_SER_STAT.SER_DAT_R.get();
+		if(verbose) $display("%t XGS spi read done\n", $time);
 	endtask
 
 	//---------------------------------------
@@ -209,6 +196,7 @@ class Cathena;
 		monitor_2_reg = 16'h1;    // New_line
 		xgs_spi_write(SPI_MONITOR_REG, (monitor_2_reg<<10) + (monitor_1_reg<<5) + monitor_0_reg );      // Monitor Lines
 
+		$display("XGS Controller wakes up sensor done\n");
 
 	endtask
 	
@@ -217,7 +205,8 @@ class Cathena;
 	//  Program XGS MODEL
 	//---------------------------------------
 	task setXGScontroller();
-
+		string path;
+		longint address;
 		real xgs_bitrate_period;  //32.4Mhz ref clk*2 /12 bits per clk
 		real xgs_ctrl_period;
 		int EXP_FOT_TIME;
@@ -274,7 +263,7 @@ class Cathena;
 
 
 		// XGS Controller : M_lines
-		$display("  5.5 Write SENSOR_M_LINES register %s", this.regfile.ACQ.SENSOR_M_LINES);
+		$display("  5.5 Write SENSOR_M_LINES register %s", this.regfile.ACQ.SENSOR_M_LINES.get_path());
 		MLines           = 0;
 		MLines_supressed = 0;
 		//host.write(SENSOR_M_LINES_OFFSET, (MLines_supressed<<10)+ MLines);    //M_LINE REGISTER
@@ -290,16 +279,40 @@ class Cathena;
 		//host.write(SENSOR_SUBSAMPLING_OFFSET, 0); //NO SUB
 
 		// XGS Controller : Analog gain
-		$display("  5.7 Write SENSOR_GAIN_ANA register %s", this.regfile.ACQ.SENSOR_GAIN_ANA);
+		$display("  5.7 Write SENSOR_GAIN_ANA register %s", this.regfile.ACQ.SENSOR_GAIN_ANA.get_path());
 		//host.write(SENSOR_GAIN_ANA_OFFSET, 2<<8);
 		this.regfile.ACQ.SENSOR_GAIN_ANA.ANALOG_GAIN.set(2);
+		$display("XGS_athen controller configuration done\n");
 	endtask				
+
+	//---------------------------------------
+	//  DMA PARAMS
+	//---------------------------------------
+	task set_dma(longint fstart, int line_pitch, int line_size, int address_buss_width = 2);
+		$display("5. XGS_athena IP-Core set DMA section");
+		regfile.DMA.FSTART.VALUE.set(fstart);
+		this.host.reg_write(regfile.DMA.FSTART);
+		
+		regfile.DMA.FSTART_HIGH.VALUE.set(fstart>>32);
+		this.host.reg_write(regfile.DMA.FSTART_HIGH);
+		
+		regfile.DMA.LINE_PITCH.VALUE.set(line_pitch);
+		this.host.reg_write(regfile.DMA.LINE_PITCH);
+		
+		regfile.DMA.LINE_SIZE.VALUE.set(line_size);
+		this.host.reg_write(regfile.DMA.LINE_SIZE);
+		
+		regfile.DMA.OUTPUT_BUFFER.ADDRESS_BUS_WIDTH.set(address_buss_width);
+		this.host.reg_write(regfile.DMA.OUTPUT_BUFFER);
+		$display("XGS_athena IP-Core set DMA section done\n");
+	endtask
 
 
 	////////////////////////////////////////////////////////////////
 	// Task : GenImage_XGS
 	////////////////////////////////////////////////////////////////
 	task automatic GenImage_XGS(input int ImgPattern);
+		$display("XGS_athena generate sensor image");
 		//super.super.xgs_model_GenImage = 1'b0;      
 		xgs_spi_write(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
 		//host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!  
@@ -309,8 +322,37 @@ class Cathena;
 		xgs_spi_write(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
 		#10us;		
 		xgs_spi_write(8, 16'h0000);
-	endtask : GenImage_XGS	
+		$display("XGS_athena generate sensor image done\n");
+	endtask
 	
+	task automatic configure_testbench();
+	// Assign the right XGS sensor model in the testbench
+	case (this.xgs_sensor.model_id)
+		// XGS12M
+		'h58: begin
+			host.set_output_io (0, 1);
+			host.set_output_io (1, 0);
+			$display("XGS_sensor configured as XGS16000");
+		end
+		// XGS5M
+		'h358: begin
+			host.set_output_io (0, 0);
+			host.set_output_io (1, 0);
+			$display("XGS_sensor configured as XGS16000");
+		end
+		// XGS16M
+		'h258: begin
+			host.set_output_io (0, 0);
+			host.set_output_io (1, 1);
+			$display("XGS_sensor configured as XGS16000");
+		end
+		default: begin
+			$error("XGS_sensor : bad type : 0x%0h", this.xgs_sensor.model_id);
+		end
+	endcase
+	endtask
+		
+		
 
 endclass
 

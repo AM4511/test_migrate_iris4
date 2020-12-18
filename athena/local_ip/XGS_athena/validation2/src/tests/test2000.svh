@@ -21,9 +21,6 @@ class Test2000 extends Ctest;
 	virtual axi_stream_interface tx_axis_if;
 
 
-
-
-
 	function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
 		super.new("Test2000", host, tx_axis_if);
 		this.host       = host;
@@ -115,9 +112,14 @@ class Test2000 extends Ctest;
 			    // default              in devware is 0x16e (12 lanes)
 			    // default              in devware is 0x2dc (6 lanes)
 				line_time = 'h02dc;  //[AM] Where should we define this parameter?
-				xgs_sensor = new(host, "XGS12M");
+				xgs_sensor = new("XGS12M");
 				athena = new(host, xgs_sensor);
 				
+				
+				/////////////////////////////////////////////////////////////
+				//  Turn on the XGS controller
+				/////////////////////////////////////////////////////////////				
+				athena.configure_testbench(); //[AM] UGLY!! improve this!!!
 				
 				/////////////////////////////////////////////////////////////
 				//  Turn on the XGS controller
@@ -139,7 +141,7 @@ class Test2000 extends Ctest;
 				dma_line_size = xgs_sensor.x_size;
 				athena.set_dma(dma_fstart, dma_line_pitch, dma_line_size);
 
-				#200us;
+				#200us; // [AM] Why this delay?
 
 
 					//-------------------------------------------------

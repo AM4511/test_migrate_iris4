@@ -71,7 +71,7 @@ class Test9999 extends Ctest;
 				host.reset(20);
 				#100us;
 
-				xgs_sensor = new(host, "XGS12M");
+				xgs_sensor = new("XGS12M");
 				athena = new(host, xgs_sensor);
 				athena.turn_on_xgs();
 				athena.set_dma('hdeadbeef, 'h1000, 'h1000);
