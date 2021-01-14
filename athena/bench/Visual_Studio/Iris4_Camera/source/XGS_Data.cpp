@@ -134,9 +134,8 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 {
 	int count = 0;
 	
-	//clear old flags
 
-    //At least, is sensor powerOn an unreset ?
+	//At least, is sensor powerOn an unreset ?
 	if ((rXGSptr.ACQ.SENSOR_STAT.u32 & 0x3103) == 0x3103) {
 		if(echoo==1) printf_s("\nStarting HiSPI calibration...  ");
 
@@ -144,6 +143,15 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI     = 0;
 		sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 0;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		Sleep(1);
+		
+		// Clear HISPI (hclk_reset)
+		sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI = 1;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		Sleep(1);
+		sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI = 0;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		Sleep(1);
 
 		// Reset the idelai crontroller --> ceci cause des phy bit lock error
 		sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 1;
@@ -169,9 +177,12 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 
 
 		sXGSptr.HISPI.CTRL.f.ENABLE_HISPI    = 1;
+		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+		Sleep(10);
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 1;
 		rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
 		sXGSptr.HISPI.CTRL.f.SW_CALIB_SERDES = 0;
+		Sleep(10);
 
 		do
 		{
@@ -210,8 +221,17 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 
 		if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 0 && sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 1) {
 			if (echoo == 1) printf_s("Calibration OK \n");
+			
 			sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 			rXGSptr.HISPI.CTRL.u32 = sXGSptr.HISPI.CTRL.u32;
+			
+			//Verifier qu'il n'y a pas d'erreurs rendu ici
+			//Sleep(1000);
+			//sXGSptr.HISPI.STATUS.u32 = rXGSptr.HISPI.STATUS.u32;
+			//if (sXGSptr.HISPI.STATUS.f.CALIBRATION_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CALIBRATION_DONE == 0 || sXGSptr.HISPI.STATUS.f.PHY_BIT_LOCKED_ERROR == 1 || sXGSptr.HISPI.STATUS.f.CRC_ERROR == 1)
+			//{
+			//	printf_s("\nIci, on est ds marde!!!\n\n\n");
+			//}
 			return 1;
 		}
 	}
@@ -310,7 +330,7 @@ void CXGS_Data::SetImagePixel8(M_UINT64 ImageBufferAddr_SRC, M_UINT32 X_POS, M_U
 //
 //---------------------------------------------------------------------------------------
 
-M_UINT32 CXGS_Data::HiSpiCheck(void)
+M_UINT32 CXGS_Data::HiSpiCheck(M_UINT64 GrabCmd)
 {
 	M_UINT32 Register;
 
@@ -388,8 +408,9 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 		if (rXGSptr.DMA.TLP.f.MAX_PAYLOAD == 256 and rXGSptr.DMA.TLP.f.CFG_MAX_PLD == 1)  // bios program 256
 			printf_s("\nPCIe MAX payload is optimal (256 bytes)  \n");
 
-		printf_s("\nPress 'c' to continue without recover HI_SPI\n");
-		printf_s("Press 'r' to try to recover HI_SPI and continue this test\n");
+		printf_s("\nStopped at Frame #%lld (1-based)\n", GrabCmd);
+		printf_s("\nPress 'c' to continue without recover HI_SPI (Clear error and continue)\n");
+		printf_s("Press 'r' to try to recover HI_SPI and continue this test (Clear errors + Calibrate HISPI and continue)\n");
 		printf_s("Press 'q' to quit this test and try to recover HI_SPI\n");
 
 		ch = _getch();
@@ -404,6 +425,11 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 
 		case 'c':
 			printf_s("\n(c) Continuing...\n");
+			Sleep(1000);
+			for (M_UINT32 i = 0; i < rXGSptr.HISPI.PHY.f.NB_LANES; i++)
+			{
+				rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32 = rXGSptr.HISPI.LANE_DECODER_STATUS[i].u32;
+			}
 			Stop_test = 0;
 			break;
 
@@ -411,7 +437,7 @@ M_UINT32 CXGS_Data::HiSpiCheck(void)
 			printf_s("\n(r) Recovering...\n");
 			Stop_test = 0;
 			HiSpiClr();
-			HiSpiCalibrate(1);
+			HiSpiCalibrate(1); //(clear everything, reste idelaye, recalibrate)
 			break;
 		}
 	}

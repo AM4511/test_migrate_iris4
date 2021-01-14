@@ -17,7 +17,7 @@ using namespace std;
 #include "XGS_Data.h"
 #include "Pcie.h"
 
-void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data, M_UINT32 nbFrames, M_UINT32 FlatImageVal)
    {
 	
 	MIL_ID MilDisplay;
@@ -35,6 +35,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	bool DisplayOn  = true;
 	int PolldoSleep =0;
 	bool FPS_On     = true;
+
+	int Error_exit = 0;
 
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
@@ -61,7 +63,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT64 GrabCmd = 0;
 
 	printf_s("\n\n********************************\n");
-	printf_s(    "*    Executing Test0000.cpp    *\n"); 
+	printf_s(    "*    Executing Test0010.cpp    *\n"); 
 	printf_s(    "********************************\n\n");
 
 
@@ -219,29 +221,29 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// START GRAB 
 	//---------------------
-	printf_s("\n");
-	printf_s("\n  (q) Quit this test");
-	printf_s("\n  (f) Dump image to .tiff file");
-	printf_s("\n  (d) Dump XGS controller registers(PCIe)");
-	printf_s("\n  (g) Change Analog Gain");
-	printf_s("\n  (b) Change Black Offset(XGS Data Pedestal)");
-	printf_s("\n  (e) Exposure Incr/Decr gap");
-	printf_s("\n  (+) Increase Exposure");
-	printf_s("\n  (-) Decrease Exposure");
-	printf_s("\n  (p) Pause grab");
-	printf_s("\n  (t) XGS test images");
-	printf_s("\n  (y) Set new ROI (Y-only)");
-	printf_s("\n  (r) Read current ROI configuration in XGS");
-	printf_s("\n  (S) Subsampling mode");
-	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
-	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
-	printf_s("\n  (l) Program LUT");
-	printf_s("\n  (2) Digital Gain +1 (XGS Dig Gain)");
-	printf_s("\n  (1) Digital Gain -1 (XGS Dig Gain)");
-	printf_s("\n  (x) Dump XGS registers");
-
-
-	printf_s("\n\n");
+	//printf_s("\n");
+	//printf_s("\n  (q) Quit this test");
+	//printf_s("\n  (f) Dump image to .tiff file");
+	//printf_s("\n  (d) Dump XGS controller registers(PCIe)");
+	//printf_s("\n  (g) Change Analog Gain");
+	//printf_s("\n  (b) Change Black Offset(XGS Data Pedestal)");
+	//printf_s("\n  (e) Exposure Incr/Decr gap");
+	//printf_s("\n  (+) Increase Exposure");
+	//printf_s("\n  (-) Decrease Exposure");
+	//printf_s("\n  (p) Pause grab");
+	//printf_s("\n  (t) XGS test images");
+	//printf_s("\n  (y) Set new ROI (Y-only)");
+	//printf_s("\n  (r) Read current ROI configuration in XGS");
+	//printf_s("\n  (S) Subsampling mode");
+	//printf_s("\n  (D) Disable Image Display transfer (Max fps)");
+	//printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
+	//printf_s("\n  (l) Program LUT");
+	//printf_s("\n  (2) Digital Gain +1 (XGS Dig Gain)");
+	//printf_s("\n  (1) Digital Gain -1 (XGS Dig Gain)");
+	//printf_s("\n  (x) Dump XGS registers");
+	//
+	//
+	//printf_s("\n\n");
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
@@ -262,16 +264,26 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	printf_s("\nCalculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
-	// Test Mode images - Diagonal gray x1
-	//XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
 
-	// Test Mode images - Flat Image
-	//M_UINT32 pixelval= 0x3a0;
-	//XGS_Ctrl->WriteSPI(0x3e10, pixelval << 1); // Test data Red channel
-	//XGS_Ctrl->WriteSPI(0x3e12, pixelval << 1); // Test data Green-R channel
-	//XGS_Ctrl->WriteSPI(0x3e14, pixelval << 1); // Test data Bleu channel
-	//XGS_Ctrl->WriteSPI(0x3e16, pixelval << 1); // Test data Green-B channel
-	//XGS_Ctrl->WriteSPI(0x3e0e, 1);             // Solid color
+	if (FlatImageVal == 0x1000) {                // LIVE IMAGE
+		printf_s("\n\nUSING LIVE IMAGE FOR THIS TEST\n\n");
+	} else
+		if (FlatImageVal == 0x2000) {            // RAMP : diagonal gray x1
+			printf_s("\n\nUSING RAMP IMAGE FOR THIS TEST\n\n");
+			XGS_Ctrl->WriteSPI(0x3e0e, 4); // 
+		}
+		else
+		{
+			printf_s("\n\nUSING FLAT IMAGE FOR THIS TEST WITH VALUE 0x%X\n\n", FlatImageVal & 0xfff);
+			
+			M_UINT32 pixelval = FlatImageVal & 0xfff;
+			XGS_Ctrl->WriteSPI(0x3e10, pixelval << 1); // Test data Red channel
+			XGS_Ctrl->WriteSPI(0x3e12, pixelval << 1); // Test data Green-R channel
+			XGS_Ctrl->WriteSPI(0x3e14, pixelval << 1); // Test data Bleu channel
+			XGS_Ctrl->WriteSPI(0x3e16, pixelval << 1); // Test data Green-B channel
+			XGS_Ctrl->WriteSPI(0x3e0e, 1);             // Solid color
+		}
+
 
 
 
@@ -285,12 +297,36 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 		GrabCmd++;
 
+		if (GrabCmd == nbFrames)
+		{
+			Sleep(1000);
+			Sortie = 1;
+			XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
+			XGS_Ctrl->GrabAbort();
+
+			// DISABLE HISPI
+			XGS_Ctrl->sXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 0;
+			XGS_Ctrl->rXGSptr.HISPI.CTRL.u32 = XGS_Ctrl->sXGSptr.HISPI.CTRL.u32;
+			Sleep(100);
+			XGS_Ctrl->sXGSptr.HISPI.CTRL.f.ENABLE_HISPI = 0;
+			XGS_Ctrl->sXGSptr.HISPI.CTRL.f.SW_CLR_IDELAYCTRL = 0;
+			XGS_Ctrl->sXGSptr.HISPI.CTRL.f.SW_CLR_HISPI = 1;
+			XGS_Ctrl->rXGSptr.HISPI.CTRL.u32 = XGS_Ctrl->sXGSptr.HISPI.CTRL.u32;
+			Sleep(100);
+
+			XGS_Ctrl->DisableXGS();
+			printf_s("\n\n");
+			break;
+		}
+
 		//XGS_Ctrl->WaitEndExpReadout();
 
 		Sortie = XGS_Data->HiSpiCheck(GrabCmd);
 
 		if (Sortie == 1)
 		{
+
+			Error_exit = 1 ;
 
 			Sleep(100);
 
@@ -592,8 +628,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-    printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
-
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
@@ -606,9 +640,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
 
 	printf_s("\n\n********************************\n");
-	printf_s("*    End of Test0000.cpp    *\n");
+	printf_s("*    End of Test0010.cpp    *\n");
 	printf_s("********************************\n\n");
 
+	return Error_exit;
    }
 
 

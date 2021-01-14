@@ -54,7 +54,9 @@ create_clock -period 10.000 -name pcie_clk_p -waveform {0.000 5.000} [get_ports 
 # #####################################################################################
 # IO LANES HiSPi Top interface
 # #####################################################################################
-create_clock -period 2.570 -name io_hispi_clk_top -waveform {0.000 1.285} [get_ports {xgs_hispi_sclk_p[0]}]
+
+# refclk is 32Mhz instead of 32.4Mhz(as in the XGS spec)(
+create_clock -period 2.604 -name io_hispi_clk_top -waveform {0.000 1.302} [get_ports {xgs_hispi_sclk_p[0]}]
 
 # HiSPi Lane 0
 set_input_delay -clock [get_clocks io_hispi_clk_top] -min -add_delay 0.386 [get_ports {xgs_hispi_sdata_p[0]}]
@@ -78,7 +80,9 @@ set_input_delay -clock [get_clocks io_hispi_clk_top] -clock_fall -max -add_delay
 # #####################################################################################
 # IO LANES HiSPi Bottom interface
 # #####################################################################################
-create_clock -period 2.570 -name io_hispi_clk_bottom -waveform {0.000 1.285} [get_ports {xgs_hispi_sclk_p[1]}]
+
+# refclk is 32Mhz instead of 32.4Mhz(as in the XGS spec)(
+create_clock -period 2.604 -name io_hispi_clk_bottom -waveform {0.000 1.302} [get_ports {xgs_hispi_sclk_p[1]}]
 
 
 # HiSPi Lane 1
@@ -157,6 +161,14 @@ create_generated_clock -name pclk_top -source [get_pins -hier -filter {NAME =~"*
 # Bottom pixel clock (Generated clock)
 # ###################################################################################################################
 create_generated_clock -name pclk_bottom -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/I"}] -divide_by 2 -add -master_clock hclk_bottom [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/O"}]
+
+
+# Bug CRC
+set_clock_uncertainty 0.200 -from [get_clocks hclk_top] -to [get_clocks pclk_top]
+set_clock_uncertainty 0.200 -from [get_clocks hclk_bottom] -to [get_clocks pclk_bottom]
+
+
+
 
 
 # ###################################################################################################################
