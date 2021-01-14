@@ -12,9 +12,9 @@ using namespace std;
 
 
 
-enum TRIGGER_SRC    { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
-enum TRIGGER_ACT    { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
-enum LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
+enum class TRIGGER_SRC    { NONE = 0, IMMEDIATE = 1, HW_TRIG = 2, SW_TRIG = 3, BURST = 4};
+enum class TRIGGER_ACT    { RISING = 0, FALLING = 1, ANY_EDGE = 2, LEVEL_HI = 3, LEVEL_LO = 4, TIMER = 5 };
+enum class LEVEL_EXP_MODE { EXP_TIMED_MODE = 0, EXP_TRIGGER_WIDTH = 1 };
 
 struct GrabParamStruct
 {
@@ -116,6 +116,7 @@ public:
 	//double SensorPeriodNanoSecond = 15.432099; //32.4Mhz
 	double SensorPeriodNanoSecond = 15.625000; //32Mhz
 	
+	int getch_return;
 	M_UINT32 CurrExposure;
 
 	void PrintTime(void);

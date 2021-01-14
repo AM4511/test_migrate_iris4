@@ -33,7 +33,7 @@ M_UINT32 FindFpga(M_UINT32 vendorID, M_UINT32 devID)
    if(MSMHandle != NULL)
       {
       MSM_UINT8 bus = 0, dev = 0, func = 0;
-      printf("\n");
+      printf_s("\n");
 
       bus = 0;
       dev = 0;
@@ -47,7 +47,7 @@ M_UINT32 FindFpga(M_UINT32 vendorID, M_UINT32 devID)
       if((SubsystemID & 0xffff) == 0x102b)
          { //fpga founded
          fpga_founded = 1;
-		 printf("Found FPGA %X:%X %d: b:%x, d%x, f%x, BAR0=0x%x \n", vendorID, devID,0, bus, dev, func, PhyRefReg);
+		 printf_s("Found FPGA %X:%X %d: b:%x, d%x, f%x, BAR0=0x%x \n", vendorID, devID,0, bus, dev, func, PhyRefReg);
          return(PhyRefReg);
          }
       else return(0);
@@ -76,7 +76,7 @@ M_UINT8 FindMultiFpga(M_UINT32 vendorID, M_UINT32 devID, Struck_FPGAs FPGAs[])
 	MSMAttach(&MSMHandle);
 	if(MSMHandle != NULL)
 		{
-		printf("\n");
+		printf_s("\n");
 
 		for(int i = 0; i < 16; i++)
 			{
@@ -104,16 +104,16 @@ M_UINT8 FindMultiFpga(M_UINT32 vendorID, M_UINT32 devID, Struck_FPGAs FPGAs[])
 			     { //fpga founded
 			       fpga_founded++;
 				   if(FPGAs[i].DevID == 0x5054)
-				     printf("Found GTX ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);				   
+				     printf_s("Found GTX ATHENA FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);				   
 				   if (FPGAs[i].DevID == 0x5e10)
-					 printf("Found GTX ARES   FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
+					 printf_s("Found GTX ARES   FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x \n", vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0);
 				   //if(FPGAs[i].DevID == 0x5300)
-				   // printf("(%d) Found N3 ANPUT FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x,  BAR1=0x%08x \n",i+1, vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0, FPGAs[i].PhyRefReg_BAR1);
+				   // printf_s("(%d) Found N3 ANPUT FPGA %X.%X.%X    B:%x, D%x, F%x,  BAR0=0x%08x,  BAR1=0x%08x \n",i+1, vendorID, devID, FPGAs[i].SubsystemID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].PhyRefReg_BAR0, FPGAs[i].PhyRefReg_BAR1);
 				   if(FPGAs[i].DevID == 0x806A || FPGAs[i].DevID == 0x808c)
 					   {
-					   printf("Found IDT Bridge %X.%X    B:%x, D%x, F%x, PrimBusNo:%d, SecBusNo:%d,  ", vendorID, devID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].BusNum & 0xff, ((FPGAs[i].BusNum)>>8) & 0xff);
+					   printf_s("Found IDT Bridge %X.%X    B:%x, D%x, F%x, PrimBusNo:%d, SecBusNo:%d,  ", vendorID, devID, FPGAs[i].bus, FPGAs[i].dev, FPGAs[i].func, FPGAs[i].BusNum & 0xff, ((FPGAs[i].BusNum)>>8) & 0xff);
 				   
-					   printf("Primary PCIe is set in G%dx%d \n", ((FPGAs[i].LinkStatusReg) >> 16) & 0x3, ((FPGAs[i].LinkStatusReg) >> 20) & 0x3f);
+					   printf_s("Primary PCIe is set in G%dx%d \n", ((FPGAs[i].LinkStatusReg) >> 16) & 0x3, ((FPGAs[i].LinkStatusReg) >> 20) & 0x3f);
 					   
 
 					   }
@@ -150,10 +150,10 @@ int FpgaPCIeConfig(M_UINT32 vendorID, M_UINT32 devID)
 		MSMReadConfig(MSMHandle, bus, dev, func, 0x70, 1, &LinkStatus);       // [link Status]
         MSMWriteConfig(MSMHandle, bus, dev, func, 0x04, 1, &MasterBit);
 
-		if ((LinkStatus & 0xff0000) == 0x110000)     { printf("\nUsed FPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
-		else if ((LinkStatus & 0xff0000) == 0x120000){ printf("\nUsed FPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1
-        else if ((LinkStatus & 0xff0000) == 0x210000){ printf("\nUsed FPGA is set in PCIE Gen1 x2\n"); return(2); }   // G1 x2
-		else if ((LinkStatus & 0xff0000) == 0x220000){ printf("\nUsed FPGA is set in PCIE Gen2 x2\n"); return(3); }   // G2 x2
+		if ((LinkStatus & 0xff0000) == 0x110000)     { printf_s("\nUsed FPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
+		else if ((LinkStatus & 0xff0000) == 0x120000){ printf_s("\nUsed FPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1
+        else if ((LinkStatus & 0xff0000) == 0x210000){ printf_s("\nUsed FPGA is set in PCIE Gen1 x2\n"); return(2); }   // G1 x2
+		else if ((LinkStatus & 0xff0000) == 0x220000){ printf_s("\nUsed FPGA is set in PCIE Gen2 x2\n"); return(3); }   // G2 x2
 		else return(0);
 			
 	}
@@ -185,10 +185,10 @@ int MultiFpgaPCIeConfig(M_UINT8 FPGA_used, Struck_FPGAs FPGAs[])
 		DevCtrlRegister = DevCtrlRegister & 0xfffff7ef; //Max_Payload_ize (7:5), Enable no snoop(11), Enable relax ordering(4)
 		MSMWriteConfig(MSMHandle, FPGAs[FPGA_used].bus, FPGAs[FPGA_used].dev, FPGAs[FPGA_used].func, 0x68, 1, &DevCtrlRegister);
 
-		if((LinkStatus & 0xff0000)      == 0x110000) { printf("FPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
-		else if((LinkStatus & 0xff0000) == 0x120000) { printf("FPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1
-		else if((LinkStatus & 0xff0000) == 0x210000) { printf("FPGA is set in PCIE Gen1 x2\n"); return(2); }   // G1 x2
-		else if((LinkStatus & 0xff0000) == 0x220000) { printf("FPGA is set in PCIE Gen2 x2\n"); return(3); }   // G2 x2
+		if((LinkStatus & 0xff0000)      == 0x110000) { printf_s("FPGA is set in PCIE Gen1 x1\n"); return(0); }   // G1 x1
+		else if((LinkStatus & 0xff0000) == 0x120000) { printf_s("FPGA is set in PCIE Gen2 x1\n"); return(1); }   // G2 x1
+		else if((LinkStatus & 0xff0000) == 0x210000) { printf_s("FPGA is set in PCIE Gen1 x2\n"); return(2); }   // G1 x2
+		else if((LinkStatus & 0xff0000) == 0x220000) { printf_s("FPGA is set in PCIE Gen2 x2\n"); return(3); }   // G2 x2
 		else return(0);
 
 		}

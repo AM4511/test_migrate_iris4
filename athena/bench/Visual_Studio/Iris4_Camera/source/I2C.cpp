@@ -60,7 +60,7 @@ void CI2C::Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  D
 	//validate protocol error
 	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
-		printf("\n\n  I2C WRITE ERROR: Protocol BusSel=%d, addr=0x%X data=0x%X\n", BUSsel,  I2Cindex, DATAWrite);
+		printf_s("\n\n  I2C WRITE ERROR: Protocol BusSel=%d, addr=0x%X data=0x%X\n", BUSsel,  I2Cindex, DATAWrite);
 
 	}
 
@@ -95,7 +95,7 @@ void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UIN
 	//validate protocol error
 	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
-		printf("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
+		printf_s("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
 		errorflag = 1;
 	}
 	else errorflag = 0;
@@ -104,7 +104,7 @@ void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UIN
 	if (errorflag == 0)
 	{
 		if ((DATAWrite & 0xff) != rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ)
-			printf("\nI2C READ ERROR: Data VAlidation, DataW=0x%x DataR=0x%x \n", DATAWrite, rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ);
+			printf_s("\nI2C READ ERROR: Data VAlidation, DataW=0x%x DataR=0x%x \n", DATAWrite, rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ);
 	}
 
 }
@@ -133,7 +133,7 @@ M_UINT32 CI2C::Read_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex,  int pri
 	//validate protocol error
 	if (rI2Cptr.I2C.I2C_CTRL1.f.I2C_ERROR == 1)
 	{
-		if (print_err == 1) printf("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
+		if (print_err == 1) printf_s("\nI2C READ ERROR: Protocol BusSel=%d\n", BUSsel);
 	}
 
 	return(rI2Cptr.I2C.I2C_CTRL0.f.I2C_DATA_READ);

@@ -58,9 +58,9 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0009_Optics.cpp    *\n");
-	printf(    "********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s(    "*    Executing Test0009_Optics.cpp    *\n");
+	printf_s(    "********************************\n\n");
 
 
 
@@ -83,10 +83,10 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
-	//printf("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
+	//printf_s("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
 	//ch = _getch();
 	ch = '1';
 
@@ -94,7 +94,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		DisplayOn = false;
 	else
 		DisplayOn = true;
-	printf("\n");
+	printf_s("\n");
 
 
 	//---------------------
@@ -121,7 +121,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO, TIMER 
-	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::SW_TRIG, TRIGGER_ACT::RISING);
 
 	//---------------------
     // DMA PARAMETERS
@@ -132,9 +132,9 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
-	printf("\n\nTest started at : ");
+	printf_s("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
-	printf("\n\n");
+	printf_s("\n\n");
 
 	 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
@@ -148,7 +148,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
    // TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
    // TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::SW_TRIG, TRIGGER_ACT::RISING);
 
 	// GTX image plane position testing in preparation for GTX
 	// abeaudoi - june 2020
@@ -191,23 +191,23 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	while (cin_imagefilename != "q")
 	{
 		if (cin_use_old_params == "n") {
-			printf("\nEnter default AnalogGain(1-2-4)         : ");
+			printf_s("\nEnter default AnalogGain(1-2-4)         : ");
 			scanf_s("%d", &DefaultGain);
-			printf("\nEnter default DigitalGain(0-127, ou 32=Gain unitaire, step gain 1/32) : ");
+			printf_s("\nEnter default DigitalGain(0-127, ou 32=Gain unitaire, step gain 1/32) : ");
 			scanf_s("%d", &DefaultDigGain);
-			printf("\nEnter default Balck Offset(12bit, HEX)  : 0x");
+			printf_s("\nEnter default Balck Offset(12bit, HEX)  : 0x");
 			scanf_s("%x", &DefaultBlackOffset);
-			printf("\nEnter the Base Exposure in us           : ");
+			printf_s("\nEnter the Base Exposure in us           : ");
 			scanf_s("%d", &ExposureBase);
-			printf("\nEnter the Increment Exposure in us      : ");
+			printf_s("\nEnter the Increment Exposure in us      : ");
 			scanf_s("%d", &ExposureIncr);
-			printf("\nEnter the number of iterations          : ");
+			printf_s("\nEnter the number of iterations          : ");
 			scanf_s("%d", &ExposureIter);
-			printf("\n");
+			printf_s("\n");
 			XGS_Ctrl->setAnalogGain(DefaultGain);
 			XGS_Ctrl->setDigitalGain(DefaultDigGain);  // ceci va faire saturer le senseur XGS
 			XGS_Ctrl->setBlackRef(DefaultBlackOffset);
-			printf("\n");
+			printf_s("\n");
 		}
 		exp_time = ExposureBase;
 
@@ -223,10 +223,10 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 #if M_MIL_UNICODE_API
 			MosSprintf(FileName, 50, MIL_TEXT("%S_%d.tiff"), cin_imagefilename.c_str(), exp_time);
-			printf("Printing .tiff file: %S\n\n", FileName);
+			printf_s("Printing .tiff file: %S\n\n", FileName);
 #else
 			MosSprintf(FileName, 50, MIL_TEXT("%s_%d.tiff"), cin_imagefilename.c_str(), exp_time);
-			printf("Printing .tiff file: %s\n\n", FileName);
+			printf_s("Printing .tiff file: %s\n\n", FileName);
 #endif
 
 			MbufSave(FileName, MilGrabBuffer);
@@ -241,7 +241,7 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		if (cin_imagefilename != "q") {
 			std::cout << "Use same grab parameters? (y or n) : ";
 			cin >> cin_use_old_params;
-			printf("\n");
+			printf_s("\n");
 		}
 
 	}
@@ -257,14 +257,14 @@ void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//----------------------
 	// Disable HW
 	//----------------------
-	XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
 	XGS_Ctrl->GrabAbort();
 	XGS_Data->HiSpiClr();
 	XGS_Ctrl->DisableXGS();
 
-	printf("\n\n********************************\n");
-	printf("*    End of Test0009.cpp    *\n");
-	printf("********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s("*    End of Test0009.cpp    *\n");
+	printf_s("********************************\n\n");
 
    }
 

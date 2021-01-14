@@ -53,9 +53,9 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 FileDumpNum = 0;
 
-	printf("\n\n********************************\n");
-	printf(    "*    Executing Test0006    *\n");
-	printf(    "********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s(    "*    Executing Test0006    *\n");
+	printf_s(    "********************************\n\n");
 
 
 
@@ -78,8 +78,8 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2* SensorParams->Ysize_Full, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	printf("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 
 
@@ -104,7 +104,7 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// GRAB MODE
 	// TRIGGER_SRC : NONE, IMMEDIATE, HW_TRIG, SW_TRIG
 	// TRIGGER_ACT : RISING, FALLING , ANY_EDGE, LEVEL_HI, LEVEL_LO 
-	XGS_Ctrl->SetGrabMode(SW_TRIG, RISING);
+	XGS_Ctrl->SetGrabMode(TRIGGER_SRC::SW_TRIG, TRIGGER_ACT::RISING);
 
 
 	//---------------------
@@ -115,7 +115,7 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full;// Full window MIL display
 
 
-	printf("\n\nTest started at : ");
+	printf_s("\n\nTest started at : ");
 	XGS_Ctrl->PrintTime();
 
 	//------------------------------------
@@ -145,15 +145,15 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// START GRAB 
 	//---------------------
-	printf("\n");
+	printf_s("\n");
 
-	printf("\n  (q) Quit this test");
-	printf("\n  (e) Exposure Incr/Decr gap");
-	printf("\n  (+) Increase Exposure");
-	printf("\n  (-) Decrease Exposure");
-	printf("\n  (c) Calculate Stats on the PD and SN Black lines");
+	printf_s("\n  (q) Quit this test");
+	printf_s("\n  (e) Exposure Incr/Decr gap");
+	printf_s("\n  (+) Increase Exposure");
+	printf_s("\n  (-) Decrease Exposure");
+	printf_s("\n  (c) Calculate Stats on the PD and SN Black lines");
 
-	printf("\n\n");
+	printf_s("\n\n");
 
 
 
@@ -201,28 +201,28 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			case 'q':
 				Sortie = 1;
-				XGS_Ctrl->SetGrabMode(NONE, LEVEL_HI);
+				XGS_Ctrl->SetGrabMode(TRIGGER_SRC::NONE, TRIGGER_ACT::LEVEL_HI);
 				XGS_Ctrl->GrabAbort();
 				XGS_Data->HiSpiClr();
 				XGS_Ctrl->DisableXGS();
-				printf("\n\n");
-				printf("Exit! \n");
+				printf_s("\n\n");
+				printf_s("Exit! \n");
 				break;
 
 			case 'e':
-				printf("\nEnter the ExposureIncr/Decr in us : ");
+				printf_s("\nEnter the ExposureIncr/Decr in us : ");
 				scanf_s("%d", &ExposureIncr);
-				printf("\n");
+				printf_s("\n");
 				break;
 
 			case '+':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() + ExposureIncr);
-				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
+				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
 				break;
 
 			case '-':
 				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() - ExposureIncr);
-				//printf("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
+				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
 				break;
 
 			case 'c':
@@ -252,8 +252,8 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				SN_DARK_NOISE = (double)SN_DARK_NOISE_ACC / (double)( (double)(XGS_Data->rXGSptr.ACQ.SENSOR_M_LINES.f.M_LINES_SENSOR-8) * (double)XGS_Ctrl->SensorParams.Xsize_Full);
 
 				
-				printf("M_LINES PD(PhotoDiode)+SN(StorageNode) Dark current Black mean = %f, Data Pedestal=%d\n", PD_SN_DARK_NOISE, BlackOffset/16);
-				printf("M_LINES SN(StorageNode) Dark current Black mean                = %f, Data Pedestal=%d\n\n", SN_DARK_NOISE,    BlackOffset/16);
+				printf_s("M_LINES PD(PhotoDiode)+SN(StorageNode) Dark current Black mean = %f, Data Pedestal=%d\n", PD_SN_DARK_NOISE, BlackOffset/16);
+				printf_s("M_LINES SN(StorageNode) Dark current Black mean                = %f, Data Pedestal=%d\n\n", SN_DARK_NOISE,    BlackOffset/16);
 				break;
 
 			}
@@ -266,7 +266,7 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-	printf("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+	printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
 	// Free MIL Display
@@ -282,9 +282,9 @@ void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//----------------------
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
 
-	printf("\n\n********************************\n");
-	printf("*    End of Test0006.cpp    *\n");
-	printf("********************************\n\n");
+	printf_s("\n\n********************************\n");
+	printf_s("*    End of Test0006.cpp    *\n");
+	printf_s("********************************\n\n");
 
    }
 
