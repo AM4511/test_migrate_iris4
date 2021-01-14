@@ -163,7 +163,7 @@ create_generated_clock -name pclk_top -source [get_pins -hier -filter {NAME =~"*
 create_generated_clock -name pclk_bottom -source [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/I"}] -divide_by 2 -add -master_clock hclk_bottom [get_pins -hier -filter {NAME =~"*XGS_athena_0/U0/x_xgs_hispi_top/xhispi_phy_bottom/xpclk_buffer/O"}]
 
 
-# Bug CRC
+# Fix for the CRC bug. See https://jira.matrox.com:8443/browse/MT-2021
 set_clock_uncertainty 0.200 -from [get_clocks hclk_top] -to [get_clocks pclk_top]
 set_clock_uncertainty 0.200 -from [get_clocks hclk_bottom] -to [get_clocks pclk_bottom]
 
