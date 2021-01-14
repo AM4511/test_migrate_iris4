@@ -19,5 +19,7 @@ set FPGA_DEVICE_ID 1
 # Generic passed to VHDL top level file by generic
 set FPGA_IS_NPI_GOLDEN     0
 
-# Flash programation offset (upgrade should be set to 0x400000)
+# Flash programation offset 
+# NPI Golden  : 0x000000)
+# MIL Upgrade : 0x400000)
 set FLASH_OFFSET 0x000000
