@@ -134,7 +134,7 @@ class Cathena;
 		// A minimum delay is required before we can start SPI transactions
 		#200us;
 
-		// SPI read XGS model id
+			// SPI read XGS model id
 		$display("  1. SPI read XGS model id and revision @0x%h", SPI_MODEL_ID_OFFSET);
 		xgs_spi_read(SPI_MODEL_ID_OFFSET, data_rd);
 
@@ -320,36 +320,91 @@ class Cathena;
 
 		#1ns;
 		xgs_spi_write(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
-		#10us;		
+		#10us;		// [AM] Why this delay?
 		xgs_spi_write(8, 16'h0000);
 		$display("XGS_athena generate sensor image done\n");
 	endtask
 	
+	
+	///////////////////////////////////////////////////
+	// DPC
+	///////////////////////////////////////////////////
+	task  set_dpc();
+		int	DPC_PATTERN;
+		int REG_DPC_PATTERN0_CFG;
+		
+		$display("Set DPC");
+//		regfile.DMA.FSTART.VALUE.set(fstart);
+//		this.host.reg_write(regfile.DMA.FSTART);
+		
+
+		
+		REG_DPC_PATTERN0_CFG = 1;
+		
+		// Reset DPC_LIST_CTRL
+		// host.write(super.Vlib.DPC_LIST_CTRL, 0);
+		regfile.DPC.DPC_LIST_CTRL.data = 0;
+		this.host.reg_write(regfile.DPC.DPC_LIST_CTRL);
+		
+		// Set the DPC list in write mode
+		//host.write(super.Vlib.DPC_LIST_CTRL, (0<<15)+(1<<13) );                    //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
+		regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn.set(1);
+		this.host.reg_write(regfile.DPC.DPC_LIST_CTRL);
+
+		DPC_PATTERN = 85; 
+		for (int i = 0; i < 16; i++)
+		begin				
+			host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+			host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+			host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+			host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+
+			//XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+		end
+
+		DPC_PATTERN  = 170;
+		for (int i = 16; i < 63; i++)
+		begin				
+			host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+			host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+			host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+			host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+
+			//XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+		end
+
+		host.write(super.Vlib.DPC_LIST_CTRL,  (i<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
+		XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
+		XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
+
+	endtask
+
+	
 	task automatic configure_testbench();
-	// Assign the right XGS sensor model in the testbench
-	case (this.xgs_sensor.model_id)
-		// XGS12M
-		'h58: begin
-			host.set_output_io (0, 1);
-			host.set_output_io (1, 0);
-			$display("XGS_sensor configured as XGS16000");
-		end
-		// XGS5M
-		'h358: begin
-			host.set_output_io (0, 0);
-			host.set_output_io (1, 0);
-			$display("XGS_sensor configured as XGS16000");
-		end
-		// XGS16M
-		'h258: begin
-			host.set_output_io (0, 0);
-			host.set_output_io (1, 1);
-			$display("XGS_sensor configured as XGS16000");
-		end
-		default: begin
-			$error("XGS_sensor : bad type : 0x%0h", this.xgs_sensor.model_id);
-		end
-	endcase
+		// Assign the right XGS sensor model in the testbench
+		case (this.xgs_sensor.model_id)
+			// XGS12M
+			'h58: begin
+				host.set_output_io (0, 1);
+				host.set_output_io (1, 0);
+				$display("XGS_sensor configured as XGS16000");
+			end
+			// XGS5M
+			'h358: begin
+				host.set_output_io (0, 0);
+				host.set_output_io (1, 0);
+				$display("XGS_sensor configured as XGS16000");
+			end
+			// XGS16M
+			'h258: begin
+				host.set_output_io (0, 0);
+				host.set_output_io (1, 1);
+				$display("XGS_sensor configured as XGS16000");
+			end
+			default: begin
+				$error("XGS_sensor : bad type : 0x%0h", this.xgs_sensor.model_id);
+			end
+		endcase
 	endtask
 		
 		

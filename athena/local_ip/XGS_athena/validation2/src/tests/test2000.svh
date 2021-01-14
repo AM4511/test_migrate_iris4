@@ -158,42 +158,42 @@ class Test2000 extends Ctest;
 				//XGS_imageSRC.load_image(XGS_Model);                             // Load le .pgm dans la class SystemVerilog			
 				XGS_imageSRC = xgs_sensor.get_image();
 
-				///////////////////////////////////////////////////
-				// DPC
-				///////////////////////////////////////////////////
-				REG_DPC_PATTERN0_CFG = 1;
+//				///////////////////////////////////////////////////
+//				// DPC
+//				///////////////////////////////////////////////////
+//				REG_DPC_PATTERN0_CFG = 1;
+//
+//				host.write(super.Vlib.DPC_LIST_CTRL, 0);
+//				host.write(super.Vlib.DPC_LIST_CTRL, (0<<15)+(1<<13) );                    //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
+//
+//				DPC_PATTERN = 85; 
+//				for (i = 0; i < 16; i++)
+//				begin				
+//					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+//					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+//					host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+//					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+//
+//					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+//				end
+//
+//				DPC_PATTERN  = 170;
+//				for (i = 16; i < 63; i++)
+//				begin				
+//					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+//					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+//					host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
+//					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+//
+//					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+//				end
+//
+//				host.write(super.Vlib.DPC_LIST_CTRL,  (i<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
+//				XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
+//				XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
+//
 
-				host.write(super.Vlib.DPC_LIST_CTRL, 0);
-				host.write(super.Vlib.DPC_LIST_CTRL, (0<<15)+(1<<13) );                    //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
-
-				DPC_PATTERN = 85; 
-				for (i = 0; i < 16; i++)
-				begin				
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
-					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-					host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
-
-					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
-				end
-
-				DPC_PATTERN  = 170;
-				for (i = 16; i < 63; i++)
-				begin				
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
-					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-					host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
-
-					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
-				end
-
-				host.write(super.Vlib.DPC_LIST_CTRL,  (i<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
-				XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
-				XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
-
-
-
+				athena.set_dpc();
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
