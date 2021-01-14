@@ -1,0 +1,23 @@
+# ##################################################################################
+# File         : athena_35t.tcl
+# Description  : TCL script used to create athena fpga 35T. 
+# ##################################################################################
+set myself $env(IRIS4)/athena/backend/artix7_rev2/athena_35t.tcl
+puts "Running ${myself}"
+
+set BASE_NAME             "athena35t"
+set DEVICE                "xc7a35ticpg236-1L"
+
+
+# FPGA_DEVICE_ID (DEVICE ID MAP) :
+# Generic passed to VHDL top level file by generic
+#  0      : xc7a50ticpg236-1L
+#  1      : xc7a35ticpg236-1L
+#  Others : reserved
+set FPGA_DEVICE_ID 1
+
+# Generic passed to VHDL top level file by generic
+set FPGA_IS_NPI_GOLDEN     0
+
+# Flash programation offset (upgrade should be set to 0x400000)
+set FLASH_OFFSET 0x000000
