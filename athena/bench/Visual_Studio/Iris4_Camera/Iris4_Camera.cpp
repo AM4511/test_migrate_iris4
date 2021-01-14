@@ -51,13 +51,13 @@ void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-
+int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data, M_UINT32 nbFrames, M_UINT32 FlatImageVal);
 
 /* Main function. */
 int main(void)
 {
 	M_UINT32 Athena_DevID = 0x5054;
-	M_UINT32 Ares_DevID   = 0x5e10;
+	M_UINT32 Ares_DevID   = 0x5055;
 
 	int sortie = 0;
 	char ch;
@@ -79,7 +79,7 @@ int main(void)
 	int NBiter = 1;
 	int PD_Head = 1;
 	int fpgaSel = 0;
-
+	int PowerUP = 0;
 	// IRISx
 	int nbFPGA = FindMultiFpga(0x102b, Athena_DevID, FPGAs);                 // Lets get the Bar0 address of the Iris FPGA
 
@@ -289,12 +289,12 @@ int main(void)
 
 
 	// pour tester que le fix du bug TLP_2_AXI est repare
-	TestTLP2AXI(XGS_Ctrl);
+	//TestTLP2AXI(XGS_Ctrl);
 
 	// test Arbitre
-	Pcie->ArbiterTest();
-	if (Ares_nbFPGA == 1)
-		Ares->ArbiterTest();
+	//Pcie->ArbiterTest();
+	//if (Ares_nbFPGA == 1)
+	//	Ares->ArbiterTest();
 
 
 
@@ -398,6 +398,32 @@ int main(void)
 				test_0009_Optics(XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
+				break;
+
+			case 'a':
+				printf_s("\nNumber of loops to execute? (One loop is IMGs : Live->Ramp->0x000->0xaaa->0x555) : ");
+				scanf_s("%d", &NBiter);
+				for (int i = 0; i < NBiter; i++)
+				{
+					
+					PowerUP++;
+					printf_s("\nPowerUP : %d/%d \n", PowerUP, NBiter * 5);
+					if (test_0010_Continu_nbframes(Pcie, XGS_Ctrl, XGS_Data, 25, 0x1000) == 1) break;    //Live IMG
+					PowerUP++;
+					printf_s("\nPowerUP : %d/%d \n", PowerUP, NBiter * 5);
+					if (test_0010_Continu_nbframes(Pcie, XGS_Ctrl, XGS_Data, 25, 0x2000) == 1) break;    //Ramp IMG
+					PowerUP++;
+					printf_s("\nPowerUP : %d/%d \n", PowerUP, NBiter * 5);
+					if (test_0010_Continu_nbframes(Pcie, XGS_Ctrl, XGS_Data, 25, 0x000)  == 1) break;    //Flat IMG
+					PowerUP++;
+					printf_s("\nPowerUP : %d/%d \n", PowerUP, NBiter * 5);
+					if (test_0010_Continu_nbframes(Pcie, XGS_Ctrl, XGS_Data, 25, 0xaaa)  == 1) break;    //Flat IMG
+					PowerUP++;
+					printf_s("\nPowerUP : %d/%d \n", PowerUP, NBiter * 5);
+					if (test_0010_Continu_nbframes(Pcie, XGS_Ctrl, XGS_Data, 25, 0x555)  == 1) break;    //Flat IMG
+
+				}	
+				printf_s("\nTOTAL Sensor PowerUP executed : %d/%d \n", PowerUP, NBiter*5);
 				break;
 
 			case 'e':
@@ -532,6 +558,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf_s("\n  (5) Grag Test SW trig - Random");	
 	printf_s("\n  (6) Grag Test SW trig - Stats on the PD and SN Black lines");
 	printf_s("\n  (7) Grag Test Continu - DPC");
+	printf_s("\n  (a) Grag Test CRC bug");
 	printf_s("\n");
 	printf_s("\n  (9) Grab Optics");
 	printf_s("\n");
