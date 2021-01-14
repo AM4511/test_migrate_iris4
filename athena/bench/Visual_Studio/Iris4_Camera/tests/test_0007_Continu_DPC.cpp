@@ -53,6 +53,8 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 Overrun      = 0;
 	M_UINT32 OverrunPixel = 0;
 
+	M_UINT64 GrabCmd = 0;
+
 	printf_s("\n\n********************************\n");
 	printf_s(    "*    Executing Test0007.cpp    *\n"); 
 	printf_s(    "********************************\n\n");
@@ -325,10 +327,10 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
-
+		GrabCmd++;
 		//XGS_Ctrl->WaitEndExpReadout();
 
-		Sortie = XGS_Data->HiSpiCheck();
+		Sortie = XGS_Data->HiSpiCheck(GrabCmd);
 
 
 		if (FPS_On)

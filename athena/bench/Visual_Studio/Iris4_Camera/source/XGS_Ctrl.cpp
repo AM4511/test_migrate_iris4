@@ -167,6 +167,7 @@ void CXGS_Ctrl::WriteSPI(M_UINT32 address, M_UINT32 data)
 	rXGSptr.ACQ.ACQ_SER_CTRL.u32         = sXGSptr.ACQ.ACQ_SER_CTRL.u32;
 	sXGSptr.ACQ.ACQ_SER_CTRL.f.SER_RF_SS = 0x0;
 
+
 	while (rXGSptr.ACQ.ACQ_SER_STAT.f.SER_BUSY == 0x1);                          // Loop wait for the access end
 
 }
