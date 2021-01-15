@@ -57,13 +57,15 @@ set LOCAL_IP_DIR ${WORKDIR}/local_ip
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}
 set XDC_DIR      ${BACKEND_DIR}
-set VIVADO_DIR   ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+
+set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
+set VIVADO_DIR         ${WORKDIR}/vivado/${FPGA_FULL_VERSION}
 
 
 ###################################################################################
