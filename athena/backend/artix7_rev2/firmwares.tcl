@@ -14,9 +14,9 @@ open_run $IMPL_RUN
 
 
 # Extracting the Working directory
-set ROOTDIR                $env(IRIS4)/athena/backend/artix7
-set IPCORES_DIR            ${ROOTDIR}/ipcores
-set LOCAL_IP_DIR           ${ROOTDIR}/local_ip
+#set ROOTDIR                $env(IRIS4)/athena/backend/artix7_rev2
+#set IPCORES_DIR            ${ROOTDIR}/ipcores
+#set LOCAL_IP_DIR           ${ROOTDIR}/local_ip
 set PROJECT_DIRECTORY      [get_property DIRECTORY [current_project]]
 set OUTPUT_BASE_DIR        "${PROJECT_DIRECTORY}/output"
 set OUTPUT_DIR             ${OUTPUT_BASE_DIR}

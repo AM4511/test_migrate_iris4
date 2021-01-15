@@ -2,10 +2,10 @@
 # File         : create_athena.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/athena/backend/artix7/create_athena2.tcl
-#                source $env(IRIS4)/athena/backend/artix7/firmwares.tcl
-#                source $env(IRIS4)/athena/backend/artix7/report_implementation.tcl
-#                source $env(IRIS4)/athena/backend/artix7/archive.tcl
+# Example      : source $env(IRIS4)/athena/backend/artix7_rev2/create_athena.tcl
+#                source $env(IRIS4)/athena/backend/artix7_rev2/firmwares.tcl
+#                source $env(IRIS4)/athena/backend/artix7_rev2/report_implementation.tcl
+#                source $env(IRIS4)/athena/backend/artix7_rev2/archive.tcl
 # ##################################################################################
 set myself $env(IRIS4)/athena/backend/artix7/create_athena2.tcl
 puts "Running ${myself}"
@@ -38,6 +38,7 @@ puts "Running ${myself}"
 #             Removed HISPI.LANE_PACKER_STATUS registers
 #
 # 0.3.0 : Modified backend scripts for generating all flavor of athena FPGA
+#         Fixed the HiSPi CRC issue  (See JIRA : MT-2021)
 #
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     3
@@ -50,11 +51,11 @@ set JOB_COUNT  4
 set VIVADO_SHORT_VERSION [version -short]
 
 # Directory structure
-set WORKDIR      $env(IRIS4)/athena
+# set WORKDIR      $env(IRIS4)/athena
 set SRC_DIR      ${WORKDIR}/design
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
-set BACKEND_DIR  ${WORKDIR}/backend/artix7_rev2
+#set BACKEND_DIR  ${WORKDIR}/backend/artix7_rev2
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}
 set XDC_DIR      ${BACKEND_DIR}
@@ -68,7 +69,7 @@ set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
 #source ${BACKEND_DIR}/athena_50t.tcl
-source ${BACKEND_DIR}/athena_35t.tcl
+#source ${BACKEND_DIR}/athena_35t.tcl
 
 
 ###################################################################################

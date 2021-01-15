@@ -2,24 +2,47 @@
 # File         : athena_50t.tcl
 # Description  : TCL script used to create athena fpga 50T. 
 # ##################################################################################
-set myself $env(IRIS4)/athena/backend/artix7_rev2/athena_50t.tcl
-puts "Running ${myself}"
+set DEBUG 0
 
-set BASE_NAME             "athena50t"
-set DEVICE                "xc7a50ticpg236-1L"
+if {$DEBUG == 0} {
+  set myself [info script]
+} else {
+  set myself $env(IRIS4)/athena/backend/artix7_rev2/athena_50t.tcl
+}
 
 
-# FPGA_DEVICE_ID (DEVICE ID MAP) :
-# Generic passed to VHDL top level file by generic
-#  0      : xc7a50ticpg236-1L
-#  1      : xc7a35ticpg236-1L
-#  Others : reserved
-set FPGA_DEVICE_ID 0
+# ##################################################################################
+#
+# ##################################################################################
+if {[file exists $myself ]} {
+   puts "Running ${myself}"
+   set BACKEND_DIR [file normalize [file dirname ${myself}]]
+   set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
+   
+   set BASE_NAME             "athena50t"
+   set DEVICE                "xc7a50ticpg236-1L"
+   
+   # FPGA_DEVICE_ID (DEVICE ID MAP) :
+   # Generic passed to VHDL top level file by generic
+   #  0      : xc7a50ticpg236-1L
+   #  1      : xc7a35ticpg236-1L
+   #  Others : reserved
+   set FPGA_DEVICE_ID 0
+   
+   # Generic passed to VHDL top level file by generic
+   set FPGA_IS_NPI_GOLDEN     0
+   
+   # Flash programation offset 
+   # NPI Golden  : 0x000000)
+   # MIL Upgrade : 0x400000)
+   set FLASH_OFFSET 0x000000
+   
+   # ############################################
+   # Starting generation script
+   # ############################################
+   source $BACKEND_DIR/create_athena.tcl
+   
+} else {
+   puts "Error : script $myself does not exist!!!"
 
-# Generic passed to VHDL top level file by generic
-set FPGA_IS_NPI_GOLDEN     0
-
-# Flash programation offset 
-# NPI Golden  : 0x000000)
-# MIL Upgrade : 0x400000)
-set FLASH_OFFSET 0x000000
+}
