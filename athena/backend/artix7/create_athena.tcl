@@ -7,7 +7,7 @@
 #                source $env(IRIS4)/athena/backend/artix7/report_implementation.tcl
 #                source $env(IRIS4)/athena/backend/artix7/archive.tcl
 # ##################################################################################
-set myself [info script]
+set myself $env(IRIS4)/athena/backend/artix7/create_athena2.tcl
 puts "Running ${myself}"
 
 
@@ -37,40 +37,26 @@ puts "Running ${myself}"
 #         UPDATED THE REGISTERFILE. 
 #             Removed HISPI.LANE_PACKER_STATUS registers
 #
-
+# 0.3.0 : Modified backend scripts for generating all flavor of athena FPGA
+#         Fixed the HiSPi CRC issue  (See JIRA : MT-2021)
+#
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     2
+set FPGA_MINOR_VERSION     3
 set FPGA_SUB_MINOR_VERSION 0
 
+set SYNTH_RUN "synth_1"
+set IMPL_RUN  "impl_1"
+set JOB_COUNT  4
 
-set BASE_NAME athena
-set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
-
-# Define a MIL upgrade firmware
-set FPGA_IS_NPI_GOLDEN     0
-
-
-# FPGA_DEVICE_ID (DEVICE ID MAP) :
-#  0      : xc7z015iclg485-1
-#  1      : TBD
-#  2      : TBD
-#  Others : reserved
-set FPGA_DEVICE_ID 0
-
-set WORKDIR      $env(IRIS4)/athena
-
-# IP repositories
+# Directory structure
+set SRC_DIR      ${WORKDIR}/design
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
-
-set VIVADO_DIR  ${WORKDIR}/vivado/${VIVADO_SHORT_VERSION}
-set BACKEND_DIR ${WORKDIR}/backend/artix7
-set TCL_DIR     ${BACKEND_DIR}
-set SYSTEM_DIR  ${BACKEND_DIR}
-set SRC_DIR     ${WORKDIR}/design
-set XDC_DIR     ${BACKEND_DIR}
+set TCL_DIR      ${BACKEND_DIR}
+set SYSTEM_DIR   ${BACKEND_DIR}
+set XDC_DIR      ${BACKEND_DIR}
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
@@ -78,10 +64,9 @@ set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
+set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
+set VIVADO_DIR         ${WORKDIR}/vivado/${FPGA_FULL_VERSION}
 
-set SYNTH_RUN "synth_1"
-set IMPL_RUN  "impl_1"
-set JOB_COUNT  4
 
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
@@ -111,13 +96,11 @@ set_property target_language VHDL [current_project]
 set_property simulator_language Mixed [current_project]
 set_property target_simulator ModelSim [current_project]
 set_property default_lib work [current_project]
-
-
+set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 set_property  ip_repo_paths  [list ${LOCAL_IP_DIR} ${IPCORES_DIR} ] [current_project]
 update_ip_catalog
 
-set_property XPM_LIBRARIES {XPM_FIFO} [current_project]
 
 
 ################################################
@@ -148,7 +131,6 @@ reset_target all ${BD_FILE}
 ## Generate Bloc design global (Out of context does not work)
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
-#export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
 
 ################################################
@@ -181,16 +163,6 @@ current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
 launch_runs ${IMPL_RUN} -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
-
-
-################################################
-# Export board level info
-################################################
-#open_run ${IMPL_RUN}
-#write_vhdl ${PCB_DIR}/pinout_${PROJECT_NAME}.vhd -mode pin_planning -force
-#write_csv  ${PCB_DIR}/pinout_${PROJECT_NAME}.csv -force
-#report_io -file ${PCB_DIR}/pinout_${PROJECT_NAME}.txt -format text -name io_${PROJECT_NAME}
-#report_power -file ${PCB_DIR}/power_${PROJECT_NAME}.txt -name power_${PROJECT_NAME}
 
  
 ################################################
