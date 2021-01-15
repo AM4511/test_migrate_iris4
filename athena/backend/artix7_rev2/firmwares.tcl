@@ -1,6 +1,6 @@
 # ##################################################################################
 # File         : firmwares.tcl
-# Description  : TCL script used to release the hallux fpga project. 
+# Description  : This TCL script creates the Athena fpga firmwares. 
 # Example      : source $env(IRIS4)/athena/backend/artix7/firmwares.tcl
 # ##################################################################################
 set myself [info script]
@@ -14,14 +14,11 @@ open_run $IMPL_RUN
 
 
 # Extracting the Working directory
-#set ROOTDIR                $env(IRIS4)/athena/backend/artix7_rev2
-#set IPCORES_DIR            ${ROOTDIR}/ipcores
-#set LOCAL_IP_DIR           ${ROOTDIR}/local_ip
 set PROJECT_DIRECTORY      [get_property DIRECTORY [current_project]]
 set OUTPUT_BASE_DIR        "${PROJECT_DIRECTORY}/output"
 set OUTPUT_DIR             ${OUTPUT_BASE_DIR}
 
-#le code plus bas utilise la variable design_name. Or cet variable est cree dans le script create_spider*.tcl.  Si on referme le projet et on l'ouvre, cette variable est disparue
+# Extract the current project top design name
 set design_name [current_project]
 set top_entity_name [get_property top [current_fileset]]
 
