@@ -51,11 +51,9 @@ set JOB_COUNT  4
 set VIVADO_SHORT_VERSION [version -short]
 
 # Directory structure
-# set WORKDIR      $env(IRIS4)/athena
 set SRC_DIR      ${WORKDIR}/design
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
-#set BACKEND_DIR  ${WORKDIR}/backend/artix7_rev2
 set TCL_DIR      ${BACKEND_DIR}
 set SYSTEM_DIR   ${BACKEND_DIR}
 set XDC_DIR      ${BACKEND_DIR}
@@ -66,10 +64,6 @@ set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
-
-
-#source ${BACKEND_DIR}/athena_50t.tcl
-#source ${BACKEND_DIR}/athena_35t.tcl
 
 
 ###################################################################################
