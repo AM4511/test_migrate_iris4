@@ -6,13 +6,8 @@
 set myself [info script]
 puts "Running ${myself}"
 
-# Extracting the Working directory
-set WORKDIR                $env(IRIS4)/athena
-set IPCORES_DIR            ${WORKDIR}/ipcores
-set LOCAL_IP_DIR           ${WORKDIR}/local_ip
 
-
-#le code plus bas utilise la variable design_name. Or cet variable est cree dans le script create_spider*.tcl.  Si on referme le projet et on l'ouvre, cette variable est disparue
+# Extract the current project top design name
 set design_name [current_project]
 set top_entity_name [get_property top [current_fileset]]
 
@@ -20,7 +15,7 @@ set top_entity_name [get_property top [current_fileset]]
 #savoir la grandeur du FPGA, a partir du device (hardcode Artix-7 ici)
 regexp xc7a([0-9]+)t [get_property part [current_project]] dummy_var device_number
 
-# Allons chercher le BUILD_ID
+# Extracting the BUILD_ID
 set buildid_generic [lsearch -inline [get_property generic [current_fileset]] "FPGA_BUILD_DATE=*"]
 set buildid [regsub -nocase "FPGA_BUILD_DATE=" $buildid_generic "" ]
 puts stdout [format "Build date is: %s" $buildid]
@@ -44,7 +39,7 @@ set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
 #--------------------------------------------
 # On cree les repertoires du nouveau build   
 #--------------------------------------------
-set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${VIVADO_PROJECT_DIR_NAME}"
+set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${FPGA_FULL_VERSION}/${VIVADO_PROJECT_DIR_NAME}"
 set pre_release_rpt_dir          $pre_release_dir/rpt
 set pre_release_registerfile_dir $pre_release_dir/registerfile
 set pre_release_vivado_dir       $pre_release_dir/vivado
