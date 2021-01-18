@@ -24,6 +24,10 @@ set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[0]}]
 
+set_property PULLUP true [get_ports {fpga_straps[3]}]
+set_property PULLUP true [get_ports {fpga_straps[2]}]
+set_property PULLUP true [get_ports {fpga_straps[1]}]
+set_property PULLUP true [get_ports {fpga_straps[0]}]
 
 ####################################################
 ## eSPI interface
@@ -100,6 +104,11 @@ set_property IOB TRUE [get_ports {ncsi_txd[*]}]
 set_property IOB TRUE [get_ports ncsi_tx_en]
 
 
+
+set_property PULLUP true [get_ports {ncsi_rxd[1]}]
+set_property PULLUP true [get_ports {ncsi_rxd[0]}]
+
+
 ####################################################
 ## Configuration flash interface
 ####################################################
@@ -155,7 +164,12 @@ set_property PACKAGE_PIN T3 [get_ports {user_data_out[0]}]
 set_property PACKAGE_PIN U8 [get_ports {user_data_out[1]}]
 set_property PACKAGE_PIN U7 [get_ports {user_data_out[2]}]
 
+set_property PULLUP true [get_ports {user_data_in[3]}]
+set_property PULLUP true [get_ports {user_data_in[2]}]
+set_property PULLUP true [get_ports {user_data_in[1]}]
+set_property PULLUP true [get_ports {user_data_in[0]}]
 
+ 
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {espi_io[3]}]

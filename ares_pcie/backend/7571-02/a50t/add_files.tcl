@@ -46,6 +46,8 @@ add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/ncsi_timings.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/qspi_timing.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
 
+
+
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing_late.sdc
 set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/timing_late.sdc]
 
@@ -53,20 +55,12 @@ set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
 # Needs to be processed late because of the set_property IOB false constraints
 set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
 
-
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pcie_7x-PCIE_X0Y0.xdc
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${IPCORES_DIR}/xil_cores_artix7/ddr2-100MHz_in/ddr2/user_design/constraints/ddr2.xdc
-
-
-#add_files -fileset ${CONSTRAINTS_FILESET} -norecurse  ${XDC_DIR}/mb_spi_access.xdc
-#set_property PROCESSING_ORDER LATE [get_files  ${XDC_DIR}/mb_spi_access.xdc]
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/power.xdc
+set_property used_in_synthesis false [get_files ${XDC_DIR}/power.xdc]
+set_property PROCESSING_ORDER LATE [get_files ${XDC_DIR}/power.xdc]
 
 
 # Target constraints file
 set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse $TARGET_CONSTRAIN_FILE
 set_property target_constrs_file $TARGET_CONSTRAIN_FILE ${CONSTRAINTS_FILESET}
-
-# Problem with a Xilinx constraint file
-#set CONSTRAINT_FILE [get_files bd_a352_mac_0_clocks.xdc]
-#set_property IS_ENABLED 0 ${CONSTRAINT_FILE}
