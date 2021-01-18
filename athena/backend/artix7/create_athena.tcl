@@ -40,7 +40,8 @@ puts "Running ${myself}"
 # 0.3.0 : Modified backend scripts for generating all flavor of athena FPGA
 #         Fixed the HiSPi CRC issue  (See JIRA : MT-2021)
 #
-# 0.4.0 : 
+# 0.4.0 : Update the Register file version to 1.0.0
+#           * Changed the value at reset of the field /HISPI/CTRL/SW_CLR_IDELAYCTRL to 1
 #
 
 set FPGA_MAJOR_VERSION     0
