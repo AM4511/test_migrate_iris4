@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2020/12/09 15:50:07
+-- Created on          : 2021/01/18 11:30:34
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20201207-1716
--- Register file CRC32 : 0x232CD2D4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x9E6B8ABC
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -3882,11 +3882,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2020/12/09 15:50:07
+-- Created on          : 2021/01/18 11:30:34
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20201207-1716
--- Register file CRC32 : 0x232CD2D4
+-- Build ID            : I20191220-1537
+-- Register file CRC32 : 0x9E6B8ABC
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4819,7 +4819,7 @@ wEn(1) <= (hit(1)) and (reg_write);
 -- Field name: MAJOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(0),8));
+rb_SYSTEM_VERSION(23 downto 16) <= std_logic_vector(to_unsigned(integer(1),8));
 regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 
 
@@ -4827,7 +4827,7 @@ regfile.SYSTEM.VERSION.MAJOR <= rb_SYSTEM_VERSION(23 downto 16);
 -- Field name: MINOR
 -- Field type: STATIC
 ------------------------------------------------------------------------------------------
-rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(2),8));
+rb_SYSTEM_VERSION(15 downto 8) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.SYSTEM.VERSION.MINOR <= rb_SYSTEM_VERSION(15 downto 8);
 
 
@@ -8106,7 +8106,7 @@ P_HISPI_CTRL_SW_CLR_IDELAYCTRL : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= '0';
+         field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= '1';
       else
          if(wEn(58) = '1' and bitEnN(4) = '0') then
             field_rw_HISPI_CTRL_SW_CLR_IDELAYCTRL <= reg_writedata(4);

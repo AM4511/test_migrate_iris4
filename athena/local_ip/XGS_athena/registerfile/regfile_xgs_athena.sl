@@ -9,7 +9,7 @@
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
 %  FDK IDE Version: 4.7.0_beta4
-%  Build ID: I20201207-1716
+%  Build ID: I20191220-1537
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -31,8 +31,8 @@ Register("tag", 0x0, 4, "null");
 			FieldValue("MTX ASCII string ", 5788749);
 
 Register("version", 0x4, 4, "Register file version");
-		Field("major", 23, 16, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
-		Field("minor", 15, 8, "rd", 0x0, 0x2, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("major", 23, 16, "rd", 0x0, 0x1, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+		Field("minor", 15, 8, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("hw", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 
 Register("capability", 0x8, 4, "Register file version");
@@ -450,7 +450,7 @@ Register("timer_duration", 0x2d8, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
-		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
+		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
 			FieldValue("No effect", 0);
 			FieldValue("Reset IDELAYCTRL", 1);
 		Field("sw_clr_hispi", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

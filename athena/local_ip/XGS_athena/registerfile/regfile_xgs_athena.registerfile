@@ -7,10 +7,10 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;0.1.0  : First functionnal revision&#xD;&#xA;0.2.0  : Removed tha lane_packer module" offsetFromParent="4">
-      <fields name="MAJOR" lsb="16" size="8" valueAtReset="a" readWrite="false" staticVal="true"/>
-      <fields name="MINOR" lsb="8" size="8" valueAtReset="2" readWrite="false" staticVal="true"/>
-      <fields name="HW" size="8" valueAtReset="3" readWrite="false" staticVal="true"/>
+    <registers name="VERSION" alias="Register file version" description="Revisions&#xD;&#xA;0.1.0  : First functionnal revision&#xD;&#xA;0.2.0  : Removed tha lane_packer module&#xD;&#xA;1.0.0 :  Changed the value at reset of the field /HISPI/CTRL/SW_CLR_IDELAYCTRL to 1" offsetFromParent="4">
+      <fields name="MAJOR" lsb="16" size="8" valueAtReset="1" readWrite="false" staticVal="true"/>
+      <fields name="MINOR" lsb="8" size="8" readWrite="false" staticVal="true"/>
+      <fields name="HW" size="8" readWrite="false" staticVal="true"/>
     </registers>
     <registers name="CAPABILITY" alias="Register file version" offsetFromParent="8">
       <fields name="VALUE" size="8" readWrite="false" staticVal="true"/>
@@ -629,7 +629,7 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="454">
     <registers name="CTRL">
-      <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
+      <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" description="At reset this field is set to one. Software needs to manually de-assert this bit after a system reset (power-on or warm reboot)" lsb="4" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset IDELAYCTRL&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

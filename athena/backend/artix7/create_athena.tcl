@@ -40,8 +40,11 @@ puts "Running ${myself}"
 # 0.3.0 : Modified backend scripts for generating all flavor of athena FPGA
 #         Fixed the HiSPi CRC issue  (See JIRA : MT-2021)
 #
+# 0.4.0 : 
+#
+
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     3
+set FPGA_MINOR_VERSION     4
 set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
