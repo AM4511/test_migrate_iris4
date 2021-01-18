@@ -39,7 +39,8 @@ puts "Running ${myself}"
 #         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
 #
 #         Enabled pull-ups on IO pins:  - fpga_straps
-#                                       - ncsi_rxd(1:0)
+#         (See JIRA : IRIS4-341)        - ncsi_rxd(1:0)
+#                                       - ncsi_txd(1:0)
 #                                       - user_data_in(3:0)
 #
 # ################################################################

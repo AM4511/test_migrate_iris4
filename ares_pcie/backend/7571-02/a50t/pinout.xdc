@@ -107,6 +107,8 @@ set_property IOB TRUE [get_ports ncsi_tx_en]
 
 set_property PULLUP true [get_ports {ncsi_rxd[1]}]
 set_property PULLUP true [get_ports {ncsi_rxd[0]}]
+set_property PULLUP true [get_ports {ncsi_txd[1]}]
+set_property PULLUP true [get_ports {ncsi_txd[0]}]
 
 
 ####################################################
