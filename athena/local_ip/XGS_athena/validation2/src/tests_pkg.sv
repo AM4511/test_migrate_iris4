@@ -13,12 +13,13 @@ package tests_pkg;
   `include "./tests/test0001.svh"
   `include "./tests/test0002.svh"
   `include "./tests/test0003.svh"
-  
+  `include "./tests/test0004.svh"
+
   typedef class CTest;
   typedef class Test0001;
   typedef class Test0002;  
   typedef class Test0003;    
-
+  typedef class Test0004;   
 
 
 endpackage

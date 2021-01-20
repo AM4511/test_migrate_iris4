@@ -211,6 +211,8 @@ architecture rtl of dmawr2tlp is
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
 
+  
+  
   signal dma_idle                    : std_logic;
   signal dma_pcie_state              : std_logic_vector(2 downto 0);
   signal start_of_frame              : std_logic;
@@ -231,6 +233,7 @@ architecture rtl of dmawr2tlp is
   -----------------------------------------------------------------------------
   -- Register context structure
   -----------------------------------------------------------------------------
+  signal context_strb_P1     : std_logic_vector(context_strb'range);
   signal dma_context_mapping : DMA_CONTEXT_TYPE;
   signal dma_context_p0      : DMA_CONTEXT_TYPE;
   signal dma_context_P1      : DMA_CONTEXT_TYPE;
@@ -268,18 +271,23 @@ begin
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline
+  --
+  -- Les contextes doivent etre loades sur le rising edge du signal. Il a été allongé 
+  -- a 4 clk sysclk ds le controlleur pour l'envoyer dans le domaine pclk.
   -----------------------------------------------------------------------------
   P_dma_context : process(sclk)
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
+	    context_strb_P1<= (others=>'0');
         dma_context_p0 <= INIT_DMA_CONTEXT_TYPE;
         dma_context_p1 <= INIT_DMA_CONTEXT_TYPE;
       else
-        if (context_strb(0) = '1') then
+	    context_strb_P1  <= context_strb;
+        if (context_strb(0) = '1' and context_strb_P1(0) = '0') then
           dma_context_p0 <= dma_context_mapping;
         end if;
-        if (context_strb(1) = '1') then
+        if (context_strb(1) = '1' and context_strb_P1(1) = '0') then
           dma_context_p1 <= dma_context_p0;
         end if;
       end if;

@@ -60,7 +60,7 @@ proc s {args} {
     .main clear
 
     # Liste de tests dans la suite de tests
-	set testlist [list 0001 0002 0003]
+	set testlist [list 0001 0002 0003 0004]
 
     set currtest 1
 	

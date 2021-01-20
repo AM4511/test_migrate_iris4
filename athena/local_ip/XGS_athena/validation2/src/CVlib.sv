@@ -11,6 +11,8 @@ package CVlibPkg;
 import core_pkg::*;   //Cstatus is inside
 import driver_pkg::*;
 
+typedef class CImage;
+`include "Cimage.sv"
 
 
 class CVlib;
@@ -20,6 +22,7 @@ class CVlib;
 	parameter HISPI_IDLE_CHARACTER  = 12'h3A6;
 
 	// XGS_athena DMA
+	parameter CTRL                  = 'h070;
 	parameter FSTART_OFFSET         = 'h078;
 	parameter FSTART_HIGH_OFFSET    = 'h07c;
 	parameter FSTART_G_OFFSET       = 'h080;
@@ -110,7 +113,7 @@ class CVlib;
     int MODEL_X_START;
     int MODEL_X_END; 
    
-		
+	int DPC_list_count = 0;	
 
 
 
@@ -134,12 +137,21 @@ class CVlib;
     Cdriver_axil host; 
     virtual axi_stream_interface tx_axis_if;
 
+    CImage XGS_imageSRC;
+    CImage XGS_image;
+    CImage XGS_imageDPC;
+
 
     function new( Cdriver_axil host, Cstatus TestStatus, virtual axi_stream_interface tx_axis_if);
         
         this.host          = host;
 		this.tx_axis_if    = tx_axis_if;
         this.TestStatus    = TestStatus;
+
+       	XGS_imageSRC   = new();
+	    XGS_image      = new();
+	    XGS_imageDPC   = new();
+
 
     endfunction
 
@@ -249,6 +261,9 @@ class CVlib;
       this.fstart     = fstart;
 	  this.line_pitch = line_pitch;
 	  this.line_size  = P_ROI_WIDTH;
+	  
+	  // DMA Grab queue enable!
+     host.write(CTRL, 1);
 
 	  // DMA frame start register
 	  $display("  2.3 Write FSTART register @0x%h", FSTART_OFFSET);
@@ -612,6 +627,130 @@ class CVlib;
 		host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
     endtask : testI2Csemaphore
  	 
+
+
+
+
+    //---------------------------------------
+    //  SET Y ROI IN IMG
+    //---------------------------------------
+    task Set_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);		
+        host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START);
+		host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE);
+    endtask : Set_Y_ROI
+
+    //---------------------------------------
+    //  SET SUBSAMPLING MODE
+    //---------------------------------------
+    task Set_SUB(input int SUB_X, input int SUB_Y);		
+        host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) );
+    endtask : Set_SUB
+
+
+    //---------------------------------------
+    //  SET EXPOSURE
+    //---------------------------------------
+    task Set_EXPOSURE(input int EXPOSURE);		
+        host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0)); 
+    endtask : Set_EXPOSURE 				
+				  
+
+    //---------------------------------------
+    //  SET GRAB MODE
+    //---------------------------------------
+	task Set_Grab_Mode(input int TRIG_SRC, input int TRIG_ACT);		
+        host.write(GRAB_CTRL_OFFSET, (1<<15)+(TRIG_ACT<<12)+(TRIG_SRC<<8));   //overlap=1
+    endtask : Set_Grab_Mode 		
+	
+
+    //---------------------------------------
+    //  GRAB CMD
+    //---------------------------------------
+	task Grab_CMD();		
+        int data;		
+		host.read(GRAB_CTRL_OFFSET, data);  //read current register
+		data = data | 1;
+		host.write(GRAB_CTRL_OFFSET, data); // write grab cmd snapshot
+    endtask : Grab_CMD
+
+	//---------------------------------------
+    //  SW_SNAPSHOP
+    //---------------------------------------
+    task Grab_SW_SNAPSHOT();		
+        int data;		
+		host.read(GRAB_CTRL_OFFSET, data);  //read current register
+		data = data | 8;
+		host.write(GRAB_CTRL_OFFSET, data); // write grab cmd snapshot
+    endtask : Grab_SW_SNAPSHOT
+
+    //---------------------------------------
+    //  Task : Prediction image de grab
+    //---------------------------------------
+    task Gen_predict_img(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y);
+   		XGS_image = XGS_imageSRC.copy;
+		XGS_image.reduce_bit_depth(10);                                               // Converti Image 12bpp a 10bpp  
+		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
+		XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
+		XGS_image.sub(SUB_X, SUB_Y);
+
+		XGS_imageDPC = XGS_image.copy;				
+		XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
+		XGS_image    = XGS_imageDPC.copy;
+		XGS_imageDPC = null;				
+
+		XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
+
+    endtask : Gen_predict_img
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////
+	// DPC ADD PIXEL
+	///////////////////////////////////////////////////
+    task DPC_add(input int X, input int Y, input int DPC_PATTERN);               
+      	host.write(DPC_LIST_CTRL,  (1<<15)+ (1<<13) + DPC_list_count );      // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+		host.write(DPC_LIST_DATA1, (Y<<16)+X);                             // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
+		host.write(DPC_LIST_DATA2,  DPC_PATTERN);                           // DPC_LIST_CORR_PATTERN = 0;
+		host.write(DPC_LIST_CTRL,  ( (DPC_list_count+1)<<16) + (1<<15)+(1<<13) + (1<<12) + DPC_list_count ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
+		DPC_list_count++;
+		XGS_imageSRC.DPC_add(X, Y, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+    endtask : DPC_add
+   	
+	///////////////////////////////////////////////////
+	// DPC ENABLE
+	///////////////////////////////////////////////////
+    task DPC_en(input int Enable, input int REG_DPC_PATTERN0_CFG);              
+    	host.write(DPC_LIST_CTRL,  (DPC_list_count<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
+	    XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                                           // Pour la prediction 
+	    XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                                         // Pour la prediction 
+    endtask : DPC_en
+
+
+	///////////////////////////////////////////////////
+	// DPC ADD PIXEL LIST
+	///////////////////////////////////////////////////
+    task DPC_add_list(); 
+        int i;
+		int DPC_PATTERN = 85; 
+		
+		for (i = 0; i < 16; i++)
+		    begin				
+		       DPC_add(i, i, DPC_PATTERN);          
+			end
+
+		DPC_PATTERN  = 170;
+		for (i = 16; i < 63; i++)
+		    begin				
+               DPC_add(i, i, DPC_PATTERN);         
+		    end
+
+        DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
+
+    endtask : DPC_add_list
 
 
 
