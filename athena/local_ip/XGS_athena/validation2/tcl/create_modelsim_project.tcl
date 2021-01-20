@@ -140,6 +140,7 @@ ${TESTBENCH_SRC_PATH}/Ctest.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0001.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0002.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0003.svh \
+${TESTBENCH_SRC_PATH}/tests/test0004.svh \
 
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 

@@ -710,6 +710,10 @@ BEGIN
         hw_trig          <= '0';
         hw_trig_miss     <= '0';
       else
+	  
+        -------------------------------------------------------------------------------------------------------------------------
+        -- TRIGGER rising/Falling/Any
+        -------------------------------------------------------------------------------------------------------------------------
         if(curr_trigger_act="000") then                                           -- RISING edge
           if(ext_trig_p2='1' and ext_trig_p3='0') then
             if(grab_mngr_trig_rdy='1') then
@@ -752,7 +756,10 @@ BEGIN
             hw_trig_miss     <= '0';
           end if;
 
-        elsif(curr_trigger_act="011") then                                        -- LEVEL HI with exposure TIMED   OR  LEVEL HI with exposure TRIGGER WIDTH
+        -------------------------------------------------------------------------------------------------------------------------
+        -- EXP encoded in trigger LEVEL: Need a initial edge to trig the exposure : trigger missed will be detected in this case
+        -------------------------------------------------------------------------------------------------------------------------
+		elsif(curr_trigger_act="011" and curr_level_mode_exp='1') then            -- LEVEL HI with exposure TRIGGER WIDTH
           if(ext_trig_p2='1' and ext_trig_p3='0') then       --rising ext trig
             if(grab_mngr_trig_rdy='1') then
               hw_trig          <= '1';
@@ -774,7 +781,7 @@ BEGIN
             hw_trig_miss     <= '0';
           end if;
 
-        elsif(curr_trigger_act="100") then                                        -- LEVEL LO with exposure TIMED   OR LEVEL LO with exposure TRIGGER WIDTH
+        elsif(curr_trigger_act="100"  and curr_level_mode_exp='1') then           -- LEVEL LO with exposure TRIGGER WIDTH
           if(ext_trig_p2='0' and ext_trig_p3='1') then
             if(grab_mngr_trig_rdy='1') then
               hw_trig          <= '1';
@@ -795,6 +802,29 @@ BEGIN
             hw_trig          <= hw_trig;
             hw_trig_miss     <= '0';
           end if;
+		  
+        -------------------------------------------------------------------------------------------------------------------------
+        -- Trigger LEVEL HI/LO : No need a initial edge to trig the exposure : NO trigger missed will be detected in this case
+        -------------------------------------------------------------------------------------------------------------------------
+        elsif(curr_trigger_act="011" and curr_level_mode_exp='0') then            -- LEVEL HI with exposure TIMED
+          hw_trig_miss     <= '0';
+          if(ext_trig_p2='1') then       --Level HI
+            hw_trig          <= '1';
+          else
+            hw_trig          <= '0';             
+          end if;
+
+        elsif(curr_trigger_act="100"  and curr_level_mode_exp='0') then           -- LEVEL LO  with exposure TIMED
+          hw_trig_miss     <= '0';
+          if(ext_trig_p2='0') then       --Level LO
+            hw_trig          <= '1';
+          else
+            hw_trig          <= '0';             
+          end if;
+		  
+        -------------------------------
+        -- INTERNAL Adaptative timer 
+        -------------------------------
         elsif(curr_trigger_act="101") then                                        -- Internal programmable Timer
           if(Timer_event='1') then
             if(grab_mngr_trig_rdy='1') then
@@ -1122,7 +1152,11 @@ BEGIN
       when  sensor_reprog     =>  -- The sensor reprogrammation wait is now done in the DELAI FSM
                                   if(curr_trigger_overlap='1') then
                                     if(curr_trigger_overlap_buffn='1' and curr_level_mode_exp='0') then
-                                      next_grab_mngr_state  <= wait_end_deadwindow;
+                                      if(curr_trigger_src="100") then                    -- En mode SFNC, on va etre en IDLE(pas de readout en cours) lorsque la commande arrive, pour pas faire
+                                        next_grab_mngr_state  <= arm;                    -- glitcher rdy, on va directement en ARM
+                                      else
+                                        next_grab_mngr_state  <= wait_end_deadwindow;
+                                      end if;  
                                     else
                                       next_grab_mngr_state  <= arm;
                                     end if;  
@@ -1235,8 +1269,12 @@ BEGIN
                                    
       when  sensor_reprog      =>   next_grab_mngr_trig          <= '0';
                                     next_grab_mngr_stat          <= "0001";
-                                    next_grab_mngr_sensor_reconf <= '1';
-                                    next_grab_mngr_trig_rdy      <= '0';
+                                    next_grab_mngr_sensor_reconf <= '1';								
+									if (acquisition_start_SFNC='1') then
+                                      next_grab_mngr_trig_rdy      <= '1';
+                                    else
+                                      next_grab_mngr_trig_rdy      <= '0';
+                                    end if;								
                                     next_grab_mngr_trig_ack      <= '0';
 
       --when  sensor_wait_reprog =>   next_grab_mngr_trig          <= '0';

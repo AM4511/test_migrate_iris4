@@ -1,8 +1,7 @@
 import xgs_athena_pkg::*;
 //import CImagePkg::*;
-//import CscoreboardPkg::*;
 
-
+import CVlibPkg::*;
 
 class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	//	class memory_entry;
