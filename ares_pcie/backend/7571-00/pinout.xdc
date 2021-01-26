@@ -6,8 +6,8 @@
 ## Pin assignment
 ####################################################
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
-set_property PACKAGE_PIN J1  [get_ports sys_rst_in_n]
-set_property PACKAGE_PIN H1  [get_ports sys_rst_out_n]
+set_property PACKAGE_PIN J1 [get_ports sys_rst_in_n]
+set_property PACKAGE_PIN H1 [get_ports sys_rst_out_n]
 
 
 ####################################################
@@ -46,9 +46,9 @@ set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 ####################################################
 ## PCIe interface
 ####################################################
-set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
+set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
@@ -139,9 +139,9 @@ set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
 
-# IMPORTANT The following pin Has been moved from V16 
+# IMPORTANT The following pin Has been moved from V16
 # on PCB 7571-00 to N17 on PCB 7571-02. See JIRA IRIS4-242
-# 
+#
 set_property PACKAGE_PIN V16 [get_ports hb_rwds]
 
 
@@ -294,3 +294,5 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
+

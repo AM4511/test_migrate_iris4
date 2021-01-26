@@ -13,12 +13,14 @@ struct memory_range_s memory_ranges[] = {
 };
 
 int init_rpc2_ctrl(){
+	print("Initializing HyperRam controller\n\r");
+	get_rpc2_ctrl_status();
 	// Set the MCR register (DEVTYPE = Hyper Ram)
 	setHYPERBUSI_MCR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, DEVTYPE_BIT, CS0_SEL);
 	DWORD *reg_value = NULL;
 	getHYPERBUSI_MCR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, reg_value, CS0_SEL);
 	if(*reg_value != DEVTYPE_BIT){
-		print("MCR register is not configured for Hyper Ram");
+		print("MCR register is not configured for Hyper Ram\n\r");
 		return XST_FAILURE;
 	}
 
@@ -26,11 +28,37 @@ int init_rpc2_ctrl(){
 	setHYPERBUSI_MTR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, BIT0, CS0_SEL);
 	getHYPERBUSI_MTR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, reg_value, CS0_SEL);
 	if(*reg_value != BIT0){
-		print("MTR register is not configured for Latency 6 clock cycles");
+		print("MTR register is not configured for Latency 6 clock cycles\n\r");
 		return XST_FAILURE;
 	}
+
+	return get_rpc2_ctrl_status();
+
+//	getHYPERBUSI_CSR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, reg_value);
+//	if(*reg_value != 0x0){
+//		xil_printf("CSR status register errors : 0x%8x\n\r", *reg_value);
+//		return XST_FAILURE;
+//	}
+//
+
+	//return XST_SUCCESS;
+}
+
+int get_rpc2_ctrl_status(){
+	DWORD *reg_value = NULL;
+
+	getHYPERBUSI_CSR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, reg_value);
+	if(*reg_value != 0x0){
+		xil_printf("CSR status register errors : 0x%08x\n\r", *reg_value);
+		return XST_FAILURE;
+	}
+	xil_printf("CSR status register : 0x%08x\n\r", *reg_value);
+
+
 	return XST_SUCCESS;
 }
+
+
 
 
 int n_memory_ranges = 1;

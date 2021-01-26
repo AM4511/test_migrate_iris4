@@ -55,7 +55,7 @@ enable_caches()
 #endif
 #ifdef XPAR_MICROBLAZE_USE_DCACHE 
     // See reason above for not enabling D Cache
-    // Xil_DCacheEnable();
+    Xil_DCacheEnable();
 #endif
 #elif __arm__
     // For ARM, BSP enables caches by default.

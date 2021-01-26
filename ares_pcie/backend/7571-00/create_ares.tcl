@@ -37,10 +37,14 @@ puts "Running ${myself}"
 #         Enabled pull-ups on fpga_straps IO pins.
 #         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
 #         Set the correct FPGA_ID to 0x11 (d'17)
+#         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
+#
+# 0.0.7 : Fixed the Hyperram cache access errors (See JIRA : MT-2105)
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 6
+set FPGA_SUB_MINOR_VERSION 7
 
 
 set BASE_NAME  ares_7571_00_a50t
@@ -85,7 +89,8 @@ set XDC_DIR            ${BACKEND_DIR}
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
