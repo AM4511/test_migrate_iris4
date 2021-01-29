@@ -335,10 +335,10 @@ architecture behaviour of xgs12m_chip is
   signal cmc_patgen_en     : std_logic;
   signal active_ctxt       : std_logic_vector(2 downto 0);
   signal nested_readout    : std_logic;
-  signal x_subsampling     : std_logic;
-  signal y_subsampling     : std_logic;
-  signal x_subsampling_DB  : std_logic;
-  signal y_subsampling_DB  : std_logic;
+  signal x_subsampling     : std_logic:='0';
+  signal y_subsampling     : std_logic:='0';
+  signal x_subsampling_DB  : std_logic:='0';
+  signal y_subsampling_DB  : std_logic:='0';
 
   signal y_reversed        : std_logic;
   signal swap_top_bottom   : std_logic;

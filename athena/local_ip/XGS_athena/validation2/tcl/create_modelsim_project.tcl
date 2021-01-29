@@ -141,11 +141,16 @@ ${TESTBENCH_SRC_PATH}/tests/test0001.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0002.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0003.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0004.svh \
-
+${TESTBENCH_SRC_PATH}/tests/test0005.svh \
+${TESTBENCH_SRC_PATH}/tests/test0006.svh \
+${TESTBENCH_SRC_PATH}/tests/test0007.svh \
+${TESTBENCH_SRC_PATH}/tests/test0008.svh \
+${TESTBENCH_SRC_PATH}/tests/test0009.svh \
+${TESTBENCH_SRC_PATH}/tests/test0010.svh \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 
-${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd 
-${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd
+${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
+${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd \
 
 ${TESTBENCH_SRC_PATH}/testbench.sv

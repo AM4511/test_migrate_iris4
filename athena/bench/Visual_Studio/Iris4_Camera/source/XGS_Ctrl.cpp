@@ -64,7 +64,8 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		0x100,         //DataPedestal (pour l'instant je le mets pareils pour tous les pixels Gr+Gb+R+B)
 
 		0x0 ,          //ANALOG GAIN
- 		0,             //REVERSE_Y
+ 
+
 		0,             //MONO10
 
         0,             //M_SUBSAMPLING_Y;
@@ -446,39 +447,45 @@ void CXGS_Ctrl::InitXGS()
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 		Sleep(50);
 
+		printf_s("XGS OTPM Chip configuration register (0x3012): 0x%X", DataRead & 0xff);
+		if ((DataRead & 0xff) == 0)
+			printf_s(", This OTPM register must be different than 0!!!\n");
+		else
+			printf_s("\n");
+
 		if (((DataRead & 0x7c) >> 2) == 0x18)
-			printf_s("XGS Resolution is 5Mp\n");
+			printf_s("  XGS Resolution is 5Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x19)
-			printf_s("XGS Resolution is 3Mp\n");
+			printf_s("  XGS Resolution is 3Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x1a)
-			printf_s("XGS Resolution is 2Mp\n");
+			printf_s("  XGS Resolution is 2Mp\n");
 		if (((DataRead & 0x7c) >> 2) == 0x1b)
-			printf_s("XGS Resolution is 1.3Mp\n");
+			printf_s("  XGS Resolution is 1.3Mp\n");
 
 		if (((DataRead & 0x600) >> 5) == 0)
-			printf_s("XGS Speedgrade is 16 ports\n");
+			printf_s("  XGS Speedgrade is 16 ports\n");
 		if (((DataRead & 0x600) >> 5) == 1)
-			printf_s("XGS Speedgrade is 12 ports\n");
+			printf_s("  XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x600) >> 5) == 2)
-			printf_s("XGS Speedgrade is 8 ports\n");
+			printf_s("  XGS Speedgrade is 8 ports\n");
 		if (((DataRead & 0x600) >> 5) == 3)
-			printf_s("XGS Speedgrade is 4 ports\n");
+			printf_s("  XGS Speedgrade is 4 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf_s("XGS Lens Shift is 0 degree\n");
+			printf_s("  XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf_s("XGS Lens Shift is 7.3 degree\n");
+			printf_s("  XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf_s("XGS is COLOR\n");
+			printf_s("  XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf_s("XGS is MONO\n");
+			printf_s("  XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -498,33 +505,39 @@ void CXGS_Ctrl::InitXGS()
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 		Sleep(50);  
 
+		printf_s("XGS OTPM Chip configuration register (0x3012): 0x%X", DataRead & 0xff);
+		if ((DataRead & 0xff) == 0)
+			printf_s(", This OTPM register must be different than 0!!!\n");
+		else
+			printf_s("\n");
+
 		if(((DataRead&0x1c)>>2) == 0)
-		  printf_s("XGS Resolution is 12Mp\n");
+		  printf_s("  XGS Resolution is 12Mp\n");
 		if (((DataRead & 0x1c)>> 2) == 3)
-			printf_s("XGS Resolution is 8Mp\n");
+			printf_s("  XGS Resolution is 8Mp\n");
 
 		if (((DataRead & 0x60) >> 5) == 0)
-			printf_s("XGS Speedgrade is 24 ports\n");
+			printf_s("  XGS Speedgrade is 24 ports\n");
 		if (((DataRead & 0x60) >> 5) == 1)
-			printf_s("XGS Speedgrade is 12 ports\n");
+			printf_s("  XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x60) >> 5) == 3)
-			printf_s("XGS Speedgrade is 6 ports\n");
+			printf_s("  XGS Speedgrade is 6 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf_s("XGS Lens Shift is 0 degree\n");
+			printf_s("  XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf_s("XGS Lens Shift is 7.3 degree\n");
+			printf_s("  XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf_s("XGS is COLOR\n");
+			printf_s("  XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf_s("XGS is MONO\n");
+			printf_s("  XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -544,33 +557,40 @@ void CXGS_Ctrl::InitXGS()
 		WriteSPI_Bit(0x3700, 5, 0);  //Disable reading from OTPM
 		Sleep(50);  
 
+		printf_s("XGS OTPM Chip configuration register (0x3012): 0x%X", DataRead & 0xff);
+		if ((DataRead & 0xff) == 0)
+			printf_s(", This OTPM register must be different than 0!!!\n");
+		else
+			printf_s("\n");
+
+
 		if (((DataRead & 0x3c) >> 2) == 0x10)
-			printf_s("XGS Resolution is 16Mp\n");
+			printf_s("  XGS Resolution is 16Mp\n");
 
 		if (((DataRead & 0x60) >> 9) == 0)
-			printf_s("XGS Speedgrade is 24 ports\n");
+			printf_s("  XGS Speedgrade is 24 ports\n");
 		if (((DataRead & 0x60) >> 9) == 1)
-			printf_s("XGS Speedgrade is 18 ports\n");
+			printf_s("  XGS Speedgrade is 18 ports\n");
 		if (((DataRead & 0x60) >> 9) == 2)
-			printf_s("XGS Speedgrade is 12 ports\n");
+			printf_s("  XGS Speedgrade is 12 ports\n");
 		if (((DataRead & 0x60) >> 9) == 3)
-			printf_s("XGS Speedgrade is 6 ports\n");
+			printf_s("  XGS Speedgrade is 6 ports\n");
 
 		if (((DataRead & 0x180) >> 7) == 0)
-			printf_s("XGS Lens Shift is 0 degree\n");
+			printf_s("  XGS Lens Shift is 0 degree\n");
 		if (((DataRead & 0x180) >> 7) == 1)
-			printf_s("XGS Lens Shift is 7.3 degree\n");
+			printf_s("  XGS Lens Shift is 7.3 degree\n");
 
 		if ((DataRead & 0x3) == 1) {
-			printf_s("XGS is COLOR\n");
+			printf_s("  XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
 		}
 		else if ((DataRead & 0x3) == 2) {
-			printf_s("XGS is MONO\n");
+			printf_s("  XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
 		}
 		else {
-			printf_s("XGS is MONO (reg 0x3012, color field is 0)\n");
+			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 		}
 
@@ -1047,7 +1067,9 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.f.ANALOG_GAIN = GrabParams.ANALOG_GAIN;
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32 = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
 
-	//sDMA.GRAB_CSC.f.REVERSE_Y = GrabParams.REVERSE_Y;
+	//sXGSptr.DMA.CSC.f.SUB_X     = GrabParams.SUB_X;
+	//sXGSptr.DMA.CSC.f.REVERSE_Y = GrabParams.REVERSE_Y;
+	//sXGSptr.DMA.CSC.f.REVERSE_X = GrabParams.REVERSE_X;
 
 	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.M_SUBSAMPLING_Y      = GrabParams.M_SUBSAMPLING_Y;
 	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.ACTIVE_SUBSAMPLING_Y = GrabParams.ACTIVE_SUBSAMPLING_Y;

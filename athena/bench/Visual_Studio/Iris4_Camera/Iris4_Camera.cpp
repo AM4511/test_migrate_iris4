@@ -455,7 +455,9 @@ int main(void)
 				}
 				break;
 
-
+			case 'i':
+				printf_s("\nI2C Temp Read, Temperature is %dC\n", (I2C->Read_i2c(0, 0x4c, 0, 0, 1)) & 0xff);
+				break;
 
 			case 's':
 
@@ -570,6 +572,7 @@ void Help(CXGS_Ctrl* XGS_Ctrl)
 	printf_s("\n  (r) Dump XGS sensor registers range");
 	printf_s("\n  (w) Write XGS sensor register");
 	printf_s("\n");
+	printf_s("\n  (i) Read I2C temp sensor");
 	printf_s("\n  (s) Read QSPI identification");
 	printf_s("\n  (F) Program Flash SPI firmware");
 	printf_s("\n------------------------------------------------------------------------------\n\n");

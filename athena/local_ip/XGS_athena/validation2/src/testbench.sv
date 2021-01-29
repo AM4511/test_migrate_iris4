@@ -42,7 +42,13 @@ module testbench;
   Test0001 test0001;
   Test0002 test0002;  
   Test0003 test0003;  
-  Test0003 test0004;   
+  Test0004 test0004;   
+  Test0005 test0005;   
+  Test0004 test0006;   
+  Test0005 test0007;
+  Test0005 test0008;
+  Test0005 test0009;
+  Test0005 test0010;
 
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
   CTest t;
@@ -81,6 +87,12 @@ module testbench;
       top_string_factory["Test0002"] = objectRegistry#(Test0002)::get();
       top_string_factory["Test0003"] = objectRegistry#(Test0003)::get();
       top_string_factory["Test0004"] = objectRegistry#(Test0004)::get();
+      top_string_factory["Test0005"] = objectRegistry#(Test0005)::get();
+      top_string_factory["Test0006"] = objectRegistry#(Test0006)::get();
+      top_string_factory["Test0007"] = objectRegistry#(Test0007)::get();
+      top_string_factory["Test0008"] = objectRegistry#(Test0008)::get();
+      top_string_factory["Test0009"] = objectRegistry#(Test0009)::get();
+      top_string_factory["Test0010"] = objectRegistry#(Test0010)::get();      
 
       tb_RESETn = 1'b0;
       repeat(20)@(posedge tb_CLK);
