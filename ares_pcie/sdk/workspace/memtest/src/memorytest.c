@@ -134,7 +134,7 @@ int main() {
 	print("As a result, cacheline requests will not be generated\n\r");
 
 	j=0;
-	while (j<1000) {
+	while (j<1) {
 
 		 if (!XUartLite_IsReceiveEmpty (STDIN_BASEADDRESS))
 		 {
