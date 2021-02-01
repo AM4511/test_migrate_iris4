@@ -40,9 +40,12 @@ puts "Running ${myself}"
 # 0.3.0 : Modified backend scripts for generating all flavor of athena FPGA
 #         Fixed the HiSPi CRC issue  (See JIRA : MT-2021)
 #
+# 0.3.1 : Fixed DMA image flick-ering (load of DMA address is now on the rising of strobe signal)
+#
+
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     3
-set FPGA_SUB_MINOR_VERSION 0
+set FPGA_SUB_MINOR_VERSION 1
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
