@@ -712,7 +712,8 @@ module system_top(
 	always #8 pcie_clk = ~pcie_clk;
 	// HiSPi reference clock (32.4Mhz)
 	always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;
-
+    // 200mhz pour le idelay ctrl
+	always #2.5 idelay_clk = ~idelay_clk;
 
 	assign xgs_power_good = 1'b1;
 	//assign anput_ext_trig = 1'b0;

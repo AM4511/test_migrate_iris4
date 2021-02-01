@@ -30,7 +30,10 @@ class Test0004 extends CTest;
 	int ROI_Y_SIZE;
     int ROI_Y_END;
     int SUB_X;
-	int SUB_Y;     
+	int SUB_Y;  
+	int REV_X = 0;
+	int REV_Y = 0;   
+
     int test_nb_images;
 
 
@@ -67,7 +70,6 @@ class Test0004 extends CTest;
 		        #100us;
   
 		        super.Vlib.setXGS_sensor(XGS_Model);
-		        super.Vlib.setDMA('hA0000000, 'h2000);
 		        super.Vlib.setXGSmodel();
 		        super.Vlib.setXGScontroller();
 		        super.Vlib.setHISPI();
@@ -121,7 +123,8 @@ class Test0004 extends CTest;
 			    EXPOSURE    = 50; // exposure=50us
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
-				
+                
+				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_END);  				
 				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
@@ -136,34 +139,34 @@ class Test0004 extends CTest;
                 #50us;
 
                 //IMG #1
-   		        super.Vlib.setDMA('hA0000000, 'h2000);
+		        super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #1	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
                 //IMG #2
-  		        super.Vlib.setDMA('hB0000000, 'h2000);
+		        super.Vlib.setDMA('hB0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #2	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 				// Wait for the first image
                 super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 
 				//IMG #3
-  		        super.Vlib.setDMA('hC0000000, 'h2000);
+		        super.Vlib.setDMA('hC0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #3	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
 				// Wait for the last 2 images
@@ -183,34 +186,34 @@ class Test0004 extends CTest;
                 #50us;
 
                 //IMG #1
-   		        super.Vlib.setDMA('hD0000000, 'h2000);
+		        super.Vlib.setDMA('hD0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #1	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
                 //IMG #2
-  		        super.Vlib.setDMA('hE0000000, 'h2000);
+  		        super.Vlib.setDMA('hE0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #2	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
                 
 				// Wait for the first image
                 super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 
 				//IMG #3
-  		        super.Vlib.setDMA('hF0000000, 'h2000);
+				super.Vlib.setDMA('hF0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #3	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 				// Wait for the last 2 images
                 super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for last 2 IRQ(connected to input 0 of host)
@@ -228,22 +231,22 @@ class Test0004 extends CTest;
                 #50us;
 
                 //IMG #1 : Active HI
-   		        super.Vlib.setDMA('hA0000000, 'h2000);
+				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #1	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
                 //IMG #2 : Active LO
-  		        super.Vlib.setDMA('hB0000000, 'h2000);
+				super.Vlib.setDMA('hB0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 				// Prediction #2	 	
-				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
                 #100us;
                 host.set_output_io (2, 1);	//trig  HI LEVEL			

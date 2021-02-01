@@ -52,7 +52,6 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
 
    GrabParams.Y_START                  = 0;
    GrabParams.Y_END                    = SensorParams.Ysize_Full - 1;
-   GrabParams.REVERSE_Y                = 0;
    GrabParams.BLACK_OFFSET             = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN              = 0x1;        // gain=1
 						          

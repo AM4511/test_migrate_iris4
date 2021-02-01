@@ -1,4 +1,4 @@
-//-----------------------------------------------
+﻿//-----------------------------------------------
 //
 //  Simple continu test grab Iris4
 //
@@ -75,6 +75,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     // INITIALIZE XGS SENSOR
     //------------------------------
 	XGS_Ctrl->InitXGS();
+	M_UINT32 SensorSpi_0x3402 = XGS_Ctrl->ReadSPI(0x3402);
 
 	//---------------------------------
 	// Calibrate FPGA HiSPI interface
@@ -177,7 +178,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// https://imgconf.matrox.com:8443/display/IRIS4/XGS+Controller+timings+specs
 	// 1) Setup de mesure pour FOT, ReadOutN_2_TrigN, TrigN_2_FOT, EXP_FOT, EXP_FOT_TIME	       [TEST0001 - Grab Trigger Single Snapshoot]
 	//      Probe1 : Signal Trig_Int sur le sensor board(R238 sur le sensor board 7572 - 00)
-	//      Probe2 : Monitor0, Real Int�gration(J204 sur le sensor board 7572 - 00)
+	//      Probe2 : Monitor0, Real Intégration(J204 sur le sensor board 7572 - 00)
 	//      Probe3 : Monitor1, EFOT(J204 sur le sensor board 7572 - 00)
 	//      Probe4 : Debug0(R254  sur le sensor board 7572 - 00), avec Debug0 = Signal interne FPGA Readout(WritePcie BAR0 + 0x1e0[4:0] = 0x8)
 	//
@@ -189,7 +190,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// https://imgconf.matrox.com:8443/display/IRIS4/XGS+Controller+timings+specs
 	// 2) Setup de mesure pour FOTn_2_EXP(Pour calcul Exposure Max)                               	[TEST0000 - Grab continu]
 	//      Probe1 : Signal Trig_Int sur le sensor board(R238 sur le sensor board 7572 - 00)
-	//      Probe2 : Monitor0, Real Int�gration(J204 sur le sensor board 7572 - 00)
+	//      Probe2 : Monitor0, Real Intégration(J204 sur le sensor board 7572 - 00)
 	//      Probe3 : Monitor1, EFOT(J204 sur le sensor board 7572 - 00)
 	//      Probe4 : Debug0(R254  sur le sensor board 7572 - 00), avec Debug0 = Signal interne FPGA FOT interne(WritePcie BAR0 + 0x1e0[4:0] = 0x7)
 	//
@@ -233,6 +234,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (y) Set new ROI (Y-only)");
 	printf_s("\n  (r) Read current ROI configuration in XGS");
 	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n  (R) FPGA Reverse Y");
 	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
 	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf_s("\n  (l) Program LUT");
@@ -450,9 +452,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'y':
 				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
 				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END  = GrabParams->Y_START + (XGSSize_Y)-1;
+				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
 				GrabParams->Y_SIZE = XGSSize_Y;
-				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
+				DMAParams->Y_SIZE  = XGSSize_Y;
+				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start = DMAParams->FSTART;                                                   // 0x10000080;
 				Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE);    // 0x10c00080;
 				MbufClear(MilGrabBuffer, 0);
 				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
@@ -468,8 +471,42 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf_s("Subsampling Y (0=NO, 1=YES) ? : ");
 				scanf_s("%d", &SubY);
 
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X = SubX;
+				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
 				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+
+				if(SubY== 1)
+					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1 )/2;
+				else
+					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1);
+
+				if (SubX == 1) {
+
+                    // see AND9878/D
+                    // Increased Row Noise in Mono Subsampling
+					// When enabling SUBSAMPLING_X register 0x383C[0] for any of the contexts on a mono configured device(reg 0x3800[1] = 0x0), which results in the read−1−skip−1
+                    // configuration for subsampling, the device shows increased row noise.The row noise can be decreased by changing register 0x3402 to 0x1919. The downside of 
+                    // this change is that the power consumption will increase by 42 mW on average.
+					XGS_Ctrl->WriteSPI(0x3402, 0x1919);
+
+					// Set Location of first valid x pixel(including Interpolation)
+					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START = XGS_Ctrl->SensorParams.XGS_X_START-16;
+					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_END   = XGS_Ctrl->SensorParams.XGS_X_START-16 + ((XGS_Ctrl->SensorParams.XGS_X_END + 1 - XGS_Ctrl->SensorParams.XGS_X_START) / 2)-1;
+					XGS_Ctrl->rXGSptr.HISPI.FRAME_CFG_X_VALID.u32       = XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
+
+					XGS_Data->DMAParams.LINE_SIZE = SensorParams->Xsize_Full / 2;
+				}
+				else{
+
+					XGS_Ctrl->WriteSPI(0x3402, SensorSpi_0x3402);
+
+					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START = XGS_Ctrl->SensorParams.XGS_X_START;
+					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_END   = XGS_Ctrl->SensorParams.XGS_X_END;
+			   	    XGS_Ctrl->rXGSptr.HISPI.FRAME_CFG_X_VALID.u32       = XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
+
+					XGS_Data->DMAParams.LINE_SIZE = SensorParams->Xsize_Full;
+					
+			    }
+
 				MbufClear(MilGrabBuffer, 0);
 				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
 				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure() );
@@ -585,6 +622,16 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->ReadSPI_DumpFile();
 				break;
 
+			case 'R':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if(XGS_Data->DMAParams.REVERSE_Y==1)
+				  XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE);
+				else
+				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE);
+				  
+				break;
 
 			}
 

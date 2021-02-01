@@ -67,7 +67,7 @@ entity xgs_image is
        cmc_patgen_en       : in  std_logic;
        active_ctxt         : in  std_logic_vector(2 downto 0);
        nested_readout      : in  std_logic;
-       x_subsampling       : in  std_logic;
+       x_subsampling       : in  std_logic:='0';
        y_subsampling       : in  std_logic;
        y_reversed          : in  std_logic;
        swap_top_bottom     : in  std_logic;
@@ -144,8 +144,61 @@ FRAME_CONTENT : process(xgs_model_GenImage, trigger_int, dataline_nxt, sequencer
   variable row_hex12        : line;
   variable row_hex8         : line;
 
+  variable P_LEFT_DUMMY_0   : integer;
+  variable P_LEFT_BLACKREF  : integer;
+  variable P_LEFT_DUMMY_1   : integer;
+  variable P_INTERPOLATION1  : integer;
+  variable P_ROI_WIDTH      : integer;
+  variable P_INTERPOLATION2  : integer;
+  variable P_RIGHT_DUMMY_0  : integer;
+  variable P_RIGHT_BLACKREF : integer;
+  variable P_RIGHT_DUMMY_1  : integer;
+  
+  variable P_TOTAL  : integer;
+  --variable P_X_START        : integer;
+  --variable P_X_END          : integer;
+
   begin
     if(rising_edge(xgs_model_GenImage)) then    
+		
+		
+	  if(G_xgs_image_file_hex12="XGS_image_5000_hex12.pgm") then
+		  P_LEFT_DUMMY_0   :=  50;
+		  P_LEFT_BLACKREF  :=  34;
+		  P_LEFT_DUMMY_1   :=  4;
+      	  P_INTERPOLATION1 :=  4;
+		  P_ROI_WIDTH      :=  2592;
+		  P_INTERPOLATION2 :=  4;
+		  P_RIGHT_DUMMY_0  :=  4;
+		  P_RIGHT_BLACKREF :=  42;
+		  P_RIGHT_DUMMY_1  :=  50;
+	  elsif(G_xgs_image_file_hex12="XGS_image_12000_hex12.pgm") then	  
+		  P_LEFT_DUMMY_0   :=  4;
+		  P_LEFT_BLACKREF  :=  24;
+		  P_LEFT_DUMMY_1   :=  4;
+      	  P_INTERPOLATION1 :=  4;		  
+		  P_ROI_WIDTH      :=  4096;
+      	  P_INTERPOLATION2 :=  4;		  
+		  P_RIGHT_DUMMY_0  :=  4;
+		  P_RIGHT_BLACKREF :=  24;
+		  P_RIGHT_DUMMY_1  :=  4;   
+
+         P_TOTAL           := P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2 + P_RIGHT_DUMMY_0 + P_RIGHT_BLACKREF + P_RIGHT_DUMMY_1 ;
+          --P_X_START        := P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1;		  
+          --P_X_END          := P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2;		  
+		  --P_X_VALID        := P_INTERPOLATION1 + P_ROI_WIDTH + P_INTERPOLATION2;   
+		  
+	  elsif(G_xgs_image_file_hex12="XGS_image_16000_hex12.pgm") then
+		  P_LEFT_DUMMY_0   :=  4;
+		  P_LEFT_BLACKREF  :=  24;
+		  P_LEFT_DUMMY_1   :=  52;
+      	  P_INTERPOLATION1 :=  4;
+		  P_ROI_WIDTH      :=  4000;
+      	  P_INTERPOLATION2 :=  4;
+		  P_RIGHT_DUMMY_0  :=  52;
+		  P_RIGHT_BLACKREF :=  32;
+		  P_RIGHT_DUMMY_1  :=  4;    
+	  end if;	  
 		
 	  if(test_pattern_mode="000") then
 	    report "Starting XGS image generation, Image is random 12bpp.";
@@ -188,28 +241,28 @@ FRAME_CONTENT : process(xgs_model_GenImage, trigger_int, dataline_nxt, sequencer
 	  deallocate(row_dec);	
 	
       --for line_count in 0 to 3099 loop --le 3099 changera avec le senseur utilise.
-      for line_count in 0 to (G_PXL_ARRAY_ROWS-1) loop -- Fixed by AM
-      
+      for line_count in 0 to (G_PXL_ARRAY_ROWS-1) loop -- Fixed by AM     
 	    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-          if(j<4) then                 --DUMMY
+          
+		  if(j<P_LEFT_DUMMY_0) then                 --DUMMY
              random1 := 16#00D#;
-          elsif(j<28) then             --Black REF  
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF)) then             --Black REF  
              random1 := 16#000#;
-          elsif(j<32) then             --DUMMY
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1)) then             --DUMMY
              random1 := 16#00D#;
-          elsif(j<4136) then           --Interpolation+valid    
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2)) then          
             if(test_pattern_mode="000") then 		  
               random1 := rand_int(0, 1023)*4;               -- random 10 bits msb
             elsif(test_pattern_mode="001") then 
-			  random1 :=  (line_count+j-32) mod 4096;	    -- ramp 12 bits 
+			  random1 :=  (line_count+j-(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1) ) mod 4096;	    -- ramp 12 bits 
             else			  
-			  random1 := ((line_count+j-32)*16) mod 4096;	-- ramp 8 bits msb 	
+			  random1 := ((line_count+j-(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1) )*16) mod 4096;	-- ramp 8 bits msb 	
 			end if;  
-          elsif(j<4140) then           --DUMMY
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2+P_RIGHT_DUMMY_0)) then           --DUMMY
             random1 := 16#00D#; 
-          elsif(j<4172) then           --Black REF  
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2+P_RIGHT_DUMMY_0+P_RIGHT_BLACKREF)) then           --Black REF  		  
             random1 := 16#000#;
-          elsif(j<4176) then           --DUMMY
+          elsif(j<(P_LEFT_DUMMY_0+P_LEFT_BLACKREF+P_LEFT_DUMMY_1+P_INTERPOLATION1+P_ROI_WIDTH+P_INTERPOLATION2+P_RIGHT_DUMMY_0+P_RIGHT_BLACKREF+P_RIGHT_DUMMY_1)) then           --DUMMY 		  
             random1 := 16#00D#;			  
           end if;
           
@@ -226,7 +279,7 @@ FRAME_CONTENT : process(xgs_model_GenImage, trigger_int, dataline_nxt, sequencer
           hwrite(row_hex12, hex_value );
           write(row_hex12, ' ');      
           
-		  hwrite(row_hex8, hex_value(7 downto 0) ) ;
+		  hwrite(row_hex8, hex_value(11 downto 4) ) ;
           write(row_hex8, ' ');        		 		 
         end loop; 
 
@@ -290,14 +343,50 @@ FRAME_CONTENT : process(xgs_model_GenImage, trigger_int, dataline_nxt, sequencer
     end if;
 	
     -- jmansill Loading image from generated file
-    for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
-      if(line_count>roi_start and line_count<(roi_start+ to_integer(unsigned(frame_length)) ) )then
-		frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
-      else
-        frame(1)(j) <= X"EB5";
-      end if;		  
-    end loop;  
-      
+    if(x_subsampling='0') then 
+      for j in 0 to (G_PXL_ARRAY_COLUMNS-1) loop
+        if(line_count>roi_start and line_count<(roi_start+ to_integer(unsigned(frame_length)) ) )then
+	  	  frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, j), 12));
+        else
+          frame(1)(j) <= X"EB5";
+        end if;		  
+      end loop;  
+	else
+      for j in 0 to (P_TOTAL-1) loop
+        if(line_count>roi_start and line_count<(roi_start+ to_integer(unsigned(frame_length)) ) )then
+          -- 
+		  --  Lane 0 & 1
+          --   __________________ ____________________ _____________________ ____________________       _____________________ ____________________
+          --  X    even_pack     X       odd_pack     X      even_pack      X       odd_pack     X ... X      even_pack      X       odd_pack     X
+		  --                                                                                           
+          --  | 0----------->173 | 174----------->347 | 348------------>521 | 522----------->695 | ... | 1044---------->1217 | 1218--------->1391 |
+          --  | 0,2,4....344,346 | 1,3,5......345,347 | 348,350.....692,694 | 349,351....693,695 | ... | 1044,1046......1390 | 1045,1047.....1391 |
+		  --
+		  
+		  
+          -- 
+		  --  Lane 4 & 5
+          --   __________________ ____________________                                                  _____________________ ____________________
+          --  X    even_pack     X       odd_pack     X  ............................................. X      even_pack      X       odd_pack     X 
+		  --                                             
+          --  | 0----------->173 | 174----------->347 |  ............................................. | 1044---------->1217 | 1218--------->1391 |
+          --  | 2784,2786...3130 | 2785,2787.....3131 |  ............................................. | 3828,3830......4174 | 3829,3831.....4175 |
+		  --
+
+		  if(j mod 348 < 174)   then	
+		    --Pixels pairs 
+    	    frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, (j-(j mod 174))+ 2*(j mod 174) ), 12));	  
+		  else
+		    --pixels impairs
+    	    frame(1)(j) <= std_logic_vector(to_unsigned(XGS_image(line_count-1, (j-(j mod 348))+ 2*(j mod 174) + 1 ), 12));	  
+		  end if;
+
+        else
+          frame(1)(j) <= X"EB5";
+        end if;		  
+      end loop;  	
+    end if;
+	
   end if;
 end process FRAME_CONTENT;
 
@@ -355,36 +444,18 @@ DATA_REORDER : process(line_count, frame)
 begin
   --order data lines according to data sent on HiSPi data lanes as specified by the silicon.
   for j in 0 to 2*G_NUM_PHY-1 loop
-    for i in 0 to G_PXL_PER_COLRAM-1 loop
-      if line_count_out_mux = roi_start then       
-       case frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";   -- il y a t'il une raison pq le pixel0 est converti a 1 ici?????
-          when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
-        end case;
-        case frame(0)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
-        end case;        
-      elsif (line_count_out_mux mod 2 = 0 ) then  --Ligne paire
-        case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
-        end case;
-        case frame(1)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
-        end case;
-      else                                          --Ligne impaire
- 	    case frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
-        end case;
-        case frame(1)(2*j*G_PXL_PER_COLRAM+2*i) is 
-          when X"000" => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= X"000";--X"001";
-          when others => dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
-        end case;        
-      end if;
-    end loop;
+      for i in 0 to G_PXL_PER_COLRAM-1 loop
+        if line_count_out_mux = roi_start then        --Embedded    
+            dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
+            dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
+        elsif (line_count_out_mux mod 2 = 0 ) then    --Ligne paire
+            dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
+            dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
+        else                                          --Ligne impaire
+            dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
+            dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
+        end if;
+      end loop;
   end loop;
 end process DATA_REORDER;
 

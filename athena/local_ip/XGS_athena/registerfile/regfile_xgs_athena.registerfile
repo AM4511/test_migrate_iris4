@@ -19,7 +19,7 @@
       <fields name="VALUE" size="32"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="AC">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DMA" baseAddress="70" endAddress="B8">
     <registers name="CTRL" alias="Initial Grab Address Register " description="Initial Grab Address LOW 32 bits" useReservedSpaceBelow="true" address="108">
       <fields name="GRAB_QUEUE_EN" alias="" description="" readOnlyMsb="2">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -90,6 +90,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>last line is duplicated&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+      <fields name="SUB_X" lsb="10"/>
       <fields name="REVERSE_Y" alias="REVERSE Y " description="Reverse readout" lsb="9">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bottom to top readout&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Top to bottom readout&lt;/matrox_column_delimiter></possibleValues>
@@ -131,6 +132,16 @@
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>512 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=3&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>1024 bytes max payload size&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>other_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Not supported by Xilinx endpoint&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="ROI_X" offsetFromParent="40" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="X_END" description="This register defines the position of the last horizontal valid pixel (including interpolation pixels)." lsb="16" size="13" valueAtReset="3ff">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="X_START" description="This register defines the position of the first horizontal valid pixel (including interpolation pixels). " size="13">
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -629,7 +640,7 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="HISPI" alias="XGS HiSPi interface configuration" baseAddress="400" endAddress="454">
     <registers name="CTRL">
-      <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4">
+      <fields name="SW_CLR_IDELAYCTRL" alias="Reset the Xilinx macro IDELAYCTRL" lsb="4" valueAtReset="1">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No effect&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reset IDELAYCTRL&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

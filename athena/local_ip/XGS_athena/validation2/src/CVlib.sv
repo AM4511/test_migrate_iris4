@@ -31,7 +31,9 @@ class CVlib;
 	parameter FSTART_R_OFFSET_HIGH  = 'h08C;
 	parameter LINE_PITCH_OFFSET     = 'h090;
 	parameter LINE_SIZE_OFFSET      = 'h094;
+	parameter CSC_OFFSET            = 'h098;
 	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
+	parameter ROI_X_OFFSET          = 'h0B0;
 	
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
@@ -255,20 +257,25 @@ class CVlib;
     //---------------------------------------
     //  DMA PARAMS
     //---------------------------------------
-    task setDMA(longint fstart, int line_pitch);
+    task setDMA(longint fstart, int line_pitch, int line_size, int REV_Y, int ROI_Y_SIZE);
    
+      if(REV_Y==1) begin
+		this.fstart     = fstart + (ROI_Y_SIZE-1)*line_pitch;  //set rev-y add
+	  end else begin
+        this.fstart     = fstart;
+	  end
 
-      this.fstart     = fstart;
 	  this.line_pitch = line_pitch;
-	  this.line_size  = P_ROI_WIDTH;
+	  //this.line_size  = P_ROI_WIDTH;
+	  this.line_size  = line_size;
 	  
 	  // DMA Grab queue enable!
      host.write(CTRL, 1);
 
 	  // DMA frame start register
 	  $display("  2.3 Write FSTART register @0x%h", FSTART_OFFSET);
-	  host.write(FSTART_OFFSET, fstart);
-	  host.write(FSTART_HIGH_OFFSET, fstart>>32);
+	  host.write(FSTART_OFFSET, this.fstart);
+	  host.write(FSTART_HIGH_OFFSET, this.fstart>>32);
 	  host.wait_n(10);
 
       // DMA line pitch register
@@ -278,7 +285,7 @@ class CVlib;
 
 	  // DMA line size register
 	  $display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
-	  host.write(LINE_SIZE_OFFSET, P_ROI_WIDTH);
+	  host.write(LINE_SIZE_OFFSET, line_size );
 	  host.wait_n(10);
 
 	  // DMA output buffer configuration
@@ -602,11 +609,16 @@ class CVlib;
 		MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
 		MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;              			
 		
+		//Image qui part a 0,  avec tous les pixels interpolation(x8)
+		//MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;              			
+		
 		reg_value = (MODEL_X_END<<16) + MODEL_X_START;
 		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 	
 	endtask : 	setHISPI_X_window
 
+
+ 
 
 
     //---------------------------------------
@@ -643,9 +655,52 @@ class CVlib;
     //  SET SUBSAMPLING MODE
     //---------------------------------------
     task Set_SUB(input int SUB_X, input int SUB_Y);		
-        host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) );
-    endtask : Set_SUB
+		bit [31:0] reg_value;
 
+	    // SENSOR SUB Y
+        host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + 0) );  //sub X is always 0
+        
+		// FPGA SUB X
+		host.read(CSC_OFFSET, reg_value);  
+		reg_value = reg_value | (SUB_X<<10) ;
+		host.write(CSC_OFFSET, reg_value); 
+
+	endtask : 	Set_SUB
+
+
+    //---------------------------------------
+    //  SET_REV_X
+    //---------------------------------------
+    task Set_REV_X(input int REV_X);		
+		bit [31:0] reg_value;
+
+		// FPGA REV X
+		host.read(CSC_OFFSET, reg_value);  
+		reg_value = reg_value | (REV_X<<8) ;
+		host.write(CSC_OFFSET, reg_value); 
+
+	endtask : 	Set_REV_X
+
+
+    //---------------------------------------
+    //  SET_REV_Y
+    //---------------------------------------
+    task Set_REV_Y(input int REV_Y);		
+		bit [31:0] reg_value;
+
+		// FPGA Rev Y
+		host.read(CSC_OFFSET, reg_value);  
+		reg_value = reg_value | (REV_Y<<9) ;
+		host.write(CSC_OFFSET, reg_value); 
+
+	endtask : 	Set_REV_Y
+
+    //---------------------------------------
+    //  SET ROI X
+    //---------------------------------------
+    task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);     
+		host.write(ROI_X_OFFSET, (ROI_X_END<<16)+ ROI_X_START); 
+	endtask : 	Set_X_ROI
 
     //---------------------------------------
     //  SET EXPOSURE
@@ -686,19 +741,20 @@ class CVlib;
     //---------------------------------------
     //  Task : Prediction image de grab
     //---------------------------------------
-    task Gen_predict_img(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y);
+    task Gen_predict_img(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
    		XGS_image = XGS_imageSRC.copy;
-		XGS_image.reduce_bit_depth(10);                                               // Converti Image 12bpp a 10bpp  
-		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
-		XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
-		XGS_image.sub(SUB_X, SUB_Y);
+		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                    // Sensor ROI Y  
+		XGS_image.sub_Y(SUB_Y);                                                                      // Sensor SUB Y  
+		//XGS_image.sub_X(SUB_X);                                                                    // Sensor SUB X   
 
-		XGS_imageDPC = XGS_image.copy;				
-		XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
-		XGS_image    = XGS_imageDPC.copy;
-		XGS_imageDPC = null;				
-
-		XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
+   		XGS_image.reduce_bit_depth(10);                                                              // FPGA 12bpp to 10bpp  
+ 		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                            // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
+    	XGS_image.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
+		XGS_image.reduce_bit_depth(8);                                                               // FPGA 10bpp to 8bpp
+        XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X		
+		XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X   
+        XGS_image.rev_X(REV_X);                                                                      // FPGA REV X  
+		//XGS_image.rev_Y(REV_Y);                                                                    // FPGA REV Y  : fait au niveau de la generation d'adresse du scoreboard
 
     endtask : Gen_predict_img
 

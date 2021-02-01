@@ -87,6 +87,7 @@ Register("csc", 0x98, 4, "null");
 		Field("dup_last_line", 23, 23, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("normal processing", 0);
 			FieldValue("last line is duplicated", 1);
+		Field("sub_x", 10, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("reverse_y", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "REVERSE Y ");
 			FieldValue("Bottom to top readout", 0);
 			FieldValue("Top to bottom readout", 1);
@@ -115,6 +116,10 @@ Register("tlp", 0xac, 4, "null");
 			FieldValue("256 bytes max payload size", 1);
 			FieldValue("512 bytes max payload size", 2);
 			FieldValue("1024 bytes max payload size", 3);
+
+Register("roi_x", 0xb0, 4, "null");
+		Field("x_end", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
 % SECTION NAME	: ACQ
@@ -450,7 +455,7 @@ Register("timer_duration", 0x2d8, 4, "null");
 Section("HISPI", 0, 0x400);
 
 Register("ctrl", 0x400, 4, "null");
-		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
+		Field("sw_clr_idelayctrl", 4, 4, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reset the Xilinx macro IDELAYCTRL");
 			FieldValue("No effect", 0);
 			FieldValue("Reset IDELAYCTRL", 1);
 		Field("sw_clr_hispi", 3, 3, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

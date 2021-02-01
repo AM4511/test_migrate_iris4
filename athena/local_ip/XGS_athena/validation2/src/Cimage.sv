@@ -59,8 +59,9 @@ class CImage;
 
     //int i;
     //int pixel;
-	integer pgm_size_x, pgm_size_y, pgm_max;
+	  integer pgm_size_x, pgm_size_y, pgm_max;
     shortint image[];
+    shortint image_DPC[];
 
     typedef struct packed{
             int dpc_x, dpc_y, dpc_pat;
@@ -224,7 +225,7 @@ class CImage;
     // Remove X Dummy, BlacksRefs... etc from image
     function void cropXdummy(input int x_start, x_end);
         
-        //shortint new_image[];
+        
         int new_size_x;    
         
         // determiner la nouvelle dimension
@@ -233,7 +234,7 @@ class CImage;
         // allouer et copier dans un nouveau array.
         // on presume que crop reduit la dimension tout le temps, il faudrait le verifier
         if(new_size_x > pgm_size_x) begin
-            $display("Appel illegal a crop(), size_x plus grand que le array source");
+            $display("Appel illegal a cropXdummy(), size_x plus grand que le array source");
             $stop();
         end
        
@@ -250,15 +251,13 @@ class CImage;
     endfunction : cropXdummy 
 
 
-    // CROP (REAL CROP!)
-    function void crop(input int x_start, x_end, y_start, y_end);
+    // CROP_X 
+    function void crop_X(input int x_start, input int x_end);
         
-        //shortint new_image[];
-        int new_size_x, new_size_y;    
+        int new_size_x ;
         
         // determiner la nouvelle dimension
         new_size_x = x_end - x_start + 1;
-        new_size_y = y_end - y_start + 1;
 
         // allouer et copier dans un nouveau array.
         // on presume que crop reduit la dimension tout le temps, il faudrait le verifier
@@ -266,85 +265,145 @@ class CImage;
             $display("Appel illegal a crop(), size_x plus grand que le array source");
             $stop();
         end
+
+        //new_image = new[new_size_x*new_size_y];
+        for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < new_size_x; x += 1)
+                image[y * new_size_x + x] = get_pixel(x+x_start, y);
+
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
+        pgm_size_x = new_size_x;
+
+         
+    endfunction : crop_X 
+
+
+    // CROP_Y 
+    function void crop_Y(input int y_start, input int y_end);
+        
+        int new_size_y;    
+        
+        // determiner la nouvelle dimension
+        new_size_y = y_end - y_start + 1;
+
+        // allouer et copier dans un nouveau array.
+        // on presume que crop reduit la dimension tout le temps, il faudrait le verifier
         if(new_size_y > pgm_size_y) begin
-            $display("Appel illegal a crop(), size_y plus grand que le array source");
+            $display("Appel illegal a crop_Y(), size_y plus grand que le array source");
             $stop();
         end
         
         //Y CROP : Y_start and Y_size must be multiple of 4 lines
         if(new_size_y % 4 != 0) begin 
-            $display("Appel illegal a crop(), XGS Y_size doit etre multiple de 4");
+            $display("Appel illegal a crop_Y(), XGS Y_size doit etre multiple de 4");
             $stop();
         end
         if(y_start % 4 != 0) begin 
-            $display("Appel illegal a crop(), XGS Y_Start doit etre multiple de 4");
+            $display("Appel illegal a crop_Y(), XGS Y_Start doit etre multiple de 4");
             $stop();
         end
 
-        //new_image = new[new_size_x*new_size_y];
+        //new_image = new[pgm_size_x*new_size_y];
         for(int y = 0; y < new_size_y; y += 1)
-            for(int x = 0; x < new_size_x; x += 1)
-                image[y * new_size_x + x] = get_pixel(x+x_start,y + y_start);
+            for(int x = 0; x < pgm_size_x; x += 1)
+                image[y * pgm_size_x + x] = get_pixel(x,y + y_start);
 
         // replacer dans l'image
-        image = new[new_size_x*new_size_y](image); // ici il faut faire une reallocation reduite!
-        pgm_size_x = new_size_x;
+        image = new[pgm_size_x*new_size_y](image); // ici il faut faire une reallocation reduite!
         pgm_size_y = new_size_y;
          
-    endfunction : crop 
+    endfunction : crop_Y 
 
-   function void sub(input int x_sub, y_sub);
+
+
+
+   function void sub_Y(input int y_sub);
         
         //shortint new_image[];
-        int new_size_x, new_size_y, x_factor, y_factor;    
+        int new_size_y, y_factor;    
         
         // determiner la nouvelle dimension
-        if(x_sub==1) begin
-          new_size_x = pgm_size_x/2;
-          x_factor   = 2;
-        end  else
-        begin 
-          new_size_x = pgm_size_x;   
-          x_factor   = 1;
-        end
-
         if(y_sub==1) begin
           new_size_y = pgm_size_y/2;
           y_factor   = 2;
-        end else 
-        begin
-          new_size_y = pgm_size_y;
-          y_factor   = 1;
-        end
 
-        //new_image = new[new_size_x*new_size_y];
-        for(int y = 0; y < new_size_y; y += 1)
-            for(int x = 0; x < new_size_x; x += 1)
-                image[y * new_size_x + x] = get_pixel(x*x_factor,y*y_factor);
+          //new_image = new[pgm_size_x*new_size_y];
+          for(int y = 0; y < new_size_y; y += 1)
+            for(int x = 0; x < pgm_size_x; x += 1)
+                image[y * pgm_size_x + x] = get_pixel(x, y*y_factor);
 
-        // replacer dans l'image
-        image = new[new_size_x*new_size_y](image); // ici il faut faire une reallocation reduite!
-        pgm_size_x = new_size_x;
-        pgm_size_y = new_size_y;
+          // replacer dans l'image
+          image = new[pgm_size_x*new_size_y](image); // ici il faut faire une reallocation reduite!
+          pgm_size_y = new_size_y;
+        end 
+
          
-    endfunction : sub 
+    endfunction : sub_Y 
 
+
+
+    function void sub_X(input int x_sub);
+        
+        //shortint new_image[];
+        int new_size_x, x_factor;    
+        
+        // determiner la nouvelle dimension
+        if(x_sub==1) begin         
+          new_size_x = pgm_size_x/2;
+          x_factor   = 2;
+
+          //new_image = new[new_size_x*pgm_size_y];
+          for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < new_size_x; x += 1)
+                image[y * new_size_x + x] = get_pixel(x*x_factor,y);
+
+          // replacer dans l'image
+          image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
+          pgm_size_x = new_size_x;
+        end  
+        
+    endfunction : sub_X 
 
 
     // reverse dans la direction x
-    function void reverse_x();
-        
-      // tableau qui tient une ligne a la fois.
-      shortint old_image[];
-      
-      old_image = image;  // fera l'allocation automagiquement!
-      
-      for(int y = 0; y < pgm_size_y; y += 1)
-        for(int x = 0; x < pgm_size_x; x += 1)
-          //image[y * pgm_size_x + x] = get_pixel(pgm_size_x -1 -x, y);
-          image[y * pgm_size_x + x] = old_image[y * pgm_size_x + pgm_size_x -1 -x];
+    function void rev_X(input int x_rev);
+             
+      if(x_rev==1) begin
+     
+        for(int y = 0; y < pgm_size_y; y += 1)
+          for(int x = 0; x < pgm_size_x; x += 1)
+            //image[y * pgm_size_x + x] = get_pixel(pgm_size_x -1 -x, y);
+            image[y * pgm_size_x + x] = image[y * pgm_size_x + pgm_size_x -1 -x];
+      end
 
-    endfunction : reverse_x 
+    endfunction : rev_X 
+
+
+//    // reverse dans la direction Y
+//    function void rev_Y(input int y_rev);
+//
+//      shortint image_copy[];
+//
+//      if(y_rev==1) begin
+//        image_copy = image;
+//        for(int y = 0; y < pgm_size_y; y += 1)
+//          for(int x = 0; x < pgm_size_x; x += 1)
+//            image[y * pgm_size_x + x] = image_copy[ (pgm_size_y-1-y)*pgm_size_x + x];
+//      end
+//
+//      //delete array
+//      image_copy.delete;
+//      
+//    endfunction : rev_Y 
+
+
+
+
+    function shortint get_pixel_DPC(input int x, y);
+        //return image[y * pgm_size_x + x];
+        get_pixel_DPC = image_DPC[y * pgm_size_x + x];
+    endfunction : get_pixel_DPC
 
     function shortint get_pixel(input int x, y);
         //return image[y * pgm_size_x + x];
@@ -395,10 +454,15 @@ class CImage;
       int Translated_ROIx;
       int Translated_ROIy;      
 
+      image_DPC = image;	// fera l'allocation automagiquement!, utilise par get_pixel_DPC pour aller chercher pixels ds image originale
+
       //$display("Correct_DeadPixels x_start=%0d, x_end=%0d, y_start=%0d, y_end=%0d", x_start, x_end, y_start, y_end); 
 
       if(SUB_Y==1) //Si subsampling, il faut enlever 1 a y_end: la derniere ligne est forcement paire!
         y_end=y_end-1;
+      if(SUB_X==1) //Si subsampling, il faut enlever 1 a x_end: la derniere ligne est forcement paire!
+        x_end=x_end-1;
+
 
       for(int dpc=0; dpc < dpc_list_count; dpc+=1)
       begin
@@ -412,11 +476,11 @@ class CImage;
                  (dpc_list[dpc].dpc_x == x_start &&  dpc_list[dpc].dpc_y == y_end)   ||
                  (dpc_list[dpc].dpc_x == x_end   &&  dpc_list[dpc].dpc_y == y_end)   
               )
-              $display("HeadID %0d, Correct_DeadPixels: Do not correct coner image pixels", HeadID );            
+              $display("HeadID %0d, Correct_DeadPixels: DPC do not correct coner image pixels", HeadID );            
             else 
                 begin
-                    if(SUB_Y==0 || (SUB_Y==1 && dpc_list[dpc].dpc_y%2==0) ) begin  
-                      Translated_ROIx = (dpc_list[dpc].dpc_x - x_start);
+                    if( (SUB_Y==0 || (SUB_Y==1 && dpc_list[dpc].dpc_y%2==0))  && (SUB_X==0 || (SUB_X==1 && dpc_list[dpc].dpc_x%2==0))  ) begin  
+                      Translated_ROIx = (dpc_list[dpc].dpc_x - x_start)/(SUB_X+1);
                       Translated_ROIy = (dpc_list[dpc].dpc_y - y_start)/(SUB_Y+1);     
                       
                       if(dpc_list[dpc].dpc_x == x_start)
@@ -467,7 +531,7 @@ class CImage;
               if(printinfo==1) if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for DEBUG pixel(x=%0d, y=%0d, Pat=%0d) is : %0d bpp10, %0d bpp8", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
               end
             else begin
-              pix_corrected  = get_pixel(x,y);
+              pix_corrected  = get_pixel_DPC(x,y);
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for DEBUG pixel(x=%0d, y=%0d, Pat=%0d) is current pixel bypass: %0d bpp10, %0d bpp8", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
             end
         end
@@ -475,66 +539,66 @@ class CImage;
       if(pattern==68) 
         begin
           if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end
           else
              if(FirstLine==1) begin 
-               pix_corrected  = get_pixel(x,y+1) ;
+               pix_corrected  = get_pixel_DPC(x,y+1) ;
                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                end
              else  
                if(LastLine==1) begin 
-                 pix_corrected  = get_pixel(x,y-1) ;
+                 pix_corrected  = get_pixel_DPC(x,y-1) ;
                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for LastLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                  end
                else begin        
-                 pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1;
-                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+                 pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1;
+                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
                  end  
         end
 
       if(pattern==51) 
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y) ;
+            pix_corrected  = get_pixel_DPC(x+1,y) ;
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y) ;
+              pix_corrected  = get_pixel_DPC(x-1,y) ;
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end
             else  
               if(FirstLine==1 || LastLine==1 ) begin 
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end
               else begin
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x-1,y+1) + get_pixel(x+1,y-1) + get_pixel(x+1,y) ) >> 2;           
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y), get_pixel(x-1,y+1), get_pixel(x+1,y-1), get_pixel(x+1,y), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x+1,y) ) >> 2;           
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y), get_pixel_DPC(x-1,y+1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x+1,y), pix_corrected, pix_corrected>>2 );          
                 end
         end
 
       if(pattern==153) 
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y) ;       
+            pix_corrected  = get_pixel_DPC(x+1,y) ;       
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end 
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y) ;
+              pix_corrected  = get_pixel_DPC(x-1,y) ;
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end            
             else  
               if(FirstLine==1 || LastLine==1 ) begin 
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end 
               else begin 
-                pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x-1,y) + get_pixel(x+1,y) + get_pixel(x+1,y+1) ) >> 2;
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x-1,y), get_pixel(x+1,y), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) + get_pixel_DPC(x+1,y+1) ) >> 2;
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x-1,y), get_pixel_DPC(x+1,y), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );          
               end
 
         end
@@ -542,27 +606,27 @@ class CImage;
       if(pattern==170 )
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y+1) ;       
+            pix_corrected  = get_pixel_DPC(x+1,y+1) ;       
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end 
           else          
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y+1) ;
+              pix_corrected  = get_pixel_DPC(x-1,y+1) ;
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end
             else  
               if(FirstLine==1 ) begin 
-                pix_corrected  = get_pixel(x-1,y+1);
+                pix_corrected  = get_pixel_DPC(x-1,y+1);
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end
               else
                 if(LastLine==1 ) begin 
-                  pix_corrected  = get_pixel(x+1,y-1);
+                  pix_corrected  = get_pixel_DPC(x+1,y-1);
                   if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                   end                    
                 else  begin      
-                  pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x+1,y-1) + get_pixel(x-1,y+1) + get_pixel(x+1,y+1) ) >> 2;
-                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x+1,y-1), get_pixel(x-1,y+1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );          
+                  pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x+1,y+1) ) >> 2;
+                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x-1,y+1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );          
                   end
         end
 
@@ -570,34 +634,34 @@ class CImage;
       if(pattern==119)  //6 to 4 conversion
         begin
           if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end   
             else  
               if(FirstLine==1 || LastLine==1 ) begin 
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end          
               else  begin      
-                pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x-1,y) + get_pixel(x,y+1) + get_pixel(x+1,y) ) >> 2;
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x,y-1), get_pixel(x-1,y), get_pixel(x,y+1), get_pixel(x+1,y), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x-1,y) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y) ) >> 2;
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x-1,y), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y), pix_corrected, pix_corrected>>2 );          
                 end
         end
 
      if(pattern==221)  //6 to 4 conversion
         begin
           if(FirstCol==1  || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end
           else  
             if(FirstLine==1 || LastLine==1 ) begin 
-              pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+              pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
               end
             else begin       
-              pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x-1,y) + get_pixel(x,y+1) + get_pixel(x+1,y) ) >> 2;
-              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x,y-1), get_pixel(x-1,y), get_pixel(x,y+1), get_pixel(x+1,y), pix_corrected, pix_corrected>>2 );          
+              pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x-1,y) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y) ) >> 2;
+              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x-1,y), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y), pix_corrected, pix_corrected>>2 );          
               end
         end
 
@@ -605,139 +669,139 @@ class CImage;
       if(pattern==187)  //6 to 4 conversion
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y) ;       
+            pix_corrected  = get_pixel_DPC(x+1,y) ;       
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end           
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y) ;  
+              pix_corrected  = get_pixel_DPC(x-1,y) ;  
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end        
             else  
               if(FirstLine==1 || LastLine==1 ) begin 
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end            
               else begin       
-                pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x+1,y-1) + get_pixel(x-1,y+1) + get_pixel(x+1,y+1) ) >> 2;          
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x+1,y-1), get_pixel(x-1,y+1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x+1,y+1) ) >> 2;          
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x-1,y+1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );          
                 end
         end
 
       if(pattern==136) 
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y+1) ;     
+            pix_corrected  = get_pixel_DPC(x+1,y+1) ;     
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end      
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y-1) ;  
+              pix_corrected  = get_pixel_DPC(x-1,y-1) ;  
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end
             else  
               if(FirstLine==1 ) begin 
-                pix_corrected  = get_pixel(x+1,y+1);
+                pix_corrected  = get_pixel_DPC(x+1,y+1);
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end
               else
                 if(LastLine==1 ) begin 
-                  pix_corrected  = get_pixel(x-1,y-1);
+                  pix_corrected  = get_pixel_DPC(x-1,y-1);
                   if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                   end                    
                 else  begin              
-                  pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x+1,y+1) ) >> 1;
-                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );         
+                  pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x+1,y+1) ) >> 1;
+                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );         
                   end
         end
 
       if(pattern==17) 
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y) ;  
+            pix_corrected  = get_pixel_DPC(x+1,y) ;  
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end      
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y) ;     
+              pix_corrected  = get_pixel_DPC(x-1,y) ;     
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end           
             else  
               if(FirstLine==1 || LastLine==1 ) begin 
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end                        
               else begin        
-                pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x+1,y-1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 ); 
+                pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x+1,y-1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 ); 
                 end
         end
 
       if(pattern==34) 
         begin
           if(FirstCol==1) begin
-            pix_corrected  = get_pixel(x+1,y-1) ;      
+            pix_corrected  = get_pixel_DPC(x+1,y-1) ;      
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
             end  
           else
             if(LastCol==1) begin
-              pix_corrected  = get_pixel(x-1,y+1) ;       
+              pix_corrected  = get_pixel_DPC(x-1,y+1) ;       
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, pix_corrected, pix_corrected>>2 ); 
               end     
             else  
               if(FirstLine==1 ) begin 
-                pix_corrected  = get_pixel(x-1,y+1);
+                pix_corrected  = get_pixel_DPC(x-1,y+1);
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end
               else
                 if(LastLine==1 ) begin 
-                  pix_corrected  = get_pixel(x+1,y-1);
+                  pix_corrected  = get_pixel_DPC(x+1,y-1);
                   if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                   end                    
                 else begin
-                  pix_corrected  = ( get_pixel(x+1,y-1) + get_pixel(x-1,y+1) ) >> 1;
-                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x+1,y-1), get_pixel(x-1,y+1), pix_corrected, pix_corrected>>2 ); 
+                  pix_corrected  = ( get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x-1,y+1) ) >> 1;
+                  if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x+1,y-1), get_pixel_DPC(x-1,y+1), pix_corrected, pix_corrected>>2 ); 
                   end
         end
 
       if(pattern==102) 
         begin
          if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );                          
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );                          
             end
         else  
           if(FirstLine==1 ) begin 
-            pix_corrected  = get_pixel(x,y+1);
+            pix_corrected  = get_pixel_DPC(x,y+1);
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
             end
           else
             if(LastLine==1 ) begin 
-              pix_corrected  = get_pixel(x,y-1);
+              pix_corrected  = get_pixel_DPC(x,y-1);
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
               end                    
             else begin       
-              pix_corrected  = ( get_pixel(x-1,y+1) + get_pixel(x,y+1) + get_pixel(x+1,y-1) + get_pixel(x,y-1) ) >> 2;
-              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y+1), get_pixel(x,y+1), get_pixel(x+1,y-1), get_pixel(x,y-1), pix_corrected, pix_corrected>>2 );               
+              pix_corrected  = ( get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x,y-1) ) >> 2;
+              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y+1), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x,y-1), pix_corrected, pix_corrected>>2 );               
               end
         end    
 
       if(pattern==85)
         begin
           if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end
           else  
             if(FirstLine==1 || LastLine==1 ) begin 
-              pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+              pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
-              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y) , get_pixel(x+1,y), pix_corrected, pix_corrected>>2 );          
+              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y) , get_pixel_DPC(x+1,y), pix_corrected, pix_corrected>>2 );          
 
               end
             else begin       
-              pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x-1,y) + get_pixel(x,y+1) + get_pixel(x+1,y) ) >> 2;
-              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x,y-1), get_pixel(x-1,y), get_pixel(x,y+1), get_pixel(x+1,y), pix_corrected, pix_corrected>>2 );          
+              pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x-1,y) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y) ) >> 2;
+              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x-1,y), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y), pix_corrected, pix_corrected>>2 );          
               end
         end
 
@@ -745,64 +809,64 @@ class CImage;
       if(pattern==204) 
         begin
           if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end       
           else  
             if(FirstLine==1 ) begin 
-              pix_corrected  = get_pixel(x,y+1);
+              pix_corrected  = get_pixel_DPC(x,y+1);
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
               end
             else
               if(LastLine==1 ) begin 
-                pix_corrected  = get_pixel(x,y-1);
+                pix_corrected  = get_pixel_DPC(x,y-1);
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end                    
               else begin       
-                pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x,y-1) + get_pixel(x,y+1) + get_pixel(x+1,y+1) ) >> 2;
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x,y-1), get_pixel(x,y+1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y+1) ) >> 2;
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );          
                 end
         end
 
       if(pattern==238)  //6 to 4 conversion
         begin
           if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end
           else  
             if(FirstLine==1 ) begin 
-              pix_corrected  = get_pixel(x,y+1);
+              pix_corrected  = get_pixel_DPC(x,y+1);
               if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
               end
             else
               if(LastLine==1 ) begin 
-                pix_corrected  = get_pixel(x,y-1);
+                pix_corrected  = get_pixel_DPC(x,y-1);
                 if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ",  HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
                 end
               else  begin      
-                pix_corrected  = ( get_pixel(x-1,y-1) + get_pixel(x+1,y-1) + get_pixel(x-1,y+1) + get_pixel(x+1,y+1) ) >> 2;
-                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel(x-1,y-1), get_pixel(x+1,y-1), get_pixel(x-1,y+1), get_pixel(x+1,y+1), pix_corrected, pix_corrected>>2 );          
+                pix_corrected  = ( get_pixel_DPC(x-1,y-1) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x+1,y+1) ) >> 2;
+                if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d)/4=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x-1,y-1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x-1,y+1), get_pixel_DPC(x+1,y+1), pix_corrected, pix_corrected>>2 );          
                 end
         end
 
       if(pattern==255) 
         begin
          if(FirstCol==1 || LastCol==1) begin
-            pix_corrected  = ( get_pixel(x,y-1) + get_pixel(x,y+1) ) >> 1 ;
-            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel(x,y-1), get_pixel(x,y+1), pix_corrected, pix_corrected>>2 );              
+            pix_corrected  = ( get_pixel_DPC(x,y-1) + get_pixel_DPC(x,y+1) ) >> 1 ;
+            if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstCol=%0d, lastCol=%0d (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, FirstCol, LastCol, x, y, pattern, get_pixel_DPC(x,y-1), get_pixel_DPC(x,y+1), pix_corrected, pix_corrected>>2 );              
             end
         else  
           if(FirstLine==1 || LastLine==1 ) begin 
-            pix_corrected  = ( get_pixel(x-1,y) + get_pixel(x+1,y) ) >> 1;
+            pix_corrected  = ( get_pixel_DPC(x-1,y) + get_pixel_DPC(x+1,y) ) >> 1;
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for firstLine/lastline (x=%0d, y=%0d, Pat=%0d) is %0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
             end
           else begin       
-            pix_corrected  = ( get_pixel(x+1,y) + get_pixel(x+1,y-1) + get_pixel(x,y-1) + get_pixel(x-1,y-1) +
-                               get_pixel(x-1,y) + get_pixel(x-1,y+1) + get_pixel(x,y+1) + get_pixel(x+1,y+1)     ) >> 3;
+            pix_corrected  = ( get_pixel_DPC(x+1,y) + get_pixel_DPC(x+1,y-1) + get_pixel_DPC(x,y-1) + get_pixel_DPC(x-1,y-1) +
+                               get_pixel_DPC(x-1,y) + get_pixel_DPC(x-1,y+1) + get_pixel_DPC(x,y+1) + get_pixel_DPC(x+1,y+1)     ) >> 3;
             if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d+%0d+%0d+%0d+%0d+%0d+%0d)/8=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern,
-                                                                                                          get_pixel(x+1,y+1), get_pixel(x+1,y-1), get_pixel(x,y-1), get_pixel(x-1,y-1),
-                                                                                                          get_pixel(x-1,y)  , get_pixel(x-1,y+1), get_pixel(x,y+1), get_pixel(x+1,y+1),                
+                                                                                                          get_pixel_DPC(x+1,y+1), get_pixel_DPC(x+1,y-1), get_pixel_DPC(x,y-1), get_pixel_DPC(x-1,y-1),
+                                                                                                          get_pixel_DPC(x-1,y)  , get_pixel_DPC(x-1,y+1), get_pixel_DPC(x,y+1), get_pixel_DPC(x+1,y+1),                
                                                                                                           pix_corrected, pix_corrected>>2 );      
           end                                                                                                       
         end                
