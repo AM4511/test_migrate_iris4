@@ -4,7 +4,7 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a50t/create_ares.tcl
 # 
-# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-02/a50t/system_pcie_hyperram.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -34,19 +34,23 @@ puts "Running ${myself}"
 #         Updated register file :
 #                  @0x0020 (FPGA_ID[4:0]) Added new bits definition on field Device_specific.FPGA_ID.FPGA_ID
 #                  @0x0020 (FPGA_ID[31:28]) Created new field Device_specific.FPGA_ID.FPGA_STRAPS (report the FPGA PCB straps)
-#         Set the correct FPGA_ID to 0x11 (d'17)
-#
-#         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
-#
 #         Enabled pull-ups on IO pins:  - fpga_straps
 #         (See JIRA : IRIS4-341)        - ncsi_rxd(1:0)
 #                                       - ncsi_txd(1:0)
 #                                       - user_data_in(3:0)
 #
+#         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
+#         Set the correct FPGA_ID to 0x11 (d'17)
+#         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
+#
+# 0.0.7 : Fixed the Hyperram cache access errors (See JIRA : MT-2105)
+#         Set cache controller to 8Kb
+#         Set cache line to 16 words
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 6
+set FPGA_SUB_MINOR_VERSION 7
 
 
 set BASE_NAME  ares_7571_02_a50t
