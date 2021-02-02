@@ -40,6 +40,8 @@ puts "Running ${myself}"
 #         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
 #
 # 0.0.7 : Fixed the Hyperram cache access errors (See JIRA : MT-2105)
+#         Set cache controller to 8Kb
+#         Set cache line to 16 words
 #
 # ################################################################
 set FPGA_MAJOR_VERSION     0
