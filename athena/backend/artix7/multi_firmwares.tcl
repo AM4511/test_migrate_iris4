@@ -6,8 +6,10 @@
 set myself [info script]
 puts "Running ${myself}"
 
-set IMPL_RUN  impl_0
-set id        0
+#set impl_to_use 3
+
+set IMPL_RUN  impl_$impl_to_use
+set id        $impl_to_use
 
 set DEVICE    [get_property part [current_project]]
 

@@ -7,9 +7,9 @@
  
 
 `timescale 1ns / 1ps
-import core_pkg::*;
-import driver_pkg::*;
+
 import tests_pkg::*;
+import driver_pkg::*;
 
 
 
@@ -17,11 +17,11 @@ module testbench;
 
  	parameter AXIL_DATA_WIDTH  = 32;
 	parameter AXIL_ADDR_WIDTH  = 11;
-    parameter AXIS_DATA_WIDTH  = 64;
+  parameter AXIS_DATA_WIDTH  = 64;
 	parameter AXIS_USER_WIDTH  = 4;
 	parameter GPIO_NUMB_INPUT  = 1;
-	parameter GPIO_NUMB_OUTPUT = 2;
-
+	parameter GPIO_NUMB_OUTPUT = 3;  // [2]   = Anput Ext trigger
+                                   // [1:0] = XGS SENSOR selection
   reg tb_CLK;
   reg tb_RESETn;
  
@@ -36,17 +36,23 @@ module testbench;
 
 	io_interface #(GPIO_NUMB_INPUT,GPIO_NUMB_OUTPUT) gpio_if();
   wire [1:0] XGSmodel_sel;
+  wire       anput_ext_trig;
 
   // Liste de tests
   Test0001 test0001;
   Test0002 test0002;  
   Test0003 test0003;  
-  Test2000 test2000;  
-  Test9999 test9999;  
- 
+  Test0004 test0004;   
+  Test0005 test0005;   
+  Test0004 test0006;   
+  Test0005 test0007;
+  Test0005 test0008;
+  Test0005 test0009;
+  Test0005 test0010;
+
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
-  Ctest t;
-  CtestProxy top_string_factory[string];
+  CTest t;
+  CTestProxy top_string_factory[string];
   string test_number_string;
   string test_index;
 
@@ -80,8 +86,13 @@ module testbench;
       top_string_factory["Test0001"] = objectRegistry#(Test0001)::get();
       top_string_factory["Test0002"] = objectRegistry#(Test0002)::get();
       top_string_factory["Test0003"] = objectRegistry#(Test0003)::get();
-      top_string_factory["Test2000"] = objectRegistry#(Test2000)::get();
-      top_string_factory["Test9999"] = objectRegistry#(Test9999)::get();
+      top_string_factory["Test0004"] = objectRegistry#(Test0004)::get();
+      top_string_factory["Test0005"] = objectRegistry#(Test0005)::get();
+      top_string_factory["Test0006"] = objectRegistry#(Test0006)::get();
+      top_string_factory["Test0007"] = objectRegistry#(Test0007)::get();
+      top_string_factory["Test0008"] = objectRegistry#(Test0008)::get();
+      top_string_factory["Test0009"] = objectRegistry#(Test0009)::get();
+      top_string_factory["Test0010"] = objectRegistry#(Test0010)::get();      
 
       tb_RESETn = 1'b0;
       repeat(20)@(posedge tb_CLK);
@@ -138,7 +149,8 @@ assign axil_if.clk             = tb_CLK;
 assign tx_axis_if.aclk         = tb_CLK;
 assign tx_axis_if.areset_n     = axil_if.reset_n;
 
-assign XGSmodel_sel = {gpio_if.output_reg[1], gpio_if.output_reg[0]};
+assign XGSmodel_sel   = {gpio_if.output_reg[1], gpio_if.output_reg[0]};
+assign anput_ext_trig = gpio_if.output_reg[2];
 
 system_top system_top (
 
@@ -171,7 +183,8 @@ system_top system_top (
 	.s_axis_tx_tuser(tx_axis_if.tuser),  
   
   .irq_dma(gpio_if.input_io[0]),
-  .XGSmodel_sel(XGSmodel_sel)
+  .XGSmodel_sel(XGSmodel_sel),
+  .anput_ext_trig(anput_ext_trig)  
 
 );
 

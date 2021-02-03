@@ -402,11 +402,12 @@ architecture functional of dpc_filter is
   alias alias_fpnprnu_corr_data_1   : std_logic_vector(7 downto 0) is s_axis_tdata(19 downto 12);
   alias alias_fpnprnu_corr_data_2   : std_logic_vector(7 downto 0) is s_axis_tdata(29 downto 22);
   alias alias_fpnprnu_corr_data_3   : std_logic_vector(7 downto 0) is s_axis_tdata(39 downto 32);
-  --alias alias_fpnprnu_corr_data_4   : std_logic_vector(7 downto 0) is s_axis_tdata(49 downto 42);
-  --alias alias_fpnprnu_corr_data_5   : std_logic_vector(7 downto 0) is s_axis_tdata(59 downto 52);
-  --alias alias_fpnprnu_corr_data_6   : std_logic_vector(7 downto 0) is s_axis_tdata(69 downto 62);
-  --alias alias_fpnprnu_corr_data_7   : std_logic_vector(7 downto 0) is s_axis_tdata(79 downto 72);
-  
+  alias alias_fpnprnu_corr_data_4   : std_logic_vector(7 downto 0) is s_axis_tdata(49 downto 42);
+  alias alias_fpnprnu_corr_data_5   : std_logic_vector(7 downto 0) is s_axis_tdata(59 downto 52);
+  alias alias_fpnprnu_corr_data_6   : std_logic_vector(7 downto 0) is s_axis_tdata(69 downto 62);
+  alias alias_fpnprnu_corr_data_7   : std_logic_vector(7 downto 0) is s_axis_tdata(79 downto 72);
+ 
+ 
   alias alias_dpc_data_in_100_0_P1 : std_logic_vector(7 downto 0) is dpc_data_in_100_P1(19 downto 12);
   alias alias_dpc_data_in_100_1_P1 : std_logic_vector(7 downto 0) is dpc_data_in_100_P1(29 downto 22);
   alias alias_dpc_data_in_100_2_P1 : std_logic_vector(7 downto 0) is dpc_data_in_100_P1(39 downto 32);

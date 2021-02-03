@@ -1,8 +1,7 @@
 import xgs_athena_pkg::*;
-import image_pkg::*;
-//import CscoreboardPkg::*;
+//import CImagePkg::*;
 
-
+import CVlibPkg::*;
 
 class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	//	class memory_entry;
@@ -186,7 +185,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	/////////////////////////////////////////////////////////////////////////
 	// Prediction de la rampe simple sans aucun processing
 	/////////////////////////////////////////////////////////////////////////
-    task predict_img(input Cimage Image, longint fstart, int line_size, int line_pitch);
+    task predict_img(input CImage Image, longint fstart, int line_size, int line_pitch, int REV_Y);
 
        int Initial_X_pix;
        int nbElements=0;	   
@@ -204,9 +203,12 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
              DW_pred.Data32[23:16] = Image.get_pixel(x+2, y);
              DW_pred.Data32[15:8]  = Image.get_pixel(x+1, y);
              DW_pred.Data32[7:0]   = Image.get_pixel(x+0, y);
-			
-             DW_pred.Add64 = fstart + (line_pitch*y) + x ; 
-             			
+			 
+			 if(REV_Y==0) begin
+               DW_pred.Add64 = fstart + (line_pitch*y) + x ; 
+			 end else begin
+			   DW_pred.Add64 = fstart - (line_pitch*y) + x ;	 
+			 end			
 		 	 // mettre la transaction dans la queue.
 		     this.Pcie32_queue.push_back(DW_pred);
 		 	

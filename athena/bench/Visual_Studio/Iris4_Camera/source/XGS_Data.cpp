@@ -37,7 +37,10 @@ CXGS_Data::CXGS_Data(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr):
 	    0,    // M_UINT64 FSTART_R;
 	    0,    // M_UINT32 LINE_PITCH;
 	    0,    // M_UINT32 LINE_SIZE;
-	    0,    // M_UINT32 COLOR_SPACE;
+		0,    // Y_SIZE
+	    0,    // REVERSE_Y;
+	    0,    // REVERSE_X;
+	    0     // SUB_X;
 	};
 
 
@@ -248,14 +251,23 @@ int CXGS_Data::HiSpiCalibrate(int echoo)
 //--------------------------------------------------------------------
 // Cette fonction Programme les registres DMA
 //--------------------------------------------------------------------
-void CXGS_Data::SetDMA(void)
+void CXGS_Data::SetDMA()
 {
 	//printf_s("Set DMA parameters\n");
 
 	sXGSptr.DMA.CTRL.f.GRAB_QUEUE_EN = 1;
 	rXGSptr.DMA.CTRL.u32             = sXGSptr.DMA.CTRL.u32;
 
-    sXGSptr.DMA.FSTART.u32           = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64
+	sXGSptr.DMA.CSC.f.REVERSE_Y = DMAParams.REVERSE_Y;
+	sXGSptr.DMA.CSC.f.REVERSE_X = DMAParams.REVERSE_X;
+	sXGSptr.DMA.CSC.f.SUB_X     = DMAParams.SUB_X;
+	rXGSptr.DMA.CSC.u32         = sXGSptr.DMA.CSC.u32;
+
+	if(DMAParams.REVERSE_Y==0) 
+      sXGSptr.DMA.FSTART.u32         = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64
+	else
+	  sXGSptr.DMA.FSTART.u32          = (DMAParams.FSTART & 0xffffffff) + (DMAParams.Y_SIZE -1)*DMAParams.LINE_PITCH;                      // Lo DW ADD64
+	
 	rXGSptr.DMA.FSTART.u32           = sXGSptr.DMA.FSTART.u32;
 								     
 	sXGSptr.DMA.FSTART_HIGH.u32      = (DMAParams.FSTART & 0xffffffff00000000) >> 32;
@@ -278,6 +290,7 @@ void CXGS_Data::SetDMA(void)
 								     
 	sXGSptr.DMA.LINE_SIZE.u32        = DMAParams.LINE_SIZE;
 	rXGSptr.DMA.LINE_SIZE.u32        = sXGSptr.DMA.LINE_SIZE.u32;
+
 }
 
 
@@ -505,4 +518,22 @@ void CXGS_Data::DisableLUT(void)
 {
 	rXGSptr.LUT.LUT_CTRL.f.LUT_BYPASS = 1;
 }
+
+void CXGS_Data::set_DMA_revY(M_UINT32 REV_Y, M_UINT32 Y_SIZE)
+{
+	DMAParams.REVERSE_Y= REV_Y;
+	DMAParams.Y_SIZE   = Y_SIZE;
+}
+
+void CXGS_Data::set_DMA_revX(M_UINT32 REV_X)
+{
+	DMAParams.REVERSE_X = REV_X;
+}
+
+void CXGS_Data::set_DMA_subX(M_UINT32 SUB_X)
+{
+	DMAParams.SUB_X = SUB_X;
+
+}
+
 

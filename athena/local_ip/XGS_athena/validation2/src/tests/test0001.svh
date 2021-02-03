@@ -4,13 +4,13 @@
 //
 //
 
-import core_pkg::*;
+import tests_pkg::*;
 import driver_pkg::*;
 import xgs_athena_pkg::*;
-import image_pkg::*;
 
 
-class Test0001 extends Ctest;
+
+class Test0001 extends CTest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -19,9 +19,6 @@ class Test0001 extends Ctest;
     virtual axi_stream_interface tx_axis_if;
 
 	Cscoreboard  scoreboard;
-	Cimage XGS_imageSRC;
-	Cimage XGS_image;
-	Cimage XGS_imageDPC;
 
     int XGS_Model;
 
@@ -33,14 +30,11 @@ class Test0001 extends Ctest;
 	int ROI_Y_SIZE;
     int ROI_Y_END;
     int SUB_X;
-	int SUB_Y;     
+	int SUB_Y;  
+	int REV_X = 0;
+	int REV_Y = 0;   
+   
     int test_nb_images;
-
-    int i;
-    int REG_DPC_PATTERN0_CFG;
-    int DPC_PATTERN;
-
-
 
 
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
@@ -50,12 +44,8 @@ class Test0001 extends Ctest;
     endfunction
 
     task run();
-            
-    
+                
         scoreboard     = new(tx_axis_if);
-		XGS_imageSRC   = new();
-		XGS_image      = new();
-		XGS_imageDPC   = new();
 
         super.say_hello();   
 
@@ -79,7 +69,6 @@ class Test0001 extends Ctest;
   
 		        super.Vlib.setXGS_sensor(XGS_Model);
 
-		        super.Vlib.setDMA('hA0000000, 'h2000);
 		        super.Vlib.setXGSmodel();
 		        super.Vlib.setXGScontroller();
 		        super.Vlib.setHISPI();
@@ -99,45 +88,13 @@ class Test0001 extends Ctest;
 				//--------------------------------------------------
 				//super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
 				super.Vlib.GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
-				XGS_imageSRC.load_image(XGS_Model);                                  // Load le .pgm dans la class SystemVerilog			
+				super.Vlib.XGS_imageSRC.load_image(XGS_Model);                  // Load le .pgm dans la class SystemVerilog			
 
 
 		        ///////////////////////////////////////////////////
 				// DPC
 				///////////////////////////////////////////////////
-			    REG_DPC_PATTERN0_CFG = 1;
-
-				host.write(super.Vlib.DPC_LIST_CTRL, 0);
-				host.write(super.Vlib.DPC_LIST_CTRL, (0<<15)+(1<<13) );                    //DPC_ENABLE= 0, DPC_PATTERN0_CFG=0, DPC_LIST_WRN=1
-
-		        DPC_PATTERN = 85; 
-		        for (i = 0; i < 16; i++)
-			    begin				
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
-					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-			    	host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
-			    	host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
-
-					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
-				end
-
-				DPC_PATTERN  = 170;
-		        for (i = 16; i < 63; i++)
-			    begin				
-					host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + i );           // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
-					host.write(super.Vlib.DPC_LIST_DATA1, (i<<16)+i );                     // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
-			    	host.write(super.Vlib.DPC_LIST_DATA2,  DPC_PATTERN);                   // DPC_LIST_CORR_PATTERN = 0;
-			    	host.write(super.Vlib.DPC_LIST_CTRL,  (1<<15)+(1<<13) + (1<<12) + i ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
-
-					XGS_imageSRC.DPC_add(i, i, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
-				end
-
-		        host.write(super.Vlib.DPC_LIST_CTRL,  (i<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
-		        XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                   // Pour la prediction 
-		        XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                 // Pour la prediction 
-
-
-
+                super.Vlib.DPC_add_list();
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
@@ -162,27 +119,18 @@ class Test0001 extends Ctest;
 			    EXPOSURE    = 50; // exposure=50us
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
-				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
-				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
-				super.Vlib.host.write(super.Vlib.SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) ); 				
-				super.Vlib.host.write(super.Vlib.EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0));             // Exposure 50us @100mhz
-				super.Vlib.host.write(super.Vlib.GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_END);  				
+				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
+                super.Vlib.Set_SUB(SUB_X, SUB_Y);
+                super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
+				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
+				super.Vlib.Grab_CMD();
 				test_nb_images++;
 
 				// Prediction	 	
-				XGS_image = XGS_imageSRC.copy;
-		        XGS_image.reduce_bit_depth(10);                                               // Converti Image 12bpp a 10bpp  
-				XGS_image.cropXdummy(super.Vlib.MODEL_X_START, super.Vlib.MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
-				XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
-				XGS_image.sub(SUB_X, SUB_Y);
-
-				XGS_imageDPC = XGS_image.copy;				
-				XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
-		        XGS_image = XGS_imageDPC.copy;
-				XGS_imageDPC = null;				
-
-				XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
-				scoreboard.predict_img(XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
 				///////////////////////////////////////////////////
@@ -198,31 +146,23 @@ class Test0001 extends Ctest;
 
 				SUB_X       = 0;
 				SUB_Y       = 1;
+  
 
 			    EXPOSURE    = 50; // exposure=50us
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
-				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_START_OFFSET, ROI_Y_START/4);
-				super.Vlib.host.write(super.Vlib.SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE/4);
-				super.Vlib.host.write(super.Vlib.SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + SUB_X) ); 				
-				super.Vlib.host.write(super.Vlib.EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0));             // Exposure 50us @100mhz
-				super.Vlib.host.write(super.Vlib.GRAB_CTRL_OFFSET, (1<<15)+(1<<8)+1);                      // Grab_ctrl: source is immediate + trig_overlap + grab cmd
+                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_END);  
+				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
+                super.Vlib.Set_SUB(SUB_X, SUB_Y);
+                super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
+				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
+				super.Vlib.Grab_CMD();
 				test_nb_images++;
 
 				// Prediction	 	
-				XGS_image = XGS_imageSRC.copy;
-		        XGS_image.reduce_bit_depth(10);                                               // Converti Image 12bpp a 10bpp  
-				XGS_image.cropXdummy(super.Vlib.MODEL_X_START, super.Vlib.MODEL_X_END);       // Remove all dummies and black ref, so X is 0 reference!
-				XGS_image.crop(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END);
-				XGS_image.sub(SUB_X, SUB_Y);
-
-				XGS_imageDPC = XGS_image.copy;				
-				XGS_imageDPC.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y);	
-		        XGS_image = XGS_imageDPC.copy;
-				XGS_imageDPC = null;				
-
-				XGS_image.reduce_bit_depth(8);                          // Converti Image 10bpp a 8bpp (path DMA)
-				scoreboard.predict_img(XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch);
+				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
 				///////////////////////////////////////////////////

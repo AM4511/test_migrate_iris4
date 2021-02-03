@@ -43,8 +43,8 @@ CI2C::~CI2C()
 //
 //  BUSsel=0 (Iris4 only have one interface)
 //
-//  MEM Access (I2Cindex needed) : NIacc = 0 (avec cycle adresse)
-//   IO Access (I2Cindex needed) : NIacc = 1
+//  MEM Access (I2Cindex needed)    : NIacc = 0 (avec cycle adresse)
+//   IO Access (NO I2Cindex needed) : NIacc = 1
 //--------------------------------------------------------
 void CI2C::Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  DATAWrite)
 {
@@ -73,8 +73,8 @@ void CI2C::Write_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32  D
 //
 //  BUSsel=0 (Iris4 only have one interface)
 //
-//  MEM Access (I2Cindex needed) : NIacc = 0
-//   IO Access (I2Cindex needed) : NIacc = 1
+//  MEM Access (I2Cindex needed)    : NIacc = 0 (avec cycle adresse)
+//   IO Access (NO I2Cindex needed) : NIacc = 1
 //
 //--------------------------------------------------------
 void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UINT32 DATAWrite)//, char id_[20])
@@ -114,8 +114,8 @@ void CI2C::Read_i2c_predic(int BUSsel, int DEVid, int NIacc, int I2Cindex, M_UIN
 //
 //  BUSsel=0 (Iris4 only have one interface)
 //
-//  MEM Access (I2Cindex needed) : NIacc = 0
-//   IO Access (I2Cindex needed) : NIacc = 1
+//  MEM Access (I2Cindex needed)    : NIacc = 0 (avec cycle adresse)
+//   IO Access (NO I2Cindex needed) : NIacc = 1
 //--------------------------------------------------------
 M_UINT32 CI2C::Read_i2c(int BUSsel, int DEVid, int NIacc, int I2Cindex,  int print_err)
 {

@@ -33,7 +33,8 @@ module system_top(
 	output logic [3:0] s_axis_tx_tuser,
 
 	output logic irq_dma,
-	input  logic [1:0] XGSmodel_sel
+	input  logic [1:0] XGSmodel_sel,
+	input  logic anput_ext_trig
 
 );
 	
@@ -131,7 +132,7 @@ module system_top(
 	logic 	   xgs_trig_int_16000;
 	logic 	   xgs_trig_rd_16000;
 
-	logic 	   anput_ext_trig;
+	//logic 	   anput_ext_trig;
 	logic 	   anput_strobe_out;
 	logic 	   anput_exposure_out;
 	logic 	   anput_trig_rdy_out;
@@ -711,11 +712,11 @@ module system_top(
 	always #8 pcie_clk = ~pcie_clk;
 	// HiSPi reference clock (32.4Mhz)
 	always #15432ps XGS_MODEL_EXTCLK = ~XGS_MODEL_EXTCLK;
-
+    // 200mhz pour le idelay ctrl
+	always #2.5 idelay_clk = ~idelay_clk;
 
 	assign xgs_power_good = 1'b1;
-	assign anput_ext_trig = 1'b0;
-
+	//assign anput_ext_trig = 1'b0;
 
 	assign cfg_bus_mast_en = 1'b1;
 	

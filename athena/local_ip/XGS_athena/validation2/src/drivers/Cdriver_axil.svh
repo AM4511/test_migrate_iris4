@@ -9,7 +9,7 @@
  * TODO: Add class documentation
  */
 
-import fdkide_pkg::*;
+
 
 
 class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, int NUMB_OUTPUT_IO=1);
@@ -123,7 +123,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 	endtask
 
 
-	//////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
 	//
 	// Task  : wait_events
 	//
@@ -142,7 +142,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 				$display("%0t Event #%0d/%0d detected on gpio.input_io[%0d]",$time, event_cntr, number_of_events, eventID);
 
 				if(event_cntr == number_of_events) begin
-					return;
+				  return;
 				end
 			end
 			else timeout_cntr--;
@@ -292,147 +292,6 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 
 	endtask
 
-	//////////////////////////////////////////////////////////////
-	//
-	// Task  : reg_write
-	//
-	// Description : Produce AXI Lite register Write transaction
-	//
-	//////////////////////////////////////////////////////////////
-	task reg_write (
-		input Cregister register,
-		input int timeout_count = 1000,
-		input int verbose = 1
-		);
-		
-		int inputAddr;
-		int inputData;	
-		int inputStrb;
-		string path;
-		Cfield field;
- 	
-		inputAddr = register.get_address();
-		inputData = register.data;
-		inputStrb = 'hf;
-		
-		// Verbose the transaction
-		path = register.get_path();
-		if(verbose) $display("%t AXI write register\t: %s\t@addr: 0x%h; data: 0x%h", $time, path, inputAddr, inputData);
-		
-		// Call low level axi write
-		this.write (inputAddr, inputData,inputStrb,timeout_count,0);
-		
-		//Emulate the auto clear done in the real hardware register
-		foreach (register.children[i]) begin
-			$cast(field, register.children[i]);	
-			if (field.field_type == WO) begin
-				field.set(0);
-			end else if (field.field_type == RW2C) begin
-				field.set(0);
-			end
-		end
-			
-		register.clr_dirty();
-	endtask
-
-	
-	//////////////////////////////////////////////////////////////
-	//
-	// Task  : reg_read
-	//
-	// Description : Execute AXI Lite Read transaction
-	//
-	//////////////////////////////////////////////////////////////
-	task reg_read (
-		inout Cregister register,
-		input int timeout_count = 1000,
-		input int verbose = 1
-		);
-		string path;
-		longint readData;
-		int inputAddr;
-		
-		
-		inputAddr = register.get_address();
-
-		// Verbose the transaction
-		path = register.get_path();
-		if(verbose) $display("%t AXI read register\t: %s\t@addr: 0x%h", $time, path, inputAddr);
-
-		
-		// Call low level axi read
-		this.read (inputAddr,readData,timeout_count,0);
-		register.data = readData;
-	endtask
-	
-	//////////////////////////////////////////////////////////////
-	//
-	// Task  : reg_poll
-	//
-	// Description : Polling
-	//
-	//////////////////////////////////////////////////////////////
-	task reg_poll (
-		input Cnode node,
-		input int expectedData = 1,
-		input int mask = 'hffffffff,
-		input time polling_period = 1us,
-		input int max_iteration = 1000,
-		input int verbose = 1
-		);
-		
-		Cregister register;
-		Cfield field;
-		int reg_mask;
-		int reg_addr;
-		int msb;
-		int lsb;
-		int size;
-		int reg_expected_data;
-		string path;
-
-		//////////////////////////////////////////////////////////
-		// Node is a field
-		//////////////////////////////////////////////////////////
-		if ($cast(field, node)) begin
-			$cast(register,field.parent);
-			lsb = field.right;
-			msb = field.left;
-			size = msb-lsb+1;
-			reg_mask = (~(-1 << size) << lsb);
-			reg_expected_data = expectedData << lsb;
-			reg_addr = register.get_address();
-
-			// Verbose the transaction
-			path = node.get_path();
-			if(verbose) $display("%t AXI poll field\t: %s\t@addr: 0x%h; expected data: 0x%h", $time, path, reg_addr, reg_expected_data);
-
-		end 		
-		
-		//////////////////////////////////////////////////////////
-		// Node is a register
-		//////////////////////////////////////////////////////////
-		else if ($cast(register, node))begin
-			reg_mask = mask;
-			reg_expected_data = expectedData;
-			reg_addr = register.get_address();
-			
-			// Verbose the transaction
-			path = node.get_path();
-			if(verbose) $display("%t AXI poll register\t: %s\t@addr: 0x%h; expected data: 0x%h", $time, path, reg_addr, reg_expected_data);
-	
-		end
-		
-		this.poll (
-				.inputAddr(reg_addr),
-				.expectedData(expectedData),
-				.mask(reg_mask),
-				.polling_period(polling_period),
-				.max_iteration(max_iteration),
-				.verbose(0)
-			);
-		
-	endtask
 
 	//////////////////////////////////////////////////////////////
 	//
@@ -446,8 +305,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		input int expectedData,
 		input int mask = 'hffffffff,
 		input time polling_period = 10us,
-		input int max_iteration = 1000,
-		input int verbose = 1
+		input int max_iteration = 1000
 		);
 		int masked_data;
 		int axi_data;
@@ -457,7 +315,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		//////////////////////////////////////////////////////////
 		// Start polling
 		//////////////////////////////////////////////////////////
-		if(verbose) $display("Polling @0x%h ", inputAddr);
+		$display("Polling @0x%h ", inputAddr);
 		do
 		begin
 			// Wait for the timeout value
@@ -474,7 +332,7 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		end
 		while(masked_data != expectedData);
 
-		if(verbose) $display("Polling succeded in %d iterations!!!", iteration_cntr);
+		$display("Polling succeded in %d iterations!!!", iteration_cntr);
 	endtask // poll
 
 
@@ -547,14 +405,14 @@ class Cdriver_axil #(int DATA_WIDTH=32, int ADDR_WIDTH=11, int NUMB_INPUT_IO=1, 
 		readData = axil.rdata;
 		if(verbose) $display("\t\tRead data: 0x%h",readData);
 
-			//		assert ((axil.rdata & readMask) == expectedData)
-			//			$display("%t  Data: 0x%h",$time,axil.rdata);
-			//		else
-			//		begin
-			//			string message;
-			//			$sformat(message, "%t  Returned data: 0x%h",$time,axil.rdata);
-			//			this.throw_error(message);
-			//		end
+		//		assert ((axil.rdata & readMask) == expectedData)
+		//			$display("%t  Data: 0x%h",$time,axil.rdata);
+		//		else
+		//		begin
+		//			string message;
+		//			$sformat(message, "%t  Returned data: 0x%h",$time,axil.rdata);
+		//			this.throw_error(message);
+		//		end
 
 		/////////////////////////////////////////////////////////
 		// Validate read response status
