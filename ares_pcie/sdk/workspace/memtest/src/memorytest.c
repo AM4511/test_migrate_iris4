@@ -134,7 +134,7 @@ int main() {
 	print("As a result, cacheline requests will not be generated\n\r");
 
 	j=0;
-	while (1) {
+	while (j<1) {
 
 		 if (!XUartLite_IsReceiveEmpty (STDIN_BASEADDRESS))
 		 {
@@ -151,7 +151,10 @@ int main() {
 		}
 		j++;
 	}
+	DWORD *reg_value = NULL;
 
+
+	get_rpc2_ctrl_status();
 	print("--Memory Test Application Complete--\n\r");
 
 	cleanup_platform();

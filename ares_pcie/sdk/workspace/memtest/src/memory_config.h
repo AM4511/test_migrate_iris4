@@ -46,5 +46,6 @@ struct memory_range_s {
 extern struct memory_range_s memory_ranges[];
 extern int n_memory_ranges;
 int init_rpc2_ctrl();
+int get_rpc2_ctrl_status();
 
 #endif

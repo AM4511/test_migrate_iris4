@@ -49,13 +49,16 @@ enable_caches()
     //        transactions to external memory
     // Con  - This might not generate a burst cacheline request
     // Xil_DCacheEnableRegion(CACHEABLE_REGION_MASK);
+
 #elif __MICROBLAZE__
+    Xil_ICacheEnable();
+    Xil_DCacheEnable();
 #ifdef XPAR_MICROBLAZE_USE_ICACHE 
     Xil_ICacheEnable();
 #endif
 #ifdef XPAR_MICROBLAZE_USE_DCACHE 
     // See reason above for not enabling D Cache
-    // Xil_DCacheEnable();
+    Xil_DCacheEnable();
 #endif
 #elif __arm__
     // For ARM, BSP enables caches by default.

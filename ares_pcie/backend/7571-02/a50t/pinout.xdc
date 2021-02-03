@@ -24,6 +24,10 @@ set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[2]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_straps[0]}]
 
+set_property PULLUP true [get_ports {fpga_straps[3]}]
+set_property PULLUP true [get_ports {fpga_straps[2]}]
+set_property PULLUP true [get_ports {fpga_straps[1]}]
+set_property PULLUP true [get_ports {fpga_straps[0]}]
 
 ####################################################
 ## eSPI interface
@@ -42,9 +46,9 @@ set_property PACKAGE_PIN K18 [get_ports {espi_io[0]}]
 ####################################################
 ## PCIe interface
 ####################################################
-set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN B8 [get_ports pcie_sys_clk_p]
 set_property PACKAGE_PIN A8 [get_ports pcie_sys_clk_n]
+set_property LOC GTPE2_CHANNEL_X0Y0 [get_cells {xpcie_top/xxil_pcie/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i}]
 set_property PACKAGE_PIN A4 [get_ports {pcie_rxn[0]}]
 set_property PACKAGE_PIN B4 [get_ports {pcie_rxp[0]}]
 set_property PACKAGE_PIN D1 [get_ports {pcie_txn[0]}]
@@ -98,6 +102,13 @@ set_property IOB TRUE [get_ports {ncsi_rxd[*]}]
 set_property IOB TRUE [get_ports ncsi_rx_crs_dv]
 set_property IOB TRUE [get_ports {ncsi_txd[*]}]
 set_property IOB TRUE [get_ports ncsi_tx_en]
+
+
+
+set_property PULLUP true [get_ports {ncsi_rxd[1]}]
+set_property PULLUP true [get_ports {ncsi_rxd[0]}]
+set_property PULLUP true [get_ports {ncsi_txd[1]}]
+set_property PULLUP true [get_ports {ncsi_txd[0]}]
 
 
 ####################################################
@@ -155,7 +166,12 @@ set_property PACKAGE_PIN T3 [get_ports {user_data_out[0]}]
 set_property PACKAGE_PIN U8 [get_ports {user_data_out[1]}]
 set_property PACKAGE_PIN U7 [get_ports {user_data_out[2]}]
 
+set_property PULLUP true [get_ports {user_data_in[3]}]
+set_property PULLUP true [get_ports {user_data_in[2]}]
+set_property PULLUP true [get_ports {user_data_in[1]}]
+set_property PULLUP true [get_ports {user_data_in[0]}]
 
+ 
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {espi_io[3]}]
@@ -290,3 +306,5 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
+

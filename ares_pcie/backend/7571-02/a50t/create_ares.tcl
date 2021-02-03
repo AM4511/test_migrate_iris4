@@ -4,13 +4,13 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a50t/create_ares.tcl
 # 
-# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/system_pcie_hyperram.tcl
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-02/a50t/system_pcie_hyperram.tcl
 #
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
 
-
+# ################################################################
 # FPGA versions : 
 # 0.0.1 : First version (Project setup)
 # 0.0.2 : Set HyperRam freq to 125MHz, automatically generate HDF file
@@ -24,32 +24,63 @@ puts "Running ${myself}"
 # 0.0.4 : Fixed the Hyperram readback data sampling and increased operating frequency(See JIRA : IRIS4-242)
 #         The Hyperram controller run @166.667MHz (Still 2 setup timing violations i.e. 26ps on hb_dq[7] and 11 ps on hb_dq[4])
 #         Open a new BAR on PCIE and connect the tlp_to_aximaster
+#         Set pcie deviceID to 0x5055 and sub-systemID to 0x0600
 #         
 # 0.0.5 : Connect the microblaze debugger directly to the memory blocks (local memory and hyperram)
 #         Debugged PCIe BAR2 accesses
 #
 # 0.0.6 : New firmware name scheme. Required to support the new 7571-02 PCB (FPGA pinout modification)
+#             ** The new name scheme is: ares_<PCB_VERSION>_<FPGA_DEVICE>_<BUILD_ID>
+#         Updated register file :
+#                  @0x0020 (FPGA_ID[4:0]) Added new bits definition on field Device_specific.FPGA_ID.FPGA_ID
+#                  @0x0020 (FPGA_ID[31:28]) Created new field Device_specific.FPGA_ID.FPGA_STRAPS (report the FPGA PCB straps)
+#         Enabled pull-ups on IO pins:  - fpga_straps
+#         (See JIRA : IRIS4-341)        - ncsi_rxd(1:0)
+#                                       - ncsi_txd(1:0)
+#                                       - user_data_in(3:0)
 #
+#         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
+#         Set the correct FPGA_ID to 0x11 (d'17)
+#         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
+#
+# 0.0.7 : Fixed the Hyperram cache access errors (See JIRA : MT-2105)
+#         Set cache controller to 8Kb
+#         Set cache line to 16 words
+#
+# ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 6
+set FPGA_SUB_MINOR_VERSION 7
 
 
 set BASE_NAME  ares_7571_02_a50t
 set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
+# #################################################################
+#  ARES FPGA_ID (FPGA DEVICE ID MAP) :
+# #################################################################
+# 0x00 Reserved
+# 0x01 Spartan6 LX9 fpga used on Y7449-00 (deprecated)
+# 0x02 Spartan6 LX16 fpga used on Y7449-01,02
+# 0x03 Artix7 A35T fpga used on Y7471-00 (deprecated)
+# 0x04 Artix7 A50T fpga used on Y7471-01
+# 0x05 Artix7 A50T fpga used on Y7471-02
+# 0x06 Artix7 A50T fpga used on Y7449-03
+# 0x07 Artix7 Spider PCIe on Advanced IO board
+# 0x08 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)
+# 0x09 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)
+# 0x0A:0x0F   Reserved
+# 0x10 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]
+# 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
+# 0x12 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02
+# 0x13 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02
+set FPGA_ID 17; # 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
 
-# FPGA_DEVICE_ID (DEVICE ID MAP) :
-#  0      : xc7a50ticpg236-1L
-#  1      : xc7a35ticpg236-1L
-#  2      : TBD
-#  Others : reserved
-set FPGA_DEVICE_ID 0
+set FPGA_GOLDEN "false"
 
 
 set WORKDIR     $env(IRIS4)/ares_pcie
-
 set IPCORES_DIR  ${WORKDIR}/ipcores
 set LOCAL_IP_DIR ${WORKDIR}/local_ip
 set VIVADO_DIR   D:/vivado
@@ -66,6 +97,7 @@ set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
 set SYNTH_RUN "synth_1"
@@ -73,10 +105,6 @@ set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
 
-# Top level generics
-#source ${UTIL_LIB}
-set FPGA_GOLDEN     "false"
-set FPGA_ID          17; # 0x11 : Iris GTX, Artix7 Ares PCIe, Artix7 A50T
 
 
 
@@ -87,10 +115,8 @@ set FPGA_BUILD_DATE [clock seconds]
 set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 puts "BUILD DATE =  ${BUILD_TIME}  ($HEX_BUILD_DATE)"
-#set FPGA_BUILD_ID    [get_fpga_build_id ${FPGA_BUILD_DATE}]
 
 set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
-
 set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
 set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
 set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
@@ -131,8 +157,6 @@ set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 source ${AXI_SYSTEM_BD_FILE}
 regenerate_bd_layout
-#validate_bd_design
-#save_bd_design
 
 
 ## Create the Wrapper file
@@ -147,6 +171,20 @@ set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
+################################################
+# Associate .elf file
+################################################
+# set HDL_FILESET [get_fileset sources_1]
+set SIM_FILE_SET  [get_fileset sim_1]
+
+add_files -fileset ${HDL_FILESET} -norecurse ${ELF_FILE}
+set_property used_in_simulation false [get_files ${ELF_FILE}]
+set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+
+add_files -fileset ${SIM_FILE_SET}  -norecurse ${ELF_FILE}
+set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
@@ -156,7 +194,6 @@ source ${FILESET_SCRIPT}
 ################################################
 # Top level Generics
 ################################################
-#set generic_list [list FPGA_BUILD_DATE=${FPGA_BUILD_DATE} FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} FPGA_MINOR_VERSION=${FPGA_MINOR_VERSION} FPGA_SUB_MINOR_VERSION=${FPGA_SUB_MINOR_VERSION} FPGA_IS_NPI_GOLDEN=${FPGA_IS_NPI_GOLDEN} FPGA_DEVICE_ID=${FPGA_DEVICE_ID}]
 set generic_list [list    \
 GOLDEN=${FPGA_GOLDEN}     \
 BUILD_ID=${FPGA_BUILD_DATE} \
@@ -249,6 +286,3 @@ if [string match "route_design Complete, Failed Timing!" $route_status] {
  }
 
 puts "** Done."
-
-
-

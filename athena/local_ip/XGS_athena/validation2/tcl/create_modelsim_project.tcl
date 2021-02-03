@@ -77,10 +77,8 @@ ${DATA_SRC_PATH}/lane_decoder.vhd \
 ${DATA_SRC_PATH}/hispi_phy.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
-
 ${DATA_SRC_PATH}/lut/Infered_RAM_lut.vhd \
 ${DATA_SRC_PATH}/lut/axi_lut.vhd \
-
 ${DATA_SRC_PATH}/dpc/Infered_RAM.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_package.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_kernel_10x3.vhd \
@@ -115,26 +113,19 @@ set model_file_list [join [list  [subst {
 
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
-
 ${TESTBENCH_SRC_PATH}/interfaces/axi_lite_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/axi_stream_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/hispi_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/io_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/tlp_interface.sv \
-
 ${TESTBENCH_SRC_PATH}/drivers/driver_pkg.sv \
 ${TESTBENCH_SRC_PATH}/drivers/Cdriver_axil.svh \
-
+${TESTBENCH_SRC_PATH}/CVlib.sv \
 ${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Cimage.sv \
 ${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
-
-
-${TESTBENCH_SRC_PATH}/CVlib.sv \
-
 ${TESTBENCH_SRC_PATH}/core_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Cstatus.svh \
-
 ${TESTBENCH_SRC_PATH}/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Ctest.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0001.svh \
@@ -148,11 +139,9 @@ ${TESTBENCH_SRC_PATH}/tests/test0008.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0009.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0010.svh \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
-
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd \
-
 ${TESTBENCH_SRC_PATH}/testbench.sv
 }
 ]

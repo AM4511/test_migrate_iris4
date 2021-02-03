@@ -454,8 +454,6 @@ proc create_root_design { parentCell } {
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.ENABLE_ADVANCED_OPTIONS {1} \
-   CONFIG.M00_HAS_DATA_FIFO {0} \
    CONFIG.NUM_MI {1} \
    CONFIG.NUM_SI {6} \
    CONFIG.SYNCHRONIZATION_STAGES {2} \
@@ -513,14 +511,21 @@ proc create_root_design { parentCell } {
   # Create instance: microblaze_0, and set properties
   set microblaze_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 microblaze_0 ]
   set_property -dict [ list \
-   CONFIG.C_ADDR_TAG_BITS {11} \
-   CONFIG.C_AREA_OPTIMIZED {2} \
-   CONFIG.C_CACHE_BYTE_SIZE {32768} \
-   CONFIG.C_DCACHE_ADDR_TAG {11} \
-   CONFIG.C_DCACHE_BYTE_SIZE {32768} \
+   CONFIG.C_ADDR_TAG_BITS {13} \
+   CONFIG.C_AREA_OPTIMIZED {0} \
+   CONFIG.C_CACHE_BYTE_SIZE {8192} \
+   CONFIG.C_DCACHE_ADDR_TAG {13} \
+   CONFIG.C_DCACHE_BYTE_SIZE {8192} \
+   CONFIG.C_DCACHE_FORCE_TAG_LUTRAM {0} \
+   CONFIG.C_DCACHE_LINE_LEN {16} \
+   CONFIG.C_DCACHE_USE_WRITEBACK {1} \
+   CONFIG.C_DCACHE_VICTIMS {0} \
    CONFIG.C_DEBUG_ENABLED {1} \
    CONFIG.C_D_AXI {1} \
    CONFIG.C_D_LMB {1} \
+   CONFIG.C_ICACHE_LINE_LEN {16} \
+   CONFIG.C_ICACHE_STREAMS {0} \
+   CONFIG.C_ICACHE_VICTIMS {0} \
    CONFIG.C_I_LMB {1} \
    CONFIG.C_RESET_MSR_EIP {0} \
    CONFIG.C_USE_BRANCH_TARGET_CACHE {1} \
