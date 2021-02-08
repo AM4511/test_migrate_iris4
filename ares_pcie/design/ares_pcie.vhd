@@ -993,9 +993,16 @@ begin
     end if;
   end process;
 
+  -----------------------------------------------------------------------------
+  -- Implementation of Iris-GTR
   -- sur le circuit rouge il y a un pullup pour que la led rouge s'allume par defaut.  On doit donc driver 0 pour 0 et 'z' pour 1, sinon ca fait un overdrive sur le rouge.
-  user_rled <= '0' when user_rled_interne = '0' else 'Z';
+  -- user_rled <= '0' when user_rled_interne = '0' else 'Z';
+  -----------------------------------------------------------------------------
+  -- Fix described in JIRA : IRIS4-91 (The external pullup was removed on the
+  -- PCB, we can not use an open-drain anymore to drive the user red led.)
+  user_rled <= user_rled_interne;
 
+  
 
   --with regfile.Device_specific.FPGA_ID.PROFINET_LED select
   --  user_gled     <= user_gled_soc when '0',
