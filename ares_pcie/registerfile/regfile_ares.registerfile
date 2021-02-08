@@ -83,6 +83,16 @@
         <possibleValues>&lt;matrox_column_delimiter>value=15&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>No strapping installed (Default value)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+      <fields name="USER_RED_LED" alias="User red LED enable" description="This bit control the user red LED activation when &#xD;&#xA; &#xD;&#xA;  Device_specific.FPGA_ID.PROFINET_LED&#xD;&#xA;  Device_specific.LED_OVERRIDE.RED_ORANGE_FLASH&#xD;&#xA;  Device_specific.LED_OVERRIDE.ORANGE_OFF_FLASH&#xD;&#xA;&#xD;&#xA;fields are disabled." lsb="14">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User green LED disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User green LED enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="USER_GREEN_LED" alias="User green LED enable" description="This bit control the user green LED activation when &#xD;&#xA;&#xD;&#xA;  Device_specific.FPGA_ID.PROFINET_LED   Device_specific.LED_OVERRIDE.RED_ORANGE_FLASH&#xD;&#xA;  Device_specific.LED_OVERRIDE.ORANGE_OFF_FLASH&#xD;&#xA;&#xD;&#xA;fields are disabled." lsb="13">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User green LED disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User green LED enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="PROFINET_LED" description="This bit selects if the User Leds are controlled from the FPGA memory space, controlled by the host processor, or if the User Leds are controlled by the Microblaze running Profinet stack" lsb="12">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Host processor control&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>User Leds are under Microblaze control&lt;/matrox_column_delimiter></possibleValues>
