@@ -988,14 +988,28 @@ begin
     elsif regfile.Device_specific.FPGA_ID.PROFINET_LED = '1' then
       user_rled_interne <= profinet_led(0);
     else
+      -----------------------------------------------------------------------------
+      -- Implementation of Iris-GTR
       -- controle par un IO du SOC
-      user_rled_interne <= user_rled_soc;
+      -- user_rled_interne <= user_rled_soc;
+      -----------------------------------------------------------------------------
+      -- Fix described in JIRA : IRIS4-91 The user_rled_soc is not connected on
+      -- the PCB 
+      user_rled_interne <= regfile.Device_specific.FPGA_ID.USER_RED_LED;
     end if;
   end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- Implementation of Iris-GTR
   -- sur le circuit rouge il y a un pullup pour que la led rouge s'allume par defaut.  On doit donc driver 0 pour 0 et 'z' pour 1, sinon ca fait un overdrive sur le rouge.
-  user_rled <= '0' when user_rled_interne = '0' else 'Z';
+  -- user_rled <= '0' when user_rled_interne = '0' else 'Z';
+  -----------------------------------------------------------------------------
+  -- Fix described in JIRA : IRIS4-91 (The external pullup was removed on the
+  -- PCB, we can not use an open-drain anymore to drive the user red led.)
+  user_rled <= user_rled_interne;
 
+  
 
   --with regfile.Device_specific.FPGA_ID.PROFINET_LED select
   --  user_gled     <= user_gled_soc when '0',
@@ -1011,8 +1025,14 @@ begin
     elsif regfile.Device_specific.FPGA_ID.PROFINET_LED = '1' then
       user_gled <= profinet_led(1);
     else
+      -----------------------------------------------------------------------------
+      -- Implementation of Iris-GTR
       -- controle par un IO du SOC
-      user_gled <= user_gled_soc;
+      -- user_gled <= user_gled_soc;
+      -----------------------------------------------------------------------------
+      -- Fix described in JIRA : IRIS4-91 The user_gled_soc is not connected on
+      -- the PCB 
+      user_gled <= regfile.Device_specific.FPGA_ID.USER_GREEN_LED;
     end if;
   end process;
 
