@@ -2,7 +2,9 @@
 //
 //  Configuration for XGS5000
 //
-//  WIP Last Changed Rev : 17175
+//  WIP Last Changed Rev : 18095
+//    C:\Aptina Imaging\apps_data\XGS5M-REV0.ini 
+//    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS5M-REV0.ini   
 //-----------------------------------------------
 
 /* Headers */
@@ -46,7 +48,7 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.Xsize_Full          = 2600;                                                // Interpolation INCLUDED
    SensorParams.Ysize_Full          = 2056;                                                // Interpolation INCLUDED
    
-   SensorParams.XGS_X_START         = 88;                                                  // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+   SensorParams.XGS_X_START         = 88;                                                  // MONO : Location of first valid x pixel(including dummies, bl, valid)
    SensorParams.XGS_X_END           = SensorParams.XGS_X_START+ SensorParams.Xsize_Full-1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
    
    SensorParams.XGS_X_SIZE          = 2784;                                                // FULL X, including everything
@@ -76,6 +78,48 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    printf_s("XGS5K Sensor detected, ");
    }
 
+
+void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes)
+{
+
+	SensorParams.SENSOR_TYPE          = 2000;
+	SensorParams.XGS_HiSPI_Ch         = 16;
+	SensorParams.XGS_HiSPI_Ch_used    = 4;
+	SensorParams.XGS_HiSPI_mux        = 4;
+	SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
+
+	SensorParams.Xsize_Full = 1928;                                                // Interpolation INCLUDED
+	SensorParams.Ysize_Full = 1208;                                                // Interpolation INCLUDED
+
+	SensorParams.XGS_X_START = 424;                                                  // MONO : Location of first valid x pixel(including dummies, bl, valid)
+	SensorParams.XGS_X_END = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including interpolation, dummies, bl, valid)
+
+	SensorParams.XGS_X_SIZE = 2784;                                                // FULL X, including everything
+	SensorParams.XGS_Y_SIZE = 1230;                                                // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
+
+	// This may depend on the configuration (Lanes+LineSize) 
+
+	SensorParams.FOTn_2_EXP = 76800;
+
+	SensorParams.ReadOutN_2_TrigN = 51200;
+
+	SensorParams.TrigN_2_FOT = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+	SensorParams.EXP_FOT = 7000;
+
+	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
+
+	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
+
+	GrabParams.Y_START = 0;
+	GrabParams.Y_END = SensorParams.Ysize_Full - 1;
+	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
+	GrabParams.ANALOG_GAIN = 0x1;        // gain=1
+
+	printf_s("XGS2M Sensor detected, ");
+}
 
 
 
@@ -181,7 +225,7 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 	}
 
 	if (otpmversion != 0) {
-		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17175)\n", otpmversion);
+		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 18095)\n", otpmversion);
 		exit(1);
 	}
 }

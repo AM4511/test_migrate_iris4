@@ -437,7 +437,7 @@ void CXGS_Ctrl::InitXGS()
 
 	DataRead = ReadSPI(0x0);
 	if (DataRead == 0x0358) {
-		printf_s("XGS Model ID detected is 0x358, XGS5M, ");
+		printf_s("XGS Model ID detected is 0x358, XGS5M Family, ");
 		DataRead = ReadSPI(0x2);
 		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
@@ -453,12 +453,19 @@ void CXGS_Ctrl::InitXGS()
 		else
 			printf_s("\n");
 
-		if (((DataRead & 0x7c) >> 2) == 0x18)
+		if (((DataRead & 0x7c) >> 2) == 0x18) {
 			printf_s("  XGS Resolution is 5Mp\n");
-		if (((DataRead & 0x7c) >> 2) == 0x19)
-			printf_s("  XGS Resolution is 3Mp\n");
-		if (((DataRead & 0x7c) >> 2) == 0x1a)
+			XGS5M_SetGrabParamsInit5000(4);
+		}
+		else
+		if (((DataRead & 0x7c) >> 2) == 0x1a) {
 			printf_s("  XGS Resolution is 2Mp\n");
+			XGS5M_SetGrabParamsInit2000(4);
+		}
+	 	else {		
+			printf_s("  XGS OTPM Resolution NOT SUPPORTED !!!\n");
+	    }
+
 		if (((DataRead & 0x7c) >> 2) == 0x1b)
 			printf_s("  XGS Resolution is 1.3Mp\n");
 
@@ -489,13 +496,12 @@ void CXGS_Ctrl::InitXGS()
 			SensorParams.IS_COLOR = 0;
 		}
 
-		XGS5M_SetGrabParamsInit5000(4);
 		XGS5M_LoadDCF(4);
 
 	}
 
 	else if (DataRead == 0x0058) {
-		printf_s("XGS Model ID detected is 0x58, XGS12M\n");
+		printf_s("XGS Model ID detected is 0x58, XGS12M Family\n");
 		DataRead = ReadSPI(0x2);
 		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead&0xff, (DataRead & 0xff00)>>16);
 
@@ -511,10 +517,19 @@ void CXGS_Ctrl::InitXGS()
 		else
 			printf_s("\n");
 
-		if(((DataRead&0x1c)>>2) == 0)
-		  printf_s("  XGS Resolution is 12Mp\n");
-		if (((DataRead & 0x1c)>> 2) == 3)
+		if (((DataRead & 0x1c) >> 2) == 0) {
+			printf_s("  XGS Resolution is 12Mp\n");
+			XGS12M_SetGrabParamsInit12000(6);
+		} 
+		else
+		if (((DataRead & 0x1c) >> 2) == 3) {
 			printf_s("  XGS Resolution is 8Mp\n");
+			XGS12M_SetGrabParamsInit8000(6);
+		}
+		else {
+			printf_s("  XGS OTPM Resolution NOT SUPPORTED !!!\n");
+		}
+
 
 		if (((DataRead & 0x60) >> 5) == 0)
 			printf_s("  XGS Speedgrade is 24 ports\n");
@@ -541,13 +556,12 @@ void CXGS_Ctrl::InitXGS()
 			SensorParams.IS_COLOR = 0;
 		}
 
-		XGS12M_SetGrabParamsInit12000(6);
 		XGS12M_LoadDCF(6);
 	}
 
 	//16Mpix family
 	else if (DataRead == 0x0258) {
-		printf_s("XGS Model ID detected is 0x258, XGS16M\n");
+		printf_s("XGS Model ID detected is 0x258, XGS16M Family\n");
 		DataRead = ReadSPI(0x2);
 		printf_s("XGS RevNum Major: 0x%X, XGS RevNum Minor: 0x%X\n", DataRead & 0xff, (DataRead & 0xff00) >> 16);
 
@@ -566,6 +580,9 @@ void CXGS_Ctrl::InitXGS()
 
 		if (((DataRead & 0x3c) >> 2) == 0x10)
 			printf_s("  XGS Resolution is 16Mp\n");
+		else {
+			printf_s("  XGS OTPM Resolution NOT SUPPORTED !!!\n");
+		}
 
 		if (((DataRead & 0x60) >> 9) == 0)
 			printf_s("  XGS Speedgrade is 24 ports\n");

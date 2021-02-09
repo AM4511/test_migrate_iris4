@@ -42,10 +42,13 @@ puts "Running ${myself}"
 #
 # 0.3.1 : Fixed DMA image flick-ering (load of DMA address is now on the rising of strobe signal)
 #
+# 0.3.2 : Fixed I2C, Enable I2C stretching for Liquid lens in the matrox I2C AXI IP
+#
+
 
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     3
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 2
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"

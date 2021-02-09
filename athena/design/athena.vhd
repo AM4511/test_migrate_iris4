@@ -236,6 +236,8 @@ begin
     pcie_sys_clk            => pcie_clk_100MHz,
     pcie_sys_rst_n          => sys_rst_n,
     ref_clk                 => ref_clk,
+    --ref_clk                 => pcie_clk_100MHz,
+
     
     hispi_hispi_data_p      => xgs_hispi_sdata_p(HISPI_NUMBER_OF_DATA_LANES-1 downto 0),
     hispi_hispi_clk_p       => xgs_hispi_sclk_p,

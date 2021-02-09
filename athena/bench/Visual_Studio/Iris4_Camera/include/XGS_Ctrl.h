@@ -187,7 +187,7 @@ private:
 
 	//XGS 12/9.6/8
 	void XGS12M_SetGrabParamsInit12000(int lanes);
-	void XGS12M_SetGrabParamsInit9400(int lanes);
+	//void XGS12M_SetGrabParamsInit9400(int lanes);
 	void XGS12M_SetGrabParamsInit8000(int lanes);
 	void XGS12M_LoadDCF(int lanes);
 	void XGS12M_Check_otpm_depended_uploads(void);
@@ -200,6 +200,7 @@ private:
 
 	//XGS 5/3/1.3
 	void XGS5M_SetGrabParamsInit5000(int lanes);
+	void XGS5M_SetGrabParamsInit2000(int lanes);
 	void XGS5M_LoadDCF(int lanes);
 	void XGS5M_Check_otpm_depended_uploads(void);
 	void XGS5M_Enable4lanes(void);

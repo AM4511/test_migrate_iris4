@@ -2,7 +2,10 @@
 //
 //  Configuration for XGS16000
 //
-//  From WIP Last Changed Rev: 17169 (r0 only)
+//  From WIP Last Changed Rev: 18094 (r0 only)
+//    C:\Aptina Imaging\apps_data\XGS16M-REV0.ini 
+//    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS16M-REV0.ini   
+
 //-----------------------------------------------
 
 /* Headers */
@@ -148,7 +151,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 		WriteSPI(0x3428, 0xA6B0);
 		WriteSPI(0x342a, 0x0000);
 		WriteSPI(0x3434, 0xFFFF);
-		WriteSPI(0x3412, 0xAEB0);
+		//WriteSPI(0x3412, 0xAEB0); register write removed in WIP 18094
 
 		//[Hidden:Timing_Up]
 		printf_s("XGS Loading timing uploads\n");
@@ -169,7 +172,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 
 	
 	if (otpmversion > 0) {
-		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 17169)\n", otpmversion);
+		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 18094)\n", otpmversion);
 		exit(1);
 	}
 
@@ -188,7 +191,8 @@ void CXGS_Ctrl::XGS16M_Enable6lanes(void) {
 	//REG = 0x3810, 0x02DC // minimum line time 
 	WriteSPI(0x3810, 0x02DC * GrabParams.XGS_LINE_SIZE_FACTOR); // minimum line time :  To reduce framerate in PCIe x1, temporairement
 	WriteSPI(0x3840, 0x01BA);
-	WriteSPI(0x3842, 0x01C4);
+	//WriteSPI(0x3842, 0x01C4);   //WIP 17169 
+	WriteSPI(0x3842, 0x0156);     //WIP 18094
 	WriteSPI(0x38C4, 0x0600);
 	WriteSPI(0x3A00, 0x000D);
 	WriteSPI(0x3A02, 0x0001);

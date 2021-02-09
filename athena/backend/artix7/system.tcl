@@ -223,6 +223,7 @@ proc create_root_design { parentCell } {
   # Create instance: AXI_i2c_Matrox_0, and set properties
   set AXI_i2c_Matrox_0 [ create_bd_cell -type ip -vlnv matrox.com:user:AXI_i2c_Matrox:1.0 AXI_i2c_Matrox_0 ]
   set_property -dict [ list \
+   CONFIG.CLOCK_STRETCHING {true} \
    CONFIG.NI_ACCESS {true} \
  ] $AXI_i2c_Matrox_0
 
