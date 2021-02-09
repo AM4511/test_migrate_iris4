@@ -1,7 +1,7 @@
 # ##################################################################################
 # File         : firmwares.tcl
-# Description  : TCL script used to release the hallux fpga project. 
-# Example      : source $env(IRIS4)/ares_pcie/backend/firmwares.tcl
+# Description  : This TCL script creates the Ares fpga firmwares. 
+# Example      : source $env(IRIS4)/ares/backend/7571-00/firmwares.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
@@ -14,14 +14,11 @@ open_run $IMPL_RUN
 
 
 # Extracting the Working directory
-set ROOTDIR                $env(IRIS4)/athena/ares_pcie
-set IPCORES_DIR            ${ROOTDIR}/ipcores
-set LOCAL_IP_DIR           ${ROOTDIR}/local_ip
 set PROJECT_DIRECTORY      [get_property DIRECTORY [current_project]]
 set OUTPUT_BASE_DIR        "${PROJECT_DIRECTORY}/output"
 set OUTPUT_DIR             ${OUTPUT_BASE_DIR}
 
-#le code plus bas utilise la variable design_name. Or cet variable est cree dans le script create_spider*.tcl.  Si on referme le projet et on l'ouvre, cette variable est disparue
+# Extract the current project top design name
 set design_name [current_project]
 set top_entity_name [get_property top [current_fileset]]
 
@@ -75,7 +72,6 @@ while {$id < 20} {
 # Generates ILA probes (chipscope)
 write_debug_probes -force $OUTPUT_DIR/ila_probes.ltx
 
-set UPGRADE_OFFSET 0x000000
 
 set UPGRADE_BASE_NAME             $OUTPUT_DIR/${design_name}
 set UPGRADE_BIT_FILENAME          ${UPGRADE_BASE_NAME}.bit
@@ -88,13 +84,16 @@ set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
 write_bitstream -force $UPGRADE_BIT_FILENAME
 
 # Create the .mcs version
-write_cfgmem -force -format MCS -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
+write_cfgmem -force -format MCS -size 8 -interface SPIx2 -checksum  -loadbit "up ${FLASH_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_MCS_FILENAME}
 
 # Create the .bin version
-write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${UPGRADE_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}
+write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${FLASH_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}
 
-# Create the HDF for the SDK
-
+# Set the firmware type for the .firmware file (UPGRADE or GOLDEN)
+set FIRMWARE_TYPE  "UPGRADE"
+if {${FPGA_IS_NPI_GOLDEN} == 1} {
+  set FIRMWARE_TYPE  "GOLDEN"
+}
 
 # ####################################################################################
 # Generate .firmware
@@ -111,8 +110,8 @@ puts $OUTFILE "BuildID        : $buildid"
 puts $OUTFILE "Build date     : $BUILD_DATE"
 puts $OUTFILE "Vivado version : $VIVADO_SHORT_VERSION"
 puts $OUTFILE "Device         : $DEVICE"
-puts $OUTFILE "Firmware type  : UPGRADE"
-puts $OUTFILE "Flash offset   : ${UPGRADE_OFFSET}"
+puts $OUTFILE "Firmware type  : ${FIRMWARE_TYPE}"
+puts $OUTFILE "Flash offset   : ${FLASH_OFFSET}"
 
 
 # Generic section

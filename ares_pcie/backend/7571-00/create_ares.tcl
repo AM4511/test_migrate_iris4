@@ -44,67 +44,40 @@ puts "Running ${myself}"
 #         Set cache line to 16 words
 #
 # 0.0.8 : Fixed user red led behavior(See JIRA : IRIS4-91)
-#         
+#         Refactored Vivado backend generation scripts
 #
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
 set FPGA_SUB_MINOR_VERSION 8
 
+set SYNTH_RUN "synth_1"
+set IMPL_RUN  "impl_1"
+set JOB_COUNT  4
 
-set BASE_NAME  ares_7571_00_a50t
-set DEVICE "xc7a50ticpg236-1L"
 set VIVADO_SHORT_VERSION [version -short]
 
-# #################################################################
-#  ARES FPGA_ID (FPGA DEVICE ID MAP) :
-# #################################################################
-# 0x00 Reserved
-# 0x01 Spartan6 LX9 fpga used on Y7449-00 (deprecated)
-# 0x02 Spartan6 LX16 fpga used on Y7449-01,02
-# 0x03 Artix7 A35T fpga used on Y7471-00 (deprecated)
-# 0x04 Artix7 A50T fpga used on Y7471-01
-# 0x05 Artix7 A50T fpga used on Y7471-02
-# 0x06 Artix7 A50T fpga used on Y7449-03
-# 0x07 Artix7 Spider PCIe on Advanced IO board
-# 0x08 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)
-# 0x09 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)
-# 0x0A:0x0F   Reserved
-# 0x10 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]
-# 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
-# 0x12 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02
-# 0x13 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02
-set FPGA_ID 17; # 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
-
-set FPGA_GOLDEN     "false"
-
-
-set WORKDIR      $env(IRIS4)/ares_pcie
-set IPCORES_DIR  ${WORKDIR}/ipcores
-set LOCAL_IP_DIR ${WORKDIR}/local_ip
-set VIVADO_DIR   D:/vivado
-set BACKEND_DIR  ${WORKDIR}/backend/7571-00
-set TCL_DIR      ${BACKEND_DIR}
-set SYSTEM_DIR   ${BACKEND_DIR}
+# Directory structure
 
 set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
+set IPCORES_DIR        ${WORKDIR}/ipcores
+set LOCAL_IP_DIR       ${WORKDIR}/local_ip
 set XDC_DIR            ${BACKEND_DIR}
+set TCL_DIR            ${BACKEND_DIR}
+set SYSTEM_DIR         ${BACKEND_DIR}
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+
 
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
 #set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
-set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 
 
-set SYNTH_RUN "synth_1"
-set IMPL_RUN  "impl_1"
-set JOB_COUNT  4
-
-
-
+set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
+set VIVADO_DIR          D:/vivado/${FPGA_FULL_VERSION}
 
 
 ###################################################################################
