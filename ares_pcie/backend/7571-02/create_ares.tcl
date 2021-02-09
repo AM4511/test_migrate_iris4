@@ -2,9 +2,9 @@
 # File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/7571-00/create_ares.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a50t/create_ares.tcl
 # 
-# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-00/system_pcie_hyperram.tcl
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-02/a50t/system_pcie_hyperram.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -34,7 +34,11 @@ puts "Running ${myself}"
 #         Updated register file :
 #                  @0x0020 (FPGA_ID[4:0]) Added new bits definition on field Device_specific.FPGA_ID.FPGA_ID
 #                  @0x0020 (FPGA_ID[31:28]) Created new field Device_specific.FPGA_ID.FPGA_STRAPS (report the FPGA PCB straps)
-#         Enabled pull-ups on fpga_straps IO pins.
+#         Enabled pull-ups on IO pins:  - fpga_straps
+#         (See JIRA : IRIS4-341)        - ncsi_rxd(1:0)
+#                                       - ncsi_txd(1:0)
+#                                       - user_data_in(3:0)
+#
 #         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
 #         Set the correct FPGA_ID to 0x11 (d'17)
 #         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
@@ -72,8 +76,8 @@ set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
+set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
 set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
@@ -88,13 +92,13 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 puts "BUILD DATE =  ${BUILD_TIME}  ($HEX_BUILD_DATE)"
 
-set PROJECT_NAME ${BASE_NAME}_${HEX_BUILD_DATE}
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
-set SDK_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.sdk
-set RUN_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.runs
-set XPR_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.xpr
-				 
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
+set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
+set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
+set RUN_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.runs
+set XPR_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.xpr
+
 ###################################################################################
 # Create the project directories
 ###################################################################################
@@ -123,7 +127,8 @@ update_ip_catalog
 ################################################
 # Generate IP-Integrator system
 ################################################
-set HDL_FILESET [get_filesets sources_1]
+set HDL_FILESET         [get_filesets sources_1]
+set SIM_FILE_SET        [get_fileset sim_1]
 set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 
@@ -143,6 +148,19 @@ set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
+################################################
+# Associate .elf file
+################################################
+if {[file exists ${ELF_FILE}]} {
+   add_files -fileset ${HDL_FILESET} -norecurse ${ELF_FILE}
+   set_property used_in_simulation false [get_files ${ELF_FILE}]
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   
+   add_files -fileset ${SIM_FILE_SET}  -norecurse ${ELF_FILE}
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+}
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
