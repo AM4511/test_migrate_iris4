@@ -8,10 +8,13 @@
 # ##################################################################################
 set DEBUG 0
 
-if {$DEBUG == 0} {
-  set myself [info script]
+
+if {${DEBUG} == 1} {
+  set myself $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev0.tcl
+  set NO_REPORT  1
+  set NO_ARCHIVE 1
 } else {
-  set myself $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_35t_rev2.tcl
+  set myself [info script]
 }
 
 
@@ -57,7 +60,7 @@ if {[file exists $myself ]} {
    # ############################################
    # Starting generation script
    # ############################################
-   #source $BACKEND_DIR/create_ares.tcl
+   source $BACKEND_DIR/create_ares.tcl
 
 } else {
    puts "Error : script $myself does not exist!!!"

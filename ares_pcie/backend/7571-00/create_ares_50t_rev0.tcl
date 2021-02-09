@@ -8,10 +8,13 @@
 # ##################################################################################
 set DEBUG 0
 
-if {$DEBUG == 0} {
-  set myself [info script]
-} else {
+
+if {${DEBUG} == 1} {
   set myself $env(IRIS4)/ares_pcie/backend/7571-00/create_ares_50t_rev0.tcl
+  set NO_REPORT  1
+  set NO_ARCHIVE 1
+} else {
+  set myself [info script]
 }
 
 
@@ -24,7 +27,6 @@ if {[file exists $myself ]} {
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
    set BASE_NAME  ares_7571_00_a50t
    set DEVICE "xc7a50ticpg236-1L"
-
 
    # #################################################################
    #  ARES FPGA_ID (FPGA DEVICE ID MAP) :

@@ -62,7 +62,6 @@ set JOB_COUNT  4
 set VIVADO_SHORT_VERSION [version -short]
 
 # Directory structure
-
 set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
 set IPCORES_DIR        ${WORKDIR}/ipcores
@@ -247,18 +246,25 @@ if { [file exists $SYSDEF_FILE] } {
 
 
 ################################################
-# Run Backend script
+# Run report
 ################################################
+if {![info exits NO_REPORT]} {
 source  $REPORT_FILE
+}
 
+
+################################################
+# Archive project on the matrox network
+################################################
+if {![info exits NO_ARCHIVE]} {
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
-	 puts "** Write_bitstream Complete. Generating image"
+   	 puts "** Write_bitstream Completed. Archiving files"
  	 source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"
- }
-
+}
+}
 puts "** Done."

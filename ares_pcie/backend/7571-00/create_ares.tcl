@@ -58,7 +58,6 @@ set JOB_COUNT  4
 set VIVADO_SHORT_VERSION [version -short]
 
 # Directory structure
-
 set SRC_DIR            ${WORKDIR}/design
 set REG_DIR            ${WORKDIR}/registerfile
 set IPCORES_DIR        ${WORKDIR}/ipcores
@@ -72,8 +71,8 @@ set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
+set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
 set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
@@ -124,6 +123,7 @@ update_ip_catalog
 # Generate IP-Integrator system
 ################################################
 set HDL_FILESET [get_filesets sources_1]
+set SIM_FILE_SET        [get_fileset sim_1]
 set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 
@@ -143,6 +143,19 @@ set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
+################################################
+# Associate .elf file
+################################################
+if {[file exists ${ELF_FILE}]} {
+   add_files -fileset ${HDL_FILESET} -norecurse ${ELF_FILE}
+   set_property used_in_simulation false [get_files ${ELF_FILE}]
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   
+   add_files -fileset ${SIM_FILE_SET}  -norecurse ${ELF_FILE}
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+}
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
@@ -229,18 +242,25 @@ if { [file exists $SYSDEF_FILE] } {
 
 
 ################################################
-# Run Backend script
+# Run report
 ################################################
-source  $REPORT_FILE
+if {![info exists NO_REPORT]} {
+   source  $REPORT_FILE
+}
 
-set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-if [string match "route_design Complete, Failed Timing!" $route_status] {
-     puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
-} elseif [string match "write_bitstream Complete!" $route_status] {
-	 puts "** Write_bitstream Complete. Generating image"
- 	 source  $ARCHIVE_SCRIPT
-} else {
-	 puts "** Run status: $route_status. Unknown status"
- }
 
+################################################
+# Archive project on the matrox network
+################################################
+if {![info exists NO_ARCHIVE]} {
+   set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
+   if [string match "route_design Complete, Failed Timing!" $route_status] {
+        puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
+   } elseif [string match "write_bitstream Complete!" $route_status] {
+   	 puts "** Write_bitstream Completed. Archiving files"
+    	 source  $ARCHIVE_SCRIPT
+   } else {
+   	 puts "** Run status: $route_status. Unknown status"
+   }
+}
 puts "** Done."
