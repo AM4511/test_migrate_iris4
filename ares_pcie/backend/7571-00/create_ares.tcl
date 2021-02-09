@@ -43,10 +43,13 @@ puts "Running ${myself}"
 #         Set cache controller to 8Kb
 #         Set cache line to 16 words
 #
+# 0.0.8 : Fixed user red led behavior(See JIRA : IRIS4-91)
+#         
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 7
+set FPGA_SUB_MINOR_VERSION 8
 
 
 set BASE_NAME  ares_7571_00_a50t

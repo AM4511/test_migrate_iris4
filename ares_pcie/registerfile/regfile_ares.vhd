@@ -2,11 +2,11 @@
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares_pack
--- Created on          : 2020/12/09 15:38:47
+-- Created on          : 2021/02/08 15:55:29
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7A83C19D
+-- Register file CRC32 : 0xA7167277
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -285,6 +285,8 @@ package regfile_ares_pack is
    ------------------------------------------------------------------------------------------
    type DEVICE_SPECIFIC_FPGA_ID_TYPE is record
       FPGA_STRAPS    : std_logic_vector(3 downto 0);
+      USER_RED_LED   : std_logic;
+      USER_GREEN_LED : std_logic;
       PROFINET_LED   : std_logic;
       PB_DEBUG_COM   : std_logic;
       FPGA_ID        : std_logic_vector(4 downto 0);
@@ -292,6 +294,8 @@ package regfile_ares_pack is
 
    constant INIT_DEVICE_SPECIFIC_FPGA_ID_TYPE : DEVICE_SPECIFIC_FPGA_ID_TYPE := (
       FPGA_STRAPS     => (others=> 'Z'),
+      USER_RED_LED    => 'Z',
+      USER_GREEN_LED  => 'Z',
       PROFINET_LED    => 'Z',
       PB_DEBUG_COM    => 'Z',
       FPGA_ID         => (others=> 'Z')
@@ -2004,6 +2008,8 @@ package body regfile_ares_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(31 downto 28) := reg.FPGA_STRAPS;
+      output(14) := reg.USER_RED_LED;
+      output(13) := reg.USER_GREEN_LED;
       output(12) := reg.PROFINET_LED;
       output(10) := reg.PB_DEBUG_COM;
       output(4 downto 0) := reg.FPGA_ID;
@@ -2018,6 +2024,8 @@ package body regfile_ares_pack is
    variable output : DEVICE_SPECIFIC_FPGA_ID_TYPE;
    begin
       output.FPGA_STRAPS := stdlv(31 downto 28);
+      output.USER_RED_LED := stdlv(14);
+      output.USER_GREEN_LED := stdlv(13);
       output.PROFINET_LED := stdlv(12);
       output.PB_DEBUG_COM := stdlv(10);
       output.FPGA_ID := stdlv(4 downto 0);
@@ -3723,11 +3731,11 @@ end package body;
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares
--- Created on          : 2020/12/09 15:38:47
+-- Created on          : 2021/02/08 15:55:29
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7A83C19D
+-- Register file CRC32 : 0xA7167277
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3972,6 +3980,8 @@ signal field_rw_Device_specific_INTMASKn_IRQ_TICK                           : st
 signal field_rw_Device_specific_INTMASKn_IRQ_IO                             : std_logic;                                       -- Field: IRQ_IO
 signal field_rw2c_Device_specific_INTSTAT2_IRQ_TIMER_END                    : std_logic_vector(7 downto 0);                    -- Field: IRQ_TIMER_END
 signal field_rw2c_Device_specific_INTSTAT2_IRQ_TIMER_START                  : std_logic_vector(7 downto 0);                    -- Field: IRQ_TIMER_START
+signal field_rw_Device_specific_FPGA_ID_USER_RED_LED                        : std_logic;                                       -- Field: USER_RED_LED
+signal field_rw_Device_specific_FPGA_ID_USER_GREEN_LED                      : std_logic;                                       -- Field: USER_GREEN_LED
 signal field_rw_Device_specific_FPGA_ID_PROFINET_LED                        : std_logic;                                       -- Field: PROFINET_LED
 signal field_rw_Device_specific_FPGA_ID_PB_DEBUG_COM                        : std_logic;                                       -- Field: PB_DEBUG_COM
 signal field_rw_Device_specific_LED_OVERRIDE_RED_ORANGE_FLASH               : std_logic;                                       -- Field: RED_ORANGE_FLASH
@@ -5739,6 +5749,54 @@ wEn(4) <= (hit(4)) and (reg_write);
 ------------------------------------------------------------------------------------------
 rb_Device_specific_FPGA_ID(31 downto 28) <= regfile.Device_specific.FPGA_ID.FPGA_STRAPS;
 
+
+------------------------------------------------------------------------------------------
+-- Field name: USER_RED_LED
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_Device_specific_FPGA_ID(14) <= field_rw_Device_specific_FPGA_ID_USER_RED_LED;
+regfile.Device_specific.FPGA_ID.USER_RED_LED <= field_rw_Device_specific_FPGA_ID_USER_RED_LED;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_Device_specific_FPGA_ID_USER_RED_LED
+------------------------------------------------------------------------------------------
+P_Device_specific_FPGA_ID_USER_RED_LED : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_Device_specific_FPGA_ID_USER_RED_LED <= '0';
+      else
+         if(wEn(4) = '1' and bitEnN(14) = '0') then
+            field_rw_Device_specific_FPGA_ID_USER_RED_LED <= reg_writedata(14);
+         end if;
+      end if;
+   end if;
+end process P_Device_specific_FPGA_ID_USER_RED_LED;
+
+------------------------------------------------------------------------------------------
+-- Field name: USER_GREEN_LED
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_Device_specific_FPGA_ID(13) <= field_rw_Device_specific_FPGA_ID_USER_GREEN_LED;
+regfile.Device_specific.FPGA_ID.USER_GREEN_LED <= field_rw_Device_specific_FPGA_ID_USER_GREEN_LED;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_Device_specific_FPGA_ID_USER_GREEN_LED
+------------------------------------------------------------------------------------------
+P_Device_specific_FPGA_ID_USER_GREEN_LED : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_Device_specific_FPGA_ID_USER_GREEN_LED <= '0';
+      else
+         if(wEn(4) = '1' and bitEnN(13) = '0') then
+            field_rw_Device_specific_FPGA_ID_USER_GREEN_LED <= reg_writedata(13);
+         end if;
+      end if;
+   end if;
+end process P_Device_specific_FPGA_ID_USER_GREEN_LED;
 
 ------------------------------------------------------------------------------------------
 -- Field name: PROFINET_LED
