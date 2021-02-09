@@ -2,7 +2,9 @@
 //
 //  Configuration for XGS12000
 //
-//  From WIP Last Changed Rev: WIP Last Changed Rev: 17021:  C:\Aptina Imaging\apps_data\XGS12M-REV2.ini 
+//  From WIP Last Changed Rev: WIP Last Changed Rev: 18093:  
+//    C:\Aptina Imaging\apps_data\XGS12M-REV2.ini 
+//    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS12M-REV2.ini   
 //-----------------------------------------------
 
 /* Headers */
@@ -13,7 +15,7 @@
 
 
 //Derniere version du microcode de Onsemi pour la famaille XGS12K
-M_UINT32 XGS12K_WIP = 17021;
+M_UINT32 XGS12K_WIP = 18093;
 
 
 
@@ -65,6 +67,50 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
 						          
    printf_s("XGS12M Sensor detected, ");
    }
+
+
+void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
+{
+
+	SensorParams.SENSOR_TYPE       = 8000;
+	SensorParams.XGS_HiSPI_Ch      = 24;
+	SensorParams.XGS_HiSPI_Ch_used = 6;
+	SensorParams.XGS_HiSPI_mux     = 4;
+	//   SensorParams.XGS_DMA_LinePtrWidth = 1;//2;   // 2 line buffers : attention a image > 4096 !!!
+	SensorParams.XGS_DMA_LinePtrWidth = 2;//4;   // 4 line buffers : attention a image > 4096 !!!.
+
+ //   SensorParams.Xsize_Full           = 4104;     // Interpolation INCLUDED
+	SensorParams.Xsize_Full = 4096;     // Transfering from interpolation 0 to 4096, till we have a real ROI X
+	SensorParams.Ysize_Full = 2168;     // Interpolation INCLUDED 
+
+	SensorParams.XGS_X_START = 32;                                                     // MONO : Location of first valid x pixel(including Interpolation, dummies, bl, valid)
+	SensorParams.XGS_X_END = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1;     // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
+
+	SensorParams.XGS_X_SIZE = 4176;    // FULL X, including everything
+	SensorParams.XGS_Y_SIZE = 2190;    // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)                                                  // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
+
+	// This may depend on the configuration (Lanes+LineSize) 
+	SensorParams.FOTn_2_EXP = 76800;
+
+	SensorParams.ReadOutN_2_TrigN = 51200;
+
+	SensorParams.TrigN_2_FOT = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+
+	SensorParams.EXP_FOT = 5400;
+
+	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+
+	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
+
+	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
+
+	GrabParams.Y_START = 0;
+	GrabParams.Y_END = SensorParams.Ysize_Full - 1;
+	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
+	GrabParams.ANALOG_GAIN = 0x1;        // gain=1
+
+	printf_s("XGS8M Sensor detected, ");
+}
 
 
 
