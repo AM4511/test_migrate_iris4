@@ -7,7 +7,7 @@
 #                source $env(IRIS4)/athena/backend/artix7/report_implementation.tcl
 #                source $env(IRIS4)/athena/backend/artix7/archive.tcl
 # ##################################################################################
-set myself $env(IRIS4)/athena/backend/artix7/create_athena2.tcl
+#set myself $env(IRIS4)/athena/backend/artix7/create_athena2.tcl
 puts "Running ${myself}"
 
 

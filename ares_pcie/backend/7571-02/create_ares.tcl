@@ -2,9 +2,9 @@
 # File         : create_ares.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/7571-00/create_ares.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/a50t/create_ares.tcl
 # 
-# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-00/system_pcie_hyperram.tcl
+# write_bd_tcl -force $env(IRIS4)/ares_pcie/backend/7571-02/a50t/system_pcie_hyperram.tcl
 #
 # ##################################################################################
 set myself [info script]
@@ -34,7 +34,11 @@ puts "Running ${myself}"
 #         Updated register file :
 #                  @0x0020 (FPGA_ID[4:0]) Added new bits definition on field Device_specific.FPGA_ID.FPGA_ID
 #                  @0x0020 (FPGA_ID[31:28]) Created new field Device_specific.FPGA_ID.FPGA_STRAPS (report the FPGA PCB straps)
-#         Enabled pull-ups on fpga_straps IO pins.
+#         Enabled pull-ups on IO pins:  - fpga_straps
+#         (See JIRA : IRIS4-341)        - ncsi_rxd(1:0)
+#                                       - ncsi_txd(1:0)
+#                                       - user_data_in(3:0)
+#
 #         Connected  fpga_straps IO to the registerfield Device_specific.FPGA_ID.FPGA_STRAPS
 #         Set the correct FPGA_ID to 0x11 (d'17)
 #         Set clock frequency to 142.785MHz on Hyperram I/F for ares_7571_00_a50t (PCB rev 0 and 1)
@@ -71,7 +75,7 @@ set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
+set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
@@ -87,13 +91,13 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 puts "BUILD DATE =  ${BUILD_TIME}  ($HEX_BUILD_DATE)"
 
-set PROJECT_NAME ${BASE_NAME}_${HEX_BUILD_DATE}
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
-set SDK_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.sdk
-set RUN_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.runs
-set XPR_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.xpr
-				 
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
+set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
+set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
+set RUN_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.runs
+set XPR_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.xpr
+
 ###################################################################################
 # Create the project directories
 ###################################################################################
@@ -122,7 +126,7 @@ update_ip_catalog
 ################################################
 # Generate IP-Integrator system
 ################################################
-set HDL_FILESET [get_filesets sources_1]
+set HDL_FILESET         [get_filesets sources_1]
 set SIM_FILE_SET        [get_fileset sim_1]
 set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
@@ -245,7 +249,7 @@ if { [file exists $SYSDEF_FILE] } {
 # Run report
 ################################################
 if {![info exists NO_REPORT]} {
-   source  $REPORT_FILE
+source  $REPORT_FILE
 }
 
 
@@ -253,14 +257,14 @@ if {![info exists NO_REPORT]} {
 # Archive project on the matrox network
 ################################################
 if {![info exists NO_ARCHIVE]} {
-   set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
-   if [string match "route_design Complete, Failed Timing!" $route_status] {
-        puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
-   } elseif [string match "write_bitstream Complete!" $route_status] {
+set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
+if [string match "route_design Complete, Failed Timing!" $route_status] {
+     puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
+} elseif [string match "write_bitstream Complete!" $route_status] {
    	 puts "** Write_bitstream Completed. Archiving files"
-    	 source  $ARCHIVE_SCRIPT
-   } else {
-   	 puts "** Run status: $route_status. Unknown status"
-   }
+ 	 source  $ARCHIVE_SCRIPT
+} else {
+	 puts "** Run status: $route_status. Unknown status"
+}
 }
 puts "** Done."

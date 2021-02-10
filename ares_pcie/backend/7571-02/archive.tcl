@@ -1,7 +1,7 @@
 # ##################################################################################
 # File         : archive.tcl
 # Description  : TCL script used to release the hallux fpga project. 
-# Example      : source $env(IRIS4)/ares_pcie/backend/7571-00/archive.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/archive.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"

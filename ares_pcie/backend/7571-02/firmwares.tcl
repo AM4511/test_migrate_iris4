@@ -1,7 +1,7 @@
 # ##################################################################################
 # File         : firmwares.tcl
 # Description  : This TCL script creates the Ares fpga firmwares. 
-# Example      : source $env(IRIS4)/ares/backend/7571-00/firmwares.tcl
+# Example      : source $env(IRIS4)/ares/backend/7571-02/firmwares.tcl
 # ##################################################################################
 set myself [info script]
 puts "Running ${myself}"
