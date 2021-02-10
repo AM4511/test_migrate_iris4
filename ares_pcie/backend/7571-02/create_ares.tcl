@@ -248,7 +248,7 @@ if { [file exists $SYSDEF_FILE] } {
 ################################################
 # Run report
 ################################################
-if {![info exits NO_REPORT]} {
+if {![info exists NO_REPORT]} {
 source  $REPORT_FILE
 }
 
@@ -256,7 +256,7 @@ source  $REPORT_FILE
 ################################################
 # Archive project on the matrox network
 ################################################
-if {![info exits NO_ARCHIVE]} {
+if {![info exists NO_ARCHIVE]} {
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
