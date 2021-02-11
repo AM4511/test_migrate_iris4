@@ -50,10 +50,15 @@ puts "Running ${myself}"
 # 0.0.8 : Fixed user red led behavior(See JIRA : IRIS4-91)
 #         Refactored Vivado backend generation scripts
 #
+# 0.0.9 : Microblaze configuration :
+#             * Disabled unaligned data exception (See JIRA : MT-1274)
+#         axi_quad_spi: 
+#             * Set ext_spi_clk to 100MHz  (See JIRA : IRIS4-379)
+#             * Set timing constraints accordingly
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 8
+set FPGA_SUB_MINOR_VERSION 9
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
