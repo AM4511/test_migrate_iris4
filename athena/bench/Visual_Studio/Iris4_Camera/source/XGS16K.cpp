@@ -58,7 +58,7 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
    GrabParams.BLACK_OFFSET             = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN              = 0x1;        // gain=1
 						          
-   printf_s("XGS16M Sensor detected, ");
+   //printf_s("XGS16M Sensor detected, ");
    }
 
 
