@@ -43,14 +43,6 @@
 # 
 # THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 # PART OF THIS FILE AT ALL TIMES.
-#set_false_path -to [get_pins -hier *cdc_to*/D]
-set_false_path -to [get_pins -of [get_cells -hier -filter {NAME =~*cdc_to*}] -filter {REF_PIN_NAME =~D}] 
-#set_false_path -to [get_pins -hierarchical -filter {NAME =~*RESET_SYNC_AXI_SPI_CLK_INST/RESET_SYNC_AX2S_1/D}]
-set_false_path -to [get_pins -of [get_cells -hier -filter {NAME =~*RESET_SYNC_AXI_SPI_CLK_INST/RESET_SYNC_AX2S_1}] -filter {REF_PIN_NAME =~D}]
-#set_false_path -to [get_pins -hierarchical -filter {NAME =~*QSPI_CORE_INTERFACE_I/FIFO_EXISTS.CLK_CROSS_I/LOGIC_GENERATION_CDC.SPISEL_PULSE_S2AX_1_CDC/D}]
-#set_false_path -to [get_pins -of [get_cells -hier -filter {NAME =~*QSPI_CORE_INTERFACE_I/FIFO_EXISTS.CLK_CROSS_I/LOGIC_GENERATION_CDC.SPISEL_PULSE_S2AX_1_CDC}] -filter {REF_PIN_NAME ==D}] 
-#set_false_path -to [get_pins -of [get_cells -hier -filter {NAME =~*QSPI_CORE_INTERFACE_I/FIFO_EXISTS.CLK_CROSS_I/LOGIC_GENERATION_FDR.*SPISEL_PULSE_S2AX_1_CDC}] -filter {REF_PIN_NAME ==D}] 
-#set_false_path -to [get_pins -of [get_cells -hier -filter {NAME =~*QSPI_CORE_INTERFACE_I/RX_FIFO_II/gnuram_async_fifo.xpm_fifo_base_inst/gen_cdc_pntr.wr_pntr_cdc_inst/dest_graysync_ff_reg*}] -filter {REF_PIN_NAME ==D}] 
 
 set io_name "spi_sd"
 
@@ -95,8 +87,9 @@ set tclk_trace_delay_min 0.0
 
 #### This is to ensure min routing delay from SCK generation to STARTUP input
 #### User should change this value based on the results having more delay on this net reduces the Fmax
-set_max_delay 3.0 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO] -datapath_only
-set_min_delay 0.1 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
+#set_max_delay 1.5 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO] -datapath_only
+#set_min_delay 0.1 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
+set_min_delay 0.3 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
 
 #### Following command creates a divide by 2 clock
 #### It also takes into account the delay added by STARTUP block to route the CCLK
