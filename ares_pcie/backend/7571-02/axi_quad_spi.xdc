@@ -89,7 +89,7 @@ set tclk_trace_delay_min 0.0
 #### User should change this value based on the results having more delay on this net reduces the Fmax
 #set_max_delay 1.5 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO] -datapath_only
 #set_min_delay 0.1 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
-set_min_delay 0.3 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
+set_min_delay 1.2 -from [get_pins -hier *SCK_O_reg_reg/C] -to [get_pins -hier *USRCCLKO]
 
 #### Following command creates a divide by 2 clock
 #### It also takes into account the delay added by STARTUP block to route the CCLK
