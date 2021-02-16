@@ -513,6 +513,53 @@ architecture struct of XGS_athena is
   end component;
 
 
+  component x_chopper is
+    generic (
+      NUMB_LINE_BUFFER : integer range 2 to 4 := 2
+      );
+    port (
+      ---------------------------------------------------------------------------
+      -- Register file
+      ---------------------------------------------------------------------------
+      aclk_x_size    : in std_logic_vector(15 downto 0);
+      aclk_x_start   : in std_logic_vector(15 downto 0);
+      aclk_x_stop    : in std_logic_vector(15 downto 0);
+      aclk_x_scale   : in std_logic_vector(3 downto 0);
+      aclk_x_reverse : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk         : in std_logic;
+      aclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_tready : out std_logic;
+      aclk_tvalid : in  std_logic;
+      aclk_tuser  : in  std_logic_vector(3 downto 0);
+      aclk_tlast  : in  std_logic;
+      aclk_tdata  : in  std_logic_vector(63 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      bclk         : in std_logic;
+      bclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI master stream output interface
+      ---------------------------------------------------------------------------
+      bclk_tready : in  std_logic;
+      bclk_tvalid : out std_logic;
+      bclk_tuser  : out std_logic_vector(3 downto 0);
+      bclk_tlast  : out std_logic;
+      bclk_tdata  : out std_logic_vector(63 downto 0)
+      );
+  end component;
+
+
   component dmawr2tlp is
     generic (
       MAX_PCIE_PAYLOAD_SIZE : integer := 128
@@ -806,6 +853,9 @@ architecture struct of XGS_athena is
   signal REG_dpc_list_length  : std_logic_vector(11 downto 0);
   signal REG_dpc_ver          : std_logic_vector(3 downto 0);
 
+  -- signal temporaire pour d/veloppement
+  signal tmp_valid            : std_logic;
+  
 
 begin
 
@@ -1084,7 +1134,34 @@ begin
   --lut_tdata   <= aclk_tdata(79 downto 72) & aclk_tdata(69 downto 62) & aclk_tdata(59 downto 52) & aclk_tdata(49 downto 42) &
   --               aclk_tdata(39 downto 32) & aclk_tdata(29 downto 22) & aclk_tdata(19 downto 12) & aclk_tdata(9  downto  2) ; 
 
+  inst_x_chopper : x_chopper
+    generic map(
+      NUMB_LINE_BUFFER => 2
+      )
+  port map(
+    aclk_x_size    => X"0000",
+    aclk_x_start   => X"0000",
+    aclk_x_stop    => X"0000",
+    aclk_x_scale   => "0000",
+    aclk_x_reverse => '0',
+    aclk           => aclk,
+    aclk_reset_n   => aclk_reset_n,
+    aclk_tready    => open, --lut_tready,
+    aclk_tvalid    => tmp_valid, -- lut_tvalid,
+    aclk_tuser     => lut_tuser,
+    aclk_tlast     => lut_tlast,
+    aclk_tdata     => lut_tdata,
+    bclk           => aclk,
+    bclk_reset_n   => aclk_reset_n,
+    bclk_tready    => '1',
+    bclk_tvalid    => open,
+    bclk_tuser     => open,
+    bclk_tlast     => open,
+    bclk_tdata     => open
+    );
 
+  tmp_valid <= '1' when (lut_tvalid = '1' and lut_tready='1') else
+               '0';
 
   xdmawr2tlp : dmawr2tlp
     generic map(
