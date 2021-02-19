@@ -427,7 +427,6 @@ architecture struct of XGS_athena is
       curr_Ystart : in std_logic_vector(11 downto 0) := (others => '0');  --line
       curr_Yend   : in std_logic_vector(11 downto 0) := (others => '1');  --line    
 
-      curr_Xsub : in std_logic := '0';
       curr_Ysub : in std_logic := '0';
 
       load_dma_context_EOFOT : in std_logic := '0';  -- in axi_clk
@@ -497,7 +496,7 @@ architecture struct of XGS_athena is
       s_axis_tdata  : in  std_logic_vector;
 
       ---------------------------------------------------------------------
-      -- AXI out
+      -- AXI out 
       ---------------------------------------------------------------------
       m_axis_tready : in  std_logic;
       m_axis_tvalid : out std_logic;
@@ -512,6 +511,54 @@ architecture struct of XGS_athena is
       );
   end component;
 
+  component xgs_color_proc
+    port (  
+           
+           ---------------------------------------------------------------------
+           -- Axi domain reset and clock signals
+           ---------------------------------------------------------------------
+           axi_clk                              : in    std_logic;
+           axi_reset_n                          : in    std_logic;
+
+           ---------------------------------------------------------------------
+           -- AXI in
+           ---------------------------------------------------------------------  
+           s_axis_tvalid                           : in   std_logic;
+	       s_axis_tready                           : out   std_logic;
+	       --s_axis_tready_int                       : in   std_logic;   --temporaire on va juste se hooker
+           s_axis_tuser                            : in   std_logic_vector(3 downto 0);
+           s_axis_tlast                            : in   std_logic;
+           s_axis_tdata                            : in   std_logic_vector(19 downto 0);	
+	       
+           ---------------------------------------------------------------------
+           -- AXI out
+           ---------------------------------------------------------------------
+	       m_axis_tready                           : in  std_logic;
+           m_axis_tvalid                           : out std_logic;
+           m_axis_tuser                            : out std_logic_vector(3 downto 0);
+           m_axis_tlast                            : out std_logic;
+           m_axis_tdata                            : out std_logic_vector(63 downto 0);
+		   
+		   ---------------------------------------------------------------------
+           -- Regfile
+           ---------------------------------------------------------------------
+           REG_wb_b_acc_DB                         : out std_logic_vector(30 downto 0);
+           REG_wb_g_acc_DB                         : out std_logic_vector(31 downto 0);
+           REG_wb_r_acc_DB                         : out std_logic_vector(30 downto 0);
+
+		   REG_WB_MULT_R                           : in std_logic_vector(15 downto 0):= "0001000000000000";
+		   REG_WB_MULT_G                           : in std_logic_vector(15 downto 0):= "0001000000000000";
+		   REG_WB_MULT_B                           : in std_logic_vector(15 downto 0):= "0001000000000000";
+
+           REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
+		   REG_LUT_SS                              : in  std_logic;
+		   REG_LUT_WRN                             : in  std_logic;
+           REG_LUT_ADD                             : in std_logic_vector;
+           REG_LUT_DATA_W                          : in std_logic_vector
+ 		   
+        );
+  end component;
+  
 
   component dmawr2tlp is
     generic (
@@ -773,6 +820,15 @@ architecture struct of XGS_athena is
   signal lut_tlast  : std_logic;
 
 
+  -- AXI received by DMA
+  signal dma_tready : std_logic;
+  signal dma_tvalid : std_logic;
+  signal dma_tdata  : std_logic_vector(63 downto 0);
+  signal dma_tuser  : std_logic_vector(3 downto 0);
+  signal dma_tlast  : std_logic;
+
+
+
 
   signal load_dma_context : std_logic_vector(1 downto 0);
 
@@ -942,131 +998,138 @@ begin
       );
 
 
-  ----------------------------------
-  --
-  -- DCP
-  --
-  ----------------------------------
-  xdpc_filter : dpc_filter
-    generic map (DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH)  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
-
-    port map(
-
-      ---------------------------------------------------------------------
-      -- System and Pixel domain reset and clock signals
-      ---------------------------------------------------------------------
-      axi_clk     => aclk,
-      axi_reset_n => aclk_reset_n,
-
-      ---------------------------------------------------------------------
-      -- 
-      ---------------------------------------------------------------------
-      curr_Xstart => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
-      curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
-
-      curr_Ystart => hispi_ystart,
-      curr_Yend   => hispi_yend,
-
-      curr_Xsub => hispi_subX,
-      curr_Ysub => hispi_subY,
-
-      load_dma_context_EOFOT => load_dma_context(1),
-
-      ---------------------------------------------------------------------
-      -- Registers
-      ---------------------------------------------------------------------
-      REG_dpc_list_length => REG_dpc_list_length,
-      REG_dpc_ver         => REG_dpc_ver,
-
-
-      REG_color => '0',                 -- to bypass in color modes
-
-      REG_dpc_enable => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
-
-      REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
-
-      REG_dpc_fifo_rst => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
-      REG_dpc_fifo_ovr => REG_DPC_FIFO_OVR,
-      REG_dpc_fifo_und => REG_DPC_FIFO_UND,
-
-      REG_dpc_list_wrn   => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
-      REG_dpc_list_add   => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-      REG_dpc_list_ss    => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
-      REG_dpc_list_count => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-
-      REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
-      REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
-      REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
-
-      REG_dpc_list_corr_rd => REG_dpc_list_corr_rd,
-
-      REG_dpc_firstlast_line_rem => regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem,
-
-      ---------------------------------------------------------------------
-      -- AXI in (SLAVE)
-      ---------------------------------------------------------------------  
-      s_axis_tvalid => aclk_tvalid,
-      s_axis_tready => aclk_tready,
-      s_axis_tuser  => aclk_tuser,
-      s_axis_tlast  => aclk_tlast,
-      s_axis_tdata  => aclk_tdata,
-
-      ---------------------------------------------------------------------
-      -- AXI out (MASTER)
-      ---------------------------------------------------------------------
-      m_axis_tvalid => dcp_tvalid,
-      m_axis_tready => dcp_tready,
-      m_axis_tuser  => dcp_tuser,
-      m_axis_tlast  => dcp_tlast,
-      m_axis_tdata  => dcp_tdata
-      );
-
-  --DCP REGISTERS  
-  regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH <= REG_dpc_list_length;
-  regfile.DPC.DPC_CAPABILITIES.DPC_VER         <= REG_dpc_ver;
-
-  regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;
-  regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;
-  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
-  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
-  regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits
-
-
-  ----------------------------------
-  --
-  -- LUT
-  --
-  ----------------------------------
-  xaxi_lut : axi_lut
-    port map (
-      axi_clk     => aclk,
-      axi_reset_n => aclk_reset_n,
-
-      ---------------------------------------------------------------------
-      -- AXI in
-      ---------------------------------------------------------------------  
-      s_axis_tvalid => dcp_tvalid,
-      s_axis_tready => dcp_tready,
-      s_axis_tuser  => dcp_tuser,
-      s_axis_tlast  => dcp_tlast,
-      s_axis_tdata  => dcp_tdata,
-
-      ---------------------------------------------------------------------
-      -- AXI out
-      ---------------------------------------------------------------------
-      m_axis_tvalid => lut_tvalid,
-      --m_axis_tready => '0',
-      m_axis_tready => lut_tready,
-      m_axis_tuser  => lut_tuser,
-      m_axis_tlast  => lut_tlast,
-      m_axis_tdata  => lut_tdata,
-
-      ---------------------------------------------------------------------------
-      --  Registers
-      ---------------------------------------------------------------------------
-      regfile => regfile
-      );
-
+--  ----------------------------------
+--  --
+--  -- DCP
+--  --
+--  ----------------------------------
+--  xdpc_filter : dpc_filter
+--    generic map (DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH)  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+--
+--    port map(
+--
+--      ---------------------------------------------------------------------
+--      -- System and Pixel domain reset and clock signals
+--      ---------------------------------------------------------------------
+--      axi_clk     => aclk,
+--      axi_reset_n => aclk_reset_n,
+--
+--      ---------------------------------------------------------------------
+--      -- 
+--      ---------------------------------------------------------------------
+--      curr_Xstart => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+--      curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+--
+--      curr_Ystart => hispi_ystart,
+--      curr_Yend   => hispi_yend,
+--
+--      curr_Ysub => hispi_subY,
+--
+--      load_dma_context_EOFOT => load_dma_context(1),
+--
+--      ---------------------------------------------------------------------
+--      -- Registers
+--      ---------------------------------------------------------------------
+--      REG_dpc_list_length => REG_dpc_list_length,
+--      REG_dpc_ver         => REG_dpc_ver,
+--
+--
+--      REG_color => '0',                 -- to bypass in color modes
+--
+--      REG_dpc_enable => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
+--
+--      REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+--
+--      REG_dpc_fifo_rst => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
+--      REG_dpc_fifo_ovr => REG_DPC_FIFO_OVR,
+--      REG_dpc_fifo_und => REG_DPC_FIFO_UND,
+--
+--      REG_dpc_list_wrn   => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+--      REG_dpc_list_add   => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+--      REG_dpc_list_ss    => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
+--      REG_dpc_list_count => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+--
+--      REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+--      REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+--      REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
+--
+--      REG_dpc_list_corr_rd => REG_dpc_list_corr_rd,
+--
+--      REG_dpc_firstlast_line_rem => regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem,
+--
+--      ---------------------------------------------------------------------
+--      -- AXI in (SLAVE)
+--      ---------------------------------------------------------------------  
+--      s_axis_tvalid => aclk_tvalid,
+--      s_axis_tready => aclk_tready,
+--      s_axis_tuser  => aclk_tuser,
+--      s_axis_tlast  => aclk_tlast,
+--      s_axis_tdata  => aclk_tdata,
+--
+--      ---------------------------------------------------------------------
+--      -- AXI out (MASTER)
+--      ---------------------------------------------------------------------
+--      m_axis_tvalid => dcp_tvalid,
+--      m_axis_tready => dcp_tready,
+--      m_axis_tuser  => dcp_tuser,
+--      m_axis_tlast  => dcp_tlast,
+--      m_axis_tdata  => dcp_tdata
+--      );
+--
+--  --DCP REGISTERS  
+--  regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH <= REG_dpc_list_length;
+--  regfile.DPC.DPC_CAPABILITIES.DPC_VER         <= REG_dpc_ver;
+--
+--  regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;
+--  regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;
+--  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
+--  regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
+--  regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits
+--
+--
+-- ----------------------------------
+-- --
+-- -- LUT
+-- --
+-- ----------------------------------
+-- xaxi_lut : axi_lut
+--   port map (
+--     axi_clk     => aclk,
+--     axi_reset_n => aclk_reset_n,
+--
+--     ---------------------------------------------------------------------
+--     -- AXI in
+--     ---------------------------------------------------------------------  
+--     s_axis_tvalid => dcp_tvalid,
+--     s_axis_tready => dcp_tready,
+--     s_axis_tuser  => dcp_tuser,
+--     s_axis_tlast  => dcp_tlast,
+--     s_axis_tdata  => dcp_tdata,
+--
+--     ---------------------------------------------------------------------
+--     -- AXI out
+--     ---------------------------------------------------------------------
+--     m_axis_tvalid => lut_tvalid,
+--     m_axis_tready => lut_tready,
+--     m_axis_tuser  => lut_tuser,
+--     m_axis_tlast  => lut_tlast,
+--     m_axis_tdata  => lut_tdata,
+--
+--     ---------------------------------------------------------------------------
+--     --  Registers
+--     ---------------------------------------------------------------------------
+--     regfile => regfile
+--     );
+--
+--
+-- ---------------------------
+-- -- MONO
+-- ---------------------------
+-- lut_tready <= dma_tready;
+-- dma_tvalid <= lut_tvalid;
+-- dma_tdata  <= lut_tdata;
+-- dma_tuser  <= lut_tuser;
+-- dma_tlast  <= lut_tlast;
 
 
   --------------------------------------------------------------------
@@ -1086,6 +1149,81 @@ begin
 
 
 
+  -- synthesis translate_off
+  Xxgs_color_proc : xgs_color_proc
+    port map(  
+           
+           ---------------------------------------------------------------------
+           -- Axi domain reset and clock signals
+           ---------------------------------------------------------------------
+           axi_clk           => aclk,
+           axi_reset_n       => aclk_reset_n,
+
+           ---------------------------------------------------------------------
+           -- AXI in
+           ---------------------------------------------------------------------         
+		   s_axis_tvalid     => aclk_tvalid,
+		   s_axis_tready     => aclk_tready,
+		   s_axis_tuser      => aclk_tuser,
+		   s_axis_tlast      => aclk_tlast,
+		   s_axis_tdata      => aclk_tdata(19 downto 0),
+		   
+           ---------------------------------------------------------------------
+           -- AXI out
+           ---------------------------------------------------------------------
+	       m_axis_tready    =>  dma_tready,
+           m_axis_tvalid    =>  dma_tvalid,
+           m_axis_tuser     =>  dma_tuser,
+           m_axis_tlast     =>  dma_tlast,
+           m_axis_tdata     =>  dma_tdata,
+		   
+		   ---------------------------------------------------------------------
+           -- Regfile
+           ---------------------------------------------------------------------
+           REG_wb_b_acc_DB  => open,
+           REG_wb_g_acc_DB  => open,
+           REG_wb_r_acc_DB  => open, 
+
+		   REG_WB_MULT_R    => "0001000000000000",
+		   REG_WB_MULT_G    => "0001000000000000",
+		   REG_WB_MULT_B    => "0001000000000000",
+
+           REG_LUT_SEL      => regfile.LUT.LUT_CTRL.LUT_SEL,     
+		   REG_LUT_SS       => regfile.LUT.LUT_CTRL.LUT_SS,      
+		   REG_LUT_WRN      => regfile.LUT.LUT_CTRL.LUT_WRN,     
+           REG_LUT_ADD      => regfile.LUT.LUT_CTRL.LUT_ADD,     
+           REG_LUT_DATA_W   => regfile.LUT.LUT_CTRL.LUT_DATA_W  
+
+
+           ---------------------------------------------------------------------------
+           --  Registers
+           ---------------------------------------------------------------------------
+           --regfile          => regfile
+		   
+		   
+        );
+		
+	regfile.LUT.LUT_CAPABILITIES.LUT_VER          <= conv_std_logic_vector(1 , regfile.LUT.LUT_CAPABILITIES.LUT_VER'LENGTH );
+    regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG  <= conv_std_logic_vector(2 , regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG'LENGTH );
+	regfile.LUT.LUT_RB.LUT_RB                     <= (others=>'0'); 
+
+		
+    regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH        <= (others =>'0');
+    regfile.DPC.DPC_CAPABILITIES.DPC_VER                <= (others =>'0');
+  
+    regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= '0';
+    regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= '0';
+    regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= (others =>'0');
+    regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= (others =>'0');
+    regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= (others =>'0');
+	
+		
+		
+  -- synthesis translate_on
+
+
+
+
   xdmawr2tlp : dmawr2tlp
     generic map(
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
@@ -1096,11 +1234,11 @@ begin
       intevent     => irq_dma,
       context_strb => load_dma_context,
       regfile      => regfile,
-      tready       => lut_tready,
-      tvalid       => lut_tvalid,
-      tdata        => lut_tdata,
-      tuser        => lut_tuser,
-      tlast        => lut_tlast,
+      tready       => dma_tready,
+      tvalid       => dma_tvalid,
+      tdata        => dma_tdata,
+      tuser        => dma_tuser,
+      tlast        => dma_tlast,
 
       -- tready => aclk_tready,
       -- tvalid => aclk_tvalid,

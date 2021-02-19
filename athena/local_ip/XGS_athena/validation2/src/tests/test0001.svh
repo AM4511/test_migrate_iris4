@@ -53,6 +53,7 @@ class Test0001 extends CTest;
 
 			// Start the scoreboard
 			begin
+				scoreboard.IgnorePrediction=1;
 			    scoreboard.run();
 			end  
 

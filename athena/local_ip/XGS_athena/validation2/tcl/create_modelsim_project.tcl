@@ -85,6 +85,8 @@ ${DATA_SRC_PATH}/dpc/dpc_kernel_10x3.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_kernel_proc.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_filter.vhd \
 ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
+${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
+${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
 ${DMA_SRC_PATH}/dma_write.vhd \
