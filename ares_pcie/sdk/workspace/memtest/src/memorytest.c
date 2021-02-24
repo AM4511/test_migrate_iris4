@@ -31,6 +31,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "xparameters.h"
 #include "xil_types.h"
 #include "xstatus.h"
@@ -54,7 +55,7 @@
 
 void putnum(unsigned int num);
 
-void test_memory_range(struct memory_range_s *range) {
+XStatus test_memory_range(struct memory_range_s *range) {
 	XStatus status;
 
 	/* This application uses print statements instead of xil_printf/printf
@@ -92,25 +93,37 @@ void test_memory_range(struct memory_range_s *range) {
 
 	status = Xil_TestMem32((u32*) range->base, size/4, 0xAAAA5555,
 			XIL_TESTMEM_ALLMEMTESTS);
-	print("          32-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
+	if (status == XST_SUCCESS) {
+		print("          32-bit test: PASSED\n\r");
+	} else {
+		print("          32-bit test: FAILED\n\r");
+		return status;
+	}
 
 	status = Xil_TestMem16((u16*) range->base, size/2, 0xAA55,
 			XIL_TESTMEM_ALLMEMTESTS);
-	print("          16-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
+	if (status == XST_SUCCESS) {
+		print("          16-bit test: PASSED\n\r");
+	} else {
+		print("          16-bit test: FAILED\n\r");
+		return status;
+	}
 
 	status = Xil_TestMem8((u8*) range->base, size, 0xA5,
 			XIL_TESTMEM_ALLMEMTESTS);
-	print("           8-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
+	if (status == XST_SUCCESS) {
+		print("           8-bit test: PASSED\n\r");
+	} else {
+		print("           8-bit test: FAILED\n\r");
+		return status;
+	}
+
+	return XST_SUCCESS;
 
 }
 
 int main() {
+	XStatus status;
 	int i;
 	int j;
 	char c;
@@ -134,7 +147,7 @@ int main() {
 	print("As a result, cacheline requests will not be generated\n\r");
 
 	j=0;
-	while (j<1) {
+	while (1) {
 
 		 if (!XUartLite_IsReceiveEmpty (STDIN_BASEADDRESS))
 		 {
@@ -145,13 +158,15 @@ int main() {
 		 }
 
 		xil_printf("\n\nTest loop : %d\n", j);
-
 		for (i = 0; i < n_memory_ranges; i++) {
-			test_memory_range(&memory_ranges[i]);
+			status = test_memory_range(&memory_ranges[i]);
+			if (status != XST_SUCCESS) {
+				exit(1);
+			}
 		}
 		j++;
 	}
-	DWORD *reg_value = NULL;
+	//DWORD *reg_value = NULL;
 
 
 	get_rpc2_ctrl_status();

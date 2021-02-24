@@ -75,7 +75,7 @@ disable_caches()
 void
 init_platform()
 {
-    enable_caches();
+    //enable_caches();
 
 #ifdef __arm__
     // For ARM, BSP enables caches by default. Disable them here.
