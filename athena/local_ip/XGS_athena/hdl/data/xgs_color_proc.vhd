@@ -11,12 +11,12 @@
 -- Project:     IRIS 4
 --
 --                                                
---                 __________         _________   _________         __________
---        20      |         |   20   |         | |         |  20   |          |   64 (2x pix 24 bits) 
---   ------------>|   WB    |------->|   Lut   |-|  Gamma  |------>|  Bayer   |------------>  BAYER_EXPANSION
---                |_________|        |_________| |_________|       |__________|
---                                                                              
---
+--               _________             _________           __________            _________ 
+--    2x10bpp   |         |  2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         | (2x24bpp) 
+--   ---------->|   DPC   |---------->|   WB    |-------->|  Bayer   |--------->|   Lut   |----------->  RGB24 : REG_BAYER_EN=1
+--              |_________|           |_________|    |    |__________|          |_________|
+--                                                   |                           
+--                                                    ------------------------------------------------>  RAW8  : REG_BAYER_EN=0
 --
 -------------------------------------------------------------------------------
 
@@ -29,6 +29,9 @@ library ieee;
 
 
 entity xgs_color_proc is
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 9    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+            
+		  );   
    port (  
            
            ---------------------------------------------------------------------
@@ -56,20 +59,52 @@ entity xgs_color_proc is
            m_axis_tlast                            : out std_logic;
            m_axis_tdata                            : out std_logic_vector(63 downto 0);
 		   
-		   ---------------------------------------------------------------------
-           -- Regfile
            ---------------------------------------------------------------------
-           REG_wb_b_acc_DB                         : out std_logic_vector(30 downto 0);
-           REG_wb_g_acc_DB                         : out std_logic_vector(31 downto 0);
-           REG_wb_r_acc_DB                         : out std_logic_vector(30 downto 0);
+           -- Grab params
+           ---------------------------------------------------------------------		   
+		   curr_Xstart                             : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
+           curr_Xend                               : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel
+           curr_Ystart                             : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
+           curr_Yend                               : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
+           curr_Ysub                               : in    std_logic := '0';  
+											      
+	       load_dma_context_EOFOT                  : in    std_logic := '0';  -- in axi_clk
+	       
+           ---------------------------------------------------------------------
+           -- Registers
+           ---------------------------------------------------------------------
+           REG_dpc_list_length                     : out   std_logic_vector(11 downto 0);
+	       REG_dpc_ver                             : out   std_logic_vector(3 downto 0);
+											     
+           REG_dpc_enable                          : in    std_logic :='1';
+											     
+           REG_dpc_pattern0_cfg                    : in    std_logic :='0';
+											     
+           REG_dpc_list_wrn                        : in    std_logic; 
+           REG_dpc_list_add                        : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
+           REG_dpc_list_ss                         : in    std_logic;
+           REG_dpc_list_count                      : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
+											     
+           REG_dpc_list_corr_pattern               : in    std_logic_vector(7 downto 0);
+           REG_dpc_list_corr_y                     : in    std_logic_vector(11 downto 0);
+           REG_dpc_list_corr_x                     : in    std_logic_vector(12 downto 0);
+											     
+           REG_dpc_list_corr_rd                    : out   std_logic_vector(32 downto 0);   
+         
+           REG_wb_b_acc                            : out std_logic_vector(30 downto 0);
+           REG_wb_g_acc                            : out std_logic_vector(31 downto 0);
+           REG_wb_r_acc                            : out std_logic_vector(30 downto 0);
 
 		   REG_WB_MULT_R                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   REG_WB_MULT_G                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   REG_WB_MULT_B                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   	   
-           REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
-		   REG_LUT_SS                              : in  std_logic;
-		   REG_LUT_WRN                             : in  std_logic;
+           REG_BAYER_EN                            : in std_logic:='0';	   
+			   
+           REG_LUT_BYPASS                          : in std_logic;
+		   REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
+		   REG_LUT_SS                              : in std_logic;
+		   REG_LUT_WRN                             : in std_logic;
            REG_LUT_ADD                             : in std_logic_vector;
            REG_LUT_DATA_W                          : in std_logic_vector
 
@@ -83,6 +118,72 @@ end xgs_color_proc;
 ------------------------------------------------------
 
 architecture functional of xgs_color_proc is
+
+
+component dpc_filter_color 
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 6    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+		  );
+   port(
+    ---------------------------------------------------------------------
+    -- Axi domain reset and clock signals
+    ---------------------------------------------------------------------
+    axi_clk                              : in    std_logic;
+    axi_reset_n                          : in    std_logic;
+
+    curr_Xstart                          : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
+    curr_Xend                            : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel
+	
+    curr_Ystart                          : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
+    curr_Yend                            : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
+	
+    curr_Ysub                            : in    std_logic := '0';  
+    
+	load_dma_context_EOFOT               : in    std_logic := '0';  -- in axi_clk
+	
+    ---------------------------------------------------------------------
+    -- Registers
+    ---------------------------------------------------------------------
+    REG_dpc_list_length                  : out   std_logic_vector(11 downto 0);
+	REG_dpc_ver                          : out   std_logic_vector(3 downto 0);
+	
+    REG_dpc_enable                       : in    std_logic :='1';
+
+    REG_dpc_pattern0_cfg                 : in    std_logic :='0';
+      
+    REG_dpc_list_wrn                     : in    std_logic; 
+    REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
+    REG_dpc_list_ss                      : in    std_logic;
+    REG_dpc_list_count                   : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
+
+    REG_dpc_list_corr_pattern            : in    std_logic_vector(7 downto 0);
+    REG_dpc_list_corr_y                  : in    std_logic_vector(11 downto 0);
+    REG_dpc_list_corr_x                  : in    std_logic_vector(12 downto 0);
+    
+    REG_dpc_list_corr_rd                 : out   std_logic_vector(32 downto 0);   
+         
+    ---------------------------------------------------------------------
+    -- DPC in
+    ---------------------------------------------------------------------  
+    axi_sof                              : in    std_logic;
+	axi_sol                              : in    std_logic;
+    axi_data_val                         : in    std_logic;
+    axi_data                             : in    std_logic_vector(19 downto 0);
+    axi_eol                              : in    std_logic;	
+	axi_eof                              : in    std_logic;
+	
+    ---------------------------------------------------------------------
+    -- DPC out
+    ---------------------------------------------------------------------
+    dpc_sof                              : out   std_logic;
+	dpc_sol                              : out   std_logic;
+    dpc_data_val                         : out   std_logic;
+    dpc_data                             : out   std_logic_vector(19 downto 0);
+    dpc_eol                              : out   std_logic;	
+	dpc_eof                              : out   std_logic
+	
+  );
+  
+end component;
 
 
 
@@ -148,13 +249,11 @@ constant Pix_type             : integer := 10;
 -----------------------------
 -- TEMP signals/outputs
 -----------------------------
-signal BAYER_EXPANSION          : std_logic:='1';
-
 
 -- AXI slave control
 signal s_axis_tready_int     : std_logic :='0';
 signal s_axis_first_line     : std_logic :='0';
-signal s_axis_first_prefetch : std_logic :='0';
+signal s_axis_first_prefetch : std_logic_vector(1 downto 0) := "00"; -- 4 data prefect on line 1 and after
 signal s_axis_line_gap       : std_logic :='0';
 signal s_axis_line_wait      : std_logic :='0';  
 signal s_axis_frame_done     : std_logic :='1';  
@@ -173,8 +272,6 @@ signal m_axis_wait              : std_logic :='0';
 
 -- AXI to Matrox IF
 signal s_axis_sol_P1            : std_logic:= '0';
-signal s_axis_data_enable_stop  : std_logic:= '0';
-signal s_axis_data_enable_start : std_logic:= '0';
 signal s_axis_data_enable_P1    : std_logic:= '0';
 signal s_axis_data_enable_P2    : std_logic:= '0';
 signal s_axis_eol_P1            : std_logic:= '0';
@@ -194,6 +291,16 @@ signal axi_data                 : std_logic_vector(19 downto 0);
 signal axi_eol                  : std_logic;
 signal axi_eof                  : std_logic;
 
+
+----------------------------------
+-- DPC pipeline
+-----------------------------------------------------
+signal dpc_sof                  : std_logic;
+signal dpc_sol                  : std_logic;
+signal dpc_data_val             : std_logic;
+signal dpc_data                 : std_logic_vector(19 downto 0);
+signal dpc_eol                  : std_logic;
+signal dpc_eof                  : std_logic;
 
 ----------------------------------
 -- White balancing pipeline
@@ -232,10 +339,6 @@ signal C1_wb_data            : std_logic_vector(9 downto 0);
 signal wb_b_acc              : std_logic_vector(30 downto 0);
 signal wb_g_acc              : std_logic_vector(31 downto 0);
 signal wb_r_acc              : std_logic_vector(30 downto 0);
-
-signal wb_b_acc_DB           : std_logic_vector(30 downto 0);
-signal wb_g_acc_DB           : std_logic_vector(31 downto 0);
-signal wb_r_acc_DB           : std_logic_vector(30 downto 0);
 
 --Outputs
 signal wb_sof                : std_logic;
@@ -320,9 +423,10 @@ signal bayer_eof                : std_logic;
 -----------------------------------------------------
 -- LUT RGB
 -----------------------------------------------------
+signal bayer_data_P1          : std_logic_vector(bayer_data'range);
 
 signal LUT_RAM_W_enable       : std_logic_vector(2 downto 0);
-
+signal RAM_R_enable_ored      : std_logic; 
 signal lut_sof                : std_logic;
 signal lut_sol                : std_logic;
 signal lut_data_val           : std_logic;
@@ -330,6 +434,8 @@ signal lut_data               : std_logic_vector(63 downto 0);
 signal lut_eol                : std_logic;
 signal lut_eof                : std_logic;
 signal lut_eol_comb           : std_logic; -- pour generation m_axis : eol, eof, tlast
+
+signal raw_data               : std_logic_vector(63 downto 0);
 
 
 
@@ -360,42 +466,59 @@ BEGIN
   process(axi_clk)   
   begin
     if (axi_clk'event and axi_clk='1') then
-      --First line goes directly to the first fifo
-      if(s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
+      
+	  ----------------------------------------------------------------------------------
+	  -- First line goes directly to the first fifo in BAYER MODE : REG_BAYER_EN = 1
+      ----------------------------------------------------------------------------------
+	  if(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '1'; 
-		s_axis_first_prefetch <= '0'; 		
+		s_axis_first_prefetch <= "00"; 		
 		s_axis_line_gap       <= '0';
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
-	  elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
+	  elsif(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 	  
-		s_axis_first_prefetch <= '0'; 
+		s_axis_first_prefetch <= "00"; 
 		s_axis_line_gap       <= '1';
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '1'; 
       
-      elsif(s_axis_line_gap='1') then  --put a second wait at EOL, to let DPC absorb the stream(video syncs)
+      elsif(REG_BAYER_EN='1' and s_axis_line_gap='1') then  --put a second wait at EOL, to let DPC absorb the stream(video syncs)
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 	  
-		s_axis_first_prefetch <= '0'; 
+		s_axis_first_prefetch <= "00"; 
 		s_axis_line_gap       <= '0';              
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
       
-      elsif(s_axis_tvalid='1' and s_axis_tuser(2)='1' ) then -- this gives 2 rdy at SOL detection- then wait for master interface
+	  
+	  ---------------------------------------------
+	  -- Others lines can be waited by DMA
+      ---------------------------------------------	  
+      elsif(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(2)='1' ) or   -- RGB this gives 4 rdy (RGB) at SOL detection - then wait for master interface 
+	       (REG_BAYER_EN='0' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then -- RAW this gives 3 rdy (RAW) at SOF detection - then wait for master interface
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
-		s_axis_first_prefetch <= '1';
+		s_axis_first_prefetch <= "01";
 		s_axis_line_gap       <= '0';
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
 
-      elsif(s_axis_first_prefetch='1' and s_axis_tvalid='1' ) then -- this gives 2 rdy at SOL detection - remove rdy and then listen to master interface to be ready
+      elsif(REG_BAYER_EN='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
+	       (REG_BAYER_EN='0' and s_axis_first_prefetch="10" and s_axis_tvalid='1' ) then -- RAW this gives 3 rdy at SOF detection - remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
-		s_axis_first_prefetch <= '0';  	  
+		s_axis_first_prefetch <= "00";  	  
+		s_axis_line_gap       <= '0';
+        s_axis_line_wait      <= '1'; 	 
+        s_axis_frame_done     <= '0'; 
+
+      elsif(s_axis_first_prefetch/="00" and s_axis_tvalid='1' ) then -- this gives 4/3 rdy at SOL/SOF detection - remove rdy and then listen to master interface to be ready
+	    s_axis_tready_int     <= '1';		
+	    s_axis_first_line     <= '0'; 
+		s_axis_first_prefetch <= s_axis_first_prefetch+'1';  	  
 		s_axis_line_gap       <= '0';
         s_axis_line_wait      <= '1'; 	 
         s_axis_frame_done     <= '0'; 
@@ -403,7 +526,7 @@ BEGIN
       elsif(s_axis_line_wait='1' and m_axis_tvalid_int='1' and m_axis_tready='1') then  -- wait for master to be rdy on master to give slave ready to burst   
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
-	 	s_axis_first_prefetch <= '0';  	  
+	 	s_axis_first_prefetch <= "00";  	  
 		s_axis_line_gap       <= '0';      
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
@@ -411,7 +534,7 @@ BEGIN
       elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(1)='1') then --@EOF put ready to 0 till next line/frame
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
-	 	s_axis_first_prefetch <= '0';  	  
+	 	s_axis_first_prefetch <= "00";  	  
 		s_axis_line_gap       <= '0';      
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '1'; 
@@ -419,7 +542,7 @@ BEGIN
 	  elsif( (s_axis_line_wait='0' and s_axis_frame_done='0' and m_axis_tready='1' and m_axis_tvalid_int='1') or s_axis_first_line='1') then --enter data to DCP pipeline till output
 	    s_axis_tready_int     <= '1';	
         s_axis_first_line     <= s_axis_first_line;	
-		s_axis_first_prefetch <= '0';
+		s_axis_first_prefetch <= "00";
 		s_axis_line_gap       <= '0';
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
@@ -427,7 +550,7 @@ BEGIN
 	  elsif (s_axis_line_wait='0' and m_axis_tvalid_int='1' and m_axis_tready='0' ) then -- si wait sur master, then wait the slave!
 	    s_axis_tready_int     <= '0';	
         s_axis_first_line     <= s_axis_first_line;	
-		s_axis_first_prefetch <= '0';
+		s_axis_first_prefetch <= "00";
 		s_axis_line_gap       <= '0';        
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= s_axis_frame_done; 
@@ -437,8 +560,6 @@ BEGIN
   end process;
 
   s_axis_tready     <= s_axis_tready_int;
-
-
 
 
   ---------------------------------------------------------------------------------------
@@ -454,19 +575,7 @@ BEGIN
         s_axis_sol_P1 <= '0';
       end if;        		
 		
-	  if(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="1000" or s_axis_tuser="0010") ) then --eof+eol
-	    s_axis_data_enable_stop <= '1';
-	  else
-	    s_axis_data_enable_stop <= '0';
-	  end if;
-		
-      if(s_axis_data_enable_stop='1') then 
-        s_axis_data_enable_start <= '0';
-      elsif(s_axis_tvalid='1' and s_axis_tready_int='1' and (s_axis_tuser="0001" or s_axis_tuser="0100")) then --sof+sol
-        s_axis_data_enable_start <= '1';
-      end if; 
       
-      --s_axis_data_enable_P1 <= ( (s_axis_tvalid and s_axis_tready_int) and s_axis_data_enable_start) or s_axis_data_enable_stop;
       s_axis_data_enable_P1 <= s_axis_tvalid and s_axis_tready_int;
       s_axis_data_enable_P2 <= s_axis_data_enable_P1;
       
@@ -492,9 +601,7 @@ BEGIN
         s_axis_data_in_P1 <= s_axis_tdata; 
       end if;
       
-	  --if( (s_axis_tvalid='1' and s_axis_tready_int='1') and s_axis_data_enable_start='1') or (s_axis_data_enable_stop='1') then
-        s_axis_data_in_P2 <= s_axis_data_in_P1; 
-      --end if; 
+      s_axis_data_in_P2 <= s_axis_data_in_P1; 
 		 
       
       
@@ -510,7 +617,84 @@ BEGIN
   axi_eof           <= s_axis_eof_P4;  
 
 
-  
+ 
+--------------------------------------------------------------------
+--
+--
+--  COLOR DEAD PIXEL CORRECTION
+--
+--
+--------------------------------------------------------------------
+
+
+Xdpc_filter_color : dpc_filter_color 
+   generic map( DPC_CORR_PIXELS_DEPTH      => DPC_CORR_PIXELS_DEPTH    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+		  )
+   port map(
+    ---------------------------------------------------------------------
+    -- Axi domain reset and clock signals
+    ---------------------------------------------------------------------
+    axi_clk                              => axi_clk,
+    axi_reset_n                          => axi_reset_n,
+
+    ---------------------------------------------------------------------
+    -- Sys domain reset and clock signals : on axi_clk
+    ---------------------------------------------------------------------   
+    curr_Xstart                          => curr_Xstart,
+    curr_Xend                            => curr_Xend,
+	                                       
+    curr_Ystart                          => curr_Ystart,
+    curr_Yend                            => curr_Yend, 
+	                                       
+    curr_Ysub                            => curr_Ysub,
+	load_dma_context_EOFOT               => load_dma_context_EOFOT,
+	
+    ---------------------------------------------------------------------
+    -- Registers
+    ---------------------------------------------------------------------
+    REG_dpc_list_length                  => REG_dpc_list_length,      
+	REG_dpc_ver                          => REG_dpc_ver,              
+
+    REG_dpc_enable                       => REG_dpc_enable,           
+
+    REG_dpc_pattern0_cfg                 => REG_dpc_pattern0_cfg,     
+
+    REG_dpc_list_wrn                     => REG_dpc_list_wrn,         
+    REG_dpc_list_add                     => REG_dpc_list_add,         
+    REG_dpc_list_ss                      => REG_dpc_list_ss ,         
+    REG_dpc_list_count                   => REG_dpc_list_count,       
+
+    REG_dpc_list_corr_pattern            => REG_dpc_list_corr_pattern,
+    REG_dpc_list_corr_y                  => REG_dpc_list_corr_y,      
+    REG_dpc_list_corr_x                  => REG_dpc_list_corr_x,      
+
+    REG_dpc_list_corr_rd                 => REG_dpc_list_corr_rd,     
+         
+    ---------------------------------------------------------------------
+    -- DPC in
+    ---------------------------------------------------------------------  
+    axi_sof                              => axi_sof,    
+	axi_sol                              => axi_sol,     
+    axi_data_val                         => axi_data_val,
+    axi_data                             => axi_data,    
+    axi_eol                              => axi_eol,     
+	axi_eof                              => axi_eof,     
+	
+    ---------------------------------------------------------------------
+    -- DPC out
+    ---------------------------------------------------------------------
+    dpc_sof                              => dpc_sof,      
+	dpc_sol                              => dpc_sol,      
+    dpc_data_val                         => dpc_data_val, 
+    dpc_data                             => dpc_data,     
+    dpc_eol                              => dpc_eol,      
+	dpc_eof                              => dpc_eof      
+	
+  );
+
+
+
+ 
 
 
 --------------------------------------------------------------------
@@ -520,13 +704,12 @@ BEGIN
 --
 --
 --------------------------------------------------------------------
-
-WBIn_sof          <= axi_sof;     
-WBIn_sol          <= axi_sol;     
-WBIn_data_val     <= axi_data_val;
-WBIn_data         <= axi_data;    
-WBIn_eol          <= axi_eol;     
-WBIn_eof          <= axi_eof;     
+WBIn_sof          <= DPC_sof;     
+WBIn_sol          <= DPC_sol;     
+WBIn_data_val     <= DPC_data_val;
+WBIn_data         <= DPC_data;    
+WBIn_eol          <= DPC_eol;     
+WBIn_eof          <= DPC_eof;     
 
 
 
@@ -537,7 +720,7 @@ begin
     
     WBIn_data_p1      <= WBIn_data;
 
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0') then
       WBIn_sof_p1      <= '0';
       WBIn_sol_p1      <= '0';
       WBIn_data_val_p1 <= '0';
@@ -572,6 +755,8 @@ end process;
 
 ----------------------------------------------------------------------------------------------------------
 --  HW assisted WB : Color ACCUMULATOR
+--
+-- Ils sont pas utilise dans le DRiver, ni GTR ni GTX, mais utile pour JDK
 ------------------------------------------------------------------------------------------------------------
 
 
@@ -579,7 +764,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0') then
       WB_is_line_impaire <= '0';
     elsif(BayerIn_sof= '1') then
       WB_is_line_impaire <= '0';   
@@ -596,7 +781,7 @@ begin
       wb_b_acc <= (others=>'0');
     elsif(WBIn_data_val='1') then
       if(WB_is_line_impaire='1') then
-        wb_b_acc <= wb_b_acc + WBIn_data(19 downto 10);  --Counting 8 MSB bits only
+        wb_b_acc <= wb_b_acc + WBIn_data(19 downto 12);  --Counting 8 MSB bits only
       end if;
     end if;
 
@@ -604,7 +789,7 @@ begin
       wb_g_acc <= (others=>'0');
     elsif(WBIn_data_val='1') then
       if(WB_is_line_impaire='0') then
-        wb_g_acc <= wb_g_acc + WBIn_data(19 downto 10);  --Counting 8 MSB bits only
+        wb_g_acc <= wb_g_acc + WBIn_data(19 downto 12);  --Counting 8 MSB bits only
       else
         wb_g_acc <= wb_g_acc + WBIn_data(9 downto 2);    --Counting 8 MSB bits only	  
       end if;
@@ -618,13 +803,15 @@ begin
       end if;
     end if;
     
-    if(WBIn_eof='1') then                
-      REG_wb_b_acc_DB <= wb_b_acc;
-      REG_wb_g_acc_DB <= wb_g_acc;
-      REG_wb_r_acc_DB <= wb_r_acc;
-    end if;
+
   end if;
 end process;
+
+-- pas besoin de DB pour JDK
+REG_wb_b_acc <= wb_b_acc;
+REG_wb_g_acc <= wb_g_acc;
+REG_wb_r_acc <= wb_r_acc;
+
 
 
 --------------------------------------------------------------------
@@ -706,7 +893,7 @@ end process;
 process (axi_clk)
 begin      
   if (axi_clk'event and axi_clk='1') then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' ) then
       wb_sof            <= '0';
       wb_sol            <= '0';
       wb_data_val       <= '0';
@@ -723,7 +910,6 @@ begin
 end process;
 
 wb_data <= C1_wb_data & C0_wb_data; 
-
 
 
 --------------------------------------------------------------------
@@ -764,7 +950,7 @@ begin
 	
 	BayerIn_data_p2         <= BayerIn_data_p1;
 
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       BayerIn_sol_p1          <= '0';
       BayerIn_sol_p2          <= '0';
       BayerIn_sol_p3          <= '0';
@@ -813,7 +999,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       bayer_is_line0 <= '0';
     elsif(BayerIn_sof= '1') then
       bayer_is_line0 <= '1';
@@ -828,7 +1014,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       bayer_is_first_word <= '0';
     elsif(BayerIn_sol= '1') then
       bayer_is_first_word <= '1';
@@ -922,7 +1108,7 @@ BAYER_M0(31 downto 16) <= bayer_r_ram_dat;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       bayer_read_enable  <= '0';
     else
       bayer_read_enable <= BayerIn_data_val and not(bayer_is_line0);
@@ -934,7 +1120,7 @@ begin
       bayer_r_ram_add <=  bayer_r_ram_add + '1';
     end if;
     
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       BAYER_M0(15 downto 0)   <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1'  and bayer_is_line0 = '0') then
       BAYER_M0(15 downto 0)   <= BAYER_M0(31 downto 16); 
@@ -951,13 +1137,13 @@ process(axi_clk)
 begin
   if rising_edge(axi_clk) then
 
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       BAYER_M1  <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1' and bayer_is_line0 = '0') then
       BAYER_M1(31 downto 16)  <= BayerIn_data_p1(15 downto 0);  
     end if;
     
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then      
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then      
       BAYER_M1(15 downto 0)  <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1'  and bayer_is_line0 = '0') then
       BAYER_M1(15 downto 0)  <= BAYER_M1(31 downto 16);
@@ -975,7 +1161,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       is_line_impaire <= '0';
     elsif(BayerIn_sof= '1') then
       is_line_impaire <= '1';         -- XGS On commence toujours sur une ligne pair . On commence a traiter une ligne en retard, donc au SOF on reset a 1 !!!
@@ -1139,7 +1325,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+    if(axi_reset_n='0' or REG_BAYER_EN='0') then
       bayer_sof        <= '0';
       bayer_sol        <= '0';
       bayer_data_val   <= '0';
@@ -1183,14 +1369,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   --(0) is blue
   --(1) is green
   --(2) is Red
-  LUT_RAM_W_enable(0)    <= '1' when  (REG_LUT_SEL(0)='1' and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
-  LUT_RAM_W_enable(1)    <= '1' when  (REG_LUT_SEL(1)='1' and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
-  LUT_RAM_W_enable(2)    <= '1' when  (REG_LUT_SEL(2)='1' and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';                        
+  LUT_RAM_W_enable(0)    <= '1' when  ((REG_LUT_SEL(0)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
+  LUT_RAM_W_enable(1)    <= '1' when  ((REG_LUT_SEL(1)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
+  LUT_RAM_W_enable(2)    <= '1' when  ((REG_LUT_SEL(2)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';                        
                               
-  --Readback of LUT not supported to remove logic, see LUT_WRN in condition for the enable.
-  --regfile.LUT.LUT_RB.LUT_RB  <= (others=>'0'); 
-
-
   ----------------------------
   -- Generation of LUTS Path 0
   ----------------------------
@@ -1204,18 +1386,21 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
              )
      port map (  
              RAM_W_clk        =>  axi_clk,
-             RAM_W_WRn        =>  '1',                                             -- Write cycle
-             RAM_W_enable     =>  LUT_RAM_W_enable(ch),                             -- Write enable
-             RAM_W_address    =>  REG_LUT_ADD(7 downto 0),        -- Write address bus, width determined from RAM_DEPTH
-             RAM_W_data       =>  REG_LUT_DATA_W(7 downto 0),     -- RAM input data
-             RAM_W_dataR      =>  open,                                            -- RAM read data
+             RAM_W_WRn        =>  '1',                               -- Write cycle
+             RAM_W_enable     =>  LUT_RAM_W_enable(ch),              -- Write enable
+             RAM_W_address    =>  REG_LUT_ADD(7 downto 0),           -- Write address bus, width determined from RAM_DEPTH
+             RAM_W_data       =>  REG_LUT_DATA_W(7 downto 0),        -- RAM input data
+             RAM_W_dataR      =>  open,                              -- RAM read data
   
              RAM_R_clk        =>  axi_clk,
-             RAM_R_enable     =>  bayer_data_val,                    -- Read enable
+             RAM_R_enable     =>  RAM_R_enable_ored,                 -- Read enable
              RAM_R_address    =>  bayer_data(7+ch*8  downto ch*8),   -- Read address bus, width determined from RAM_DEPTH
-             RAM_R_data       =>  lut_data  (7+ch*8  downto ch*8)     -- RAM output data
+             RAM_R_data       =>  lut_data(7+ch*8  downto ch*8)      -- RAM output data
           );  
   end generate;
+
+  -- To save power
+  RAM_R_enable_ored <= '1' when (REG_LUT_BYPASS='0' and bayer_data_val='1') else '0'; 
 
   ----------------------------
   -- Generation of LUTS Path 1
@@ -1230,30 +1415,39 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
              )
      port map (  
              RAM_W_clk        =>  axi_clk,
-             RAM_W_WRn        =>  '1',                           -- Write cycle
-             RAM_W_enable     =>  LUT_RAM_W_enable(ch),           -- Write enable
-             RAM_W_address    =>  REG_LUT_ADD(7 downto 0),                 -- Write address bus, width determined from RAM_DEPTH
-             RAM_W_data       =>  REG_LUT_DATA_W(7 downto 0),                    -- RAM input data
-             RAM_W_dataR      =>  open,                          -- RAM read data
+             RAM_W_WRn        =>  '1',                                      -- Write cycle
+             RAM_W_enable     =>  LUT_RAM_W_enable(ch),                     -- Write enable
+             RAM_W_address    =>  REG_LUT_ADD(7 downto 0),                  -- Write address bus, width determined from RAM_DEPTH
+             RAM_W_data       =>  REG_LUT_DATA_W(7 downto 0),               -- RAM input data
+             RAM_W_dataR      =>  open,                                     -- RAM read data
   
              RAM_R_clk        =>  axi_clk,
-             RAM_R_enable     =>  bayer_data_val,                        -- Read enable
-             RAM_R_address    =>  bayer_data(32+7+ch*8  downto 32+ch*8), -- Read address bus, width determined from RAM_DEPTH
-             RAM_R_data       =>  lut_data  (32+7+ch*8  downto 32+ch*8) -- RAM output data
+             RAM_R_enable     =>  RAM_R_enable_ored,                        -- Read enable
+             RAM_R_address    =>  bayer_data(32+7+ch*8  downto 32+ch*8),    -- Read address bus, width determined from RAM_DEPTH
+             RAM_R_data       =>  lut_data  (32+7+ch*8  downto 32+ch*8)     -- RAM output data
           );  
   end generate;
 
+  -- for lut bypass
+  process(axi_clk)
+  begin
+    if rising_edge(axi_clk) then
+      if(REG_LUT_BYPASS='1') then  
+        bayer_data_P1 <= bayer_data;
+	  end if;
 
-  lut_data(31 downto 24) <= "--------";
-  lut_data(63 downto 56) <= "--------";
+    end if;
+  end process;  
+
+
   
   -------------------------------------------------------------
-  -- OUTPUTS
+  -- LUT OUTPUTS
   -------------------------------------------------------------
   process(axi_clk)
   begin
     if rising_edge(axi_clk) then
-      if(axi_reset_n='0' or BAYER_EXPANSION='0') then
+      if(axi_reset_n='0' or REG_BAYER_EN='0') then
         lut_sof        <= '0';
         lut_sol        <= '0';
         lut_data_val   <= '0';
@@ -1270,9 +1464,19 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   end process;
   
    
+  lut_data(31 downto 24) <= "00000000";
+  lut_data(63 downto 56) <= "00000000";
   
   
-  
+
+ 
+  ----------------------------------------------
+  -- for RAW
+  ----------------------------------------------   
+  raw_data       <= "00000000" & "0000000000000000" & wb_data(19 downto 12) & 
+                    "00000000" & "0000000000000000" & wb_data(9 downto 2);		  
+
+ 
   
   ----------------------------------------------
   -- STEP 4
@@ -1280,22 +1484,30 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   -- AXI MASTER
   --
   ----------------------------------------------   
-  
-  
   process(axi_clk)
   begin
     if rising_edge(axi_clk) then
       if(axi_sof='1') then  
         m_axis_first_line <= '1';
-	  elsif(lut_eol='1') then 	
-        m_axis_first_line <= '0';
+	  elsif(REG_BAYER_EN='1') then       -- COLOR
+	    if(lut_eol='1') then 	
+          m_axis_first_line <= '0';
+		end if;
+	  else                                  -- RAW MONO
+	    if(wb_eol='1') then 	
+          m_axis_first_line <= '0';
+		end if;		
 	  end if;
-
-	  if(BayerIn_eof='1') then  
-        m_axis_last_line <= '1';
-	  elsif(lut_eof='1') then 	
-        m_axis_last_line <= '0';
-	  end if;
+      
+	  if(REG_BAYER_EN='1') then       -- COLOR
+	    if(BayerIn_eof='1') then  
+          m_axis_last_line <= '1';
+	    elsif(lut_eof='1') then 	
+          m_axis_last_line <= '0';		  
+	    end if;
+	  else                               -- RAW MONO (no need)
+        m_axis_last_line <= '0';		  
+      end if;	  
     end if;
   end process;  
 
@@ -1306,9 +1518,11 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(0) <= '0' after 1 ns;
-      elsif lut_sof = '1' then      -- arrive une fois, au debut du frame avant le data
+      elsif(REG_BAYER_EN='1' and lut_sof = '1') then      -- COLOR:  arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;
-      elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
+      elsif(REG_BAYER_EN='0' and wb_sof = '1') then       -- RAW: arrive une fois, au debut du frame avant le data
+        m_axis_tuser_int(0) <= '1' after 1 ns;	
+      elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(0) <= '0' after 1 ns;
       end if;
     end if;
@@ -1320,8 +1534,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(2) <= '0' after 1 ns;
-      elsif lut_sol = '1' and m_axis_first_line='0' then      -- SOL
-        m_axis_tuser_int(2) <= '1' after 1 ns;      
+      elsif(REG_BAYER_EN='1' and lut_sol = '1' and m_axis_first_line='0')  then      -- COLOR SOL
+        m_axis_tuser_int(2) <= '1' after 1 ns;  
+      elsif(REG_BAYER_EN='0' and wb_sol = '1' and m_axis_first_line='0')  then      -- RAW SOL
+        m_axis_tuser_int(2) <= '1' after 1 ns;      		
 	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(2) <= '0' after 1 ns;
       end if;
@@ -1334,9 +1550,11 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(3) <= '0' after 1 ns;
-      elsif bayer_eol = '1'  and m_axis_last_line='0' then    -- dont put eol in last line of frame, only eof
+      elsif(REG_BAYER_EN='1' and bayer_eol = '1'  and m_axis_last_line='0') then    -- COLOR : dont put eol in last line of frame, only eof, un pipe avant lut_eol
         m_axis_tuser_int(3) <= '1' after 1 ns;
-  	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
+      elsif(REG_BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='0') then   --RAW   
+        m_axis_tuser_int(3) <= '1' after 1 ns;		
+  	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(3) <= '0' after 1 ns;
       end if;
     end if;
@@ -1350,8 +1568,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(1) <= '0' after 1 ns;
-      elsif bayer_eol = '1' and m_axis_last_line='1' then      
+      elsif(REG_BAYER_EN='1' and bayer_eol = '1' and m_axis_last_line='1') then   -- COLOR   
         m_axis_tuser_int(1) <= '1' after 1 ns;
+      elsif(REG_BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='1') then   --RAW   
+        m_axis_tuser_int(1) <= '1' after 1 ns;		
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(1) <= '0' after 1 ns;
       end if;
@@ -1367,11 +1587,20 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tvalid_int <= '0' after 1 ns;
-      elsif(lut_data_val='1') then
-        m_axis_tvalid_int <= '1';
-      elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
-	     m_axis_tvalid_int <= bayer_data_val;
+	  elsif(REG_BAYER_EN='1') then       --COLOR 
+   	    if(lut_data_val='1') then
+          m_axis_tvalid_int <= '1';
+		elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
+	      m_axis_tvalid_int <= bayer_data_val;    -- un pipeline avant lut_data_val
+		end if;  	  
+      else
+  	    if(wb_data_val='1') then            --RAW
+          m_axis_tvalid_int <= '1';		
+        elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
+	      m_axis_tvalid_int <= WBIn_data_val_p2;  -- un pipeline avant WB_data_val                                 
+		end if;  
       end if;
+	  	  
     end if;
   end process;  
   
@@ -1399,7 +1628,11 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
         if(m_axis_tvalid_int = '1' and m_axis_tready = '0') then -- Dont update data, since the data is not sample yet
           m_axis_tdata_int <= m_axis_tdata_int;
         else  
-          m_axis_tdata_int <= lut_data; -- Put new data on the bus
+          if(REG_BAYER_EN='1') then
+		    m_axis_tdata_int <= lut_data; -- COLOR : Put new data on the bus
+		  else
+		    m_axis_tdata_int <= raw_data; -- RAW : Put new data on the bus		  
+          end if; 		  
         end if;  
       end if;
        
@@ -1416,8 +1649,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
 		m_axis_tlast    <= '0' after 1 ns;		
-      elsif bayer_eol = '1' then   
+      elsif(REG_BAYER_EN='1' and bayer_eol = '1') then   -- COLOR
 		m_axis_tlast    <= '1' after 1 ns;
+      elsif(REG_BAYER_EN='0' and WBIn_eol_p2='1') then   -- un pipeline avant WB_EOL
+		m_axis_tlast    <= '1' after 1 ns;		
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
 		m_axis_tlast    <= '0' after 1 ns;		
       end if;

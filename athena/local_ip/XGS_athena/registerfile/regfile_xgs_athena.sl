@@ -641,14 +641,20 @@ Section("LUT", 0, 0x4b0);
 Register("lut_capabilities", 0x4b0, 4, "null");
 		Field("lut_size_config", 27, 16, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 			FieldValue("Reserved", 0);
-			FieldValue("10 to 8 bits LUT", 1);
+			FieldValue("10 to 8 bits LUT (Mono Only)", 1);
+			FieldValue("8 to 8 bits RGB LUT (Color Only)", 2);
 		Field("lut_ver", 3, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 			FieldValue("Initial monochrone LUT", 0);
+			FieldValue("Initial color LUT", 1);
 
 Register("lut_ctrl", 0x4b4, 4, "null");
 		Field("lut_bypass", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS");
 		Field("lut_data_w", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT DATA to Write");
 		Field("lut_sel", 15, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT SELection");
+			FieldValue("Write Blue LUT(Color only)", 1);
+			FieldValue("Write Green LUT(Color only)", 2);
+			FieldValue("Write Red LUT(Color only)", 4);
+			FieldValue("Write all LUT with same data (Mono or Color)", 8);
 		Field("lut_wrn", 11, 11, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT Write ReadNot");
 			FieldValue("Read operation", 0);
 			FieldValue("Write operation", 1);
@@ -657,6 +663,32 @@ Register("lut_ctrl", 0x4b4, 4, "null");
 
 Register("lut_rb", 0x4b8, 4, "null");
 		Field("lut_rb", 7, 0, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
+
+%=================================================================
+% SECTION NAME	: BAYER
+%=================================================================
+Section("BAYER", 0, 0x4c0);
+
+Register("bayer_cfg", 0x4c0, 4, "null");
+		Field("bayer_en", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("Output is RAW8", 0);
+			FieldValue("Output is RGB24", 1);
+
+Register("wb_mul1", 0x4c4, 4, "null");
+		Field("wb_mult_g", 31, 16, "rd|wr", 0x0, 0x1000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("wb_mult_b", 15, 0, "rd|wr", 0x0, 0x1000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("wb_mul2", 0x4c8, 4, "null");
+		Field("wb_mult_r", 15, 0, "rd|wr", 0x0, 0x1000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("wb_b_acc", 0x4cc, 4, "null");
+		Field("b_acc", 30, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("wb_g_acc", 0x4d0, 4, "null");
+		Field("g_acc", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("wb_r_acc", 0x4d4, 4, "null");
+		Field("r_acc", 30, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
 % EXTERNAL NAME	: SYSMONXIL

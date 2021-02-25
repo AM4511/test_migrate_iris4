@@ -418,9 +418,6 @@ architecture struct of XGS_athena is
       axi_clk     : in std_logic;
       axi_reset_n : in std_logic;
 
-      ---------------------------------------------------------------------
-      -- Sys domain reset and clock signals
-      ---------------------------------------------------------------------
       curr_Xstart : in std_logic_vector(12 downto 0) := (others => '0');  --pixel
       curr_Xend   : in std_logic_vector(12 downto 0) := (others => '1');  --pixel
 
@@ -512,6 +509,9 @@ architecture struct of XGS_athena is
   end component;
 
   component xgs_color_proc
+   generic( DPC_CORR_PIXELS_DEPTH         : integer := 9    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+            
+		  );   
     port (  
            
            ---------------------------------------------------------------------
@@ -539,17 +539,49 @@ architecture struct of XGS_athena is
            m_axis_tlast                            : out std_logic;
            m_axis_tdata                            : out std_logic_vector(63 downto 0);
 		   
-		   ---------------------------------------------------------------------
-           -- Regfile
            ---------------------------------------------------------------------
-           REG_wb_b_acc_DB                         : out std_logic_vector(30 downto 0);
-           REG_wb_g_acc_DB                         : out std_logic_vector(31 downto 0);
-           REG_wb_r_acc_DB                         : out std_logic_vector(30 downto 0);
+           -- Grab params
+           ---------------------------------------------------------------------		   
+		   curr_Xstart                             : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
+           curr_Xend                               : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel										      
+           curr_Ystart                             : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
+           curr_Yend                               : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    											      
+           curr_Ysub                               : in    std_logic := '0';  
+											      
+	       load_dma_context_EOFOT                  : in    std_logic := '0';  -- in axi_clk
+	       
+           ---------------------------------------------------------------------
+           -- Registers
+           ---------------------------------------------------------------------
+           REG_dpc_list_length                     : out   std_logic_vector(11 downto 0);
+	       REG_dpc_ver                             : out   std_logic_vector(3 downto 0);
+											     
+           REG_dpc_enable                          : in    std_logic :='1';
+											     
+           REG_dpc_pattern0_cfg                    : in    std_logic :='0';
+											     
+           REG_dpc_list_wrn                        : in    std_logic; 
+           REG_dpc_list_add                        : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
+           REG_dpc_list_ss                         : in    std_logic;
+           REG_dpc_list_count                      : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
+											     
+           REG_dpc_list_corr_pattern               : in    std_logic_vector(7 downto 0);
+           REG_dpc_list_corr_y                     : in    std_logic_vector(11 downto 0);
+           REG_dpc_list_corr_x                     : in    std_logic_vector(12 downto 0);
+											     
+           REG_dpc_list_corr_rd                    : out   std_logic_vector(32 downto 0);   
+
+           REG_wb_b_acc                            : out std_logic_vector(30 downto 0);
+           REG_wb_g_acc                            : out std_logic_vector(31 downto 0);
+           REG_wb_r_acc                            : out std_logic_vector(30 downto 0);
 
 		   REG_WB_MULT_R                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   REG_WB_MULT_G                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   REG_WB_MULT_B                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 
+           REG_BAYER_EN                            : in std_logic:='0';	   
+           
+		   REG_LUT_BYPASS                          : in std_logic;
            REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
 		   REG_LUT_SS                              : in  std_logic;
 		   REG_LUT_WRN                             : in  std_logic;
@@ -1151,6 +1183,9 @@ begin
 
   -- synthesis translate_off
   Xxgs_color_proc : xgs_color_proc
+   generic map( DPC_CORR_PIXELS_DEPTH  =>  DPC_CORR_PIXELS_DEPTH    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
+            
+		  )   
     port map(  
            
            ---------------------------------------------------------------------
@@ -1176,40 +1211,67 @@ begin
            m_axis_tuser     =>  dma_tuser,
            m_axis_tlast     =>  dma_tlast,
            m_axis_tdata     =>  dma_tdata,
+           ---------------------------------------------------------------------		   
+	       -- Grab parameters 	   
+           ---------------------------------------------------------------------
+           curr_Xstart               => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+           curr_Xend                 => regfile.HISPI.FRAME_CFG_X_VALID.X_END,    -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+
+           curr_Ystart               => hispi_ystart,
+           curr_Yend                 => hispi_yend,
+
+           curr_Ysub                 => hispi_subY,
+ 
+           load_dma_context_EOFOT    => load_dma_context(1),
+    
 		   
 		   ---------------------------------------------------------------------
            -- Regfile
            ---------------------------------------------------------------------
-           REG_wb_b_acc_DB  => open,
-           REG_wb_g_acc_DB  => open,
-           REG_wb_r_acc_DB  => open, 
-
-		   REG_WB_MULT_R    => "0001000000000000",
-		   REG_WB_MULT_G    => "0001000000000000",
-		   REG_WB_MULT_B    => "0001000000000000",
-
-           REG_LUT_SEL      => regfile.LUT.LUT_CTRL.LUT_SEL,     
-		   REG_LUT_SS       => regfile.LUT.LUT_CTRL.LUT_SS,      
-		   REG_LUT_WRN      => regfile.LUT.LUT_CTRL.LUT_WRN,     
-           REG_LUT_ADD      => regfile.LUT.LUT_CTRL.LUT_ADD,     
-           REG_LUT_DATA_W   => regfile.LUT.LUT_CTRL.LUT_DATA_W  
-
-
-           ---------------------------------------------------------------------------
-           --  Registers
-           ---------------------------------------------------------------------------
-           --regfile          => regfile
-		   
+           REG_dpc_list_length       => REG_dpc_list_length,
+           REG_dpc_ver               => REG_dpc_ver,   
+								     
+           REG_dpc_enable            => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
+								     
+           REG_dpc_pattern0_cfg      => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+								     							     
+           REG_dpc_list_wrn          => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+           REG_dpc_list_add          => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+           REG_dpc_list_ss           => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
+           REG_dpc_list_count        => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+     
+           REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+           REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+           REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
+     
+           REG_dpc_list_corr_rd      => REG_dpc_list_corr_rd,
+     		   
+			   
+		   REG_wb_b_acc              => regfile.BAYER.WB_B_ACC.B_ACC,
+           REG_wb_g_acc              => regfile.BAYER.WB_G_ACC.G_ACC,
+           REG_wb_r_acc              => regfile.BAYER.WB_R_ACC.R_ACC, 
+							         
+		   REG_WB_MULT_R             => regfile.BAYER.WB_MUL2.WB_MULT_R,
+		   REG_WB_MULT_G             => regfile.BAYER.WB_MUL1.WB_MULT_G,
+		   REG_WB_MULT_B             => regfile.BAYER.WB_MUL1.WB_MULT_B,
+						
+           REG_BAYER_EN              => regfile.BAYER.BAYER_CFG.BAYER_EN,
+						
+           REG_LUT_BYPASS            => regfile.LUT.LUT_CTRL.LUT_BYPASS,
+           REG_LUT_SEL               => regfile.LUT.LUT_CTRL.LUT_SEL,     
+		   REG_LUT_SS                => regfile.LUT.LUT_CTRL.LUT_SS,      
+		   REG_LUT_WRN               => regfile.LUT.LUT_CTRL.LUT_WRN,     
+           REG_LUT_ADD               => regfile.LUT.LUT_CTRL.LUT_ADD,     
+           REG_LUT_DATA_W            => regfile.LUT.LUT_CTRL.LUT_DATA_W    
 		   
         );
 		
 	regfile.LUT.LUT_CAPABILITIES.LUT_VER          <= conv_std_logic_vector(1 , regfile.LUT.LUT_CAPABILITIES.LUT_VER'LENGTH );
     regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG  <= conv_std_logic_vector(2 , regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG'LENGTH );
 	regfile.LUT.LUT_RB.LUT_RB                     <= (others=>'0'); 
-
-		
-    regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH        <= (others =>'0');
-    regfile.DPC.DPC_CAPABILITIES.DPC_VER                <= (others =>'0');
+	
+    regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH        <= "000111111111"; 
+    regfile.DPC.DPC_CAPABILITIES.DPC_VER                <= "0001";
   
     regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= '0';
     regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= '0';

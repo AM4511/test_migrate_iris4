@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/01/29 09:59:31
+-- Created on          : 2021/02/24 10:09:18
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x883C74D
+-- Register file CRC32 : 0x313E2525
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -107,6 +107,12 @@ package regfile_xgs_athena_pack is
    constant K_LUT_LUT_CAPABILITIES_ADDR       : natural := 16#4b0#;
    constant K_LUT_LUT_CTRL_ADDR               : natural := 16#4b4#;
    constant K_LUT_LUT_RB_ADDR                 : natural := 16#4b8#;
+   constant K_BAYER_BAYER_CFG_ADDR            : natural := 16#4c0#;
+   constant K_BAYER_WB_MUL1_ADDR              : natural := 16#4c4#;
+   constant K_BAYER_WB_MUL2_ADDR              : natural := 16#4c8#;
+   constant K_BAYER_WB_B_ACC_ADDR             : natural := 16#4cc#;
+   constant K_BAYER_WB_G_ACC_ADDR             : natural := 16#4d0#;
+   constant K_BAYER_WB_R_ACC_ADDR             : natural := 16#4d4#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1594,6 +1600,98 @@ package regfile_xgs_athena_pack is
    function to_LUT_LUT_RB_TYPE(stdlv : std_logic_vector(31 downto 0)) return LUT_LUT_RB_TYPE;
    
    ------------------------------------------------------------------------------------------
+   -- Register Name: BAYER_CFG
+   ------------------------------------------------------------------------------------------
+   type BAYER_BAYER_CFG_TYPE is record
+      BAYER_EN       : std_logic;
+   end record BAYER_BAYER_CFG_TYPE;
+
+   constant INIT_BAYER_BAYER_CFG_TYPE : BAYER_BAYER_CFG_TYPE := (
+      BAYER_EN        => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_BAYER_CFG_TYPE) return std_logic_vector;
+   function to_BAYER_BAYER_CFG_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CFG_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: WB_MUL1
+   ------------------------------------------------------------------------------------------
+   type BAYER_WB_MUL1_TYPE is record
+      WB_MULT_G      : std_logic_vector(15 downto 0);
+      WB_MULT_B      : std_logic_vector(15 downto 0);
+   end record BAYER_WB_MUL1_TYPE;
+
+   constant INIT_BAYER_WB_MUL1_TYPE : BAYER_WB_MUL1_TYPE := (
+      WB_MULT_G       => (others=> 'Z'),
+      WB_MULT_B       => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_WB_MUL1_TYPE) return std_logic_vector;
+   function to_BAYER_WB_MUL1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_MUL1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: WB_MUL2
+   ------------------------------------------------------------------------------------------
+   type BAYER_WB_MUL2_TYPE is record
+      WB_MULT_R      : std_logic_vector(15 downto 0);
+   end record BAYER_WB_MUL2_TYPE;
+
+   constant INIT_BAYER_WB_MUL2_TYPE : BAYER_WB_MUL2_TYPE := (
+      WB_MULT_R       => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_WB_MUL2_TYPE) return std_logic_vector;
+   function to_BAYER_WB_MUL2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_MUL2_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: WB_B_ACC
+   ------------------------------------------------------------------------------------------
+   type BAYER_WB_B_ACC_TYPE is record
+      B_ACC          : std_logic_vector(30 downto 0);
+   end record BAYER_WB_B_ACC_TYPE;
+
+   constant INIT_BAYER_WB_B_ACC_TYPE : BAYER_WB_B_ACC_TYPE := (
+      B_ACC           => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_WB_B_ACC_TYPE) return std_logic_vector;
+   function to_BAYER_WB_B_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_B_ACC_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: WB_G_ACC
+   ------------------------------------------------------------------------------------------
+   type BAYER_WB_G_ACC_TYPE is record
+      G_ACC          : std_logic_vector(31 downto 0);
+   end record BAYER_WB_G_ACC_TYPE;
+
+   constant INIT_BAYER_WB_G_ACC_TYPE : BAYER_WB_G_ACC_TYPE := (
+      G_ACC           => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_WB_G_ACC_TYPE) return std_logic_vector;
+   function to_BAYER_WB_G_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_G_ACC_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: WB_R_ACC
+   ------------------------------------------------------------------------------------------
+   type BAYER_WB_R_ACC_TYPE is record
+      R_ACC          : std_logic_vector(30 downto 0);
+   end record BAYER_WB_R_ACC_TYPE;
+
+   constant INIT_BAYER_WB_R_ACC_TYPE : BAYER_WB_R_ACC_TYPE := (
+      R_ACC           => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_WB_R_ACC_TYPE) return std_logic_vector;
+   function to_BAYER_WB_R_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_R_ACC_TYPE;
+   
+   ------------------------------------------------------------------------------------------
    -- Section Name: SYSTEM
    ------------------------------------------------------------------------------------------
    type SYSTEM_TYPE is record
@@ -1806,6 +1904,27 @@ package regfile_xgs_athena_pack is
    );
 
    ------------------------------------------------------------------------------------------
+   -- Section Name: BAYER
+   ------------------------------------------------------------------------------------------
+   type BAYER_TYPE is record
+      BAYER_CFG      : BAYER_BAYER_CFG_TYPE;
+      WB_MUL1        : BAYER_WB_MUL1_TYPE;
+      WB_MUL2        : BAYER_WB_MUL2_TYPE;
+      WB_B_ACC       : BAYER_WB_B_ACC_TYPE;
+      WB_G_ACC       : BAYER_WB_G_ACC_TYPE;
+      WB_R_ACC       : BAYER_WB_R_ACC_TYPE;
+   end record BAYER_TYPE;
+
+   constant INIT_BAYER_TYPE : BAYER_TYPE := (
+      BAYER_CFG       => INIT_BAYER_BAYER_CFG_TYPE,
+      WB_MUL1         => INIT_BAYER_WB_MUL1_TYPE,
+      WB_MUL2         => INIT_BAYER_WB_MUL2_TYPE,
+      WB_B_ACC        => INIT_BAYER_WB_B_ACC_TYPE,
+      WB_G_ACC        => INIT_BAYER_WB_G_ACC_TYPE,
+      WB_R_ACC        => INIT_BAYER_WB_R_ACC_TYPE
+   );
+
+   ------------------------------------------------------------------------------------------
    -- Register file name: regfile_xgs_athena
    ------------------------------------------------------------------------------------------
    type REGFILE_XGS_ATHENA_TYPE is record
@@ -1815,6 +1934,7 @@ package regfile_xgs_athena_pack is
       HISPI          : HISPI_TYPE;
       DPC            : DPC_TYPE;
       LUT            : LUT_TYPE;
+      BAYER          : BAYER_TYPE;
    end record REGFILE_XGS_ATHENA_TYPE;
 
    constant INIT_REGFILE_XGS_ATHENA_TYPE : REGFILE_XGS_ATHENA_TYPE := (
@@ -1823,7 +1943,8 @@ package regfile_xgs_athena_pack is
       ACQ             => INIT_ACQ_TYPE,
       HISPI           => INIT_HISPI_TYPE,
       DPC             => INIT_DPC_TYPE,
-      LUT             => INIT_LUT_TYPE
+      LUT             => INIT_LUT_TYPE,
+      BAYER           => INIT_BAYER_TYPE
    );
 
    
@@ -3923,6 +4044,146 @@ package body regfile_xgs_athena_pack is
       return output;
    end to_LUT_LUT_RB_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_BAYER_CFG_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_BAYER_CFG_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(0) := reg.BAYER_EN;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_BAYER_CFG_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_BAYER_CFG_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_BAYER_CFG_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CFG_TYPE is
+   variable output : BAYER_BAYER_CFG_TYPE;
+   begin
+      output.BAYER_EN := stdlv(0);
+      return output;
+   end to_BAYER_BAYER_CFG_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_WB_MUL1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_WB_MUL1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 16) := reg.WB_MULT_G;
+      output(15 downto 0) := reg.WB_MULT_B;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_WB_MUL1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_WB_MUL1_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_WB_MUL1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_MUL1_TYPE is
+   variable output : BAYER_WB_MUL1_TYPE;
+   begin
+      output.WB_MULT_G := stdlv(31 downto 16);
+      output.WB_MULT_B := stdlv(15 downto 0);
+      return output;
+   end to_BAYER_WB_MUL1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_WB_MUL2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_WB_MUL2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(15 downto 0) := reg.WB_MULT_R;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_WB_MUL2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_WB_MUL2_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_WB_MUL2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_MUL2_TYPE is
+   variable output : BAYER_WB_MUL2_TYPE;
+   begin
+      output.WB_MULT_R := stdlv(15 downto 0);
+      return output;
+   end to_BAYER_WB_MUL2_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_WB_B_ACC_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_WB_B_ACC_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(30 downto 0) := reg.B_ACC;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_WB_B_ACC_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_WB_B_ACC_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_WB_B_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_B_ACC_TYPE is
+   variable output : BAYER_WB_B_ACC_TYPE;
+   begin
+      output.B_ACC := stdlv(30 downto 0);
+      return output;
+   end to_BAYER_WB_B_ACC_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_WB_G_ACC_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_WB_G_ACC_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(31 downto 0) := reg.G_ACC;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_WB_G_ACC_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_WB_G_ACC_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_WB_G_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_G_ACC_TYPE is
+   variable output : BAYER_WB_G_ACC_TYPE;
+   begin
+      output.G_ACC := stdlv(31 downto 0);
+      return output;
+   end to_BAYER_WB_G_ACC_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_WB_R_ACC_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_WB_R_ACC_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(30 downto 0) := reg.R_ACC;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_WB_R_ACC_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_WB_R_ACC_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_WB_R_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_R_ACC_TYPE is
+   variable output : BAYER_WB_R_ACC_TYPE;
+   begin
+      output.R_ACC := stdlv(30 downto 0);
+      return output;
+   end to_BAYER_WB_R_ACC_TYPE;
+
    
 end package body;
 
@@ -3931,11 +4192,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/01/29 09:59:31
+-- Created on          : 2021/02/24 10:09:18
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x883C74D
+-- Register file CRC32 : 0x313E2525
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -3983,8 +4244,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(89 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(88 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(95 downto 0);                   -- Address decode hit
+signal wEn                                                         : std_logic_vector(94 downto 0);                   -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -4078,6 +4339,12 @@ signal rb_DPC_DPC_LIST_DATA2_RD                                    : std_logic_v
 signal rb_LUT_LUT_CAPABILITIES                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_CTRL                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_RB                                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_BAYER_CFG                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_WB_MUL1                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_WB_MUL2                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_WB_B_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_WB_G_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_WB_R_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_SYSTEM_SCRATCHPAD_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                             : std_logic;                                       -- Field: GRAB_QUEUE_EN
 signal field_rw_DMA_FSTART_VALUE                                   : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -4247,6 +4514,13 @@ signal field_rw_LUT_LUT_CTRL_LUT_SEL                               : std_logic_v
 signal field_rw_LUT_LUT_CTRL_LUT_WRN                               : std_logic;                                       -- Field: LUT_WRN
 signal field_wautoclr_LUT_LUT_CTRL_LUT_SS                          : std_logic;                                       -- Field: LUT_SS
 signal field_rw_LUT_LUT_CTRL_LUT_ADD                               : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
+signal field_rw_BAYER_BAYER_CFG_BAYER_EN                           : std_logic;                                       -- Field: BAYER_EN
+signal field_rw_BAYER_WB_MUL1_WB_MULT_G                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
+signal field_rw_BAYER_WB_MUL1_WB_MULT_B                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
+signal field_rw_BAYER_WB_MUL2_WB_MULT_R                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
+signal field_rw_BAYER_WB_B_ACC_B_ACC                               : std_logic_vector(30 downto 0);                   -- Field: B_ACC
+signal field_rw_BAYER_WB_G_ACC_G_ACC                               : std_logic_vector(31 downto 0);                   -- Field: G_ACC
+signal field_rw_BAYER_WB_R_ACC_R_ACC                               : std_logic_vector(30 downto 0);                   -- Field: R_ACC
 signal ext_SYSMONXIL_readDataValid_FF                              : std_logic;                                       -- Pipelined version of ext_SYSMONXIL_readDataValid
 signal ext_SYSMONXIL_readData_FF                                   : std_logic_vector(31 downto 0);                   -- Pipelined version of ext_SYSMONXIL_readData
 signal ext_SYSMONXIL_readPending                                   : std_logic;                                       -- Read pending for the SYSMONXIL external section
@@ -4359,8 +4633,14 @@ hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else 
 hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
 hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
 hit(88) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
+hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c0#,12)))	else '0'; -- Addr:  0x04C0	BAYER_CFG
+hit(90) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c4#,12)))	else '0'; -- Addr:  0x04C4	WB_MUL1
+hit(91) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c8#,12)))	else '0'; -- Addr:  0x04C8	WB_MUL2
+hit(92) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4cc#,12)))	else '0'; -- Addr:  0x04CC	WB_B_ACC
+hit(93) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d0#,12)))	else '0'; -- Addr:  0x04D0	WB_G_ACC
+hit(94) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d4#,12)))	else '0'; -- Addr:  0x04D4	WB_R_ACC
 
-hit(89) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(95) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4459,6 +4739,12 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_LUT_LUT_CAPABILITIES,
                             rb_LUT_LUT_CTRL,
                             rb_LUT_LUT_RB,
+                            rb_BAYER_BAYER_CFG,
+                            rb_BAYER_WB_MUL1,
+                            rb_BAYER_WB_MUL2,
+                            rb_BAYER_WB_B_ACC,
+                            rb_BAYER_WB_G_ACC,
+                            rb_BAYER_WB_R_ACC,
                             ext_SYSMONXIL_readData_FF
                            )
 begin
@@ -4818,6 +5104,30 @@ begin
       -- [0x4b8]: /LUT/LUT_RB
       when 16#4B8# =>
          readBackMux <= rb_LUT_LUT_RB;
+
+      -- [0x4c0]: /BAYER/BAYER_CFG
+      when 16#4C0# =>
+         readBackMux <= rb_BAYER_BAYER_CFG;
+
+      -- [0x4c4]: /BAYER/WB_MUL1
+      when 16#4C4# =>
+         readBackMux <= rb_BAYER_WB_MUL1;
+
+      -- [0x4c8]: /BAYER/WB_MUL2
+      when 16#4C8# =>
+         readBackMux <= rb_BAYER_WB_MUL2;
+
+      -- [0x4cc]: /BAYER/WB_B_ACC
+      when 16#4CC# =>
+         readBackMux <= rb_BAYER_WB_B_ACC;
+
+      -- [0x4d0]: /BAYER/WB_G_ACC
+      when 16#4D0# =>
+         readBackMux <= rb_BAYER_WB_G_ACC;
+
+      -- [0x4d4]: /BAYER/WB_R_ACC
+      when 16#4D4# =>
+         readBackMux <= rb_BAYER_WB_R_ACC;
 
       -- [0x700:0x7fc] SYSMONXIL external section
       when 16#700# to 16#7FC# =>
@@ -10738,6 +11048,240 @@ rb_LUT_LUT_RB(7 downto 0) <= std_logic_vector(to_unsigned(integer(0),8));
 regfile.LUT.LUT_RB.LUT_RB <= rb_LUT_LUT_RB(7 downto 0);
 
 
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_BAYER_CFG
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(89) <= (hit(89)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: BAYER_EN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_BAYER_CFG(0) <= field_rw_BAYER_BAYER_CFG_BAYER_EN;
+regfile.BAYER.BAYER_CFG.BAYER_EN <= field_rw_BAYER_BAYER_CFG_BAYER_EN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_BAYER_CFG_BAYER_EN
+------------------------------------------------------------------------------------------
+P_BAYER_BAYER_CFG_BAYER_EN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_BAYER_CFG_BAYER_EN <= '0';
+      else
+         if(wEn(89) = '1' and bitEnN(0) = '0') then
+            field_rw_BAYER_BAYER_CFG_BAYER_EN <= reg_writedata(0);
+         end if;
+      end if;
+   end if;
+end process P_BAYER_BAYER_CFG_BAYER_EN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_WB_MUL1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(90) <= (hit(90)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: WB_MULT_G(31 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_MUL1(31 downto 16) <= field_rw_BAYER_WB_MUL1_WB_MULT_G(15 downto 0);
+regfile.BAYER.WB_MUL1.WB_MULT_G <= field_rw_BAYER_WB_MUL1_WB_MULT_G(15 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_MUL1_WB_MULT_G
+------------------------------------------------------------------------------------------
+P_BAYER_WB_MUL1_WB_MULT_G : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_MUL1_WB_MULT_G <= std_logic_vector(to_unsigned(integer(4096),16));
+      else
+         for j in  31 downto 16  loop
+            if(wEn(90) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_MUL1_WB_MULT_G(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_MUL1_WB_MULT_G;
+
+------------------------------------------------------------------------------------------
+-- Field name: WB_MULT_B(15 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_MUL1(15 downto 0) <= field_rw_BAYER_WB_MUL1_WB_MULT_B(15 downto 0);
+regfile.BAYER.WB_MUL1.WB_MULT_B <= field_rw_BAYER_WB_MUL1_WB_MULT_B(15 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_MUL1_WB_MULT_B
+------------------------------------------------------------------------------------------
+P_BAYER_WB_MUL1_WB_MULT_B : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_MUL1_WB_MULT_B <= std_logic_vector(to_unsigned(integer(4096),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(90) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_MUL1_WB_MULT_B(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_MUL1_WB_MULT_B;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_WB_MUL2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(91) <= (hit(91)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: WB_MULT_R(15 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_MUL2(15 downto 0) <= field_rw_BAYER_WB_MUL2_WB_MULT_R(15 downto 0);
+regfile.BAYER.WB_MUL2.WB_MULT_R <= field_rw_BAYER_WB_MUL2_WB_MULT_R(15 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_MUL2_WB_MULT_R
+------------------------------------------------------------------------------------------
+P_BAYER_WB_MUL2_WB_MULT_R : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_MUL2_WB_MULT_R <= std_logic_vector(to_unsigned(integer(4096),16));
+      else
+         for j in  15 downto 0  loop
+            if(wEn(91) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_MUL2_WB_MULT_R(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_MUL2_WB_MULT_R;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_WB_B_ACC
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(92) <= (hit(92)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: B_ACC(30 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_B_ACC(30 downto 0) <= field_rw_BAYER_WB_B_ACC_B_ACC(30 downto 0);
+regfile.BAYER.WB_B_ACC.B_ACC <= field_rw_BAYER_WB_B_ACC_B_ACC(30 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_B_ACC_B_ACC
+------------------------------------------------------------------------------------------
+P_BAYER_WB_B_ACC_B_ACC : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_B_ACC_B_ACC <= std_logic_vector(to_unsigned(integer(0),31));
+      else
+         for j in  30 downto 0  loop
+            if(wEn(92) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_B_ACC_B_ACC(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_B_ACC_B_ACC;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_WB_G_ACC
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(93) <= (hit(93)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: G_ACC(31 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_G_ACC(31 downto 0) <= field_rw_BAYER_WB_G_ACC_G_ACC(31 downto 0);
+regfile.BAYER.WB_G_ACC.G_ACC <= field_rw_BAYER_WB_G_ACC_G_ACC(31 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_G_ACC_G_ACC
+------------------------------------------------------------------------------------------
+P_BAYER_WB_G_ACC_G_ACC : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_G_ACC_G_ACC <= X"00000000";
+      else
+         for j in  31 downto 0  loop
+            if(wEn(93) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_G_ACC_G_ACC(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_G_ACC_G_ACC;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_WB_R_ACC
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(94) <= (hit(94)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: R_ACC(30 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_WB_R_ACC(30 downto 0) <= field_rw_BAYER_WB_R_ACC_R_ACC(30 downto 0);
+regfile.BAYER.WB_R_ACC.R_ACC <= field_rw_BAYER_WB_R_ACC_R_ACC(30 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_WB_R_ACC_R_ACC
+------------------------------------------------------------------------------------------
+P_BAYER_WB_R_ACC_R_ACC : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_WB_R_ACC_R_ACC <= std_logic_vector(to_unsigned(integer(0),31));
+      else
+         for j in  30 downto 0  loop
+            if(wEn(94) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_WB_R_ACC_R_ACC(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_WB_R_ACC_R_ACC;
+
 ------------------------------------------------------------------------------------------
 -- External section: SYSMONXIL
 ------------------------------------------------------------------------------------------
@@ -10767,7 +11311,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(89) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(95) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -10812,7 +11356,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(89) = '1') then
+         if (reg_read = '1' and hit(95) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -10860,7 +11404,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(89)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(95)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 
