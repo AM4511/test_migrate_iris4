@@ -682,13 +682,13 @@ Register("wb_mul2", 0x4c8, 4, "null");
 		Field("wb_mult_r", 15, 0, "rd|wr", 0x0, 0x1000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("wb_b_acc", 0x4cc, 4, "null");
-		Field("b_acc", 30, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("b_acc", 30, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("wb_g_acc", 0x4d0, 4, "null");
-		Field("g_acc", 31, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("g_acc", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 Register("wb_r_acc", 0x4d4, 4, "null");
-		Field("r_acc", 30, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("r_acc", 30, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
 
 %=================================================================
 % EXTERNAL NAME	: SYSMONXIL

@@ -18,7 +18,6 @@ library ieee;
  use IEEE.math_real.all;
  
 library work;
- use work.dpc_package.all;
 
 Library xpm;
   use xpm.vcomponents.all;
@@ -125,9 +124,9 @@ architecture functional of dpc_kernel_proc_color is
   signal proc_enable_P1     : std_logic:='0';
   signal Correct_pattern_P1 : std_logic_vector(7 downto 0);
   signal in_0_P1            : std_logic_vector(9 downto 0);
-  signal in_1_P1            : std_logic_vector(9 downto 0);
+  --signal in_1_P1            : std_logic_vector(9 downto 0);
   signal in_2_P1            : std_logic_vector(9 downto 0);
-  signal in_3_P1            : std_logic_vector(9 downto 0);
+  --signal in_3_P1            : std_logic_vector(9 downto 0);
   signal in_4_P1            : std_logic_vector(9 downto 0);
   
   signal sum_comb           : std_logic_vector(10 downto 0);
@@ -315,9 +314,9 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
       if(proc_enable='1') then    
         Correct_pattern_P1 <= proc_nxt_pattern_corr;            
         in_0_P1 <= in_0;
-        in_1_P1 <= in_1;
+        --in_1_P1 <= in_1;
         in_2_P1 <= in_2;    
-        in_3_P1 <= in_3;
+        --in_3_P1 <= in_3;
         in_4_P1 <= in_4;
       end if; --proc enable
            

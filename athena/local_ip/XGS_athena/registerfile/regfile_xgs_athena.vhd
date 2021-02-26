@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/02/24 10:09:18
+-- Created on          : 2021/02/26 14:33:33
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x313E2525
+-- Register file CRC32 : 0x7AF286C6
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -4192,11 +4192,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/02/24 10:09:18
+-- Created on          : 2021/02/26 14:33:33
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x313E2525
+-- Register file CRC32 : 0x7AF286C6
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4518,9 +4518,6 @@ signal field_rw_BAYER_BAYER_CFG_BAYER_EN                           : std_logic; 
 signal field_rw_BAYER_WB_MUL1_WB_MULT_G                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
 signal field_rw_BAYER_WB_MUL1_WB_MULT_B                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
 signal field_rw_BAYER_WB_MUL2_WB_MULT_R                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
-signal field_rw_BAYER_WB_B_ACC_B_ACC                               : std_logic_vector(30 downto 0);                   -- Field: B_ACC
-signal field_rw_BAYER_WB_G_ACC_G_ACC                               : std_logic_vector(31 downto 0);                   -- Field: G_ACC
-signal field_rw_BAYER_WB_R_ACC_R_ACC                               : std_logic_vector(30 downto 0);                   -- Field: R_ACC
 signal ext_SYSMONXIL_readDataValid_FF                              : std_logic;                                       -- Pipelined version of ext_SYSMONXIL_readDataValid
 signal ext_SYSMONXIL_readData_FF                                   : std_logic_vector(31 downto 0);                   -- Pipelined version of ext_SYSMONXIL_readData
 signal ext_SYSMONXIL_readPending                                   : std_logic;                                       -- Read pending for the SYSMONXIL external section
@@ -11188,29 +11185,10 @@ wEn(92) <= (hit(92)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: B_ACC(30 downto 0)
--- Field type: RW
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_BAYER_WB_B_ACC(30 downto 0) <= field_rw_BAYER_WB_B_ACC_B_ACC(30 downto 0);
-regfile.BAYER.WB_B_ACC.B_ACC <= field_rw_BAYER_WB_B_ACC_B_ACC(30 downto 0);
+rb_BAYER_WB_B_ACC(30 downto 0) <= regfile.BAYER.WB_B_ACC.B_ACC;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_BAYER_WB_B_ACC_B_ACC
-------------------------------------------------------------------------------------------
-P_BAYER_WB_B_ACC_B_ACC : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_BAYER_WB_B_ACC_B_ACC <= std_logic_vector(to_unsigned(integer(0),31));
-      else
-         for j in  30 downto 0  loop
-            if(wEn(92) = '1' and bitEnN(j) = '0') then
-               field_rw_BAYER_WB_B_ACC_B_ACC(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_BAYER_WB_B_ACC_B_ACC;
 
 
 
@@ -11223,29 +11201,10 @@ wEn(93) <= (hit(93)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: G_ACC(31 downto 0)
--- Field type: RW
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_BAYER_WB_G_ACC(31 downto 0) <= field_rw_BAYER_WB_G_ACC_G_ACC(31 downto 0);
-regfile.BAYER.WB_G_ACC.G_ACC <= field_rw_BAYER_WB_G_ACC_G_ACC(31 downto 0);
+rb_BAYER_WB_G_ACC(31 downto 0) <= regfile.BAYER.WB_G_ACC.G_ACC;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_BAYER_WB_G_ACC_G_ACC
-------------------------------------------------------------------------------------------
-P_BAYER_WB_G_ACC_G_ACC : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_BAYER_WB_G_ACC_G_ACC <= X"00000000";
-      else
-         for j in  31 downto 0  loop
-            if(wEn(93) = '1' and bitEnN(j) = '0') then
-               field_rw_BAYER_WB_G_ACC_G_ACC(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_BAYER_WB_G_ACC_G_ACC;
 
 
 
@@ -11258,29 +11217,10 @@ wEn(94) <= (hit(94)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
 -- Field name: R_ACC(30 downto 0)
--- Field type: RW
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_BAYER_WB_R_ACC(30 downto 0) <= field_rw_BAYER_WB_R_ACC_R_ACC(30 downto 0);
-regfile.BAYER.WB_R_ACC.R_ACC <= field_rw_BAYER_WB_R_ACC_R_ACC(30 downto 0);
+rb_BAYER_WB_R_ACC(30 downto 0) <= regfile.BAYER.WB_R_ACC.R_ACC;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_BAYER_WB_R_ACC_R_ACC
-------------------------------------------------------------------------------------------
-P_BAYER_WB_R_ACC_R_ACC : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_BAYER_WB_R_ACC_R_ACC <= std_logic_vector(to_unsigned(integer(0),31));
-      else
-         for j in  30 downto 0  loop
-            if(wEn(94) = '1' and bitEnN(j) = '0') then
-               field_rw_BAYER_WB_R_ACC_R_ACC(j-0) <= reg_writedata(j);
-            end if;
-         end loop;
-      end if;
-   end if;
-end process P_BAYER_WB_R_ACC_R_ACC;
 
 ------------------------------------------------------------------------------------------
 -- External section: SYSMONXIL

@@ -14,9 +14,9 @@
 --               _________             _________           __________            _________ 
 --    2x10bpp   |         |  2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         | (2x24bpp) 
 --   ---------->|   DPC   |---------->|   WB    |-------->|  Bayer   |--------->|   Lut   |----------->  RGB24 : REG_BAYER_EN=1
---              |_________|           |_________|    |    |__________|          |_________|
---                                                   |                           
---                                                    ------------------------------------------------>  RAW8  : REG_BAYER_EN=0
+--              |_________|     |     |_________|         |__________|          |_________|
+--                              |                                                
+--                               --------------------------------------------------------------------->  RAW8  : REG_BAYER_EN=0
 --
 -------------------------------------------------------------------------------
 
@@ -378,7 +378,7 @@ signal BayerIn_sol_p3         : std_logic;
 
 signal BayerIn_data_val_p1    : std_logic;
 signal BayerIn_data_val_p2    : std_logic;
-signal BayerIn_data_val_p3    : std_logic;
+--signal BayerIn_data_val_p3    : std_logic;
 
 signal BayerIn_data_p1        : std_logic_vector(15 downto 0);
 signal BayerIn_data_p2        : std_logic_vector(15 downto 0);
@@ -423,7 +423,7 @@ signal bayer_eof                : std_logic;
 -----------------------------------------------------
 -- LUT RGB
 -----------------------------------------------------
-signal bayer_data_P1          : std_logic_vector(bayer_data'range);
+signal bayer_data_P1          : std_logic_vector(bayer_data'range); --to bypass LUT
 
 signal LUT_RAM_W_enable       : std_logic_vector(2 downto 0);
 signal RAM_R_enable_ored      : std_logic; 
@@ -957,7 +957,7 @@ begin
 
       BayerIn_data_val_p1     <= '0';
       BayerIn_data_val_p2     <= '0';
-      BayerIn_data_val_p3     <= '0';
+      --BayerIn_data_val_p3     <= '0';
 
       BayerIn_eol_p1          <= '0';
       BayerIn_eol_p2          <= '0';

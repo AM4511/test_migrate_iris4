@@ -904,13 +904,13 @@
       <fields name="WB_MULT_R" description="White Balance factor [4].[12]" size="16" valueAtReset="1000"/>
     </registers>
     <registers name="WB_B_ACC" offsetFromParent="C">
-      <fields name="B_ACC" description="ACQuisition Blue ACCumulator" size="31"/>
+      <fields name="B_ACC" description="ACQuisition Blue ACCumulator" size="31" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="WB_G_ACC" offsetFromParent="10">
-      <fields name="G_ACC" description="ACQuisition Green ACCumulator" size="32"/>
+      <fields name="G_ACC" description="ACQuisition Green ACCumulator" size="32" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="WB_R_ACC" offsetFromParent="14">
-      <fields name="R_ACC" description="ACQuisition Red ACCumulator" size="31"/>
+      <fields name="R_ACC" description="ACQuisition Red ACCumulator" size="31" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">

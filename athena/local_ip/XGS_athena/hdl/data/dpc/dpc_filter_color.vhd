@@ -44,7 +44,6 @@ library ieee;
  use std.textio.all ; 
  
 library work;
- use work.dpc_package.all;
 
 entity dpc_filter_color is
    generic( DPC_CORR_PIXELS_DEPTH         : integer := 6    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
@@ -192,6 +191,7 @@ end component;
 
 constant nb_pixels  : integer := ((axi_data'high+1)/10)-1;      
 
+type STD13_LOGIC_VECTOR   is array (natural range <>) of std_logic_vector(12 downto 0);
 
 
 
