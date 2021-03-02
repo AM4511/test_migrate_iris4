@@ -30,14 +30,22 @@
 *
 ******************************************************************************/
 
-#ifndef __PLATFORM_H_
-#define __PLATFORM_H_
+#ifndef __MEMORY_CONFIG_H_
+#define __MEMORY_CONFIG_H_
 
-#include "platform_config.h"
+#include"hyperbusi.h"
 
-void init_platform();
-void cleanup_platform();
-void disable_caches();
+struct memory_range_s {
+    char *name;
+    char *ip;
+    unsigned long base;
+    unsigned long size;
+};
 
+/* generated memory ranges defined in memory_ranges_g.c */
+extern struct memory_range_s memory_ranges[];
+extern int n_memory_ranges;
+int init_rpc2_ctrl();
+int get_rpc2_ctrl_status();
 
 #endif

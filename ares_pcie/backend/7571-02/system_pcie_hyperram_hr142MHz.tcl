@@ -589,7 +589,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_AXI_MEM_ID_WIDTH {4} \
    CONFIG.C_ENABLE_WP {true} \
    CONFIG.DPRAM_MACRO_TYPE {0} \
-   CONFIG.INPUT_FIXED_DELAY {17} \
+   CONFIG.INPUT_FIXED_DELAY {15} \
  ] $rpc2_ctrl_controller_0
 
   # Create instance: system_pll, and set properties
@@ -736,7 +736,6 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_ethernet_0_phy_rst_n [get_bd_pins axi_ethernet_0/phy_rst_n] [get_bd_pins mii_to_rmii_0/rst_n]
   connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins microblaze_0_xlconcat/In5]
   connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In0]
-  connect_bd_net -net bufg_ext_spi_clk_BUFG_O [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins bufg_ext_spi_clk/BUFG_O]
   connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins bufg_ext_spi_clk/BUFG_I] [get_bd_pins system_pll/clk_in1]
   connect_bd_net -net clk_wiz_0_clk50MHz [get_bd_pins mii_to_rmii_0/ref_clk] [get_bd_pins system_pll/clk50MHz]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins system_pll/locked] [get_bd_pins system_reset/dcm_locked]
@@ -753,6 +752,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net system_pll_clkHyperRam_90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins system_pll/clkHyperRam_90]
   connect_bd_net -net system_reset_bus_struct_reset [get_bd_pins microblaze_0_local_memory/SYS_Rst] [get_bd_pins system_reset/bus_struct_reset]
   connect_bd_net -net system_reset_mb_reset [get_bd_pins microblaze_0/Reset] [get_bd_pins system_reset/mb_reset]
+  connect_bd_net -net util_ds_buf_0_BUFG_O [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins bufg_ext_spi_clk/BUFG_O]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins axi_ethernet_0/mdio_mdio_i] [get_bd_pins logic_0/dout]
 
   # Create address segments
