@@ -271,7 +271,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_rxd]
 set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_txd]
 set_property DRIVE 4 [get_ports debug_uart_txd]
 set_property SLEW SLOW [get_ports debug_uart_txd]
-set_property DRIVE 4 [get_ports ncsi_clk]
+set_property DRIVE 8 [get_ports ncsi_clk]
 set_property IOSTANDARD LVCMOS33 [get_ports ncsi_clk]
 set_property IOSTANDARD LVCMOS33 [get_ports {ncsi_rxd[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ncsi_rxd[0]}]
@@ -306,6 +306,9 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
+
+
 
 
 

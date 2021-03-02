@@ -41,7 +41,7 @@ update_compile_order -fileset ${HDL_FILESET}
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
-add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/hyperbus.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${HYPERRAM_SDC_FILE}
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/ncsi_timings.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/axi_quad_spi.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc

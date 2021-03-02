@@ -9,16 +9,20 @@
 #create_clock -period 8.000 -name RDS_CLK [get_ports hb_rwds]
 
 #142.857 MHz version
-#create_clock -period 7.000 -name VIRT_CLK
-#create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
+# Fix tap delay set to 15
+create_clock -period 7.000 -name VIRT_CLK
+create_clock -period 7.000 -name RDS_CLK [get_ports hb_rwds]
+
+set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0.100
 
 #150.0 MHz version
 #create_clock -period 6.667 -name VIRT_CLK
 #create_clock -period 6.667 -name RDS_CLK [get_ports hb_rwds]
 
 #166.666 MHz version
-create_clock -period 6.000 -name VIRT_CLK
-create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
+# TAP delay set to 14
+#create_clock -period 6.000 -name VIRT_CLK
+#create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
 
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300 j'enleve au départ, pour ne pas me nuire, car je me demande si le 0.3 améliore ou détériore le timing
 
@@ -140,6 +144,8 @@ set_false_path -to [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc
 
 # Max delay to the input fifo write_enable pin
 set_max_delay -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_ip/rpc2_ctrl_mem/rpc2_ctrl_mem_logic/rpc2_ctrl_core/rds_valid_delayed_reg/C] 1.500
+
+
 
 
 

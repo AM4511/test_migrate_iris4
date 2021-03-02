@@ -2,7 +2,7 @@
 # File         : create_ares_50t_rev0.tcl
 # Description  : TCL script used to create the MIOX fpga project. 
 #
-# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev2.tcl
+# Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev2_166MHz.tcl
 # 
 #
 # ##################################################################################
@@ -10,9 +10,7 @@ set DEBUG 0
 
 
 if {${DEBUG} == 1} {
-  set myself $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev0.tcl
-  set NO_REPORT  1
-  set NO_ARCHIVE 1
+  set myself $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev2_166MHz.tcl
 } else {
   set myself [info script]
 }
@@ -25,9 +23,11 @@ if {[file exists $myself ]} {
    puts "Running ${myself}"
    set BACKEND_DIR [file normalize [file dirname ${myself}]]
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
-   set BASE_NAME  ares_7571_02_a50t
+   set BASE_NAME  ares_7571_02_a50t_hr166
    set DEVICE "xc7a50ticpg236-1L"
 
+   set AXI_SYSTEM_BD_FILE ${BACKEND_DIR}/system_pcie_hyperram_hr166MHz.tcl
+   set HYPERRAM_SDC_FILE  ${BACKEND_DIR}/hyperbus_hr166MHz.sdc
 
    # #################################################################
    #  ARES FPGA_ID (FPGA DEVICE ID MAP) :

@@ -55,10 +55,15 @@ puts "Running ${myself}"
 #         axi_quad_spi: 
 #             * Set ext_spi_clk to 100MHz  (See JIRA : IRIS4-379)
 #             * Set timing constraints accordingly
+#
+# 0.1.0 : Modified backend scripts for handling Hyperram 142.875 and @166.667MHz
+#         Instruct the IMPL process with the property:
+#           set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 9
+set FPGA_MINOR_VERSION     1
+set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
@@ -80,13 +85,16 @@ set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
 set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
 set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
 set VIVADO_DIR          D:/vivado/${FPGA_FULL_VERSION}
 
+if {${DEBUG} == 1} {
+  set NO_REPORT  1
+  set NO_ARCHIVE 1
+}
 
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
@@ -207,10 +215,27 @@ wait_on_run ${SYNTH_RUN}
 # Generate implementation run
 ################################################
 current_run [get_runs $IMPL_RUN]
-set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs $IMPL_RUN]
+#set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+#create_run impl_2 -parent_run synth_1 -flow {Vivado Implementation 2019} -strategy Performance_ExplorePostRoutePhysOpt
+
+# set_property STEPS.OPT_DESIGN.ARGS.DIRECTIVE Explore [get_runs $IMPL_RUN]
+# set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs $IMPL_RUN]
+# set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs $IMPL_RUN]
+# set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs $IMPL_RUN]
+
 set_msg_config -id {Vivado 12-1790} -new_severity {WARNING}
 launch_runs ${IMPL_RUN} -to_step write_bitstream -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
+
+################################################
+# Run archive script
+################################################
+set TOTAL_SETUP_NEGATIVE_SLACK [get_property  STATS.TNS [get_runs $IMPL_RUN]]
+
+# if { [expr {$TOTAL_SETUP_NEGATIVE_SLACK < 0}] } {
+  # phys_opt_design -directive Explore
+# }
 
 
 ################################################
