@@ -131,6 +131,7 @@ xilinx.com:ip:axi_intc:4.1\
 xilinx.com:ip:axi_quad_spi:3.2\
 xilinx.com:ip:axi_timer:2.0\
 xilinx.com:ip:axi_uartlite:2.0\
+xilinx.com:ip:util_ds_buf:2.1\
 xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:mdm:3.2\
 xilinx.com:ip:microblaze:11.0\
@@ -490,6 +491,12 @@ proc create_root_design { parentCell } {
    CONFIG.C_BAUDRATE {115200} \
  ] $axi_uartlite_0
 
+  # Create instance: bufg_ext_spi_clk, and set properties
+  set bufg_ext_spi_clk [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 bufg_ext_spi_clk ]
+  set_property -dict [ list \
+   CONFIG.C_BUF_TYPE {BUFG} \
+ ] $bufg_ext_spi_clk
+
   # Create instance: logic_0, and set properties
   set logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_0 ]
   set_property -dict [ list \
@@ -584,33 +591,6 @@ proc create_root_design { parentCell } {
    CONFIG.DPRAM_MACRO_TYPE {0} \
    CONFIG.INPUT_FIXED_DELAY {15} \
  ] $rpc2_ctrl_controller_0
-
-  # Create instance: spi_pll, and set properties
-  set spi_pll [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 spi_pll ]
-  set_property -dict [ list \
-   CONFIG.CLKOUT1_DRIVES {BUFG} \
-   CONFIG.CLKOUT1_JITTER {137.681} \
-   CONFIG.CLKOUT1_PHASE_ERROR {105.461} \
-   CONFIG.CLKOUT2_DRIVES {BUFG} \
-   CONFIG.CLKOUT3_DRIVES {BUFG} \
-   CONFIG.CLKOUT4_DRIVES {BUFG} \
-   CONFIG.CLKOUT5_DRIVES {BUFG} \
-   CONFIG.CLKOUT6_DRIVES {BUFG} \
-   CONFIG.CLKOUT7_DRIVES {BUFG} \
-   CONFIG.JITTER_SEL {No_Jitter} \
-   CONFIG.MMCM_BANDWIDTH {OPTIMIZED} \
-   CONFIG.MMCM_CLKFBOUT_MULT_F {9} \
-   CONFIG.MMCM_CLKOUT0_DIVIDE_F {9} \
-   CONFIG.MMCM_CLKOUT0_DUTY_CYCLE {0.5} \
-   CONFIG.MMCM_COMPENSATION {ZHOLD} \
-   CONFIG.PRIMITIVE {PLL} \
-   CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} \
-   CONFIG.RESET_PORT {resetn} \
-   CONFIG.RESET_TYPE {ACTIVE_LOW} \
-   CONFIG.SECONDARY_SOURCE {Single_ended_clock_capable_pin} \
-   CONFIG.USE_MIN_POWER {true} \
-   CONFIG.USE_PHASE_ALIGNMENT {false} \
- ] $spi_pll
 
   # Create instance: system_pll, and set properties
   set system_pll [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 system_pll ]
@@ -744,7 +724,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net Lpc_to_AXI_prodcons_1_host_irq [get_bd_ports host_irq] [get_bd_pins Lpc_to_AXI_prodcons_1/host_irq]
   connect_bd_net -net S01_ACLK_0_1 [get_bd_ports host2axi_clk] [get_bd_pins qspi_interconnect_1/S01_ACLK]
   connect_bd_net -net S01_ARESETN_0_1 [get_bd_ports host2axi_reset_n] [get_bd_pins qspi_interconnect_1/S01_ARESETN]
-  connect_bd_net -net aresetn_1 [get_bd_ports reset_n] [get_bd_pins spi_pll/resetn] [get_bd_pins system_pll/resetn] [get_bd_pins system_reset/ext_reset_in]
+  connect_bd_net -net aresetn_1 [get_bd_ports reset_n] [get_bd_pins system_pll/resetn] [get_bd_pins system_reset/ext_reset_in]
   connect_bd_net -net axi_ethernet_0_dma_mm2s_cntrl_reset_out_n [get_bd_pins axi_ethernet_0/axi_txc_arstn] [get_bd_pins axi_ethernet_0_dma/mm2s_cntrl_reset_out_n]
   connect_bd_net -net axi_ethernet_0_dma_mm2s_introut [get_bd_pins axi_ethernet_0_dma/mm2s_introut] [get_bd_pins microblaze_0_xlconcat/In3]
   connect_bd_net -net axi_ethernet_0_dma_mm2s_prmry_reset_out_n [get_bd_pins axi_ethernet_0/axi_txd_arstn] [get_bd_pins axi_ethernet_0_dma/mm2s_prmry_reset_out_n]
@@ -756,9 +736,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_ethernet_0_phy_rst_n [get_bd_pins axi_ethernet_0/phy_rst_n] [get_bd_pins mii_to_rmii_0/rst_n]
   connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins microblaze_0_xlconcat/In5]
   connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In0]
-  connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins spi_pll/clk_in1] [get_bd_pins system_pll/clk_in1]
+  connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins bufg_ext_spi_clk/BUFG_I] [get_bd_pins system_pll/clk_in1]
   connect_bd_net -net clk_wiz_0_clk50MHz [get_bd_pins mii_to_rmii_0/ref_clk] [get_bd_pins system_pll/clk50MHz]
-  connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins spi_pll/clk_out1]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins system_pll/locked] [get_bd_pins system_reset/dcm_locked]
   connect_bd_net -net mdm_1_Interrupt [get_bd_pins mdm_0/Interrupt] [get_bd_pins microblaze_0_xlconcat/In6]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins mdm_0/Debug_SYS_Rst] [get_bd_pins system_reset/mb_debug_sys_rst]
@@ -773,6 +752,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net system_pll_clkHyperRam_90 [get_bd_pins rpc2_ctrl_controller_0/rpc_clk166MHz_90] [get_bd_pins system_pll/clkHyperRam_90]
   connect_bd_net -net system_reset_bus_struct_reset [get_bd_pins microblaze_0_local_memory/SYS_Rst] [get_bd_pins system_reset/bus_struct_reset]
   connect_bd_net -net system_reset_mb_reset [get_bd_pins microblaze_0/Reset] [get_bd_pins system_reset/mb_reset]
+  connect_bd_net -net util_ds_buf_0_BUFG_O [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins bufg_ext_spi_clk/BUFG_O]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins axi_ethernet_0/mdio_mdio_i] [get_bd_pins logic_0/dout]
 
   # Create address segments

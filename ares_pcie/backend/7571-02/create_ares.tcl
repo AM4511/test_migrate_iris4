@@ -88,7 +88,19 @@ set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
 
 
 set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
-set VIVADO_DIR          D:/vivado/${FPGA_FULL_VERSION}
+
+
+###################################################################################
+# Set the Vivado working directory
+###################################################################################
+if { [info exists ::env(VIVADO_DIR)] } {
+  set VIVADO_DIR $env(VIVADO_DIR)/${FPGA_FULL_VERSION}
+} else {
+  set VIVADO_DIR D:/vivado/${FPGA_FULL_VERSION}
+}
+puts "Setting VIVADO_DIR = ${VIVADO_DIR}"
+
+
 
 if {${DEBUG} == 1} {
   set NO_REPORT  1
