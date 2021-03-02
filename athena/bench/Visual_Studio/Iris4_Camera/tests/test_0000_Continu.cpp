@@ -27,6 +27,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	int getch_return;
 	int MonoType = 8;
+	int RGB32Type = 32;
 
 	int Sortie = 0;
 	char ch;
@@ -87,9 +88,23 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     // MIL LAYER 
     //
     //---------------------
+
+
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr      = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
-	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+	if (SensorParams->IS_COLOR == 0) {
+	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
+	  LUT_PATTERN = 0;
+	}
+	else{
+	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, RGB32Type);
+	  LUT_PATTERN = 3;
+	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+	  XGS_Ctrl->rXGSptr.BAYER.BAYER_CFG.f.BAYER_EN = 1;
+    }
+
+	ImageBufferLinePitch= MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
@@ -240,6 +255,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (l) Program LUT");
 	printf_s("\n  (2) Digital Gain +1 (XGS Dig Gain)");
 	printf_s("\n  (1) Digital Gain -1 (XGS Dig Gain)");
+	printf_s("\n  (B) White Balance Color Sensor");
 	printf_s("\n  (x) Dump XGS registers");
 
 
@@ -286,6 +302,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Data->SetDMA();
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 		GrabCmd++;
+
 
 		//XGS_Ctrl->WaitEndExpReadout();
 
@@ -595,7 +612,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(100);
 				LUT_PATTERN++;
-				if (LUT_PATTERN == 3) LUT_PATTERN = 0;
+				if (LUT_PATTERN == 4) LUT_PATTERN = 0;
 				XGS_Data->ProgramLUT(LUT_PATTERN);
 				XGS_Data->EnableLUT();
 				break;
@@ -632,6 +649,20 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE);
 				  
 				break;
+
+			case 'B':				
+				cout << "\nCalculating White Balance...\n";
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);  // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+				GrabCmd++;
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_B_ACC.f.B_ACC)));
+				XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+				XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_R_ACC.f.R_ACC)));			
+				break;
+
 
 			}
 

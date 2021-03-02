@@ -780,7 +780,7 @@
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="DPC" baseAddress="480" endAddress="498">
     <registers name="DPC_CAPABILITIES">
-      <fields name="DPC_LIST_LENGTH" description="This register defines the maximum number of pixels that can be corrected by the DPC module. (ONE-based).&#xD;&#xA;This register is calculated with formula : (2^DPC_CORR_PIXELS_DEPTH)-1 , where DPC_CORR_PIXELS_DEPTH is a generic to the DPC module.&#xD;&#xA;&#xD;&#xA;" lsb="16" size="12" readWrite="false" readOnly="true"/>
+      <fields name="DPC_LIST_LENGTH" description="This register defines the maximum number of pixels that can be corrected by the DPC module. (ONE-based).&#xD;&#xA;This register is calculated with formula : (2^DPC_CORR_PIXELS_DEPTH)-1 , where DPC_CORR_PIXELS_DEPTH is a generic to the DPC module.&#xD;&#xA;&#xD;&#xA;For GTX value is 511&#xD;&#xA;&#xD;&#xA;" lsb="16" size="12" readWrite="false" readOnly="true"/>
       <fields name="DPC_VER" description="Implemented version of the DPC module" size="4" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial monochrone correction only, 2 lines buffered.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -856,18 +856,26 @@
     <registers name="LUT_CAPABILITIES">
       <fields name="LUT_SIZE_CONFIG" description="" lsb="16" size="12" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reserved&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>10 to 8 bits LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>10 to 8 bits LUT (Mono Only)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>8 to 8 bits RGB LUT (Color Only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="LUT_VER" description="Implemented version of the LUT module" size="4" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial monochrone LUT&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial color LUT&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
     <registers name="LUT_CTRL" offsetFromParent="4">
       <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT logic will not be used, and the 8MSB bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga." lsb="28"/>
       <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT." lsb="16" size="8"/>
-      <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;The Color and Mono shares the same 8 physical LUT. &#xD;&#xA;&#xD;&#xA;In mono mode set LUT_SEL to 8 to write to all RAMs simultaneous." lsb="12" size="4"/>
+      <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;" lsb="12" size="4">
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Blue LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Green LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Red LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write all LUT with same data (Mono or Color)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="LUT_WRN" alias="LUT Write ReadNot" description="LUT Write mode" lsb="11">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Read operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write operation&lt;/matrox_column_delimiter></possibleValues>
@@ -878,6 +886,31 @@
     </registers>
     <registers name="LUT_RB" offsetFromParent="8">
       <fields name="LUT_RB" description="Not Implemented to save FPGA ressources" size="8" readWrite="false" staticVal="true"/>
+    </registers>
+  </registerFileAbstractNodes>
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="BAYER" baseAddress="4C0" endAddress="4D4">
+    <registers name="BAYER_CFG">
+      <fields name="BAYER_EN" description="This register enables the Bayer demosaic and RGB LUT.">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RAW8&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RGB24&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+    </registers>
+    <registers name="WB_MUL1" offsetFromParent="4">
+      <fields name="WB_MULT_G" description="White Balance factor [4].[12]" lsb="16" size="16" valueAtReset="1000"/>
+      <fields name="WB_MULT_B" description="White Balance factor [4].[12]" size="16" valueAtReset="1000"/>
+    </registers>
+    <registers name="WB_MUL2" offsetFromParent="8">
+      <fields name="WB_MULT_R" description="White Balance factor [4].[12]" size="16" valueAtReset="1000"/>
+    </registers>
+    <registers name="WB_B_ACC" offsetFromParent="C">
+      <fields name="B_ACC" description="ACQuisition Blue ACCumulator" size="31" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="WB_G_ACC" offsetFromParent="10">
+      <fields name="G_ACC" description="ACQuisition Green ACCumulator" size="32" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="WB_R_ACC" offsetFromParent="14">
+      <fields name="R_ACC" description="ACQuisition Red ACCumulator" size="31" readWrite="false" readOnly="true"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">

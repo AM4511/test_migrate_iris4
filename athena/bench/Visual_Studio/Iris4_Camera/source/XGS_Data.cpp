@@ -504,7 +504,17 @@ void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 
 	}
 
+	//Transparent 8 a 8 (COLOR) 
+	else if (LUT_TYPE == 3) {
+		printf_s("\nLUT is now 8 to 8 bits, for color sensor\n");
+		rXGSptr.LUT.LUT_CTRL.f.LUT_SEL = 7;
+		for (int i = 0; i < 256; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS = 1;
+		}
 
+	}
 }
 
 

@@ -77,6 +77,12 @@ class CVlib;
     parameter DPC_LIST_DATA1_RD            = 16'h494;    
     parameter DPC_LIST_DATA2_RD            = 16'h498;     
 
+    // WB
+    parameter WB_MUL1                      = 16'h4c4;
+    parameter WB_MUL2                      = 16'h4c8;
+    // BAYER
+	parameter BAYER_CFG                    = 16'h4c0;
+
     // LUT
     parameter LUT_CAPABILITIES             = 16'h4B0;
 	parameter LUT_CTRL                     = 16'h4B4;
@@ -117,7 +123,7 @@ class CVlib;
    
 	int DPC_list_count = 0;	
 
-
+    int bayer = 0; 
 
 
     /////////////////////////////
@@ -414,6 +420,7 @@ class CVlib;
 		XGS_WriteSPI(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
 		#10us;		
 		XGS_WriteSPI(8, 16'h0000);
+		#50us;	
 	endtask : GenImage_XGS	
 	
 
@@ -592,7 +599,7 @@ class CVlib;
     //---------------------------------------
     //  setHISPI_X_window X Origine
     //---------------------------------------
-    task setHISPI_X_window();
+    task setHISPI_X_window(int Interpolation = 0);
 		bit [31:0] reg_value;
 		///////////////////////////////////////////////////
 		// Program X Origin of valid data, in HiSPI
@@ -604,14 +611,16 @@ class CVlib;
 		//Image centree max 4096             			
 		//MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
 		//MODEL_X_END    = MODEL_X_START+P_ROI_WIDTH-1;              			
-		
-		//Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
-		MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
-		MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;              			
-		
-		//Image qui part a 0,  avec tous les pixels interpolation(x8)
-		//MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;              			
-		
+	    
+		if (Interpolation==0) begin
+		  //Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
+		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;              			
+		end else begin
+		  //Image qui part a 0,  avec tous les pixels interpolation(x8)
+		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;              			
+		end
 		reg_value = (MODEL_X_END<<16) + MODEL_X_START;
 		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
 	
@@ -760,6 +769,33 @@ class CVlib;
 
 
 
+    //---------------------------------------
+    //  Task : Prediction image de grab COLOR
+    //---------------------------------------
+    task Gen_predict_img_color(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
+   		XGS_image = XGS_imageSRC.copy;
+		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                         // Sensor ROI Y  
+		XGS_image.sub_Y(SUB_Y);                                                                           // Sensor SUB Y  
+     
+   		XGS_image.reduce_bit_depth(10);                                                                   // FPGA 12bpp to 10bpp  
+ 		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                                 // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
+		
+   	    XGS_image.mono_2_color_patch(); //on ramase 2 pixel LSB, on dumpe 6 ...
+    	XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
+		XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC	       
+        XGS_image.reduce_bit_depth(8);                                                                    // FPGA 10bpp to 8bpp
+		
+		if(bayer==1)
+		  XGS_image.BayerDemosaic();                                                                      // Bayer : Mono8 to RGB32           
+		else
+		  XGS_image.mono8_2_mono32();        
+        
+        //XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X		
+		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X   
+        //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X  
+		//XGS_image.rev_Y(REV_Y);                                                                      // FPGA REV Y  : fait au niveau de la generation d'adresse du scoreboard
+
+	endtask : Gen_predict_img_color
 
 
 
@@ -807,6 +843,64 @@ class CVlib;
         DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
 
     endtask : DPC_add_list
+
+
+    ///////////////////////////////////////////////////
+	// DPC ADD COLOR PIXEL LIST
+	///////////////////////////////////////////////////
+    task DPC_COLOR_add_list(); 
+        int i;
+        int j;
+		int DPC_PATTERN;
+		
+		//Replace by R pixel
+		DPC_PATTERN = 1;       //replace by R pixel
+		for (j = 0; j < 4; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin				
+		       DPC_add(i, j, DPC_PATTERN);
+		    end   
+          
+        //Replace by L pixel
+		DPC_PATTERN = 16;       //replace by L pixel
+		for (j = 4; j < 8; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin				
+		       DPC_add(i, j, DPC_PATTERN);
+		    end   
+
+       //Replace by L+R/2 pixel
+		DPC_PATTERN = 17;  
+		for (j = 8; j < 12; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin				
+		       DPC_add(i, j, DPC_PATTERN);
+		    end   	
+	
+
+        DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
+
+    endtask : DPC_COLOR_add_list
+
+
+    ///////////////////////////////////////////////////
+	// White Balance
+	///////////////////////////////////////////////////
+    task setWB(int B_FACT, int G_FACT, int R_FACT); 
+    	host.write(WB_MUL1,  (G_FACT<<16) + B_FACT );  
+    	host.write(WB_MUL2,  R_FACT );                 
+    endtask : setWB
+
+    ///////////////////////////////////////////////////
+	//BAYER Enable
+	///////////////////////////////////////////////////
+    task setBayer(int Enable); 
+     	host.write(BAYER_CFG, Enable);
+		this.bayer = Enable; 
+    endtask : setBayer
+
+
+
 
 
 
