@@ -6,7 +6,7 @@
 # 
 #
 # ##################################################################################
-set DEBUG 1
+set DEBUG 0
 
 
 if {${DEBUG} == 1} {
@@ -60,7 +60,10 @@ if {[file exists $myself ]} {
    # ############################################
    # Starting generation script
    # ############################################
+   if {${DEBUG} == 0} {
    source $BACKEND_DIR/create_ares.tcl
+   }
+
    
 } else {
    puts "Error : script $myself does not exist!!!"

@@ -56,9 +56,8 @@ puts "Running ${myself}"
 #             * Set ext_spi_clk to 100MHz  (See JIRA : IRIS4-379)
 #             * Set timing constraints accordingly
 #
-# 0.1.0 : Modified backend scripts for handling Hyperram 142.875 and @166.667MHz
-#         Instruct the IMPL process with the property:
-#           set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore
+# 0.1.0 : Modified backend scripts for handling Hyperram @142.875/166.667MHz
+#         Changed the ext_spi_clk source to the clk_100MHz input port (through a bufg)
 #
 # ################################################################
 set FPGA_MAJOR_VERSION     0
@@ -216,13 +215,6 @@ wait_on_run ${SYNTH_RUN}
 ################################################
 current_run [get_runs $IMPL_RUN]
 set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs $IMPL_RUN]
-#set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
-#create_run impl_2 -parent_run synth_1 -flow {Vivado Implementation 2019} -strategy Performance_ExplorePostRoutePhysOpt
-
-# set_property STEPS.OPT_DESIGN.ARGS.DIRECTIVE Explore [get_runs $IMPL_RUN]
-# set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs $IMPL_RUN]
-# set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs $IMPL_RUN]
-# set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE AggressiveExplore [get_runs $IMPL_RUN]
 
 set_msg_config -id {Vivado 12-1790} -new_severity {WARNING}
 launch_runs ${IMPL_RUN} -to_step write_bitstream -jobs ${JOB_COUNT}
@@ -232,10 +224,6 @@ wait_on_run ${IMPL_RUN}
 # Run archive script
 ################################################
 set TOTAL_SETUP_NEGATIVE_SLACK [get_property  STATS.TNS [get_runs $IMPL_RUN]]
-
-# if { [expr {$TOTAL_SETUP_NEGATIVE_SLACK < 0}] } {
-  # phys_opt_design -directive Explore
-# }
 
 
 ################################################
