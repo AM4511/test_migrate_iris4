@@ -17,6 +17,7 @@ proc init_gui { IPINST } {
   set DMA [ipgui::add_page $IPINST -name "DMA"]
   set_property tooltip {DMA controller configuration} ${DMA}
   ipgui::add_param $IPINST -name "MAX_PCIE_PAYLOAD_SIZE" -parent ${DMA} -widget comboBox
+  ipgui::add_param $IPINST -name "COLOR" -parent ${DMA}
 
   #Adding Page
   set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {HiSPi}]
@@ -49,6 +50,15 @@ proc update_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELAYC
 
 proc validate_PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL { PARAM_VALUE.BOOL_ENABLE_IDELAYCTRL } {
 	# Procedure called to validate BOOL_ENABLE_IDELAYCTRL
+	return true
+}
+
+proc update_PARAM_VALUE.COLOR { PARAM_VALUE.COLOR } {
+	# Procedure called to update COLOR when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.COLOR { PARAM_VALUE.COLOR } {
+	# Procedure called to validate COLOR
 	return true
 }
 
@@ -126,5 +136,10 @@ proc update_MODELPARAM_VALUE.SENSOR_FREQ { MODELPARAM_VALUE.SENSOR_FREQ PARAM_VA
 proc update_MODELPARAM_VALUE.SIMULATION { MODELPARAM_VALUE.SIMULATION PARAM_VALUE.SIMULATION } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.SIMULATION}] ${MODELPARAM_VALUE.SIMULATION}
+}
+
+proc update_MODELPARAM_VALUE.COLOR { MODELPARAM_VALUE.COLOR PARAM_VALUE.COLOR } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.COLOR}] ${MODELPARAM_VALUE.COLOR}
 }
 

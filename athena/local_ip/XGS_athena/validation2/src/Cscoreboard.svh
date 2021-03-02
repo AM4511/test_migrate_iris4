@@ -26,7 +26,8 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	
     Pcie32_trans Pcie32_queue[$];
 	
-	
+	int IgnorePrediction=0;
+
 	int number_of_errors=0;
 
 	//used to count the number of transactions
@@ -243,15 +244,16 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	  	  
 	  if (this.Pcie32_queue.size() > 0) begin
 	    DW_pred = this.Pcie32_queue.pop_front();
-	  
-	    if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin	
-	     $display ("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
-         number_of_errors++;	
-         if(number_of_errors>0) begin
-		   //#10us;
-		   $stop;           
-		 end 
-		end 		 
+	    if(IgnorePrediction==0) begin
+	      if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin	
+	        $display ("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+            number_of_errors++;	
+            if(number_of_errors>0) begin
+		      //#10us;
+		      $stop;           
+		    end 
+		  end 		 
+		end  
       end  else begin
 	  	$display ("ERROR Pcie queue is empty and still have transactions pending!");
 	  

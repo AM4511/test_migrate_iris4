@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x883C74D
+* Register file CRC32 : 0x7AF286C6
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -107,6 +107,12 @@
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CAPABILITIES_ADDRESS           0x4B0
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_ADDRESS                   0x4B4
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_ADDRESS                     0x4B8
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_ADDRESS                0x4C0
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_ADDRESS                  0x4C4
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_ADDRESS                  0x4C8
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_ADDRESS                 0x4CC
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_ADDRESS                 0x4D0
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_ADDRESS                 0x4D4
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -1736,6 +1742,113 @@ typedef union
 
 
 /**************************************************************************
+* Register name : BAYER_CFG
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 BAYER_EN : 1;   /* Bits(0:0), null */
+      M_UINT32 RSVD0    : 31;  /* Bits(31:1), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_TYPE;
+
+
+/**************************************************************************
+* Register name : WB_MUL1
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 WB_MULT_B : 16;  /* Bits(15:0), null */
+      M_UINT32 WB_MULT_G : 16;  /* Bits(31:16), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_TYPE;
+
+
+/**************************************************************************
+* Register name : WB_MUL2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 WB_MULT_R : 16;  /* Bits(15:0), null */
+      M_UINT32 RSVD0     : 16;  /* Bits(31:16), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_TYPE;
+
+
+/**************************************************************************
+* Register name : WB_B_ACC
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 B_ACC : 31;  /* Bits(30:0), null */
+      M_UINT32 RSVD0 : 1;   /* Bits(31:31), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_TYPE;
+
+
+/**************************************************************************
+* Register name : WB_G_ACC
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 G_ACC : 32;  /* Bits(31:0), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_TYPE;
+
+
+/**************************************************************************
+* Register name : WB_R_ACC
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 R_ACC : 31;  /* Bits(30:0), null */
+      M_UINT32 RSVD0 : 1;   /* Bits(31:31), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE;
+
+
+/**************************************************************************
 * Register name : TEMP
 ***************************************************************************/
 typedef union
@@ -1974,6 +2087,19 @@ typedef struct
 } FPGA_REGFILE_XGS_ATHENA_LUT_TYPE;
 
 /**************************************************************************
+* Section name   : BAYER
+***************************************************************************/
+typedef struct
+{
+   FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_TYPE BAYER_CFG;  /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_TYPE   WB_MUL1;    /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_TYPE   WB_MUL2;    /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_TYPE  WB_B_ACC;   /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_TYPE  WB_G_ACC;   /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE  WB_R_ACC;   /* Address offset: 0x14 */
+} FPGA_REGFILE_XGS_ATHENA_BAYER_TYPE;
+
+/**************************************************************************
 * External section name   : SYSMONXIL
 ***************************************************************************/
 typedef struct
@@ -2004,7 +2130,9 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_DPC_TYPE       DPC;         /* Section; Base address offset: 0x480 */
    M_UINT32                               RSVD4[5];    /* Padding; Size (20 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_LUT_TYPE       LUT;         /* Section; Base address offset: 0x4b0 */
-   M_UINT32                               RSVD5[145];  /* Padding; Size (580 Bytes) */
+   M_UINT32                               RSVD5[1];    /* Padding; Size (4 Bytes) */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_TYPE     BAYER;       /* Section; Base address offset: 0x4c0 */
+   M_UINT32                               RSVD6[138];  /* Padding; Size (552 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

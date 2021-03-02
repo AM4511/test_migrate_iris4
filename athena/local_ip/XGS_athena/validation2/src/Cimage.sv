@@ -64,11 +64,13 @@ class CImage;
     shortint image_DPC[];
 
     typedef struct packed{
-            int dpc_x, dpc_y, dpc_pat;
-	} DPC_element;                
-    DPC_element dpc_list[64];
+      int dpc_x, dpc_y, dpc_pat;
+	  } DPC_element;                
+  
+    DPC_element dpc_list[512];
+  
     int dpc_list_count=0;
-	int dpc_pattern_0_cfg=0;
+	  int dpc_pattern_0_cfg=0;
     int dpc_firstlast_line_rem =0;
 
 
@@ -875,8 +877,200 @@ class CImage;
 
 
 
+    // TEMPoraire color on 2LSB mono pipeline 
+    function void mono_2_color_patch();        
+        int new_size_x ;        
+        // determiner la nouvelle dimension, 2 ok 6 skip
+        new_size_x = pgm_size_x/4;
+        //take 2 skip 6
+        for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < new_size_x; x += 2) begin
+                 
+                image[y * new_size_x + x]     = get_pixel(x*4,     y);
+                image[y * new_size_x + x + 1] = get_pixel((x*4)+1, y);
+            end
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
+        pgm_size_x = new_size_x;         
+    endfunction : mono_2_color_patch 
 
-endclass :  CImage    
+
+
+    // TEMPoraire color on 2LSB mono pipeline 
+    function void mono8_2_mono32();        
+        
+        shortint image_new[];
+        int new_size_x ;        
+        
+        // determiner la nouvelle dimension, mono8 to mono32
+        new_size_x = pgm_size_x*4;
+
+        image_new = new[new_size_x * pgm_size_y];  
+
+        for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < pgm_size_x; x += 1) begin                
+                image_new[y * new_size_x + 4*x]     = get_pixel(x,y);
+                image_new[y * new_size_x + 4*x + 1] = 0;
+                image_new[y * new_size_x + 4*x + 2] = 0;
+                image_new[y * new_size_x + 4*x + 3] = 0;
+            end
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image_new); // ici il faut faire une reallocation augmentee!
+        pgm_size_x = new_size_x;    
+
+        image_new.delete;
+
+    endfunction : mono8_2_mono32 
+
+ 
+
+
+    //---------------------------------------------------------------------------------------------------------------------
+    //  This task correct dead pixel from one COLOR image stored in Class ---- to a new corrected image stored in DPC_grab_image Class.
+    //---------------------------------------------------------------------------------------------------------------------
+    task Correct_DeadPixelsColor(input int x_start, input int x_end, input int y_start, input int y_end, input int SUB_X, input int SUB_Y);
+    
+      int HeadID=0;
+      
+      shortint expected_data10=0;
+
+      int Translated_ROIx;
+      int Translated_ROIy;      
+
+      image_DPC = image;	// fera l'allocation automagiquement!, utilise par get_pixel_DPC pour aller chercher pixels ds image originale
+
+      //$display("Correct_DeadPixels x_start=%0d, x_end=%0d, y_start=%0d, y_end=%0d", x_start, x_end, y_start, y_end); 
+
+      if(SUB_Y==1) //Si subsampling, il faut enlever 1 a y_end: la derniere ligne est forcement paire!
+        y_end=y_end-1;
+      if(SUB_X==1) //Si subsampling, il faut enlever 1 a x_end: la derniere ligne est forcement paire!
+        x_end=x_end-1;
+
+      for(int dpc=0; dpc < dpc_list_count; dpc+=1)
+      begin
+        //$display("Correct_DeadPixels loop %0d/%0d, dpc_firstlast_line_rem=%0d dpc_x=%0d dpc_y=%0d", dpc, dpc_list_count, dpc_firstlast_line_rem, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y );
+        if ( dpc_list[dpc].dpc_x >= x_start &&  dpc_list[dpc].dpc_x <= x_end &&  dpc_list[dpc].dpc_y >= y_start &&  dpc_list[dpc].dpc_y <= y_end ) 
+          begin
+            if( (SUB_Y==0 || (SUB_Y==1 && dpc_list[dpc].dpc_y%2==0))  && (SUB_X==0 || (SUB_X==1 && dpc_list[dpc].dpc_x%2==0))  ) begin  
+              Translated_ROIx = (dpc_list[dpc].dpc_x - x_start)/(SUB_X+1);
+              Translated_ROIy = (dpc_list[dpc].dpc_y - y_start)/(SUB_Y+1);     
+              
+              correct_pixelColor(Translated_ROIx, Translated_ROIy, dpc_list[dpc].dpc_pat, dpc_pattern_0_cfg, expected_data10);   // Correct rest of image
+             
+              $display("HeadID %0d, Correct_DeadPixels: x=%0d, y=%0d Expected=%0d", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y, expected_data10);  
+
+              set_pixel(Translated_ROIx, Translated_ROIy, expected_data10);
+            end else 
+              begin
+                $display("HeadID %0d, Correct_DeadPixels: Pixel x=%0d, y=%0d not corrected because Subsampling Y applied", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y);
+              end
+          end
+        else begin
+            $display("HeadID %0d, Correct_DeadPixels: Pixel x=%0d, y=%0d not corrected because out of ROI", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y);
+        end        
+      end
+
+    endtask : Correct_DeadPixelsColor
+
+    //----------------------------------------------------------------------------------------
+    //  This task takes a x,y and pattern, pixel and returns a corrected pixel from the image
+    //----------------------------------------------------------------------------------------
+    task correct_pixelColor(input int x, input int y, input int pattern, input int reg_dcp_pattern0_cfg, output shortint pix_corrected);
+      //temp
+      int HeadID=0;
+      int printinfo=1;
+
+      //if(printinfo==1) $display("Correct_pixel : x=%0d y=%0d pattern=%0d reg_dcp_pattern0_cfg=%0d FirstCol=%0d LastCol=%0d FirstLine=%0d LastLine=%0d ", x,  y,  pattern,  reg_dcp_pattern0_cfg,  FirstCol, LastCol, FirstLine,  LastLine);
+
+      if(pattern==0) 
+        begin
+            if(reg_dcp_pattern0_cfg==1) begin
+              pix_corrected  = 1023; 
+              if(printinfo==1) if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for DEBUG pixel(x=%0d, y=%0d, Pat=%0d) is : %0d bpp10, %0d bpp8", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
+              end
+            else begin
+              pix_corrected  = get_pixel_DPC(x,y);
+              if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for DEBUG pixel(x=%0d, y=%0d, Pat=%0d) is current pixel bypass: %0d bpp10, %0d bpp8", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );              
+            end
+        end
+
+      if(pattern==1) 
+        begin     
+          pix_corrected  = ( get_pixel_DPC(x-2,y) );
+          if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) (-2 Left pixel) is %0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );                          
+        end
+
+      if(pattern==16) 
+        begin
+          pix_corrected  = ( get_pixel_DPC(x+2,y) );
+          if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) (+2 Right pixel) is %0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, pix_corrected, pix_corrected>>2 );                          
+        end
+
+      if(pattern==17) 
+        begin
+          pix_corrected  = ( get_pixel_DPC(x+2,y) + get_pixel_DPC(x-2,y))>>1 ;
+          if(printinfo==1) $display("HeadID %0d, DPC SystemVerilog prediction for (x=%0d, y=%0d, Pat=%0d) is (%0d+%0d)/2=%0d bpp10, %0d bpp8 ", HeadID, x, y, pattern, get_pixel_DPC(x+2,y), get_pixel_DPC(x-2,y), pix_corrected, pix_corrected>>2 );                          
+        end
+                      
+    endtask : correct_pixelColor
+
+
+    // Bayer demosaic 
+    function void BayerDemosaic();        
+        
+        shortint image_new[];
+        int new_size_x ;        
+        
+        // determiner la nouvelle dimension, Mono8 to RGB32
+        new_size_x = pgm_size_x*4;
+
+        image_new = new[new_size_x * pgm_size_y];  
+
+        for(int y = 0; y < pgm_size_y; y += 1) begin
+            for(int x = 0; x < pgm_size_x-1; x += 1) begin                                             //Last pixel of the line is repeated by bayer (mirror)          
+                if(y%2==0) begin                                                                       //EVEN LINE
+                  if(x%2==0) begin
+                    image_new[y * new_size_x + 4*x]     = get_pixel(x+1, y+1);                         //B
+                    image_new[y * new_size_x + 4*x + 1] = (get_pixel(x+1, y) + get_pixel(x, y+1))>>1;  //G
+                    image_new[y * new_size_x + 4*x + 2] = get_pixel(x, y);                             //R
+                    image_new[y * new_size_x + 4*x + 3] = 0;
+                  end else begin
+                    image_new[y * new_size_x + 4*x]     = get_pixel(x, y+1);                           //B
+                    image_new[y * new_size_x + 4*x + 1] = (get_pixel(x, y) + get_pixel(x+1, y+1))>>1;  //G
+                    image_new[y * new_size_x + 4*x + 2] = get_pixel(x+1, y);                           //R
+                    image_new[y * new_size_x + 4*x + 3] = 0;
+                  end    
+                end else begin                                                                         //ODD LINE
+                  if(x%2==0) begin
+                    image_new[y * new_size_x + 4*x]     = get_pixel(x+1, y);                           //B
+                    image_new[y * new_size_x + 4*x + 1] = (get_pixel(x, y) + get_pixel(x+1, y+1))>>1;  //G
+                    image_new[y * new_size_x + 4*x + 2] = get_pixel(x, y+1);                           //R
+                    image_new[y * new_size_x + 4*x + 3] = 0;
+                  end else begin
+                    image_new[y * new_size_x + 4*x]     = get_pixel(x, y);                             //B
+                    image_new[y * new_size_x + 4*x + 1] = (get_pixel(x+1, y) + get_pixel(x, y+1))>>1;  //G
+                    image_new[y * new_size_x + 4*x + 2] = get_pixel(x+1, y+1);                         //R
+                    image_new[y * new_size_x + 4*x + 3] = 0;
+                  end    
+                end
+            end
+            
+            // Last pixel of the line is repeated by bayer (mirror)
+            image_new[y * new_size_x + new_size_x-4 ] = image_new[y * new_size_x + new_size_x-8];
+            image_new[y * new_size_x + new_size_x-3 ] = image_new[y * new_size_x + new_size_x-7];
+            image_new[y * new_size_x + new_size_x-2 ] = image_new[y * new_size_x + new_size_x-6];
+            image_new[y * new_size_x + new_size_x-1 ] = image_new[y * new_size_x + new_size_x-5];
+
+        end //Y
+
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image_new); // ici il faut faire une reallocation augmentee!
+        pgm_size_x = new_size_x;    
+
+        image_new.delete;
+
+    endfunction : BayerDemosaic
 
 
 
+endclass :  CImage   
