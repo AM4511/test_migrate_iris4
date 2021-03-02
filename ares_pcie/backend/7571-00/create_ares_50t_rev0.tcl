@@ -11,8 +11,6 @@ set DEBUG 0
 
 if {${DEBUG} == 1} {
   set myself $env(IRIS4)/ares_pcie/backend/7571-00/create_ares_50t_rev0.tcl
-  set NO_REPORT  1
-  set NO_ARCHIVE 1
 } else {
   set myself [info script]
 }
@@ -27,6 +25,9 @@ if {[file exists $myself ]} {
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
    set BASE_NAME  ares_7571_00_a50t
    set DEVICE "xc7a50ticpg236-1L"
+
+   set AXI_SYSTEM_BD_FILE ${BACKEND_DIR}/system_pcie_hyperram_hr142MHZ.tcl
+   set HYPERRAM_SDC_FILE  ${BACKEND_DIR}/hyperbus_hr142MHz.sdc
 
    # #################################################################
    #  ARES FPGA_ID (FPGA DEVICE ID MAP) :
@@ -59,7 +60,10 @@ if {[file exists $myself ]} {
    # ############################################
    # Starting generation script
    # ############################################
+   if {${DEBUG} == 0} {
    source $BACKEND_DIR/create_ares.tcl
+   }
+
    
 } else {
    puts "Error : script $myself does not exist!!!"
