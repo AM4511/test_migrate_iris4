@@ -1258,7 +1258,7 @@ BEGIN
 
 
 
-  process(next_grab_mngr_state)
+  process(next_grab_mngr_state, acquisition_start_SFNC)
   begin
     case next_grab_mngr_state is
       when  idle               =>   next_grab_mngr_trig          <= '0';

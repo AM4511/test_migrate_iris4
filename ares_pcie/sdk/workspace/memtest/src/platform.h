@@ -37,5 +37,7 @@
 
 void init_platform();
 void cleanup_platform();
+void disable_caches();
+
 
 #endif

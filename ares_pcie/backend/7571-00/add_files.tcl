@@ -43,7 +43,7 @@ add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/pinout.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/timing.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/hyperbus_hr142MHZ.sdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/ncsi_timings.sdc
-add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/qspi_timing.sdc
+add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/axi_quad_spi.xdc
 add_files -fileset ${CONSTRAINTS_FILESET} -norecurse ${XDC_DIR}/compile.xdc
 
 

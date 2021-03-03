@@ -65,7 +65,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit12000(int lanes)
    GrabParams.BLACK_OFFSET           = 0x0100;     // data_pedestal
    GrabParams.ANALOG_GAIN            = 0x1;        // gain=1
 						          
-   printf_s("XGS12M Sensor detected, ");
+   //printf_s("XGS12M Sensor detected, ");
    }
 
 
@@ -109,7 +109,7 @@ void CXGS_Ctrl::XGS12M_SetGrabParamsInit8000(int lanes)
 	GrabParams.BLACK_OFFSET = 0x0100;     // data_pedestal
 	GrabParams.ANALOG_GAIN = 0x1;        // gain=1
 
-	printf_s("XGS8M Sensor detected, ");
+	//printf_s("XGS8M Sensor detected, ");
 }
 
 

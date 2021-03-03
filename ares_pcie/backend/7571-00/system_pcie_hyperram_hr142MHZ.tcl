@@ -131,6 +131,7 @@ xilinx.com:ip:axi_intc:4.1\
 xilinx.com:ip:axi_quad_spi:3.2\
 xilinx.com:ip:axi_timer:2.0\
 xilinx.com:ip:axi_uartlite:2.0\
+xilinx.com:ip:util_ds_buf:2.1\
 xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:mdm:3.2\
 xilinx.com:ip:microblaze:11.0\
@@ -490,6 +491,12 @@ proc create_root_design { parentCell } {
    CONFIG.C_BAUDRATE {115200} \
  ] $axi_uartlite_0
 
+  # Create instance: bufg_ext_spi_clk, and set properties
+  set bufg_ext_spi_clk [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 bufg_ext_spi_clk ]
+  set_property -dict [ list \
+   CONFIG.C_BUF_TYPE {BUFG} \
+ ] $bufg_ext_spi_clk
+
   # Create instance: logic_0, and set properties
   set logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 logic_0 ]
   set_property -dict [ list \
@@ -521,30 +528,31 @@ proc create_root_design { parentCell } {
    CONFIG.C_DCACHE_USE_WRITEBACK {1} \
    CONFIG.C_DCACHE_VICTIMS {0} \
    CONFIG.C_DEBUG_ENABLED {1} \
-   CONFIG.C_DIV_ZERO_EXCEPTION {1} \
+   CONFIG.C_DIV_ZERO_EXCEPTION {0} \
    CONFIG.C_D_AXI {1} \
    CONFIG.C_D_LMB {1} \
    CONFIG.C_ICACHE_FORCE_TAG_LUTRAM {0} \
    CONFIG.C_ICACHE_LINE_LEN {16} \
    CONFIG.C_ICACHE_STREAMS {0} \
    CONFIG.C_ICACHE_VICTIMS {0} \
-   CONFIG.C_ILL_OPCODE_EXCEPTION {1} \
+   CONFIG.C_ILL_OPCODE_EXCEPTION {0} \
    CONFIG.C_I_LMB {1} \
    CONFIG.C_MMU_DTLB_SIZE {2} \
    CONFIG.C_MMU_ITLB_SIZE {1} \
-   CONFIG.C_M_AXI_D_BUS_EXCEPTION {1} \
-   CONFIG.C_M_AXI_I_BUS_EXCEPTION {1} \
+   CONFIG.C_M_AXI_D_BUS_EXCEPTION {0} \
+   CONFIG.C_M_AXI_I_BUS_EXCEPTION {0} \
    CONFIG.C_NUMBER_OF_PC_BRK {2} \
-   CONFIG.C_OPCODE_0x0_ILLEGAL {1} \
+   CONFIG.C_OPCODE_0x0_ILLEGAL {0} \
    CONFIG.C_RESET_MSR_EIP {0} \
-   CONFIG.C_UNALIGNED_EXCEPTIONS {1} \
+   CONFIG.C_UNALIGNED_EXCEPTIONS {0} \
    CONFIG.C_USE_BRANCH_TARGET_CACHE {1} \
    CONFIG.C_USE_FPU {0} \
    CONFIG.C_USE_HW_MUL {1} \
    CONFIG.C_USE_ICACHE {1} \
-   CONFIG.C_USE_STACK_PROTECTION {1} \
+   CONFIG.C_USE_PCMP_INSTR {1} \
+   CONFIG.C_USE_STACK_PROTECTION {0} \
    CONFIG.G_TEMPLATE_LIST {9} \
-   CONFIG.G_USE_EXCEPTIONS {1} \
+   CONFIG.G_USE_EXCEPTIONS {0} \
  ] $microblaze_0
 
   # Create instance: microblaze_0_axi_periph, and set properties
@@ -728,8 +736,9 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_ethernet_0_phy_rst_n [get_bd_pins axi_ethernet_0/phy_rst_n] [get_bd_pins mii_to_rmii_0/rst_n]
   connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins microblaze_0_xlconcat/In5]
   connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins microblaze_0_xlconcat/In0]
-  connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins system_pll/clk_in1]
-  connect_bd_net -net clk_wiz_0_clk50MHz [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins mii_to_rmii_0/ref_clk] [get_bd_pins system_pll/clk50MHz]
+  connect_bd_net -net bufg_ext_spi_clk_BUFG_O [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins bufg_ext_spi_clk/BUFG_O]
+  connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins bufg_ext_spi_clk/BUFG_I] [get_bd_pins system_pll/clk_in1]
+  connect_bd_net -net clk_wiz_0_clk50MHz [get_bd_pins mii_to_rmii_0/ref_clk] [get_bd_pins system_pll/clk50MHz]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins system_pll/locked] [get_bd_pins system_reset/dcm_locked]
   connect_bd_net -net mdm_1_Interrupt [get_bd_pins mdm_0/Interrupt] [get_bd_pins microblaze_0_xlconcat/In6]
   connect_bd_net -net mdm_1_debug_sys_rst [get_bd_pins mdm_0/Debug_SYS_Rst] [get_bd_pins system_reset/mb_debug_sys_rst]

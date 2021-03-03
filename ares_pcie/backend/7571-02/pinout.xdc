@@ -6,8 +6,8 @@
 ## Pin assignment
 ####################################################
 set_property PACKAGE_PIN M18 [get_ports ref_clk_100MHz]
-set_property PACKAGE_PIN J1  [get_ports sys_rst_in_n]
-set_property PACKAGE_PIN H1  [get_ports sys_rst_out_n]
+set_property PACKAGE_PIN J1 [get_ports sys_rst_in_n]
+set_property PACKAGE_PIN H1 [get_ports sys_rst_out_n]
 
 
 ####################################################
@@ -33,7 +33,12 @@ set_property PULLUP true [get_ports {fpga_straps[0]}]
 ## eSPI interface
 ####################################################
 set_property PACKAGE_PIN J17 [get_ports espi_reset_n]
-set_property PACKAGE_PIN K17 [get_ports espi_clk]
+
+#Change from K17 to L17 (We need to enter the positive pin of the clock)
+# See Jira : https://jira.matrox.com:8443/browse/CADT01-1144
+#set_property PACKAGE_PIN K17 [get_ports espi_clk]
+set_property PACKAGE_PIN L17 [get_ports espi_clk]
+
 set_property PACKAGE_PIN E19 [get_ports espi_alert_n]
 set_property PACKAGE_PIN L18 [get_ports espi_cs_n]
 set_property PACKAGE_PIN G19 [get_ports {espi_io[3]}]
@@ -146,9 +151,9 @@ set_property PACKAGE_PIN U14 [get_ports {hb_dq[7]}]
 
 set_property PACKAGE_PIN R19 [get_ports hb_rst_n]
 
-# IMPORTANT The following pin Has been moved from V16 
+# IMPORTANT The following pin Has been moved from V16
 # on PCB 7571-00 to N17 on PCB 7571-02. See JIRA IRIS4-242
-# 
+#
 set_property PACKAGE_PIN N17 [get_ports hb_rwds]
 
 
@@ -171,7 +176,7 @@ set_property PULLUP true [get_ports {user_data_in[2]}]
 set_property PULLUP true [get_ports {user_data_in[1]}]
 set_property PULLUP true [get_ports {user_data_in[0]}]
 
- 
+
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {acq_led[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {espi_io[3]}]
@@ -271,7 +276,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_rxd]
 set_property IOSTANDARD LVCMOS18 [get_ports debug_uart_txd]
 set_property DRIVE 4 [get_ports debug_uart_txd]
 set_property SLEW SLOW [get_ports debug_uart_txd]
-set_property DRIVE 4 [get_ports ncsi_clk]
+set_property DRIVE 8 [get_ports ncsi_clk]
 set_property IOSTANDARD LVCMOS33 [get_ports ncsi_clk]
 set_property IOSTANDARD LVCMOS33 [get_ports {ncsi_rxd[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ncsi_rxd[0]}]
@@ -306,5 +311,9 @@ set_property SLEW SLOW [get_ports user_gled]
 set_property IOSTANDARD LVCMOS33 [get_ports user_rled]
 set_property DRIVE 4 [get_ports user_rled]
 set_property SLEW SLOW [get_ports user_rled]
+
+
+
+
 
 
