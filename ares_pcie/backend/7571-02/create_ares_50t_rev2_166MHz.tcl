@@ -4,7 +4,8 @@
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/create_ares_50t_rev2_166MHz.tcl
 # 
-#
+# set NO_REPORT  1
+# set NO_ARCHIVE 1
 # ##################################################################################
 set DEBUG 0
 

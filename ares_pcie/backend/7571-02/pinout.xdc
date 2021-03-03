@@ -33,7 +33,12 @@ set_property PULLUP true [get_ports {fpga_straps[0]}]
 ## eSPI interface
 ####################################################
 set_property PACKAGE_PIN J17 [get_ports espi_reset_n]
-set_property PACKAGE_PIN K17 [get_ports espi_clk]
+
+#Change from K17 to L17 (We need to enter the positive pin of the clock)
+# See Jira : https://jira.matrox.com:8443/browse/CADT01-1144
+#set_property PACKAGE_PIN K17 [get_ports espi_clk]
+set_property PACKAGE_PIN L17 [get_ports espi_clk]
+
 set_property PACKAGE_PIN E19 [get_ports espi_alert_n]
 set_property PACKAGE_PIN L18 [get_ports espi_cs_n]
 set_property PACKAGE_PIN G19 [get_ports {espi_io[3]}]
