@@ -200,9 +200,11 @@ architecture rtl of x_chopper is
   signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
   signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
 
-  signal bclk_cntr      : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal bclk_cntr_init : std_logic;
-  signal bclk_cntr_en   : std_logic;
+  signal bclk_cntr       : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal bclk_cntr_init  : std_logic;
+  signal bclk_cntr_en    : std_logic;
+  signal bclk_ack        : std_logic;
+  signal bclk_tvalid_int : std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -235,7 +237,6 @@ begin
 
 
 
-  aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_stop) * aclk_pixel_width, 3));
 
 
   -----------------------------------------------------------------------------
@@ -291,6 +292,9 @@ begin
       end if;
     end if;
   end process;
+
+
+  aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_stop) * aclk_pixel_width, 3));
 
   -----------------------------------------------------------------------------
   -- 
@@ -442,7 +446,7 @@ begin
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset = '1')then
-        aclk_crop_valid <= '0' ;
+        aclk_crop_valid <= '0';
       else
         if (aclk_ack = '1') then
           if (aclk_crop_packer_valid = "11") then
@@ -738,7 +742,9 @@ begin
                 '0';
 
 
-  bclk_read_en <= '1' when (bclk_state = S_READ_DATA) else
+  bclk_read_en <= '1' when (bclk_state = S_READ_DATA and bclk_ack = '1') else
+                  '1' when (bclk_state = S_EOL and bclk_ack = '1') else
+                  '1' when (bclk_state = S_EOF and bclk_ack = '1') else
                   '0';
 
   bclk_transfer_done <= '1' when (bclk_state = S_EOL) else
@@ -825,7 +831,7 @@ begin
           --  S_WRITE : 
           -------------------------------------------------------------------
           when S_READ_DATA =>
-            if (bclk_cntr = bclk_cmd_size) then
+            if (bclk_cntr = bclk_cmd_size-2) then
               if (bclk_cmd_sync(1) = '1') then
                 bclk_state <= S_EOF;
               else
@@ -863,5 +869,53 @@ begin
   end process P_bclk_state;
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_tvalid_int
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_tvalid_int : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_tvalid_int <= '0';
+      else
+        if (bclk_read_en = '1') then
+          bclk_tvalid_int <= '1';
+        elsif (bclk_tready = '1') then
+          bclk_tvalid_int <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_tlast
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_tlast : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_tlast <= '0';
+      else
+        if (bclk_state = S_EOL or bclk_state = S_EOF) then
+          bclk_tlast <= '1';
+        else
+          bclk_tlast <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  bclk_ack <= '1' when (bclk_tready = '1') else
+              '0';
+
+
+  bclk_tvalid <= bclk_tvalid_int;
+  bclk_tuser  <= "0000";
+  bclk_tdata <= bclk_read_data;
+
+  
 end architecture rtl;

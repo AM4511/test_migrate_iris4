@@ -46,6 +46,7 @@ module testbench();
 	//always #2.7 sys_clk          = ~sys_clk;
 	always #5 aclk    = ~aclk;
 	always #6.5 bclk  = ~bclk;
+	assign bclk_tready = 1;
 
 	x_chopper DUT(
 			.aclk_x_start(aclk_x_start),
@@ -162,11 +163,11 @@ module testbench();
 			end
 		end
 
-//		@(posedge aclk);
-//        aclk_tvalid = 1'b0;
-//		aclk_tlast = 1'b0;
-//		aclk_tuser = 0;
-//		aclk_tdata = 0;
+		//		@(posedge aclk);
+		//        aclk_tvalid = 1'b0;
+		//		aclk_tlast = 1'b0;
+		//		aclk_tuser = 0;
+		//		aclk_tdata = 0;
 
 
 		// Reset interface
