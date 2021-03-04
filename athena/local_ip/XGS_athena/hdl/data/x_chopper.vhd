@@ -21,9 +21,8 @@ entity x_chopper is
     ---------------------------------------------------------------------------
     -- Register file
     ---------------------------------------------------------------------------
-    aclk_x_size    : in std_logic_vector(15 downto 0);
     aclk_x_start   : in std_logic_vector(15 downto 0);
-    aclk_x_stop    : in std_logic_vector(15 downto 0);
+    aclk_x_size    : in std_logic_vector(15 downto 0);
     aclk_x_scale   : in std_logic_vector(3 downto 0);
     aclk_x_reverse : in std_logic;
 
@@ -131,7 +130,7 @@ architecture rtl of x_chopper is
   constant BUFFER_ADDR_WIDTH   : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH;  -- in bits
   constant BUFFER_DATA_WIDTH   : integer := 64;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
-  constant CMD_FIFO_DATA_WIDTH : integer := 2 + WORD_PTR_WIDTH + BUFF_PTR_WIDTH;
+  constant CMD_FIFO_DATA_WIDTH : integer := 8 + 2 + WORD_PTR_WIDTH + BUFF_PTR_WIDTH;
 
   -----------------------------------------------------------------------------
   -- ACLK clock domain
@@ -154,26 +153,29 @@ architecture rtl of x_chopper is
   signal aclk_cmd_sync        : std_logic_vector(1 downto 0);
   signal aclk_cmd_size        : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_buff_ptr    : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
-  --signal aclk_crop_cntr       : natural 0 to 4096;
+  signal aclk_cmd_last_ben    : std_logic_vector(7 downto 0);
 
-  signal aclk_pixel_width   : natural range 1 to 4;
-  signal aclk_ack           : std_logic;
-  signal aclk_pix_cntr      : unsigned(12 downto 0);
-  signal aclk_pix_incr      : unsigned(aclk_pix_cntr'range);
-  signal aclk_pix_cntr_mask : unsigned(aclk_pix_cntr'range);
+  signal aclk_pixel_width : natural range 1 to 4;
+  signal aclk_ack         : std_logic;
+  signal aclk_pix_cntr    : unsigned(12 downto 0);
+  signal aclk_pix_incr    : integer range 0 to 8;
+  --signal aclk_pix_cntr_mask : unsigned(aclk_pix_cntr'range);
+  signal aclk_valid_start : unsigned(aclk_pix_cntr'range);
+  signal aclk_valid_stop  : unsigned(aclk_pix_cntr'range);
 
-  signal aclk_crop_start      : unsigned(aclk_pix_cntr'range);
-  signal aclk_crop_stop       : unsigned(aclk_pix_cntr'range);
-  signal aclk_crop_size       : unsigned(aclk_pix_cntr'range);
-  signal aclk_crop_start_mask : std_logic_vector(7 downto 0);
-  signal aclk_crop_stop_mask  : std_logic_vector(7 downto 0);
+  signal aclk_crop_start         : unsigned(aclk_pix_cntr'range);
+  signal aclk_crop_stop          : unsigned(aclk_pix_cntr'range);
+  signal aclk_crop_size          : unsigned(aclk_pix_cntr'range);
+  signal aclk_crop_stop_mask_sel : std_logic_vector(2 downto 0);
+  signal aclk_crop_valid         : std_logic;
 
-  signal aclk_crop_en         : std_logic;
-  signal aclk_crop_packer     : std_logic_vector(127 downto 0);
-  signal aclk_crop_packer_ben : std_logic_vector(15 downto 0);
-  signal aclk_crop_data_mux   : std_logic_vector(63 downto 0);
-  signal aclk_crop_ben_mux    : std_logic_vector(7 downto 0);
-  signal aclk_crop_mux_sel    : std_logic_vector(2 downto 0);
+  signal aclk_crop_en           : std_logic;
+  signal aclk_crop_packer       : std_logic_vector(127 downto 0);
+  signal aclk_crop_packer_ben   : std_logic_vector(15 downto 0);
+  signal aclk_crop_data_mux     : std_logic_vector(63 downto 0);
+  signal aclk_crop_ben_mux      : std_logic_vector(7 downto 0);
+  signal aclk_crop_mux_sel      : std_logic_vector(2 downto 0);
+  signal aclk_crop_packer_valid : std_logic_vector(1 downto 0);
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
@@ -211,7 +213,7 @@ architecture rtl of x_chopper is
 begin
 
 
-  aclk_reset <= not aclk_reset_n;
+  aclk_reset  <= not aclk_reset_n;
   aclk_tready <= aclk_tready_int;
 
 
@@ -227,27 +229,50 @@ begin
 
 
   -- TEMP parameters. should come from register fields
-  aclk_crop_start <= "0000000001010";
-  aclk_crop_size  <= "0100000000000";
+  aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range));
+  aclk_crop_size  <= unsigned(aclk_x_size(aclk_pix_cntr'range));
   aclk_crop_stop  <= aclk_crop_start + aclk_crop_size -1;
 
-  -- TEMP assign accordingly (aclk_crop_start/stop)
-  aclk_crop_start_mask <= "11111111";
-  aclk_crop_stop_mask  <= "11111111";
-
-  aclk_pix_incr <= "0000000001000" when (aclk_pixel_width = 1) else  -- 8 pix/slice
-                   "0000000000100" when (aclk_pixel_width = 2) else  -- 4 pix/slice
-                   "0000000000100" when (aclk_pixel_width = 2) else  -- 2 pix/slice
-                   "0000000000000";
-
-  aclk_pix_cntr_mask <= "0000000000111" when (aclk_pixel_width = 1) else  -- 8 pix/slice
-                        "0000000000011" when (aclk_pixel_width = 2) else  -- 4 pix/slice
-                        "0000000000001" when (aclk_pixel_width = 4) else  -- 2 pix/slice
-                        "0000000000000";
 
 
-  aclk_crop_en <= '1' when (aclk_pix_cntr >= (aclk_crop_start and not(aclk_pix_cntr_mask))) else
+  aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_stop) * aclk_pixel_width, 3));
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_pixel_width : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
+  begin
+    case aclk_pixel_width is
+      -- One byte per pixel
+      when 1 =>
+        aclk_pix_incr    <= 8;
+        aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
+        aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000"+8;
+
+      -- Two bytes per pixel
+      when 2 =>
+        aclk_pix_incr    <= 4;
+        aclk_valid_start <= aclk_crop_start(12 downto 2) & "00";
+        aclk_valid_stop  <= aclk_crop_stop(12 downto 2) & "00"+4;
+
+      -- Four bytes per pixel
+      when 4 =>
+        aclk_pix_incr    <= 2;
+        aclk_valid_start <= aclk_crop_start(12 downto 1) & '0';
+        aclk_valid_stop  <= aclk_crop_stop(12 downto 1) & '0'+2;
+
+      when others =>
+        aclk_pix_incr    <= 0;
+        aclk_valid_start <= (others => '0');
+        aclk_valid_stop  <= (others => '0');
+    end case;
+  end process;
+
+
+  aclk_crop_en <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
                   '0';
+
 
   -----------------------------------------------------------------------------
   -- 
@@ -282,26 +307,32 @@ begin
         -----------------------------------------------------------------------
         -- Shift right process
         -----------------------------------------------------------------------
-        elsif (aclk_ack = '1' and aclk_crop_en = '1') then
+        elsif (aclk_ack = '1') then
           aclk_crop_packer_ben(7 downto 0) <= aclk_crop_packer_ben(15 downto 8);
-          ---------------------------------------------------------------------
-          -- Start border of the valid window
-          ---------------------------------------------------------------------
-          if (aclk_pix_cntr = (aclk_crop_start and not(aclk_pix_cntr_mask))) then
-            aclk_crop_packer_ben(15 downto 8) <= aclk_crop_start_mask;
-          ---------------------------------------------------------------------
-          -- Stop border of the valid window
-          ---------------------------------------------------------------------
-          elsif (aclk_pix_cntr = (aclk_crop_stop and not(aclk_pix_cntr_mask))) then
-            aclk_crop_packer_ben(15 downto 8) <= aclk_crop_stop_mask;
-          ---------------------------------------------------------------------
-          -- Valid window
-          ---------------------------------------------------------------------
-          elsif (aclk_pix_cntr > aclk_crop_start and aclk_pix_cntr < aclk_crop_stop) then
-            aclk_crop_packer_ben(15 downto 8) <= (others => '1');
-          ---------------------------------------------------------------------
-          -- Invalid region
-          ---------------------------------------------------------------------
+          if (aclk_crop_en = '1') then
+            ---------------------------------------------------------------------
+            -- Stop border of the valid window
+            ---------------------------------------------------------------------
+            if (aclk_pix_cntr = aclk_valid_stop - aclk_pix_incr) then
+              case aclk_crop_stop_mask_sel is
+                when "000" => aclk_crop_packer_ben(15 downto 8) <= "00000001";
+                when "001" => aclk_crop_packer_ben(15 downto 8) <= "00000011";
+                when "010" => aclk_crop_packer_ben(15 downto 8) <= "00000111";
+                when "011" => aclk_crop_packer_ben(15 downto 8) <= "00001111";
+                when "100" => aclk_crop_packer_ben(15 downto 8) <= "00011111";
+                when "101" => aclk_crop_packer_ben(15 downto 8) <= "00111111";
+                when "110" => aclk_crop_packer_ben(15 downto 8) <= "01111111";
+                when "111" => aclk_crop_packer_ben(15 downto 8) <= "11111111";
+                when others =>
+                  null;
+              end case;
+
+            ---------------------------------------------------------------------
+            -- Valid window
+            ---------------------------------------------------------------------
+            else
+              aclk_crop_packer_ben(15 downto 8) <= (others => '1');
+            end if;
           else
             aclk_crop_packer_ben(15 downto 8) <= (others => '0');
           end if;
@@ -309,6 +340,28 @@ begin
       end if;
     end if;
   end process;
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_crop_packer_valid : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_crop_packer_valid <= (others => '0');
+      else
+
+        if (aclk_state = S_IDLE) then
+          aclk_crop_packer_valid <= (others => '0');
+        elsif (aclk_ack = '1') then
+          aclk_crop_packer_valid(1) <= aclk_crop_en;
+          aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
+        end if;
+      end if;
+    end if;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
@@ -330,46 +383,79 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Modulo 8 equivalent equation
   -----------------------------------------------------------------------------
   aclk_crop_mux_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_start) * aclk_pixel_width, 3));
 
-  
-  P_aclk_crop_mux: process (aclk_crop_mux_sel,aclk_crop_packer_ben,aclk_crop_packer) is
+
+  -----------------------------------------------------------------------------
+  -- Mux alignment (Align first valid pixel to byte 0)
+  -----------------------------------------------------------------------------
+  P_aclk_crop_mux : process (aclk) is
   begin
-    case aclk_crop_mux_sel is
-      when "000" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(7 downto 0);
-        aclk_crop_data_mux <= aclk_crop_packer(63 downto 0);
-      when "001" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(8 downto 1);
-        aclk_crop_data_mux <= aclk_crop_packer(71 downto 8);
-      when "010" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(9 downto 2);
-        aclk_crop_data_mux <= aclk_crop_packer(79 downto 16);
-      when "011" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(10 downto 3);
-        aclk_crop_data_mux <= aclk_crop_packer(87 downto 24);
-      when "100" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(11 downto 4);
-        aclk_crop_data_mux <= aclk_crop_packer(95 downto 32);
-      when "101" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(12 downto 5);
-        aclk_crop_data_mux <= aclk_crop_packer(103 downto 40);
-      when "110" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(13 downto 6);
-        aclk_crop_data_mux <= aclk_crop_packer(111 downto 48);
-      when "111" =>
-        aclk_crop_ben_mux <= aclk_crop_packer_ben(14 downto 7);
-        aclk_crop_data_mux <= aclk_crop_packer(119 downto 56);
-      when others =>
-        null;
-    end case;
+    if (aclk_reset = '1')then
+      aclk_crop_ben_mux <= (others => '0');
+    else
+      if (rising_edge(aclk)) then
+        if (aclk_ack = '1' and aclk_crop_packer_valid(0) = '1') then
+
+          case aclk_crop_mux_sel is
+            when "000" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(7 downto 0);
+              aclk_crop_data_mux <= aclk_crop_packer(63 downto 0);
+            when "001" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(8 downto 1);
+              aclk_crop_data_mux <= aclk_crop_packer(71 downto 8);
+            when "010" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(9 downto 2);
+              aclk_crop_data_mux <= aclk_crop_packer(79 downto 16);
+            when "011" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(10 downto 3);
+              aclk_crop_data_mux <= aclk_crop_packer(87 downto 24);
+            when "100" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(11 downto 4);
+              aclk_crop_data_mux <= aclk_crop_packer(95 downto 32);
+            when "101" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(12 downto 5);
+              aclk_crop_data_mux <= aclk_crop_packer(103 downto 40);
+            when "110" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(13 downto 6);
+              aclk_crop_data_mux <= aclk_crop_packer(111 downto 48);
+            when "111" =>
+              aclk_crop_ben_mux  <= aclk_crop_packer_ben(14 downto 7);
+              aclk_crop_data_mux <= aclk_crop_packer(119 downto 56);
+            when others =>
+              null;
+          end case;
+        end if;
+      end if;
+    end if;
   end process;
 
-  
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_crop_valid : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_crop_valid <= '0' ;
+      else
+        if (aclk_ack = '1') then
+          if (aclk_crop_packer_valid = "11") then
+            aclk_crop_valid <= '1';
+          elsif (aclk_crop_packer_valid = "01") then
+            aclk_crop_valid <= '0';
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_state
   -- Description : Line buffer write side state machine
@@ -439,7 +525,7 @@ begin
           -- S_EOL : End of line encounter
           -------------------------------------------------------------------
           when S_EOL =>
-            aclk_state <= S_IDLE;
+            aclk_state <= S_DONE;
 
 
           -------------------------------------------------------------------
@@ -520,11 +606,11 @@ begin
       bFall => open
       );
 
-  aclk_write_en <= '1' when (aclk_state = S_WRITE and aclk_tvalid = '1') else
+  aclk_write_en <= '1' when (aclk_crop_valid = '1') else
                    '0';
 
   aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
-  aclk_write_data    <= aclk_tdata;
+  aclk_write_data    <= aclk_crop_data_mux;
 
 
   aclk_cmd_wen <= '1' when (aclk_state = S_EOL or aclk_state = S_EOF) else
@@ -564,9 +650,9 @@ begin
   aclk_cmd_buff_ptr <= std_logic_vector(aclk_buffer_ptr);
 
 
+  aclk_cmd_last_ben <= aclk_crop_ben_mux;
 
-
-  aclk_cmd_data <= aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
+  aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
 
   xcommand_buffer : mtxDCFIFO
     generic map(
