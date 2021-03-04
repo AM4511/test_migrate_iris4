@@ -1,14 +1,14 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate -expand -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tready
-add wave -noupdate -expand -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tvalid
-add wave -noupdate -expand -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tdata
-add wave -noupdate -expand -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tuser
-add wave -noupdate -expand -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tlast
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_x_size
+add wave -noupdate -expand -group x_chopper -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tready
+add wave -noupdate -expand -group x_chopper -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tvalid
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_x_start
+add wave -noupdate -expand -group x_chopper -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tdata
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_x_stop
+add wave -noupdate -expand -group x_chopper -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tuser
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_x_scale
+add wave -noupdate -expand -group x_chopper -group DMAWR2TLP /testbench/system_top/DUT/xdmawr2tlp/tlast
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_x_reverse
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk
 add wave -noupdate -expand -group x_chopper /testbench/system_top/DUT/inst_x_chopper/aclk_reset_n
@@ -61,8 +61,19 @@ add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream output} /
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream output} /testbench/system_top/DUT/inst_x_chopper/bclk_tuser
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream output} /testbench/system_top/DUT/inst_x_chopper/bclk_tlast
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream output} /testbench/system_top/DUT/inst_x_chopper/bclk_tdata
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_start
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_stop
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_size
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_start_mask
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_stop_mask
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_en
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_packer
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_packer_ben
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_data_mux
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_ben_mux
+add wave -noupdate -expand -group aclk_crop /testbench/system_top/DUT/inst_x_chopper/aclk_crop_mux_sel
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1579144000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1579206415 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 202
 configure wave -valuecolwidth 100
@@ -78,4 +89,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {136353364 ps}
+WaveRestoreZoom {0 ps} {1260992455 ps}
