@@ -135,6 +135,9 @@ architecture rtl of x_chopper is
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
+  signal aclk_pixel_width : natural range 1 to 4;
+
+
   signal aclk_reset           : std_logic;
   signal aclk_state           : FSM_TYPE := S_IDLE;
   signal aclk_full            : std_logic;
@@ -155,7 +158,6 @@ architecture rtl of x_chopper is
   signal aclk_cmd_buff_ptr    : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_last_ben    : std_logic_vector(7 downto 0);
 
-  signal aclk_pixel_width : natural range 1 to 4;
   signal aclk_ack         : std_logic;
   signal aclk_pix_cntr    : unsigned(12 downto 0);
   signal aclk_pix_incr    : integer range 0 to 8;
@@ -180,10 +182,14 @@ architecture rtl of x_chopper is
   -----------------------------------------------------------------------------
   -- BCLK clock domain
   -----------------------------------------------------------------------------
+  signal bclk_pixel_width : natural range 1 to 4;
+  signal bclk_reverse_en  : std_logic;
+
   signal bclk_reset : std_logic;
   signal bclk_state : OUTPUT_FSM_TYPE;
   signal bclk_full  : std_logic;
   signal bclk_empty : std_logic;
+
 
   signal bclk_row_cntr      : integer;
   signal bclk_read_address  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
@@ -199,12 +205,23 @@ architecture rtl of x_chopper is
   signal bclk_cmd_sync      : std_logic_vector(1 downto 0);
   signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
   signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
+  signal bclk_cmd_last_ben  : std_logic_vector(7 downto 0);
 
-  signal bclk_cntr       : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal bclk_cntr_init  : std_logic;
-  signal bclk_cntr_en    : std_logic;
-  signal bclk_ack        : std_logic;
-  signal bclk_tvalid_int : std_logic;
+  signal bclk_cntr          : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal bclk_cntr_treshold : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal bclk_cntr_init     : std_logic;
+  signal bclk_cntr_en       : std_logic;
+  signal bclk_ack           : std_logic;
+  signal bclk_tvalid_int    : std_logic;
+
+  signal bclk_align_packer_en    : std_logic;
+  signal bclk_align_packer       : std_logic_vector(127 downto 0);
+  signal bclk_align_packer_ben   : std_logic_vector(15 downto 0);
+  signal bclk_align_packer_valid : std_logic_vector(1 downto 0);
+  signal bclk_align_mux_sel      : std_logic_vector(2 downto 0);
+  signal bclk_align_mux          : std_logic_vector(63 downto 0);
+  signal bclk_align_data         : std_logic_vector(63 downto 0);
+  signal bclk_align_data_valid   : std_logic;
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -214,7 +231,15 @@ architecture rtl of x_chopper is
 
 begin
 
-
+-- ToDO:
+--   Implement bclk_tuser bclk_tlast
+--   Wrap bclk logic in a submodule file (entity) for code clarity
+--   Propagate back pressure on bclk stream I/F     
+--   Improve functionnal coverage
+--   Instantiate in XGS_athena
+--   Connect the register file
+--   Vivado PnR
+    
   aclk_reset  <= not aclk_reset_n;
   aclk_tready <= aclk_tready_int;
 
@@ -235,6 +260,8 @@ begin
   aclk_crop_size  <= unsigned(aclk_x_size(aclk_pix_cntr'range));
   aclk_crop_stop  <= aclk_crop_start + aclk_crop_size -1;
 
+  aclk_pixel_width <= 1;
+  bclk_pixel_width <= 1;
 
 
 
@@ -747,20 +774,89 @@ begin
                   '1' when (bclk_state = S_EOF and bclk_ack = '1') else
                   '0';
 
+
   bclk_transfer_done <= '1' when (bclk_state = S_EOL) else
                         '1' when (bclk_state = S_EOF) else
                         '0';
 
+
   bclk_cmd_ren <= '1' when (bclk_state = S_READ_CMD) else
                   '0';
+
 
   -----------------------------------------------------------------------------
   -- Remapping of the command on bclk
   -----------------------------------------------------------------------------
+  bclk_cmd_last_ben <= bclk_cmd_data(19 downto 12);
   bclk_cmd_sync     <= bclk_cmd_data(11 downto 10);
   bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
   bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
 
+  bclk_reverse_en <= '1';
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_mux_sel
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_mux_sel : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_mux_sel <= (others => '0');
+      else
+        if (bclk_state = S_INIT) then
+          if (bclk_reverse_en = '1') then
+            case bclk_cmd_last_ben is
+              when "11111111" =>
+                bclk_align_mux_sel <= "000";
+              when "00000001" =>
+                bclk_align_mux_sel <= "001";
+              when "00000011" =>
+                bclk_align_mux_sel <= "010";
+              when "00000111" =>
+                bclk_align_mux_sel <= "011";
+              when "00001111" =>
+                bclk_align_mux_sel <= "100";
+              when "00011111" =>
+                bclk_align_mux_sel <= "101";
+              when "00111111" =>
+                bclk_align_mux_sel <= "110";
+              when "01111111" =>
+                bclk_align_mux_sel <= "111";
+              when others =>
+                null;
+            end case;
+          else
+            bclk_align_mux_sel <= "000";
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_cntr_treshold
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_cntr_treshold : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_cntr_treshold <= (others => '0');
+      else
+        -----------------------------------------------------------------------
+        -- Initialize the counter treshold value (almost done flag for the FSM)
+        -----------------------------------------------------------------------
+        if (bclk_state = S_INIT) then
+          if (bclk_reverse_en = '1') then
+            bclk_cntr_treshold <= to_unsigned(1, bclk_cntr_treshold'length);
+          else
+            bclk_cntr_treshold <= bclk_cmd_size-2;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -773,10 +869,27 @@ begin
       if (bclk_reset = '1')then
         bclk_cntr <= (others => '0');
       else
+        -----------------------------------------------------------------------
+        -- Initialize the counter
+        -----------------------------------------------------------------------
         if (bclk_cntr_init = '1') then
-          bclk_cntr <= (others => '0');
+          if (bclk_reverse_en = '1') then
+            bclk_cntr <= bclk_cmd_size-1;
+          else
+            bclk_cntr <= (others => '0');
+          end if;
+
+        -----------------------------------------------------------------------
+        -- Count
+        -----------------------------------------------------------------------
         elsif (bclk_cntr_en = '1') then
-          bclk_cntr <= bclk_cntr + 1;
+          -- Reverse : decrement address
+          if (bclk_reverse_en = '1') then
+            bclk_cntr <= bclk_cntr - 1;
+          -- Forward : increment address
+          else
+            bclk_cntr <= bclk_cntr + 1;
+          end if;
         end if;
       end if;
     end if;
@@ -793,6 +906,7 @@ begin
 
   bclk_init <= '1' when (bclk_state = S_DONE) else
                '0';
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_state
@@ -831,7 +945,7 @@ begin
           --  S_WRITE : 
           -------------------------------------------------------------------
           when S_READ_DATA =>
-            if (bclk_cntr = bclk_cmd_size-2) then
+            if (bclk_cntr = bclk_cntr_treshold) then
               if (bclk_cmd_sync(1) = '1') then
                 bclk_state <= S_EOF;
               else
@@ -868,6 +982,136 @@ begin
     end if;
   end process P_bclk_state;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_packer_en
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_packer_en : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_packer_en <= '0';
+      else
+        if (bclk_reverse_en = '1') then
+          if (bclk_read_en = '1') then
+            bclk_align_packer_en <= '1';
+          else
+            bclk_align_packer_en <= '0';
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_packer_valid
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_packer_valid : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_packer_valid <= (others => '0');
+      else
+        if (bclk_reverse_en = '1') then
+          bclk_align_packer_valid(0) <= bclk_align_packer_en;
+          bclk_align_packer_valid(1) <= bclk_align_packer_valid(0);
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_packer
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_packer : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_packer <= (others => '0');
+      else
+        if (bclk_reverse_en = '1') then
+          if (bclk_align_packer_en = '1' or bclk_align_packer_valid /= "00") then
+            bclk_align_packer(63 downto 0)   <= bclk_read_data;
+            bclk_align_packer(127 downto 64) <= bclk_align_packer(63 downto 0);
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- In case the line lenght is not a multiple of 8 bytes we need to shift data
+  -- so the output stream is always aligned on the byte 0
+  -----------------------------------------------------------------------------
+  P_bclk_align_mux : process (bclk_align_mux_sel, bclk_align_packer) is
+  begin
+    case bclk_align_mux_sel is
+      when "000" =>
+        bclk_align_mux <= bclk_align_packer(127 downto 64);
+      when "001" =>
+        bclk_align_mux <= bclk_align_packer(119 downto 56);
+      when "010" =>
+        bclk_align_mux <= bclk_align_packer(111 downto 48);
+      when "011" =>
+        bclk_align_mux <= bclk_align_packer(103 downto 40);
+      when "100" =>
+        bclk_align_mux <= bclk_align_packer(95 downto 32);
+      when "101" =>
+        bclk_align_mux <= bclk_align_packer(87 downto 24);
+      when "110" =>
+        bclk_align_mux <= bclk_align_packer(79 downto 16);
+      when "111" =>
+        bclk_align_mux <= bclk_align_packer(71 downto 8);
+      when others =>
+        null;
+    end case;
+  end process;
+
+
+  bclk_align_data_valid <= bclk_align_packer_valid(1);
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_data
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_data : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_data <= (others => '0');
+      else
+        if (bclk_align_data_valid = '1') then
+          case bclk_pixel_width is
+            when 1 =>
+              bclk_align_data(7 downto 0)   <= bclk_align_mux(63 downto 56);
+              bclk_align_data(15 downto 8)  <= bclk_align_mux(55 downto 48);
+              bclk_align_data(23 downto 16) <= bclk_align_mux(47 downto 40);
+              bclk_align_data(31 downto 24) <= bclk_align_mux(39 downto 32);
+              bclk_align_data(39 downto 32) <= bclk_align_mux(31 downto 24);
+              bclk_align_data(47 downto 40) <= bclk_align_mux(23 downto 16);
+              bclk_align_data(55 downto 48) <= bclk_align_mux(15 downto 8);
+              bclk_align_data(63 downto 56) <= bclk_align_mux(7 downto 0);
+            when 2 =>
+              bclk_align_data(15 downto 0)  <= bclk_align_mux(63 downto 48);
+              bclk_align_data(31 downto 16) <= bclk_align_mux(47 downto 32);
+              bclk_align_data(47 downto 32) <= bclk_align_mux(31 downto 16);
+              bclk_align_data(63 downto 48) <= bclk_align_mux(15 downto 0);
+            when 4 =>
+              bclk_align_data(31 downto 0)  <= bclk_align_mux(63 downto 32);
+              bclk_align_data(63 downto 32) <= bclk_align_mux(31 downto 0);
+            when others =>
+              bclk_align_data <= bclk_align_mux;
+          end case;
+        end if;
+      end if;
+    end if;
+  end process;
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_tvalid_int
@@ -879,7 +1123,7 @@ begin
       if (bclk_reset = '1')then
         bclk_tvalid_int <= '0';
       else
-        if (bclk_read_en = '1') then
+        if (bclk_align_data_valid = '1') then
           bclk_tvalid_int <= '1';
         elsif (bclk_tready = '1') then
           bclk_tvalid_int <= '0';
@@ -888,7 +1132,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_tlast
   -- Description : 
@@ -915,7 +1159,7 @@ begin
 
   bclk_tvalid <= bclk_tvalid_int;
   bclk_tuser  <= "0000";
-  bclk_tdata <= bclk_read_data;
+  bclk_tdata  <= bclk_align_data;
 
-  
+
 end architecture rtl;
