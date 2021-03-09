@@ -121,8 +121,8 @@ architecture rtl of x_chopper is
         rEmpty : out std_logic
         );
   end component;
-
-  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_EOL, S_EOF, S_DONE);
+--
+  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_EOL, S_EOF, S_FLUSH, S_DONE);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_READ_CMD, S_READ_DATA, S_SOF, S_SOL, S_READ, S_EOL, S_EOF, S_DONE);
 
   constant WORD_PTR_WIDTH      : integer := 9;
@@ -164,14 +164,15 @@ architecture rtl of x_chopper is
   --signal aclk_pix_cntr_mask : unsigned(aclk_pix_cntr'range);
   signal aclk_valid_start : unsigned(aclk_pix_cntr'range);
   signal aclk_valid_stop  : unsigned(aclk_pix_cntr'range);
+  signal aclk_eof_pndg    : std_logic;
 
   signal aclk_crop_start         : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_stop          : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_size          : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_stop_mask_sel : std_logic_vector(2 downto 0);
-  signal aclk_crop_valid         : std_logic;
+  signal aclk_crop_data_rdy      : std_logic;
 
-  signal aclk_crop_en           : std_logic;
+  signal aclk_crop_window_valid : std_logic;
   signal aclk_crop_packer       : std_logic_vector(127 downto 0);
   signal aclk_crop_packer_ben   : std_logic_vector(15 downto 0);
   signal aclk_crop_data_mux     : std_logic_vector(63 downto 0);
@@ -182,8 +183,9 @@ architecture rtl of x_chopper is
   -----------------------------------------------------------------------------
   -- BCLK clock domain
   -----------------------------------------------------------------------------
-  signal bclk_pixel_width : natural range 1 to 4;
-  signal bclk_reverse_en  : std_logic;
+  signal bclk_pixel_width  : natural range 1 to 4;
+  signal bclk_x_reverse_Meta : std_logic;
+  signal bclk_x_reverse   : std_logic;
 
   signal bclk_reset : std_logic;
   signal bclk_state : OUTPUT_FSM_TYPE;
@@ -223,6 +225,11 @@ architecture rtl of x_chopper is
   signal bclk_align_data         : std_logic_vector(63 downto 0);
   signal bclk_align_data_valid   : std_logic;
 
+  signal bclk_align_packer_user : std_logic_vector(3 downto 0);
+  signal bclk_align_user        : std_logic_vector(3 downto 0);
+
+
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
@@ -239,7 +246,7 @@ begin
 --   Instantiate in XGS_athena
 --   Connect the register file
 --   Vivado PnR
-    
+
   aclk_reset  <= not aclk_reset_n;
   aclk_tready <= aclk_tready_int;
 
@@ -298,8 +305,27 @@ begin
   end process;
 
 
-  aclk_crop_en <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
-                  '0';
+  aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
+                            '0';
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_eof_pndg : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_eof_pndg <= '0';
+      else
+        if (aclk_tvalid = '1' and aclk_tlast = '1' and aclk_tuser(1) = '1') then
+          aclk_eof_pndg <= '1';
+        elsif (aclk_state = S_EOF) then
+          aclk_eof_pndg <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -340,7 +366,7 @@ begin
         -----------------------------------------------------------------------
         elsif (aclk_ack = '1') then
           aclk_crop_packer_ben(7 downto 0) <= aclk_crop_packer_ben(15 downto 8);
-          if (aclk_crop_en = '1') then
+          if (aclk_crop_window_valid = '1') then
             ---------------------------------------------------------------------
             -- Stop border of the valid window
             ---------------------------------------------------------------------
@@ -383,10 +409,18 @@ begin
         aclk_crop_packer_valid <= (others => '0');
       else
 
-        if (aclk_state = S_IDLE) then
+        if (aclk_state = S_DONE) then
           aclk_crop_packer_valid <= (others => '0');
         elsif (aclk_ack = '1') then
-          aclk_crop_packer_valid(1) <= aclk_crop_en;
+          if (aclk_crop_window_valid = '1') then
+            aclk_crop_packer_valid(1) <= '1';
+            aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
+          else
+            aclk_crop_packer_valid(1) <= '0';
+            aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
+          end if;
+        elsif (aclk_state = S_FLUSH) then
+          aclk_crop_packer_valid(1) <= '0';
           aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
         end if;
       end if;
@@ -406,8 +440,16 @@ begin
       else
         if (aclk_state = S_DONE) then
           aclk_crop_packer <= (others => '0');
-        elsif (aclk_ack = '1' and aclk_crop_en = '1') then
-          aclk_crop_packer(127 downto 64) <= aclk_tdata;
+        elsif (aclk_ack = '1') then
+          if (aclk_crop_window_valid = '1') then
+            aclk_crop_packer(127 downto 64) <= aclk_tdata;
+            aclk_crop_packer(63 downto 0)   <= aclk_crop_packer(127 downto 64);
+          else
+            aclk_crop_packer(127 downto 64) <= (others => '0');
+            aclk_crop_packer(63 downto 0)   <= aclk_crop_packer(127 downto 64);
+          end if;
+        elsif (aclk_state = S_FLUSH) then
+          aclk_crop_packer(127 downto 64) <= (others => '0');
           aclk_crop_packer(63 downto 0)   <= aclk_crop_packer(127 downto 64);
         end if;
       end if;
@@ -430,7 +472,7 @@ begin
       aclk_crop_ben_mux <= (others => '0');
     else
       if (rising_edge(aclk)) then
-        if (aclk_ack = '1' and aclk_crop_packer_valid(0) = '1') then
+        if ((aclk_ack = '1' or aclk_state = S_FLUSH) and aclk_crop_packer_valid(0) = '1') then
 
           case aclk_crop_mux_sel is
             when "000" =>
@@ -469,18 +511,16 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_aclk_crop_valid : process (aclk) is
+  P_aclk_crop_data_rdy : process (aclk) is
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset = '1')then
-        aclk_crop_valid <= '0';
+        aclk_crop_data_rdy <= '0';
       else
-        if (aclk_ack = '1') then
-          if (aclk_crop_packer_valid = "11") then
-            aclk_crop_valid <= '1';
-          elsif (aclk_crop_packer_valid = "01") then
-            aclk_crop_valid <= '0';
-          end if;
+        if (aclk_ack = '1' or aclk_state = S_FLUSH) then
+          aclk_crop_data_rdy <= aclk_crop_packer_valid(0);
+        else
+          aclk_crop_data_rdy <= '0';
         end if;
       end if;
     end if;
@@ -536,7 +576,10 @@ begin
             -- If a end of line is detected
             if (aclk_tvalid = '1' and aclk_tlast = '1') then
               -- If a End of frame is detected
-              if (aclk_tuser(1) = '1') then
+              if (aclk_crop_packer_valid = "11") then
+                aclk_state <= S_FLUSH;
+
+              elsif (aclk_tuser(1) = '1') then
                 aclk_state <= S_EOF;
               -- If a End of line is detected
               elsif (aclk_tuser(3) = '1') then
@@ -544,6 +587,20 @@ begin
               end if;
             else
               aclk_state <= S_WRITE;
+            end if;
+
+          -------------------------------------------------------------------
+          -- S_FLUSH : End of frame encounter
+          -------------------------------------------------------------------
+          when S_FLUSH =>
+            if (aclk_crop_packer_valid = "01") then
+              if (aclk_eof_pndg = '1') then
+                aclk_state <= S_EOF;
+              else
+                aclk_state <= S_EOL;
+              end if;
+            else
+              aclk_state <= S_FLUSH;
             end if;
 
           -------------------------------------------------------------------
@@ -637,7 +694,7 @@ begin
       bFall => open
       );
 
-  aclk_write_en <= '1' when (aclk_crop_valid = '1') else
+  aclk_write_en <= '1' when (aclk_crop_data_rdy = '1') else
                    '0';
 
   aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
@@ -738,6 +795,24 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- Process     : P_bclk_x_reverse
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_x_reverse : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_x_reverse   <= '0';
+        bclk_x_reverse_Meta <= '0';
+      else
+        bclk_x_reverse_Meta <= aclk_x_reverse;
+        bclk_x_reverse   <= bclk_x_reverse_Meta;
+      end if;
+    end if;
+  end process;
+
+  
+  -----------------------------------------------------------------------------
   -- Process     : P_bclk_used_buffer
   -- Description : 
   -----------------------------------------------------------------------------
@@ -792,7 +867,6 @@ begin
   bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
   bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
 
-  bclk_reverse_en <= '1';
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_align_mux_sel
@@ -805,7 +879,7 @@ begin
         bclk_align_mux_sel <= (others => '0');
       else
         if (bclk_state = S_INIT) then
-          if (bclk_reverse_en = '1') then
+          if (bclk_x_reverse = '1') then
             case bclk_cmd_last_ben is
               when "11111111" =>
                 bclk_align_mux_sel <= "000";
@@ -848,7 +922,7 @@ begin
         -- Initialize the counter treshold value (almost done flag for the FSM)
         -----------------------------------------------------------------------
         if (bclk_state = S_INIT) then
-          if (bclk_reverse_en = '1') then
+          if (bclk_x_reverse = '1') then
             bclk_cntr_treshold <= to_unsigned(1, bclk_cntr_treshold'length);
           else
             bclk_cntr_treshold <= bclk_cmd_size-2;
@@ -873,7 +947,7 @@ begin
         -- Initialize the counter
         -----------------------------------------------------------------------
         if (bclk_cntr_init = '1') then
-          if (bclk_reverse_en = '1') then
+          if (bclk_x_reverse = '1') then
             bclk_cntr <= bclk_cmd_size-1;
           else
             bclk_cntr <= (others => '0');
@@ -884,7 +958,7 @@ begin
         -----------------------------------------------------------------------
         elsif (bclk_cntr_en = '1') then
           -- Reverse : decrement address
-          if (bclk_reverse_en = '1') then
+          if (bclk_x_reverse = '1') then
             bclk_cntr <= bclk_cntr - 1;
           -- Forward : increment address
           else
@@ -992,7 +1066,7 @@ begin
       if (bclk_reset = '1')then
         bclk_align_packer_en <= '0';
       else
-        if (bclk_reverse_en = '1') then
+        if (bclk_x_reverse = '1') then
           if (bclk_read_en = '1') then
             bclk_align_packer_en <= '1';
           else
@@ -1002,6 +1076,7 @@ begin
       end if;
     end if;
   end process;
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_align_packer_valid
@@ -1013,9 +1088,45 @@ begin
       if (bclk_reset = '1')then
         bclk_align_packer_valid <= (others => '0');
       else
-        if (bclk_reverse_en = '1') then
+        if (bclk_x_reverse = '1') then
           bclk_align_packer_valid(0) <= bclk_align_packer_en;
           bclk_align_packer_valid(1) <= bclk_align_packer_valid(0);
+        end if;
+      end if;
+    end if;
+  end process;
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_packer_user
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_packer_user : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_packer_user <= (others => '0');
+      else
+        if (bclk_x_reverse = '1') then
+          -- SOF or SOL
+          if (bclk_align_packer_valid = "01") then
+            if (bclk_cmd_sync = "01") then
+              -- SOF
+              bclk_align_packer_user(0) <= '1';
+            else
+              -- SOL
+              bclk_align_packer_user(2) <= '1';
+            end if;
+          elsif (bclk_align_packer_valid = "11" and bclk_align_packer_en = '0') then
+            -- EOF
+            if (bclk_cmd_sync = "10") then
+              bclk_align_packer_user(1) <= '1';
+            -- EOL
+            else
+              bclk_align_packer_user(3) <= '1';
+            end if;
+          else
+            bclk_align_packer_user <= "0000";
+          end if;
         end if;
       end if;
     end if;
@@ -1032,11 +1143,15 @@ begin
       if (bclk_reset = '1')then
         bclk_align_packer <= (others => '0');
       else
-        if (bclk_reverse_en = '1') then
-          if (bclk_align_packer_en = '1' or bclk_align_packer_valid /= "00") then
-            bclk_align_packer(63 downto 0)   <= bclk_read_data;
-            bclk_align_packer(127 downto 64) <= bclk_align_packer(63 downto 0);
+        if (bclk_x_reverse = '1') then
+          if (bclk_align_packer_en = '1') then
+            bclk_align_packer(63 downto 0) <= bclk_read_data;
+          elsif (bclk_align_packer_valid = "11") then
+            bclk_align_packer(63 downto 0) <= (others => '0');
           end if;
+
+          bclk_align_packer(127 downto 64) <= bclk_align_packer(63 downto 0);
+
         end if;
       end if;
     end if;
@@ -1112,6 +1227,23 @@ begin
     end if;
   end process;
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_align_user
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_align_user : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_align_user <= (others => '0');
+      else
+        if (bclk_align_data_valid = '1') then
+          bclk_align_user <= bclk_align_packer_user;
+        end if;
+      end if;
+    end if;
+  end process;
+
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_tvalid_int
@@ -1137,20 +1269,43 @@ begin
   -- Process     : P_bclk_tlast
   -- Description : 
   -----------------------------------------------------------------------------
-  P_bclk_tlast : process (bclk) is
-  begin
-    if (rising_edge(bclk)) then
-      if (bclk_reset = '1')then
-        bclk_tlast <= '0';
-      else
-        if (bclk_state = S_EOL or bclk_state = S_EOF) then
-          bclk_tlast <= '1';
-        else
-          bclk_tlast <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_bclk_tlast : process (bclk) is
+  -- begin
+  --   if (rising_edge(bclk)) then
+  --     if (bclk_reset = '1')then
+  --       bclk_tlast <= '0';
+  --     else
+  --       if (bclk_state = S_EOL or bclk_state = S_EOF) then
+  --         bclk_tlast <= '1';
+  --       else
+  --         bclk_tlast <= '0';
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
+
+  bclk_tlast <= '1' when (bclk_align_user(1) = '1' or bclk_align_user(3) = '1') else
+                '0';
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_tuser
+  -- Description : 
+  -----------------------------------------------------------------------------
+  -- P_bclk_tuser : process (bclk) is
+  -- begin
+  --   if (rising_edge(bclk)) then
+  --     if (bclk_reset = '1')then
+  --       bclk_tuser <= (others => '0');
+  --     else
+  --     -- if (bclk_state = S_EOL or bclk_state = S_EOF) then
+  --     --   bclk_tuser <= '1';
+  --     -- else
+  --     --   bclk_tuser <= '0';
+  --     -- end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   bclk_ack <= '1' when (bclk_tready = '1') else
@@ -1158,7 +1313,7 @@ begin
 
 
   bclk_tvalid <= bclk_tvalid_int;
-  bclk_tuser  <= "0000";
+  bclk_tuser  <= bclk_align_user;
   bclk_tdata  <= bclk_align_data;
 
 
