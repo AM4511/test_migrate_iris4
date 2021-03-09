@@ -44,6 +44,7 @@ add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} -
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} -color {Cornflower Blue} /testbench/DUT/aclk_write_data
 add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_full
 add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_wen
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_last_ben
 add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_data
 add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_sync
 add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_size
@@ -51,6 +52,7 @@ add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /test
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_ren
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_empty
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/aclk_cmd_sync
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_last_ben
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_data
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_sync
 add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_size
@@ -89,7 +91,7 @@ add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /tes
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_tlast
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {3482000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2703380 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 210
 configure wave -valuecolwidth 233
@@ -105,4 +107,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2562340 ps} {3826477 ps}
+WaveRestoreZoom {2172687 ps} {3042022 ps}

@@ -11,16 +11,12 @@ import tests_pkg::*;
 module testbench();
 	parameter X_SIZE = 256;
 	parameter Y_SIZE = 4;
-	parameter X_ROI_START = 0;
-	parameter X_ROI_SIZE = 256;
+	parameter X_ROI_START = 1;
+	parameter X_ROI_SIZE = 128;
 	parameter X_REVERSE = 0;
 
 	parameter WATCHDOG_MAX_CNT = 1000;
 
-	//	typedef struct {
-	//		bit [3:0] user;
-	//		bit [63:0] data;
-	//	} data_beat;
 
 	typedef struct {
 		int row_id;
@@ -82,13 +78,6 @@ module testbench();
 
 
 	initial begin
-
-
-
-
-
-
-
 
 		aclk_reset_n = 1'b1;
 		bclk_reset_n = 1'b1;
@@ -218,6 +207,10 @@ module testbench();
 				int i;
 				int j;
 				byte c;
+				int s;
+				int mask_size;
+				longint byte_mask;
+
 				//data_row curr_row;
 				//bit [63:0] db;
 				bit [3:0] user;
@@ -225,14 +218,14 @@ module testbench();
 				int row_size;
 
 				int axi_received_stream_size;
-				data_row axi_received_stream[$];
+				data_row axi_received_stream[];
 				data_row received_row;
 				bit [63:0] received_row_data[$];
 				bit [63:0] received_db;
 				int received_row_id;
 				int received_row_size;
 
-				data_row axi_predicted_stream[$];
+				data_row axi_predicted_stream[];
 				data_row pred_row;
 				bit [63:0] pred_row_data[$];
 				bit [63:0] pred_db;
@@ -240,6 +233,9 @@ module testbench();
 				int pred_row_size;
 
 				int longest_row_size;
+
+				axi_received_stream = new[4];
+				axi_predicted_stream = new[4];
 
 				///////////////////////////////////////////////////////
 				// Capturing data
@@ -257,8 +253,11 @@ module testbench();
 						received_row_data.push_back(received_db);
 						if (bclk_tlast == 1'b1) begin
 							received_row.data = received_row_data;
+							s = received_row_data.size();
+							received_row_data.delete();
 							received_row.row_id = j;
-							axi_received_stream.push_back(received_row);
+							//axi_received_stream.push_back(received_row);
+							axi_received_stream[j] = received_row;
 							j++;
 
 							// At EOF we are done
@@ -266,7 +265,6 @@ module testbench();
 								break;
 							end
 						end
-
 						// reset the watchdog
 						watchdog = WATCHDOG_MAX_CNT;
 					end
@@ -285,13 +283,14 @@ module testbench();
 				if (aclk_x_reverse == 0) begin
 					for (j=0;  j<Y_SIZE;  j++) begin
 						byte_id = 0;
+						pred_db = 0;
 						for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
 							////////////////////////////////////////////////
 							// Data ramp
 							////////////////////////////////////////////////
 							pred_db[byte_id*8 +: 8] = i;
 
-							if (byte_id == 7) begin
+							if (byte_id == 7 || (i == aclk_x_stop)) begin
 								pred_row_data.push_back(pred_db);
 								byte_id = 0;
 								pred_db = 0;
@@ -300,29 +299,36 @@ module testbench();
 						end
 						pred_row.row_id = j;
 						pred_row.data = pred_row_data;
-						axi_predicted_stream.push_back(pred_row);
+						pred_row_data.delete();
+						//axi_predicted_stream.push_back(pred_row);
+						axi_predicted_stream[j] = pred_row;
 					end
 
 				end else begin
 					for (j=0;  j<Y_SIZE;  j++) begin
-						byte_id = 7;
-						for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
+						byte_id = 0;
+						pred_db = 0;
+						for (i=aclk_x_stop;  i>= aclk_x_start;  i--) begin
 							////////////////////////////////////////////////
 							// Data ramp
 							////////////////////////////////////////////////
 							pred_db[byte_id*8 +: 8] = i;
 
-							if (byte_id == 0) begin
-								pred_row_data.push_front(pred_db);
-								byte_id = 7;
+							if (byte_id == 7 || (i == aclk_x_start)) begin
+								pred_row_data.push_back(pred_db);
+								byte_id = 0;
 								pred_db = 0;
 							end else begin
-								byte_id--;
+								byte_id++;
 							end
+							// We do not want to wrap around
+							if (i == 0) break;
 						end
 						pred_row.row_id = j;
 						pred_row.data = pred_row_data;
-						axi_predicted_stream.push_back(pred_row);
+						pred_row_data.delete();
+						//axi_predicted_stream.push_back(pred_row);
+						axi_predicted_stream[j] = pred_row;
 					end
 
 				end
@@ -347,12 +353,12 @@ module testbench();
 				axi_received_stream_size = axi_received_stream.size();
 				for (j=0; j<axi_received_stream_size; j++) begin
 					//Validate each row the stream
-					received_row = axi_received_stream.pop_front();
+					received_row = axi_received_stream[j];
 					received_row_id = received_row.row_id;
 					received_row_data = received_row.data;
 					received_row_size = received_row_data.size();
 
-					pred_row = axi_predicted_stream.pop_front();
+					pred_row = axi_predicted_stream[j];
 					pred_row_id = pred_row.row_id;
 					pred_row_data = pred_row.data;
 					pred_row_size = pred_row_data.size();
@@ -360,32 +366,47 @@ module testbench();
 					// Validate row_id
 					assert (received_row_id == pred_row_id) else
 					begin
-						$error("Received row ID : %d; Predicted row ID : %d", received_row_id, pred_row_id);
+						$error("Received row ID : %0d; Predicted row ID : %0d", received_row_id, pred_row_id);
 						error++;
 					end
 
 					// Validate row size
 					assert (received_row_size == pred_row_size) else
 					begin
-						$error("Received row size : %d; Predicted row size : %d", received_row_size, pred_row_size);
+						$error("Received row size : %0d; Predicted row size : %0d", received_row_size, pred_row_size);
 						error++;
 					end
 
 					// Validate each data beat
 					$display("Received row[%0d]       Predicted row[%0d]", received_row_id, pred_row_id);
 					longest_row_size =  (received_row_size >= pred_row_size) ? received_row_size : pred_row_size;
+					mask_size = 8 * ((X_ROI_SIZE + X_SIZE) % 8);
+					byte_mask = ~(-1 << mask_size);
 					for (i=0; i<longest_row_size; i++) begin
 						c = " ";
-						received_db= received_row_data.pop_front();
+						received_db = received_row_data.pop_front();
 						pred_db = pred_row_data.pop_front();
-						if (received_db != pred_db) begin
-							c = "|";
-							error++;
-						end
-						$display("0x%016h %c  0x%016h", received_db, c,pred_db);
+
+						if (i < longest_row_size-1 || mask_size == 0) begin
+							if (received_db != pred_db) begin
+								c = "|";
+								error++;
+							end
+							$display("0x%016h %c  0x%016h", received_db, c,pred_db);
+						end else begin
+							if ((received_db & byte_mask) != pred_db) begin
+								c = "|";
+								error++;
+							end
+							$display("0x%016h %c  0x%016h (mask=0x%016h)", received_db, c,pred_db, byte_mask);
+							
+						end
+						
+						
 					end
 
 					$display("\n\n");
+					received_row.data.delete();
 
 				end
 			end
@@ -396,4 +417,5 @@ module testbench();
 		#10000;
 		$stop();
 	end
+
 endmodule
