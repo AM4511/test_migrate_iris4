@@ -42,21 +42,21 @@ add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} /
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} -color {Cornflower Blue} /testbench/DUT/aclk_write_en
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} -color {Cornflower Blue} /testbench/DUT/aclk_write_address
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer write} -color {Cornflower Blue} /testbench/DUT/aclk_write_data
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_full
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_wen
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_data
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_sync
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_size
-add wave -noupdate -expand -group x_chopper -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_buff_ptr
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_ren
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_empty
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/aclk_cmd_sync
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_data
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_sync
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_size
-add wave -noupdate -expand -group x_chopper -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_buff_ptr
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_full
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_wen
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_data
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_sync
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_size
+add wave -noupdate -expand -group x_chopper -expand -group {aclk Cmd FiFo} /testbench/DUT/aclk_cmd_buff_ptr
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_ren
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_empty
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/aclk_cmd_sync
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_data
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_sync
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_size
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Cmd buffer} /testbench/DUT/bclk_cmd_buff_ptr
 add wave -noupdate -expand -group x_chopper /testbench/DUT/bclk_reset
-add wave -noupdate -expand -group x_chopper /testbench/DUT/bclk_state
+add wave -noupdate -expand -group x_chopper -color Pink /testbench/DUT/bclk_state
 add wave -noupdate -expand -group x_chopper /testbench/DUT/bclk_used_buffer
 add wave -noupdate -expand -group x_chopper /testbench/DUT/bclk_transfer_done
 add wave -noupdate -expand -group x_chopper /testbench/DUT/bclk_init
@@ -73,14 +73,14 @@ add wave -noupdate -expand -group x_chopper -group {bclk Cntr} /testbench/DUT/bc
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer read} -color Magenta /testbench/DUT/bclk_read_en
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer read} /testbench/DUT/bclk_read_address
 add wave -noupdate -expand -group x_chopper -expand -group {Line buffer read} /testbench/DUT/bclk_read_data
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer_en
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer_ben
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} -expand /testbench/DUT/bclk_align_packer_valid
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_mux_sel
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_mux
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} -color Turquoise /testbench/DUT/bclk_align_data_valid
-add wave -noupdate -expand -group x_chopper -group {bclk Reverse packer} /testbench/DUT/bclk_align_data
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer_en
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_packer_ben
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} -radix binary -childformat {{/testbench/DUT/bclk_align_packer_valid(1) -radix binary} {/testbench/DUT/bclk_align_packer_valid(0) -radix binary}} -expand -subitemconfig {/testbench/DUT/bclk_align_packer_valid(1) {-height 15 -radix binary} /testbench/DUT/bclk_align_packer_valid(0) {-height 15 -radix binary}} /testbench/DUT/bclk_align_packer_valid
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_mux_sel
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_mux
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} -color Turquoise /testbench/DUT/bclk_align_data_valid
+add wave -noupdate -expand -group x_chopper -expand -group {bclk Reverse packer} /testbench/DUT/bclk_align_data
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_reset_n
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_tready
@@ -89,7 +89,7 @@ add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /tes
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_tlast
 add wave -noupdate -expand -group x_chopper -expand -group {Axi Stream out} /testbench/DUT/bclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2688350 ps} 0}
+WaveRestoreCursors {{Cursor 1} {3482000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 210
 configure wave -valuecolwidth 233
@@ -105,4 +105,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {13902525 ps}
+WaveRestoreZoom {2562340 ps} {3826477 ps}
