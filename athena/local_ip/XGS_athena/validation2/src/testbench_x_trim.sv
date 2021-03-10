@@ -1,12 +1,15 @@
 `timescale 1ns/1ps
 
 module testbench();
-	parameter PIXEL_WIDTH = 1; // In bytes
-	parameter X_SIZE = 256;
-	parameter Y_SIZE = 4;
-	parameter X_ROI_START = 1;
-	parameter X_ROI_SIZE = 128;
+	parameter TEST_NAME = "UNKNOWN";
+	parameter PIXEL_WIDTH = 1;  // size in bytes
+	parameter Y_SIZE = 4;       // size in rows
+	parameter X_SIZE = 256;     // size in pixels
+	parameter X_ROI_EN = 0;
+	parameter X_ROI_START = 1;  // size in pixels
+	parameter X_ROI_SIZE = 128; // size in pixels
 	parameter X_REVERSE = 0;
+	parameter X_SCALING = 0;    // size in pixels
 
 	parameter WATCHDOG_MAX_CNT = 1000;
 
@@ -32,6 +35,7 @@ module testbench();
 	bit [15:0] aclk_x_start;
 	bit [15:0] aclk_x_stop;
 	bit [3:0] aclk_x_scale;
+	bit aclk_x_crop_en;
 	bit aclk_x_reverse;
 
 	bit bclk;
@@ -51,6 +55,7 @@ module testbench();
 	int error;
 	x_trim DUT(
 			.aclk_pixel_width(aclk_pixel_width),
+			.aclk_x_crop_en(aclk_x_crop_en),
 			.aclk_x_start(aclk_x_start),
 			.aclk_x_size(aclk_x_size),
 			.aclk_x_scale(aclk_x_scale),
@@ -83,7 +88,12 @@ module testbench();
 		// Create src data
 		////////////////////////////////////////////////////////
 		aclk_pixel_width = PIXEL_WIDTH; // in bytes
+
+		// Reverse setting
 		aclk_x_reverse = X_REVERSE;
+
+		// ROI setting
+		aclk_x_crop_en = X_ROI_EN;
 		aclk_x_start = X_ROI_START;
 		aclk_x_size = X_ROI_SIZE;
 		aclk_x_stop = aclk_x_start + aclk_x_size -1;
@@ -230,8 +240,8 @@ module testbench();
 
 				int longest_row_size;
 
-				axi_received_stream = new[4];
-				axi_predicted_stream = new[4];
+				axi_received_stream = new[Y_SIZE];
+				axi_predicted_stream = new[Y_SIZE];
 
 				///////////////////////////////////////////////////////
 				// Capturing data
@@ -273,9 +283,14 @@ module testbench();
 
 				#1000ns;
 
-					///////////////////////////////////////////////////////
-					// Create predicted stream
-					////////////////////////////////////////////////////////
+				///////////////////////////////////////////////////////
+				// Create predicted stream
+				////////////////////////////////////////////////////////
+				// If cropping disabled the ROI becomes the original image size
+				if (aclk_x_crop_en == 0) begin
+					aclk_x_start = 0;
+					aclk_x_stop = X_SIZE-1;
+				end
 				if (aclk_x_reverse == 0) begin
 					for (j=0;  j<Y_SIZE;  j++) begin
 						byte_id = 0;
@@ -395,12 +410,12 @@ module testbench();
 								error++;
 							end
 							$display("0x%016h %c  0x%016h (mask=0x%016h)", received_db, c,pred_db, byte_mask);
-							
+
 						end
 
 
 
-						
+
 					end
 
 					$display("\n\n");

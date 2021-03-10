@@ -22,6 +22,7 @@ entity x_trim is
     -- Register file
     ---------------------------------------------------------------------------
     aclk_pixel_width : in std_logic_vector(2 downto 0);
+    aclk_x_crop_en   : in std_logic;
     aclk_x_start     : in std_logic_vector(15 downto 0);
     aclk_x_size      : in std_logic_vector(15 downto 0);
     aclk_x_scale     : in std_logic_vector(3 downto 0);
@@ -184,9 +185,6 @@ architecture rtl of x_trim is
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
-  --signal aclk_pixel_width : natural range 1 to 4;
-
-
   signal aclk_reset           : std_logic;
   signal aclk_state           : FSM_TYPE := S_IDLE;
   signal aclk_full            : std_logic;
@@ -289,9 +287,11 @@ begin
 
 
   -- TEMP parameters. should come from register fields
-  aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range));
+  aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
+                     (aclk_pix_cntr'range =>'0');
   aclk_crop_size  <= unsigned(aclk_x_size(aclk_pix_cntr'range));
-  aclk_crop_stop  <= aclk_crop_start + aclk_crop_size -1;
+  aclk_crop_stop  <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
+                     (aclk_pix_cntr'range =>'1');
 
   --aclk_pixel_width <= 1;
   bclk_pixel_width <= aclk_pixel_width;
