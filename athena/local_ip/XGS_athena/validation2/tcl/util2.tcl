@@ -35,5 +35,3 @@ proc r {} {
 	run -all
 }
 
-# vsim -gui work.testbench -L unisims_ver -L secureip -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -warning 3009 -t ps -sdftyp /=D:/work/ipcores/rpc2_ctrl_controller/sim/rpc2_psram/bmod/s27ks0641.sdf
-

@@ -1,37 +1,61 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svproject>
-    
+      
+  
   <defines/>
-    
+      
+  
   <includePaths/>
-    
+      
+  
   <buildPaths/>
-    
+      
+  
   <pluginPaths/>
-    
+      
+  
   <libraryPaths/>
-    
+      
+  
   <argFilePaths>
+            
+    
+    
         
+    
+    
+    <argFilePath path="${project_loc}/ipcores/vlib/sve.f"/>
+            
+  
+    
     
     <argFilePath path="${project_loc}/ipcores/common/sve.f"/>
         
     
     <argFilePath path="${project_loc}/ipcores/vlib/sve.f"/>
         
-  
+    
+    <argFilePath path="${project_loc}/local_ip/XGS_athena/sve.f"/>
+      
+    <argFilePath path="${project_loc}/ipcores/common/sve.f"/>
+    <argFilePath path="${project_loc}/ipcores/vlib/sve.f"/>
     <argFilePath path="${project_loc}/athena.f"/>
     <argFilePath path="${project_loc}/ipcores/common/sve.f"/>
     <argFilePath path="${project_loc}/ipcores/interfaces/sve.f"/>
     <argFilePath path="${project_loc}/ipcores/vlib/sve.f"/>
     <argFilePath path="${project_loc}/local_ip/dmawr2tlp/sve.f"/>
     <argFilePath path="${project_loc}/local_ip/XGS_athena/sve.f"/>
+    <argFilePath path="${project_loc}/local_ip/XGS_athena/sve2.f"/>
   </argFilePaths>
-    
-  <sourceCollections/>
-    
-  <projectRefs/>
-    
-  <templatePaths/>
+      
   
+  <sourceCollections/>
+      
+  
+  <projectRefs/>
+      
+  
+  <templatePaths/>
+    
+
 </svproject>

@@ -11,7 +11,7 @@ set ATHENA                 $env(IRIS4)/athena
 set IPCORES                ${ATHENA}/ipcores
 set LOCAL_IP               ${ATHENA}/local_ip
 
-set PROJECT_NAME           x_chopper  
+set PROJECT_NAME           x_trim  
 set ROOT_PATH              ${LOCAL_IP}/XGS_athena
 set LIBRARY_NAME           ${PROJECT_NAME}.lib
 
@@ -54,7 +54,8 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 
 
 set dut_fileset [join [list  [subst { 
-${DATA_SRC_PATH}/x_chopper.vhd
+${DATA_SRC_PATH}/x_trim_streamout.vhd
+${DATA_SRC_PATH}/x_trim.vhd
 }
 ]
 ]
@@ -62,7 +63,7 @@ ${DATA_SRC_PATH}/x_chopper.vhd
 
 
 set testbench_fileset [join [list  [subst {
-${TESTBENCH_SRC_PATH}/testbench_x_chopper.sv
+${TESTBENCH_SRC_PATH}/testbench_x_trim.sv
 }
 ]
 ]
@@ -81,11 +82,6 @@ project new $MODELSIM_PROJECT_PATH  $MODELSIM_PROJECT_NAME $LIBRARY_NAME $MODELS
 vlib $LIBRARY_PATH
 vmap ${LIBRARY_NAME}  $LIBRARY_PATH
 vmap work $LIBRARY_PATH
-
-# vmap unisim      ${MTI_LIB_XILINX_PATH}/unisim
-# vmap unisims_ver ${MTI_LIB_XILINX_PATH}/unisims_ver
-# vmap secureip    ${MTI_LIB_XILINX_PATH}/secureip
-# vmap xpm         ${MTI_LIB_XILINX_PATH}/xpm
 
 
 ############################################################
