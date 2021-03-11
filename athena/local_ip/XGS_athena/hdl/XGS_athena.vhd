@@ -66,7 +66,7 @@ entity XGS_athena is
     SYS_CLK_PERIOD        : integer              := 16;     -- Units in ns
     SENSOR_FREQ           : integer              := 32400;  -- Units in KHz
     SIMULATION            : integer              := 0;
-	COLOR                 : integer              := 0  
+    COLOR                 : integer              := 0
     );
   port (
     ---------------------------------------------------------------------------
@@ -510,88 +510,137 @@ architecture struct of XGS_athena is
   end component;
 
   component xgs_color_proc
-   generic( DPC_CORR_PIXELS_DEPTH         : integer := 9    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
-            
-		  );   
-    port (  
-           
-           ---------------------------------------------------------------------
-           -- Axi domain reset and clock signals
-           ---------------------------------------------------------------------
-           axi_clk                              : in    std_logic;
-           axi_reset_n                          : in    std_logic;
+    generic(DPC_CORR_PIXELS_DEPTH : integer := 9  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
-           ---------------------------------------------------------------------
-           -- AXI in
-           ---------------------------------------------------------------------  
-           s_axis_tvalid                           : in   std_logic;
-	       s_axis_tready                           : out   std_logic;
-	       --s_axis_tready_int                       : in   std_logic;   --temporaire on va juste se hooker
-           s_axis_tuser                            : in   std_logic_vector(3 downto 0);
-           s_axis_tlast                            : in   std_logic;
-           s_axis_tdata                            : in   std_logic_vector(19 downto 0);	
-	       
-           ---------------------------------------------------------------------
-           -- AXI out
-           ---------------------------------------------------------------------
-	       m_axis_tready                           : in  std_logic;
-           m_axis_tvalid                           : out std_logic;
-           m_axis_tuser                            : out std_logic_vector(3 downto 0);
-           m_axis_tlast                            : out std_logic;
-           m_axis_tdata                            : out std_logic_vector(63 downto 0);
-		   
-           ---------------------------------------------------------------------
-           -- Grab params
-           ---------------------------------------------------------------------		   
-		   curr_Xstart                             : in    std_logic_vector(12 downto 0) :=(others=>'0');   --pixel
-           curr_Xend                               : in    std_logic_vector(12 downto 0) :=(others=>'1');   --pixel										      
-           curr_Ystart                             : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
-           curr_Yend                               : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    											      
-           curr_Ysub                               : in    std_logic := '0';  
-											      
-	       load_dma_context_EOFOT                  : in    std_logic := '0';  -- in axi_clk
-	       
-           ---------------------------------------------------------------------
-           -- Registers
-           ---------------------------------------------------------------------
-           REG_dpc_list_length                     : out   std_logic_vector(11 downto 0);
-	       REG_dpc_ver                             : out   std_logic_vector(3 downto 0);
-											     
-           REG_dpc_enable                          : in    std_logic :='1';
-											     
-           REG_dpc_pattern0_cfg                    : in    std_logic :='0';
-											     
-           REG_dpc_list_wrn                        : in    std_logic; 
-           REG_dpc_list_add                        : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
-           REG_dpc_list_ss                         : in    std_logic;
-           REG_dpc_list_count                      : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
-											     
-           REG_dpc_list_corr_pattern               : in    std_logic_vector(7 downto 0);
-           REG_dpc_list_corr_y                     : in    std_logic_vector(11 downto 0);
-           REG_dpc_list_corr_x                     : in    std_logic_vector(12 downto 0);
-											     
-           REG_dpc_list_corr_rd                    : out   std_logic_vector(32 downto 0);   
+            );
+    port (
 
-           REG_wb_b_acc                            : out std_logic_vector(30 downto 0);
-           REG_wb_g_acc                            : out std_logic_vector(31 downto 0);
-           REG_wb_r_acc                            : out std_logic_vector(30 downto 0);
+      ---------------------------------------------------------------------
+      -- Axi domain reset and clock signals
+      ---------------------------------------------------------------------
+      axi_clk     : in std_logic;
+      axi_reset_n : in std_logic;
 
-		   REG_WB_MULT_R                           : in std_logic_vector(15 downto 0):= "0001000000000000";
-		   REG_WB_MULT_G                           : in std_logic_vector(15 downto 0):= "0001000000000000";
-		   REG_WB_MULT_B                           : in std_logic_vector(15 downto 0):= "0001000000000000";
+      ---------------------------------------------------------------------
+      -- AXI in
+      ---------------------------------------------------------------------  
+      s_axis_tvalid : in  std_logic;
+      s_axis_tready : out std_logic;
+      --s_axis_tready_int                       : in   std_logic;   --temporaire on va juste se hooker
+      s_axis_tuser  : in  std_logic_vector(3 downto 0);
+      s_axis_tlast  : in  std_logic;
+      s_axis_tdata  : in  std_logic_vector(19 downto 0);
 
-           REG_BAYER_EN                            : in std_logic:='0';	   
-           
-		   REG_LUT_BYPASS                          : in std_logic;
-           REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
-		   REG_LUT_SS                              : in  std_logic;
-		   REG_LUT_WRN                             : in  std_logic;
-           REG_LUT_ADD                             : in std_logic_vector;
-           REG_LUT_DATA_W                          : in std_logic_vector
- 		   
-        );
+      ---------------------------------------------------------------------
+      -- AXI out
+      ---------------------------------------------------------------------
+      m_axis_tready : in  std_logic;
+      m_axis_tvalid : out std_logic;
+      m_axis_tuser  : out std_logic_vector(3 downto 0);
+      m_axis_tlast  : out std_logic;
+      m_axis_tdata  : out std_logic_vector(63 downto 0);
+
+      ---------------------------------------------------------------------
+      -- Grab params
+      ---------------------------------------------------------------------                
+      curr_Xstart : in std_logic_vector(12 downto 0) := (others => '0');  --pixel
+      curr_Xend   : in std_logic_vector(12 downto 0) := (others => '1');  --pixel                                                                               
+      curr_Ystart : in std_logic_vector(11 downto 0) := (others => '0');  --line
+      curr_Yend   : in std_logic_vector(11 downto 0) := (others => '1');  --line                                                                                                
+      curr_Ysub   : in std_logic                     := '0';
+
+      load_dma_context_EOFOT : in std_logic := '0';  -- in axi_clk
+
+      ---------------------------------------------------------------------
+      -- Registers
+      ---------------------------------------------------------------------
+      REG_dpc_list_length : out std_logic_vector(11 downto 0);
+      REG_dpc_ver         : out std_logic_vector(3 downto 0);
+
+      REG_dpc_enable : in std_logic := '1';
+
+      REG_dpc_pattern0_cfg : in std_logic := '0';
+
+      REG_dpc_list_wrn   : in std_logic;
+      REG_dpc_list_add   : in std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
+      REG_dpc_list_ss    : in std_logic;
+      REG_dpc_list_count : in std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
+
+      REG_dpc_list_corr_pattern : in std_logic_vector(7 downto 0);
+      REG_dpc_list_corr_y       : in std_logic_vector(11 downto 0);
+      REG_dpc_list_corr_x       : in std_logic_vector(12 downto 0);
+
+      REG_dpc_list_corr_rd : out std_logic_vector(32 downto 0);
+
+      REG_wb_b_acc : out std_logic_vector(30 downto 0);
+      REG_wb_g_acc : out std_logic_vector(31 downto 0);
+      REG_wb_r_acc : out std_logic_vector(30 downto 0);
+
+      REG_WB_MULT_R : in std_logic_vector(15 downto 0) := "0001000000000000";
+      REG_WB_MULT_G : in std_logic_vector(15 downto 0) := "0001000000000000";
+      REG_WB_MULT_B : in std_logic_vector(15 downto 0) := "0001000000000000";
+
+      REG_BAYER_EN : in std_logic := '0';
+
+      REG_LUT_BYPASS : in std_logic;
+      REG_LUT_SEL    : in std_logic_vector(3 downto 0);
+      REG_LUT_SS     : in std_logic;
+      REG_LUT_WRN    : in std_logic;
+      REG_LUT_ADD    : in std_logic_vector;
+      REG_LUT_DATA_W : in std_logic_vector
+
+      );
   end component;
-  
+
+
+  component x_trim is
+    generic (
+      NUMB_LINE_BUFFER : integer range 2 to 4 := 2
+      );
+    port (
+      ---------------------------------------------------------------------------
+      -- Register file
+      ---------------------------------------------------------------------------
+      aclk_pixel_width : in std_logic_vector(2 downto 0);
+      aclk_x_crop_en   : in std_logic;
+      aclk_x_start     : in std_logic_vector(12 downto 0);
+      aclk_x_size      : in std_logic_vector(12 downto 0);
+      aclk_x_scale     : in std_logic_vector(3 downto 0);
+      aclk_x_reverse   : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk         : in std_logic;
+      aclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_tready : out std_logic;
+      aclk_tvalid : in  std_logic;
+      aclk_tuser  : in  std_logic_vector(3 downto 0);
+      aclk_tlast  : in  std_logic;
+      aclk_tdata  : in  std_logic_vector(63 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      bclk         : in std_logic;
+      bclk_reset_n : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI master stream output interface
+      ---------------------------------------------------------------------------
+      bclk_tready : in  std_logic;
+      bclk_tvalid : out std_logic;
+      bclk_tuser  : out std_logic_vector(3 downto 0);
+      bclk_tlast  : out std_logic;
+      bclk_tdata  : out std_logic_vector(63 downto 0)
+      );
+  end component;
+
+
 
   component dmawr2tlp is
     generic (
@@ -895,6 +944,9 @@ architecture struct of XGS_athena is
   signal REG_dpc_list_length  : std_logic_vector(11 downto 0);
   signal REG_dpc_ver          : std_logic_vector(3 downto 0);
 
+  -- signal temporaire pour d/veloppement
+  signal tmp_valid : std_logic;
+
 
 begin
 
@@ -1036,7 +1088,7 @@ begin
   -- MONO PIPELINE
   --
   ----------------------------------
-  G_MONO_PIPELINE : if (COLOR=0) generate
+  G_MONO_PIPELINE : if (COLOR = 0) generate
     ----------------------------------
     --
     -- DCP
@@ -1044,58 +1096,58 @@ begin
     ----------------------------------
     xdpc_filter : dpc_filter
       generic map (DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH)  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
-   
+
       port map(
-   
+
         ---------------------------------------------------------------------
         -- System and Pixel domain reset and clock signals
         ---------------------------------------------------------------------
         axi_clk     => aclk,
         axi_reset_n => aclk_reset_n,
-   
+
         ---------------------------------------------------------------------
         -- 
         ---------------------------------------------------------------------
         curr_Xstart => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
         curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
-   
+
         curr_Ystart => hispi_ystart,
         curr_Yend   => hispi_yend,
-   
+
         curr_Ysub => hispi_subY,
-   
+
         load_dma_context_EOFOT => load_dma_context(1),
-   
+
         ---------------------------------------------------------------------
         -- Registers
         ---------------------------------------------------------------------
         REG_dpc_list_length => REG_dpc_list_length,
         REG_dpc_ver         => REG_dpc_ver,
-   
-   
-        REG_color => '0',   -- to bypass in color modes
-   
-        REG_dpc_enable             => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
-   
-        REG_dpc_pattern0_cfg       => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
-   
-        REG_dpc_fifo_rst           => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
-        REG_dpc_fifo_ovr           => REG_DPC_FIFO_OVR,
-        REG_dpc_fifo_und           => REG_DPC_FIFO_UND,
-   
-        REG_dpc_list_wrn           => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
-        REG_dpc_list_add           => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-        REG_dpc_list_ss            => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
-        REG_dpc_list_count         => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-   
-        REG_dpc_list_corr_pattern  => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
-        REG_dpc_list_corr_y        => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
-        REG_dpc_list_corr_x        => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
-   
-        REG_dpc_list_corr_rd       => REG_dpc_list_corr_rd,
-   
+
+
+        REG_color => '0',               -- to bypass in color modes
+
+        REG_dpc_enable => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
+
+        REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+
+        REG_dpc_fifo_rst => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
+        REG_dpc_fifo_ovr => REG_DPC_FIFO_OVR,
+        REG_dpc_fifo_und => REG_DPC_FIFO_UND,
+
+        REG_dpc_list_wrn   => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+        REG_dpc_list_add   => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+        REG_dpc_list_ss    => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
+        REG_dpc_list_count => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+
+        REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+        REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+        REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
+
+        REG_dpc_list_corr_rd => REG_dpc_list_corr_rd,
+
         REG_dpc_firstlast_line_rem => regfile.DPC.DPC_LIST_CTRL.dpc_firstlast_line_rem,
-   
+
         ---------------------------------------------------------------------
         -- AXI in (SLAVE)
         ---------------------------------------------------------------------  
@@ -1104,7 +1156,7 @@ begin
         s_axis_tuser  => aclk_tuser,
         s_axis_tlast  => aclk_tlast,
         s_axis_tdata  => aclk_tdata,
-   
+
         ---------------------------------------------------------------------
         -- AXI out (MASTER)
         ---------------------------------------------------------------------
@@ -1114,17 +1166,17 @@ begin
         m_axis_tlast  => dcp_tlast,
         m_axis_tdata  => dcp_tdata
         );
-   
+
     --DCP REGISTERS  
     regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH <= REG_dpc_list_length;
     regfile.DPC.DPC_CAPABILITIES.DPC_VER         <= REG_dpc_ver;
-   
+
     regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;
     regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
     regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
-   
+
     ----------------------------------
     --
     -- LUT
@@ -1134,7 +1186,7 @@ begin
       port map (
         axi_clk     => aclk,
         axi_reset_n => aclk_reset_n,
-   
+
         ---------------------------------------------------------------------
         -- AXI in
         ---------------------------------------------------------------------  
@@ -1143,7 +1195,7 @@ begin
         s_axis_tuser  => dcp_tuser,
         s_axis_tlast  => dcp_tlast,
         s_axis_tdata  => dcp_tdata,
-   
+
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
@@ -1152,26 +1204,26 @@ begin
         m_axis_tuser  => lut_tuser,
         m_axis_tlast  => lut_tlast,
         m_axis_tdata  => lut_tdata,
-   
+
         ---------------------------------------------------------------------------
         --  Registers
         ---------------------------------------------------------------------------
         regfile => regfile
         );
-   
-    
-    regfile.BAYER.WB_B_ACC.B_ACC <= (others=>'0');
-    regfile.BAYER.WB_G_ACC.G_ACC <= (others=>'0');
-    regfile.BAYER.WB_R_ACC.R_ACC <= (others=>'0'); 
-   
+
+
+    regfile.BAYER.WB_B_ACC.B_ACC <= (others => '0');
+    regfile.BAYER.WB_G_ACC.G_ACC <= (others => '0');
+    regfile.BAYER.WB_R_ACC.R_ACC <= (others => '0');
+
     ---------------------------
     -- MONO
     ---------------------------
-    lut_tready <= dma_tready;
-    dma_tvalid <= lut_tvalid;
-    dma_tdata  <= lut_tdata;
-    dma_tuser  <= lut_tuser;
-    dma_tlast  <= lut_tlast;
+    -- lut_tready <= dma_tready;
+    -- dma_tvalid <= lut_tvalid;
+    -- dma_tdata  <= lut_tdata;
+    -- dma_tuser  <= lut_tuser;
+    -- dma_tlast  <= lut_tlast;
 
 
     --------------------------------------------------------------------
@@ -1189,7 +1241,7 @@ begin
     --lut_tdata   <= aclk_tdata(79 downto 72) & aclk_tdata(69 downto 62) & aclk_tdata(59 downto 52) & aclk_tdata(49 downto 42) &
     --               aclk_tdata(39 downto 32) & aclk_tdata(29 downto 22) & aclk_tdata(19 downto 12) & aclk_tdata(9  downto  2) ; 
 
-  end generate G_MONO_PIPELINE; --MONO PIPELINE
+  end generate G_MONO_PIPELINE;  --MONO PIPELINE
 
 
 
@@ -1201,106 +1253,134 @@ begin
   -- COLOR PIPELINE
   --
   ----------------------------------
-  G_COLOR_PIPELINE : if (COLOR=1) generate
-    
+  G_COLOR_PIPELINE : if (COLOR = 1) generate
+
     Xxgs_color_proc : xgs_color_proc
-     generic map( DPC_CORR_PIXELS_DEPTH  =>  DPC_CORR_PIXELS_DEPTH    --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
-              
-      )   
-      port map(  
-             
-             ---------------------------------------------------------------------
-             -- Axi domain reset and clock signals
-             ---------------------------------------------------------------------
-             axi_clk                   => aclk,
-             axi_reset_n               => aclk_reset_n,
+      generic map(DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
-             ---------------------------------------------------------------------
-             -- AXI in
-             ---------------------------------------------------------------------         
-             s_axis_tvalid             => aclk_tvalid,
-             s_axis_tready             => aclk_tready,
-             s_axis_tuser              => aclk_tuser,
-             s_axis_tlast              => aclk_tlast,
-             s_axis_tdata              => aclk_tdata(19 downto 0),
-             
-             ---------------------------------------------------------------------
-             -- AXI out
-             ---------------------------------------------------------------------
-             m_axis_tready             =>  dma_tready,
-             m_axis_tvalid             =>  dma_tvalid,
-             m_axis_tuser              =>  dma_tuser,
-             m_axis_tlast              =>  dma_tlast,
-             m_axis_tdata              =>  dma_tdata,
-             ---------------------------------------------------------------------		   
-           -- Grab parameters 	   
-             ---------------------------------------------------------------------
-             curr_Xstart               => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
-             curr_Xend                 => regfile.HISPI.FRAME_CFG_X_VALID.X_END,    -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
-    
-             curr_Ystart               => hispi_ystart,
-             curr_Yend                 => hispi_yend,
-    
-             curr_Ysub                 => hispi_subY,
-    
-             load_dma_context_EOFOT    => load_dma_context(1),
-      
-             ---------------------------------------------------------------------
-             -- Regfile
-             ---------------------------------------------------------------------
-             REG_dpc_list_length       => REG_dpc_list_length,
-             REG_dpc_ver               => REG_dpc_ver,   
- 
-             REG_dpc_enable            => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
-             REG_dpc_pattern0_cfg      => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
-             REG_dpc_list_wrn          => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
-             REG_dpc_list_add          => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-             REG_dpc_list_ss           => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
-             REG_dpc_list_count        => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
-       
-             REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
-             REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
-             REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
-       
-             REG_dpc_list_corr_rd      => REG_dpc_list_corr_rd,
-             REG_wb_b_acc              => regfile.BAYER.WB_B_ACC.B_ACC,
-             REG_wb_g_acc              => regfile.BAYER.WB_G_ACC.G_ACC,
-             REG_wb_r_acc              => regfile.BAYER.WB_R_ACC.R_ACC, 
- 
-             REG_WB_MULT_R             => regfile.BAYER.WB_MUL2.WB_MULT_R,
-             REG_WB_MULT_G             => regfile.BAYER.WB_MUL1.WB_MULT_G,
-             REG_WB_MULT_B             => regfile.BAYER.WB_MUL1.WB_MULT_B,
+                  )
+      port map(
 
-             REG_BAYER_EN              => regfile.BAYER.BAYER_CFG.BAYER_EN,
+        ---------------------------------------------------------------------
+        -- Axi domain reset and clock signals
+        ---------------------------------------------------------------------
+        axi_clk     => aclk,
+        axi_reset_n => aclk_reset_n,
 
-             REG_LUT_BYPASS            => regfile.LUT.LUT_CTRL.LUT_BYPASS,
-             REG_LUT_SEL               => regfile.LUT.LUT_CTRL.LUT_SEL,     
-             REG_LUT_SS                => regfile.LUT.LUT_CTRL.LUT_SS,      
-             REG_LUT_WRN               => regfile.LUT.LUT_CTRL.LUT_WRN,     
-             REG_LUT_ADD               => regfile.LUT.LUT_CTRL.LUT_ADD,     
-             REG_LUT_DATA_W            => regfile.LUT.LUT_CTRL.LUT_DATA_W    
-             
-            );
-          
-      regfile.LUT.LUT_CAPABILITIES.LUT_VER                <= conv_std_logic_vector(1 , regfile.LUT.LUT_CAPABILITIES.LUT_VER'LENGTH );
-      regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG        <= conv_std_logic_vector(2 , regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG'LENGTH );
-      regfile.LUT.LUT_RB.LUT_RB                           <= (others=>'0'); 
-    
-      regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH        <= "000111111111"; 
-      regfile.DPC.DPC_CAPABILITIES.DPC_VER                <= "0001";          --color
+        ---------------------------------------------------------------------
+        -- AXI in
+        ---------------------------------------------------------------------         
+        s_axis_tvalid => aclk_tvalid,
+        s_axis_tready => aclk_tready,
+        s_axis_tuser  => aclk_tuser,
+        s_axis_tlast  => aclk_tlast,
+        s_axis_tdata  => aclk_tdata(19 downto 0),
 
-      regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;
-      regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;
-      regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
-      regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
-      regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
+        ---------------------------------------------------------------------
+        -- AXI out
+        ---------------------------------------------------------------------
+        m_axis_tready => dma_tready,
+        m_axis_tvalid => dma_tvalid,
+        m_axis_tuser  => dma_tuser,
+        m_axis_tlast  => dma_tlast,
+        m_axis_tdata  => dma_tdata,
+        ---------------------------------------------------------------------              
+        -- Grab parameters         
+        ---------------------------------------------------------------------
+        curr_Xstart   => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+        curr_Xend     => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
 
-   
-    
+        curr_Ystart => hispi_ystart,
+        curr_Yend   => hispi_yend,
+
+        curr_Ysub => hispi_subY,
+
+        load_dma_context_EOFOT => load_dma_context(1),
+
+        ---------------------------------------------------------------------
+        -- Regfile
+        ---------------------------------------------------------------------
+        REG_dpc_list_length => REG_dpc_list_length,
+        REG_dpc_ver         => REG_dpc_ver,
+
+        REG_dpc_enable       => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
+        REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+        REG_dpc_list_wrn     => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
+        REG_dpc_list_add     => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+        REG_dpc_list_ss      => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,
+        REG_dpc_list_count   => regfile.DPC.DPC_LIST_CTRL.dpc_list_count(DPC_CORR_PIXELS_DEPTH-1 downto 0),
+
+        REG_dpc_list_corr_pattern => regfile.DPC.DPC_LIST_DATA2.dpc_list_corr_pattern,
+        REG_dpc_list_corr_y       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_y,
+        REG_dpc_list_corr_x       => regfile.DPC.DPC_LIST_DATA1.dpc_list_corr_x,
+
+        REG_dpc_list_corr_rd => REG_dpc_list_corr_rd,
+        REG_wb_b_acc         => regfile.BAYER.WB_B_ACC.B_ACC,
+        REG_wb_g_acc         => regfile.BAYER.WB_G_ACC.G_ACC,
+        REG_wb_r_acc         => regfile.BAYER.WB_R_ACC.R_ACC,
+
+        REG_WB_MULT_R => regfile.BAYER.WB_MUL2.WB_MULT_R,
+        REG_WB_MULT_G => regfile.BAYER.WB_MUL1.WB_MULT_G,
+        REG_WB_MULT_B => regfile.BAYER.WB_MUL1.WB_MULT_B,
+
+        REG_BAYER_EN => regfile.BAYER.BAYER_CFG.BAYER_EN,
+
+        REG_LUT_BYPASS => regfile.LUT.LUT_CTRL.LUT_BYPASS,
+        REG_LUT_SEL    => regfile.LUT.LUT_CTRL.LUT_SEL,
+        REG_LUT_SS     => regfile.LUT.LUT_CTRL.LUT_SS,
+        REG_LUT_WRN    => regfile.LUT.LUT_CTRL.LUT_WRN,
+        REG_LUT_ADD    => regfile.LUT.LUT_CTRL.LUT_ADD,
+        REG_LUT_DATA_W => regfile.LUT.LUT_CTRL.LUT_DATA_W
+
+        );
+
+    regfile.LUT.LUT_CAPABILITIES.LUT_VER         <= conv_std_logic_vector(1, regfile.LUT.LUT_CAPABILITIES.LUT_VER'length);
+    regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG <= conv_std_logic_vector(2, regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG'length);
+    regfile.LUT.LUT_RB.LUT_RB                    <= (others => '0');
+
+    regfile.DPC.DPC_CAPABILITIES.DPC_LIST_LENGTH <= "000111111111";
+    regfile.DPC.DPC_CAPABILITIES.DPC_VER         <= "0001";  --color
+
+    regfile.DPC.DPC_LIST_STAT.dpc_fifo_overrun          <= REG_DPC_FIFO_OVR;
+    regfile.DPC.DPC_LIST_STAT.dpc_fifo_underrun         <= REG_DPC_FIFO_UND;
+    regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
+    regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
+    regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
+
+
+
   end generate G_COLOR_PIPELINE;
-    
 
 
+  x_trim_inst : x_trim
+    generic map(
+      NUMB_LINE_BUFFER => 2
+      )
+    port map(
+      aclk_pixel_width => "001",
+      aclk_x_crop_en   => regfile.DMA.ROI_X.ROI_EN,
+      aclk_x_start     => regfile.DMA.ROI_X.X_START,
+      aclk_x_size      => regfile.DMA.ROI_X.X_SIZE,
+      aclk_x_scale     => regfile.DMA.CSC.SUB_X,
+      aclk_x_reverse   => regfile.DMA.CSC.REVERSE_X,
+      aclk             => aclk,
+      aclk_reset_n     => aclk_reset_n,
+      aclk_tready      => lut_tready,
+      aclk_tvalid      => lut_tvalid,
+      aclk_tuser       => lut_tuser,
+      aclk_tlast       => lut_tlast,
+      aclk_tdata       => lut_tdata,
+      bclk             => aclk,
+      bclk_reset_n     => aclk_reset_n,
+      bclk_tready      => dma_tready,
+      bclk_tvalid      => dma_tvalid,
+      bclk_tuser       => dma_tuser,
+      bclk_tlast       => dma_tlast,
+      bclk_tdata       => dma_tdata
+      );
+
+  -- tmp_valid <= '1' when (lut_tvalid = '1' and lut_tready = '1') else
+  --              '0';
 
   xdmawr2tlp : dmawr2tlp
     generic map(
@@ -1312,12 +1392,12 @@ begin
       intevent     => irq_dma,
       context_strb => load_dma_context,
       regfile      => regfile,
-      
-	  tready       => dma_tready,
-      tvalid       => dma_tvalid,
-      tdata        => dma_tdata,
-      tuser        => dma_tuser,
-      tlast        => dma_tlast,
+
+      tready => dma_tready,
+      tvalid => dma_tvalid,
+      tdata  => dma_tdata,
+      tuser  => dma_tuser,
+      tlast  => dma_tlast,
       -- tready => aclk_tready,
       -- tvalid => aclk_tvalid,
       -- tdata  => aclk_tdata,
