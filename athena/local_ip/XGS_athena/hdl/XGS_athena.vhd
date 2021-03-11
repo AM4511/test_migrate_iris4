@@ -602,6 +602,7 @@ architecture struct of XGS_athena is
       -- Register file
       ---------------------------------------------------------------------------
       aclk_pixel_width : in std_logic_vector(2 downto 0);
+      aclk_x_crop_en   : in std_logic;
       aclk_x_start     : in std_logic_vector(15 downto 0);
       aclk_x_size      : in std_logic_vector(15 downto 0);
       aclk_x_scale     : in std_logic_vector(3 downto 0);
@@ -1218,11 +1219,11 @@ begin
     ---------------------------
     -- MONO
     ---------------------------
-    lut_tready <= dma_tready;
-    dma_tvalid <= lut_tvalid;
-    dma_tdata  <= lut_tdata;
-    dma_tuser  <= lut_tuser;
-    dma_tlast  <= lut_tlast;
+    -- lut_tready <= dma_tready;
+    -- dma_tvalid <= lut_tvalid;
+    -- dma_tdata  <= lut_tdata;
+    -- dma_tuser  <= lut_tuser;
+    -- dma_tlast  <= lut_tlast;
 
 
     --------------------------------------------------------------------
@@ -1356,29 +1357,30 @@ begin
       NUMB_LINE_BUFFER => 2
       )
     port map(
-      aclk_pixel_width =>"001",
-      aclk_x_start   => X"0000",
-      aclk_x_size    => X"0000",
-      aclk_x_scale   => "0000",
-      aclk_x_reverse => '0',
-      aclk           => aclk,
-      aclk_reset_n   => aclk_reset_n,
-      aclk_tready    => open,           --lut_tready,
-      aclk_tvalid    => tmp_valid,      -- lut_tvalid,
-      aclk_tuser     => lut_tuser,
-      aclk_tlast     => lut_tlast,
-      aclk_tdata     => lut_tdata,
-      bclk           => aclk,
-      bclk_reset_n   => aclk_reset_n,
-      bclk_tready    => '1',
-      bclk_tvalid    => open,
-      bclk_tuser     => open,
-      bclk_tlast     => open,
-      bclk_tdata     => open
+      aclk_pixel_width => "001",
+      aclk_x_crop_en   => '0',
+      aclk_x_start     => X"0000",
+      aclk_x_size      => X"0000",
+      aclk_x_scale     => "0000",
+      aclk_x_reverse   => '0',
+      aclk             => aclk,
+      aclk_reset_n     => aclk_reset_n,
+      aclk_tready      => lut_tready,
+      aclk_tvalid      => lut_tvalid,
+      aclk_tuser       => lut_tuser,
+      aclk_tlast       => lut_tlast,
+      aclk_tdata       => lut_tdata,
+      bclk             => aclk,
+      bclk_reset_n     => aclk_reset_n,
+      bclk_tready      => dma_tready,
+      bclk_tvalid      => dma_tvalid,
+      bclk_tuser       => dma_tuser,
+      bclk_tlast       => dma_tlast,
+      bclk_tdata       => dma_tdata
       );
 
-  tmp_valid <= '1' when (lut_tvalid = '1' and lut_tready = '1') else
-               '0';
+  -- tmp_valid <= '1' when (lut_tvalid = '1' and lut_tready = '1') else
+  --              '0';
 
   xdmawr2tlp : dmawr2tlp
     generic map(

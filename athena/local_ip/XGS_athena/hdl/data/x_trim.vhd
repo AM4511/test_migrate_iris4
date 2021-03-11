@@ -135,16 +135,16 @@ architecture rtl of x_trim is
       ---------------------------------------------------------------------------
       -- AXI Slave interface
       ---------------------------------------------------------------------------
-      bclk         : in std_logic;
-      bclk_reset   : in std_logic;
+      bclk       : in std_logic;
+      bclk_reset : in std_logic;
 
       ---------------------------------------------------------------------------
       -- Registerfile field
       ---------------------------------------------------------------------------
       bclk_pixel_width : in  std_logic_vector(2 downto 0);
-      bclk_x_reverse  : in  std_logic;
-      bclk_buffer_rdy : in  std_logic;
-      bclk_full       : out std_logic;
+      bclk_x_reverse   : in  std_logic;
+      bclk_buffer_rdy  : in  std_logic;
+      bclk_full        : out std_logic;
 
       ---------------------------------------------------------------------------
       -- Command FiFo
@@ -181,7 +181,7 @@ architecture rtl of x_trim is
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
   constant CMD_FIFO_DATA_WIDTH : integer := 8 + 2 + WORD_PTR_WIDTH + BUFF_PTR_WIDTH;
 
-  
+
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
@@ -226,13 +226,13 @@ architecture rtl of x_trim is
   signal aclk_crop_mux_sel      : std_logic_vector(2 downto 0);
   signal aclk_crop_packer_valid : std_logic_vector(1 downto 0);
 
-  
+
   -----------------------------------------------------------------------------
   -- BCLK clock domain
   -----------------------------------------------------------------------------
   signal bclk_x_reverse_Meta : std_logic;
   signal bclk_x_reverse      : std_logic;
-  signal  bclk_pixel_width :   std_logic_vector(2 downto 0);
+  signal bclk_pixel_width    : std_logic_vector(2 downto 0);
 
   signal bclk_reset : std_logic;
   signal bclk_full  : std_logic;
@@ -288,10 +288,10 @@ begin
 
   -- TEMP parameters. should come from register fields
   aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
-                     (aclk_pix_cntr'range =>'0');
-  aclk_crop_size  <= unsigned(aclk_x_size(aclk_pix_cntr'range));
-  aclk_crop_stop  <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
-                     (aclk_pix_cntr'range =>'1');
+                     (aclk_pix_cntr'range => '0');
+  aclk_crop_size <= unsigned(aclk_x_size(aclk_pix_cntr'range));
+  aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
+                    (aclk_pix_cntr'range => '1');
 
   --aclk_pixel_width <= 1;
   bclk_pixel_width <= aclk_pixel_width;
@@ -840,7 +840,7 @@ begin
   end process;
 
 
-  inst_x_trim_streamout : x_trim_streamout
+  x_trim_streamout_inst : x_trim_streamout
     generic map(
       NUMB_LINE_BUFFER    => NUMB_LINE_BUFFER,
       CMD_FIFO_DATA_WIDTH => CMD_FIFO_DATA_WIDTH,

@@ -50,7 +50,7 @@ module testbench();
 	//always #2.7 sys_clk          = ~sys_clk;
 	always #5 aclk    = ~aclk;
 	always #6.5 bclk  = ~bclk;
-	assign bclk_tready = 1;
+			//assign bclk_tready = 1;
 	int watchdog;
 	int error;
 	x_trim DUT(
@@ -214,6 +214,7 @@ module testbench();
 				int j;
 				byte c;
 				int s;
+				int cntr;
 				int mask_size;
 				longint byte_mask;
 
@@ -249,11 +250,11 @@ module testbench();
 				watchdog = WATCHDOG_MAX_CNT;
 				error =0;
 				j = 0;
-
+				cntr =0;
 				while (1) begin
 
 					@(posedge bclk);
-					if (bclk_tvalid == 1'b1) begin
+					if (bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
 						user = bclk_tuser;
 						received_db = bclk_tdata;
 						received_row_data.push_back(received_db);
@@ -271,8 +272,26 @@ module testbench();
 								break;
 							end
 						end
+
 						// reset the watchdog
 						watchdog = WATCHDOG_MAX_CNT;
+					end
+
+					begin
+						/////////////////////////////////////////////////////////
+						//
+						/////////////////////////////////////////////////////////
+						if (cntr%8 == 0) begin
+							bclk_tready = 1'b0;
+						end else begin
+							bclk_tready = 1'b1;
+						end
+
+						// At EOF we are done
+						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
+							break;
+						end
+						cntr++;
 					end
 
 
@@ -283,10 +302,10 @@ module testbench();
 
 				#1000ns;
 
-				///////////////////////////////////////////////////////
-				// Create predicted stream
-				////////////////////////////////////////////////////////
-				// If cropping disabled the ROI becomes the original image size
+					///////////////////////////////////////////////////////
+					// Create predicted stream
+					////////////////////////////////////////////////////////
+					// If cropping disabled the ROI becomes the original image size
 				if (aclk_x_crop_en == 0) begin
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
@@ -423,7 +442,34 @@ module testbench();
 
 				end
 			end
+			/////////////////////////////////////////////////////////////////////
+			// Fork 2 : Insert back pressure on the stream output port
+			/////////////////////////////////////////////////////////////////////
+			//			begin
+			//				int cntr;
+			//				cntr = 0;
+			//				while (1) begin
+			//					@(posedge bclk);
+			//					begin
+			//						/////////////////////////////////////////////////////////
+			//						//
+			//						/////////////////////////////////////////////////////////
+			//						if (cntr%8 == 0) begin
+			//							bclk_tready = 1'b0;
+			//						end else begin
+			//							bclk_tready = 1'b1;
+			//						end
+			//
+			//						// At EOF we are done
+			//						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
+			//							break;
+			//						end
+			//						cntr++;
+			//					end
+			//				end
+			//			end
 		join;
+
 			$display("=====================================================================");
 		$display("Total error : %-0d", error);
 
