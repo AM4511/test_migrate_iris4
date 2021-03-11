@@ -13,6 +13,21 @@ use ieee.numeric_std.all;
 -- reverse
 -- rgba
 
+-- #  
+-- # ---------------------------------
+-- #  Results of testlist simulation  
+-- # ---------------------------------
+-- # test0001_result : PASS
+-- # test0002_result : PASS
+-- # test0003_result : PASS
+-- # test0004_result : PASS
+-- # test0005_result : FAIL
+-- # test0006_result : PASS
+-- # test0007_result : FAIL
+-- # test0008_result : FAIL ->Revx
+-- # test0009_result : PASS
+-- # test0010_result : FAIL -> cropping x
+
 entity x_trim is
   generic (
     NUMB_LINE_BUFFER : integer range 2 to 4 := 2
@@ -23,8 +38,8 @@ entity x_trim is
     ---------------------------------------------------------------------------
     aclk_pixel_width : in std_logic_vector(2 downto 0);
     aclk_x_crop_en   : in std_logic;
-    aclk_x_start     : in std_logic_vector(15 downto 0);
-    aclk_x_size      : in std_logic_vector(15 downto 0);
+    aclk_x_start     : in std_logic_vector(12 downto 0);
+    aclk_x_size      : in std_logic_vector(12 downto 0);
     aclk_x_scale     : in std_logic_vector(3 downto 0);
     aclk_x_reverse   : in std_logic;
 

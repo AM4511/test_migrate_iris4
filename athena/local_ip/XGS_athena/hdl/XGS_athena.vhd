@@ -603,8 +603,8 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       aclk_pixel_width : in std_logic_vector(2 downto 0);
       aclk_x_crop_en   : in std_logic;
-      aclk_x_start     : in std_logic_vector(15 downto 0);
-      aclk_x_size      : in std_logic_vector(15 downto 0);
+      aclk_x_start     : in std_logic_vector(12 downto 0);
+      aclk_x_size      : in std_logic_vector(12 downto 0);
       aclk_x_scale     : in std_logic_vector(3 downto 0);
       aclk_x_reverse   : in std_logic;
 
@@ -1358,11 +1358,11 @@ begin
       )
     port map(
       aclk_pixel_width => "001",
-      aclk_x_crop_en   => '0',
-      aclk_x_start     => X"0000",
-      aclk_x_size      => X"0000",
-      aclk_x_scale     => "0000",
-      aclk_x_reverse   => '0',
+      aclk_x_crop_en   => regfile.DMA.ROI_X.ROI_EN,
+      aclk_x_start     => regfile.DMA.ROI_X.X_START,
+      aclk_x_size      => regfile.DMA.ROI_X.X_SIZE,
+      aclk_x_scale     => regfile.DMA.CSC.SUB_X,
+      aclk_x_reverse   => regfile.DMA.CSC.REVERSE_X,
       aclk             => aclk,
       aclk_reset_n     => aclk_reset_n,
       aclk_tready      => lut_tready,

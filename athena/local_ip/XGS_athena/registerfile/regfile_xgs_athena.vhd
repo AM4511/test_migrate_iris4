@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/02/26 14:33:33
--- Created by          : jmansill
+-- Created on          : 2021/03/11 16:22:12
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7AF286C6
+-- Register file CRC32 : 0x42D60904
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -319,7 +319,7 @@ package regfile_xgs_athena_pack is
    type DMA_CSC_TYPE is record
       COLOR_SPACE    : std_logic_vector(2 downto 0);
       DUP_LAST_LINE  : std_logic;
-      SUB_X          : std_logic;
+      SUB_X          : std_logic_vector(3 downto 0);
       REVERSE_Y      : std_logic;
       REVERSE_X      : std_logic;
    end record DMA_CSC_TYPE;
@@ -327,7 +327,7 @@ package regfile_xgs_athena_pack is
    constant INIT_DMA_CSC_TYPE : DMA_CSC_TYPE := (
       COLOR_SPACE     => (others=> 'Z'),
       DUP_LAST_LINE   => 'Z',
-      SUB_X           => 'Z',
+      SUB_X           => (others=> 'Z'),
       REVERSE_Y       => 'Z',
       REVERSE_X       => 'Z'
    );
@@ -384,12 +384,14 @@ package regfile_xgs_athena_pack is
    -- Register Name: ROI_X
    ------------------------------------------------------------------------------------------
    type DMA_ROI_X_TYPE is record
-      X_END          : std_logic_vector(12 downto 0);
+      ROI_EN         : std_logic;
+      X_SIZE         : std_logic_vector(12 downto 0);
       X_START        : std_logic_vector(12 downto 0);
    end record DMA_ROI_X_TYPE;
 
    constant INIT_DMA_ROI_X_TYPE : DMA_ROI_X_TYPE := (
-      X_END           => (others=> 'Z'),
+      ROI_EN          => 'Z',
+      X_SIZE          => (others=> 'Z'),
       X_START         => (others=> 'Z')
    );
 
@@ -2264,7 +2266,7 @@ package body regfile_xgs_athena_pack is
       output := (others=>'0'); -- Unassigned bits set to low
       output(26 downto 24) := reg.COLOR_SPACE;
       output(23) := reg.DUP_LAST_LINE;
-      output(10) := reg.SUB_X;
+      output(13 downto 10) := reg.SUB_X;
       output(9) := reg.REVERSE_Y;
       output(8) := reg.REVERSE_X;
       return output;
@@ -2279,7 +2281,7 @@ package body regfile_xgs_athena_pack is
    begin
       output.COLOR_SPACE := stdlv(26 downto 24);
       output.DUP_LAST_LINE := stdlv(23);
-      output.SUB_X := stdlv(10);
+      output.SUB_X := stdlv(13 downto 10);
       output.REVERSE_Y := stdlv(9);
       output.REVERSE_X := stdlv(8);
       return output;
@@ -2351,7 +2353,8 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(28 downto 16) := reg.X_END;
+      output(31) := reg.ROI_EN;
+      output(28 downto 16) := reg.X_SIZE;
       output(12 downto 0) := reg.X_START;
       return output;
    end to_std_logic_vector;
@@ -2363,7 +2366,8 @@ package body regfile_xgs_athena_pack is
    function to_DMA_ROI_X_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_ROI_X_TYPE is
    variable output : DMA_ROI_X_TYPE;
    begin
-      output.X_END := stdlv(28 downto 16);
+      output.ROI_EN := stdlv(31);
+      output.X_SIZE := stdlv(28 downto 16);
       output.X_START := stdlv(12 downto 0);
       return output;
    end to_DMA_ROI_X_TYPE;
@@ -4192,11 +4196,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/02/26 14:33:33
--- Created by          : jmansill
+-- Created on          : 2021/03/11 16:22:12
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x7AF286C6
+-- Register file CRC32 : 0x42D60904
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4357,13 +4361,14 @@ signal field_rw_DMA_LINE_PITCH_VALUE                               : std_logic_v
 signal field_rw_DMA_LINE_SIZE_VALUE                                : std_logic_vector(13 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CSC_COLOR_SPACE                                : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
 signal field_rw_DMA_CSC_DUP_LAST_LINE                              : std_logic;                                       -- Field: DUP_LAST_LINE
-signal field_rw_DMA_CSC_SUB_X                                      : std_logic;                                       -- Field: SUB_X
+signal field_rw_DMA_CSC_SUB_X                                      : std_logic_vector(3 downto 0);                    -- Field: SUB_X
 signal field_rw_DMA_CSC_REVERSE_Y                                  : std_logic;                                       -- Field: REVERSE_Y
 signal field_rw_DMA_CSC_REVERSE_X                                  : std_logic;                                       -- Field: REVERSE_X
 signal field_rw_DMA_OUTPUT_BUFFER_LINE_PTR_WIDTH                   : std_logic_vector(1 downto 0);                    -- Field: LINE_PTR_WIDTH
 signal field_rw2c_DMA_OUTPUT_BUFFER_PCIE_BACK_PRESSURE             : std_logic;                                       -- Field: PCIE_BACK_PRESSURE
 signal field_wautoclr_DMA_OUTPUT_BUFFER_CLR_MAX_LINE_BUFF_CNT      : std_logic;                                       -- Field: CLR_MAX_LINE_BUFF_CNT
-signal field_rw_DMA_ROI_X_X_END                                    : std_logic_vector(12 downto 0);                   -- Field: X_END
+signal field_rw_DMA_ROI_X_ROI_EN                                   : std_logic;                                       -- Field: ROI_EN
+signal field_rw_DMA_ROI_X_X_SIZE                                   : std_logic_vector(12 downto 0);                   -- Field: X_SIZE
 signal field_rw_DMA_ROI_X_X_START                                  : std_logic_vector(12 downto 0);                   -- Field: X_START
 signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                           : std_logic;                                       -- Field: RESET_GRAB
 signal field_rw_ACQ_GRAB_CTRL_GRAB_ROI2_EN                         : std_logic;                                       -- Field: GRAB_ROI2_EN
@@ -5630,11 +5635,11 @@ begin
 end process P_DMA_CSC_DUP_LAST_LINE;
 
 ------------------------------------------------------------------------------------------
--- Field name: SUB_X
+-- Field name: SUB_X(13 downto 10)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_CSC(10) <= field_rw_DMA_CSC_SUB_X;
-regfile.DMA.CSC.SUB_X <= field_rw_DMA_CSC_SUB_X;
+rb_DMA_CSC(13 downto 10) <= field_rw_DMA_CSC_SUB_X(3 downto 0);
+regfile.DMA.CSC.SUB_X <= field_rw_DMA_CSC_SUB_X(3 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -5644,11 +5649,13 @@ P_DMA_CSC_SUB_X : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_CSC_SUB_X <= '0';
+         field_rw_DMA_CSC_SUB_X <= std_logic_vector(to_unsigned(integer(0),4));
       else
-         if(wEn(13) = '1' and bitEnN(10) = '0') then
-            field_rw_DMA_CSC_SUB_X <= reg_writedata(10);
-         end if;
+         for j in  13 downto 10  loop
+            if(wEn(13) = '1' and bitEnN(j) = '0') then
+               field_rw_DMA_CSC_SUB_X(j-10) <= reg_writedata(j);
+            end if;
+         end loop;
       end if;
    end if;
 end process P_DMA_CSC_SUB_X;
@@ -5844,30 +5851,54 @@ rb_DMA_TLP(2 downto 0) <= regfile.DMA.TLP.CFG_MAX_PLD;
 wEn(16) <= (hit(16)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: X_END(28 downto 16)
+-- Field name: ROI_EN
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_ROI_X(28 downto 16) <= field_rw_DMA_ROI_X_X_END(12 downto 0);
-regfile.DMA.ROI_X.X_END <= field_rw_DMA_ROI_X_X_END(12 downto 0);
+rb_DMA_ROI_X(31) <= field_rw_DMA_ROI_X_ROI_EN;
+regfile.DMA.ROI_X.ROI_EN <= field_rw_DMA_ROI_X_ROI_EN;
 
 
 ------------------------------------------------------------------------------------------
--- Process: P_DMA_ROI_X_X_END
+-- Process: P_DMA_ROI_X_ROI_EN
 ------------------------------------------------------------------------------------------
-P_DMA_ROI_X_X_END : process(sysclk)
+P_DMA_ROI_X_ROI_EN : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_ROI_X_X_END <= std_logic_vector(to_unsigned(integer(1023),13));
+         field_rw_DMA_ROI_X_ROI_EN <= '0';
+      else
+         if(wEn(16) = '1' and bitEnN(31) = '0') then
+            field_rw_DMA_ROI_X_ROI_EN <= reg_writedata(31);
+         end if;
+      end if;
+   end if;
+end process P_DMA_ROI_X_ROI_EN;
+
+------------------------------------------------------------------------------------------
+-- Field name: X_SIZE(28 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DMA_ROI_X(28 downto 16) <= field_rw_DMA_ROI_X_X_SIZE(12 downto 0);
+regfile.DMA.ROI_X.X_SIZE <= field_rw_DMA_ROI_X_X_SIZE(12 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DMA_ROI_X_X_SIZE
+------------------------------------------------------------------------------------------
+P_DMA_ROI_X_X_SIZE : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DMA_ROI_X_X_SIZE <= std_logic_vector(to_unsigned(integer(1023),13));
       else
          for j in  28 downto 16  loop
             if(wEn(16) = '1' and bitEnN(j) = '0') then
-               field_rw_DMA_ROI_X_X_END(j-16) <= reg_writedata(j);
+               field_rw_DMA_ROI_X_X_SIZE(j-16) <= reg_writedata(j);
             end if;
          end loop;
       end if;
    end if;
-end process P_DMA_ROI_X_X_END;
+end process P_DMA_ROI_X_X_SIZE;
 
 ------------------------------------------------------------------------------------------
 -- Field name: X_START(12 downto 0)

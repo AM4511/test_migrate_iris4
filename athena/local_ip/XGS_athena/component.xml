@@ -647,7 +647,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>09c9d9b1</spirit:value>
+            <spirit:value>79440e3b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -665,7 +665,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>09c9d9b1</spirit:value>
+            <spirit:value>79440e3b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -2246,11 +2246,11 @@
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>https://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>109</xilinx:coreRevision>
+      <xilinx:coreRevision>110</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:XGS_athena:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2021-03-10T22:29:57Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2021-03-11T22:38:58Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@616448f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3bc016e5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
@@ -3548,13 +3548,18 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@f8b9e88_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@4dbabdbd_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@7d88ee11_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1b332ef8_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36eb7e92_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4b9feffc_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@60dab7f0_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6aea6d7a_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="bc582e6f"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="37925ff9"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="e917581d"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="ee920718"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="3002d94a"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ce2f4df6"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="b64ab1c1"/>

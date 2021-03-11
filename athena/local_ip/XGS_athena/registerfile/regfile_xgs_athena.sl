@@ -87,11 +87,13 @@ Register("csc", 0x98, 4, "null");
 		Field("dup_last_line", 23, 23, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("normal processing", 0);
 			FieldValue("last line is duplicated", 1);
-		Field("sub_x", 10, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("sub_x", 13, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("reverse_y", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "REVERSE Y ");
 			FieldValue("Bottom to top readout", 0);
 			FieldValue("Top to bottom readout", 1);
-		Field("reverse_x", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("reverse_x", 8, 8, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Reverse image in X direction");
+			FieldValue("Reverse X disabled", 0);
+			FieldValue("Reverse X enabled", 1);
 
 Register("output_buffer", 0xa8, 4, "Output line buffer");
 		Field("max_line_buff_cnt", 31, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Maximum line buffer count");
@@ -118,7 +120,10 @@ Register("tlp", 0xac, 4, "null");
 			FieldValue("1024 bytes max payload size", 3);
 
 Register("roi_x", 0xb0, 4, "null");
-		Field("x_end", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("roi_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Region of interest enable");
+			FieldValue("Region of interest is disabled", 0);
+			FieldValue("Region of interest is enabled", 1);
+		Field("x_size", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
