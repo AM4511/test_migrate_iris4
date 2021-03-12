@@ -9,7 +9,7 @@ module testbench();
 	parameter X_ROI_START = 1;  // size in pixels
 	parameter X_ROI_SIZE = 128; // size in pixels
 	parameter X_REVERSE = 0;
-	parameter X_SCALING = 0;    // size in pixels
+	parameter X_SCALING = 12;    // size in pixels
 
 	parameter WATCHDOG_MAX_CNT = 1000;
 
@@ -31,9 +31,9 @@ module testbench();
 	bit [3:0]  aclk_tuser;
 	bit [63:0] aclk_tdata;
 	bit [2:0]  aclk_pixel_width;
-	bit [15:0] aclk_x_size;
-	bit [15:0] aclk_x_start;
-	bit [15:0] aclk_x_stop;
+	bit [12:0] aclk_x_size;
+	bit [12:0] aclk_x_start;
+	bit [12:0] aclk_x_stop;
 	bit [3:0] aclk_x_scale;
 	bit aclk_x_crop_en;
 	bit aclk_x_reverse;
@@ -97,6 +97,7 @@ module testbench();
 		aclk_x_start = X_ROI_START;
 		aclk_x_size = X_ROI_SIZE;
 		aclk_x_stop = aclk_x_start + aclk_x_size -1;
+		aclk_x_scale = X_SCALING;
 
 		// Reset interface
 		#100;

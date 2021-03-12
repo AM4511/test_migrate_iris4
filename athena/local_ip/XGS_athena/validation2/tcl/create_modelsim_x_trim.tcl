@@ -54,6 +54,7 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 
 
 set dut_fileset [join [list  [subst { 
+${DATA_SRC_PATH}/x_trim_subsampling.vhd
 ${DATA_SRC_PATH}/x_trim_streamout.vhd
 ${DATA_SRC_PATH}/x_trim.vhd
 }

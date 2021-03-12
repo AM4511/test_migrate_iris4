@@ -3,6 +3,8 @@
 -- 
 -- DESCRIPTION   : 
 --              
+--
+-- ToDO: Implement sub-sampling
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -137,6 +139,37 @@ architecture rtl of x_trim is
         rData  : out std_logic_vector (DATAWIDTH-1 downto 0);
         rEmpty : out std_logic
         );
+  end component;
+
+
+  component x_trim_subsampling is
+    port (
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk       : in std_logic;
+      aclk_reset : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- 
+      ---------------------------------------------------------------------------
+      aclk_pixel_width   : in std_logic_vector(2 downto 0);
+      aclk_x_subsampling : in std_logic_vector(3 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- Input stream
+      ---------------------------------------------------------------------------
+      aclk_en      : in std_logic;
+      aclk_init    : in std_logic;
+      aclk_data_in : in std_logic_vector(63 downto 0);
+      aclk_ben_in  : in std_logic_vector(7 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_data_out : out std_logic_vector(63 downto 0);
+      aclk_ben_out  : out std_logic_vector(7 downto 0)
+      );
   end component;
 
 
@@ -277,14 +310,6 @@ architecture rtl of x_trim is
 
 
 begin
-
--- ToDO:
---   Wrap bclk logic in a submodule file (entity) for code clarity
---   Propagate back pressure on bclk stream I/F     
---   Improve functionnal coverage
---   Instantiate in XGS_athena
---   Connect the register file
---   Vivado PnR
 
   aclk_reset  <= not aclk_reset_n;
   aclk_tready <= aclk_tready_int;
@@ -783,6 +808,7 @@ begin
 
   aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
 
+
   xcommand_buffer : mtxDCFIFO
     generic map(
       DATAWIDTH => CMD_FIFO_DATA_WIDTH,
@@ -798,6 +824,21 @@ begin
       rEn    => bclk_cmd_ren,
       rData  => bclk_cmd_data,
       rEmpty => bclk_cmd_empty
+      );
+
+
+  x_trim_subsampling_inst : x_trim_subsampling
+    port map (
+      aclk               => aclk,
+      aclk_reset         => aclk_reset,
+      aclk_pixel_width   => aclk_pixel_width,
+      aclk_x_subsampling => aclk_x_scale,
+      aclk_en            => aclk_write_en,
+      aclk_init          => aclk_init_buffer_ptr,
+      aclk_data_in       => aclk_write_data,
+      aclk_ben_in        => aclk_crop_ben_mux,
+      aclk_data_out      => open,
+      aclk_ben_out       => open
       );
 
 
