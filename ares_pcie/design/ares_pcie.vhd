@@ -1340,7 +1340,7 @@ begin
       ProdCons_0_readdata      => ProdCons_0_readdata,
       ProdCons_0_readdatavalid => ProdCons_0_readdatavalid,
       ProdCons_0_reset         => preset,
-      ProdCons_0_write         => ProdCons_1_write,
+      ProdCons_0_write         => ProdCons_0_write,
       ProdCons_0_writedata     => ext_writeData,
       ProdCons_1_addr          => ProdCons_1_addr,
       ProdCons_1_ben           => ext_writeBeN,  -- partage entre les 2 interfaces
