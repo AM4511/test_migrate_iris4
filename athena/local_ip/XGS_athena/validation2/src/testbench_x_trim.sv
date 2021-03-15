@@ -8,7 +8,7 @@ module testbench();
 	parameter X_ROI_EN = 0;
 	parameter X_ROI_START = 1;  // size in pixels
 	parameter X_ROI_SIZE = 128; // size in pixels
-	parameter X_REVERSE = 0;
+	parameter X_REVERSE = 1;
 	parameter X_SCALING = 1;    // size in pixels
 
 	parameter WATCHDOG_MAX_CNT = 1000;
@@ -237,7 +237,9 @@ module testbench();
 				data_row axi_predicted_stream[];
 				data_row pred_row;
 				bit [63:0] pred_row_data[$];
+				bit [63:0] reverse_row_data[$];
 				bit [63:0] pred_db;
+				bit [63:0] reverse_db;
 				int pred_row_id;
 				int pred_row_size;
 
@@ -312,7 +314,7 @@ module testbench();
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
 				end
-				//if (aclk_x_reverse == 0) begin
+
 				for (j=0;  j<Y_SIZE;  j++) begin
 					byte_id = 0;
 					pred_db = 0;
@@ -335,7 +337,12 @@ module testbench();
 						end
 						subs_cntr++;
 
-
+						// Corner case
+						if (i == aclk_x_stop && byte_id > 0) begin
+							pred_row_data.push_back(pred_db);
+							byte_id = 0;
+							pred_db = 0;
+						end
 					end
 					pred_row.row_id = j;
 					pred_row.data = pred_row_data;
@@ -344,34 +351,47 @@ module testbench();
 					axi_predicted_stream[j] = pred_row;
 				end
 
-				//				end else begin
-				//					for (j=0;  j<Y_SIZE;  j++) begin
-				//						byte_id = 0;
-				//						pred_db = 0;
-				//						for (i=aclk_x_stop;  i>= aclk_x_start;  i--) begin
-				//							////////////////////////////////////////////////
-				//							// Data ramp
-				//							////////////////////////////////////////////////
-				//							pred_db[byte_id*8 +: 8] = i;
-				//
-				//							if (byte_id == 7 || (i == aclk_x_start)) begin
-				//								pred_row_data.push_back(pred_db);
-				//								byte_id = 0;
-				//								pred_db = 0;
-				//							end else begin
-				//								byte_id++;
-				//							end
-				//							// We do not want to wrap around
-				//							if (i == 0) break;
-				//						end
-				//						pred_row.row_id = j;
-				//						pred_row.data = pred_row_data;
-				//						pred_row_data.delete();
-				//						//axi_predicted_stream.push_back(pred_row);
-				//						axi_predicted_stream[j] = pred_row;
-				//					end
-				//
-				//				end
+				// Line reversal
+				if (aclk_x_reverse == 1'b1) begin
+					for (j=0;  j<Y_SIZE;  j++) begin
+						pred_row = axi_predicted_stream[j];
+						pred_row_data = pred_row.data;
+						reverse_row_data.delete();
+						while (pred_row_data.size() > 0) begin
+							pred_db = pred_row_data.pop_front();
+							case (PIXEL_WIDTH)
+								// One byte per pixel (MONO)
+								1: begin
+									reverse_db[7:0] = pred_db[63:56];
+									reverse_db[15:8] = pred_db[55:48];
+									reverse_db[23:16] = pred_db[47:40];
+									reverse_db[31:24] = pred_db[39:32];
+									reverse_db[39:32] = pred_db[31:24];
+									reverse_db[47:40] = pred_db[23:16];
+									reverse_db[55:48] = pred_db[15:8];
+									reverse_db[63:56] = pred_db[7:0];
+								end
+								// Two bytes per pixel (YUV 4:2:2)
+								2: begin
+									reverse_db[15:0] = pred_db[63:48];
+									reverse_db[31:16] = pred_db[47:32];
+									reverse_db[47:32] = pred_db[31:16];
+									reverse_db[63:48] = pred_db[15:0];
+								end
+								// 4 bytes per pixel (RGBA)
+								4: begin
+									reverse_db[31:0] = pred_db[63:32];
+									reverse_db[63:32] = pred_db[31:0];
+								end
+								default: begin
+								end
+							endcase
+							reverse_row_data.push_front(reverse_db);
+						end
+						// Return the reverse row
+						axi_predicted_stream[j].data = reverse_row_data;
+					end
+				end
 
 
 				////////////////////////////////////////////////////////
@@ -452,32 +472,6 @@ module testbench();
 
 				end
 			end
-			/////////////////////////////////////////////////////////////////////
-			// Fork 2 : Insert back pressure on the stream output port
-			/////////////////////////////////////////////////////////////////////
-			//			begin
-			//				int cntr;
-			//				cntr = 0;
-			//				while (1) begin
-			//					@(posedge bclk);
-			//					begin
-			//						/////////////////////////////////////////////////////////
-			//						//
-			//						/////////////////////////////////////////////////////////
-			//						if (cntr%8 == 0) begin
-			//							bclk_tready = 1'b0;
-			//						end else begin
-			//							bclk_tready = 1'b1;
-			//						end
-			//
-			//						// At EOF we are done
-			//						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
-			//							break;
-			//						end
-			//						cntr++;
-			//					end
-			//				end
-			//			end
 		join;
 
 			$display("=====================================================================");
