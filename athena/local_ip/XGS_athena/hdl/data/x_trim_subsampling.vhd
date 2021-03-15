@@ -83,7 +83,6 @@ architecture rtl of x_trim_subsampling is
   signal p3_ben       : std_logic_vector(7 downto 0);
   signal p3_byte_ptr  : unsigned(3 downto 0);
 
-  --signal flush_pipe : std_logic_vector(3 downto 1);
 
 begin
 
@@ -134,7 +133,7 @@ begin
           --  S_WRITE : 
           -------------------------------------------------------------------
           when S_FLUSH =>
-            if (p1_valid =  '0' and p2_valid =  '0') then
+            if (p1_valid = '0' and p2_valid = '0') then
               state <= S_DONE;
             else
               state <= S_FLUSH;
@@ -158,7 +157,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
@@ -334,7 +333,9 @@ begin
     end loop;
   end process;
 
-  p1_ld <= aclk_en;
+
+  p1_ld <= '1' when (aclk_en = '1' and state = S_SUB_SAMPLE) else
+           '0';
 
   -----------------------------------------------------------------------------
   -- 
@@ -343,12 +344,12 @@ begin
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset = '1')then
-        p1_valid <=  '0';
+        p1_valid <= '0';
       else
         if (p1_ld = '1') then
-          p1_valid <=  '1';
+          p1_valid <= '1';
         elsif (p2_ld = '1') then
-          p1_valid <=  '0';
+          p1_valid <= '0';
         end if;
       end if;
     end if;
@@ -366,13 +367,15 @@ begin
       else
         if (p1_ld = '1') then
           p1_ben <= subs_ben and aclk_ben_in;
+        elsif (p2_ld = '1') then
+          p1_ben <= (others => '0');
         end if;
       end if;
     end if;
   end process;
 
 
- 
+
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
@@ -389,10 +392,13 @@ begin
     end if;
   end process;
 
-  
-  p2_ld <= '1' when (aclk_en = '1' or (state = S_FLUSH and p1_valid = '1')) else
+
+  -- p2_ld <= '1' when (aclk_en = '1' or (state = S_FLUSH and p1_valid = '1')) else
+  --          '0';
+
+  p2_ld <= '1' when (p1_valid = '1' and (aclk_en = '1' or state = S_FLUSH)) else
            '0';
-  
+
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
@@ -400,12 +406,12 @@ begin
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset = '1')then
-        p2_valid <=  '0';
+        p2_valid <= '0';
       else
         if (p2_ld = '1') then
-          p2_valid <=  '1';
+          p2_valid <= '1';
         elsif (p3_ld = '1') then
-          p2_valid <=  '0';
+          p2_valid <= '0';
         end if;
       end if;
     end if;
@@ -449,13 +455,16 @@ begin
             end if;
 
           end loop;  -- i 
+        elsif (p3_ld = '1') then
+          p2_ben      <= (others => '0');
+          p2_byte_cnt <= (others => '0');
         end if;
       end if;
     end if;
   end process;
 
 
-  p3_ld <= '1' when (aclk_en = '1' or (state = S_FLUSH and p2_valid = '1')) else
+  p3_ld <= '1' when (p2_valid = '1'and (aclk_en = '1' or state = S_FLUSH)) else
            '0';
 
   -----------------------------------------------------------------------------
@@ -465,21 +474,21 @@ begin
   begin
     if (rising_edge(aclk)) then
       if (aclk_reset = '1')then
-        p3_valid <=  '0';
+        p3_valid <= '0';
       else
         if (p3_ld = '1') then
-          p3_valid <=  '1';
+          p3_valid <= '1';
         elsif (p3_byte_ptr(3) = '1') then
-          p3_valid <=  '0';
+          p3_valid <= '0';
         elsif (p3_last_data = '1') then
-          p3_valid <=  '0';
+          p3_valid <= '0';
         end if;
       end if;
     end if;
   end process;
-  
-  
-  
+
+
+
   p3_last_data <= '1' when (state = S_FLUSH and p1_valid = '0' and p2_valid = '0' and p3_byte_ptr /= "0000") else
                   '0';
 
@@ -552,15 +561,23 @@ begin
               p3_data(63 downto 56) <= p2_data(7 downto 0);
             when others => null;
           end case;
+
+        elsif (p3_last_data = '1') then
+          p3_ben <= (others => '0');
         end if;
       end if;
     end if;
   end process;
 
-  aclk_last_data_out <= '1' when (p3_last_data = '1') else
-                        '0';
+
+
+
+
   
-  aclk_data_valid_out <= '1' when (p3_byte_ptr(3) = '1') else
+  aclk_last_data_out <= p3_last_data;
+
+
+  aclk_data_valid_out <= '1' when (p3_byte_ptr(3) = '1' or p3_last_data = '1') else
                          '0';
 
   aclk_data_out <= p3_data;

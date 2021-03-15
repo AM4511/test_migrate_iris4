@@ -218,6 +218,7 @@ module testbench();
 				int cntr;
 				int mask_size;
 				longint byte_mask;
+				int subs_cntr;
 
 				//data_row curr_row;
 				//bit [63:0] db;
@@ -311,58 +312,66 @@ module testbench();
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
 				end
-				if (aclk_x_reverse == 0) begin
-					for (j=0;  j<Y_SIZE;  j++) begin
-						byte_id = 0;
-						pred_db = 0;
-						for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
+				//if (aclk_x_reverse == 0) begin
+				for (j=0;  j<Y_SIZE;  j++) begin
+					byte_id = 0;
+					pred_db = 0;
+					subs_cntr = 0;
+					for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
+						if (subs_cntr % (X_SCALING+1) == 0) begin
+
 							////////////////////////////////////////////////
 							// Data ramp
 							////////////////////////////////////////////////
 							pred_db[byte_id*8 +: 8] = i;
 
-							if (byte_id == 7 || (i == aclk_x_stop)) begin
+							if (byte_id == 7) begin
+								//if (byte_id == 7 || (i == aclk_x_stop)) begin
 								pred_row_data.push_back(pred_db);
 								byte_id = 0;
 								pred_db = 0;
 							end else
 								byte_id++;
 						end
-						pred_row.row_id = j;
-						pred_row.data = pred_row_data;
-						pred_row_data.delete();
-						//axi_predicted_stream.push_back(pred_row);
-						axi_predicted_stream[j] = pred_row;
+						subs_cntr++;
+
+
 					end
-
-				end else begin
-					for (j=0;  j<Y_SIZE;  j++) begin
-						byte_id = 0;
-						pred_db = 0;
-						for (i=aclk_x_stop;  i>= aclk_x_start;  i--) begin
-							////////////////////////////////////////////////
-							// Data ramp
-							////////////////////////////////////////////////
-							pred_db[byte_id*8 +: 8] = i;
-
-							if (byte_id == 7 || (i == aclk_x_start)) begin
-								pred_row_data.push_back(pred_db);
-								byte_id = 0;
-								pred_db = 0;
-							end else begin
-								byte_id++;
-							end
-							// We do not want to wrap around
-							if (i == 0) break;
-						end
-						pred_row.row_id = j;
-						pred_row.data = pred_row_data;
-						pred_row_data.delete();
-						//axi_predicted_stream.push_back(pred_row);
-						axi_predicted_stream[j] = pred_row;
-					end
-
+					pred_row.row_id = j;
+					pred_row.data = pred_row_data;
+					pred_row_data.delete();
+					//axi_predicted_stream.push_back(pred_row);
+					axi_predicted_stream[j] = pred_row;
 				end
+
+				//				end else begin
+				//					for (j=0;  j<Y_SIZE;  j++) begin
+				//						byte_id = 0;
+				//						pred_db = 0;
+				//						for (i=aclk_x_stop;  i>= aclk_x_start;  i--) begin
+				//							////////////////////////////////////////////////
+				//							// Data ramp
+				//							////////////////////////////////////////////////
+				//							pred_db[byte_id*8 +: 8] = i;
+				//
+				//							if (byte_id == 7 || (i == aclk_x_start)) begin
+				//								pred_row_data.push_back(pred_db);
+				//								byte_id = 0;
+				//								pred_db = 0;
+				//							end else begin
+				//								byte_id++;
+				//							end
+				//							// We do not want to wrap around
+				//							if (i == 0) break;
+				//						end
+				//						pred_row.row_id = j;
+				//						pred_row.data = pred_row_data;
+				//						pred_row_data.delete();
+				//						//axi_predicted_stream.push_back(pred_row);
+				//						axi_predicted_stream[j] = pred_row;
+				//					end
+				//
+				//				end
 
 
 				////////////////////////////////////////////////////////
