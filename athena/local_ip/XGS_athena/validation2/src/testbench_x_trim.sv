@@ -9,7 +9,7 @@ module testbench();
 	parameter X_ROI_START = 1;  // size in pixels
 	parameter X_ROI_SIZE = 128; // size in pixels
 	parameter X_REVERSE = 0;
-	parameter X_SCALING = 12;    // size in pixels
+	parameter X_SCALING = 1;    // size in pixels
 
 	parameter WATCHDOG_MAX_CNT = 1000;
 

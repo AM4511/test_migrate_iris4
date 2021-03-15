@@ -159,16 +159,20 @@ architecture rtl of x_trim is
       ---------------------------------------------------------------------------
       -- Input stream
       ---------------------------------------------------------------------------
-      aclk_en      : in std_logic;
-      aclk_init    : in std_logic;
-      aclk_data_in : in std_logic_vector(63 downto 0);
-      aclk_ben_in  : in std_logic_vector(7 downto 0);
+      aclk_en   : in std_logic;
+      aclk_init : in std_logic;
+
+      aclk_last_data_in : in std_logic;
+      aclk_data_in      : in std_logic_vector(63 downto 0);
+      aclk_ben_in       : in std_logic_vector(7 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI slave stream input interface
       ---------------------------------------------------------------------------
-      aclk_data_out : out std_logic_vector(63 downto 0);
-      aclk_ben_out  : out std_logic_vector(7 downto 0)
+      aclk_data_valid_out : out std_logic;
+      aclk_last_data_out  : out std_logic;
+      aclk_data_out       : out std_logic_vector(63 downto 0);
+      aclk_ben_out        : out std_logic_vector(7 downto 0)
       );
   end component;
 
@@ -233,25 +237,26 @@ architecture rtl of x_trim is
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
-  signal aclk_reset           : std_logic;
-  signal aclk_state           : FSM_TYPE := S_IDLE;
-  signal aclk_full            : std_logic;
-  signal aclk_tready_int      : std_logic;
-  signal aclk_init_word_ptr   : std_logic;
-  signal aclk_word_ptr        : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal aclk_buffer_ptr      : unsigned(BUFF_PTR_WIDTH-1 downto 0);
-  signal aclk_init_buffer_ptr : std_logic;
-  signal aclk_nxt_buffer      : std_logic;
-  signal aclk_write_en        : std_logic;
-  signal aclk_write_address   : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
-  signal aclk_write_data      : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-  signal aclk_cmd_wen         : std_logic;
-  signal aclk_cmd_full        : std_logic;
-  signal aclk_cmd_data        : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
-  signal aclk_cmd_sync        : std_logic_vector(1 downto 0);
-  signal aclk_cmd_size        : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-  signal aclk_cmd_buff_ptr    : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
-  signal aclk_cmd_last_ben    : std_logic_vector(7 downto 0);
+  signal aclk_reset            : std_logic;
+  signal aclk_state            : FSM_TYPE := S_IDLE;
+  signal aclk_full             : std_logic;
+  signal aclk_tready_int       : std_logic;
+  signal aclk_init_word_ptr    : std_logic;
+  signal aclk_word_ptr         : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal aclk_buffer_ptr       : unsigned(BUFF_PTR_WIDTH-1 downto 0);
+  signal aclk_init_buffer_ptr  : std_logic;
+  signal aclk_init_subsampling : std_logic;
+  signal aclk_nxt_buffer       : std_logic;
+  signal aclk_write_en         : std_logic;
+  signal aclk_write_address    : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal aclk_write_data       : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  signal aclk_cmd_wen          : std_logic;
+  signal aclk_cmd_full         : std_logic;
+  signal aclk_cmd_data         : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
+  signal aclk_cmd_sync         : std_logic_vector(1 downto 0);
+  signal aclk_cmd_size         : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+  signal aclk_cmd_buff_ptr     : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
+  signal aclk_cmd_last_ben     : std_logic_vector(7 downto 0);
 
   signal aclk_ack         : std_logic;
   signal aclk_pix_cntr    : unsigned(12 downto 0);
@@ -273,7 +278,12 @@ architecture rtl of x_trim is
   signal aclk_crop_ben_mux      : std_logic_vector(7 downto 0);
   signal aclk_crop_mux_sel      : std_logic_vector(2 downto 0);
   signal aclk_crop_packer_valid : std_logic_vector(1 downto 0);
+  signal aclk_crop_last_data    : std_logic;
 
+  signal aclk_subs_data_valid   : std_logic;
+  signal aclk_subs_last_data    : std_logic;
+  signal aclk_subs_data         : std_logic_vector(63 downto 0);
+  signal aclk_subs_ben          : std_logic_vector(7 downto 0);
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
@@ -705,6 +715,7 @@ begin
   aclk_nxt_buffer <= '1' when (aclk_state = S_DONE) else
                      '0';
 
+
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_buffer_ptr
   -- Description : Buffer pointer. 
@@ -760,12 +771,6 @@ begin
       bFall => open
       );
 
-  aclk_write_en <= '1' when (aclk_crop_data_rdy = '1') else
-                   '0';
-
-  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
-  aclk_write_data    <= aclk_crop_data_mux;
-
 
   aclk_cmd_wen <= '1' when (aclk_state = S_DONE) else
                   '0';
@@ -804,7 +809,8 @@ begin
   aclk_cmd_buff_ptr <= std_logic_vector(aclk_buffer_ptr);
 
 
-  aclk_cmd_last_ben <= aclk_crop_ben_mux;
+  --aclk_cmd_last_ben <= aclk_crop_ben_mux;
+  aclk_cmd_last_ben <= aclk_subs_ben;
 
   aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
 
@@ -827,19 +833,43 @@ begin
       );
 
 
+  aclk_crop_last_data <= '1' when (aclk_state = S_EOL or aclk_state = S_EOF) else
+                       '0';
+  
+  aclk_init_subsampling <= '1' when (aclk_state = S_SOF or aclk_state = S_SOL) else
+                           '0';
+
+
   x_trim_subsampling_inst : x_trim_subsampling
     port map (
-      aclk               => aclk,
-      aclk_reset         => aclk_reset,
-      aclk_pixel_width   => aclk_pixel_width,
-      aclk_x_subsampling => aclk_x_scale,
-      aclk_en            => aclk_write_en,
-      aclk_init          => aclk_init_buffer_ptr,
-      aclk_data_in       => aclk_write_data,
-      aclk_ben_in        => aclk_crop_ben_mux,
-      aclk_data_out      => open,
-      aclk_ben_out       => open
+      aclk                => aclk,
+      aclk_reset          => aclk_reset,
+      aclk_pixel_width    => aclk_pixel_width,
+      aclk_x_subsampling  => aclk_x_scale,
+      aclk_en             => aclk_crop_data_rdy,
+      aclk_init           => aclk_init_subsampling,
+      aclk_last_data_in   => aclk_crop_last_data,
+      aclk_data_in        => aclk_crop_data_mux,
+      aclk_ben_in         => aclk_crop_ben_mux,
+      aclk_data_valid_out => aclk_subs_data_valid,
+      aclk_last_data_out  => aclk_subs_last_data,
+      aclk_data_out       => aclk_subs_data,
+      aclk_ben_out        => aclk_subs_ben
       );
+
+
+  -- aclk_write_en <= '1' when (aclk_crop_data_rdy = '1') else
+  --                  '0';
+
+  -- aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
+  -- aclk_write_data    <= aclk_crop_data_mux;
+
+  aclk_write_en <= '1' when (aclk_subs_data_valid = '1') else
+                   '0';
+
+  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
+  aclk_write_data    <= aclk_subs_data;
+
 
 
   -----------------------------------------------------------------------------

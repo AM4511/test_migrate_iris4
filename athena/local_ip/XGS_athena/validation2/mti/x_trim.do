@@ -21,7 +21,12 @@ add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_word_ptr
 add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_buffer_ptr
 add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_init_buffer_ptr
 add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_nxt_buffer
-add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_write_en
+add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_last_data_in
+add wave -noupdate -expand -group x_trim -expand -group {subsampling out} /testbench/DUT/aclk_subs_data_valid
+add wave -noupdate -expand -group x_trim -expand -group {subsampling out} /testbench/DUT/aclk_subs_last_data
+add wave -noupdate -expand -group x_trim -expand -group {subsampling out} /testbench/DUT/aclk_subs_data
+add wave -noupdate -expand -group x_trim -expand -group {subsampling out} /testbench/DUT/aclk_subs_ben
+add wave -noupdate -expand -group x_trim -color Cyan /testbench/DUT/aclk_write_en
 add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_write_address
 add wave -noupdate -expand -group x_trim /testbench/DUT/aclk_write_data
 add wave -noupdate -expand -group x_trim -group {Command FiFo (write I/F)} /testbench/DUT/aclk_cmd_wen
@@ -78,7 +83,7 @@ add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/D
 add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tlast
 add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {3120924 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2323056 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 210
 configure wave -valuecolwidth 233
@@ -94,4 +99,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {2618890 ps} {3370101 ps}
+WaveRestoreZoom {2271217 ps} {2523691 ps}
