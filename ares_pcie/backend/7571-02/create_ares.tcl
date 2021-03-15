@@ -61,6 +61,8 @@ puts "Running ${myself}"
 #
 # 0.1.1 : Changed espi_clk pin from K17 to L17 (We need to enter the positive pin of the clock)
 #             See Jira : https://jira.matrox.com:8443/browse/CADT01-1144
+#         Fixed ProdCons[0] write access issue 
+#             See JIRA : https://jira.matrox.com:8443/browse/IRIS4-430
 #
 # ################################################################
 set FPGA_MAJOR_VERSION     0

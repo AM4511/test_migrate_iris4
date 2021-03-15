@@ -148,4 +148,3 @@ set_max_delay -from [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rp
 
 
 
-

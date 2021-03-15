@@ -55,10 +55,15 @@ puts "Running ${myself}"
 # 0.1.0 : Modified backend scripts for handling Hyperram @142.875/166.667MHz
 #         Changed the ext_spi_clk source to the clk_100MHz input port (through a bufg)
 #
+# 0.1.1 : Changed espi_clk pin from K17 to L17 (We need to enter the positive pin of the clock)
+#             See Jira : https://jira.matrox.com:8443/browse/CADT01-1144
+#         Fixed ProdCons[0] write access issue 
+#             See JIRA : https://jira.matrox.com:8443/browse/IRIS4-430
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     1
-set FPGA_SUB_MINOR_VERSION 0
+set FPGA_SUB_MINOR_VERSION 1
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
