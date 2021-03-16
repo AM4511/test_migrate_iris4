@@ -4,8 +4,9 @@ add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsa
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_reset
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_pixel_width
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_x_subsampling
-add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_en
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_init
+add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_en
+add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_last_data_in
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_data_in
 add wave -noupdate -expand -group x_trim_subsampling /testbench/DUT/x_trim_subsampling_inst/aclk_ben_in
 add wave -noupdate -expand -group x_trim_subsampling -color Cyan /testbench/DUT/x_trim_subsampling_inst/state
@@ -33,7 +34,7 @@ add wave -noupdate -expand -group x_trim_subsampling -expand -group {Data ouput}
 add wave -noupdate -expand -group x_trim_subsampling -expand -group {Data ouput} /testbench/DUT/x_trim_subsampling_inst/aclk_data_out
 add wave -noupdate -expand -group x_trim_subsampling -expand -group {Data ouput} /testbench/DUT/x_trim_subsampling_inst/aclk_ben_out
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {6496506 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2434583 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 246
 configure wave -valuecolwidth 261
@@ -49,4 +50,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1776290 ps} {5146831 ps}
+WaveRestoreZoom {2189161 ps} {2735655 ps}

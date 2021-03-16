@@ -38,6 +38,7 @@ entity x_trim_subsampling is
     ---------------------------------------------------------------------------
     -- AXI slave stream input interface
     ---------------------------------------------------------------------------
+    aclk_empty          : out std_logic;
     aclk_data_valid_out : out std_logic;
     aclk_last_data_out  : out std_logic;
     aclk_data_out       : out std_logic_vector(63 downto 0);
@@ -63,6 +64,8 @@ architecture rtl of x_trim_subsampling is
   signal pix_per_clk  : unsigned(4 downto 0);
   signal modulo_count : unsigned(4 downto 0);
   signal subs_ben     : std_logic_vector(7 downto 0);
+  signal subs_mask    : std_logic_vector(7 downto 0);
+  
   signal p1_ld        : std_logic;
   signal p1_valid     : std_logic;
   signal p1_last_data : std_logic;
@@ -175,7 +178,7 @@ begin
             when "0011" => subs_lut <= "0001000100010001";
             when "0100" => subs_lut <= "1000010000100001";
             when "0101" => subs_lut <= "0001000001000001";
-            when "0110" => subs_lut <= "1100000010000001";
+            when "0110" => subs_lut <= "0100000010000001";
             when "0111" => subs_lut <= "0000000100000001";
             when "1000" => subs_lut <= "0000001000000001";
             when "1001" => subs_lut <= "0000010000000001";
@@ -346,7 +349,7 @@ begin
       if (aclk_reset = '1')then
         p1_valid <= '0';
       else
-        if (p1_ld = '1') then
+        if (p1_ld = '1' and (subs_mask /= "00000000")) then
           p1_valid <= '1';
         elsif (p2_ld = '1') then
           p1_valid <= '0';
@@ -355,7 +358,8 @@ begin
     end if;
   end process;
 
-
+  subs_mask <= subs_ben and aclk_ben_in;
+  
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
@@ -366,7 +370,7 @@ begin
         p1_ben <= (others => '0');
       else
         if (p1_ld = '1') then
-          p1_ben <= subs_ben and aclk_ben_in;
+          p1_ben <= subs_mask;
         elsif (p2_ld = '1') then
           p1_ben <= (others => '0');
         end if;
@@ -393,12 +397,10 @@ begin
   end process;
 
 
-  -- p2_ld <= '1' when (aclk_en = '1' or (state = S_FLUSH and p1_valid = '1')) else
-  --          '0';
-
   p2_ld <= '1' when (p1_valid = '1' and (aclk_en = '1' or state = S_FLUSH)) else
            '0';
 
+  
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
@@ -489,7 +491,7 @@ begin
 
 
 
-  p3_last_data <= '1' when (state = S_FLUSH and p1_valid = '0' and p2_valid = '0' and p3_byte_ptr /= "0000") else
+  p3_last_data <= '1' when (state = S_FLUSH and p1_valid = '0' and p2_valid = '0' and p3_valid = '1') else
                   '0';
 
   -----------------------------------------------------------------------------
@@ -512,7 +514,7 @@ begin
           else
             p3_byte_ptr <= sum;
           end if;
-        elsif (p3_last_data = '1') then
+        elsif (p3_byte_ptr(3) = '1' or p3_last_data = '1') then
           p3_byte_ptr <= (others => '0');
         end if;
       end if;
@@ -570,8 +572,8 @@ begin
   end process;
 
 
-
-
+  aclk_empty <= '1' when (p1_valid = '0' and p2_valid = '0' and p3_valid = '0') else
+                '0';
 
   
   aclk_last_data_out <= p3_last_data;
@@ -580,6 +582,7 @@ begin
   aclk_data_valid_out <= '1' when (p3_byte_ptr(3) = '1' or p3_last_data = '1') else
                          '0';
 
+  
   aclk_data_out <= p3_data;
   aclk_ben_out  <= p3_ben;
 

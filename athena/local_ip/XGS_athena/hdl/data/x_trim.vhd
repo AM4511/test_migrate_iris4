@@ -4,7 +4,7 @@
 -- DESCRIPTION   : 
 --              
 --
--- ToDO: Implement sub-sampling
+-- ToDO: 
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -169,6 +169,7 @@ architecture rtl of x_trim is
       ---------------------------------------------------------------------------
       -- AXI slave stream input interface
       ---------------------------------------------------------------------------
+      aclk_empty          : out std_logic;
       aclk_data_valid_out : out std_logic;
       aclk_last_data_out  : out std_logic;
       aclk_data_out       : out std_logic_vector(63 downto 0);
@@ -224,7 +225,7 @@ architecture rtl of x_trim is
   end component;
 
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH_CROPPING, S_FLUSH_SUBSAMPLING, S_EOL, S_EOF, S_DONE);
+  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
 
   constant WORD_PTR_WIDTH      : integer := 9;
   constant BUFF_PTR_WIDTH      : integer := 1;
@@ -263,7 +264,6 @@ architecture rtl of x_trim is
   signal aclk_pix_incr    : integer range 0 to 8;
   signal aclk_valid_start : unsigned(aclk_pix_cntr'range);
   signal aclk_valid_stop  : unsigned(aclk_pix_cntr'range);
-  signal aclk_eof_pndg    : std_logic;
 
   signal aclk_crop_start         : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_stop          : unsigned(aclk_pix_cntr'range);
@@ -271,15 +271,16 @@ architecture rtl of x_trim is
   signal aclk_crop_stop_mask_sel : std_logic_vector(2 downto 0);
   signal aclk_crop_data_rdy      : std_logic;
 
-  signal aclk_crop_window_valid : std_logic;
-  signal aclk_crop_packer       : std_logic_vector(127 downto 0);
-  signal aclk_crop_packer_ben   : std_logic_vector(15 downto 0);
-  signal aclk_crop_data_mux     : std_logic_vector(63 downto 0);
-  signal aclk_crop_ben_mux      : std_logic_vector(7 downto 0);
-  signal aclk_crop_mux_sel      : std_logic_vector(2 downto 0);
-  signal aclk_crop_packer_valid : std_logic_vector(1 downto 0);
-  signal aclk_crop_last_data    : std_logic;
+  signal aclk_crop_window_valid  : std_logic;
+  signal aclk_crop_packer        : std_logic_vector(127 downto 0);
+  signal aclk_crop_packer_ben    : std_logic_vector(15 downto 0);
+  signal aclk_crop_data_mux      : std_logic_vector(63 downto 0);
+  signal aclk_crop_last_data_mux : std_logic;
+  signal aclk_crop_ben_mux       : std_logic_vector(7 downto 0);
+  signal aclk_crop_mux_sel       : std_logic_vector(2 downto 0);
+  signal aclk_crop_packer_valid  : std_logic_vector(1 downto 0);
 
+  signal aclk_subs_empty      : std_logic;
   signal aclk_subs_data_valid : std_logic;
   signal aclk_subs_last_data  : std_logic;
   signal aclk_subs_data       : std_logic_vector(63 downto 0);
@@ -336,14 +337,12 @@ begin
               '0';
 
 
-  -- TEMP parameters. should come from register fields
   aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
                      (aclk_pix_cntr'range => '0');
   aclk_crop_size <= unsigned(aclk_x_size(aclk_pix_cntr'range));
   aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
                     (aclk_pix_cntr'range => '1');
 
-  --aclk_pixel_width <= 1;
   bclk_pixel_width <= aclk_pixel_width;
 
 
@@ -382,25 +381,8 @@ begin
   aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
                             '0';
 
-
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_aclk_eof_pndg : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1')then
-        aclk_eof_pndg <= '0';
-      else
-        if (aclk_tvalid = '1' and aclk_tlast = '1' and aclk_tuser(1) = '1') then
-          aclk_eof_pndg <= '1';
-        elsif (aclk_state = S_EOF) then
-          aclk_eof_pndg <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-
+  
+  
 
   -----------------------------------------------------------------------------
   -- 
@@ -441,7 +423,7 @@ begin
             aclk_crop_packer_valid(1) <= '0';
             aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
           end if;
-        elsif (aclk_state = S_FLUSH_CROPPING) then
+        elsif (aclk_state = S_FLUSH) then
           aclk_crop_packer_valid(1) <= '0';
           aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
         end if;
@@ -495,7 +477,7 @@ begin
           end if;
           aclk_crop_packer_ben(7 downto 0) <= aclk_crop_packer_ben(15 downto 8);
 
-        elsif (aclk_state = S_FLUSH_CROPPING) then
+        elsif (aclk_state = S_FLUSH) then
           aclk_crop_packer_ben(15 downto 8) <= (others => '0');
           aclk_crop_packer_ben(7 downto 0)  <= aclk_crop_packer_ben(15 downto 8);
         end if;
@@ -524,7 +506,7 @@ begin
             aclk_crop_packer(127 downto 64) <= (others => '0');
             aclk_crop_packer(63 downto 0)   <= aclk_crop_packer(127 downto 64);
           end if;
-        elsif (aclk_state = S_FLUSH_CROPPING) then
+        elsif (aclk_state = S_FLUSH) then
           aclk_crop_packer(127 downto 64) <= (others => '0');
           aclk_crop_packer(63 downto 0)   <= aclk_crop_packer(127 downto 64);
         end if;
@@ -548,7 +530,7 @@ begin
       aclk_crop_ben_mux <= (others => '0');
     else
       if (rising_edge(aclk)) then
-        if ((aclk_ack = '1' or aclk_state = S_FLUSH_CROPPING) and aclk_crop_packer_valid(0) = '1') then
+        if ((aclk_ack = '1' or aclk_state = S_FLUSH) and aclk_crop_packer_valid(0) = '1') then
 
           case aclk_crop_mux_sel is
             when "000" =>
@@ -593,10 +575,32 @@ begin
       if (aclk_reset = '1')then
         aclk_crop_data_rdy <= '0';
       else
-        if (aclk_ack = '1' or aclk_state = S_FLUSH_CROPPING) then
+        if (aclk_ack = '1' or aclk_state = S_FLUSH) then
           aclk_crop_data_rdy <= aclk_crop_packer_valid(0);
         else
           aclk_crop_data_rdy <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_crop_last_data_mux : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_crop_last_data_mux <= '0';
+      else
+        if (aclk_ack = '1' or aclk_state = S_FLUSH) then
+          if (aclk_crop_packer_valid = "01") then
+            aclk_crop_last_data_mux <= '1';
+          else
+            aclk_crop_last_data_mux <= '0';
+          end if;
+        else
         end if;
       end if;
     end if;
@@ -649,51 +653,24 @@ begin
           --  S_WRITE : 
           -------------------------------------------------------------------
           when S_WRITE =>
-            -- If a end of line is detected
             if (aclk_tvalid = '1' and aclk_tlast = '1') then
-              -- If a End of frame is detected
-              if (aclk_crop_packer_valid = "11") then
-                aclk_state <= S_FLUSH_CROPPING;
-
-              elsif (aclk_tuser(1) = '1') then
-                aclk_state <= S_EOF;
-              -- If a End of line is detected
-              elsif (aclk_tuser(3) = '1') then
-                aclk_state <= S_EOL;
-              end if;
-            else
-              aclk_state <= S_WRITE;
-            end if;
-
-          -------------------------------------------------------------------
-          -- S_FLUSH_CROPPING : 
-          -------------------------------------------------------------------
-          when S_FLUSH_CROPPING =>
-            if (aclk_crop_packer_valid = "01") then
-              aclk_state <= S_FLUSH_SUBSAMPLING;
-            else
-              aclk_state <= S_FLUSH_CROPPING;
-            end if;
-
-          -------------------------------------------------------------------
-          -- S_FLUSH_SUBSAMPLING : 
-          -------------------------------------------------------------------
-          when S_FLUSH_SUBSAMPLING =>
-            if (aclk_subs_last_data = '1') then
-              if (aclk_eof_pndg = '1') then
-                aclk_state <= S_EOF;
+              if (aclk_crop_packer_valid /= "00" or aclk_subs_empty = '0') then
+                aclk_state <= S_FLUSH;
               else
-                aclk_state <= S_EOL;
+                  aclk_state <= S_EOL;
               end if;
-            else
-              aclk_state <= S_FLUSH_SUBSAMPLING;
             end if;
 
           -------------------------------------------------------------------
-          -- S_EOF : End of frame encounter
+          -- S_FLUSH : 
           -------------------------------------------------------------------
-          when S_EOF =>
-            aclk_state <= S_DONE;
+          when S_FLUSH =>
+            if (aclk_crop_packer_valid = "00" and aclk_subs_empty = '1') then
+                aclk_state <= S_EOL;
+
+            else
+              aclk_state <= S_FLUSH;
+            end if;
 
           -------------------------------------------------------------------
           -- S_EOL : End of line encounter
@@ -808,6 +785,22 @@ begin
   end process;
 
 
+  P_aclk_cmd_last_ben : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_cmd_last_ben <= (others => '0');
+      else
+        if (aclk_init_subsampling = '1') then
+          aclk_cmd_last_ben <= (others => '0');
+        elsif (aclk_subs_last_data = '1' and aclk_subs_data_valid = '1') then
+          aclk_cmd_last_ben <= aclk_subs_ben;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
 -----------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------
@@ -819,8 +812,6 @@ begin
   aclk_cmd_buff_ptr <= std_logic_vector(aclk_buffer_ptr);
 
 
---aclk_cmd_last_ben <= aclk_crop_ben_mux;
-  aclk_cmd_last_ben <= aclk_subs_ben;
 
   aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
 
@@ -843,13 +834,6 @@ begin
       );
 
 
--- aclk_crop_last_data <= '1' when (aclk_state = S_EOL or aclk_state = S_EOF) else
---                      '0';
-
-  aclk_crop_last_data <= '1' when (aclk_state = S_FLUSH_SUBSAMPLING) else
-                         '0';
-
-
 
   aclk_init_subsampling <= '1' when (aclk_state = S_SOF or aclk_state = S_SOL) else
                            '0';
@@ -863,9 +847,10 @@ begin
       aclk_x_subsampling  => aclk_x_scale,
       aclk_en             => aclk_crop_data_rdy,
       aclk_init           => aclk_init_subsampling,
-      aclk_last_data_in   => aclk_crop_last_data,
+      aclk_last_data_in   => aclk_crop_last_data_mux,
       aclk_data_in        => aclk_crop_data_mux,
       aclk_ben_in         => aclk_crop_ben_mux,
+      aclk_empty          => aclk_subs_empty,
       aclk_data_valid_out => aclk_subs_data_valid,
       aclk_last_data_out  => aclk_subs_last_data,
       aclk_data_out       => aclk_subs_data,
@@ -873,17 +858,12 @@ begin
       );
 
 
--- aclk_write_en <= '1' when (aclk_crop_data_rdy = '1') else
---                  '0';
-
--- aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
--- aclk_write_data    <= aclk_crop_data_mux;
+  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
+  aclk_write_data    <= aclk_subs_data;
 
   aclk_write_en <= '1' when (aclk_subs_data_valid = '1') else
                    '0';
 
-  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
-  aclk_write_data    <= aclk_subs_data;
 
 
 

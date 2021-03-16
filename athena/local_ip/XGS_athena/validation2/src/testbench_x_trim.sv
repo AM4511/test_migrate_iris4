@@ -1,15 +1,16 @@
 `timescale 1ns/1ps
 
+
 module testbench();
 	parameter TEST_NAME = "UNKNOWN";
 	parameter PIXEL_WIDTH = 1;  // size in bytes
 	parameter Y_SIZE = 4;       // size in rows
 	parameter X_SIZE = 256;     // size in pixels
-	parameter X_ROI_EN = 0;
-	parameter X_ROI_START = 1;  // size in pixels
+	parameter X_ROI_EN = 1;
+	parameter X_ROI_START = 0;  // size in pixels
 	parameter X_ROI_SIZE = 128; // size in pixels
-	parameter X_REVERSE = 1;
-	parameter X_SCALING = 1;    // size in pixels
+	parameter X_REVERSE = 0;
+	parameter X_SCALING = 0;    // size in pixels
 
 	parameter WATCHDOG_MAX_CNT = 1000;
 
@@ -99,6 +100,15 @@ module testbench();
 		aclk_x_stop = aclk_x_start + aclk_x_size -1;
 		aclk_x_scale = X_SCALING;
 
+		$display("\n\n");
+		$display("DISPLAY     : %s",TEST_NAME);
+		$display("PIXEL_WIDTH : %0d",aclk_pixel_width);
+		$display("X_REVERSE   : %0d",aclk_x_reverse);
+		$display("X_ROI_EN    : %0d",aclk_x_crop_en);
+		$display("X_ROI_START : %0d",aclk_x_start);
+		$display("X_ROI_SIZE  : %0d",aclk_x_size);
+		$display("X_SCALING   : %0d",aclk_x_scale);
+
 		// Reset interface
 		#100;
 		@(posedge aclk);
@@ -160,9 +170,9 @@ module testbench();
 				j=0;
 				// Start of frame
 				while (j < Y_SIZE) begin
-					$display("#########################################################################");
-					$display("# %%Sending row : %d",j);
-					$display("#########################################################################");
+//					$display("#########################################################################");
+//					$display("# %%Sending row : %d",j);
+//					$display("#########################################################################");
 					curr_row = axi_src_stream.pop_front();
 					row_id = curr_row.row_id;
 					data_queue = curr_row.data;
@@ -173,7 +183,7 @@ module testbench();
 						@(posedge aclk);
 						if (aclk_tready == 1'b1) begin
 							db = data_queue.pop_front();
-							$display("%d Data : 0x%016h", row_id, db);
+							//$display("%d Data : 0x%016h", row_id, db);
 
 							// Determining stream sync
 							user = 4'b0000;
@@ -264,12 +274,13 @@ module testbench();
 						received_row_data.push_back(received_db);
 						if (bclk_tlast == 1'b1) begin
 							received_row.data = received_row_data;
-							s = received_row_data.size();
-							received_row_data.delete();
 							received_row.row_id = j;
 							//axi_received_stream.push_back(received_row);
 							axi_received_stream[j] = received_row;
 							j++;
+							received_row_data.delete();
+							//s = received_row_data.size();
+
 
 							// At EOF we are done
 							if (bclk_tuser[1] == 1'b1) begin
@@ -285,11 +296,12 @@ module testbench();
 						/////////////////////////////////////////////////////////
 						//
 						/////////////////////////////////////////////////////////
-						if (cntr%8 == 0) begin
-							bclk_tready = 1'b0;
-						end else begin
-							bclk_tready = 1'b1;
-						end
+						bclk_tready = 1'b1;
+//						if (cntr%8 == 0) begin
+//							bclk_tready = 1'b0;
+//						end else begin
+//							bclk_tready = 1'b1;
+//						end
 
 						// At EOF we are done
 						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
@@ -299,17 +311,21 @@ module testbench();
 					end
 
 
-					assert (watchdog) else $fatal("Watchdog error");
+					assert (watchdog) else begin
+						$error("Watchdog error");
+						error++;
+						$stop();
+					end
 					watchdog--;
 
 				end
 
 				#1000ns;
 
-					///////////////////////////////////////////////////////
-					// Create predicted stream
-					////////////////////////////////////////////////////////
-					// If cropping disabled the ROI becomes the original image size
+				///////////////////////////////////////////////////////
+				// Create predicted stream
+				////////////////////////////////////////////////////////
+				// If cropping disabled the ROI becomes the original image size
 				if (aclk_x_crop_en == 0) begin
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
