@@ -40,7 +40,11 @@ CXGS_Data::CXGS_Data(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr):
 		0,    // Y_SIZE
 	    0,    // REVERSE_Y;
 	    0,    // REVERSE_X;
-	    0     // SUB_X;
+	    0,    // SUB_X;
+ 	    0,    // ROI_X_EN;
+	    0,    // X_START;
+	    0     // X_SIZE;
+
 	};
 
 
@@ -258,10 +262,15 @@ void CXGS_Data::SetDMA()
 	sXGSptr.DMA.CTRL.f.GRAB_QUEUE_EN = 1;
 	rXGSptr.DMA.CTRL.u32             = sXGSptr.DMA.CTRL.u32;
 
-	sXGSptr.DMA.CSC.f.REVERSE_Y = DMAParams.REVERSE_Y;
-	sXGSptr.DMA.CSC.f.REVERSE_X = DMAParams.REVERSE_X;
-	sXGSptr.DMA.CSC.f.SUB_X     = DMAParams.SUB_X;
-	rXGSptr.DMA.CSC.u32         = sXGSptr.DMA.CSC.u32;
+	sXGSptr.DMA.ROI_X.f.ROI_EN       = DMAParams.ROI_X_EN;
+	sXGSptr.DMA.ROI_X.f.X_START      = DMAParams.X_START;
+    sXGSptr.DMA.ROI_X.f.X_SIZE       = DMAParams.X_SIZE;
+	rXGSptr.DMA.ROI_X.u32            = sXGSptr.DMA.ROI_X.u32;
+
+	sXGSptr.DMA.CSC.f.REVERSE_Y      = DMAParams.REVERSE_Y;
+	sXGSptr.DMA.CSC.f.REVERSE_X      = DMAParams.REVERSE_X;
+	sXGSptr.DMA.CSC.f.SUB_X          = DMAParams.SUB_X;
+	rXGSptr.DMA.CSC.u32              = sXGSptr.DMA.CSC.u32;
 
 	if(DMAParams.REVERSE_Y==0) 
       sXGSptr.DMA.FSTART.u32         = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64

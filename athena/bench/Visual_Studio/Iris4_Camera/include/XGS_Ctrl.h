@@ -51,7 +51,6 @@ struct GrabParamStruct
 
 	M_UINT32 M_SUBSAMPLING_Y;
 	M_UINT32 ACTIVE_SUBSAMPLING_Y;
-	M_UINT32 SUBSAMPLING_X;
 
 	M_UINT32 FOT;
 
@@ -76,7 +75,11 @@ struct SensorParamStruct
 	M_UINT32 XGS_Y_SIZE;
 
 	M_UINT32 Xsize_Full;
+	M_UINT32 Xsize_Full_valid;
+	M_UINT32 Xstart_valid;
 	M_UINT32 Ysize_Full;
+	M_UINT32 Ysize_Full_valid;
+	M_UINT32 Ystart_valid;
 	M_UINT32 Xsize_BL;
 
 	M_UINT32 BL_LINES;
@@ -180,15 +183,15 @@ private:
 	void XGS_SetConfigFPGA(void);
 
 	//XGS 16
-	void XGS16M_SetGrabParamsInit16000(int lanes);
+	void XGS16M_SetGrabParamsInit16000(int lanes, int color);
 	void XGS16M_LoadDCF(int lanes);
 	void XGS16M_Check_otpm_depended_uploads(void);
 	void XGS16M_Enable6lanes(void);
 
 	//XGS 12/9.6/8
-	void XGS12M_SetGrabParamsInit12000(int lanes);
+	void XGS12M_SetGrabParamsInit12000(int lanes, int color);
 	//void XGS12M_SetGrabParamsInit9400(int lanes);
-	void XGS12M_SetGrabParamsInit8000(int lanes);
+	void XGS12M_SetGrabParamsInit8000(int lanes, int color);
 	void XGS12M_LoadDCF(int lanes);
 	void XGS12M_Check_otpm_depended_uploads(void);
 	void XGS12M_Enable6lanes(void);
@@ -196,11 +199,9 @@ private:
 	void XGS12M_Req_Reg_Up_2(void);
 	void XGS12M_Timing_Up(void);
 
-
-
 	//XGS 5/3/1.3
-	void XGS5M_SetGrabParamsInit5000(int lanes);
-	void XGS5M_SetGrabParamsInit2000(int lanes);
+	void XGS5M_SetGrabParamsInit5000(int lanes, int color);
+	void XGS5M_SetGrabParamsInit2000(int lanes, int color);
 	void XGS5M_LoadDCF(int lanes);
 	void XGS5M_Check_otpm_depended_uploads(void);
 	void XGS5M_Enable4lanes(void);

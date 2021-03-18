@@ -86,7 +86,6 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
 	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
 
-	GrabParams->SUBSAMPLING_X        = 0;
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
@@ -310,7 +309,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'y':
-				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
+				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full_valid);
 				scanf_s("%d", &XGSSize_Y);
 				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
 				GrabParams->Y_SIZE = XGSSize_Y;
@@ -340,19 +339,30 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 			case 'S':
 				XGS_Ctrl->WaitEndExpReadout();
-				
+
 				printf_s("\n\n");
-				printf_s("Subsampling X (0=NO, 1=YES) ? : ");
+				printf_s("Subsampling X (0=NO, 1 to 15= Subsampling factor) ? : ");
 				scanf_s("%d", &SubX);
 				printf_s("Subsampling Y (0=NO, 1=YES) ? : ");
 				scanf_s("%d", &SubY);
 
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
-				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+				// We dont use SUB_X in sensor, no fps advantages , and noise is increased!
+				// Using DMA subsampling 0(none) to 15 factor
+				DMAParams->SUB_X     = SubX;
+				DMAParams->LINE_SIZE = SensorParams->Xsize_Full / (SubX + 1);
 
-				printf_s("\n");
+				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+				if (SubY == 1)
+					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1) / 2;
+				else
+					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1);
+
+				MbufClear(MilGrabBuffer, 0);
+				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
+				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
 
 				break;
+
 			case 't':
 				XGS_Ctrl->WaitEndExpReadout();
 				cout << "\n";

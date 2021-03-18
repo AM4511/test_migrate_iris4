@@ -36,7 +36,7 @@
 //-----------------------------------------------
 // Init specific 
 //-----------------------------------------------
-void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
+void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes, int color)
    {
 
    SensorParams.SENSOR_TYPE          = 5000;
@@ -46,8 +46,16 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
 
    SensorParams.Xsize_Full          = 2600;                                                // Interpolation INCLUDED
+   SensorParams.Xsize_Full_valid    = 2592;
+   if (color == 0)
+	   SensorParams.Xstart_valid    = 4;
+   else
+	   SensorParams.Xstart_valid    = 2;      // When color and DPC enabled, then only remove 2 pix
+
    SensorParams.Ysize_Full          = 2056;                                                // Interpolation INCLUDED
-   
+   SensorParams.Ysize_Full_valid    = 2048;
+   SensorParams.Ystart_valid        = 4;
+
    SensorParams.XGS_X_START         = 88;                                                  // MONO : Location of first valid x pixel(including dummies, bl, valid)
    SensorParams.XGS_X_END           = SensorParams.XGS_X_START+ SensorParams.Xsize_Full-1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
    
@@ -79,7 +87,7 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes)
    }
 
 
-void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes)
+void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes, int color)
 {
 
 	SensorParams.SENSOR_TYPE          = 2000;
@@ -88,8 +96,16 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes)
 	SensorParams.XGS_HiSPI_mux        = 4;
 	SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
 
-	SensorParams.Xsize_Full = 1928;                                                // Interpolation INCLUDED
-	SensorParams.Ysize_Full = 1208;                                                // Interpolation INCLUDED
+	SensorParams.Xsize_Full           = 1928;                                                // Interpolation INCLUDED
+	SensorParams.Xsize_Full_valid     = 1920;
+	if (color == 0)
+		SensorParams.Xstart_valid     = 4;
+	else
+		SensorParams.Xstart_valid     = 2;      // When color and DPC enabled, then only remove 2 pix
+
+	SensorParams.Ysize_Full           = 1208;                                                // Interpolation INCLUDED
+	SensorParams.Ysize_Full_valid     = 1200;
+	SensorParams.Ystart_valid         = 4;
 
 	SensorParams.XGS_X_START = 424;                                                  // MONO : Location of first valid x pixel(including dummies, bl, valid)
 	SensorParams.XGS_X_END = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including interpolation, dummies, bl, valid)

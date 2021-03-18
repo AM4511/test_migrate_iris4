@@ -90,13 +90,17 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>last line is duplicated&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="SUB_X" lsb="10"/>
+      <fields name="SUB_X" lsb="10" size="4"/>
       <fields name="REVERSE_Y" alias="REVERSE Y " description="Reverse readout" lsb="9">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bottom to top readout&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Top to bottom readout&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="REVERSE_X" lsb="8"/>
+      <fields name="REVERSE_X" alias="Reverse image in X direction" description="When this field is set each row is mirorred while streamed out. Miror process is applied on a pixel resolution. This means for multi-bytes pixels, bytes are always streamed in the right order. " lsb="8">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reverse X disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Reverse X enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
     </registers>
     <registers name="OUTPUT_BUFFER" alias="Output line buffer" offsetFromParent="38">
       <fields name="MAX_LINE_BUFF_CNT" alias="Maximum line buffer count" description="This is an elastic line buffer. This fields records maximum number of line buffer that was used for transfering data. This field is cleared by the system reset and can also be cleared by the field&#xD;&#xA;&#xD;&#xA;registerfile.DMA.OUTPUT_BUFFER.CLR_MAX_LINE_BUFF_CNT&#xD;&#xA;&#xD;&#xA;" lsb="28" size="4" readWrite="false" readOnly="true" readOnlyMsb="2">
@@ -136,7 +140,12 @@
       </fields>
     </registers>
     <registers name="ROI_X" offsetFromParent="40" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
-      <fields name="X_END" description="This register defines the position of the last horizontal valid pixel (including interpolation pixels)." lsb="16" size="13" valueAtReset="3ff">
+      <fields name="ROI_EN" alias="Region of interest enable" description="This bit activate the region of interest mechanism (cropping). If enabled,  this mechanism rely on the X_START and X_SIZE parameters todetermine the valid region of a row. If ROI_EN is disabled the full sensor image is sent to the host.&#xD;&#xA;The first valide pixel is located at X_START and the last valid pixel is located at at X_STOP = X_START + (X_SIZE -1)&#xD;&#xA;" lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Region of interest is disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Region of interest is enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
+      <fields name="X_SIZE" description="This register defines the size in pixels of the region of interest (On the X axis)" lsb="16" size="13" valueAtReset="3ff">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -482,7 +491,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="SUBSAMPLING_X" alias="" description="Readout in Column Subsampling Mode">
+      <fields name="SUBSAMPLING_X" alias="" description="Readout in Column Subsampling Mode.&#xD;&#xA;We don't use SUB_X in sensor, no fps advantages , and noise is increased! instead using DMA subsampling.">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -797,7 +806,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Remove first and last line of the image received&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. The value 0 is allowed and when set to 0 no pixel will be corrected.  Up to (2^DPC_CORR_PIXELS_DEPTH)-1 pixels can be corrected. &#xD;&#xA;If generic DPC_CORR_PIXELS_DEPTH in XGS_Athena module is set to 9, up to 511 pixels may be corrected." lsb="16" size="12">
+      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. The value 0 is allowed and when set to 0 no pixel will be corrected.  Up to (2^DPC_CORR_PIXELS_DEPTH)-1 pixels can be corrected.&#xD;&#xA;&#xD;&#xA;In GTX  DPC_CORR_PIXELS_DEPTH is set to 9, up to 511 pixels may be corrected.&#xD;&#xA;" lsb="16" size="12">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>0 to 2^DPC_CORR_PIXELS_DEPTH&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -821,7 +830,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start the READ/WRITE transaction&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address b000000. Since the dpc_list_count field is also 6 bit wide, address 0 to 62 of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x3f cannot be used. This DPC location will not be corrected." size="12">
+      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address 0x000. In GTX  DPC_CORR_PIXELS_DEPTH is set to 9, up to 511 pixels may be corrected. Since the dpc_list_count field is also 9 bit wide, address 0 to 0x1fe of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x1ff cannot be used. This DPC location will not be corrected." size="12">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Valid DPC adress&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>

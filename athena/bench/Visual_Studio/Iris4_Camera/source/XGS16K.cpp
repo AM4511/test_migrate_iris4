@@ -18,7 +18,7 @@
 //-----------------------------------------------
 // Init specific 
 //-----------------------------------------------
-void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
+void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes, int color)
    {
 
    SensorParams.SENSOR_TYPE            = 16000;
@@ -28,7 +28,15 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
    SensorParams.XGS_DMA_LinePtrWidth   = 2;   // 4 line buffers
 
    SensorParams.Xsize_Full             = 4008;  // Interpolation INCLUDED
+   SensorParams.Xsize_Full_valid       = 4000;
+   if (color == 0)
+	   SensorParams.Xstart_valid       = 4;
+   else
+	   SensorParams.Xstart_valid       = 2;      // When color and DPC enabled, then only remove 2 pix
+
    SensorParams.Ysize_Full             = 4008;  // Interpolation INCLUDED
+   SensorParams.Ysize_Full_valid       = 4000;
+   SensorParams.Ystart_valid           = 4;
 
    SensorParams.XGS_X_START            = 80;                                                     // MONO : Location of first valid x pixel(80,0)
    SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
