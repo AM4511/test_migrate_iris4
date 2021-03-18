@@ -3,6 +3,8 @@
 -- 
 -- DESCRIPTION   : 
 --              
+--
+-- ToDO: 
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -36,12 +38,14 @@ entity x_trim is
     ---------------------------------------------------------------------------
     -- Register file
     ---------------------------------------------------------------------------
-    aclk_pixel_width : in std_logic_vector(2 downto 0);
-    aclk_x_crop_en   : in std_logic;
-    aclk_x_start     : in std_logic_vector(12 downto 0);
-    aclk_x_size      : in std_logic_vector(12 downto 0);
-    aclk_x_scale     : in std_logic_vector(3 downto 0);
-    aclk_x_reverse   : in std_logic;
+    aclk_grab_queue_en : in std_logic;
+    aclk_load_context  : in std_logic_vector(1 downto 0);
+    aclk_pixel_width   : in std_logic_vector(2 downto 0);
+    aclk_x_crop_en     : in std_logic;
+    aclk_x_start       : in std_logic_vector(12 downto 0);
+    aclk_x_size        : in std_logic_vector(12 downto 0);
+    aclk_x_scale       : in std_logic_vector(3 downto 0);
+    aclk_x_reverse     : in std_logic;
 
     ---------------------------------------------------------------------------
     -- AXI Slave interface
@@ -140,6 +144,42 @@ architecture rtl of x_trim is
   end component;
 
 
+  component x_trim_subsampling is
+    port (
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk       : in std_logic;
+      aclk_reset : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- 
+      ---------------------------------------------------------------------------
+      aclk_pixel_width   : in std_logic_vector(2 downto 0);
+      aclk_x_subsampling : in std_logic_vector(3 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- Input stream
+      ---------------------------------------------------------------------------
+      aclk_en   : in std_logic;
+      aclk_init : in std_logic;
+
+      aclk_last_data_in : in std_logic;
+      aclk_data_in      : in std_logic_vector(63 downto 0);
+      aclk_ben_in       : in std_logic_vector(7 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_empty          : out std_logic;
+      aclk_data_valid_out : out std_logic;
+      aclk_last_data_out  : out std_logic;
+      aclk_data_out       : out std_logic_vector(63 downto 0);
+      aclk_ben_out        : out std_logic_vector(7 downto 0)
+      );
+  end component;
+
+
   component x_trim_streamout is
     generic (
       NUMB_LINE_BUFFER    : integer range 2 to 4 := 2;
@@ -187,7 +227,29 @@ architecture rtl of x_trim is
   end component;
 
 
-  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_EOL, S_EOF, S_FLUSH, S_DONE);
+  type STRM_CONTEXT_TYPE is record
+    pixel_width : std_logic_vector(2 downto 0);
+    x_crop_en   : std_logic;
+    x_start     : std_logic_vector(12 downto 0);
+    x_size      : std_logic_vector(12 downto 0);
+    x_scale     : std_logic_vector(3 downto 0);
+    x_reverse   : std_logic;
+  end record STRM_CONTEXT_TYPE;
+
+
+  constant INIT_STRM_CONTEXT_TYPE : STRM_CONTEXT_TYPE := (
+    pixel_width => (others => '0'),
+    x_crop_en   => '0',
+    x_start     => (others => '0'),
+    x_size      => (others => '0'),
+    x_scale     => (others => '0'),
+    x_reverse   => '0'
+    );
+
+
+
+  type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
+
 
   constant WORD_PTR_WIDTH      : integer := 9;
   constant BUFF_PTR_WIDTH      : integer := 1;
@@ -200,32 +262,39 @@ architecture rtl of x_trim is
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
-  signal aclk_reset           : std_logic;
-  signal aclk_state           : FSM_TYPE := S_IDLE;
-  signal aclk_full            : std_logic;
-  signal aclk_tready_int      : std_logic;
-  signal aclk_init_word_ptr   : std_logic;
-  signal aclk_word_ptr        : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal aclk_buffer_ptr      : unsigned(BUFF_PTR_WIDTH-1 downto 0);
-  signal aclk_init_buffer_ptr : std_logic;
-  signal aclk_nxt_buffer      : std_logic;
-  signal aclk_write_en        : std_logic;
-  signal aclk_write_address   : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
-  signal aclk_write_data      : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-  signal aclk_cmd_wen         : std_logic;
-  signal aclk_cmd_full        : std_logic;
-  signal aclk_cmd_data        : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
-  signal aclk_cmd_sync        : std_logic_vector(1 downto 0);
-  signal aclk_cmd_size        : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
-  signal aclk_cmd_buff_ptr    : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
-  signal aclk_cmd_last_ben    : std_logic_vector(7 downto 0);
+  signal aclk_strm_context_in  : STRM_CONTEXT_TYPE;
+  signal aclk_strm_context_P0  : STRM_CONTEXT_TYPE;
+  signal aclk_strm_context_P1  : STRM_CONTEXT_TYPE;
+  signal aclk_strm             : STRM_CONTEXT_TYPE;
+  signal aclk_ld_strm_ctx      : std_logic_vector(1 downto 0);
+  signal aclk_ld_strm_ctx_FF1  : std_logic_vector(1 downto 0);
+  signal aclk_ld_strm_ctx_FF2  : std_logic_vector(1 downto 0);
+  signal aclk_reset            : std_logic;
+  signal aclk_state            : FSM_TYPE := S_IDLE;
+  signal aclk_full             : std_logic;
+  signal aclk_tready_int       : std_logic;
+  signal aclk_init_word_ptr    : std_logic;
+  signal aclk_word_ptr         : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal aclk_buffer_ptr       : unsigned(BUFF_PTR_WIDTH-1 downto 0);
+  signal aclk_init_buffer_ptr  : std_logic;
+  signal aclk_init_subsampling : std_logic;
+  signal aclk_nxt_buffer       : std_logic;
+  signal aclk_write_en         : std_logic;
+  signal aclk_write_address    : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal aclk_write_data       : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  signal aclk_cmd_wen          : std_logic;
+  signal aclk_cmd_full         : std_logic;
+  signal aclk_cmd_data         : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
+  signal aclk_cmd_sync         : std_logic_vector(1 downto 0);
+  signal aclk_cmd_size         : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
+  signal aclk_cmd_buff_ptr     : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
+  signal aclk_cmd_last_ben     : std_logic_vector(7 downto 0);
 
   signal aclk_ack         : std_logic;
   signal aclk_pix_cntr    : unsigned(12 downto 0);
   signal aclk_pix_incr    : integer range 0 to 8;
   signal aclk_valid_start : unsigned(aclk_pix_cntr'range);
   signal aclk_valid_stop  : unsigned(aclk_pix_cntr'range);
-  signal aclk_eof_pndg    : std_logic;
 
   signal aclk_crop_start         : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_stop          : unsigned(aclk_pix_cntr'range);
@@ -233,14 +302,20 @@ architecture rtl of x_trim is
   signal aclk_crop_stop_mask_sel : std_logic_vector(2 downto 0);
   signal aclk_crop_data_rdy      : std_logic;
 
-  signal aclk_crop_window_valid : std_logic;
-  signal aclk_crop_packer       : std_logic_vector(127 downto 0);
-  signal aclk_crop_packer_ben   : std_logic_vector(15 downto 0);
-  signal aclk_crop_data_mux     : std_logic_vector(63 downto 0);
-  signal aclk_crop_ben_mux      : std_logic_vector(7 downto 0);
-  signal aclk_crop_mux_sel      : std_logic_vector(2 downto 0);
-  signal aclk_crop_packer_valid : std_logic_vector(1 downto 0);
+  signal aclk_crop_window_valid  : std_logic;
+  signal aclk_crop_packer        : std_logic_vector(127 downto 0);
+  signal aclk_crop_packer_ben    : std_logic_vector(15 downto 0);
+  signal aclk_crop_data_mux      : std_logic_vector(63 downto 0);
+  signal aclk_crop_last_data_mux : std_logic;
+  signal aclk_crop_ben_mux       : std_logic_vector(7 downto 0);
+  signal aclk_crop_mux_sel       : std_logic_vector(2 downto 0);
+  signal aclk_crop_packer_valid  : std_logic_vector(1 downto 0);
 
+  signal aclk_subs_empty      : std_logic;
+  signal aclk_subs_data_valid : std_logic;
+  signal aclk_subs_last_data  : std_logic;
+  signal aclk_subs_data       : std_logic_vector(63 downto 0);
+  signal aclk_subs_ben        : std_logic_vector(7 downto 0);
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
@@ -278,16 +353,69 @@ architecture rtl of x_trim is
 
 begin
 
--- ToDO:
---   Wrap bclk logic in a submodule file (entity) for code clarity
---   Propagate back pressure on bclk stream I/F     
---   Improve functionnal coverage
---   Instantiate in XGS_athena
---   Connect the register file
---   Vivado PnR
-
   aclk_reset  <= not aclk_reset_n;
   aclk_tready <= aclk_tready_int;
+
+
+  -----------------------------------------------------------------------------
+  -- Remap stream context from registerfile
+  -----------------------------------------------------------------------------
+  aclk_strm_context_in.pixel_width <= aclk_pixel_width;
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;
+  aclk_strm_context_in.x_start     <= aclk_x_start;
+  aclk_strm_context_in.x_size      <= aclk_x_size;
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;
+
+
+  -----------------------------------------------------------------------------
+  -- Stream context management
+  --
+  -- Les contextes doivent etre loades sur le rising edge du signal. Il a été allongé 
+  -- a 4 clk sysclk ds le controlleur pour l'envoyer dans le domaine pclk.
+  -----------------------------------------------------------------------------
+  P_aclk_strm : process(aclk)
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_ld_strm_ctx_FF1 <= (others => '0');
+        aclk_ld_strm_ctx_FF2 <= (others => '0');
+        aclk_strm_context_P0 <= INIT_STRM_CONTEXT_TYPE;
+        aclk_strm_context_P1 <= INIT_STRM_CONTEXT_TYPE;
+        
+      else
+        aclk_ld_strm_ctx_FF1 <= aclk_load_context;
+        aclk_ld_strm_ctx_FF2 <= aclk_ld_strm_ctx_FF1;
+
+
+        -----------------------------------------------------------------------
+        -- On rising edge of aclk_load_context(0) store aclk_strm_context_in
+        -- in the pipelined version 0
+        -----------------------------------------------------------------------
+        if (aclk_ld_strm_ctx_FF2(0) = '0' and aclk_ld_strm_ctx_FF1(0) = '1') then
+          aclk_strm_context_P0 <= aclk_strm_context_in;
+        end if;
+
+
+        -----------------------------------------------------------------------
+        -- On rising edge of aclk_load_context(1) we shift the stream context
+        -- of pipeline 0 to pipeline 1.
+        -----------------------------------------------------------------------
+        if (aclk_ld_strm_ctx_FF2(1) = '0' and aclk_ld_strm_ctx_FF1(1) = '1') then
+          aclk_strm_context_P1 <= aclk_strm_context_P0;
+        end if;
+
+
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Stream context selection MUX
+  -----------------------------------------------------------------------------
+  aclk_strm <= aclk_strm_context_P1 when (aclk_grab_queue_en = '1') else
+               aclk_strm_context_in;
 
 
   aclk_tready_int <= '1' when (aclk_state = S_IDLE and aclk_full = '0') else
@@ -301,14 +429,12 @@ begin
               '0';
 
 
-  -- TEMP parameters. should come from register fields
   aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
                      (aclk_pix_cntr'range => '0');
   aclk_crop_size <= unsigned(aclk_x_size(aclk_pix_cntr'range));
   aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
                     (aclk_pix_cntr'range => '1');
 
-  --aclk_pixel_width <= 1;
   bclk_pixel_width <= aclk_pixel_width;
 
 
@@ -348,23 +474,6 @@ begin
                             '0';
 
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  P_aclk_eof_pndg : process (aclk) is
-  begin
-    if (rising_edge(aclk)) then
-      if (aclk_reset = '1')then
-        aclk_eof_pndg <= '0';
-      else
-        if (aclk_tvalid = '1' and aclk_tlast = '1' and aclk_tuser(1) = '1') then
-          aclk_eof_pndg <= '1';
-        elsif (aclk_state = S_EOF) then
-          aclk_eof_pndg <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
 
 
   -----------------------------------------------------------------------------
@@ -569,6 +678,28 @@ begin
 
 
   -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  P_aclk_crop_last_data_mux : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_crop_last_data_mux <= '0';
+      else
+        if (aclk_ack = '1' or aclk_state = S_FLUSH) then
+          if (aclk_crop_packer_valid = "01") then
+            aclk_crop_last_data_mux <= '1';
+          else
+            aclk_crop_last_data_mux <= '0';
+          end if;
+        else
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
   -- Process     : P_aclk_state
   -- Description : Line buffer write side state machine
   -----------------------------------------------------------------------------
@@ -614,41 +745,24 @@ begin
           --  S_WRITE : 
           -------------------------------------------------------------------
           when S_WRITE =>
-            -- If a end of line is detected
             if (aclk_tvalid = '1' and aclk_tlast = '1') then
-              -- If a End of frame is detected
-              if (aclk_crop_packer_valid = "11") then
+              if (aclk_crop_packer_valid /= "00" or aclk_subs_empty = '0') then
                 aclk_state <= S_FLUSH;
-
-              elsif (aclk_tuser(1) = '1') then
-                aclk_state <= S_EOF;
-              -- If a End of line is detected
-              elsif (aclk_tuser(3) = '1') then
-                aclk_state <= S_EOL;
-              end if;
-            else
-              aclk_state <= S_WRITE;
-            end if;
-
-          -------------------------------------------------------------------
-          -- S_FLUSH : End of frame encounter
-          -------------------------------------------------------------------
-          when S_FLUSH =>
-            if (aclk_crop_packer_valid = "01") then
-              if (aclk_eof_pndg = '1') then
-                aclk_state <= S_EOF;
               else
                 aclk_state <= S_EOL;
               end if;
-            else
-              aclk_state <= S_FLUSH;
             end if;
 
           -------------------------------------------------------------------
-          -- S_EOF : End of frame encounter
+          -- S_FLUSH : 
           -------------------------------------------------------------------
-          when S_EOF =>
-            aclk_state <= S_DONE;
+          when S_FLUSH =>
+            if (aclk_crop_packer_valid = "00" and aclk_subs_empty = '1') then
+              aclk_state <= S_EOL;
+
+            else
+              aclk_state <= S_FLUSH;
+            end if;
 
           -------------------------------------------------------------------
           -- S_EOL : End of line encounter
@@ -680,10 +794,11 @@ begin
   aclk_nxt_buffer <= '1' when (aclk_state = S_DONE) else
                      '0';
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_aclk_buffer_ptr
-  -- Description : Buffer pointer. 
-  -----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- Process     : P_aclk_buffer_ptr
+-- Description : Buffer pointer. 
+-----------------------------------------------------------------------------
   P_aclk_buffer_ptr : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -704,9 +819,9 @@ begin
   aclk_init_word_ptr <= '1' when (aclk_state = S_DONE) else
                         '0';
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
   P_aclk_word_ptr : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -735,21 +850,15 @@ begin
       bFall => open
       );
 
-  aclk_write_en <= '1' when (aclk_crop_data_rdy = '1') else
-                   '0';
-
-  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
-  aclk_write_data    <= aclk_crop_data_mux;
-
 
   aclk_cmd_wen <= '1' when (aclk_state = S_DONE) else
                   '0';
 
 
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
   P_aclk_cmd_sync : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -768,20 +877,36 @@ begin
   end process;
 
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
+  P_aclk_cmd_last_ben : process (aclk) is
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_cmd_last_ben <= (others => '0');
+      else
+        if (aclk_init_subsampling = '1') then
+          aclk_cmd_last_ben <= (others => '0');
+        elsif (aclk_subs_last_data = '1' and aclk_subs_data_valid = '1') then
+          aclk_cmd_last_ben <= aclk_subs_ben;
+        end if;
+      end if;
+    end if;
+  end process;
+
+
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
   aclk_cmd_size <= std_logic_vector(aclk_word_ptr);
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
   aclk_cmd_buff_ptr <= std_logic_vector(aclk_buffer_ptr);
 
 
-  aclk_cmd_last_ben <= aclk_crop_ben_mux;
 
   aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
+
 
   xcommand_buffer : mtxDCFIFO
     generic map(
@@ -801,9 +926,42 @@ begin
       );
 
 
-  -----------------------------------------------------------------------------
-  -- Line buffer (2xline buffer size to support double buffering)
-  -----------------------------------------------------------------------------
+
+  aclk_init_subsampling <= '1' when (aclk_state = S_SOF or aclk_state = S_SOL) else
+                           '0';
+
+
+  x_trim_subsampling_inst : x_trim_subsampling
+    port map (
+      aclk                => aclk,
+      aclk_reset          => aclk_reset,
+      aclk_pixel_width    => aclk_pixel_width,
+      aclk_x_subsampling  => aclk_x_scale,
+      aclk_en             => aclk_crop_data_rdy,
+      aclk_init           => aclk_init_subsampling,
+      aclk_last_data_in   => aclk_crop_last_data_mux,
+      aclk_data_in        => aclk_crop_data_mux,
+      aclk_ben_in         => aclk_crop_ben_mux,
+      aclk_empty          => aclk_subs_empty,
+      aclk_data_valid_out => aclk_subs_data_valid,
+      aclk_last_data_out  => aclk_subs_last_data,
+      aclk_data_out       => aclk_subs_data,
+      aclk_ben_out        => aclk_subs_ben
+      );
+
+
+  aclk_write_address <= std_logic_vector(aclk_buffer_ptr & aclk_word_ptr);
+  aclk_write_data    <= aclk_subs_data;
+
+  aclk_write_en <= '1' when (aclk_subs_data_valid = '1') else
+                   '0';
+
+
+
+
+-----------------------------------------------------------------------------
+-- Line buffer (2xline buffer size to support double buffering)
+-----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
@@ -837,10 +995,10 @@ begin
   bclk_reset <= not bclk_reset_n;
 
 
-  -----------------------------------------------------------------------------
-  -- Process     : P_bclk_x_reverse
-  -- Description : 
-  -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- Process     : P_bclk_x_reverse
+-- Description : 
+-----------------------------------------------------------------------------
   P_bclk_x_reverse : process (bclk) is
   begin
     if (rising_edge(bclk)) then

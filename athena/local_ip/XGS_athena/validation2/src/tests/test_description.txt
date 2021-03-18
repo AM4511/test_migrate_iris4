@@ -1,0 +1,14 @@
+Name        Description
+-------------------------------------------------------------------------------------
+Test0001    XGS 5000   Simple test 2 frames back to back
+Test0002    XGS 12000  Simple test 2 frames back to back
+Test0003    XGS 16000  Simple test 2 frames back to back
+Test0004    XGS 5000   Test of Acquisition Trigger level Hi and trigger level LO
+Test0005    XGS 12000  SUBSAMPLING X TEST
+Test0006    XGS 12000  SUBSAMPLING Y TEST
+Test0007    XGS 12000  SUBSAMPLING X-Y TEST
+Test0008    XGS 12000  Rev X test
+Test0009    XGS 12000  Rev Y test
+Test0010    XGS 12000  ROI X test
+Test0020    XGS 5000   BAYER COLOR DEMOSAIC : RGB32
+Test0021    XGS 5000   BAYER RAW MONO : MONO32

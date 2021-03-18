@@ -1,12 +1,13 @@
 `timescale 1ns/1ps
 
+
 module testbench();
 	parameter TEST_NAME = "UNKNOWN";
 	parameter PIXEL_WIDTH = 1;  // size in bytes
 	parameter Y_SIZE = 4;       // size in rows
 	parameter X_SIZE = 256;     // size in pixels
-	parameter X_ROI_EN = 0;
-	parameter X_ROI_START = 1;  // size in pixels
+	parameter X_ROI_EN = 1;
+	parameter X_ROI_START = 0;  // size in pixels
 	parameter X_ROI_SIZE = 128; // size in pixels
 	parameter X_REVERSE = 0;
 	parameter X_SCALING = 0;    // size in pixels
@@ -31,9 +32,9 @@ module testbench();
 	bit [3:0]  aclk_tuser;
 	bit [63:0] aclk_tdata;
 	bit [2:0]  aclk_pixel_width;
-	bit [15:0] aclk_x_size;
-	bit [15:0] aclk_x_start;
-	bit [15:0] aclk_x_stop;
+	bit [12:0] aclk_x_size;
+	bit [12:0] aclk_x_start;
+	bit [12:0] aclk_x_stop;
 	bit [3:0] aclk_x_scale;
 	bit aclk_x_crop_en;
 	bit aclk_x_reverse;
@@ -46,6 +47,10 @@ module testbench();
 	bit [3:0] bclk_tuser;
 	bit [63:0] bclk_tdata;
 
+	bit aclk_grab_queue_en;
+	bit [1:0] aclk_load_context;
+
+
 	// Clock and Reset generation
 	//always #2.7 sys_clk          = ~sys_clk;
 	always #5 aclk    = ~aclk;
@@ -54,6 +59,8 @@ module testbench();
 	int watchdog;
 	int error;
 	x_trim DUT(
+			. aclk_grab_queue_en(aclk_grab_queue_en),
+			.aclk_load_context(aclk_load_context),
 			.aclk_pixel_width(aclk_pixel_width),
 			.aclk_x_crop_en(aclk_x_crop_en),
 			.aclk_x_start(aclk_x_start),
@@ -82,6 +89,8 @@ module testbench();
 		aclk_reset_n = 1'b1;
 		bclk_reset_n = 1'b1;
 
+		aclk_grab_queue_en = 1'b0;
+		aclk_load_context = 2'b0;
 
 
 		////////////////////////////////////////////////////////
@@ -97,6 +106,16 @@ module testbench();
 		aclk_x_start = X_ROI_START;
 		aclk_x_size = X_ROI_SIZE;
 		aclk_x_stop = aclk_x_start + aclk_x_size -1;
+		aclk_x_scale = X_SCALING;
+
+		$display("\n\n");
+		$display("DISPLAY     : %s",TEST_NAME);
+		$display("PIXEL_WIDTH : %0d",aclk_pixel_width);
+		$display("X_REVERSE   : %0d",aclk_x_reverse);
+		$display("X_ROI_EN    : %0d",aclk_x_crop_en);
+		$display("X_ROI_START : %0d",aclk_x_start);
+		$display("X_ROI_SIZE  : %0d",aclk_x_size);
+		$display("X_SCALING   : %0d",aclk_x_scale);
 
 		// Reset interface
 		#100;
@@ -159,9 +178,9 @@ module testbench();
 				j=0;
 				// Start of frame
 				while (j < Y_SIZE) begin
-					$display("#########################################################################");
-					$display("# %%Sending row : %d",j);
-					$display("#########################################################################");
+					//					$display("#########################################################################");
+					//					$display("# %%Sending row : %d",j);
+					//					$display("#########################################################################");
 					curr_row = axi_src_stream.pop_front();
 					row_id = curr_row.row_id;
 					data_queue = curr_row.data;
@@ -172,7 +191,7 @@ module testbench();
 						@(posedge aclk);
 						if (aclk_tready == 1'b1) begin
 							db = data_queue.pop_front();
-							$display("%d Data : 0x%016h", row_id, db);
+							//$display("%d Data : 0x%016h", row_id, db);
 
 							// Determining stream sync
 							user = 4'b0000;
@@ -212,17 +231,20 @@ module testbench();
 			begin
 				int i;
 				int j;
+				bit [7:0] pix_value;
 				byte c;
 				int s;
 				int cntr;
 				int mask_size;
 				longint byte_mask;
+				int subs_cntr;
 
 				//data_row curr_row;
 				//bit [63:0] db;
 				bit [3:0] user;
 				int byte_id;
 				int row_size;
+				bit [7:0] byte_stream[$];
 
 				int axi_received_stream_size;
 				data_row axi_received_stream[];
@@ -235,7 +257,9 @@ module testbench();
 				data_row axi_predicted_stream[];
 				data_row pred_row;
 				bit [63:0] pred_row_data[$];
+				bit [63:0] reverse_row_data[$];
 				bit [63:0] pred_db;
+				bit [63:0] reverse_db;
 				int pred_row_id;
 				int pred_row_size;
 
@@ -260,12 +284,13 @@ module testbench();
 						received_row_data.push_back(received_db);
 						if (bclk_tlast == 1'b1) begin
 							received_row.data = received_row_data;
-							s = received_row_data.size();
-							received_row_data.delete();
 							received_row.row_id = j;
 							//axi_received_stream.push_back(received_row);
 							axi_received_stream[j] = received_row;
 							j++;
+							received_row_data.delete();
+							//s = received_row_data.size();
+
 
 							// At EOF we are done
 							if (bclk_tuser[1] == 1'b1) begin
@@ -281,11 +306,12 @@ module testbench();
 						/////////////////////////////////////////////////////////
 						//
 						/////////////////////////////////////////////////////////
-						if (cntr%8 == 0) begin
-							bclk_tready = 1'b0;
-						end else begin
-							bclk_tready = 1'b1;
-						end
+						bclk_tready = 1'b1;
+						//						if (cntr%8 == 0) begin
+						//							bclk_tready = 1'b0;
+						//						end else begin
+						//							bclk_tready = 1'b1;
+						//						end
 
 						// At EOF we are done
 						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
@@ -295,12 +321,17 @@ module testbench();
 					end
 
 
-					assert (watchdog) else $fatal("Watchdog error");
+					assert (watchdog) else begin
+						$error("Watchdog error");
+						error++;
+						$stop();
+					end
 					watchdog--;
 
 				end
 
 				#1000ns;
+
 
 					///////////////////////////////////////////////////////
 					// Create predicted stream
@@ -310,59 +341,61 @@ module testbench();
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
 				end
-				if (aclk_x_reverse == 0) begin
-					for (j=0;  j<Y_SIZE;  j++) begin
+
+
+				// Process each row
+				for (j=0;  j<Y_SIZE;  j++) begin
+					subs_cntr = 0;
+					for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
+						if (subs_cntr % (X_SCALING+1) == 0) begin
+							byte_stream.push_back(i);
+						end
+						subs_cntr++;
+					end
+
+
+					// Process current row in forward scan
+					if (aclk_x_reverse == 1'b0) begin
 						byte_id = 0;
 						pred_db = 0;
-						for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
-							////////////////////////////////////////////////
-							// Data ramp
-							////////////////////////////////////////////////
-							pred_db[byte_id*8 +: 8] = i;
+						while (byte_stream.size() > 0) begin
+							pix_value = byte_stream.pop_front();
 
-							if (byte_id == 7 || (i == aclk_x_stop)) begin
+							pred_db[byte_id*8 +: 8] = pix_value;
+
+							if (byte_id == 7 || byte_stream.size() == 0) begin
 								pred_row_data.push_back(pred_db);
 								byte_id = 0;
 								pred_db = 0;
 							end else
 								byte_id++;
-						end
-						pred_row.row_id = j;
-						pred_row.data = pred_row_data;
-						pred_row_data.delete();
-						//axi_predicted_stream.push_back(pred_row);
-						axi_predicted_stream[j] = pred_row;
-					end
 
-				end else begin
-					for (j=0;  j<Y_SIZE;  j++) begin
+
+						end
+					// Process current row in reverse scan
+					end	else begin
 						byte_id = 0;
 						pred_db = 0;
-						for (i=aclk_x_stop;  i>= aclk_x_start;  i--) begin
-							////////////////////////////////////////////////
-							// Data ramp
-							////////////////////////////////////////////////
-							pred_db[byte_id*8 +: 8] = i;
+						while (byte_stream.size() > 0) begin
+							pix_value = byte_stream.pop_back();
 
-							if (byte_id == 7 || (i == aclk_x_start)) begin
+							pred_db[byte_id*8 +: 8] = pix_value;
+
+							if (byte_id == 7 || byte_stream.size() == 0) begin
 								pred_row_data.push_back(pred_db);
 								byte_id = 0;
 								pred_db = 0;
-							end else begin
+							end else
 								byte_id++;
-							end
-							// We do not want to wrap around
-							if (i == 0) break;
+
 						end
-						pred_row.row_id = j;
-						pred_row.data = pred_row_data;
-						pred_row_data.delete();
-						//axi_predicted_stream.push_back(pred_row);
-						axi_predicted_stream[j] = pred_row;
 					end
 
+					pred_row.row_id = j;
+					pred_row.data = pred_row_data;
+					pred_row_data.delete();
+					axi_predicted_stream[j] = pred_row;
 				end
-
 
 				////////////////////////////////////////////////////////
 				// Validate results
@@ -442,32 +475,6 @@ module testbench();
 
 				end
 			end
-			/////////////////////////////////////////////////////////////////////
-			// Fork 2 : Insert back pressure on the stream output port
-			/////////////////////////////////////////////////////////////////////
-			//			begin
-			//				int cntr;
-			//				cntr = 0;
-			//				while (1) begin
-			//					@(posedge bclk);
-			//					begin
-			//						/////////////////////////////////////////////////////////
-			//						//
-			//						/////////////////////////////////////////////////////////
-			//						if (cntr%8 == 0) begin
-			//							bclk_tready = 1'b0;
-			//						end else begin
-			//							bclk_tready = 1'b1;
-			//						end
-			//
-			//						// At EOF we are done
-			//						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
-			//							break;
-			//						end
-			//						cntr++;
-			//					end
-			//				end
-			//			end
 		join;
 
 			$display("=====================================================================");
