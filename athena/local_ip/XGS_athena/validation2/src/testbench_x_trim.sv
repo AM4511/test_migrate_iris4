@@ -47,6 +47,10 @@ module testbench();
 	bit [3:0] bclk_tuser;
 	bit [63:0] bclk_tdata;
 
+	bit aclk_grab_queue_en;
+	bit [1:0] aclk_load_context;
+
+
 	// Clock and Reset generation
 	//always #2.7 sys_clk          = ~sys_clk;
 	always #5 aclk    = ~aclk;
@@ -55,6 +59,8 @@ module testbench();
 	int watchdog;
 	int error;
 	x_trim DUT(
+			. aclk_grab_queue_en(aclk_grab_queue_en),
+			.aclk_load_context(aclk_load_context),
 			.aclk_pixel_width(aclk_pixel_width),
 			.aclk_x_crop_en(aclk_x_crop_en),
 			.aclk_x_start(aclk_x_start),
@@ -83,6 +89,8 @@ module testbench();
 		aclk_reset_n = 1'b1;
 		bclk_reset_n = 1'b1;
 
+		aclk_grab_queue_en = 1'b0;
+		aclk_load_context = 2'b0;
 
 
 		////////////////////////////////////////////////////////
@@ -170,9 +178,9 @@ module testbench();
 				j=0;
 				// Start of frame
 				while (j < Y_SIZE) begin
-//					$display("#########################################################################");
-//					$display("# %%Sending row : %d",j);
-//					$display("#########################################################################");
+					//					$display("#########################################################################");
+					//					$display("# %%Sending row : %d",j);
+					//					$display("#########################################################################");
 					curr_row = axi_src_stream.pop_front();
 					row_id = curr_row.row_id;
 					data_queue = curr_row.data;
@@ -223,6 +231,7 @@ module testbench();
 			begin
 				int i;
 				int j;
+				bit [7:0] pix_value;
 				byte c;
 				int s;
 				int cntr;
@@ -235,6 +244,7 @@ module testbench();
 				bit [3:0] user;
 				int byte_id;
 				int row_size;
+				bit [7:0] byte_stream[$];
 
 				int axi_received_stream_size;
 				data_row axi_received_stream[];
@@ -297,11 +307,11 @@ module testbench();
 						//
 						/////////////////////////////////////////////////////////
 						bclk_tready = 1'b1;
-//						if (cntr%8 == 0) begin
-//							bclk_tready = 1'b0;
-//						end else begin
-//							bclk_tready = 1'b1;
-//						end
+						//						if (cntr%8 == 0) begin
+						//							bclk_tready = 1'b0;
+						//						end else begin
+						//							bclk_tready = 1'b1;
+						//						end
 
 						// At EOF we are done
 						if (bclk_tuser[1] == 1'b1 && bclk_tvalid == 1'b1 && bclk_tready == 1'b1) begin
@@ -322,93 +332,70 @@ module testbench();
 
 				#1000ns;
 
-				///////////////////////////////////////////////////////
-				// Create predicted stream
-				////////////////////////////////////////////////////////
-				// If cropping disabled the ROI becomes the original image size
+
+					///////////////////////////////////////////////////////
+					// Create predicted stream
+					////////////////////////////////////////////////////////
+					// If cropping disabled the ROI becomes the original image size
 				if (aclk_x_crop_en == 0) begin
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
 				end
 
+
+				// Process each row
 				for (j=0;  j<Y_SIZE;  j++) begin
-					byte_id = 0;
-					pred_db = 0;
 					subs_cntr = 0;
 					for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
 						if (subs_cntr % (X_SCALING+1) == 0) begin
+							byte_stream.push_back(i);
+						end
+						subs_cntr++;
+					end
 
-							////////////////////////////////////////////////
-							// Data ramp
-							////////////////////////////////////////////////
-							pred_db[byte_id*8 +: 8] = i;
 
-							if (byte_id == 7) begin
-								//if (byte_id == 7 || (i == aclk_x_stop)) begin
+					// Process current row in forward scan
+					if (aclk_x_reverse == 1'b0) begin
+						byte_id = 0;
+						pred_db = 0;
+						while (byte_stream.size() > 0) begin
+							pix_value = byte_stream.pop_front();
+
+							pred_db[byte_id*8 +: 8] = pix_value;
+
+							if (byte_id == 7 || byte_stream.size() == 0) begin
 								pred_row_data.push_back(pred_db);
 								byte_id = 0;
 								pred_db = 0;
 							end else
 								byte_id++;
-						end
-						subs_cntr++;
 
-						// Corner case
-						if (i == aclk_x_stop && byte_id > 0) begin
-							pred_row_data.push_back(pred_db);
-							byte_id = 0;
-							pred_db = 0;
+
+						end
+					// Process current row in reverse scan
+					end	else begin
+						byte_id = 0;
+						pred_db = 0;
+						while (byte_stream.size() > 0) begin
+							pix_value = byte_stream.pop_back();
+
+							pred_db[byte_id*8 +: 8] = pix_value;
+
+							if (byte_id == 7 || byte_stream.size() == 0) begin
+								pred_row_data.push_back(pred_db);
+								byte_id = 0;
+								pred_db = 0;
+							end else
+								byte_id++;
+
 						end
 					end
+
 					pred_row.row_id = j;
 					pred_row.data = pred_row_data;
 					pred_row_data.delete();
-					//axi_predicted_stream.push_back(pred_row);
 					axi_predicted_stream[j] = pred_row;
 				end
-
-				// Line reversal
-				if (aclk_x_reverse == 1'b1) begin
-					for (j=0;  j<Y_SIZE;  j++) begin
-						pred_row = axi_predicted_stream[j];
-						pred_row_data = pred_row.data;
-						reverse_row_data.delete();
-						while (pred_row_data.size() > 0) begin
-							pred_db = pred_row_data.pop_front();
-							case (PIXEL_WIDTH)
-								// One byte per pixel (MONO)
-								1: begin
-									reverse_db[7:0] = pred_db[63:56];
-									reverse_db[15:8] = pred_db[55:48];
-									reverse_db[23:16] = pred_db[47:40];
-									reverse_db[31:24] = pred_db[39:32];
-									reverse_db[39:32] = pred_db[31:24];
-									reverse_db[47:40] = pred_db[23:16];
-									reverse_db[55:48] = pred_db[15:8];
-									reverse_db[63:56] = pred_db[7:0];
-								end
-								// Two bytes per pixel (YUV 4:2:2)
-								2: begin
-									reverse_db[15:0] = pred_db[63:48];
-									reverse_db[31:16] = pred_db[47:32];
-									reverse_db[47:32] = pred_db[31:16];
-									reverse_db[63:48] = pred_db[15:0];
-								end
-								// 4 bytes per pixel (RGBA)
-								4: begin
-									reverse_db[31:0] = pred_db[63:32];
-									reverse_db[63:32] = pred_db[31:0];
-								end
-								default: begin
-								end
-							endcase
-							reverse_row_data.push_front(reverse_db);
-						end
-						// Return the reverse row
-						axi_predicted_stream[j].data = reverse_row_data;
-					end
-				end
-
 
 				////////////////////////////////////////////////////////
 				// Validate results

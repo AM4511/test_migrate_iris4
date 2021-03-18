@@ -601,12 +601,14 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       -- Register file
       ---------------------------------------------------------------------------
-      aclk_pixel_width : in std_logic_vector(2 downto 0);
-      aclk_x_crop_en   : in std_logic;
-      aclk_x_start     : in std_logic_vector(12 downto 0);
-      aclk_x_size      : in std_logic_vector(12 downto 0);
-      aclk_x_scale     : in std_logic_vector(3 downto 0);
-      aclk_x_reverse   : in std_logic;
+      aclk_grab_queue_en : in std_logic;
+      aclk_load_context  : in std_logic_vector(1 downto 0);
+      aclk_pixel_width   : in std_logic_vector(2 downto 0);
+      aclk_x_crop_en     : in std_logic;
+      aclk_x_start       : in std_logic_vector(12 downto 0);
+      aclk_x_size        : in std_logic_vector(12 downto 0);
+      aclk_x_scale       : in std_logic_vector(3 downto 0);
+      aclk_x_reverse     : in std_logic;
 
       ---------------------------------------------------------------------------
       -- AXI Slave interface
@@ -1357,30 +1359,30 @@ begin
       NUMB_LINE_BUFFER => 2
       )
     port map(
-      aclk_pixel_width => "001",
-      aclk_x_crop_en   => regfile.DMA.ROI_X.ROI_EN,
-      aclk_x_start     => regfile.DMA.ROI_X.X_START,
-      aclk_x_size      => regfile.DMA.ROI_X.X_SIZE,
-      aclk_x_scale     => regfile.DMA.CSC.SUB_X,
-      aclk_x_reverse   => regfile.DMA.CSC.REVERSE_X,
-      aclk             => aclk,
-      aclk_reset_n     => aclk_reset_n,
-      aclk_tready      => lut_tready,
-      aclk_tvalid      => lut_tvalid,
-      aclk_tuser       => lut_tuser,
-      aclk_tlast       => lut_tlast,
-      aclk_tdata       => lut_tdata,
-      bclk             => aclk,
-      bclk_reset_n     => aclk_reset_n,
-      bclk_tready      => dma_tready,
-      bclk_tvalid      => dma_tvalid,
-      bclk_tuser       => dma_tuser,
-      bclk_tlast       => dma_tlast,
-      bclk_tdata       => dma_tdata
+      aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
+      aclk_load_context  => load_dma_context,
+      aclk_pixel_width   => "001",
+      aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
+      aclk_x_start       => regfile.DMA.ROI_X.X_START,
+      aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
+      aclk_x_scale       => regfile.DMA.CSC.SUB_X,
+      aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
+      aclk               => aclk,
+      aclk_reset_n       => aclk_reset_n,
+      aclk_tready        => lut_tready,
+      aclk_tvalid        => lut_tvalid,
+      aclk_tuser         => lut_tuser,
+      aclk_tlast         => lut_tlast,
+      aclk_tdata         => lut_tdata,
+      bclk               => aclk,
+      bclk_reset_n       => aclk_reset_n,
+      bclk_tready        => dma_tready,
+      bclk_tvalid        => dma_tvalid,
+      bclk_tuser         => dma_tuser,
+      bclk_tlast         => dma_tlast,
+      bclk_tdata         => dma_tdata
       );
 
-  -- tmp_valid <= '1' when (lut_tvalid = '1' and lut_tready = '1') else
-  --              '0';
 
   xdmawr2tlp : dmawr2tlp
     generic map(

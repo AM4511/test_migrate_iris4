@@ -38,12 +38,14 @@ entity x_trim is
     ---------------------------------------------------------------------------
     -- Register file
     ---------------------------------------------------------------------------
-    aclk_pixel_width : in std_logic_vector(2 downto 0);
-    aclk_x_crop_en   : in std_logic;
-    aclk_x_start     : in std_logic_vector(12 downto 0);
-    aclk_x_size      : in std_logic_vector(12 downto 0);
-    aclk_x_scale     : in std_logic_vector(3 downto 0);
-    aclk_x_reverse   : in std_logic;
+    aclk_grab_queue_en : in std_logic;
+    aclk_load_context  : in std_logic_vector(1 downto 0);
+    aclk_pixel_width   : in std_logic_vector(2 downto 0);
+    aclk_x_crop_en     : in std_logic;
+    aclk_x_start       : in std_logic_vector(12 downto 0);
+    aclk_x_size        : in std_logic_vector(12 downto 0);
+    aclk_x_scale       : in std_logic_vector(3 downto 0);
+    aclk_x_reverse     : in std_logic;
 
     ---------------------------------------------------------------------------
     -- AXI Slave interface
@@ -225,7 +227,29 @@ architecture rtl of x_trim is
   end component;
 
 
+  type STRM_CONTEXT_TYPE is record
+    pixel_width : std_logic_vector(2 downto 0);
+    x_crop_en   : std_logic;
+    x_start     : std_logic_vector(12 downto 0);
+    x_size      : std_logic_vector(12 downto 0);
+    x_scale     : std_logic_vector(3 downto 0);
+    x_reverse   : std_logic;
+  end record STRM_CONTEXT_TYPE;
+
+
+  constant INIT_STRM_CONTEXT_TYPE : STRM_CONTEXT_TYPE := (
+    pixel_width => (others => '0'),
+    x_crop_en   => '0',
+    x_start     => (others => '0'),
+    x_size      => (others => '0'),
+    x_scale     => (others => '0'),
+    x_reverse   => '0'
+    );
+
+
+
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
+
 
   constant WORD_PTR_WIDTH      : integer := 9;
   constant BUFF_PTR_WIDTH      : integer := 1;
@@ -238,6 +262,13 @@ architecture rtl of x_trim is
   -----------------------------------------------------------------------------
   -- ACLK clock domain
   -----------------------------------------------------------------------------
+  signal aclk_strm_context_in  : STRM_CONTEXT_TYPE;
+  signal aclk_strm_context_P0  : STRM_CONTEXT_TYPE;
+  signal aclk_strm_context_P1  : STRM_CONTEXT_TYPE;
+  signal aclk_strm             : STRM_CONTEXT_TYPE;
+  signal aclk_ld_strm_ctx      : std_logic_vector(1 downto 0);
+  signal aclk_ld_strm_ctx_FF1  : std_logic_vector(1 downto 0);
+  signal aclk_ld_strm_ctx_FF2  : std_logic_vector(1 downto 0);
   signal aclk_reset            : std_logic;
   signal aclk_state            : FSM_TYPE := S_IDLE;
   signal aclk_full             : std_logic;
@@ -326,6 +357,67 @@ begin
   aclk_tready <= aclk_tready_int;
 
 
+  -----------------------------------------------------------------------------
+  -- Remap stream context from registerfile
+  -----------------------------------------------------------------------------
+  aclk_strm_context_in.pixel_width <= aclk_pixel_width;
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;
+  aclk_strm_context_in.x_start     <= aclk_x_start;
+  aclk_strm_context_in.x_size      <= aclk_x_size;
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;
+
+
+  -----------------------------------------------------------------------------
+  -- Stream context management
+  --
+  -- Les contextes doivent etre loades sur le rising edge du signal. Il a été allongé 
+  -- a 4 clk sysclk ds le controlleur pour l'envoyer dans le domaine pclk.
+  -----------------------------------------------------------------------------
+  P_aclk_strm : process(aclk)
+  begin
+    if (rising_edge(aclk)) then
+      if (aclk_reset = '1')then
+        aclk_ld_strm_ctx_FF1 <= (others => '0');
+        aclk_ld_strm_ctx_FF2 <= (others => '0');
+        aclk_strm_context_P0 <= INIT_STRM_CONTEXT_TYPE;
+        aclk_strm_context_P1 <= INIT_STRM_CONTEXT_TYPE;
+        
+      else
+        aclk_ld_strm_ctx_FF1 <= aclk_load_context;
+        aclk_ld_strm_ctx_FF2 <= aclk_ld_strm_ctx_FF1;
+
+
+        -----------------------------------------------------------------------
+        -- On rising edge of aclk_load_context(0) store aclk_strm_context_in
+        -- in the pipelined version 0
+        -----------------------------------------------------------------------
+        if (aclk_ld_strm_ctx_FF2(0) = '0' and aclk_ld_strm_ctx_FF1(0) = '1') then
+          aclk_strm_context_P0 <= aclk_strm_context_in;
+        end if;
+
+
+        -----------------------------------------------------------------------
+        -- On rising edge of aclk_load_context(1) we shift the stream context
+        -- of pipeline 0 to pipeline 1.
+        -----------------------------------------------------------------------
+        if (aclk_ld_strm_ctx_FF2(1) = '0' and aclk_ld_strm_ctx_FF1(1) = '1') then
+          aclk_strm_context_P1 <= aclk_strm_context_P0;
+        end if;
+
+
+      end if;
+    end if;
+  end process;
+
+
+  -----------------------------------------------------------------------------
+  -- Stream context selection MUX
+  -----------------------------------------------------------------------------
+  aclk_strm <= aclk_strm_context_P1 when (aclk_grab_queue_en = '1') else
+               aclk_strm_context_in;
+
+
   aclk_tready_int <= '1' when (aclk_state = S_IDLE and aclk_full = '0') else
                      '1' when (aclk_state = S_WRITE) else
                      '0';
@@ -381,8 +473,8 @@ begin
   aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
                             '0';
 
-  
-  
+
+
 
   -----------------------------------------------------------------------------
   -- 
@@ -657,7 +749,7 @@ begin
               if (aclk_crop_packer_valid /= "00" or aclk_subs_empty = '0') then
                 aclk_state <= S_FLUSH;
               else
-                  aclk_state <= S_EOL;
+                aclk_state <= S_EOL;
               end if;
             end if;
 
@@ -666,7 +758,7 @@ begin
           -------------------------------------------------------------------
           when S_FLUSH =>
             if (aclk_crop_packer_valid = "00" and aclk_subs_empty = '1') then
-                aclk_state <= S_EOL;
+              aclk_state <= S_EOL;
 
             else
               aclk_state <= S_FLUSH;
