@@ -88,7 +88,7 @@ class Test0001 extends CTest;
 				//
 				//--------------------------------------------------
 				//super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
-				super.Vlib.GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				super.Vlib.GenImage_XGS(1);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				super.Vlib.XGS_imageSRC.load_image(XGS_Model);                  // Load le .pgm dans la class SystemVerilog
 
 

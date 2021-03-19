@@ -341,6 +341,7 @@ architecture struct of XGS_athena is
       hispi_eof                : out std_logic;
       hispi_ystart             : in  std_logic_vector(11 downto 0);
       hispi_ysize              : in  std_logic_vector(11 downto 0);
+      hispi_subY               : in  std_logic;
 
       ---------------------------------------------------------------------------
       -- Top HiSPI I/F
@@ -930,6 +931,7 @@ architecture struct of XGS_athena is
   signal hispi_ystart             : std_logic_vector(11 downto 0);
   signal hispi_yend               : std_logic_vector(11 downto 0);
   signal hispi_ysize              : std_logic_vector(11 downto 0);
+  signal hispi_ydiv2_en           : std_logic;
   signal hispi_xstart             : std_logic_vector(12 downto 0);
   signal hispi_xend               : std_logic_vector(12 downto 0);
   signal hispi_xsize              : std_logic_vector(12 downto 0);
@@ -1049,6 +1051,7 @@ begin
       hispi_eof                => hispi_eof,
       hispi_ystart             => hispi_ystart,
       hispi_ysize              => hispi_ysize,
+      hispi_subY               => hispi_subY,
       hispi_io_clk_p           => hispi_io_clk_p,
       hispi_io_clk_n           => hispi_io_clk_n,
       hispi_io_data_p          => hispi_io_data_p,
