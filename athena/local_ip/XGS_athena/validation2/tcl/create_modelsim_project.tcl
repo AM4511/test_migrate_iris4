@@ -87,6 +87,9 @@ ${DATA_SRC_PATH}/dpc/dpc_filter.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_kernel_proc_color.vhd \
 ${DATA_SRC_PATH}/dpc/dpc_filter_color.vhd \
 ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
+${DATA_SRC_PATH}/x_trim_subsampling.vhd \
+${DATA_SRC_PATH}/x_trim_streamout.vhd \
+${DATA_SRC_PATH}/x_trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \

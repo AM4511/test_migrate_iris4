@@ -17,6 +17,7 @@ struct DMAParamStruct
 	M_UINT32 LINE_PITCH;
 	M_UINT32 LINE_SIZE;
 	M_UINT32 Y_SIZE;
+	M_UINT32 Y_SUB;  //used in class for adress generation in sub Y
 	M_UINT32 REVERSE_Y;
 	M_UINT32 REVERSE_X;
 	M_UINT32 SUB_X;
@@ -60,7 +61,7 @@ public:
 	//Shadow registres  
 	FPGA_REGFILE_XGS_ATHENA_TYPE sXGSptr;
 
-	void set_DMA_revY(M_UINT32 REV_Y, M_UINT32 Y_SIZE);
+	void set_DMA_revY(M_UINT32 REV_Y, M_UINT32 Y_SIZE, M_UINT32 Y_SUB);
 	void set_DMA_revX(M_UINT32 REV_X);
 	void set_DMA_subX(M_UINT32 SUB_X);
 

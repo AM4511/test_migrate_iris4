@@ -31,15 +31,16 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "xparameters.h"
 #include "xil_types.h"
 #include "xstatus.h"
-#include "xil_testmem.h"
-
 #include "platform.h"
 #include "memory_config.h"
 #include "xil_printf.h"
 #include "xuartlite_l.h"
+#include "xil_testmem.h"
+//#include "mtx_testmem.h"
 
 /*
  * memory_test.c: Test memory ranges present in the Hardware Design.
@@ -54,7 +55,65 @@
 
 void putnum(unsigned int num);
 
-void test_memory_range(struct memory_range_s *range) {
+XStatus simple_test() {
+	XStatus status;
+	int j;
+	u32 size = 0x100000/4;
+	u32 *Addr = (u32*) 0x80000000;
+
+	// Initialize the platform
+	//init_platform();
+	disable_caches();
+	// Initialize the HyperRam memory controller
+
+	init_rpc2_ctrl();
+
+	xil_printf("Simple test\n\r", size);
+
+	j = 0;
+	while (1) {
+		xil_printf("Test loop : %d\n\r", j);
+		status = Xil_TestMem32(Addr, size, 0xAAAA5555, XIL_TESTMEM_ALLMEMTESTS);
+		if (status == XST_SUCCESS) {
+			print("Simple test: PASSED\n\r");
+		} else {
+			print("Simple test: FAILED\n\r");
+			return status;
+		}
+		j++;
+	}
+	return XST_SUCCESS;
+}
+
+void simple_test_2() {
+	XStatus status;
+	int j;
+	int good = 1;
+	u32 size = 0x1;
+	u32 *Addr = 0x80000000;
+	u32 word0;
+	u32 word1;
+	xil_printf("Simple test2\n\r", size);
+
+	// Initialize the platform
+	disable_caches();
+	init_rpc2_ctrl();
+
+	*(Addr) = 0xdeadbeef;
+	*(Addr + 1) = 0xcafefade;
+	j = 0;
+	while (good) {
+		word0 = *(Addr);
+		word1 = *(Addr + 1);
+		good = (word0 == 0xdeadbeef) ? ((word1 == 0xcafefade) ? 1 : 0) : 0;
+		j++;
+	}
+	xil_printf("Simple test2 failed at loop : %d\n\r", j);
+	xil_printf("Word 0 : 0x%x\n\r", word0);
+	xil_printf("Word 1 : 0x%x\n\r", word1);
+}
+
+XStatus test_memory_range(struct memory_range_s *range) {
 	XStatus status;
 
 	/* This application uses print statements instead of xil_printf/printf
@@ -85,78 +144,97 @@ void test_memory_range(struct memory_range_s *range) {
 	xil_printf("                 Size: 0x%lx bytes \n\r",range->size);
 #endif
 
-	u32 size =  0x100000;
+	u32 size = 0x100000;
 
+	xil_printf("          Tested Size: 0x%08lx bytes \n\r", size);
 
-	xil_printf("          Tested Size: 0x%08lx bytes \n\r",size);
+	status = Xil_TestMem32((u32*) range->base, size / 4, 0xAAAA5555,
+	XIL_TESTMEM_ALLMEMTESTS);
+	if (status == XST_SUCCESS) {
+		print("          32-bit test: PASSED\n\r");
+	} else {
+		print("          32-bit test: FAILED\n\r");
+		return status;
+	}
 
-	status = Xil_TestMem32((u32*) range->base, size/4, 0xAAAA5555,
-			XIL_TESTMEM_ALLMEMTESTS);
-	print("          32-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
-
-	status = Xil_TestMem16((u16*) range->base, size/2, 0xAA55,
-			XIL_TESTMEM_ALLMEMTESTS);
-	print("          16-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
+	status = Xil_TestMem16((u16*) range->base, size / 2, 0xAA55,
+	XIL_TESTMEM_ALLMEMTESTS);
+	if (status == XST_SUCCESS) {
+		print("          16-bit test: PASSED\n\r");
+	} else {
+		print("          16-bit test: FAILED\n\r");
+		return status;
+	}
 
 	status = Xil_TestMem8((u8*) range->base, size, 0xA5,
-			XIL_TESTMEM_ALLMEMTESTS);
-	print("           8-bit test: ");
-	print(status == XST_SUCCESS ? "PASSED!" : "FAILED!");
-	print("\n\r");
+	XIL_TESTMEM_ALLMEMTESTS);
+	if (status == XST_SUCCESS) {
+		print("           8-bit test: PASSED\n\r");
+	} else {
+		print("           8-bit test: FAILED\n\r");
+		return status;
+	}
+
+	return XST_SUCCESS;
 
 }
 
-int main() {
+int big_test() {
+	XStatus status;
 	int i;
 	int j;
 	char c;
 	// Initialize the platform
-	init_platform();
+	//init_platform();
+	disable_caches();
 
 	// Initialize the HyperRam memory controller
 	init_rpc2_ctrl();
 
-
 	// Clear the terminal
-    #define ASCII_ESC 27
-	xil_printf( "%c[2J%c[H", ASCII_ESC , ASCII_ESC );
+#define ASCII_ESC 27
+	xil_printf("%c[2J%c[H", ASCII_ESC, ASCII_ESC);
 
 	//Wait for user input to start the test
-	print("\r\nPlease press any key to start the HyperRam memory test application : ");
+	print(
+			"\r\nPlease press any key to start the HyperRam memory test application : ");
 	c = getchar();
 
 	print("\r\n\n--Starting HyperRam Memory Test Application--\n\r");
 	print("NOTE: This application runs with D-Cache disabled.\n\r");
 	print("As a result, cacheline requests will not be generated\n\r");
 
-	j=0;
-	while (j<1) {
+	j = 0;
+	while (1) {
 
-		 if (!XUartLite_IsReceiveEmpty (STDIN_BASEADDRESS))
-		 {
+		if (!XUartLite_IsReceiveEmpty(STDIN_BASEADDRESS)) {
 
-			    c = (char) XUartLite_RecvByte (STDIN_BASEADDRESS);
-				print("\n\n\n\tPaused. Press any key to restart\n\r");
-				c = getchar();
-		 }
+			c = (char) XUartLite_RecvByte(STDIN_BASEADDRESS);
+			print("\n\n\n\tPaused. Press any key to restart\n\r");
+			c = getchar();
+		}
 
 		xil_printf("\n\nTest loop : %d\n", j);
-
 		for (i = 0; i < n_memory_ranges; i++) {
-			test_memory_range(&memory_ranges[i]);
+			status = test_memory_range(&memory_ranges[i]);
+			if (status != XST_SUCCESS) {
+				get_rpc2_ctrl_status();
+				exit(1);
+			}
 		}
 		j++;
 	}
-	DWORD *reg_value = NULL;
-
+	//DWORD *reg_value = NULL;
 
 	get_rpc2_ctrl_status();
 	print("--Memory Test Application Complete--\n\r");
 
 	cleanup_platform();
 	return 0;
+}
+
+int main() {
+	//simple_test();
+	//simple_test_2();
+	big_test();
 }

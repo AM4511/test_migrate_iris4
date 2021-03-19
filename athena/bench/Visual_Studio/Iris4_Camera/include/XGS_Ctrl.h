@@ -145,11 +145,11 @@ public:
 
 	void SetGrabParams(unsigned long Throttling = 0);
 	M_UINT32 getExposure(void);
-	void setExposure(M_UINT32 exposure_ss_us);
+	void setExposure(M_UINT32 exposure_ss_us, M_UINT32 info = 1);
 	void setExposure_(M_UINT32 exposure_ss_us);
-	void setAnalogGain(M_UINT32 gain);
+	void setAnalogGain(M_UINT32 gain, M_UINT32 info = 1);
 	void setDigitalGain(M_UINT32 DigGain);
-	void setBlackRef(int value);
+	void setBlackRef(int value, M_UINT32 info = 1);
 	void SetGrabMode(TRIGGER_SRC TRIGGER_SOURCE, TRIGGER_ACT TRIGGER_ACTIVATION);
 	void EnableRegUpdate(void);
 	void DisableRegUpdate(void);

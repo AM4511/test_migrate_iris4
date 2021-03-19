@@ -24,10 +24,20 @@ int init_rpc2_ctrl(){
 		return XST_FAILURE;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////
 	// Set the MTR register (Latency = 6 clock cycles)
-	setHYPERBUSI_MTR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, BIT0, CS0_SEL);
+	//////////////////////////////////////////////////////////////////////////////
+	DWORD RCSHI = 0x2; // 3.5 clock cycles
+	DWORD WCSHI = 0x2; // 3.5 clock cycles
+	DWORD LTCY = 0x1;  // 6 clock latency
+
+	setHYPERBUSI_MTR_RCSHI(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, RCSHI, CS0_SEL);
+	setHYPERBUSI_MTR_WCSHI(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, WCSHI, CS0_SEL);
+	setHYPERBUSI_MTR_LTCY(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, LTCY, CS0_SEL);
+
+	//setHYPERBUSI_MTR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, BIT0, CS0_SEL);
 	getHYPERBUSI_MTR(XPAR_RPC2_CTRL_CONTROLLER_0_AXI_REG_BASEADDR, reg_value, CS0_SEL);
-	if(*reg_value != BIT0){
+	if(*reg_value != 0x22000001){
 		print("MTR register is not configured for Latency 6 clock cycles\n\r");
 		return XST_FAILURE;
 	}

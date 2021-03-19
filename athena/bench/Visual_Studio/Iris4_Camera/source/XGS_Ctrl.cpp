@@ -726,13 +726,13 @@ M_UINT32 CXGS_Ctrl::getExposure(void)
 //----------------------------------------------------
 //  setExposure : in ns  
 //----------------------------------------------------
-void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
+void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us, M_UINT32 info)
 {
 	
 
 	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
-		printf_s("Exposure set to %dus\n", exposure_ss_us);
+		if(info==1) printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
 	}
 	else {
@@ -758,20 +758,20 @@ void CXGS_Ctrl::setExposure_(M_UINT32 exposure_ss_us)
 //----------------------------------------------------
 //  setAnalogGain   
 //----------------------------------------------------
-void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
+void CXGS_Ctrl::setAnalogGain(M_UINT32 gain, M_UINT32 info)
 {
 
 	if (gain == 1) {
 		GrabParams.ANALOG_GAIN = 1;
-		printf_s("AnalogGain set to 1x\n");
+		if (info == 1) printf_s("AnalogGain set to 1x\n");
 	}
 	else if (gain == 2) {
 		GrabParams.ANALOG_GAIN = 3;
-		printf_s("AnalogGain set to 2x\n");
+		if (info == 1) printf_s("AnalogGain set to 2x\n");
 	}
 	else if (gain == 4) {
 		GrabParams.ANALOG_GAIN = 7;
-		printf_s("AnalogGain set to 4x\n");
+		if (info == 1) printf_s("AnalogGain set to 4x\n");
 	}
 
 
@@ -802,10 +802,10 @@ void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 //----------------------------------------------------
 //  setBalckRef
 //----------------------------------------------------
-void CXGS_Ctrl::setBlackRef(int value)
+void CXGS_Ctrl::setBlackRef(int value, M_UINT32 info)
 {
 	GrabParams.BLACK_OFFSET = value;
-	printf_s("Black Offset (Data Pedestal) set to 0x%X\n", value);
+	if (info == 1) printf_s("Black Offset (Data Pedestal) set to 0x%X\n", value);
 }
 
 //----------------------------------------------------

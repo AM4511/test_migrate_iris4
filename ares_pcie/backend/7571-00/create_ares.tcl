@@ -44,68 +44,69 @@ puts "Running ${myself}"
 #         Set cache line to 16 words
 #
 # 0.0.8 : Fixed user red led behavior(See JIRA : IRIS4-91)
-#         
+#         Refactored Vivado backend generation scripts
+#
+# 0.0.9 : Microblaze configuration :
+#             * Disabled unaligned data exception (See JIRA : MT-1274)
+#         axi_quad_spi: 
+#             * Set ext_spi_clk to 100MHz  (See JIRA : IRIS4-379)
+#             * Set timing constraints accordingly
+#
+# 0.1.0 : Modified backend scripts for handling Hyperram @142.875/166.667MHz
+#         Changed the ext_spi_clk source to the clk_100MHz input port (through a bufg)
+#
+# 0.1.1 : Changed espi_clk pin from K17 to L17 (We need to enter the positive pin of the clock)
+#             See Jira : https://jira.matrox.com:8443/browse/CADT01-1144
+#         Fixed ProdCons[0] write access issue 
+#             See JIRA : https://jira.matrox.com:8443/browse/IRIS4-430
 #
 # ################################################################
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     0
-set FPGA_SUB_MINOR_VERSION 8
-
-
-set BASE_NAME  ares_7571_00_a50t
-set DEVICE "xc7a50ticpg236-1L"
-set VIVADO_SHORT_VERSION [version -short]
-
-# #################################################################
-#  ARES FPGA_ID (FPGA DEVICE ID MAP) :
-# #################################################################
-# 0x00 Reserved
-# 0x01 Spartan6 LX9 fpga used on Y7449-00 (deprecated)
-# 0x02 Spartan6 LX16 fpga used on Y7449-01,02
-# 0x03 Artix7 A35T fpga used on Y7471-00 (deprecated)
-# 0x04 Artix7 A50T fpga used on Y7471-01
-# 0x05 Artix7 A50T fpga used on Y7471-02
-# 0x06 Artix7 A50T fpga used on Y7449-03
-# 0x07 Artix7 Spider PCIe on Advanced IO board
-# 0x08 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-00)
-# 0x09 Artix7 Ares PCIe (Iris3 Spider+Profiblaze on Y7478-01)
-# 0x0A:0x0F   Reserved
-# 0x10 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-[00,01]
-# 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
-# 0x12 Iris GTX, Artix7 Ares PCIe, Artix7 A35T on Y7571-02
-# 0x13 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-02
-set FPGA_ID 17; # 0x11 Iris GTX, Artix7 Ares PCIe, Artix7 A50T on Y7571-[00,01]
-
-set FPGA_GOLDEN     "false"
-
-
-set WORKDIR      $env(IRIS4)/ares_pcie
-set IPCORES_DIR  ${WORKDIR}/ipcores
-set LOCAL_IP_DIR ${WORKDIR}/local_ip
-set VIVADO_DIR   D:/vivado
-set BACKEND_DIR  ${WORKDIR}/backend/7571-00
-set TCL_DIR      ${BACKEND_DIR}
-set SYSTEM_DIR   ${BACKEND_DIR}
-
-set SRC_DIR            ${WORKDIR}/design
-set REG_DIR            ${WORKDIR}/registerfile
-set XDC_DIR            ${BACKEND_DIR}
-
-set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
-set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
-set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-#set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_pcie_hyperram_hr142MHZ.tcl
-set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
-
+set FPGA_MINOR_VERSION     1
+set FPGA_SUB_MINOR_VERSION 1
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
 set JOB_COUNT  4
 
+set VIVADO_SHORT_VERSION [version -short]
+
+# Directory structure
+set SRC_DIR            ${WORKDIR}/design
+set REG_DIR            ${WORKDIR}/registerfile
+set IPCORES_DIR        ${WORKDIR}/ipcores
+set LOCAL_IP_DIR       ${WORKDIR}/local_ip
+set XDC_DIR            ${BACKEND_DIR}
+set TCL_DIR            ${BACKEND_DIR}
+set SYSTEM_DIR         ${BACKEND_DIR}
+set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+
+
+set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
+set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
+set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
+set ELF_FILE           ${WORKDIR}/sdk/workspace/memtest/Debug/memtest.elf
+
+
+set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
+
+
+###################################################################################
+# Set the Vivado working directory
+###################################################################################
+if { [info exists ::env(VIVADO_DIR)] } {
+  set VIVADO_DIR $env(VIVADO_DIR)/${FPGA_FULL_VERSION}
+} else {
+  set VIVADO_DIR D:/vivado/${FPGA_FULL_VERSION}
+}
+puts "Setting VIVADO_DIR = ${VIVADO_DIR}"
 
 
 
+if {${DEBUG} == 1} {
+  set NO_REPORT  1
+  set NO_ARCHIVE 1
+}
 
 ###################################################################################
 # Define the builID using the Unix epoch (time in seconds since midnight 1/1/1970)
@@ -115,13 +116,13 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 puts "BUILD DATE =  ${BUILD_TIME}  ($HEX_BUILD_DATE)"
 
-set PROJECT_NAME ${BASE_NAME}_${HEX_BUILD_DATE}
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
-set PCB_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.board_level
-set SDK_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.sdk
-set RUN_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.runs
-set XPR_DIR      ${PROJECT_DIR}/${PROJECT_NAME}.xpr
-				 
+set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
+set PROJECT_DIR ${VIVADO_DIR}/${PROJECT_NAME}
+set PCB_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.board_level
+set SDK_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.sdk
+set RUN_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.runs
+set XPR_DIR     ${PROJECT_DIR}/${PROJECT_NAME}.xpr
+
 ###################################################################################
 # Create the project directories
 ###################################################################################
@@ -150,7 +151,8 @@ update_ip_catalog
 ################################################
 # Generate IP-Integrator system
 ################################################
-set HDL_FILESET [get_filesets sources_1]
+set HDL_FILESET         [get_filesets sources_1]
+set SIM_FILE_SET        [get_fileset sim_1]
 set CONSTRAINTS_FILESET [get_filesets constrs_1]
 
 
@@ -170,6 +172,19 @@ set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 export_ip_user_files -of_objects ${BD_FILE} -no_script -sync -force
 
+################################################
+# Associate .elf file
+################################################
+if {[file exists ${ELF_FILE}]} {
+   add_files -fileset ${HDL_FILESET} -norecurse ${ELF_FILE}
+   set_property used_in_simulation false [get_files ${ELF_FILE}]
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${HDL_FILESET} ${ELF_FILE}]
+   
+   add_files -fileset ${SIM_FILE_SET}  -norecurse ${ELF_FILE}
+   set_property SCOPED_TO_REF ares_pb [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+   set_property SCOPED_TO_CELLS { microblaze_0 } [get_files -all -of_objects ${SIM_FILE_SET} ${ELF_FILE}]
+}
 
 ################################################
 # Add project files (HDL, Constraints, IP, etc)
@@ -180,7 +195,7 @@ source ${FILESET_SCRIPT}
 # Top level Generics
 ################################################
 set generic_list [list    \
-GOLDEN=${FPGA_GOLDEN}     \
+GOLDEN=${FPGA_IS_NPI_GOLDEN}     \
 BUILD_ID=${FPGA_BUILD_DATE} \
 FPGA_ID=${FPGA_ID}        \
 FPGA_MAJOR_VERSION=${FPGA_MAJOR_VERSION} \
@@ -212,10 +227,16 @@ wait_on_run ${SYNTH_RUN}
 # Generate implementation run
 ################################################
 current_run [get_runs $IMPL_RUN]
-set_property strategy Performance_ExtraTimingOpt [get_runs $IMPL_RUN]
+set_property strategy Performance_ExplorePostRoutePhysOpt [get_runs $IMPL_RUN]
+
 set_msg_config -id {Vivado 12-1790} -new_severity {WARNING}
 launch_runs ${IMPL_RUN} -to_step write_bitstream -jobs ${JOB_COUNT}
 wait_on_run ${IMPL_RUN}
+
+################################################
+# Run archive script
+################################################
+set TOTAL_SETUP_NEGATIVE_SLACK [get_property  STATS.TNS [get_runs $IMPL_RUN]]
 
 
 ################################################
@@ -256,18 +277,25 @@ if { [file exists $SYSDEF_FILE] } {
 
 
 ################################################
-# Run Backend script
+# Run report
 ################################################
+if {![info exists NO_REPORT]} {
 source  $REPORT_FILE
+}
 
+
+################################################
+# Archive project on the matrox network
+################################################
+if {![info exists NO_ARCHIVE]} {
 set route_status [get_property  STATUS [get_runs $IMPL_RUN]]
 if [string match "route_design Complete, Failed Timing!" $route_status] {
      puts "** Timing error. You have to source $ARCHIVE_SCRIPT manually"
 } elseif [string match "write_bitstream Complete!" $route_status] {
-	 puts "** Write_bitstream Complete. Generating image"
+   	 puts "** Write_bitstream Completed. Archiving files"
  	 source  $ARCHIVE_SCRIPT
 } else {
 	 puts "** Run status: $route_status. Unknown status"
- }
-
+}
+}
 puts "** Done."

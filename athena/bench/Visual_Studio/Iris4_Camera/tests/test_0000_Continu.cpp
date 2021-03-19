@@ -96,7 +96,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	// Init Display with correct X-Y parameters 
 	if (SensorParams->IS_COLOR == 0) {
-	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full_valid, MonoType);
+	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 	  LUT_PATTERN = 0;
 	}
 	else{
@@ -146,8 +146,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
 	}
 
-
-
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
@@ -170,14 +168,15 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->ROI_X_EN   = 1;
 	DMAParams->X_START    = SensorParams->Xstart_valid;      // To remove interpolation pixels
 	DMAParams->X_SIZE     = SensorParams->Xsize_Full_valid;
-	
-	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
 
 	DMAParams->SUB_X      = 0;
 	DMAParams->REVERSE_X  = 0;
 	DMAParams->REVERSE_Y  = 0;
+
+	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
+	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
+	DMAParams->LINE_SIZE  = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+
 
 
 	//Transparent LUTs
@@ -270,12 +269,14 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (-) Decrease Exposure");
 	printf_s("\n  (p) Pause grab");
 	printf_s("\n  (t) XGS test images");
-	printf_s("\n  (r) Read current ROI configuration in XGS");
+	printf_s("\n");
+	printf_s("\n  (r) Read current ROI configuration");
 	printf_s("\n  (y) Set new ROI (Y-only)");
 	printf_s("\n  (x) Set new ROI (X-only)");
 	printf_s("\n  (E) FPGA Reverse X");
 	printf_s("\n  (R) FPGA Reverse Y");
 	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n");
 	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
 	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf_s("\n  (l) Program LUT");
@@ -480,18 +481,27 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'r':
-				Sleep(1000);
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
 				XGS_Ctrl->DisableRegUpdate();
 				Sleep(100);
-
-				printf_s("\nX start is 0x%x (%d dec)\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_START, XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_START);
-				printf_s("X size  is 0x%x (%d dec)\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_SIZE, XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_SIZE);
-
-				printf_s("Y start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a) * 4);
-				printf_s("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c) * 4);
-				printf_s("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e) * 4);
-				printf_s("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf_s("\n\n");
+				printf_s("Rev X is %d\n",        XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_X);
+				printf_s("Rev Y is %d\n",        XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_Y);
+				printf_s("\n");
+				printf_s("Sub X is %d\n",        XGS_Ctrl->rXGSptr.DMA.CSC.f.SUB_X);
+				printf_s("Sub Y is %d\n",        XGS_Ctrl->rXGSptr.ACQ.SENSOR_SUBSAMPLING.f.ACTIVE_SUBSAMPLING_Y);
+				printf_s("\n");
+				printf_s("X start is %d dec\n",  XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_START-SensorParams->Xstart_valid);
+				printf_s("X size  is %d dec\n",  XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_SIZE);
+				printf_s("\n");
+				printf_s("Y start0 is %d dec\n", XGS_Ctrl->ReadSPI(0x381a)*4 - SensorParams->Ystart_valid);
+				printf_s("Y size0  is %d dec\n", XGS_Ctrl->ReadSPI(0x381c) * 4);
+				printf_s("Y start1 is %d dec\n", XGS_Ctrl->ReadSPI(0x381e)*4 - SensorParams->Ystart_valid);
+				printf_s("Y size1  is %d dec\n", XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf_s("\n");
 				printf_s("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH * 16);
+				printf_s("\n"); 
 				Sleep(100);
 				XGS_Ctrl->EnableRegUpdate();
 				break;
@@ -514,12 +524,16 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'x':
-				printf_s("\n\nEnter the new Size X (1-based) (Current is: %d), max is %d : ", DMAParams->X_SIZE, SensorParams->Xsize_Full_valid);
-				scanf_s("%d", &XGSSize_X);
-				printf_s("\nEnter the new Offset X (1-based) (Current is: %d) : ", DMAParams->X_START - SensorParams->Ystart_valid);
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				printf_s("\n\nEnter the new Offset X (1-based) (Current is: %d) : ", DMAParams->X_START - SensorParams->Ystart_valid);
 				scanf_s("%d", &XGSStart_X);
-				DMAParams->X_START = SensorParams->Xstart_valid + XGSStart_X;
-				DMAParams->X_SIZE  = XGSSize_X;
+				printf_s("\nEnter the new Size X (1-based) (Current is: %d), max is %d : ", DMAParams->X_SIZE, SensorParams->Xsize_Full_valid);
+				scanf_s("%d", &XGSSize_X);
+				DMAParams->X_START   = SensorParams->Xstart_valid + XGSStart_X;
+				DMAParams->X_SIZE    = XGSSize_X;
+				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+
 				MbufClear(MilGrabBuffer, 0);
 				break;
 
@@ -535,7 +549,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				// We dont use SUB_X in sensor, no fps advantages , and noise is increased!
 				// Using DMA subsampling 0(none) to 15 factor
 				DMAParams->SUB_X     = SubX;
-				DMAParams->LINE_SIZE = SensorParams->Xsize_Full / (SubX + 1);
+				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 
 				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
 				if(SubY== 1)
@@ -663,9 +677,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 
 				if(XGS_Data->DMAParams.REVERSE_Y==1)
-				  XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE);
+				  XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
 				else
-				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE);
+				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
 				  
 				break;
 

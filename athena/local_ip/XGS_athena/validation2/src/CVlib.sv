@@ -34,7 +34,7 @@ class CVlib;
 	parameter CSC_OFFSET            = 'h098;
 	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
 	parameter ROI_X_OFFSET          = 'h0B0;
-	
+
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
 	parameter READOUT_CFG3_OFFSET       = 'h0120;
@@ -53,7 +53,7 @@ class CVlib;
 	parameter HISPI_CTRL_OFFSET            = 'h0400;
 	parameter HISPI_IDLE_CHARACTER_OFFSET  = 'h040C;
 	parameter HISPI_PHY_OFFSET             = 'h0410;
-	parameter FRAME_CFG_OFFSET             = 'h0414;	
+	parameter FRAME_CFG_OFFSET             = 'h0414;
 	parameter FRAME_CFG_X_VALID_OFFSET     = 'h0418;
 	parameter HISPI_DEBUG_OFFSET           = 'h0460;
 
@@ -71,11 +71,11 @@ class CVlib;
     // DPC
     parameter DPC_CAPABILITIES             = 16'h480;
 	parameter DPC_LIST_CTRL                = 16'h484;
-    parameter DPC_LIST_STAT                = 16'h488; 
-    parameter DPC_LIST_DATA1               = 16'h48c; 
-    parameter DPC_LIST_DATA2               = 16'h490; 
-    parameter DPC_LIST_DATA1_RD            = 16'h494;    
-    parameter DPC_LIST_DATA2_RD            = 16'h498;     
+    parameter DPC_LIST_STAT                = 16'h488;
+    parameter DPC_LIST_DATA1               = 16'h48c;
+    parameter DPC_LIST_DATA2               = 16'h490;
+    parameter DPC_LIST_DATA1_RD            = 16'h494;
+    parameter DPC_LIST_DATA2_RD            = 16'h498;
 
     // WB
     parameter WB_MUL1                      = 16'h4c4;
@@ -89,45 +89,45 @@ class CVlib;
 	parameter LUT_RB                       = 16'h4B8;
 
 	// I2C
-	parameter I2C_ID_OFFSET                = 32'h00010000;	
-	parameter I2C_CTRL0_OFFSET             = 32'h00010008;	
-	parameter I2C_CTRL1_OFFSET             = 32'h00010010;	
-	parameter I2C_SEMAPHORE_OFFSET         = 32'h00010018;	
+	parameter I2C_ID_OFFSET                = 32'h00010000;
+	parameter I2C_CTRL0_OFFSET             = 32'h00010008;
+	parameter I2C_CTRL1_OFFSET             = 32'h00010010;
+	parameter I2C_SEMAPHORE_OFFSET         = 32'h00010018;
 
 	/////////////////////////////
-	// XGS Sensor parameter 
+	// XGS Sensor parameter
 	/////////////////////////////
-    int P_MODEL_ID;       
-    int P_REV_ID ;        
-    int P_NUM_LANES;      
+    int P_MODEL_ID;
+    int P_REV_ID ;
+    int P_NUM_LANES;
     int P_PXL_PER_COLRAM ;
-    int P_PXL_ARRAY_ROWS; 
+    int P_PXL_ARRAY_ROWS;
 
-    int P_INTERPOLATION;  
-    int P_LEFT_DUMMY_0;   
-    int P_LEFT_BLACKREF;  
-    int P_LEFT_DUMMY_1;   
-    int P_ROI_WIDTH;  
-    int P_RIGHT_DUMMY_0;  
-    int P_RIGHT_BLACKREF; 
-    int P_RIGHT_DUMMY_1;  
+    int P_INTERPOLATION;
+    int P_LEFT_DUMMY_0;
+    int P_LEFT_BLACKREF;
+    int P_LEFT_DUMMY_1;
+    int P_ROI_WIDTH;
+    int P_RIGHT_DUMMY_0;
+    int P_RIGHT_BLACKREF;
+    int P_RIGHT_DUMMY_1;
 
-    int P_TOP_DUMMY;      
-    int P_BOTTOM_DUMMY_0; 
+    int P_TOP_DUMMY;
+    int P_BOTTOM_DUMMY_0;
     int P_BOTTOM_BLACKREF;
-    int P_BOTTOM_DUMMY_1; 
-    int P_LINE_PTR_WIDTH; 
+    int P_BOTTOM_DUMMY_1;
+    int P_LINE_PTR_WIDTH;
 
     int MODEL_X_START;
-    int MODEL_X_END; 
-   
-	int DPC_list_count = 0;	
+    int MODEL_X_END;
 
-    int bayer = 0; 
+	int DPC_list_count = 0;
+
+    int bayer = 0;
 
 
     /////////////////////////////
-	// DMA parameter 
+	// DMA parameter
 	/////////////////////////////
     longint fstart;
 	int line_pitch;
@@ -135,14 +135,14 @@ class CVlib;
 	int output_buffer_value;
 
     /////////////////////////////
-	// ctrl parameter 
+	// ctrl parameter
 	/////////////////////////////
     int line_time;
 	real xgs_ctrl_period;
 
 
     Cstatus TestStatus;
-    Cdriver_axil host; 
+    Cdriver_axil host;
     virtual axi_stream_interface tx_axis_if;
 
     CImage XGS_imageSRC;
@@ -151,7 +151,7 @@ class CVlib;
 
 
     function new( Cdriver_axil host, Cstatus TestStatus, virtual axi_stream_interface tx_axis_if);
-        
+
         this.host          = host;
 		this.tx_axis_if    = tx_axis_if;
         this.TestStatus    = TestStatus;
@@ -164,25 +164,25 @@ class CVlib;
     endfunction
 
 
-    
+
     //---------------------------------------
     //  Load XGS CONFIGURATION
     //---------------------------------------
     task setXGS_sensor(int sensor_type);
-    
+
 		if(sensor_type==5000) begin
           $display("XGS Sensor is XGS5000");
-          
+
 		  //Choose XGS 5000 in system top fro SIM
 		  host.set_output_io (0, 0);
 		  host.set_output_io (1, 0);
-		  
+
 		  P_MODEL_ID       =  16'h0358;
 		  P_REV_ID         =  16'h0000;
 		  P_NUM_LANES      =  4;
 		  P_PXL_PER_COLRAM =  174;
 		  P_PXL_ARRAY_ROWS =  2078;
-		  
+
 		  P_INTERPOLATION  =  4;
 		  P_LEFT_DUMMY_0   =  50;
 		  P_LEFT_BLACKREF  =  34;
@@ -191,14 +191,14 @@ class CVlib;
 		  P_RIGHT_DUMMY_0  =  4;
 		  P_RIGHT_BLACKREF =  42;
 		  P_RIGHT_DUMMY_1  =  50;
-		  
+
 		  P_TOP_DUMMY       =  7;
 		  P_BOTTOM_DUMMY_0  =  4;
 		  P_BOTTOM_BLACKREF =  8;
 		  P_BOTTOM_DUMMY_1  =  3;
 		  P_LINE_PTR_WIDTH  =  2;
-        end else 
-		if(sensor_type==12000) begin	     
+        end else
+		if(sensor_type==12000) begin
           $display("XGS Sensor is XGS12000");
 
 		  //Choose XGS 12000 in system top fro SIM
@@ -210,7 +210,7 @@ class CVlib;
 		  P_NUM_LANES      =  6;
 		  P_PXL_PER_COLRAM =  174;
 		  P_PXL_ARRAY_ROWS =  3102;
-		 
+
           P_INTERPOLATION  =  4;
 		  P_LEFT_DUMMY_0   =  4;
 		  P_LEFT_BLACKREF  =  24;
@@ -219,16 +219,16 @@ class CVlib;
 		  P_RIGHT_DUMMY_0  =  4;
 		  P_RIGHT_BLACKREF =  24;
 		  P_RIGHT_DUMMY_1  =  4;
-		 
+
           P_TOP_DUMMY       =  7;
 		  P_BOTTOM_DUMMY_0  =  4;
 		  P_BOTTOM_BLACKREF =  24;
 		  P_BOTTOM_DUMMY_1  =  3;
 		  P_LINE_PTR_WIDTH  =  2;
-        end else 
-		if(sensor_type==16000) begin	     
+        end else
+		if(sensor_type==16000) begin
           $display("XGS Sensor is XGS16000");
-		  
+
 		  //Choose XGS 16000 in system top fro SIM
 		  host.set_output_io (0, 0);
 		  host.set_output_io (1, 1);
@@ -238,7 +238,7 @@ class CVlib;
 		  P_NUM_LANES      =  6;
 		  P_PXL_PER_COLRAM =  174;
 		  P_PXL_ARRAY_ROWS =  4030;
-		 
+
           P_INTERPOLATION  =  4;
 		  P_LEFT_DUMMY_0   =  4;
 		  P_LEFT_BLACKREF  =  24;
@@ -247,7 +247,7 @@ class CVlib;
 		  P_RIGHT_DUMMY_0  =  52;
 		  P_RIGHT_BLACKREF =  32;
 		  P_RIGHT_DUMMY_1  =  4;
-		 
+
           P_TOP_DUMMY       =  7;
 		  P_BOTTOM_DUMMY_0  =  4;
 		  P_BOTTOM_BLACKREF =  8;
@@ -264,7 +264,7 @@ class CVlib;
     //  DMA PARAMS
     //---------------------------------------
     task setDMA(longint fstart, int line_pitch, int line_size, int REV_Y, int ROI_Y_SIZE);
-   
+
       if(REV_Y==1) begin
 		this.fstart     = fstart + (ROI_Y_SIZE-1)*line_pitch;  //set rev-y add
 	  end else begin
@@ -274,7 +274,7 @@ class CVlib;
 	  this.line_pitch = line_pitch;
 	  //this.line_size  = P_ROI_WIDTH;
 	  this.line_size  = line_size;
-	  
+
 	  // DMA Grab queue enable!
      host.write(CTRL, 1);
 
@@ -314,10 +314,10 @@ class CVlib;
         int axi_strb;
         int axi_poll_mask;
 		int axi_expected_value;
-      
+
         int monitor_0_reg;
         int monitor_1_reg;
-        int monitor_2_reg;	  
+        int monitor_2_reg;
 
 
 		// XGS Controller wakes up sensor
@@ -384,7 +384,7 @@ class CVlib;
 		// XGS_WriteSPI(16'h3e28,16'h2527);                     //mux 4:2
 		$display("  4.5 SPI write XGS HiSPI control common register @0x%h", SPI_HISPI_CONTROL_COMMON_REG);
 		XGS_WriteSPI(SPI_HISPI_CONTROL_COMMON_REG,16'h2537);    //mux 4:1
-				
+
 		// XGS model : Set line time (for 6 lanes)
 		$display("  4.7 SPI write XGS set line time @0x%h", SPI_LINE_TIME_REG);
 		line_time = 'h02dc;                              // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
@@ -413,16 +413,16 @@ class CVlib;
 	// Task : GenImage_XGS
 	////////////////////////////////////////////////////////////////
 	task automatic GenImage_XGS(input int ImgPattern);
-		//super.super.xgs_model_GenImage = 1'b0;      
-		XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG, ImgPattern);		
-		host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!  
+		//super.super.xgs_model_GenImage = 1'b0;
+		XGS_WriteSPI(SPI_TEST_PATTERN_MODE_REG, ImgPattern);
+		host.poll(BAR_XGS_ATHENA + 'h00000168, 0, (1<<16), .polling_period(1us));  // attendre la fin de l'ecriture au registre XGS via SPI!
 		#1ns;
 		XGS_WriteSPI(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
-		#10us;		
+		#10us;
 		XGS_WriteSPI(8, 16'h0000);
-		#50us;	
-	endtask : GenImage_XGS	
-	
+		#50us;
+	endtask : GenImage_XGS
+
 
 
 
@@ -530,7 +530,7 @@ class CVlib;
 		$display("  5.7 Write SENSOR_GAIN_ANA register @0x%h", SENSOR_GAIN_ANA_OFFSET);
 		host.write(SENSOR_GAIN_ANA_OFFSET, 2<<8);
 
-    endtask : setXGScontroller				
+    endtask : setXGScontroller
 
 
 
@@ -541,7 +541,7 @@ class CVlib;
 
 		bit [31:0] manual_calib;
         bit [31:0] register_data;
-				
+
 		// PROGRAM XGS HiSPi interface
 		$display("6. Configure the XGS_athena IP-Core HiSPi section");
 
@@ -560,12 +560,12 @@ class CVlib;
 		register_data = 0;
 		register_data[25:16] =  P_PXL_PER_COLRAM;
 		register_data[2:0]   =  P_NUM_LANES;
-		
+
 		host.write(HISPI_PHY_OFFSET, register_data);
 
 		$display("  6.4 Write FRAME_CFG register @0x%h", FRAME_CFG_OFFSET);
 		host.write(FRAME_CFG_OFFSET, 'h0c1e1050); // Pour XGS12M
-		
+
 		// XGS HiSPi : DEBUG Enable manual calibration
 		$display("  6.5 Write DEBUG register @0x%h", HISPI_DEBUG_OFFSET);
 		manual_calib[4:0] = 5'b10101; // TAP lane 0
@@ -594,7 +594,7 @@ class CVlib;
 		$display("  6.7 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
 		host.write(HISPI_CTRL_OFFSET, 'h4607);
 
- 	endtask : 	setHISPI		
+ 	endtask : 	setHISPI
 
     //---------------------------------------
     //  setHISPI_X_window X Origine
@@ -604,36 +604,36 @@ class CVlib;
 		///////////////////////////////////////////////////
 		// Program X Origin of valid data, in HiSPI
 		///////////////////////////////////////////////////
-		// X origin 
+		// X origin
 		//MODEL_X_START  = 32;                    // 32, est non centre.  36 est le origine pour une image de 4096 pixels centree.
-		//MODEL_X_END    = MODEL_X_START+4096-1;  
-		
-		//Image centree max 4096             			
+		//MODEL_X_END    = MODEL_X_START+4096-1;
+
+		//Image centree max 4096
 		//MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
-		//MODEL_X_END    = MODEL_X_START+P_ROI_WIDTH-1;              			
-	    
+		//MODEL_X_END    = MODEL_X_START+P_ROI_WIDTH-1;
+
 		if (Interpolation==0) begin
 		  //Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
 		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
-		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;              			
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;
 		end else begin
 		  //Image qui part a 0,  avec tous les pixels interpolation(x8)
 		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
-		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;              			
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;
 		end
 		reg_value = (MODEL_X_END<<16) + MODEL_X_START;
-		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);	
-	
+		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);
+
 	endtask : 	setHISPI_X_window
 
 
- 
+
 
 
     //---------------------------------------
     //  testI2Csemaphore
     //---------------------------------------
-    task testI2Csemaphore();		
+    task testI2Csemaphore();
 		bit [31:0] axi_read_data;
 		$display("7. Test I2C semaphore read register");
 		host.write(I2C_SEMAPHORE_OFFSET, 1);
@@ -647,7 +647,7 @@ class CVlib;
 		host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
 		host.read(I2C_SEMAPHORE_OFFSET, axi_read_data);
     endtask : testI2Csemaphore
- 	 
+
 
 
 
@@ -655,7 +655,7 @@ class CVlib;
     //---------------------------------------
     //  SET Y ROI IN IMG
     //---------------------------------------
-    task Set_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);		
+    task Set_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);
         host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START);
 		host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE);
     endtask : Set_Y_ROI
@@ -663,16 +663,16 @@ class CVlib;
     //---------------------------------------
     //  SET SUBSAMPLING MODE
     //---------------------------------------
-    task Set_SUB(input int SUB_X, input int SUB_Y);		
+    task Set_SUB(input int SUB_X, input int SUB_Y);
 		bit [31:0] reg_value;
 
 	    // SENSOR SUB Y
         host.write(SENSOR_SUBSAMPLING_OFFSET, ((SUB_Y<<3) + 0) );  //sub X is always 0
-        
+
 		// FPGA SUB X
-		host.read(CSC_OFFSET, reg_value);  
+		host.read(CSC_OFFSET, reg_value);
 		reg_value = reg_value | (SUB_X<<10) ;
-		host.write(CSC_OFFSET, reg_value); 
+		host.write(CSC_OFFSET, reg_value);
 
 	endtask : 	Set_SUB
 
@@ -680,13 +680,13 @@ class CVlib;
     //---------------------------------------
     //  SET_REV_X
     //---------------------------------------
-    task Set_REV_X(input int REV_X);		
+    task Set_REV_X(input int REV_X);
 		bit [31:0] reg_value;
 
 		// FPGA REV X
-		host.read(CSC_OFFSET, reg_value);  
+		host.read(CSC_OFFSET, reg_value);
 		reg_value = reg_value | (REV_X<<8) ;
-		host.write(CSC_OFFSET, reg_value); 
+		host.write(CSC_OFFSET, reg_value);
 
 	endtask : 	Set_REV_X
 
@@ -694,44 +694,45 @@ class CVlib;
     //---------------------------------------
     //  SET_REV_Y
     //---------------------------------------
-    task Set_REV_Y(input int REV_Y);		
+    task Set_REV_Y(input int REV_Y);
 		bit [31:0] reg_value;
 
 		// FPGA Rev Y
-		host.read(CSC_OFFSET, reg_value);  
+		host.read(CSC_OFFSET, reg_value);
 		reg_value = reg_value | (REV_Y<<9) ;
-		host.write(CSC_OFFSET, reg_value); 
+		host.write(CSC_OFFSET, reg_value);
 
 	endtask : 	Set_REV_Y
 
     //---------------------------------------
     //  SET ROI X
     //---------------------------------------
-    task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);     
-		host.write(ROI_X_OFFSET, (ROI_X_END<<16)+ ROI_X_START); 
+//	task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);
+	task Set_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
+		host.write(ROI_X_OFFSET, (ROI_EN<<31) + (ROI_X_SIZE<<16)+ ROI_X_START);
 	endtask : 	Set_X_ROI
 
     //---------------------------------------
     //  SET EXPOSURE
     //---------------------------------------
-    task Set_EXPOSURE(input int EXPOSURE);		
-        host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0)); 
-    endtask : Set_EXPOSURE 				
-				  
+    task Set_EXPOSURE(input int EXPOSURE);
+        host.write(EXP_CTRL1_OFFSET, EXPOSURE * (1000.0 /16.0));
+    endtask : Set_EXPOSURE
+
 
     //---------------------------------------
     //  SET GRAB MODE
     //---------------------------------------
-	task Set_Grab_Mode(input int TRIG_SRC, input int TRIG_ACT);		
+	task Set_Grab_Mode(input int TRIG_SRC, input int TRIG_ACT);
         host.write(GRAB_CTRL_OFFSET, (1<<15)+(TRIG_ACT<<12)+(TRIG_SRC<<8));   //overlap=1
-    endtask : Set_Grab_Mode 		
-	
+    endtask : Set_Grab_Mode
+
 
     //---------------------------------------
     //  GRAB CMD
     //---------------------------------------
-	task Grab_CMD();		
-        int data;		
+	task Grab_CMD();
+        int data;
 		host.read(GRAB_CTRL_OFFSET, data);  //read current register
 		data = data | 1;
 		host.write(GRAB_CTRL_OFFSET, data); // write grab cmd snapshot
@@ -740,8 +741,8 @@ class CVlib;
 	//---------------------------------------
     //  SW_SNAPSHOP
     //---------------------------------------
-    task Grab_SW_SNAPSHOT();		
-        int data;		
+    task Grab_SW_SNAPSHOT();
+        int data;
 		host.read(GRAB_CTRL_OFFSET, data);  //read current register
 		data = data | 8;
 		host.write(GRAB_CTRL_OFFSET, data); // write grab cmd snapshot
@@ -752,17 +753,17 @@ class CVlib;
     //---------------------------------------
     task Gen_predict_img(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
    		XGS_image = XGS_imageSRC.copy;
-		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                    // Sensor ROI Y  
-		XGS_image.sub_Y(SUB_Y);                                                                      // Sensor SUB Y  
-		//XGS_image.sub_X(SUB_X);                                                                    // Sensor SUB X   
+		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                    // Sensor ROI Y
+		XGS_image.sub_Y(SUB_Y);                                                                      // Sensor SUB Y
+		//XGS_image.sub_X(SUB_X);                                                                    // Sensor SUB X
 
-   		XGS_image.reduce_bit_depth(10);                                                              // FPGA 12bpp to 10bpp  
+   		XGS_image.reduce_bit_depth(10);                                                              // FPGA 12bpp to 10bpp
  		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                            // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
     	XGS_image.Correct_DeadPixels(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
 		XGS_image.reduce_bit_depth(8);                                                               // FPGA 10bpp to 8bpp
-        XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X		
-		XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X   
-        XGS_image.rev_X(REV_X);                                                                      // FPGA REV X  
+        XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X
+		XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
+        XGS_image.rev_X(REV_X);                                                                      // FPGA REV X
 		//XGS_image.rev_Y(REV_Y);                                                                    // FPGA REV Y  : fait au niveau de la generation d'adresse du scoreboard
 
     endtask : Gen_predict_img
@@ -774,25 +775,25 @@ class CVlib;
     //---------------------------------------
     task Gen_predict_img_color(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
    		XGS_image = XGS_imageSRC.copy;
-		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                         // Sensor ROI Y  
-		XGS_image.sub_Y(SUB_Y);                                                                           // Sensor SUB Y  
-     
-   		XGS_image.reduce_bit_depth(10);                                                                   // FPGA 12bpp to 10bpp  
+		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                         // Sensor ROI Y
+		XGS_image.sub_Y(SUB_Y);                                                                           // Sensor SUB Y
+
+   		XGS_image.reduce_bit_depth(10);                                                                   // FPGA 12bpp to 10bpp
  		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                                 // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
-		
+
    	    XGS_image.mono_2_color_patch(); //on ramase 2 pixel LSB, on dumpe 6 ...
     	XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
-		XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC	       
+		XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC
         XGS_image.reduce_bit_depth(8);                                                                    // FPGA 10bpp to 8bpp
-		
+
 		if(bayer==1)
-		  XGS_image.BayerDemosaic();                                                                      // Bayer : Mono8 to RGB32           
+		  XGS_image.BayerDemosaic();                                                                      // Bayer : Mono8 to RGB32
 		else
-		  XGS_image.mono8_2_mono32();        
-        
-        //XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X		
-		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X   
-        //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X  
+		  XGS_image.mono8_2_mono32();
+
+        //XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X
+		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
+        //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X
 		//XGS_image.rev_Y(REV_Y);                                                                      // FPGA REV Y  : fait au niveau de la generation d'adresse du scoreboard
 
 	endtask : Gen_predict_img_color
@@ -803,41 +804,41 @@ class CVlib;
 	///////////////////////////////////////////////////
 	// DPC ADD PIXEL
 	///////////////////////////////////////////////////
-    task DPC_add(input int X, input int Y, input int DPC_PATTERN);               
-      	host.write(DPC_LIST_CTRL,  (1<<15)+ (1<<13) + DPC_list_count );      // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD						
+    task DPC_add(input int X, input int Y, input int DPC_PATTERN);
+      	host.write(DPC_LIST_CTRL,  (1<<15)+ (1<<13) + DPC_list_count );      // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD
 		host.write(DPC_LIST_DATA1, (Y<<16)+X);                             // DPC_LIST_CORR_X = i, DPC_LIST_CORR_Y = i
 		host.write(DPC_LIST_DATA2,  DPC_PATTERN);                           // DPC_LIST_CORR_PATTERN = 0;
 		host.write(DPC_LIST_CTRL,  ( (DPC_list_count+1)<<16) + (1<<15)+(1<<13) + (1<<12) + DPC_list_count ); // DPC_ENABLE= 0, DPC_PATTERN0_CFG=1, DPC_LIST_WRN=1, DPC_LIST_ADD + SS
 		DPC_list_count++;
-		XGS_imageSRC.DPC_add(X, Y, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel          
+		XGS_imageSRC.DPC_add(X, Y, DPC_PATTERN);                    // Pour la prediction, ici j'incremente de 1 le nb de DPC a chaque appel
     endtask : DPC_add
-   	
+
 	///////////////////////////////////////////////////
 	// DPC ENABLE
 	///////////////////////////////////////////////////
-    task DPC_en(input int Enable, input int REG_DPC_PATTERN0_CFG);              
+    task DPC_en(input int Enable, input int REG_DPC_PATTERN0_CFG);
     	host.write(DPC_LIST_CTRL,  (DPC_list_count<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
-	    XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                                           // Pour la prediction 
-	    XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                                         // Pour la prediction 
+	    XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                                           // Pour la prediction
+	    XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                                         // Pour la prediction
     endtask : DPC_en
 
 
 	///////////////////////////////////////////////////
 	// DPC ADD PIXEL LIST
 	///////////////////////////////////////////////////
-    task DPC_add_list(); 
+    task DPC_add_list();
         int i;
-		int DPC_PATTERN = 85; 
-		
+		int DPC_PATTERN = 85;
+
 		for (i = 0; i < 16; i++)
-		    begin				
-		       DPC_add(i, i, DPC_PATTERN);          
+		    begin
+		       DPC_add(i, i, DPC_PATTERN);
 			end
 
 		DPC_PATTERN  = 170;
 		for (i = 16; i < 63; i++)
-		    begin				
-               DPC_add(i, i, DPC_PATTERN);         
+		    begin
+               DPC_add(i, i, DPC_PATTERN);
 		    end
 
         DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
@@ -848,35 +849,35 @@ class CVlib;
     ///////////////////////////////////////////////////
 	// DPC ADD COLOR PIXEL LIST
 	///////////////////////////////////////////////////
-    task DPC_COLOR_add_list(); 
+    task DPC_COLOR_add_list();
         int i;
         int j;
 		int DPC_PATTERN;
-		
+
 		//Replace by R pixel
 		DPC_PATTERN = 1;       //replace by R pixel
 		for (j = 0; j < 4; j++)
 		  for (i = 0; i < 128; i=i+8)
-		    begin				
+		    begin
 		       DPC_add(i, j, DPC_PATTERN);
-		    end   
-          
+		    end
+
         //Replace by L pixel
 		DPC_PATTERN = 16;       //replace by L pixel
 		for (j = 4; j < 8; j++)
 		  for (i = 0; i < 128; i=i+8)
-		    begin				
+		    begin
 		       DPC_add(i, j, DPC_PATTERN);
-		    end   
+		    end
 
        //Replace by L+R/2 pixel
-		DPC_PATTERN = 17;  
+		DPC_PATTERN = 17;
 		for (j = 8; j < 12; j++)
 		  for (i = 0; i < 128; i=i+8)
-		    begin				
+		    begin
 		       DPC_add(i, j, DPC_PATTERN);
-		    end   	
-	
+		    end
+
 
         DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
 
@@ -886,17 +887,17 @@ class CVlib;
     ///////////////////////////////////////////////////
 	// White Balance
 	///////////////////////////////////////////////////
-    task setWB(int B_FACT, int G_FACT, int R_FACT); 
-    	host.write(WB_MUL1,  (G_FACT<<16) + B_FACT );  
-    	host.write(WB_MUL2,  R_FACT );                 
+    task setWB(int B_FACT, int G_FACT, int R_FACT);
+    	host.write(WB_MUL1,  (G_FACT<<16) + B_FACT );
+    	host.write(WB_MUL2,  R_FACT );
     endtask : setWB
 
     ///////////////////////////////////////////////////
 	//BAYER Enable
 	///////////////////////////////////////////////////
-    task setBayer(int Enable); 
+    task setBayer(int Enable);
      	host.write(BAYER_CFG, Enable);
-		this.bayer = Enable; 
+		this.bayer = Enable;
     endtask : setBayer
 
 

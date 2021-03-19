@@ -34,12 +34,17 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	bool FPS_On     = true;
 	M_UINT32 nbGrab = 0;
 
+	M_UINT32 XGSStart_Y = 0;
+	M_UINT32 XGSSize_Y = 0;
+	M_UINT32 XGSStart_X = 0;
+	M_UINT32 XGSSize_X = 0;
+
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
 
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
-	M_UINT32 XGSSize_Y = 0;
+
 	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 	DMAParamStruct* DMAParams = XGS_Data->getDMAParams();                // This is a Local Pointer to DMA parameter structure
@@ -70,7 +75,7 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1* SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
@@ -81,12 +86,24 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
     // GRAB PARAMETERS
     //---------------------
-	// For a full frame ROI 
-	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	 
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
-	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
+	// For a full Y frame with Interpolation
+	//GrabParams->Y_START = 0;                                                 // Dois etre multiple de 4	
+	//GrabParams->Y_SIZE  = SensorParams->Ysize_Full;                          // Dois etre multiple de 4
+	//GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
 
-	GrabParams->M_SUBSAMPLING_Y      = 0;
+	// For a full valid frame ROI 
+	if (SensorParams->IS_COLOR == 0) {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
+	}
+	else {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
+	}
+
+	GrabParams->M_SUBSAMPLING_Y = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
@@ -105,9 +122,18 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// DMA PARAMETERS
 	//---------------------
-	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
+	DMAParams->ROI_X_EN = 1;
+	DMAParams->X_START = SensorParams->Xstart_valid;      // To remove interpolation pixels
+	DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;
+
+	DMAParams->SUB_X = 0;
+	DMAParams->REVERSE_X = 0;
+	DMAParams->REVERSE_Y = 0;
+
+	DMAParams->FSTART = ImageBufferAddr;          // Adresse Mono pour DMA
 	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full ; // Full window MIL display
+	DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+
 
 
 	printf_s("\n\nTest started at : ");
@@ -296,14 +322,27 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'r':
-				Sleep(1000);
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
 				XGS_Ctrl->DisableRegUpdate();
 				Sleep(100);
-				printf_s("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a)*4);
-				printf_s("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c)*4 );
-				printf_s("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e)*4 );
-				printf_s("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820)*4 );
-				printf_s("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH *16);
+				printf_s("\n\n");
+				printf_s("Rev X is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_X);
+				printf_s("Rev Y is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_Y);
+				printf_s("\n");
+				printf_s("Sub X is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.SUB_X);
+				printf_s("Sub Y is %d\n", XGS_Ctrl->rXGSptr.ACQ.SENSOR_SUBSAMPLING.f.ACTIVE_SUBSAMPLING_Y);
+				printf_s("\n");
+				printf_s("X start is %d dec\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_START - SensorParams->Xstart_valid);
+				printf_s("X size  is %d dec\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_SIZE);
+				printf_s("\n");
+				printf_s("Y start0 is %d dec\n", XGS_Ctrl->ReadSPI(0x381a) * 4 - SensorParams->Ystart_valid);
+				printf_s("Y size0  is %d dec\n", XGS_Ctrl->ReadSPI(0x381c) * 4);
+				printf_s("Y start1 is %d dec\n", XGS_Ctrl->ReadSPI(0x381e) * 4 - SensorParams->Ystart_valid);
+				printf_s("Y size1  is %d dec\n", XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf_s("\n");
+				printf_s("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH * 16);
+				printf_s("\n");
 				Sleep(100);
 				XGS_Ctrl->EnableRegUpdate();
 				break;
@@ -311,12 +350,18 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'y':
 				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full_valid);
 				scanf_s("%d", &XGSSize_Y);
+				printf_s("\nEnter the new Offset Y (1-based, multiple of 4x Lines) (Current is: %d) : ", GrabParams->Y_START - SensorParams->Ystart_valid);
+				scanf_s("%d", &XGSStart_Y);
+
+				GrabParams->Y_START = SensorParams->Ystart_valid + XGSStart_Y;
 				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
 				GrabParams->Y_SIZE = XGSSize_Y;
+				DMAParams->Y_SIZE = XGSSize_Y;
 				MbufClear(MilGrabBuffer, 0);
 				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
 				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
 				break;
+
 
 			case 's':
 				Sortie = 0;
@@ -348,8 +393,8 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				// We dont use SUB_X in sensor, no fps advantages , and noise is increased!
 				// Using DMA subsampling 0(none) to 15 factor
-				DMAParams->SUB_X     = SubX;
-				DMAParams->LINE_SIZE = SensorParams->Xsize_Full / (SubX + 1);
+				DMAParams->SUB_X = SubX;
+				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 
 				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
 				if (SubY == 1)
