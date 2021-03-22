@@ -1190,13 +1190,17 @@ begin
   event_mapping.IO_INTSTAT <= regfile.IO(0).IO_INTSTAT.Intstat_set;
 
   -- il n'y a un IRQ sur le Microblaze que s'il y a un microblaze dans le systeme
-  mbeventmapgen : if GOLDEN = false generate
-    event_mapping.IRQ_MICROBLAZE <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
-  end generate;
-  mbeventmapgoldgen : if GOLDEN = true generate
-    event_mapping.IRQ_MICROBLAZE <= '0';
-  end generate;
+  -- mbeventmapgen : if GOLDEN = false generate
+  --   event_mapping.IRQ_MICROBLAZE <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
+  -- end generate;
+  -- mbeventmapgoldgen : if GOLDEN = true generate
+  --   event_mapping.IRQ_MICROBLAZE <= '0';
+  -- end generate;
 
+  --[AM] For now, microblaze present in the FPGA
+  event_mapping.IRQ_MICROBLAZE <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
+
+  
   event_mapping.IRQ_TIMER <= orN(regfile.Device_specific.INTSTAT2.IRQ_TIMER_START) or orN(regfile.Device_specific.INTSTAT2.IRQ_TIMER_END);  -- pas vraiment utile puisqu'on a tous les autres bits de timer
   Q_TickTable_irqs : for TICKTABLE_IRQ_X in TICKTABLE_TYPE_ARRAY'range generate
     event_mapping.IRQ_TICK       <= TickTable_half_IRQ(TICKTABLE_IRQ_X) and regfile.Device_specific.Intmaskn.IRQ_TICK;  --(TICKTABLE_IRQ_X);
@@ -1857,13 +1861,22 @@ begin
   regfile.Device_specific.INTSTAT.IRQ_IO_set <= IO_IRQ and regfile.Device_specific.Intmaskn.IRQ_IO;
 
   -- il n'y a un IRQ sur le Microblaze que s'il y a un microblaze dans le systeme
-  mbgen : if GOLDEN = false generate
-    regfile.Device_specific.INTSTAT.IRQ_MICROBLAZE_set <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
-  end generate;
-  mbgoldgen : if GOLDEN = true generate
-    regfile.Device_specific.INTSTAT.IRQ_MICROBLAZE_set <= '0';
-  end generate;
+  -- mbgen : if GOLDEN = false generate
+  --   regfile.Device_specific.INTSTAT.IRQ_MICROBLAZE_set <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
+  -- end generate;
+  -- mbgoldgen : if GOLDEN = true generate
+  --   regfile.Device_specific.INTSTAT.IRQ_MICROBLAZE_set <= '0';
+  -- end generate;
+  
+  --[AM] for now the Microblaze is present in the NPI Golden firmware
+  regfile.Device_specific.INTSTAT.IRQ_MICROBLAZE_set <= profinet_irq and regfile.Device_specific.INTMASKn.IRQ_MICROBLAZE;
+  
 
+  -- Indicates if the current firmware is a NPI Golden firmware
+  regfile.Device_specific.FPGA_ID.NPI_GOLDEN <= '1' when (GOLDEN = true) else
+                                                '0';
+
+  
   ------------------------------------------------------------------------------------------
   -- Field name: BUILDID(31 downto 0)
   -- Field type: RO
