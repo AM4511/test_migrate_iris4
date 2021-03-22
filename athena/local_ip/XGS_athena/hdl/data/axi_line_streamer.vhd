@@ -40,10 +40,11 @@ entity axi_line_streamer is
     ---------------------------------------------------------------------------
     -- Register interface (ROI parameters)
     ---------------------------------------------------------------------------
-    x_start : in std_logic_vector(12 downto 0);
-    x_stop  : in std_logic_vector(12 downto 0);
-    y_start : in std_logic_vector(11 downto 0);
-    y_size  : in std_logic_vector(11 downto 0);
+    x_start   : in std_logic_vector(12 downto 0);
+    x_stop    : in std_logic_vector(12 downto 0);
+    y_start   : in std_logic_vector(11 downto 0);
+    y_size    : in std_logic_vector(11 downto 0);
+    y_div2_en : in std_logic;
 
     ---------------------------------------------------------------------------
     -- Lane_decode I/F
@@ -99,7 +100,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug : string;
   attribute keep       : string;
 
-  
+
   type FSM_TYPE is (S_IDLE,
                     S_SOF,
                     S_WAIT_SOL,
@@ -113,7 +114,7 @@ architecture rtl of axi_line_streamer is
                     S_DONE
                     );
 
-  
+
   type OUTPUT_FSM_TYPE is (S_IDLE,
                            S_SOF,
                            S_PREFETCH,
@@ -124,7 +125,7 @@ architecture rtl of axi_line_streamer is
                            S_DONE
                            );
 
-  
+
   constant DATAWIDTH : integer                              := 84;
   constant ADDRWIDTH : integer                              := 12;
   constant MAX_BURST : unsigned(sclk_buffer_word_ptr'range) := "111001";  --0x39
@@ -261,7 +262,7 @@ architecture rtl of axi_line_streamer is
   attribute mark_debug of stream_cntr_en                  : signal is "true";
   attribute mark_debug of stream_cntr_init                : signal is "true";
   attribute mark_debug of frame_pending                   : signal is "true";
-  
+
 
 begin
 
@@ -285,7 +286,7 @@ begin
     end if;
   end process;
 
-  
+
   m_wait <= '1' when (sclk_tready = '0') else
             '0';
 
@@ -313,7 +314,7 @@ begin
               state <= S_IDLE;
             end if;
 
-            
+
           ---------------------------------------------------------------------
           -- S_SOF : Indicate the SOF
           ---------------------------------------------------------------------
@@ -481,7 +482,7 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_current_y_stop
-  -- Description :
+  -- Description : Note : y_size = Y size after subsampling in the XGS sensor
   -----------------------------------------------------------------------------
   P_current_y_stop : process (sclk) is
     variable start : unsigned(11 downto 0);
@@ -742,7 +743,14 @@ begin
                       '0';
 
 
-  odd_line <= line_cntr(0);
+  -----------------------------------------------------------------------------
+  -- odd_line : This flag indicates when the current line is an ODD line number.
+  --            Note : When Y subsampling is enabled in the XGS sensor (div by
+  --            2), there are no ODD line received from the sensor. Only even
+  --            lines.  
+  -----------------------------------------------------------------------------
+  odd_line <= line_cntr(0) when (y_div2_en = '0') else
+              '0';
 
 
   -----------------------------------------------------------------------------

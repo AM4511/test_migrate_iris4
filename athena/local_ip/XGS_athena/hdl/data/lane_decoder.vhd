@@ -402,7 +402,7 @@ begin
     port map(
       pclk                   => pclk,
       pclk_reset             => pclk_reset,
-      pclk_lane_enable       => hclk_lane_enable,      --Falsepath
+      pclk_lane_enable       => hclk_lane_enable,       --Falsepath
       pclk_pixel             => pclk_data,
       pclk_idle_character    => async_idle_character,  -- Falsepath
       pclk_tap_cntr          => pclk_tap_cntr,
