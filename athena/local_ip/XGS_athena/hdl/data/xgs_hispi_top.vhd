@@ -55,7 +55,7 @@ entity xgs_hispi_top is
     hispi_eof                : out std_logic;
     hispi_ystart             : in  std_logic_vector(11 downto 0);
     hispi_ysize              : in  std_logic_vector(11 downto 0);
-
+    hispi_subY               : in  std_logic;
 
     ---------------------------------------------------------------------------
     -- Top HiSPI I/F
@@ -166,10 +166,11 @@ architecture rtl of xgs_hispi_top is
       ---------------------------------------------------------------------------
       -- Register interface (ROI parameters)
       ---------------------------------------------------------------------------
-      x_start : in std_logic_vector(12 downto 0);
-      x_stop  : in std_logic_vector(12 downto 0);
-      y_start : in std_logic_vector(11 downto 0);
-      y_size  : in std_logic_vector(11 downto 0);
+      x_start   : in std_logic_vector(12 downto 0);
+      x_stop    : in std_logic_vector(12 downto 0);
+      y_start   : in std_logic_vector(11 downto 0);
+      y_size    : in std_logic_vector(11 downto 0);
+      y_div2_en : in std_logic;
 
       ---------------------------------------------------------------------------
       -- Lane_decode I/F
@@ -263,10 +264,12 @@ architecture rtl of xgs_hispi_top is
   signal sclk_buffer_empty_bottom : std_logic_vector(LANE_PER_PHY-1 downto 0);
 
 
-  signal sclk_x_start : std_logic_vector(12 downto 0);
-  signal sclk_x_stop  : std_logic_vector(12 downto 0);
-  signal sclk_y_start : std_logic_vector(11 downto 0);
-  signal sclk_y_size  : std_logic_vector(11 downto 0);
+  signal sclk_x_start   : std_logic_vector(12 downto 0);
+  signal sclk_x_stop    : std_logic_vector(12 downto 0);
+  signal sclk_y_start   : std_logic_vector(11 downto 0);
+  signal sclk_y_size    : std_logic_vector(11 downto 0);
+  signal sclk_y_div2_en : std_logic;
+
 
   signal init_frame      : std_logic;
   signal frame_done      : std_logic;
@@ -399,17 +402,19 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        sclk_x_start <= (others => '0');
-        sclk_x_stop  <= (others => '0');
-        sclk_y_start <= (others => '0');
-        sclk_y_size  <= (others => '0');
+        sclk_x_start   <= (others => '0');
+        sclk_x_stop    <= (others => '0');
+        sclk_y_start   <= (others => '0');
+        sclk_y_size    <= (others => '0');
+        sclk_y_div2_en <= '0';
       else
         if (state = S_SOF) then
           -- Store the current frame ROI context
-          sclk_x_start <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
-          sclk_x_stop  <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
-          sclk_y_start <= hispi_ystart;
-          sclk_y_size  <= hispi_ysize;
+          sclk_x_start   <= regfile.HISPI.FRAME_CFG_X_VALID.X_START;
+          sclk_x_stop    <= regfile.HISPI.FRAME_CFG_X_VALID.X_END;
+          sclk_y_start   <= hispi_ystart;
+          sclk_y_size    <= hispi_ysize;
+          sclk_y_div2_en <= hispi_subY;
         end if;
       end if;
     end if;
@@ -498,7 +503,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_frame_overrun_error
   -- Description : 
@@ -513,7 +518,7 @@ begin
           frame_overrun_error <= '1';
           -- synthesis translate_off
           assert (false) report "Frame overrun!!!" severity error;
-          -- synthesis translate_on
+        -- synthesis translate_on
         else
           frame_overrun_error <= '0';
         end if;
@@ -801,6 +806,7 @@ begin
       x_stop                   => sclk_x_stop,
       y_start                  => sclk_y_start,
       y_size                   => sclk_y_size,
+      y_div2_en                => sclk_y_div2_en,
       sclk_transfer_done       => sclk_transfer_done,
       sclk_buffer_lane_id      => sclk_buffer_lane_id,
       sclk_buffer_mux_id       => sclk_buffer_mux_id,
