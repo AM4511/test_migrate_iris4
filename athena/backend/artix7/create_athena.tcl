@@ -44,11 +44,14 @@ puts "Running ${myself}"
 #
 # 0.3.2 : Fixed I2C, Enable I2C stretching for Liquid lens in the matrox I2C AXI IP
 #
-
-
+# 0.3.3 : Implemented mono processing path including
+#              ** X_ROI (cropping)
+#              ** X_subsampling [0:15]
+#              ** X_reverse
+#
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     3
-set FPGA_SUB_MINOR_VERSION 2
+set FPGA_SUB_MINOR_VERSION 3
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
