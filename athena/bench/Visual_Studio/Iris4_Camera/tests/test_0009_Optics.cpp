@@ -1,6 +1,6 @@
 //-----------------------------------------------
 //
-//  Optic test grab Iris4
+//  Optic test grab Iris4 : full srface
 //
 //-----------------------------------------------
 
@@ -17,8 +17,9 @@ using namespace std;
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
-void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0009_Optics(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;

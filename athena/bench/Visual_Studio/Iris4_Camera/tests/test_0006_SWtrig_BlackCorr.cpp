@@ -12,12 +12,12 @@
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
 
 
 
-
-void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0006_SWtrig_BlackCorr(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 

@@ -15,8 +15,9 @@ using namespace std;
 #include "MilLayer.h"
 #include "XGS_Ctrl.h"
 #include "XGS_Data.h"
+#include "Pcie.h"
 
-void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
+void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
    {
 	
 	MIL_ID MilDisplay;
@@ -219,9 +220,14 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (e) Exposure Incr/Decr gap");
 	printf_s("\n  (+) Increase Exposure");
 	printf_s("\n  (-) Decrease Exposure");
+	printf_s("\n");
+	printf_s("\n  (r) Read current ROI configuration");
 	printf_s("\n  (y) Set new ROI (Y-only)");
-	printf_s("\n  (r) Read current ROI configuration in XGS");
+	printf_s("\n  (x) Set new ROI (X-only)");
+	printf_s("\n  (E) FPGA Reverse X");
+	printf_s("\n  (R) FPGA Reverse Y");
 	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n");
 	printf_s("\n  (X) Dump FPGA XGS controller registers to a file");
 	printf_s("\n");
 	printf_s("\n  (s) To do a SW snapshot");
@@ -407,6 +413,27 @@ void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
 
 				break;
+
+			case 'R':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_Y == 1)
+					XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				else
+					XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				break;
+
+			case 'E':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_X == 1)
+					XGS_Data->set_DMA_revX(0);
+				else
+					XGS_Data->set_DMA_revX(1);
+				break;
+
 
 			case 't':
 				XGS_Ctrl->WaitEndExpReadout();

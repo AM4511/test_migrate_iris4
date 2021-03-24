@@ -563,6 +563,28 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				break;
 
+
+			case 'R':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_Y == 1)
+					XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				else
+					XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				break;
+
+			case 'E':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_X == 1)
+					XGS_Data->set_DMA_revX(0);
+				else
+					XGS_Data->set_DMA_revX(1);
+				break;
+
+
 			case 't':
 				XGS_Ctrl->WaitEndExpReadout();
 				cout << "\n";
@@ -670,28 +692,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(100);
 				XGS_Ctrl->ReadSPI_DumpFile();
-				break;
-
-			case 'R':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
-
-				if(XGS_Data->DMAParams.REVERSE_Y==1)
-				  XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
-				else
-				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
-				  
-				break;
-
-			case 'E':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
-
-				if (XGS_Data->DMAParams.REVERSE_X == 1)
-					XGS_Data->set_DMA_revX(0);
-				else
-					XGS_Data->set_DMA_revX(1);
-
 				break;
 
 
