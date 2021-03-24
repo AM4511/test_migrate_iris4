@@ -2,11 +2,11 @@
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares_pack
--- Created on          : 2021/02/08 15:55:29
+-- Created on          : 2021/03/22 14:03:23
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA7167277
+-- Register file CRC32 : 0xCC132AEB
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -289,6 +289,7 @@ package regfile_ares_pack is
       USER_GREEN_LED : std_logic;
       PROFINET_LED   : std_logic;
       PB_DEBUG_COM   : std_logic;
+      NPI_GOLDEN     : std_logic;
       FPGA_ID        : std_logic_vector(4 downto 0);
    end record DEVICE_SPECIFIC_FPGA_ID_TYPE;
 
@@ -298,6 +299,7 @@ package regfile_ares_pack is
       USER_GREEN_LED  => 'Z',
       PROFINET_LED    => 'Z',
       PB_DEBUG_COM    => 'Z',
+      NPI_GOLDEN      => 'Z',
       FPGA_ID         => (others=> 'Z')
    );
 
@@ -2012,6 +2014,7 @@ package body regfile_ares_pack is
       output(13) := reg.USER_GREEN_LED;
       output(12) := reg.PROFINET_LED;
       output(10) := reg.PB_DEBUG_COM;
+      output(8) := reg.NPI_GOLDEN;
       output(4 downto 0) := reg.FPGA_ID;
       return output;
    end to_std_logic_vector;
@@ -2028,6 +2031,7 @@ package body regfile_ares_pack is
       output.USER_GREEN_LED := stdlv(13);
       output.PROFINET_LED := stdlv(12);
       output.PB_DEBUG_COM := stdlv(10);
+      output.NPI_GOLDEN := stdlv(8);
       output.FPGA_ID := stdlv(4 downto 0);
       return output;
    end to_DEVICE_SPECIFIC_FPGA_ID_TYPE;
@@ -3731,11 +3735,11 @@ end package body;
 -- File                : regfile_ares.vhd
 -- Project             : FDK
 -- Module              : regfile_ares
--- Created on          : 2021/02/08 15:55:29
+-- Created on          : 2021/03/22 14:03:23
 -- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA7167277
+-- Register file CRC32 : 0xCC132AEB
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -5845,6 +5849,13 @@ begin
       end if;
    end if;
 end process P_Device_specific_FPGA_ID_PB_DEBUG_COM;
+
+------------------------------------------------------------------------------------------
+-- Field name: NPI_GOLDEN
+-- Field type: RO
+------------------------------------------------------------------------------------------
+rb_Device_specific_FPGA_ID(8) <= regfile.Device_specific.FPGA_ID.NPI_GOLDEN;
+
 
 ------------------------------------------------------------------------------------------
 -- Field name: FPGA_ID(4 downto 0)
