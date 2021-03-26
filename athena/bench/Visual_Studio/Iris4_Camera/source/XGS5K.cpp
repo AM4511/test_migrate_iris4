@@ -2,7 +2,7 @@
 //
 //  Configuration for XGS5000
 //
-//  WIP Last Changed Rev : 18095
+//  WIP Last Changed Rev : 18248
 //    C:\Aptina Imaging\apps_data\XGS5M-REV0.ini 
 //    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS5M-REV0.ini   
 //-----------------------------------------------
@@ -11,6 +11,10 @@
 #include "osincludes.h"
 
 #include "XGS_Ctrl.h"
+
+//Derniere version du microcode de Onsemi pour la famaille XGS5K
+M_UINT32 XGS5K_WIP = 18248;
+
 
 //---------------------------------
 // Constants for XGS 5K FOT  
@@ -184,7 +188,7 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
-	printf_s("XGS OTPM version : 0x%X\n", otpmversion);
+	printf_s("XGS OTPM version : 0x%X  (WIP Rev: %d)\n", otpmversion, XGS5K_WIP);
 	WriteSPI(0x3700, 0x0000);
 	//Sleep(50);
 	if (otpmversion == 0) {
@@ -222,6 +226,10 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 		WriteSPI(0x342a, 0x0000);
 		WriteSPI(0x3434, 0xFFFF);
 
+		//Updates to fix first frame not saturating in triggered mode(see AND90029 - D). 
+		//WIP 18248
+		WriteSPI(0x38CE, 0x8000);
+		WriteSPI(0x38D6, 0x9FFF);
 
 		// [Hidden:Timing_Up]
 		printf_s("XGS Loading timing uploads\n");
@@ -239,11 +247,9 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 		WriteSPI_BURST(REG_BURST11, sizeof(REG_BURST11) / sizeof(M_UINT32));
 		
 	}
+	else
+		printf_s("OTPM version: 0x%X (WIP Last Changed Rev: %d), skipping Req_Reg_Up_0 and Timing_Up register load\n", otpmversion, XGS5K_WIP);
 
-	if (otpmversion != 0) {
-		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 18095)\n", otpmversion);
-		exit(1);
-	}
 }
 
 

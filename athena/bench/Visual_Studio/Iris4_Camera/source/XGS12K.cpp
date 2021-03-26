@@ -2,7 +2,7 @@
 //
 //  Configuration for XGS12000
 //
-//  From WIP Last Changed Rev: WIP Last Changed Rev: 18093:  
+//  From WIP Last Changed Rev: WIP Last Changed Rev: 18245:  
 //    C:\Aptina Imaging\apps_data\XGS12M-REV2.ini 
 //    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS12M-REV2.ini   
 //-----------------------------------------------
@@ -15,7 +15,7 @@
 
 
 //Derniere version du microcode de Onsemi pour la famaille XGS12K
-M_UINT32 XGS12K_WIP = 18093;
+M_UINT32 XGS12K_WIP = 18245;
 
 
 
@@ -257,6 +257,11 @@ void CXGS_Ctrl::XGS12M_Req_Reg_Up_0(void) {
 	WriteSPI(0x3430, 0x20B6);
 	WriteSPI(0x3428, 0xA620);
 	WriteSPI(0x342a, 0x0000);
+
+	//Updates to fix first frame not saturating in triggered mode(see AND90029 - D). 
+    //WIP 18245
+	WriteSPI(0x38CE, 0x8000);
+	WriteSPI(0x38D6, 0x9FFF);
 }
 
 void CXGS_Ctrl::XGS12M_Req_Reg_Up_2(void) {
@@ -287,6 +292,12 @@ void CXGS_Ctrl::XGS12M_Req_Reg_Up_2(void) {
 	WriteSPI(0x3954, 0x0095);
 	WriteSPI(0x3956, 0x0095);
 	WriteSPI(0x383a, 0x0C20);
+
+	//Updates to fix first frame not saturating in triggered mode(see AND90029 - D). 
+	//WIP 18245
+	WriteSPI(0x38CE, 0x8000);
+	WriteSPI(0x38D6, 0x9FFF);
+
 }
 
 
