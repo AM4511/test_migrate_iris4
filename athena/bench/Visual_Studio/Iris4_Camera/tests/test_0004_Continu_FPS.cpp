@@ -169,7 +169,14 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 		if (XGS_Ctrl->SensorParams.SENSOR_TYPE == 5000)
 		  ROI_Y_SIZE_vector = { 2048,1024, 512,256,128,64,32,16,8 };
 		else
-		{ }
+		  if (XGS_Ctrl->SensorParams.SENSOR_TYPE == 8000)
+			ROI_Y_SIZE_vector = { 2160, 2048, 1200, 1024, 512,256,128,64,32,16,8 };
+		  else
+			if (XGS_Ctrl->SensorParams.SENSOR_TYPE == 2000)
+			  ROI_Y_SIZE_vector = { 1200,1024, 512,256,128,64,32,16,8 };
+			else
+			  {}
+
 
 
 	//ROI_Y_SIZE_vector = { 1024, 2048, 3072 };
