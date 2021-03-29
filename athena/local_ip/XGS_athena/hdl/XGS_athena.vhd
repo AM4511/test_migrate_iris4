@@ -898,12 +898,14 @@ architecture struct of XGS_athena is
   signal dcp_tuser  : std_logic_vector(3 downto 0);
   signal dcp_tlast  : std_logic;
 
-  -- AXI drive by LUT --sys_clk : 62.5mhz
-  signal lut_tready : std_logic;
-  signal lut_tvalid : std_logic;
-  signal lut_tdata  : std_logic_vector(63 downto 0);
-  signal lut_tuser  : std_logic_vector(3 downto 0);
-  signal lut_tlast  : std_logic;
+  -- AXI drive by LUT in Modo (COLOR=0) or by
+  -- xgs_color_proc in color mode (COLOR=1)
+  -- sys_clk : 62.5mhz
+  signal xtrim_tready : std_logic;
+  signal xtrim_tvalid : std_logic;
+  signal xtrim_tdata  : std_logic_vector(63 downto 0);
+  signal xtrim_tuser  : std_logic_vector(3 downto 0);
+  signal xtrim_tlast  : std_logic;
 
 
   -- AXI received by DMA
@@ -1208,11 +1210,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tvalid => lut_tvalid,
-        m_axis_tready => lut_tready,
-        m_axis_tuser  => lut_tuser,
-        m_axis_tlast  => lut_tlast,
-        m_axis_tdata  => lut_tdata,
+        m_axis_tvalid => xtrim_tvalid,
+        m_axis_tready => xtrim_tready,
+        m_axis_tuser  => xtrim_tuser,
+        m_axis_tlast  => xtrim_tlast,
+        m_axis_tdata  => xtrim_tdata,
 
         ---------------------------------------------------------------------------
         --  Registers
@@ -1288,11 +1290,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tready => dma_tready,
-        m_axis_tvalid => dma_tvalid,
-        m_axis_tuser  => dma_tuser,
-        m_axis_tlast  => dma_tlast,
-        m_axis_tdata  => dma_tdata,
+        m_axis_tready => xtrim_tready,
+        m_axis_tvalid => xtrim_tvalid,
+        m_axis_tuser  => xtrim_tuser,
+        m_axis_tlast  => xtrim_tlast,
+        m_axis_tdata  => xtrim_tdata,
         ---------------------------------------------------------------------              
         -- Grab parameters         
         ---------------------------------------------------------------------
@@ -1361,6 +1363,8 @@ begin
   end generate G_COLOR_PIPELINE;
 
 
+
+  
   x_trim_inst : x_trim
     generic map(
       NUMB_LINE_BUFFER => 2
@@ -1376,11 +1380,11 @@ begin
       aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
       aclk               => aclk,
       aclk_reset_n       => aclk_reset_n,
-      aclk_tready        => lut_tready,
-      aclk_tvalid        => lut_tvalid,
-      aclk_tuser         => lut_tuser,
-      aclk_tlast         => lut_tlast,
-      aclk_tdata         => lut_tdata,
+      aclk_tready        => xtrim_tready,
+      aclk_tvalid        => xtrim_tvalid,
+      aclk_tuser         => xtrim_tuser,
+      aclk_tlast         => xtrim_tlast,
+      aclk_tdata         => xtrim_tdata,
       bclk               => aclk,
       bclk_reset_n       => aclk_reset_n,
       bclk_tready        => dma_tready,
