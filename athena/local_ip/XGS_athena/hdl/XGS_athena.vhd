@@ -39,9 +39,14 @@
 --                           0 : Used in Vivado (default)
 --                           1 : Used in functionnal simulation
 --
+-- COLOR                 : Configure the pixel processing path for a Monochrome
+--                         or color Pipeline
+--
+--                           0 : XGS_athena is configured for mono sensors (default) 
+--                           1 : XGS_athena is configured for color sensors
 -----------------------------------------------------------------------
 --
--- TODO : Implement HiSPi CRC
+-- TODO : 
 --
 -----------------------------------------------------------------------
 library ieee;
@@ -60,13 +65,13 @@ use work.hispi_pack.all;
 
 entity XGS_athena is
   generic (
-    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;  -- Boolean (0 or 1)
-    NUMBER_OF_LANE        : integer              := 6;  -- 4 or 6 lanes only
+    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;      -- Boolean (0 or 1)
+    NUMBER_OF_LANE        : integer              := 6;      -- 4 or 6 lanes only
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;     -- Units in ns
     SENSOR_FREQ           : integer              := 32400;  -- Units in KHz
     SIMULATION            : integer              := 0;
-    COLOR                 : integer              := 0
+    COLOR                 : integer range 0 to 1 := 0       -- Boolean (0 or 1)
     );
   port (
     ---------------------------------------------------------------------------
