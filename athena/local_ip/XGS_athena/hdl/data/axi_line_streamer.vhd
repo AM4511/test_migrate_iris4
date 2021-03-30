@@ -177,6 +177,7 @@ architecture rtl of axi_line_streamer is
   signal current_y_start  : unsigned(11 downto 0);
   signal current_y_stop   : unsigned(11 downto 0);
   signal odd_line         : std_logic;
+  signal sclk_dbg_pix_array : PIXEL_ARRAY(7 downto 0);
 
   signal stream_pace_cntr      : unsigned(1 downto 0);
   signal incr_stream_pace_cntr : std_logic;
@@ -1155,12 +1156,20 @@ begin
       else
         if (m_wait = '0' and read_data_valid = '1') then
           sclk_tdata <= sclk_fifo_read_data;
+          sclk_dbg_pix_array(0) <= sclk_fifo_read_data(9 downto 0);
+          sclk_dbg_pix_array(1) <= sclk_fifo_read_data(19 downto 10);
+          sclk_dbg_pix_array(2) <= sclk_fifo_read_data(29 downto 20);
+          sclk_dbg_pix_array(3) <= sclk_fifo_read_data(39 downto 30);
+          sclk_dbg_pix_array(4) <= sclk_fifo_read_data(49 downto 40);
+          sclk_dbg_pix_array(5) <= sclk_fifo_read_data(59 downto 50);
+          sclk_dbg_pix_array(6) <= sclk_fifo_read_data(69 downto 60);
+          sclk_dbg_pix_array(7) <= sclk_fifo_read_data(79 downto 70);
         end if;
       end if;
     end if;
   end process;
 
-
+    
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tlast
   -- Description : In the AXI stream video protocol TLAST is used as the EOL
