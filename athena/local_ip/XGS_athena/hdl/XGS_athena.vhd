@@ -39,9 +39,14 @@
 --                           0 : Used in Vivado (default)
 --                           1 : Used in functionnal simulation
 --
+-- COLOR                 : Configure the pixel processing path for a Monochrome
+--                         or color Pipeline
+--
+--                           0 : XGS_athena is configured for mono sensors (default) 
+--                           1 : XGS_athena is configured for color sensors
 -----------------------------------------------------------------------
 --
--- TODO : Implement HiSPi CRC
+-- TODO : 
 --
 -----------------------------------------------------------------------
 library ieee;
@@ -60,13 +65,13 @@ use work.hispi_pack.all;
 
 entity XGS_athena is
   generic (
-    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;  -- Boolean (0 or 1)
-    NUMBER_OF_LANE        : integer              := 6;  -- 4 or 6 lanes only
+    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;      -- Boolean (0 or 1)
+    NUMBER_OF_LANE        : integer              := 6;      -- 4 or 6 lanes only
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;     -- Units in ns
     SENSOR_FREQ           : integer              := 32400;  -- Units in KHz
     SIMULATION            : integer              := 0;
-    COLOR                 : integer              := 0
+    COLOR                 : integer range 0 to 1 := 0       -- Boolean (0 or 1)
     );
   port (
     ---------------------------------------------------------------------------
@@ -314,7 +319,8 @@ architecture struct of XGS_athena is
   component xgs_hispi_top is
     generic (
       HW_VERSION     : integer range 0 to 255 := 0;
-      NUMBER_OF_LANE : integer                := 6
+      NUMBER_OF_LANE : integer                := 6; -- 4 or 6 lanes supported
+      COLOR          : integer                := 0  -- 0 Mono; 1 Color
       );
     port (
       ---------------------------------------------------------------------------
@@ -360,7 +366,7 @@ architecture struct of XGS_athena is
       sclk_tvalid : out std_logic;
       sclk_tuser  : out std_logic_vector(3 downto 0);
       sclk_tlast  : out std_logic;
-      sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
+      sclk_tdata  : out std_logic_vector(79 downto 0)
       );
   end component;
 
@@ -388,7 +394,7 @@ architecture struct of XGS_athena is
       sclk_tvalid : in  std_logic;
       sclk_tuser  : in  std_logic_vector(3 downto 0);
       sclk_tlast  : in  std_logic;
-      sclk_tdata  : in  PIXEL_ARRAY(7 downto 0);
+      sclk_tdata  : in  std_logic_vector(79 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Slave interface
@@ -879,7 +885,7 @@ architecture struct of XGS_athena is
   signal sclk_tvalid : std_logic;
   signal sclk_tlast  : std_logic;
   signal sclk_tuser  : std_logic_vector(3 downto 0);
-  signal sclk_tdata  : PIXEL_ARRAY(7 downto 0);
+  signal sclk_tdata  : std_logic_vector(79 downto 0);
 
   -- AXI drive by mono pipeline --sys_clk : 62.5mhz
   signal aclk_tready : std_logic;
@@ -897,12 +903,14 @@ architecture struct of XGS_athena is
   signal dcp_tuser  : std_logic_vector(3 downto 0);
   signal dcp_tlast  : std_logic;
 
-  -- AXI drive by LUT --sys_clk : 62.5mhz
-  signal lut_tready : std_logic;
-  signal lut_tvalid : std_logic;
-  signal lut_tdata  : std_logic_vector(63 downto 0);
-  signal lut_tuser  : std_logic_vector(3 downto 0);
-  signal lut_tlast  : std_logic;
+  -- AXI drive by LUT in Modo (COLOR=0) or by
+  -- xgs_color_proc in color mode (COLOR=1)
+  -- sys_clk : 62.5mhz
+  signal xtrim_tready : std_logic;
+  signal xtrim_tvalid : std_logic;
+  signal xtrim_tdata  : std_logic_vector(63 downto 0);
+  signal xtrim_tuser  : std_logic_vector(3 downto 0);
+  signal xtrim_tlast  : std_logic;
 
 
   -- AXI received by DMA
@@ -1035,11 +1043,14 @@ begin
   x_xgs_hispi_top : xgs_hispi_top
     generic map(
       HW_VERSION     => HW_VERSION,
-      NUMBER_OF_LANE => NUMBER_OF_LANE
+      NUMBER_OF_LANE => NUMBER_OF_LANE,
+      COLOR          => COLOR
       )
     port map(
-      sclk                     => sclk,
-      sclk_reset_n             => sclk_reset_n,
+      -- sclk                     => sclk,
+      -- sclk_reset_n             => sclk_reset_n,
+      sclk                     => aclk,
+      sclk_reset_n             => aclk_reset_n,
       rclk                     => aclk,
       rclk_reset_n             => aclk_reset_n,
       regfile                  => regfile,
@@ -1056,36 +1067,36 @@ begin
       hispi_io_clk_n           => hispi_io_clk_n,
       hispi_io_data_p          => hispi_io_data_p,
       hispi_io_data_n          => hispi_io_data_n,
-      sclk_tready              => sclk_tready,
-      sclk_tvalid              => sclk_tvalid,
-      sclk_tuser               => sclk_tuser,
-      sclk_tlast               => sclk_tlast,
-      sclk_tdata               => sclk_tdata
+      sclk_tready              => aclk_tready,
+      sclk_tvalid              => aclk_tvalid,
+      sclk_tuser               => aclk_tuser,
+      sclk_tlast               => aclk_tlast,
+      sclk_tdata               => aclk_tdata
       );
 
 
-  xgs_mono_pipeline_inst : xgs_mono_pipeline
-    generic map(
-      SIMULATION => SIMULATION
-      )
-    port map(
-      regfile      => regfile,
-      sclk         => sclk,
-      sclk_reset_n => sclk_reset_n,
-      sclk_tready  => sclk_tready,
-      sclk_tvalid  => sclk_tvalid,
-      sclk_tuser   => sclk_tuser,
-      sclk_tlast   => sclk_tlast,
-      sclk_tdata   => sclk_tdata,
+  -- xgs_mono_pipeline_inst : xgs_mono_pipeline
+  --   generic map(
+  --     SIMULATION => SIMULATION
+  --     )
+  --   port map(
+  --     regfile      => regfile,
+  --     sclk         => sclk,
+  --     sclk_reset_n => sclk_reset_n,
+  --     sclk_tready  => sclk_tready,
+  --     sclk_tvalid  => sclk_tvalid,
+  --     sclk_tuser   => sclk_tuser,
+  --     sclk_tlast   => sclk_tlast,
+  --     sclk_tdata   => sclk_tdata,
 
-      aclk         => aclk,
-      aclk_reset_n => aclk_reset_n,
-      aclk_tready  => aclk_tready,
-      aclk_tvalid  => aclk_tvalid,
-      aclk_tuser   => aclk_tuser,
-      aclk_tlast   => aclk_tlast,
-      aclk_tdata   => aclk_tdata
-      );
+  --     aclk         => aclk,
+  --     aclk_reset_n => aclk_reset_n,
+  --     aclk_tready  => aclk_tready,
+  --     aclk_tvalid  => aclk_tvalid,
+  --     aclk_tuser   => aclk_tuser,
+  --     aclk_tlast   => aclk_tlast,
+  --     aclk_tdata   => aclk_tdata
+  --     );
 
 
   ----------------------------------
@@ -1204,11 +1215,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tvalid => lut_tvalid,
-        m_axis_tready => lut_tready,
-        m_axis_tuser  => lut_tuser,
-        m_axis_tlast  => lut_tlast,
-        m_axis_tdata  => lut_tdata,
+        m_axis_tvalid => xtrim_tvalid,
+        m_axis_tready => xtrim_tready,
+        m_axis_tuser  => xtrim_tuser,
+        m_axis_tlast  => xtrim_tlast,
+        m_axis_tdata  => xtrim_tdata,
 
         ---------------------------------------------------------------------------
         --  Registers
@@ -1284,11 +1295,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tready => dma_tready,
-        m_axis_tvalid => dma_tvalid,
-        m_axis_tuser  => dma_tuser,
-        m_axis_tlast  => dma_tlast,
-        m_axis_tdata  => dma_tdata,
+        m_axis_tready => xtrim_tready,
+        m_axis_tvalid => xtrim_tvalid,
+        m_axis_tuser  => xtrim_tuser,
+        m_axis_tlast  => xtrim_tlast,
+        m_axis_tdata  => xtrim_tdata,
         ---------------------------------------------------------------------              
         -- Grab parameters         
         ---------------------------------------------------------------------
@@ -1357,6 +1368,8 @@ begin
   end generate G_COLOR_PIPELINE;
 
 
+
+  
   x_trim_inst : x_trim
     generic map(
       NUMB_LINE_BUFFER => 2
@@ -1372,11 +1385,11 @@ begin
       aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
       aclk               => aclk,
       aclk_reset_n       => aclk_reset_n,
-      aclk_tready        => lut_tready,
-      aclk_tvalid        => lut_tvalid,
-      aclk_tuser         => lut_tuser,
-      aclk_tlast         => lut_tlast,
-      aclk_tdata         => lut_tdata,
+      aclk_tready        => xtrim_tready,
+      aclk_tvalid        => xtrim_tvalid,
+      aclk_tuser         => xtrim_tuser,
+      aclk_tlast         => xtrim_tlast,
+      aclk_tdata         => xtrim_tdata,
       bclk               => aclk,
       bclk_reset_n       => aclk_reset_n,
       bclk_tready        => dma_tready,

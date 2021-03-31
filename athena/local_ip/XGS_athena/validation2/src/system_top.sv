@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module system_top(
-   
+
     // Regfile interface with host
 	input logic aclk,
 	input logic aclk_reset_n,
@@ -23,10 +23,10 @@ module system_top(
 	output logic [31:0] aclk_rdata,
 	output logic [1 :0] aclk_rresp,
 	output logic aclk_rvalid,
-	input logic aclk_rready,  
+	input logic aclk_rready,
 
     // AXI STREAM interface with host (output to HOST)
-	input  logic s_axis_tx_tready, 
+	input  logic s_axis_tx_tready,
 	output logic [63:0] s_axis_tx_tdata,
 	output logic s_axis_tx_tlast,
 	output logic s_axis_tx_tvalid,
@@ -37,7 +37,7 @@ module system_top(
 	input  logic anput_ext_trig
 
 );
-	
+
 	parameter NUMBER_OF_LANE = 6; // 4 Not supported yet...
 	parameter MUX_RATIO = 4;
 	parameter PIXELS_PER_LINE=4176;
@@ -48,7 +48,8 @@ module system_top(
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
 	parameter EXPOSURE=50;
-   
+	parameter COLOR = 0;
+
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;
 	parameter AXIS_DATA_WIDTH = 64;
@@ -95,13 +96,13 @@ module system_top(
 	logic 	   xgs_monitor2;
 	logic 	   xgs_trig_int;
 	logic 	   xgs_trig_rd;
-   
-	logic 	   xgs_reset_n_5000;	
+
+	logic 	   xgs_reset_n_5000;
 	logic 	   refclk_5000;
 	logic 	   xgs_sclk_5000;
 	logic 	   xgs_cs_n_5000;
 	logic 	   xgs_sdout_5000;
-	logic 	   xgs_sdin_5000;	
+	logic 	   xgs_sdin_5000;
 	wire 	   xgs_monitor0_5000;
 	wire 	   xgs_monitor1_5000;
 	wire 	   xgs_monitor2_5000;
@@ -157,20 +158,20 @@ module system_top(
 	//---------------------------------------
 	xgs12m_chip
 		#(
-    		.G_xgs_image_file_dec   ("XGS_image_5000_dec.pgm"), 
+    		.G_xgs_image_file_dec   ("XGS_image_5000_dec.pgm"),
     		.G_xgs_image_file_hex12 ("XGS_image_5000_hex12.pgm"),
     		.G_xgs_image_file_hex8  ("XGS_image_5000_hex8.pgm"),
 			.G_MODEL_ID         (16'h0358),
 			.G_REV_ID           (16'h0000),
 			.G_NUM_PHY          (4),
-			.G_PXL_PER_COLRAM   (174),      
+			.G_PXL_PER_COLRAM   (174),
 			.G_PXL_ARRAY_ROWS   (2078)
 			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_5000
-		(		
-			.xgs_model_GenImage(1'b0), 
-			 
+		(
+			.xgs_model_GenImage(1'b0),
+
 			.TRIGGER_INT(xgs_trig_int_5000),
 
 			.MONITOR0(xgs_monitor0_5000),
@@ -256,19 +257,19 @@ module system_top(
 	//---------------------------------------
 	xgs12m_chip
 		#(
-	   		.G_xgs_image_file_dec   ("XGS_image_12000_dec.pgm"), 
+	   		.G_xgs_image_file_dec   ("XGS_image_12000_dec.pgm"),
 	   		.G_xgs_image_file_hex12 ("XGS_image_12000_hex12.pgm"),
 	   		.G_xgs_image_file_hex8  ("XGS_image_12000_hex8.pgm"),
 			.G_MODEL_ID         (16'h0058),
 			.G_REV_ID           (16'h0002),
 			.G_NUM_PHY          (6),
-			.G_PXL_PER_COLRAM   (174),      
+			.G_PXL_PER_COLRAM   (174),
 			.G_PXL_ARRAY_ROWS   (3102)
 			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_12000
-		(		
-			.xgs_model_GenImage(1'b0), 
+		(
+			.xgs_model_GenImage(1'b0),
 
 			.TRIGGER_INT(xgs_trig_int_12000),
 			.MONITOR0(xgs_monitor0_12000),
@@ -348,21 +349,21 @@ module system_top(
 	//---------------------------------------
 	xgs12m_chip
 		#(
-    		.G_xgs_image_file_dec   ("XGS_image_16000_dec.pgm"), 
+    		.G_xgs_image_file_dec   ("XGS_image_16000_dec.pgm"),
     		.G_xgs_image_file_hex12 ("XGS_image_16000_hex12.pgm"),
    		    .G_xgs_image_file_hex8  ("XGS_image_16000_hex8.pgm"),
 
 			.G_MODEL_ID         (16'h0258),
 			.G_REV_ID           (16'h0000),
 			.G_NUM_PHY          (6),
-			.G_PXL_PER_COLRAM   (174),      
+			.G_PXL_PER_COLRAM   (174),
 			.G_PXL_ARRAY_ROWS   (4030)
 			//.G_PXL_ARRAY_ROWS   (1000)
 		)
 		XGS_MODEL_16000
-		(		
-			.xgs_model_GenImage(1'b0), 
-			 
+		(
+			.xgs_model_GenImage(1'b0),
+
 			.TRIGGER_INT(xgs_trig_int_16000),
 
 			.MONITOR0(xgs_monitor0_16000),
@@ -486,7 +487,7 @@ module system_top(
 			xgs_sdin         = xgs_sdin_5000;
 
     	    refclk_5000      = XGS_MODEL_EXTCLK;
-			xgs_reset_n_5000 = xgs_reset_n; 
+			xgs_reset_n_5000 = xgs_reset_n;
 			xgs_sclk_5000    = xgs_sclk;
 			xgs_cs_n_5000    = xgs_cs_n;
 			xgs_sdout_5000   = xgs_sdout;
@@ -499,7 +500,7 @@ module system_top(
 				xgs_sclk_5000     = 0;
 				xgs_sdout_5000    = 0;
 				xgs_cs_n_5000     = 1;
-    	        refclk_5000       = 0;  
+    	        refclk_5000       = 0;
 		        xgs_trig_int_5000 = 0;
 
 				xgs_reset_n_16000 = 0;
@@ -535,14 +536,14 @@ module system_top(
 				xgs_sdin         = xgs_sdin_12000;
 
     	        refclk_12000      = XGS_MODEL_EXTCLK;
-				xgs_reset_n_12000 = xgs_reset_n; 
+				xgs_reset_n_12000 = xgs_reset_n;
 				xgs_sclk_12000    = xgs_sclk;
 				xgs_cs_n_12000    = xgs_cs_n;
 				xgs_sdout_12000   = xgs_sdout;
 			    xgs_trig_int_12000= xgs_trig_int;
 
-			end 
-			
+			end
+
 			else
 				if(XGSmodel_sel == 2) begin
 
@@ -550,14 +551,14 @@ module system_top(
 					xgs_sclk_5000     = 0;
 					xgs_sdout_5000    = 0;
 					xgs_cs_n_5000     = 1;
-    	        	refclk_5000       = 0;  
+    	        	refclk_5000       = 0;
 		        	xgs_trig_int_5000 = 0;
 
 					xgs_reset_n_12000 = 0;
 					xgs_sclk_12000    = 0;
 					xgs_sdout_12000   = 0;
 					xgs_cs_n_12000    = 1;
-    	        	refclk_12000      = 0;  
+    	        	refclk_12000      = 0;
 		        	xgs_trig_int_12000= 0;
 
 					if_hispi.hclk_n[0] = if_hispi_16000.hclk_n[0];
@@ -586,7 +587,7 @@ module system_top(
 					xgs_sdin         = xgs_sdin_16000;
 
     	        	refclk_16000      = XGS_MODEL_EXTCLK;
-					xgs_reset_n_16000 = xgs_reset_n; 
+					xgs_reset_n_16000 = xgs_reset_n;
 					xgs_sclk_16000    = xgs_sclk;
 					xgs_cs_n_16000    = xgs_cs_n;
 					xgs_sdout_16000   = xgs_sdout;
@@ -594,9 +595,9 @@ module system_top(
 				end
 
 	end
-	
-	
-	
+
+
+
 
 
 
@@ -607,7 +608,8 @@ module system_top(
 			.MAX_PCIE_PAYLOAD_SIZE(MAX_PCIE_PAYLOAD_SIZE),
 			.SYS_CLK_PERIOD(SYS_CLK_PERIOD),
 			.SENSOR_FREQ(SENSOR_FREQ),
-			.SIMULATION(SIMULATION)
+			.SIMULATION(SIMULATION),
+			.COLOR(COLOR)
 		) DUT (
 			.aclk(aclk),
 			.aclk_reset_n(aclk_reset_n),
@@ -719,7 +721,7 @@ module system_top(
 	//assign anput_ext_trig = 1'b0;
 
 	assign cfg_bus_mast_en = 1'b1;
-	
+
 	// PCIE Device Control Register (Offset 08h); bits 7:5
     //	000b 128 bytes max payload size
     //	001b 256 bytes max payload size

@@ -27,7 +27,8 @@ use work.hispi_pack.all;
 entity xgs_hispi_top is
   generic (
     HW_VERSION     : integer range 0 to 255 := 0;
-    NUMBER_OF_LANE : integer                := 6  -- 4 or 6 lanes supported
+    NUMBER_OF_LANE : integer                := 6; -- 4 or 6 lanes supported
+    COLOR          : integer                := 0  -- 0 Mono; 1 Color
     );
   port (
     ---------------------------------------------------------------------------
@@ -74,7 +75,7 @@ entity xgs_hispi_top is
     sclk_tvalid : out std_logic;
     sclk_tuser  : out std_logic_vector(3 downto 0);
     sclk_tlast  : out std_logic;
-    sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
+    sclk_tdata  : out std_logic_vector(79 downto 0)
     );
 end entity xgs_hispi_top;
 
@@ -196,7 +197,7 @@ architecture rtl of xgs_hispi_top is
       sclk_tvalid : out std_logic;
       sclk_tuser  : out std_logic_vector(3 downto 0);
       sclk_tlast  : out std_logic;
-      sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
+      sclk_tdata  : out std_logic_vector(79 downto 0)
       );
   end component;
 

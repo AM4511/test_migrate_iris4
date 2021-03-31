@@ -127,12 +127,12 @@ ${TESTBENCH_SRC_PATH}/interfaces/io_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/tlp_interface.sv \
 ${TESTBENCH_SRC_PATH}/drivers/driver_pkg.sv \
 ${TESTBENCH_SRC_PATH}/drivers/Cdriver_axil.svh \
-${TESTBENCH_SRC_PATH}/CVlib.sv \
-${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Cimage.sv \
-${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
 ${TESTBENCH_SRC_PATH}/core_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Cstatus.svh \
+${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
+${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
+${TESTBENCH_SRC_PATH}/CVlib.sv \
 ${TESTBENCH_SRC_PATH}/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Ctest.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0001.svh \

@@ -20,6 +20,11 @@ set_property used_in_synthesis false [get_files  ${XDC_DIR}/implementation_timin
 # Needs to be processed late because of the set_property IOB false constraints
 set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/implementation_timing_constraints.xdc]
 
+
+set_property used_in_synthesis false [get_files  ${XDC_DIR}/compile.xdc]
+# Needs to be processed late because of the set_property IOB false constraints
+set_property PROCESSING_ORDER LATE   [get_files  ${XDC_DIR}/compile.xdc]
+
 # Target constraints file
 set TARGET_CONSTRAIN_FILE [file normalize "${XDC_DIR}/new_constraints.xdc"]
 if {![file exists $TARGET_CONSTRAIN_FILE]} {
