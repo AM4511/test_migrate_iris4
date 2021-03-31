@@ -64,10 +64,16 @@ puts "Running ${myself}"
 #         Fixed ProdCons[0] write access issue 
 #             See JIRA : https://jira.matrox.com:8443/browse/IRIS4-430
 #
+# 0.2.0 : Implement the multi boot mechanism (Golden and upgrade firmware)
+#         Flash programation offset 
+#                NPI Golden  : 0x000000
+#                MIL Upgrade : 0x400000
+#         Added new field in register FPGA_ID (@0x0020): 
+#                regfile.Device_specific.FPGA_ID.NPI_GOLDEN (Read only)
 # ################################################################
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     1
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_MINOR_VERSION     2
+set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"

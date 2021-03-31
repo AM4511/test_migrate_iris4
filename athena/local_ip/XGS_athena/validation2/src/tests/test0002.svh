@@ -88,7 +88,7 @@ class Test0002 extends CTest;
 				//
 				//--------------------------------------------------
 				//super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
-				super.Vlib.GenImage_XGS(0);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				super.Vlib.GenImage_XGS(1);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				super.Vlib.XGS_imageSRC.load_image(XGS_Model);                             // Load le .pgm dans la class SystemVerilog
 
 
@@ -105,7 +105,7 @@ class Test0002 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 4;           // Doit etre multiple de 4
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
@@ -127,6 +127,7 @@ class Test0002 extends CTest;
 				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
+
 				///////////////////////////////////////////////////
 				// Trigger ROI #1
 				///////////////////////////////////////////////////
@@ -140,6 +141,7 @@ class Test0002 extends CTest;
 
 				SUB_X       = 0;
 				SUB_Y       = 1;
+
 
 			    EXPOSURE    = 50; // exposure=50us
 
@@ -157,13 +159,14 @@ class Test0002 extends CTest;
 				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
+
 				///////////////////////////////////////////////////
 				// Wait for the 2 images
 				///////////////////////////////////////////////////
                 super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+                #250us;
 
 
-				#250us;
 		        super.say_goodbye();
 		    end
 

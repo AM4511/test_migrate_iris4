@@ -80,6 +80,15 @@ set UPGRADE_MCS_FILENAME          ${UPGRADE_BASE_NAME}.mcs
 set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
 
 
+# Set the firmware type for the .firmware file (UPGRADE or GOLDEN)
+set FIRMWARE_TYPE  "UPGRADE"
+if {${FPGA_IS_NPI_GOLDEN} eq "true"} {
+  puts "### Generating NPI upgrade firmware ###"
+  set FIRMWARE_TYPE  "GOLDEN"
+  set_property BITSTREAM.CONFIG.NEXT_CONFIG_ADDR ${NEXT_CONFIG_ADDR} [current_design]
+
+}
+
 # Create upgrade firmware
 write_bitstream -force $UPGRADE_BIT_FILENAME
 
@@ -89,11 +98,6 @@ write_cfgmem -force -format MCS -size 8 -interface SPIx2 -checksum  -loadbit "up
 # Create the .bin version
 write_cfgmem -force -format BIN -size 8 -interface SPIx2 -checksum  -loadbit "up ${FLASH_OFFSET} ${UPGRADE_BIT_FILENAME} " ${UPGRADE_BIN_FILENAME}
 
-# Set the firmware type for the .firmware file (UPGRADE or GOLDEN)
-set FIRMWARE_TYPE  "UPGRADE"
-if {${FPGA_IS_NPI_GOLDEN} == 1} {
-  set FIRMWARE_TYPE  "GOLDEN"
-}
 
 # ####################################################################################
 # Generate .firmware

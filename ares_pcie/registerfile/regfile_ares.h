@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xA7167277
+* Register file CRC32 : 0xCC132AEB
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -201,13 +201,15 @@ typedef union
    struct
    {
       M_UINT32 fpga_id        : 5;   /* Bits(4:0), null */
-      M_UINT32 rsvd0          : 5;   /* Bits(9:5), Reserved */
+      M_UINT32 rsvd0          : 3;   /* Bits(7:5), Reserved */
+      M_UINT32 npi_golden     : 1;   /* Bits(8:8), NPI Golden fpga */
+      M_UINT32 rsvd1          : 1;   /* Bits(9:9), Reserved */
       M_UINT32 pb_debug_com   : 1;   /* Bits(10:10), null */
-      M_UINT32 rsvd1          : 1;   /* Bits(11:11), Reserved */
+      M_UINT32 rsvd2          : 1;   /* Bits(11:11), Reserved */
       M_UINT32 profinet_led   : 1;   /* Bits(12:12), null */
       M_UINT32 user_green_led : 1;   /* Bits(13:13), User green LED enable */
       M_UINT32 user_red_led   : 1;   /* Bits(14:14), User red LED enable */
-      M_UINT32 rsvd2          : 13;  /* Bits(27:15), Reserved */
+      M_UINT32 rsvd3          : 13;  /* Bits(27:15), Reserved */
       M_UINT32 fpga_straps    : 4;   /* Bits(31:28), FPGA Strapping */
    } f;
 

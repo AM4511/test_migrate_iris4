@@ -70,7 +70,7 @@ entity axi_line_streamer is
     sclk_tvalid : out std_logic;
     sclk_tuser  : out std_logic_vector(3 downto 0);
     sclk_tlast  : out std_logic;
-    sclk_tdata  : out PIXEL_ARRAY(7 downto 0)
+    sclk_tdata  : out std_logic_vector(79 downto 0)
     );
 end axi_line_streamer;
 
@@ -139,8 +139,8 @@ architecture rtl of axi_line_streamer is
   signal sclk_tvalid_int                 : std_logic;
 
   signal sclk_fifo_read_en       : std_logic;
-  signal sclk_fifo_read_data_slv : std_logic_vector(79 downto 0);
-  signal sclk_fifo_read_data     : PIXEL_ARRAY(7 downto 0);
+  --signal sclk_fifo_read_data_slv : std_logic_vector(79 downto 0);
+  signal sclk_fifo_read_data     : std_logic_vector(79 downto 0);
   signal sclk_fifo_read_sync     : std_logic_vector(3 downto 0);
   signal sclk_fifo_usedw         : std_logic_vector(ADDRWIDTH downto 0);
   signal sclk_fifo_empty         : std_logic;
@@ -177,6 +177,7 @@ architecture rtl of axi_line_streamer is
   signal current_y_start  : unsigned(11 downto 0);
   signal current_y_stop   : unsigned(11 downto 0);
   signal odd_line         : std_logic;
+  signal sclk_dbg_pix_array : PIXEL_ARRAY(7 downto 0);
 
   signal stream_pace_cntr      : unsigned(1 downto 0);
   signal incr_stream_pace_cntr : std_logic;
@@ -216,13 +217,13 @@ architecture rtl of axi_line_streamer is
 
   attribute mark_debug of sclk_fifo_write_en              : signal is "true";
   attribute mark_debug of sclk_fifo_write_data            : signal is "true";
-  attribute mark_debug of sclk_fifo_write_data_slv        : signal is "true";
+  --attribute mark_debug of sclk_fifo_write_data_slv        : signal is "true";
   attribute mark_debug of sclk_fifo_write_sync            : signal is "true";
   attribute mark_debug of sclk_fifo_write_aggregated_data : signal is "true";
   attribute mark_debug of sclk_data_packer_rdy            : signal is "true";
   attribute mark_debug of sclk_tvalid_int                 : signal is "true";
   attribute mark_debug of sclk_fifo_read_en               : signal is "true";
-  attribute mark_debug of sclk_fifo_read_data_slv         : signal is "true";
+  --attribute mark_debug of sclk_fifo_read_data_slv         : signal is "true";
   attribute mark_debug of sclk_fifo_read_data             : signal is "true";
   attribute mark_debug of sclk_fifo_read_sync             : signal is "true";
   attribute mark_debug of sclk_fifo_usedw                 : signal is "true";
@@ -287,7 +288,7 @@ begin
   end process;
 
 
-  m_wait <= '1' when (sclk_tready = '0') else
+  m_wait <= '1' when (sclk_tready = '0' and sclk_tvalid_int = '1') else
             '0';
 
 
@@ -921,6 +922,7 @@ begin
   sclk_fifo_write_data            <= sclk_data_packer(7 downto 0);
   sclk_fifo_write_data_slv        <= to_std_logic_vector(sclk_fifo_write_data);
   sclk_fifo_write_aggregated_data <= sclk_fifo_write_sync & sclk_fifo_write_data_slv;
+  --sclk_fifo_write_aggregated_data <= sclk_fifo_write_sync & sclk_fifo_write_data;
 
 
   xoutput_fifo : mtxSCFIFO
@@ -934,21 +936,22 @@ begin
       wren            => sclk_fifo_write_en,
       data            => sclk_fifo_write_aggregated_data,
       rden            => sclk_fifo_read_en,
-      q(79 downto 0)  => sclk_fifo_read_data_slv,
+      --q(79 downto 0)  => sclk_fifo_read_data_slv,
+      q(79 downto 0)  => sclk_fifo_read_data,
       q(83 downto 80) => sclk_fifo_read_sync,
       usedw           => sclk_fifo_usedw,
       empty           => sclk_fifo_empty,
       full            => sclk_fifo_full
       );
 
-  sclk_fifo_read_data(0) <= sclk_fifo_read_data_slv(9 downto 0);
-  sclk_fifo_read_data(1) <= sclk_fifo_read_data_slv(19 downto 10);
-  sclk_fifo_read_data(2) <= sclk_fifo_read_data_slv(29 downto 20);
-  sclk_fifo_read_data(3) <= sclk_fifo_read_data_slv(39 downto 30);
-  sclk_fifo_read_data(4) <= sclk_fifo_read_data_slv(49 downto 40);
-  sclk_fifo_read_data(5) <= sclk_fifo_read_data_slv(59 downto 50);
-  sclk_fifo_read_data(6) <= sclk_fifo_read_data_slv(69 downto 60);
-  sclk_fifo_read_data(7) <= sclk_fifo_read_data_slv(79 downto 70);
+  -- sclk_fifo_read_data(0) <= sclk_fifo_read_data_slv(9 downto 0);
+  -- sclk_fifo_read_data(1) <= sclk_fifo_read_data_slv(19 downto 10);
+  -- sclk_fifo_read_data(2) <= sclk_fifo_read_data_slv(29 downto 20);
+  -- sclk_fifo_read_data(3) <= sclk_fifo_read_data_slv(39 downto 30);
+  -- sclk_fifo_read_data(4) <= sclk_fifo_read_data_slv(49 downto 40);
+  -- sclk_fifo_read_data(5) <= sclk_fifo_read_data_slv(59 downto 50);
+  -- sclk_fifo_read_data(6) <= sclk_fifo_read_data_slv(69 downto 60);
+  -- sclk_fifo_read_data(7) <= sclk_fifo_read_data_slv(79 downto 70);
 
 
   -----------------------------------------------------------------------------
@@ -1149,16 +1152,24 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (sclk_reset = '1') then
-        sclk_tdata <= (others => (others => '0'));
+        sclk_tdata <= (others => '0');
       else
         if (m_wait = '0' and read_data_valid = '1') then
           sclk_tdata <= sclk_fifo_read_data;
+          sclk_dbg_pix_array(0) <= sclk_fifo_read_data(9 downto 0);
+          sclk_dbg_pix_array(1) <= sclk_fifo_read_data(19 downto 10);
+          sclk_dbg_pix_array(2) <= sclk_fifo_read_data(29 downto 20);
+          sclk_dbg_pix_array(3) <= sclk_fifo_read_data(39 downto 30);
+          sclk_dbg_pix_array(4) <= sclk_fifo_read_data(49 downto 40);
+          sclk_dbg_pix_array(5) <= sclk_fifo_read_data(59 downto 50);
+          sclk_dbg_pix_array(6) <= sclk_fifo_read_data(69 downto 60);
+          sclk_dbg_pix_array(7) <= sclk_fifo_read_data(79 downto 70);
         end if;
       end if;
     end if;
   end process;
 
-
+    
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_tlast
   -- Description : In the AXI stream video protocol TLAST is used as the EOL

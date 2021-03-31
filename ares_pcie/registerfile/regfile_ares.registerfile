@@ -103,6 +103,11 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Profiblaze output is seen on the internal com port&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+      <fields name="NPI_GOLDEN" alias="NPI Golden fpga" description="Indicates if the current firmware is a NPI golden FPGA (fallback FPGA) or a regular MIL upgrade FPGA." lsb="8" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Current firmware is a regular MIL upgrade FPGA&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Current firmware is a NPI golden FPGA&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="FPGA_ID" description="This is the FPGA_ID.&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" size="5" valueAtReset="2" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Spartan6 LX9 fpga used on Y7449-00 (deprecated)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Spartan6 LX16 fpga used on Y7449-01,02&lt;/matrox_column_delimiter></possibleValues>

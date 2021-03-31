@@ -49,9 +49,13 @@ puts "Running ${myself}"
 #              ** X_subsampling [0:15]
 #              ** X_reverse
 #
+# 0.4.0 : Implemented Golden upgrade mechanism
+#          
+#
+
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     3
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_MINOR_VERSION     4
+set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"

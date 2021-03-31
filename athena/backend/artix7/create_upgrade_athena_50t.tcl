@@ -1,0 +1,55 @@
+# ##################################################################################
+# File         : create_athena_50t.tcl
+# Description  : TCL script used to create athena fpga 50T. 
+#
+# Example      : source $env(IRIS4)/athena/backend/artix7/create_upgrade_athena_50t.tcl
+#
+# ##################################################################################
+set DEBUG 0
+
+if {$DEBUG == 0} {
+  set myself [info script]
+} else {
+  set myself $env(IRIS4)/athena/backend/artix7/create_upgrade_athena_50t.tcl
+}
+
+
+# ##################################################################################
+#
+# ##################################################################################
+if {[file exists $myself ]} {
+   puts "Running ${myself}"
+   set BACKEND_DIR [file normalize [file dirname ${myself}]]
+   set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
+   
+   set BASE_NAME             "upgrade_athena50t"
+   set DEVICE                "xc7a50ticpg236-1L"
+   
+   # FPGA_DEVICE_ID (DEVICE ID MAP) :
+   # Generic passed to VHDL top level file by generic
+   #  0      : xc7a50ticpg236-1L
+   #  1      : xc7a35ticpg236-1L
+   #  Others : reserved
+   set FPGA_DEVICE_ID 0
+   
+   # Generic passed to VHDL top level file by generic
+   set FPGA_IS_NPI_GOLDEN     "false"
+   
+   # Flash programation offset 
+   # NPI Golden  : 0x000000)
+   # MIL Upgrade : 0x400000)
+   set FLASH_OFFSET     0x400000
+
+   
+   # ############################################
+   # Starting generation script
+   # ############################################
+   if {${DEBUG} == 0} {
+   source $BACKEND_DIR/create_athena.tcl
+   }
+
+   
+} else {
+   puts "Error : script $myself does not exist!!!"
+
+}

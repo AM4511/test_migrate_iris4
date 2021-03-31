@@ -37,7 +37,6 @@ class Test0003 extends CTest;
     int test_nb_images;
 
 
-
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
         super.new("Test0003", host, tx_axis_if);
         this.host       = host;
@@ -78,6 +77,7 @@ class Test0003 extends CTest;
 		        super.Vlib.testI2Csemaphore();
 			    #200us;
 
+
 		        //-------------------------------------------------
 				// Generation de l'image du senseur XGS
 				//
@@ -97,7 +97,6 @@ class Test0003 extends CTest;
 				///////////////////////////////////////////////////
                 super.Vlib.DPC_add_list();
 
-
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
 				///////////////////////////////////////////////////
@@ -106,7 +105,7 @@ class Test0003 extends CTest;
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				ROI_Y_START = 4;           // Doit etre multiple de 4
-				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
+				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
 				SUB_X       = 0;
@@ -143,6 +142,7 @@ class Test0003 extends CTest;
 				SUB_X       = 0;
 				SUB_Y       = 1;
 
+
 			    EXPOSURE    = 50; // exposure=50us
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
@@ -159,11 +159,13 @@ class Test0003 extends CTest;
 				super.Vlib.Gen_predict_img(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
+
 				///////////////////////////////////////////////////
 				// Wait for the 2 images
 				///////////////////////////////////////////////////
                 super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;
+
 
 		        super.say_goodbye();
 		    end
