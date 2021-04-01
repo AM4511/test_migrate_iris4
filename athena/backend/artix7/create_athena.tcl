@@ -50,6 +50,7 @@ puts "Running ${myself}"
 #              ** X_reverse
 #
 # 0.4.0 : Implemented Golden upgrade mechanism
+#         Connected the register field fpga.version.firmware type to the Athena top level Generic : FPGA_IS_NPI_GOLDEN
 #          
 #
 

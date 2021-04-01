@@ -22,8 +22,8 @@ if {[file exists $myself ]} {
    set BACKEND_DIR [file normalize [file dirname ${myself}]]
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
    
-   set BASE_NAME             "golden_athena50t"
-   set DEVICE                "xc7a50ticpg236-1L"
+   set BASE_NAME "golden_athena50t"
+   set DEVICE    "xc7a50ticpg236-1L"
    
    # FPGA_DEVICE_ID (DEVICE ID MAP) :
    # Generic passed to VHDL top level file by generic
@@ -33,7 +33,11 @@ if {[file exists $myself ]} {
    set FPGA_DEVICE_ID 0
    
    # Generic passed to VHDL top level file by generic
-   set FPGA_IS_NPI_GOLDEN     "true"
+   # 0      : MIL upgrade firmware
+   # 1      : NPI golden firmware
+   # 2      : Engineering firmware
+   # Others : Reserved
+   set FPGA_IS_NPI_GOLDEN 1
    
    # Flash programation offset 
    # NPI Golden  : 0x000000)

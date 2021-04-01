@@ -84,7 +84,7 @@ set UPGRADE_FIRMWARE_FILENAME     ${UPGRADE_BASE_NAME}.firmware
 
 # Set the firmware type for the .firmware file (UPGRADE or GOLDEN)
 # report_property -all [current_design] BITSTREAM*
-if {${FPGA_IS_NPI_GOLDEN} eq "true"} {
+if {${FPGA_IS_NPI_GOLDEN} == 1} {
   puts "### Generating NPI golden firmware ###"
   puts "# Firmware offset : ${FLASH_OFFSET}"
   puts "# Upgrade  offset : ${NEXT_CONFIG_ADDR}"
