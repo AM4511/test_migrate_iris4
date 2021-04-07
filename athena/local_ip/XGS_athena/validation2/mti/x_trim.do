@@ -6,6 +6,7 @@ add wave -noupdate -expand -group x_trim -group registerfile /testbench/DUT/aclk
 add wave -noupdate -expand -group x_trim -group registerfile /testbench/DUT/aclk_x_size
 add wave -noupdate -expand -group x_trim -group registerfile /testbench/DUT/aclk_x_scale
 add wave -noupdate -expand -group x_trim -group registerfile /testbench/DUT/aclk_x_reverse
+add wave -noupdate -expand -group x_trim -group registerfile /testbench/DUT/aclk_csc
 add wave -noupdate -expand -group x_trim -expand -group {Axi Stream input} /testbench/DUT/aclk_tready
 add wave -noupdate -expand -group x_trim -expand -group {Axi Stream input} /testbench/DUT/aclk_tvalid
 add wave -noupdate -expand -group x_trim -expand -group {Axi Stream input} /testbench/DUT/aclk_tuser
@@ -44,9 +45,9 @@ add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /tes
 add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /testbench/DUT/aclk_buffer_ptr
 add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /testbench/DUT/aclk_init_buffer_ptr
 add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /testbench/DUT/aclk_nxt_buffer
-add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} -color Cyan /testbench/DUT/aclk_write_en
-add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /testbench/DUT/aclk_write_address
-add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} /testbench/DUT/aclk_write_data
+add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} -color {Medium Orchid} /testbench/DUT/aclk_write_en
+add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} -color {Medium Orchid} /testbench/DUT/aclk_write_address
+add wave -noupdate -expand -group x_trim -expand -group {Line buffer write} -color {Medium Orchid} /testbench/DUT/aclk_write_data
 add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (write I/F)} /testbench/DUT/aclk_cmd_wen
 add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (write I/F)} /testbench/DUT/aclk_cmd_full
 add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (write I/F)} /testbench/DUT/aclk_cmd_data
@@ -59,31 +60,22 @@ add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_x_reverse_Meta
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_x_reverse
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_reset
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_full
-add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_empty
-add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_row_cntr
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_read_address
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_read_en
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_read_data
-add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_used_buffer
-add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_transfer_done
-add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_init
 add wave -noupdate -expand -group x_trim /testbench/DUT/bclk_buffer_rdy
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_ren
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_empty
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_data
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_sync
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_size
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_last_ben
-add wave -noupdate -expand -group x_trim -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_buff_ptr
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_reset_n
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tready
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tvalid
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tuser
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tlast
-add wave -noupdate -expand -group x_trim -group {AXI stream output} /testbench/DUT/bclk_tdata
+add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_ren
+add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_empty
+add wave -noupdate -expand -group x_trim -expand -group {Command FiFo (read I/F)} /testbench/DUT/bclk_cmd_data
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_reset_n
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_tready
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_tvalid
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_tuser
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_tlast
+add wave -noupdate -expand -group x_trim -expand -group {AXI stream output} /testbench/DUT/bclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2574217 ps} 0}
+WaveRestoreCursors {{Cursor 1} {39958324 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 210
 configure wave -valuecolwidth 233
@@ -99,4 +91,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {17148160 ps} {17976939 ps}
+WaveRestoreZoom {0 ps} {44108925 ps}

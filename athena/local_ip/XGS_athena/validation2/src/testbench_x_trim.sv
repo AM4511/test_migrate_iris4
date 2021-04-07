@@ -4,6 +4,7 @@
 module testbench();
 	parameter TEST_NAME = "UNKNOWN";
 	parameter PIXEL_WIDTH = 1;  // size in bytes
+	parameter PIXEL_CSC = 0;    // Pixel color space
 	parameter Y_SIZE = 4;       // size in rows
 	parameter X_SIZE = 256;     // size in pixels
 	parameter X_ROI_EN = 1;
@@ -11,9 +12,9 @@ module testbench();
 	parameter X_ROI_SIZE = 128; // size in pixels
 	parameter X_REVERSE = 0;
 	parameter X_SCALING = 0;    // size in pixels
-
+	parameter NUMB_LINE_BUFFER = 2;
 	parameter WATCHDOG_MAX_CNT = 1000;
-
+    parameter COLOR = 0;
 
 	typedef struct {
 		int row_id;
@@ -32,6 +33,7 @@ module testbench();
 	bit [3:0]  aclk_tuser;
 	bit [63:0] aclk_tdata;
 	bit [2:0]  aclk_pixel_width;
+	bit [2:0]  aclk_csc;
 	bit [12:0] aclk_x_size;
 	bit [12:0] aclk_x_start;
 	bit [12:0] aclk_x_stop;
@@ -58,10 +60,13 @@ module testbench();
 			//assign bclk_tready = 1;
 	int watchdog;
 	int error;
-	x_trim DUT(
+	x_trim  #(.NUMB_LINE_BUFFER(NUMB_LINE_BUFFER),
+			.COLOR(COLOR)
+			) DUT (
 			. aclk_grab_queue_en(aclk_grab_queue_en),
 			.aclk_load_context(aclk_load_context),
-			.aclk_pixel_width(aclk_pixel_width),
+			.aclk_csc(aclk_csc),
+			//.aclk_pixel_width(aclk_pixel_width),
 			.aclk_x_crop_en(aclk_x_crop_en),
 			.aclk_x_start(aclk_x_start),
 			.aclk_x_size(aclk_x_size),
@@ -97,6 +102,7 @@ module testbench();
 		// Create src data
 		////////////////////////////////////////////////////////
 		aclk_pixel_width = PIXEL_WIDTH; // in bytes
+		aclk_csc = PIXEL_CSC;
 
 		// Reverse setting
 		aclk_x_reverse = X_REVERSE;
@@ -110,7 +116,7 @@ module testbench();
 
 		$display("\n\n");
 		$display("DISPLAY     : %s",TEST_NAME);
-		$display("PIXEL_WIDTH : %0d",aclk_pixel_width);
+		$display("PIXEL_CSC   : %0d",aclk_csc);
 		$display("X_REVERSE   : %0d",aclk_x_reverse);
 		$display("X_ROI_EN    : %0d",aclk_x_crop_en);
 		$display("X_ROI_START : %0d",aclk_x_start);

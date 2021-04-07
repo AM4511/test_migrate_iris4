@@ -1,38 +1,26 @@
 -----------------------------------------------------------------------
 -- MODULE        : x_trim
 -- 
--- DESCRIPTION   : 
---              
+-- DESCRIPTION   : Receive axi streamed rows (lines) from the current frame
+--                 and apply the following processing fonction in the
+--                 following order:
 --
--- ToDO: 
+--                     * Line cropping (Region Of Interest - ROI)
+--                     * X subsampling with a scaling factor from 1 to 16
+--                     * X mirror (a.k.a line reversal)
+--
+--                 This module supports Monochrome and Color input rows 
+--
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- Crop (xstart + xsize)
--- sub  (div2. )
--- reverse
--- rgba
-
--- #  
--- # ---------------------------------
--- #  Results of testlist simulation  
--- # ---------------------------------
--- # test0001_result : PASS
--- # test0002_result : PASS
--- # test0003_result : PASS
--- # test0004_result : PASS
--- # test0005_result : FAIL
--- # test0006_result : PASS
--- # test0007_result : FAIL
--- # test0008_result : FAIL ->Revx
--- # test0009_result : PASS
--- # test0010_result : FAIL -> cropping x
 
 entity x_trim is
   generic (
-    NUMB_LINE_BUFFER : integer range 2 to 4 := 2
+    NUMB_LINE_BUFFER : integer range 2 to 4 := 2;
+    COLOR            : integer range 0 to 1 := 0  -- Boolean (0 or 1)
     );
   port (
     ---------------------------------------------------------------------------
@@ -40,7 +28,7 @@ entity x_trim is
     ---------------------------------------------------------------------------
     aclk_grab_queue_en : in std_logic;
     aclk_load_context  : in std_logic_vector(1 downto 0);
-    aclk_pixel_width   : in std_logic_vector(2 downto 0);
+    aclk_csc           : in std_logic_vector(2 downto 0);
     aclk_x_crop_en     : in std_logic;
     aclk_x_start       : in std_logic_vector(12 downto 0);
     aclk_x_size        : in std_logic_vector(12 downto 0);
@@ -228,22 +216,22 @@ architecture rtl of x_trim is
 
 
   type STRM_CONTEXT_TYPE is record
-    pixel_width : std_logic_vector(2 downto 0);
-    x_crop_en   : std_logic;
-    x_start     : std_logic_vector(12 downto 0);
-    x_size      : std_logic_vector(12 downto 0);
-    x_scale     : std_logic_vector(3 downto 0);
-    x_reverse   : std_logic;
+    csc       : std_logic_vector(2 downto 0);
+    x_crop_en : std_logic;
+    x_start   : std_logic_vector(12 downto 0);
+    x_size    : std_logic_vector(12 downto 0);
+    x_scale   : std_logic_vector(3 downto 0);
+    x_reverse : std_logic;
   end record STRM_CONTEXT_TYPE;
 
 
   constant INIT_STRM_CONTEXT_TYPE : STRM_CONTEXT_TYPE := (
-    pixel_width => (others => '0'),
-    x_crop_en   => '0',
-    x_start     => (others => '0'),
-    x_size      => (others => '0'),
-    x_scale     => (others => '0'),
-    x_reverse   => '0'
+    csc       => (others => '0'),
+    x_crop_en => '0',
+    x_start   => (others => '0'),
+    x_size    => (others => '0'),
+    x_scale   => (others => '0'),
+    x_reverse => '0'
     );
 
 
@@ -253,11 +241,13 @@ architecture rtl of x_trim is
 
   constant WORD_PTR_WIDTH      : integer := 9;
   constant BUFF_PTR_WIDTH      : integer := 1;
-  constant BUFFER_ADDR_WIDTH   : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH;  -- in bits
-  constant BUFFER_DATA_WIDTH   : integer := 64;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
   constant CMD_FIFO_DATA_WIDTH : integer := 8 + 2 + WORD_PTR_WIDTH + BUFF_PTR_WIDTH;
 
+  -- If in color mode the buffer needs to be 4x deeper (4 bytes/pix). This is
+  -- why we add (2*COLOR) to the address width.
+  constant BUFFER_ADDR_WIDTH   : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH + (2*COLOR);  -- in bits
+  constant BUFFER_DATA_WIDTH   : integer := 64;
 
   -----------------------------------------------------------------------------
   -- ACLK clock domain
@@ -289,6 +279,7 @@ architecture rtl of x_trim is
   signal aclk_cmd_size         : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_buff_ptr     : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_last_ben     : std_logic_vector(7 downto 0);
+  signal aclk_pixel_width      : std_logic_vector(2 downto 0);
 
   signal aclk_ack         : std_logic;
   signal aclk_pix_cntr    : unsigned(12 downto 0);
@@ -326,25 +317,17 @@ architecture rtl of x_trim is
 
   signal bclk_reset : std_logic;
   signal bclk_full  : std_logic;
-  signal bclk_empty : std_logic;
 
 
-  signal bclk_row_cntr      : integer;
   signal bclk_read_address  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
   signal bclk_read_en       : std_logic;
   signal bclk_read_data     : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-  signal bclk_used_buffer   : unsigned(BUFF_PTR_WIDTH downto 0);
-  signal bclk_transfer_done : std_logic;
-  signal bclk_init          : std_logic;
   signal bclk_buffer_rdy    : std_logic;
   signal bclk_cmd_ren       : std_logic;
   signal bclk_cmd_empty     : std_logic;
   signal bclk_cmd_data      : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
-  signal bclk_cmd_sync      : std_logic_vector(1 downto 0);
-  signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_last_ben  : std_logic_vector(7 downto 0);
 
+  
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
@@ -360,12 +343,12 @@ begin
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.pixel_width <= aclk_pixel_width;
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;
-  aclk_strm_context_in.x_start     <= aclk_x_start;
-  aclk_strm_context_in.x_size      <= aclk_x_size;
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;
+  aclk_strm_context_in.csc       <= aclk_csc;
+  aclk_strm_context_in.x_crop_en <= aclk_x_crop_en;
+  aclk_strm_context_in.x_start   <= aclk_x_start;
+  aclk_strm_context_in.x_size    <= aclk_x_size;
+  aclk_strm_context_in.x_scale   <= aclk_x_scale;
+  aclk_strm_context_in.x_reverse <= aclk_x_reverse;
 
 
   -----------------------------------------------------------------------------
@@ -382,7 +365,7 @@ begin
         aclk_ld_strm_ctx_FF2 <= (others => '0');
         aclk_strm_context_P0 <= INIT_STRM_CONTEXT_TYPE;
         aclk_strm_context_P1 <= INIT_STRM_CONTEXT_TYPE;
-        
+
       else
         aclk_ld_strm_ctx_FF1 <= aclk_load_context;
         aclk_ld_strm_ctx_FF2 <= aclk_ld_strm_ctx_FF1;
@@ -429,19 +412,64 @@ begin
               '0';
 
 
-  aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
+  aclk_crop_start <= unsigned(aclk_strm.x_start(aclk_pix_cntr'range)) when (aclk_strm.x_crop_en = '1') else
                      (aclk_pix_cntr'range => '0');
-  aclk_crop_size <= unsigned(aclk_x_size(aclk_pix_cntr'range));
-  aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_x_crop_en = '1') else
+  aclk_crop_size <= unsigned(aclk_strm.x_size(aclk_pix_cntr'range));
+  aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_strm.x_crop_en = '1') else
                     (aclk_pix_cntr'range => '1');
 
-  bclk_pixel_width <= aclk_pixel_width;
+
+
+  -----------------------------------------------------------------------------
+  -- Calculate the number of bytes per pixels in function of the selected color
+  -- space.the CSC value is a direct value from the field:
+  --       regfile_xgs_athena.DMA.CSC.COLOR_SPACE[2:0]
+  -----------------------------------------------------------------------------
+  P_aclk_pixel_width : process (aclk_strm) is
+  begin
+    case aclk_strm.csc is
+      -------------------------------------------------------------------------
+      -- Mono 8 bits : 1 byte/pixel 
+      -------------------------------------------------------------------------
+      when "000" =>
+        aclk_pixel_width <= "001";
+
+      -------------------------------------------------------------------------
+      -- BGR32 : 4 bytes/pixel
+      -------------------------------------------------------------------------
+      when "001" =>
+        aclk_pixel_width <= "100";
+
+      -------------------------------------------------------------------------
+      -- YUV4:2:2 : 2 bytes/pixel 
+      -------------------------------------------------------------------------
+      when "010" =>
+        aclk_pixel_width <= "010";
+
+      -------------------------------------------------------------------------
+      -- Planar 8 bits : 4 bytes/pixel 
+      -------------------------------------------------------------------------
+      when "011" =>
+        aclk_pixel_width <= "100";
+
+      -------------------------------------------------------------------------
+      -- RAW : 4 bytes/pixel 
+      -------------------------------------------------------------------------
+      when "101" =>
+        aclk_pixel_width <= "100";
+
+      when others =>
+        aclk_pixel_width <= "001";
+
+    end case;
+  end process;
+
 
 
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_aclk_pixel_width : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
+  P_aclk_pixel_param : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
   begin
     case aclk_pixel_width is
       -- One byte per pixel
@@ -926,7 +954,6 @@ begin
       );
 
 
-
   aclk_init_subsampling <= '1' when (aclk_state = S_SOF or aclk_state = S_SOL) else
                            '0';
 
@@ -936,7 +963,7 @@ begin
       aclk                => aclk,
       aclk_reset          => aclk_reset,
       aclk_pixel_width    => aclk_pixel_width,
-      aclk_x_subsampling  => aclk_x_scale,
+      aclk_x_subsampling  => aclk_strm.x_scale,
       aclk_en             => aclk_crop_data_rdy,
       aclk_init           => aclk_init_subsampling,
       aclk_last_data_in   => aclk_crop_last_data_mux,
@@ -957,11 +984,9 @@ begin
                    '0';
 
 
-
-
------------------------------------------------------------------------------
--- Line buffer (2xline buffer size to support double buffering)
------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Line buffer (2xline buffer size to support double buffering)
+  -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
@@ -979,6 +1004,11 @@ begin
       );
 
 
+  -----------------------------------------------------------------------------
+  -- Module      : M_bclk_buffer_rdy
+  -- Description : Resynchronize aclk_nxt_buffer on bclk. This is a oclock
+  --               pulse edge detect on bclk. 
+  -----------------------------------------------------------------------------
   M_bclk_buffer_rdy : mtx_resync
     port map (
       aClk  => aclk,
@@ -995,10 +1025,13 @@ begin
   bclk_reset <= not bclk_reset_n;
 
 
------------------------------------------------------------------------------
--- Process     : P_bclk_x_reverse
--- Description : 
------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_x_reverse
+  -- Description : Resynchronized version of aclk_strm.x_reverse on bclk
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!! This is a one bit flag so we use the 2FF
+  -- resynchroniser to absorb Meta-stability.
+  -----------------------------------------------------------------------------
   P_bclk_x_reverse : process (bclk) is
   begin
     if (rising_edge(bclk)) then
@@ -1006,11 +1039,18 @@ begin
         bclk_x_reverse      <= '0';
         bclk_x_reverse_Meta <= '0';
       else
-        bclk_x_reverse_Meta <= aclk_x_reverse;
+        bclk_x_reverse_Meta <= aclk_strm.x_reverse;
         bclk_x_reverse      <= bclk_x_reverse_Meta;
       end if;
     end if;
   end process;
+
+  
+  -----------------------------------------------------------------------------
+  -- WARNING CLOCK DOMAIN CROSSING!!! This value is assumed to be a false path
+  -- so it is assume to be safe domaine crossing.
+  -----------------------------------------------------------------------------
+  bclk_pixel_width <= aclk_pixel_width;
 
 
   x_trim_streamout_inst : x_trim_streamout
