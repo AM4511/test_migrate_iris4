@@ -172,7 +172,9 @@ architecture rtl of x_trim is
     generic (
       NUMB_LINE_BUFFER    : integer range 2 to 4 := 2;
       CMD_FIFO_DATA_WIDTH : integer;
-      BUFFER_ADDR_WIDTH   : integer
+      BUFFER_ADDR_WIDTH   : integer;
+      WORD_PTR_WIDTH      : integer              := 11;
+      BUFF_PTR_WIDTH      : integer              := 1
       );
     port (
       ---------------------------------------------------------------------------
@@ -239,15 +241,16 @@ architecture rtl of x_trim is
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
 
 
-  constant WORD_PTR_WIDTH      : integer := 9;
+  --constant WORD_PTR_WIDTH      : integer := 9;
+  constant WORD_PTR_WIDTH      : integer := 9 + (2*COLOR);
   constant BUFF_PTR_WIDTH      : integer := 1;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
   constant CMD_FIFO_DATA_WIDTH : integer := 8 + 2 + WORD_PTR_WIDTH + BUFF_PTR_WIDTH;
 
   -- If in color mode the buffer needs to be 4x deeper (4 bytes/pix). This is
   -- why we add (2*COLOR) to the address width.
-  constant BUFFER_ADDR_WIDTH   : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH + (2*COLOR);  -- in bits
-  constant BUFFER_DATA_WIDTH   : integer := 64;
+  constant BUFFER_ADDR_WIDTH : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH;  -- in bits
+  constant BUFFER_DATA_WIDTH : integer := 64;
 
   -----------------------------------------------------------------------------
   -- ACLK clock domain
@@ -319,15 +322,15 @@ architecture rtl of x_trim is
   signal bclk_full  : std_logic;
 
 
-  signal bclk_read_address  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
-  signal bclk_read_en       : std_logic;
-  signal bclk_read_data     : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
-  signal bclk_buffer_rdy    : std_logic;
-  signal bclk_cmd_ren       : std_logic;
-  signal bclk_cmd_empty     : std_logic;
-  signal bclk_cmd_data      : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
+  signal bclk_read_address : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal bclk_read_en      : std_logic;
+  signal bclk_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
+  signal bclk_buffer_rdy   : std_logic;
+  signal bclk_cmd_ren      : std_logic;
+  signal bclk_cmd_empty    : std_logic;
+  signal bclk_cmd_data     : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
 
-  
+
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
@@ -1045,7 +1048,7 @@ begin
     end if;
   end process;
 
-  
+
   -----------------------------------------------------------------------------
   -- WARNING CLOCK DOMAIN CROSSING!!! This value is assumed to be a false path
   -- so it is assume to be safe domaine crossing.
@@ -1057,7 +1060,9 @@ begin
     generic map(
       NUMB_LINE_BUFFER    => NUMB_LINE_BUFFER,
       CMD_FIFO_DATA_WIDTH => CMD_FIFO_DATA_WIDTH,
-      BUFFER_ADDR_WIDTH   => BUFFER_ADDR_WIDTH
+      BUFFER_ADDR_WIDTH   => BUFFER_ADDR_WIDTH,
+      WORD_PTR_WIDTH      => WORD_PTR_WIDTH,
+      BUFF_PTR_WIDTH      => BUFF_PTR_WIDTH
       )
     port map(
       bclk              => bclk,

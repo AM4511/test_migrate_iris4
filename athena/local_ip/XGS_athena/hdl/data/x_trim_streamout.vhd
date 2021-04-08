@@ -13,7 +13,9 @@ entity x_trim_streamout is
   generic (
     NUMB_LINE_BUFFER    : integer range 2 to 4 := 2;
     CMD_FIFO_DATA_WIDTH : integer;
-    BUFFER_ADDR_WIDTH   : integer
+    BUFFER_ADDR_WIDTH   : integer;
+    WORD_PTR_WIDTH      : integer := 11;
+    BUFF_PTR_WIDTH      : integer := 1
     );
   port (
     ---------------------------------------------------------------------------
@@ -121,8 +123,8 @@ architecture rtl of x_trim_streamout is
 
   type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_READ_CMD, S_READ_DATA, S_SOF, S_SOL, S_READ, S_EOL, S_EOF, S_DONE);
 
-  constant WORD_PTR_WIDTH      : integer := 9;
-  constant BUFF_PTR_WIDTH      : integer := 1;
+  --constant WORD_PTR_WIDTH      : integer := 9;
+  --constant BUFF_PTR_WIDTH      : integer := 1;
   constant BUFFER_DATA_WIDTH   : integer := 64;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
 
@@ -237,10 +239,10 @@ begin
   -----------------------------------------------------------------------------
   -- Remapping the current command fields
   -----------------------------------------------------------------------------
-  bclk_cmd_last_ben <= bclk_cmd_data(19 downto 12);
-  bclk_cmd_sync     <= bclk_cmd_data(11 downto 10);
-  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
-  bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
+  bclk_cmd_last_ben <= bclk_cmd_data(WORD_PTR_WIDTH+10 downto WORD_PTR_WIDTH+3);
+  bclk_cmd_sync     <= bclk_cmd_data(WORD_PTR_WIDTH+2 downto WORD_PTR_WIDTH+1);
+  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(WORD_PTR_WIDTH downto WORD_PTR_WIDTH));
+  bclk_cmd_size     <= unsigned(bclk_cmd_data(WORD_PTR_WIDTH-1 downto 0));
 
 
   -----------------------------------------------------------------------------

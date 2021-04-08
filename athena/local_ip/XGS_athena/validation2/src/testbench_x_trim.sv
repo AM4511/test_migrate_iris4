@@ -3,7 +3,7 @@
 
 module testbench();
 	parameter TEST_NAME = "UNKNOWN";
-	parameter PIXEL_WIDTH = 1;  // size in bytes
+	parameter PIXEL_WIDTH = 4;  // size in bytes
 	parameter PIXEL_CSC = 0;    // Pixel color space
 	parameter Y_SIZE = 4;       // size in rows
 	parameter X_SIZE = 256;     // size in pixels
@@ -14,7 +14,7 @@ module testbench();
 	parameter X_SCALING = 0;    // size in pixels
 	parameter NUMB_LINE_BUFFER = 2;
 	parameter WATCHDOG_MAX_CNT = 1000;
-    parameter COLOR = 0;
+	parameter COLOR = 0;
 
 	typedef struct {
 		int row_id;
@@ -62,7 +62,7 @@ module testbench();
 	int error;
 	x_trim  #(.NUMB_LINE_BUFFER(NUMB_LINE_BUFFER),
 			.COLOR(COLOR)
-			) DUT (
+		) DUT (
 			. aclk_grab_queue_en(aclk_grab_queue_en),
 			.aclk_load_context(aclk_load_context),
 			.aclk_csc(aclk_csc),
@@ -137,9 +137,12 @@ module testbench();
 
 		fork
 			begin
-				int byte_id;
+				int byte_ptr;
 				int row_id;
-				int i,j,k;
+				int i,j,k,c;
+				int comp_value;
+				int pix_value;
+
 				bit [63:0] db;
 				bit tlast;
 				bit [3:0] user;
@@ -156,21 +159,30 @@ module testbench();
 					curr_row.data = {};
 					curr_row.row_id = j;
 
+					byte_ptr = 0;
 					for (i=0;  i<X_SIZE;  i++) begin
+						pix_value = 0;
+						for (c=0; c< PIXEL_WIDTH; c++) begin
+							comp_value =  (i & 'hff);
+							pix_value = pix_value | comp_value << (8*c);
+						end
+
 						////////////////////////////////////////////////
 						// Data ramp
 						////////////////////////////////////////////////
-						byte_id = i % 8;
-						if (i<8) begin
-							//db[byte_id*8 +: 8] = j;
-							db[byte_id*8 +: 8] = i;
-						end else begin
-							db[byte_id*8 +: 8] = i;
-						end
-
-						if (byte_id == 7) begin
+						//byte_ptr = i % 8;
+						//						if (byte_ptr < 8-PIXEL_WIDTH) begin
+						//							//db[byte_ptr*8 +: 8] = j;
+						//							db[byte_ptr*8 +: (PIXEL_WIDTH *8)] = pix_value;
+						//						end else begin
+						//							db[byte_ptr*8 +: (PIXEL_WIDTH *8)] = pix_value;
+						//						end
+						db[byte_ptr*8 +: (PIXEL_WIDTH *8)] = pix_value;
+						byte_ptr = byte_ptr + PIXEL_WIDTH;
+						if (byte_ptr == 8) begin
 							curr_row.data.push_back(db);
 							db = 0;
+							byte_ptr = 0;
 						end
 					end
 					axi_src_stream.push_back(curr_row);
@@ -248,7 +260,7 @@ module testbench();
 				//data_row curr_row;
 				//bit [63:0] db;
 				bit [3:0] user;
-				int byte_id;
+				int byte_ptr;
 				int row_size;
 				bit [7:0] byte_stream[$];
 
@@ -339,10 +351,10 @@ module testbench();
 				#1000ns;
 
 
-					///////////////////////////////////////////////////////
-					// Create predicted stream
-					////////////////////////////////////////////////////////
-					// If cropping disabled the ROI becomes the original image size
+				///////////////////////////////////////////////////////
+				// Create predicted stream
+				////////////////////////////////////////////////////////
+				// If cropping disabled the ROI becomes the original image size
 				if (aclk_x_crop_en == 0) begin
 					aclk_x_start = 0;
 					aclk_x_stop = X_SIZE-1;
@@ -353,8 +365,10 @@ module testbench();
 				for (j=0;  j<Y_SIZE;  j++) begin
 					subs_cntr = 0;
 					for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
-						if (subs_cntr % (X_SCALING+1) == 0) begin
-							byte_stream.push_back(i);
+						for (c=0; c<PIXEL_WIDTH; c++) begin
+							if (subs_cntr % (X_SCALING+1) == 0) begin
+								byte_stream.push_back(i);
+							end
 						end
 						subs_cntr++;
 					end
@@ -362,37 +376,37 @@ module testbench();
 
 					// Process current row in forward scan
 					if (aclk_x_reverse == 1'b0) begin
-						byte_id = 0;
+						byte_ptr = 0;
 						pred_db = 0;
 						while (byte_stream.size() > 0) begin
 							pix_value = byte_stream.pop_front();
 
-							pred_db[byte_id*8 +: 8] = pix_value;
+							pred_db[byte_ptr*8 +: 8] = pix_value;
 
-							if (byte_id == 7 || byte_stream.size() == 0) begin
+							if (byte_ptr == 7 || byte_stream.size() == 0) begin
 								pred_row_data.push_back(pred_db);
-								byte_id = 0;
+								byte_ptr = 0;
 								pred_db = 0;
 							end else
-								byte_id++;
+								byte_ptr++;
 
 
 						end
-					// Process current row in reverse scan
+						// Process current row in reverse scan
 					end	else begin
-						byte_id = 0;
+						byte_ptr = 0;
 						pred_db = 0;
 						while (byte_stream.size() > 0) begin
 							pix_value = byte_stream.pop_back();
 
-							pred_db[byte_id*8 +: 8] = pix_value;
+							pred_db[byte_ptr*8 +: 8] = pix_value;
 
-							if (byte_id == 7 || byte_stream.size() == 0) begin
+							if (byte_ptr == 7 || byte_stream.size() == 0) begin
 								pred_row_data.push_back(pred_db);
-								byte_id = 0;
+								byte_ptr = 0;
 								pred_db = 0;
 							end else
-								byte_id++;
+								byte_ptr++;
 
 						end
 					end
