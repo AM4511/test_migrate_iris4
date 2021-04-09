@@ -33,7 +33,11 @@ if {[file exists $myself ]} {
    set FPGA_DEVICE_ID 0
    
    # Generic passed to VHDL top level file by generic
-   set FPGA_IS_NPI_GOLDEN     "false"
+   # 0      : MIL upgrade firmware
+   # 1      : NPI golden firmware
+   # 2      : Engineering firmware
+   # Others : Reserved
+   set FPGA_IS_NPI_GOLDEN 0
    
    # Flash programation offset 
    # NPI Golden  : 0x000000)
