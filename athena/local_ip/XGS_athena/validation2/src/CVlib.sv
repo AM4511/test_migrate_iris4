@@ -306,7 +306,7 @@ class CVlib;
     //---------------------------------------
     //  Program XGS MODEL
     //---------------------------------------
-    task setXGSmodel();
+    task setXGSmodel(input int Color=0);
 
         int data_rd;
 		int axi_addr;
@@ -387,8 +387,12 @@ class CVlib;
 
 		// XGS model : Set line time (for 6 lanes)
 		$display("  4.7 SPI write XGS set line time @0x%h", SPI_LINE_TIME_REG);
-		line_time = 'h02dc;                              // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
-		XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+		if(Color==0)
+          line_time = 'h02dc;   //MONO                           // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+		else
+          line_time = 'h0b70;   //COLOR(4 * 0x2dc)
+		
+        XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
 
 
 		// XGS model : Slave Mode And ENABLE SEQUENCER
@@ -781,7 +785,7 @@ class CVlib;
    		XGS_image.reduce_bit_depth(10);                                                                   // FPGA 12bpp to 10bpp
  		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                                 // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
 
-   	    XGS_image.mono_2_color_patch(); //on ramase 2 pixel LSB, on dumpe 6 ...
+   	    //XGS_image.mono_2_color_patch(); //on ramase 2 pixel LSB, on dumpe 6 ...
     	XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
 		XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC
         XGS_image.reduce_bit_depth(8);                                                                    // FPGA 10bpp to 8bpp

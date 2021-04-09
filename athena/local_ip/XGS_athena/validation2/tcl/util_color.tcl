@@ -14,8 +14,8 @@ set message {
 	h       : Display this help
 	n       : Source util.tcl
 	r       : Run tests specific enabled in testbech.sv
-	r 0001  : Run specific mono test (Here test0001)
-	s       : Run all test defined in util.tcl
+	r 0020  : Run specific color test (Here test0020)
+	s       : Run all test defined in util_color.tcl
 }
 
 puts $message
@@ -67,7 +67,7 @@ proc s {args} {
     .main clear
 
     # Liste de tests dans la suite de tests
-	set testlist [list 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010]
+	set testlist [list 0020 0021]
 
     set currtest 1
 	

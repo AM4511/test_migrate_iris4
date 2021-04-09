@@ -363,7 +363,7 @@ begin
             var_transmit_buffer1(var_offset+6*i+4) := var_dataline(2*G_PXL_PER_COLRAM+3*i+2);
             var_transmit_buffer1(var_offset+6*i+5) := var_dataline(3*G_PXL_PER_COLRAM+3*i+2);
             
-          when others =>
+          when others => --4:1 GTX
             var_transmit_buffer0(var_offset+12*i   ) := var_dataline(                   3*i);
             var_transmit_buffer0(var_offset+12*i+ 1) := var_dataline(  G_PXL_PER_COLRAM+3*i);
             var_transmit_buffer0(var_offset+12*i+ 2) := var_dataline(2*G_PXL_PER_COLRAM+3*i);

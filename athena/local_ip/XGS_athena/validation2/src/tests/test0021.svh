@@ -71,7 +71,7 @@ class Test0021 extends CTest;
 
 		        super.Vlib.setXGS_sensor(XGS_Model);
 
-		        super.Vlib.setXGSmodel();
+		        super.Vlib.setXGSmodel(1);  //1=Color, 0 or nothing =Mono
 		        super.Vlib.setXGScontroller();
 		        super.Vlib.setHISPI();
 		        super.Vlib.setHISPI_X_window(1); //All interpolation
@@ -135,14 +135,16 @@ class Test0021 extends CTest;
 				  // Temporairement en attendant le vrai fpga couleur:
 				  // Line size = ( (4+2592+4)*2/8) -4) *4 = 646
 				  //
-				  TEMP_LINE_SIZE =(((4+super.Vlib.P_ROI_WIDTH+4)*2/8) -4) *4;
-				  super.Vlib.setDMA('hA0000000, 'h2000, TEMP_LINE_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				  TEMP_LINE_SIZE =(((4+super.Vlib.P_ROI_WIDTH+4)) -4) *4;
+				  super.Vlib.setDMA('hA0000000, 'h4000, TEMP_LINE_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				end else begin
 				  // Temporairement en attendant le vrai fpga couleur:
 				  // Line size = ( (4+2592+4)*2/8) -4) *4 = 646
 				  //
-				  TEMP_LINE_SIZE =(((4+super.Vlib.P_ROI_WIDTH+4)*2/8) -4) *4;
-				  super.Vlib.setDMA('hA0000000, 'h2000, TEMP_LINE_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				  TEMP_LINE_SIZE =(((4+super.Vlib.P_ROI_WIDTH+4)) -4) *4;
+                  //TEMP_LINE_SIZE = ROI_X_SIZE*4;                  
+                  super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
+				  super.Vlib.setDMA('hA0000000, 'h4000, TEMP_LINE_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				end
 
 

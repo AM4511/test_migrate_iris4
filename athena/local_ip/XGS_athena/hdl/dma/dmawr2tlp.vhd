@@ -16,6 +16,7 @@ use work.dma_pack.all;
 
 entity dmawr2tlp is
   generic (
+    COLOR                 : integer := 0;
     MAX_PCIE_PAYLOAD_SIZE : integer := 128
     );
   port (
@@ -206,7 +207,7 @@ architecture rtl of dmawr2tlp is
   constant C_S_AXI_DATA_WIDTH  : integer := 32;
   constant AXIS_DATA_WIDTH     : integer := 64;
   constant AXIS_USER_WIDTH     : integer := 4;
-  constant BUFFER_ADDR_WIDTH   : integer := 11;
+  constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 

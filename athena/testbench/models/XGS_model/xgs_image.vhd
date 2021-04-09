@@ -445,13 +445,13 @@ begin
   --order data lines according to data sent on HiSPi data lanes as specified by the silicon.
   for j in 0 to 2*G_NUM_PHY-1 loop
       for i in 0 to G_PXL_PER_COLRAM-1 loop
-        if line_count_out_mux = roi_start then        --Embedded    
+        if line_count_out_mux = roi_start then                               --Embedded(ligne paire)    
             dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i+1);
             dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(0)(2*j*G_PXL_PER_COLRAM+2*i); 
-        elsif (line_count_out_mux mod 2 = 0 ) then    --Ligne paire
+        elsif (line_count_out_mux mod 2 = 0 and y_subsampling = '0') then    --Ligne Image impaire (0 is embeded)
             dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
             dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
-        else                                          --Ligne impaire
+        else                                                                 --Ligne Image paire (0 est la ligne embeded, alors ligne 0 image est ligne 1 ici), le SUB Y passera toujours ici.
             dataline(2*j*G_PXL_PER_COLRAM                 +i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i+1);
             dataline(2*j*G_PXL_PER_COLRAM+G_PXL_PER_COLRAM+i) <= frame(1)(2*j*G_PXL_PER_COLRAM+2*i); 
         end if;

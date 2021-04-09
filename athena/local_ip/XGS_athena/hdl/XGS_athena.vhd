@@ -516,6 +516,37 @@ architecture struct of XGS_athena is
       );
   end component;
 
+  component axis_width_conv 
+   port (  
+
+           ---------------------------------------------------------------------
+           -- Axi domain reset and clock signals
+           ---------------------------------------------------------------------
+           axi_clk                                 : in    std_logic;
+           axi_reset_n                             : in    std_logic;
+
+           ---------------------------------------------------------------------
+           -- AXI in
+           ---------------------------------------------------------------------  
+           s_axis_tvalid                           : in   std_logic;
+           s_axis_tready                           : out  std_logic;
+           s_axis_tuser                            : in   std_logic_vector(3 downto 0);
+           s_axis_tlast                            : in   std_logic;
+           s_axis_tdata                            : in   std_logic_vector(79 downto 0);	
+           
+           ---------------------------------------------------------------------
+           -- AXI out
+           ---------------------------------------------------------------------
+           m_axis_tready                           : in  std_logic;
+           m_axis_tvalid                           : out std_logic;
+           m_axis_tuser                            : out std_logic_vector(3 downto 0);
+           m_axis_tlast                            : out std_logic;
+           m_axis_tdata                            : out std_logic_vector(19 downto 0)
+
+        );
+  end component;  
+  
+  
   component xgs_color_proc
     generic(DPC_CORR_PIXELS_DEPTH : integer := 9  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
@@ -653,6 +684,7 @@ architecture struct of XGS_athena is
 
   component dmawr2tlp is
     generic (
+      COLOR                 : integer := 0;
       MAX_PCIE_PAYLOAD_SIZE : integer := 128
       );
     port (
@@ -903,9 +935,18 @@ architecture struct of XGS_athena is
   signal dcp_tuser  : std_logic_vector(3 downto 0);
   signal dcp_tlast  : std_logic;
 
+  -- axi from dwidth converter 
+  signal conv_tvalid : std_logic;
+  signal conv_tready : std_logic;
+  signal conv_tuser  : std_logic_vector(3 downto 0);
+  signal conv_tlast  : std_logic;
+  signal conv_tdata  : std_logic_vector(19 downto 0);
+  
   -- AXI drive by LUT in Modo (COLOR=0) or by
   -- xgs_color_proc in color mode (COLOR=1)
   -- sys_clk : 62.5mhz
+  signal x_trim_pixel_width : std_logic_vector(2 downto 0):= "000";  --temp
+  
   signal xtrim_tready : std_logic;
   signal xtrim_tvalid : std_logic;
   signal xtrim_tdata  : std_logic_vector(63 downto 0);
@@ -1257,6 +1298,9 @@ begin
     --lut_tdata   <= aclk_tdata(79 downto 72) & aclk_tdata(69 downto 62) & aclk_tdata(59 downto 52) & aclk_tdata(49 downto 42) &
     --               aclk_tdata(39 downto 32) & aclk_tdata(29 downto 22) & aclk_tdata(19 downto 12) & aclk_tdata(9  downto  2) ; 
 
+    x_trim_pixel_width <= "001";
+
+    
   end generate G_MONO_PIPELINE;  --MONO PIPELINE
 
 
@@ -1271,6 +1315,38 @@ begin
   ----------------------------------
   G_COLOR_PIPELINE : if (COLOR = 1) generate
 
+  
+  
+  Xaxis_width_conv : axis_width_conv
+   port map(  
+
+           ---------------------------------------------------------------------
+           -- Axi domain reset and clock signals
+           ---------------------------------------------------------------------
+           axi_clk                                 => aclk,
+           axi_reset_n                             => aclk_reset_n,
+
+           ---------------------------------------------------------------------
+           -- AXI in
+           ---------------------------------------------------------------------  
+           s_axis_tvalid                           => aclk_tvalid,
+           s_axis_tready                           => aclk_tready,
+           s_axis_tuser                            => aclk_tuser,
+           s_axis_tlast                            => aclk_tlast,
+           s_axis_tdata                            => aclk_tdata,	
+           
+           ---------------------------------------------------------------------
+           -- AXI out
+           ---------------------------------------------------------------------
+           m_axis_tready                           => conv_tready,
+           m_axis_tvalid                           => conv_tvalid,
+           m_axis_tuser                            => conv_tuser,
+           m_axis_tlast                            => conv_tlast,
+           m_axis_tdata                            => conv_tdata
+
+        );
+
+  
     Xxgs_color_proc : xgs_color_proc
       generic map(DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
@@ -1286,20 +1362,28 @@ begin
         ---------------------------------------------------------------------
         -- AXI in
         ---------------------------------------------------------------------         
-        s_axis_tvalid => aclk_tvalid,
-        s_axis_tready => aclk_tready,
-        s_axis_tuser  => aclk_tuser,
-        s_axis_tlast  => aclk_tlast,
-        s_axis_tdata  => aclk_tdata(19 downto 0),
+        s_axis_tvalid => conv_tvalid,
+        s_axis_tready => conv_tready,
+        s_axis_tuser  => conv_tuser,
+        s_axis_tlast  => conv_tlast,
+        s_axis_tdata  => conv_tdata,
 
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tready => xtrim_tready,
-        m_axis_tvalid => xtrim_tvalid,
-        m_axis_tuser  => xtrim_tuser,
-        m_axis_tlast  => xtrim_tlast,
-        m_axis_tdata  => xtrim_tdata,
+        --m_axis_tready => xtrim_tready,
+        --m_axis_tvalid => xtrim_tvalid,
+        --m_axis_tuser  => xtrim_tuser,
+        --m_axis_tlast  => xtrim_tlast,
+        --m_axis_tdata  => xtrim_tdata,
+
+        m_axis_tready => dma_tready,
+        m_axis_tvalid => dma_tvalid,
+        m_axis_tuser  => dma_tuser,
+        m_axis_tlast  => dma_tlast,
+        m_axis_tdata  => dma_tdata,
+        
+        
         ---------------------------------------------------------------------              
         -- Grab parameters         
         ---------------------------------------------------------------------
@@ -1363,45 +1447,49 @@ begin
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
     regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
 
-
+    x_trim_pixel_width <= "100";
 
   end generate G_COLOR_PIPELINE;
 
 
 
   
-  x_trim_inst : x_trim
-    generic map(
-      NUMB_LINE_BUFFER => 2
-      )
-    port map(
-      aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
-      aclk_load_context  => load_dma_context,
-      aclk_pixel_width   => "001",
-      aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
-      aclk_x_start       => regfile.DMA.ROI_X.X_START,
-      aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
-      aclk_x_scale       => regfile.DMA.CSC.SUB_X,
-      aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
-      aclk               => aclk,
-      aclk_reset_n       => aclk_reset_n,
-      aclk_tready        => xtrim_tready,
-      aclk_tvalid        => xtrim_tvalid,
-      aclk_tuser         => xtrim_tuser,
-      aclk_tlast         => xtrim_tlast,
-      aclk_tdata         => xtrim_tdata,
-      bclk               => aclk,
-      bclk_reset_n       => aclk_reset_n,
-      bclk_tready        => dma_tready,
-      bclk_tvalid        => dma_tvalid,
-      bclk_tuser         => dma_tuser,
-      bclk_tlast         => dma_tlast,
-      bclk_tdata         => dma_tdata
-      );
+  -- For the moment bypass X_TRIM in color mode    
+  G_MONO_XTRIM : if (COLOR = 0) generate
+    x_trim_inst : x_trim
+      generic map(
+        NUMB_LINE_BUFFER => 2
+        )
+      port map(
+        aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
+        aclk_load_context  => load_dma_context,
+        aclk_pixel_width   => x_trim_pixel_width,
+        aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
+        aclk_x_start       => regfile.DMA.ROI_X.X_START,
+        aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
+        aclk_x_scale       => regfile.DMA.CSC.SUB_X,
+        aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
+        aclk               => aclk,
+        aclk_reset_n       => aclk_reset_n,
+        aclk_tready        => xtrim_tready,
+        aclk_tvalid        => xtrim_tvalid,
+        aclk_tuser         => xtrim_tuser,
+        aclk_tlast         => xtrim_tlast,
+        aclk_tdata         => xtrim_tdata,
+        bclk               => aclk,
+        bclk_reset_n       => aclk_reset_n,
+        bclk_tready        => dma_tready,
+        bclk_tvalid        => dma_tvalid,
+        bclk_tuser         => dma_tuser,
+        bclk_tlast         => dma_tlast,
+        bclk_tdata         => dma_tdata
+        );
+  end generate;  
 
 
   xdmawr2tlp : dmawr2tlp
     generic map(
+      COLOR                 => COLOR,
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
@@ -1416,11 +1504,6 @@ begin
       tdata  => dma_tdata,
       tuser  => dma_tuser,
       tlast  => dma_tlast,
-      -- tready => aclk_tready,
-      -- tvalid => aclk_tvalid,
-      -- tdata  => aclk_tdata,
-      -- tuser  => aclk_tuser,
-      -- tlast  => aclk_tlast,
 
       cfg_bus_mast_en    => cfg_bus_mast_en,
       cfg_setmaxpld      => cfg_setmaxpld,
