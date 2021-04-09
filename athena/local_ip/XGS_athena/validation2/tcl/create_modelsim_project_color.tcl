@@ -1,7 +1,7 @@
 # Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
-# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_project.tcl
+# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_project_color.tcl
 #
 set validation_dir         validation2        
 
@@ -137,17 +137,9 @@ ${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
 ${TESTBENCH_SRC_PATH}/CVlib.sv \
 ${TESTBENCH_SRC_PATH}/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Ctest.svh \
-${TESTBENCH_SRC_PATH}/tests/test0001.svh \
-${TESTBENCH_SRC_PATH}/tests/test0002.svh \
-${TESTBENCH_SRC_PATH}/tests/test0003.svh \
-${TESTBENCH_SRC_PATH}/tests/test0004.svh \
-${TESTBENCH_SRC_PATH}/tests/test0005.svh \
-${TESTBENCH_SRC_PATH}/tests/test0006.svh \
-${TESTBENCH_SRC_PATH}/tests/test0007.svh \
-${TESTBENCH_SRC_PATH}/tests/test0008.svh \
-${TESTBENCH_SRC_PATH}/tests/test0009.svh \
-${TESTBENCH_SRC_PATH}/tests/test0010.svh \
-${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_mono.sv \
+${TESTBENCH_SRC_PATH}/tests/test0020.svh \
+${TESTBENCH_SRC_PATH}/tests/test0021.svh \
+${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_color.sv \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd \
@@ -211,4 +203,4 @@ project compileall
 ############################################################
 # Find compile order and Compile files
 ############################################################
-source $TCL_PATH/util.tcl
+source $TCL_PATH/util_color.tcl
