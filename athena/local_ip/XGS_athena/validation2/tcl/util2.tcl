@@ -39,24 +39,24 @@ proc r {} {
 }
 
 proc a {} {
-    set DEBUG 1
+    set DEBUG 0
     if {$DEBUG == 1} {
 	set COLOR 1
 	set PIXEL_CSC 1
 	set Y_SIZE 5
 	set X_SIZE_RANGE {1024}
-	set X_ROI_EN 1
-	set X_ROI_START 0
-	set X_ROI_SIZE_MIN 1024
-	set X_ROI_SIZE_MAX 1025
+	set X_ROI_EN 0
+	set X_ROI_START 1
+	set X_ROI_SIZE_MIN 128
+	set X_ROI_SIZE_MAX 129
 	set X_REVERSE_RANGE {0}
-	set X_SCALING_RANGE {0}
+	set X_SCALING_RANGE {1}
     } else {
 	set COLOR 1
-	set PIXEL_CSC {0}
+	set PIXEL_CSC {1}
 	set Y_SIZE 5
 	set X_SIZE_RANGE {256}
-	set X_ROI_EN 0
+	set X_ROI_EN 1
 	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 128
 	set X_ROI_SIZE_MAX 129

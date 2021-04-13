@@ -281,10 +281,10 @@ begin
                 subs_cntr(1) <= "00000";
                 subs_cntr(2) <= "00000";
                 subs_cntr(3) <= "00000";
-                subs_cntr(4) <= "00010";
-                subs_cntr(5) <= "00010";
-                subs_cntr(6) <= "00010";
-                subs_cntr(7) <= "00010";
+                subs_cntr(4) <= "00001";
+                subs_cntr(5) <= "00001";
+                subs_cntr(6) <= "00001";
+                subs_cntr(7) <= "00001";
                 pix_per_clk  <= "00010";
               when others =>
                 subs_cntr(0) <= "00000";

@@ -282,13 +282,14 @@ architecture rtl of x_trim is
   signal aclk_cmd_size         : std_logic_vector(WORD_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_buff_ptr     : std_logic_vector(BUFF_PTR_WIDTH-1 downto 0);
   signal aclk_cmd_last_ben     : std_logic_vector(7 downto 0);
-  signal aclk_pixel_width      : std_logic_vector(2 downto 0);
+  signal aclk_pixel_width      : unsigned(2 downto 0);
 
   signal aclk_ack         : std_logic;
   signal aclk_pix_cntr    : unsigned(12 downto 0);
   signal aclk_pix_incr    : integer range 0 to 8;
   signal aclk_valid_start : unsigned(aclk_pix_cntr'range);
   signal aclk_valid_stop  : unsigned(aclk_pix_cntr'range);
+  signal aclk_valid_mask  : unsigned(aclk_pix_cntr'range);
 
   signal aclk_crop_start         : unsigned(aclk_pix_cntr'range);
   signal aclk_crop_stop          : unsigned(aclk_pix_cntr'range);
@@ -409,18 +410,28 @@ begin
                      '0';
 
 
-
-
   aclk_ack <= '1' when (aclk_tready_int = '1'and aclk_tvalid = '1') else
               '0';
 
 
+  -----------------------------------------------------------------------------
+  -- Cropping start window : First valid pixel in the row (Units in pixels)
+  -----------------------------------------------------------------------------
   aclk_crop_start <= unsigned(aclk_strm.x_start(aclk_pix_cntr'range)) when (aclk_strm.x_crop_en = '1') else
                      (aclk_pix_cntr'range => '0');
+
+
+  -----------------------------------------------------------------------------
+  -- Cropping window size (Units in pixels)
+  -----------------------------------------------------------------------------
   aclk_crop_size <= unsigned(aclk_strm.x_size(aclk_pix_cntr'range));
+
+
+  -----------------------------------------------------------------------------
+  -- Cropping window stop : Last valid pixel in the row (Units in pixels)
+  -----------------------------------------------------------------------------
   aclk_crop_stop <= aclk_crop_start + aclk_crop_size -1 when (aclk_strm.x_crop_en = '1') else
                     (aclk_pix_cntr'range => '1');
-
 
 
   -----------------------------------------------------------------------------
@@ -473,32 +484,48 @@ begin
   -- 
   -----------------------------------------------------------------------------
   P_aclk_pixel_param : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
+    variable mask : unsigned(aclk_pix_cntr'range);
   begin
+    mask := (others => '1');
+
     case aclk_pixel_width is
       -- One byte per pixel
       when "001" =>
+        mask(2 downto 0) := "000";
         aclk_pix_incr    <= 8;
-        aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
-        aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
+        -- aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
+        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
+        -- aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
+        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
 
       -- Two bytes per pixel
       when "010" =>
+        mask(1 downto 0) := "00";
         aclk_pix_incr    <= 4;
-        aclk_valid_start <= aclk_crop_start(12 downto 2) & "00";
-        aclk_valid_stop  <= aclk_crop_stop(12 downto 2) & "00";
+        -- aclk_valid_start <= aclk_crop_start(12 downto 2) & "00";
+        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 2) & "00";
 
       -- Four bytes per pixel
       when "100" =>
-        aclk_pix_incr    <= 2;
-        aclk_valid_start <= aclk_crop_start(12 downto 1) & '0';
-        aclk_valid_stop  <= aclk_crop_stop(12 downto 1) & '0';
+        mask(0)       := '0';
+        aclk_pix_incr <= 2;
+        -- aclk_valid_start <= aclk_crop_start(12 downto 1) & '0';
+        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 1) & '0';
 
       when others =>
-        aclk_pix_incr    <= 0;
-        aclk_valid_start <= (others => '0');
-        aclk_valid_stop  <= (others => '0');
+        aclk_pix_incr <= 0;
+        mask          := (others => '0');
+    -- aclk_valid_start <= (others => '0');
+    -- aclk_valid_stop  <= (others => '0');
     end case;
+
+    ---------------------------------------------------------------------------
+    -- 
+    ---------------------------------------------------------------------------
+    aclk_valid_start <= aclk_crop_start and mask;
+    aclk_valid_stop  <= aclk_crop_stop and mask;
   end process;
+
 
 
   aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
@@ -506,9 +533,8 @@ begin
 
 
 
-
   -----------------------------------------------------------------------------
-  -- 
+  -- Pixel counter (Units in bytes)
   -----------------------------------------------------------------------------
   P_aclk_pix_cntr : process (aclk) is
   begin
@@ -555,7 +581,16 @@ begin
   end process;
 
 
-  aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_stop) * to_integer(unsigned(aclk_pixel_width)), 3));
+  --aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(((to_integer(aclk_crop_stop + 1) * to_integer(aclk_pixel_width)) - 1 ) , 3));
+
+
+  P_aclk_crop_stop_mask_sel : process (aclk_crop_stop, aclk_pixel_width) is
+    variable stop_byte : integer;
+  begin
+    stop_byte               := to_integer(((aclk_crop_stop + 1) * aclk_pixel_width) - 1);
+    aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(stop_byte, 3));
+
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -641,7 +676,7 @@ begin
   -----------------------------------------------------------------------------
   -- Modulo 8 equivalent equation
   -----------------------------------------------------------------------------
-  aclk_crop_mux_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_start) * to_integer(unsigned(aclk_pixel_width)), 3));
+  aclk_crop_mux_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_start) * to_integer(aclk_pixel_width), 3));
 
 
   -----------------------------------------------------------------------------
@@ -965,7 +1000,7 @@ begin
     port map (
       aclk                => aclk,
       aclk_reset          => aclk_reset,
-      aclk_pixel_width    => aclk_pixel_width,
+      aclk_pixel_width    => std_logic_vector(aclk_pixel_width),
       aclk_x_subsampling  => aclk_strm.x_scale,
       aclk_en             => aclk_crop_data_rdy,
       aclk_init           => aclk_init_subsampling,
@@ -1053,7 +1088,7 @@ begin
   -- WARNING CLOCK DOMAIN CROSSING!!! This value is assumed to be a false path
   -- so it is assume to be safe domaine crossing.
   -----------------------------------------------------------------------------
-  bclk_pixel_width <= aclk_pixel_width;
+  bclk_pixel_width <= std_logic_vector(aclk_pixel_width);
 
 
   x_trim_streamout_inst : x_trim_streamout
