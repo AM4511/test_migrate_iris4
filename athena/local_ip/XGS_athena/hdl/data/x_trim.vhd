@@ -493,44 +493,34 @@ begin
       when "001" =>
         mask(2 downto 0) := "000";
         aclk_pix_incr    <= 8;
-        -- aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
-        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
-        -- aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
-        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
 
       -- Two bytes per pixel
       when "010" =>
         mask(1 downto 0) := "00";
         aclk_pix_incr    <= 4;
-        -- aclk_valid_start <= aclk_crop_start(12 downto 2) & "00";
-        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 2) & "00";
 
       -- Four bytes per pixel
       when "100" =>
         mask(0)       := '0';
         aclk_pix_incr <= 2;
-        -- aclk_valid_start <= aclk_crop_start(12 downto 1) & '0';
-        -- aclk_valid_stop  <= aclk_crop_stop(12 downto 1) & '0';
 
       when others =>
         aclk_pix_incr <= 0;
         mask          := (others => '0');
-    -- aclk_valid_start <= (others => '0');
-    -- aclk_valid_stop  <= (others => '0');
     end case;
 
     ---------------------------------------------------------------------------
-    -- 
+    -- Mask lsb of the cropping window for when data is not aligned on natural
+    -- boundaries (byte 0 or byte 7). This is mainly for not missing the first
+    -- or last QWORD of the line hen data is not aligned on QWORD border.
     ---------------------------------------------------------------------------
     aclk_valid_start <= aclk_crop_start and mask;
     aclk_valid_stop  <= aclk_crop_stop and mask;
   end process;
 
 
-
   aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
                             '0';
-
 
 
   -----------------------------------------------------------------------------
@@ -584,17 +574,24 @@ begin
   --aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(((to_integer(aclk_crop_stop + 1) * to_integer(aclk_pixel_width)) - 1 ) , 3));
 
 
+  -----------------------------------------------------------------------------
+  -- Generates the mux selector for the aclk_crop_packer_ben process. The
+  -- equation calculates the position of the last valid byte of the row. We
+  -- used the 3 lsb of this equation as an 8:1 mux input
+  -----------------------------------------------------------------------------
   P_aclk_crop_stop_mask_sel : process (aclk_crop_stop, aclk_pixel_width) is
     variable stop_byte : integer;
   begin
     stop_byte               := to_integer(((aclk_crop_stop + 1) * aclk_pixel_width) - 1);
     aclk_crop_stop_mask_sel <= std_logic_vector(to_unsigned(stop_byte, 3));
-
   end process;
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- This process generates the maskenable for current row. All bytes are
+  -- assumed valids except for the last QWORD of the row. In this special case
+  -- bytes enable mask is applied. This mask alignment is calculated using 
+  -- aclk_crop_stop_mask_sel from the previous process.
   -----------------------------------------------------------------------------
   P_aclk_crop_packer_ben : process (aclk) is
   begin
@@ -646,7 +643,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Cropping packer.This is mainly a shift right register used to align the
+  -- first byte of the cropped window on byte 0 of a QWORD. It concats 2 QWORD
+  -- together then we have a 8:1 mux that extract the data with the correct alignment
   -----------------------------------------------------------------------------
   P_aclk_crop_packer : process (aclk) is
   begin
