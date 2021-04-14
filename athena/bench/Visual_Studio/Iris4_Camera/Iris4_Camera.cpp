@@ -43,14 +43,14 @@ void TestTLP2AXI(CXGS_Ctrl* XGS_Ctrl);
 
 void Help(CXGS_Ctrl* Camera);
 void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0001_SWtrig(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0002_Continu_2xROI(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0003_HW_Timer(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0004_Continu_FPS(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0005_SWtrig_Random(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0006_SWtrig_BlackCorr(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0002_Continu_2xROI(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0003_HW_Timer(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0006_SWtrig_BlackCorr(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
-void test_0009_Optics(CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
+void test_0009_Optics(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data);
 int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data, M_UINT32 nbFrames, M_UINT32 FlatImageVal);
 
 /* Main function. */
@@ -352,37 +352,37 @@ int main(void)
 				break;
 
 			case '1':
-				test_0001_SWtrig(XGS_Ctrl, XGS_Data);
+				test_0001_SWtrig(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '2':
-				test_0002_Continu_2xROI(XGS_Ctrl, XGS_Data);
+				test_0002_Continu_2xROI(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '3':
-				test_0003_HW_Timer(XGS_Ctrl, XGS_Data);
+				test_0003_HW_Timer(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '4':
-				test_0004_Continu_FPS(XGS_Ctrl, XGS_Data);
+				test_0004_Continu_FPS(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;
 
 			case '5':
-				test_0005_SWtrig_Random(XGS_Ctrl, XGS_Data);
+				test_0005_SWtrig_Random(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;				
 
 			case '6':
-				test_0006_SWtrig_BlackCorr(XGS_Ctrl, XGS_Data);
+				test_0006_SWtrig_BlackCorr(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;
@@ -395,7 +395,7 @@ int main(void)
 				
 
 			case '9':
-				test_0009_Optics(XGS_Ctrl, XGS_Data);
+				test_0009_Optics(Pcie, XGS_Ctrl, XGS_Data);
 				printf_s("\n\n");
 				Help(XGS_Ctrl);
 				break;

@@ -138,10 +138,17 @@ M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer)
 //----------------------------------------------------
 void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
    {
-   char title[15];
-
-   sprintf_s(title, "MIL Display %d", DisplayNum);
-
+   char title[32];
+   if(DisplayNum==0)
+     sprintf_s(title, "MONO8 MIL Display");
+   if (DisplayNum == 1)
+	   sprintf_s(title, "RGB32 MIL Display");
+   if (DisplayNum == 2)
+	   sprintf_s(title, "RAW BLUE MIL Display");
+   if (DisplayNum == 3)
+	   sprintf_s(title, "RAW GREEN MIL Display");
+   if (DisplayNum == 4)
+	   sprintf_s(title, "RAW RED MIL Display");
    //---------------------
    //
    // Create display

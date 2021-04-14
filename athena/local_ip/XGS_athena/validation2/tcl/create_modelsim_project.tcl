@@ -62,6 +62,7 @@ ${XILINX_IP_PATH}/hispi_phy_xilinx/hispi_phy_xilinx.v
 ]
 
 set dut_fileset [join [list  [subst { 
+
 ${REGISTERFILE_PATH}/regfile_xgs_athena.vhd \
 ${CTRL_SRC_PATH}/led_status.vhd \
 ${CTRL_SRC_PATH}/xgs_power.vhd \
@@ -91,6 +92,7 @@ ${DATA_SRC_PATH}/x_trim_subsampling.vhd \
 ${DATA_SRC_PATH}/x_trim_streamout.vhd \
 ${DATA_SRC_PATH}/x_trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
+${DATA_SRC_PATH}/axis_width_conv.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
@@ -145,8 +147,7 @@ ${TESTBENCH_SRC_PATH}/tests/test0007.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0008.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0009.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0010.svh \
-${TESTBENCH_SRC_PATH}/tests/test0020.svh \
-${TESTBENCH_SRC_PATH}/tests/test0021.svh \
+${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_mono.sv \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd \
@@ -198,6 +199,7 @@ add_file_set $technology_specific_fileset
 add_file_set $dut_fileset
 add_file_set $model_file_list
 add_file_set $testbench_fileset
+
 
 
 ############################################################

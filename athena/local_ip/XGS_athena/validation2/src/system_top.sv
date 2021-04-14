@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 
+import fpga_cfg_pkg::*;
+
 module system_top(
 
     // Regfile interface with host
@@ -48,7 +50,7 @@ module system_top(
 	parameter SENSOR_FREQ = 32400;
 	parameter SIMULATION = 1;
 	parameter EXPOSURE=50;
-	parameter COLOR = 0;
+	//parameter COLOR = 1;
 
 	parameter AXIL_DATA_WIDTH = 32;
 	parameter AXIL_ADDR_WIDTH = 11;

@@ -40,7 +40,11 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
 
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
+
+	M_UINT32 XGSStart_Y = 0;
 	M_UINT32 XGSSize_Y = 0;
+	M_UINT32 XGSStart_X = 0;
+	M_UINT32 XGSSize_X = 0;
 
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
@@ -89,11 +93,14 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr      = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2*SensorParams->Ysize_Full, MonoType);
+	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+	LUT_PATTERN = 0;
+
 	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
 
 
 
@@ -109,23 +116,33 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
 
 
 	//---------------------
-    // GRAB PARAMETERS
-    //---------------------
-	// For a full frame ROI 
-	GrabParams->Y_START = 1;                                                // 1-base Here - Dois etre multiple de 4	
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+	// GRAB PARAMETERS
+	//---------------------
+	// For a full Y frame with Interpolation
+	//GrabParams->Y_START = 0;                                                 // Dois etre multiple de 4	
+	//GrabParams->Y_SIZE  = SensorParams->Ysize_Full;                          // Dois etre multiple de 4
+	//GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
 
+	// For a full valid frame ROI 
+	if (SensorParams->IS_COLOR == 0) {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
+	}
+	else {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
+	}
 
-	GrabParams->SUBSAMPLING_X        = 0;
-	GrabParams->M_SUBSAMPLING_Y      = 0;
+	GrabParams->M_SUBSAMPLING_Y = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
 	XGS_Ctrl->setAnalogGain(1);        //unitary analog gain   
 	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
 
-	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y) );
+	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 
 	// GRAB MODE
@@ -135,11 +152,19 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
 
 
 	//---------------------
-    // DMA PARAMETERS
-    //---------------------
-	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
+	// DMA PARAMETERS
+	//---------------------
+	DMAParams->ROI_X_EN = 1;
+	DMAParams->X_START = SensorParams->Xstart_valid;      // To remove interpolation pixels
+	DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;
+
+	DMAParams->SUB_X = 0;
+	DMAParams->REVERSE_X = 0;
+	DMAParams->REVERSE_Y = 0;
+
+	DMAParams->FSTART = ImageBufferAddr;          // Adresse Mono pour DMA
+	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;
+	DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 
 
 	//Transparent LUTs
@@ -408,217 +433,6 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
 				XGS_Ctrl->DisableXGS();
 				printf_s("\n\n");
 				printf_s("Exit! \n");
-				break;
-
-			case 'd':
-				Sleep(100);
-				XGS_Ctrl->XGS_PCIeCtrl_DumpFile();
-				Sleep(100);
-				break;
-
-			case 'f':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
-				FileDumpNum++;
-				MIL_TEXT_CHAR FileName[50];
-				MosSprintf(FileName, 50, MIL_TEXT("./Image_Test0001_%d.tiff"), FileDumpNum);
-#if M_MIL_UNICODE_API
-				printf_s("\nPrinting .tiff file: %S\n", FileName);
-#else
-				printf_s("\nPrinting .tiff file: %s\n", FileName);
-#endif
-				MbufSave(FileName, MilGrabBuffer);
-				break;
-
-
-			case 'e':
-				printf_s("\nEnter the ExposureIncr/Decr in us : ");
-				scanf_s("%d", &ExposureIncr);
-				printf_s("\n");
-				break;
-
-			case '+':
-				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() + ExposureIncr);
-				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() + ExposureIncr);
-				break;
-
-			case '-':
-				XGS_Ctrl->setExposure(XGS_Ctrl->getExposure() - ExposureIncr);
-				//printf_s("\r\t\tExposure set to: %d us\n  ", XGS_Ctrl->getExposure() - ExposureIncr);
-				break;
-
-			case 'g':
-				if (GrabParams->ANALOG_GAIN == 1) //if curr=1x -> set 2x
-					XGS_Ctrl->setAnalogGain(2);
-				else if (GrabParams->ANALOG_GAIN == 3) //if curr=2x -> set 4x
-					XGS_Ctrl->setAnalogGain(4);
-				else if (GrabParams->ANALOG_GAIN == 7) //if curr=4x -> set 1x
-					XGS_Ctrl->setAnalogGain(1);
-				printf_s("\n");
-				break;
-
-			case 'b':
-				printf_s("\nEnter Black Offset in HEX (Data Pedestal, 0-0xfff LSB12) : 0x");
-				scanf_s("%x", &BlackOffset);
-				XGS_Ctrl->setBlackRef(BlackOffset);
-				break;
-
-
-			case 'p':
-				printf_s("Paused. Press enter to restart grab...");
-				getch_return = _getch();
-				printf_s(" GO!\n");
-				break;
-
-			case 'r':
-				Sleep(1000);
-				XGS_Ctrl->DisableRegUpdate();
-				Sleep(100);
-				printf_s("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a) * 4);
-				printf_s("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c) * 4);
-				printf_s("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e) * 4);
-				printf_s("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820) * 4);
-				printf_s("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH * 16);
-				Sleep(100);
-				XGS_Ctrl->EnableRegUpdate();
-				break;
-
-			case 'y':
-				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
-				scanf_s("%d", &XGSSize_Y);
-				GrabParams->Y_END  = GrabParams->Y_START + (XGSSize_Y)-1;
-				GrabParams->Y_SIZE = XGSSize_Y;
-				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                   // 0x10000080;
-				Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE);    // 0x10c00080;
-				MbufClear(MilGrabBuffer, 0);
-				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
-				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
-				break;
-
-			case 'S':
-				XGS_Ctrl->WaitEndExpReadout();
-
-				printf_s("\n\n");
-				printf_s("Subsampling X (0=NO, 1=YES) ? : ");
-				scanf_s("%d", &SubX);
-				printf_s("Subsampling Y (0=NO, 1=YES) ? : ");
-				scanf_s("%d", &SubY);
-
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X = SubX;
-				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
-				MbufClear(MilGrabBuffer, 0);
-				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
-				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure() );
-
-				break;
-
-			case 't':
-				XGS_Ctrl->WaitEndExpReadout();
-				cout << "\n";
-				XGSTestImageMode ++;
-				if (XGSTestImageMode == 7)
-				{
-					cout << "\nXgs Image Test Mode is Live Mode\n";
-					XGSTestImageMode = 0;
-					XGS_Ctrl->WriteSPI(0x3e0e, 0); // Normal image
-				}
-
-				// Programmable Flat Image
-				if (XGSTestImageMode == 1) {
-					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x" ;
-					M_UINT32 pixelvalue;
-					scanf_s("%x", &pixelvalue);
-
-					XGS_Ctrl->WriteSPI(0x3e10, pixelvalue << 1); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, pixelvalue << 1); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, pixelvalue << 1); // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, pixelvalue << 1); // Test data Green-B channel
-					XGS_Ctrl->WriteSPI(0x3e0e, 1);     // Solid color
-				}
-				//  Programmable Horizontal black and white lines
-				if (XGSTestImageMode == 2) {
-					cout << "\nXgs Image Test Mode is set to Programmable Horizontal black and white lines (Can be programmed to any value)\n";
-					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x1fff); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x0);    // Test data Green-B channel
-					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
-				}
-				//  Programmable Vertical black and white columns
-				if (XGSTestImageMode == 3) {
-					cout << "\nXgs Image Test Mode is set to Programmable Vertical black and white columns (Can be programmed to any value)\n";
-					XGS_Ctrl->WriteSPI(0x3e10, 0x1fff); // Test data Red channel
-					XGS_Ctrl->WriteSPI(0x3e12, 0x0); // Test data Green-R channel
-					XGS_Ctrl->WriteSPI(0x3e14, 0x0);    // Test data Bleu channel
-					XGS_Ctrl->WriteSPI(0x3e16, 0x1fff);    // Test data Green-B channel
-					XGS_Ctrl->WriteSPI(0x3e0e, 1);      // Solid color
-				}
-				//XGS_Ctrl->WriteSPI(0x3e0e, 2); // Color bars (BAYER)
-				//XGS_Ctrl->WriteSPI(0x3e0e, 3); // fade to gray, all must be 0 or 1 (NE Marche PAS ??? a cause du 6 Lanes???)
-
-				// diagonal gray x1
-				if (XGSTestImageMode == 4) {
-					cout << "\nXgs Image Test Mode is set to Diagonal gray x1\n";
-					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
-				}
-				
-				// diagonal gray x3	
-				if (XGSTestImageMode == 5) {
-					cout << "\nXgs Image Test Mode is set to Diagonal gray x3\n";
-					XGS_Ctrl->WriteSPI(0x3e0e, 5); // diagonal gray x3		
-				}
-
-				// White/Black bar(coarse)
-				if (XGSTestImageMode == 6) {
-					cout << "\nXgs Image Test Mode is set to White/Black bar(coarse)\n";
-					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
-				}
-
-			    //XGS_Ctrl->WriteSPI(0x3e0e, 7);    // White/Black bar(fine)   (NE Marche PAS ???  a cause du 6 Lanes???)			
-				cout << "\n";
-				break;
-
-			case 'D':
-
-				if (DisplayOn == TRUE)
-					DisplayOn = FALSE;
-				else
-					DisplayOn = TRUE;
-				break;
-            
-			case 'T':
-				XGS_Ctrl->FPGASystemMon();
-				break;
-
-			case 'l':	
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
-				LUT_PATTERN++;
-				if (LUT_PATTERN == 3) LUT_PATTERN = 0;
-				XGS_Data->ProgramLUT(LUT_PATTERN);
-				XGS_Data->EnableLUT();
-				break;
-            
-			case '2':
-				if (DigGain == 127) 
-				  DigGain = 127;
-				else
-				  DigGain++;				
-				XGS_Ctrl->setDigitalGain(DigGain);
-                break;
-
-			case '1':
-				if (DigGain == 1)
-					DigGain = 1;
-				else
-					DigGain--;
-				XGS_Ctrl->setDigitalGain(DigGain);
-				break;
-
-			case 'x':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
-				XGS_Ctrl->ReadSPI_DumpFile();
 				break;
 
 

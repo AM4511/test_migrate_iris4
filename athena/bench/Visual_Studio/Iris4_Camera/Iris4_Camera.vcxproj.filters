@@ -63,28 +63,10 @@
     <ClCompile Include="Iris4_Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\test_0003_HW_Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\test_0009_Optics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\test_0004_Continu_FPS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\test_0005_SWtrig_Random.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\test_0006_SWtrig_BlackCorr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\osfunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\test_0007_Continu_DPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\flashupdate.cpp">
@@ -94,6 +76,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tests\test_0010_Continu_nbframes.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0003_HW_Timer.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0004_Continu_FPS.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0005_SWtrig_Random.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0006_SWtrig_BlackCorr.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0007_Continu_DPC.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_0009_Optics.cpp">
       <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>

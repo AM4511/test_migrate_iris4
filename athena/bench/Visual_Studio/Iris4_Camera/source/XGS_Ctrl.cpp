@@ -70,7 +70,6 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 
         0,             //M_SUBSAMPLING_Y;
 	    0,             //ACTIVE_SUBSAMPLING_Y;
-	    0,             //SUBSAMPLING_X;
 
 	    0,             //FOT;
 
@@ -98,7 +97,11 @@ CXGS_Ctrl::CXGS_Ctrl(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr, double se
 		3102,          // XGS_Y_Size;      
 
 		1280,          //Xsize_Full
+		1280,          //Xsize_Full_valid;
+		4,             //Xstart_valid
 		1024,          //Ysize_Full
+		1024,          //Ysize_Full_valid;
+		4,             //Ystart_valid
 		1280,          //Xsize_BL;
 
 		0,             //BL_LINES;
@@ -453,14 +456,30 @@ void CXGS_Ctrl::InitXGS()
 		else
 			printf_s("\n");
 
+		if ((DataRead & 0x3) == 1) {
+			printf_s("  XGS is COLOR\n");
+			SensorParams.IS_COLOR           = 1;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+		}
+		else if ((DataRead & 0x3) == 2) {
+			printf_s("  XGS is MONO\n");
+			SensorParams.IS_COLOR           = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+		}
+		else {
+			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			SensorParams.IS_COLOR           = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+		}
+
 		if (((DataRead & 0x7c) >> 2) == 0x18) {
 			printf_s("  XGS Resolution is 5Mp\n");
-			XGS5M_SetGrabParamsInit5000(4);
+			XGS5M_SetGrabParamsInit5000(4, SensorParams.IS_COLOR);
 		}
 		else
 		if (((DataRead & 0x7c) >> 2) == 0x1a) {
 			printf_s("  XGS Resolution is 2Mp\n");
-			XGS5M_SetGrabParamsInit2000(4);
+			XGS5M_SetGrabParamsInit2000(4, SensorParams.IS_COLOR);
 		}
 	 	else {		
 			printf_s("  XGS OTPM Resolution NOT SUPPORTED !!!\n");
@@ -483,18 +502,7 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf_s("  XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3) == 1) {
-			printf_s("  XGS is COLOR\n");
-			SensorParams.IS_COLOR = 1;
-		}
-		else if ((DataRead & 0x3) == 2) {
-			printf_s("  XGS is MONO\n");
-			SensorParams.IS_COLOR = 0;
-		}
-		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
-			SensorParams.IS_COLOR = 0;
-		}
+
 
 		XGS5M_LoadDCF(4);
 
@@ -517,14 +525,29 @@ void CXGS_Ctrl::InitXGS()
 		else
 			printf_s("\n");
 
+
+		if ((DataRead & 0x3) == 1) {
+			printf_s("  XGS is COLOR\n");
+			SensorParams.IS_COLOR = 1;
+		}
+		else if ((DataRead & 0x3) == 2) {
+			printf_s("  XGS is MONO\n");
+			SensorParams.IS_COLOR = 0;
+		}
+		else {
+			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			SensorParams.IS_COLOR = 0;
+		}
+
+
 		if (((DataRead & 0x1c) >> 2) == 0) {
 			printf_s("  XGS Resolution is 12Mp\n");
-			XGS12M_SetGrabParamsInit12000(6);
+			XGS12M_SetGrabParamsInit12000(6, SensorParams.IS_COLOR);
 		} 
 		else
 		if (((DataRead & 0x1c) >> 2) == 3) {
 			printf_s("  XGS Resolution is 8Mp\n");
-			XGS12M_SetGrabParamsInit8000(6);
+			XGS12M_SetGrabParamsInit8000(6, SensorParams.IS_COLOR);
 		}
 		else {
 			printf_s("  XGS OTPM Resolution NOT SUPPORTED !!!\n");
@@ -543,18 +566,7 @@ void CXGS_Ctrl::InitXGS()
 		if (((DataRead & 0x180) >> 7) == 1)
 			printf_s("  XGS Lens Shift is 7.3 degree\n");
 
-		if ((DataRead & 0x3) == 1) {
-			printf_s("  XGS is COLOR\n");
-			SensorParams.IS_COLOR = 1;
-		}
-		else if ((DataRead & 0x3) == 2) {
-			printf_s("  XGS is MONO\n");
-			SensorParams.IS_COLOR = 0;
-		}
-		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
-			SensorParams.IS_COLOR = 0;
-		}
+
 
 		XGS12M_LoadDCF(6);
 	}
@@ -611,7 +623,7 @@ void CXGS_Ctrl::InitXGS()
 			SensorParams.IS_COLOR = 0;
 		}
 
-		XGS16M_SetGrabParamsInit16000(6);
+		XGS16M_SetGrabParamsInit16000(6, SensorParams.IS_COLOR);
 		XGS16M_LoadDCF(6);
 	}
 
@@ -717,13 +729,13 @@ M_UINT32 CXGS_Ctrl::getExposure(void)
 //----------------------------------------------------
 //  setExposure : in ns  
 //----------------------------------------------------
-void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us)
+void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us, M_UINT32 info)
 {
 	
 
 	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
-		printf_s("Exposure set to %dus\n", exposure_ss_us);
+		if(info==1) printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
 	}
 	else {
@@ -749,20 +761,20 @@ void CXGS_Ctrl::setExposure_(M_UINT32 exposure_ss_us)
 //----------------------------------------------------
 //  setAnalogGain   
 //----------------------------------------------------
-void CXGS_Ctrl::setAnalogGain(M_UINT32 gain)
+void CXGS_Ctrl::setAnalogGain(M_UINT32 gain, M_UINT32 info)
 {
 
 	if (gain == 1) {
 		GrabParams.ANALOG_GAIN = 1;
-		printf_s("AnalogGain set to 1x\n");
+		if (info == 1) printf_s("AnalogGain set to 1x\n");
 	}
 	else if (gain == 2) {
 		GrabParams.ANALOG_GAIN = 3;
-		printf_s("AnalogGain set to 2x\n");
+		if (info == 1) printf_s("AnalogGain set to 2x\n");
 	}
 	else if (gain == 4) {
 		GrabParams.ANALOG_GAIN = 7;
-		printf_s("AnalogGain set to 4x\n");
+		if (info == 1) printf_s("AnalogGain set to 4x\n");
 	}
 
 
@@ -793,10 +805,10 @@ void CXGS_Ctrl::setDigitalGain(M_UINT32 DigGain)
 //----------------------------------------------------
 //  setBalckRef
 //----------------------------------------------------
-void CXGS_Ctrl::setBlackRef(int value)
+void CXGS_Ctrl::setBlackRef(int value, M_UINT32 info)
 {
 	GrabParams.BLACK_OFFSET = value;
-	printf_s("Black Offset (Data Pedestal) set to 0x%X\n", value);
+	if (info == 1) printf_s("Black Offset (Data Pedestal) set to 0x%X\n", value);
 }
 
 //----------------------------------------------------
@@ -1006,10 +1018,6 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 {
 
 	//int nbLVDS = getLVDS_ch_used();
-
-	int SubBinX = 1;
-	int SubBinY = 1;
-
 	
 	sXGSptr.ACQ.SENSOR_ROI_Y_START.f.Y_START = GrabParams.Y_START/4;
 	rXGSptr.ACQ.SENSOR_ROI_Y_START.u32 = sXGSptr.ACQ.SENSOR_ROI_Y_START.u32;
@@ -1041,33 +1049,6 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.STROBE_CTRL1.f.STROBE_E       = GrabParams.STROBE_E;
 	rXGSptr.ACQ.STROBE_CTRL1.u32              = sXGSptr.ACQ.STROBE_CTRL1.u32;
 
-	//sDMA.GRAB_INIT_ADDR.u32 = GrabParams.FrameStart & 0xffffffff;                   // Lo DW ADD64
-	//rDMA.GRAB_INIT_ADDR.u32 = sDMA.GRAB_INIT_ADDR.u32;
-	//
-	//sDMA.GRAB_INIT_ADDR_HI.u32 = (GrabParams.FrameStart & 0xffffffff00000000) >> 32;   // Hi DW ADD64
-	//rDMA.GRAB_INIT_ADDR_HI.u32 = sDMA.GRAB_INIT_ADDR_HI.u32;
-	//
-	//sDMA.GRAB_GREEN_ADDR.u32 = GrabParams.FrameStartG & 0xffffffff;                   // Lo DW ADD64
-	//rDMA.GRAB_GREEN_ADDR.u32 = sDMA.GRAB_GREEN_ADDR.u32;
-	//
-	//sDMA.GRAB_GREEN_ADDR_HI.u32 = (GrabParams.FrameStartG & 0xffffffff00000000) >> 32;   // Hi DW ADD64
-	//rDMA.GRAB_GREEN_ADDR_HI.u32 = sDMA.GRAB_GREEN_ADDR_HI.u32;
-	//
-	//sDMA.GRAB_RED_ADDR.u32 = GrabParams.FrameStartR & 0xffffffff;                   // Lo DW ADD64
-	//rDMA.GRAB_RED_ADDR.u32 = sDMA.GRAB_RED_ADDR.u32;
-	//
-	//sDMA.GRAB_RED_ADDR_HI.u32 = (GrabParams.FrameStartR & 0xffffffff00000000) >> 32;   // Hi DW ADD64
-	//rDMA.GRAB_RED_ADDR_HI.u32 = sDMA.GRAB_RED_ADDR_HI.u32;
-	//
-	//sDMA.GRAB_LINE_PITCH.u32 = GrabParams.LinePitch;
-	//rDMA.GRAB_LINE_PITCH.u32 = sDMA.GRAB_LINE_PITCH.u32;
-	//
-	//sDMA.GRAB_CSC.f.COLOR_SPACE = GrabParams.COLOR_SPACE;
-	//sDMA.GRAB_CSC.f.GRAB_REVX = GrabParams.REVERSE_X;
-	//sDMA.GRAB_CSC.f.MONO10 = GrabParams.MONO10;
-	//rDMA.GRAB_CSC.u32 = sDMA.GRAB_CSC.u32;
-
-
 	// Black Offset (data Pedestal, pour le moment tous les pixels ont le meme pedestal)
 	sXGSptr.ACQ.SENSOR_DP_GR.f.DP_OFFSET_GR = GrabParams.BLACK_OFFSET;
 	rXGSptr.ACQ.SENSOR_DP_GR.u32            = sXGSptr.ACQ.SENSOR_DP_GR.u32;
@@ -1084,13 +1065,9 @@ void CXGS_Ctrl::SetGrabParams(unsigned long Throttling)
 	sXGSptr.ACQ.SENSOR_GAIN_ANA.f.ANALOG_GAIN = GrabParams.ANALOG_GAIN;
 	rXGSptr.ACQ.SENSOR_GAIN_ANA.u32 = sXGSptr.ACQ.SENSOR_GAIN_ANA.u32;
 
-	//sXGSptr.DMA.CSC.f.SUB_X     = GrabParams.SUB_X;
-	//sXGSptr.DMA.CSC.f.REVERSE_Y = GrabParams.REVERSE_Y;
-	//sXGSptr.DMA.CSC.f.REVERSE_X = GrabParams.REVERSE_X;
-
 	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.M_SUBSAMPLING_Y      = GrabParams.M_SUBSAMPLING_Y;
 	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.ACTIVE_SUBSAMPLING_Y = GrabParams.ACTIVE_SUBSAMPLING_Y;
-	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.SUBSAMPLING_X        = GrabParams.SUBSAMPLING_X;
+	sXGSptr.ACQ.SENSOR_SUBSAMPLING.f.SUBSAMPLING_X        = 0;    // Dont use SUB_X in sensor, no fps advantages , and noise is increased!
 	rXGSptr.ACQ.SENSOR_SUBSAMPLING.u32 = sXGSptr.ACQ.SENSOR_SUBSAMPLING.u32;
 
 	//rXGSptr.ACQ.GRAB_CTRL.f.BUFFER_ID                     = GrabParams.GRAB_BUFFER_ID;

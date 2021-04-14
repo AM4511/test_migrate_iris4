@@ -491,7 +491,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="SUBSAMPLING_X" alias="" description="Readout in Column Subsampling Mode">
+      <fields name="SUBSAMPLING_X" alias="" description="Readout in Column Subsampling Mode.&#xD;&#xA;We don't use SUB_X in sensor, no fps advantages , and noise is increased! instead using DMA subsampling.">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
@@ -806,7 +806,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Remove first and last line of the image received&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. The value 0 is allowed and when set to 0 no pixel will be corrected.  Up to (2^DPC_CORR_PIXELS_DEPTH)-1 pixels can be corrected. &#xD;&#xA;If generic DPC_CORR_PIXELS_DEPTH in XGS_Athena module is set to 9, up to 511 pixels may be corrected." lsb="16" size="12">
+      <fields name="dpc_list_count" description="This is the number of entries in the DPC list. The driver need to set the dcp_list_count in order to correct the image. The value 0 is allowed and when set to 0 no pixel will be corrected.  Up to (2^DPC_CORR_PIXELS_DEPTH)-1 pixels can be corrected.&#xD;&#xA;&#xD;&#xA;In GTX  DPC_CORR_PIXELS_DEPTH is set to 9, up to 511 pixels may be corrected.&#xD;&#xA;" lsb="16" size="12">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>0 to 2^DPC_CORR_PIXELS_DEPTH&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -830,7 +830,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Start the READ/WRITE transaction&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address b000000. Since the dpc_list_count field is also 6 bit wide, address 0 to 62 of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x3f cannot be used. This DPC location will not be corrected." size="12">
+      <fields name="dpc_list_add" description="This is the address of the DPC list to be access by the read/write operation. Pixel 0 to correct is located at address 0x000. In GTX  DPC_CORR_PIXELS_DEPTH is set to 9, up to 511 pixels may be corrected. Since the dpc_list_count field is also 9 bit wide, address 0 to 0x1fe of the list can be used.&#xD;&#xA;&#xD;&#xA;Adress 0x1ff cannot be used. This DPC location will not be corrected." size="12">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Valid DPC adress&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
@@ -898,10 +898,10 @@
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="BAYER" baseAddress="4C0" endAddress="4D4">
-    <registers name="BAYER_CFG">
-      <fields name="BAYER_EN" description="This register enables the Bayer demosaic and RGB LUT.">
-        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RAW8&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RGB24&lt;/matrox_column_delimiter></possibleValues>
+    <registers name="BAYER_CAPABILITIES">
+      <fields name="BAYER_VER" description="Implemented version of the BAYER module" size="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bayer not implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial Bayer 2x2 version&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>

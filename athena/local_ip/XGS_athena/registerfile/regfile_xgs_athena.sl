@@ -674,10 +674,10 @@ Register("lut_rb", 0x4b8, 4, "null");
 %=================================================================
 Section("BAYER", 0, 0x4c0);
 
-Register("bayer_cfg", 0x4c0, 4, "null");
-		Field("bayer_en", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("Output is RAW8", 0);
-			FieldValue("Output is RGB24", 1);
+Register("bayer_capabilities", 0x4c0, 4, "null");
+		Field("bayer_ver", 1, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+			FieldValue("Bayer not implemented", 0);
+			FieldValue("Initial Bayer 2x2 version", 1);
 
 Register("wb_mul1", 0x4c4, 4, "null");
 		Field("wb_mult_g", 31, 16, "rd|wr", 0x0, 0x1000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

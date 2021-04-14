@@ -647,7 +647,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>af4afe2f</spirit:value>
+            <spirit:value>25faf962</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -665,7 +665,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>af4afe2f</spirit:value>
+            <spirit:value>0ac3f0ea</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1670,7 +1670,7 @@
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>COLOR</spirit:name>
         <spirit:displayName>Color</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.COLOR">0</spirit:value>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.COLOR" spirit:minimum="0" spirit:maximum="1" spirit:rangeType="long">0</spirit:value>
       </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
@@ -1876,6 +1876,26 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/axis_width_conv.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/x_trim.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/x_trim_streamout.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/x_trim_subsampling.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/xgs_color_proc.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
@@ -1893,26 +1913,6 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/data/xgs_mono_pipeline.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim_subsampling.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim_streamout.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
         <spirit:name>hdl/controller/xgs_power.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
@@ -1921,7 +1921,7 @@
       <spirit:file>
         <spirit:name>hdl/controller/xgs_spi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_397e4ebc</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_fa5d6dc5</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -2115,6 +2115,21 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/x_trim.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/x_trim_streamout.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/x_trim_subsampling.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/xgs_color_proc.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
@@ -2132,26 +2147,6 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/data/xgs_mono_pipeline.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim_subsampling.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim_streamout.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/x_trim.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
         <spirit:name>hdl/controller/xgs_power.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
@@ -2160,7 +2155,6 @@
       <spirit:file>
         <spirit:name>hdl/controller/xgs_spi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_397e4ebc</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -2256,11 +2250,11 @@
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>https://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>114</xilinx:coreRevision>
+      <xilinx:coreRevision>117</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:XGS_athena:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2021-03-18T16:59:14Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2021-04-09T14:34:11Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@616448f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3bc016e5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
@@ -3584,15 +3578,39 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@1d5ab21d_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6a49bee8_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@4af5a2c1_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@60bcc943_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67988841_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d049da6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5c9cacf6_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51ec46f8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1dbad6d1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bf29fa8_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c0a1f74_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@595e1005_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@186cf1d_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12d2b05_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4393e3d9_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7cb8f2c7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f3247d4_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@382bede1_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@409e4652_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a4f620e_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5b978e4_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f5876ba_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b65a6e7_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@316cca82_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61e54bef_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@65021699_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30561858_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="bc582e6f"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="37925ff9"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="d0eb2666"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="f398e0bf"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="3002d94a"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ce2f4df6"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="bb647dbf"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="b64ab1c1"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>

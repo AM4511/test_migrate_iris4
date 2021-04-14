@@ -1,6 +1,6 @@
 # ##################################################################################
-# File         : create_athena_50t.tcl
-# Description  : TCL script used to create athena fpga 50T. 
+# File         : create_golden_athena_50t.tcl
+# Description  : TCL script used to create GOLDEN MONO athena fpga 50T. 
 #
 # Example      : source $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t.tcl
 #
@@ -21,9 +21,9 @@ if {[file exists $myself ]} {
    puts "Running ${myself}"
    set BACKEND_DIR [file normalize [file dirname ${myself}]]
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
-   
-   set BASE_NAME "golden_athena50t"
-   set DEVICE    "xc7a50ticpg236-1L"
+
+   set BASE_NAME             "golden_athena50t"
+   set DEVICE                "xc7a50ticpg236-1L"
    
    # FPGA_DEVICE_ID (DEVICE ID MAP) :
    # Generic passed to VHDL top level file by generic
@@ -45,13 +45,15 @@ if {[file exists $myself ]} {
    set FLASH_OFFSET     0x000000
    set NEXT_CONFIG_ADDR 0x400000
    
+   # Compile a MONO pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=0
+   set COLOR_FPGA 0
+   
    # ############################################
    # Starting generation script
    # ############################################
    if {${DEBUG} == 0} {
      source $BACKEND_DIR/create_athena.tcl
    }
-
    
 } else {
    puts "Error : script $myself does not exist!!!"

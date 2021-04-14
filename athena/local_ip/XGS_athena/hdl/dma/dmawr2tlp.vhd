@@ -16,6 +16,7 @@ use work.dma_pack.all;
 
 entity dmawr2tlp is
   generic (
+    COLOR                 : integer := 0;
     MAX_PCIE_PAYLOAD_SIZE : integer := 128
     );
   port (
@@ -206,7 +207,7 @@ architecture rtl of dmawr2tlp is
   constant C_S_AXI_DATA_WIDTH  : integer := 32;
   constant AXIS_DATA_WIDTH     : integer := 64;
   constant AXIS_USER_WIDTH     : integer := 4;
-  constant BUFFER_ADDR_WIDTH   : integer := 11;
+  constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
@@ -257,8 +258,9 @@ begin
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
 
-  dma_context_mapping.numb_plane <= 1 when (regfile.DMA.CSC.COLOR_SPACE = "00") else
-                                    3;
+  dma_context_mapping.numb_plane <= 3 when (regfile.DMA.CSC.COLOR_SPACE = "011") else  --RGB PLANAR - 3 BUFFERS
+                                    1;
+  
   
   regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
   regfile.DMA.TLP.CFG_MAX_PLD   <= cfg_setmaxpld;

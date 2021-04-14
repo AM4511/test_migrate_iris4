@@ -2,7 +2,7 @@
 //
 //  Configuration for XGS16000
 //
-//  From WIP Last Changed Rev: 18094 (r0 only)
+//  From WIP Last Changed Rev: 18293 (r0 only)
 //    C:\Aptina Imaging\apps_data\XGS16M-REV0.ini 
 //    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS16M-REV0.ini   
 
@@ -13,12 +13,15 @@
 
 #include "XGS_Ctrl.h"
 
+//Derniere version du microcode de Onsemi pour la famaille XGS12K
+M_UINT32 XGS16K_WIP = 18293;
+
 
 
 //-----------------------------------------------
 // Init specific 
 //-----------------------------------------------
-void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
+void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes, int color)
    {
 
    SensorParams.SENSOR_TYPE            = 16000;
@@ -28,7 +31,15 @@ void CXGS_Ctrl::XGS16M_SetGrabParamsInit16000(int lanes)
    SensorParams.XGS_DMA_LinePtrWidth   = 2;   // 4 line buffers
 
    SensorParams.Xsize_Full             = 4008;  // Interpolation INCLUDED
+   SensorParams.Xsize_Full_valid       = 4000;
+   if (color == 0)
+	   SensorParams.Xstart_valid       = 4;
+   else
+	   SensorParams.Xstart_valid       = 2;      // When color and DPC enabled, then only remove 2 pix
+
    SensorParams.Ysize_Full             = 4008;  // Interpolation INCLUDED
+   SensorParams.Ysize_Full_valid       = 4000;
+   SensorParams.Ystart_valid           = 4;
 
    SensorParams.XGS_X_START            = 80;                                                     // MONO : Location of first valid x pixel(80,0)
    SensorParams.XGS_X_END              = SensorParams.XGS_X_START + SensorParams.Xsize_Full - 1; // MONO : Location of last valid x pixel(including Interpolation, dummies, bl, valid)
@@ -110,7 +121,7 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 	Sleep(50); //comme ds le code de onsemi
 	//otpmversion = reg.reg(0x3016).bitfield(0xF).uncached_value
 	M_UINT32 otpmversion = ReadSPI(0x3016);
-	printf_s("XGS OTPM version : 0x%X\n", otpmversion);
+	printf_s("XGS OTPM version : 0x%X  (WIP Rev: %d)\n", otpmversion, XGS16K_WIP);
 	WriteSPI(0x3700, 0x0000);
 	//Sleep(50);
 
@@ -153,6 +164,12 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 		WriteSPI(0x3434, 0xFFFF);
 		//WriteSPI(0x3412, 0xAEB0); register write removed in WIP 18094
 
+		//Updates to fix first frame not saturating in triggered mode(see AND90029 - D). 
+		//WIP 18293
+		WriteSPI(0x38CE, 0x8000);
+		WriteSPI(0x38D6, 0x9FFF);
+
+
 		//[Hidden:Timing_Up]
 		printf_s("XGS Loading timing uploads\n");
 
@@ -170,11 +187,9 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 		WriteSPI_BURST(REG_BURST12, sizeof(REG_BURST12) / sizeof(M_UINT32));
 	}
 
-	
-	if (otpmversion > 0) {
-		printf_s("New DCF must be implemented for OTPM version: 0x%X (WIP Last Changed Rev: 18094)\n", otpmversion);
-		exit(1);
-	}
+	else
+		printf_s("OTPM version: 0x%X (WIP Last Changed Rev: %d), skipping Req_Reg_Up_0 and Timing_Up register load\n", otpmversion, XGS16K_WIP);
+
 
 }
 

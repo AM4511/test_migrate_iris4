@@ -18,41 +18,59 @@ using namespace std;
 #include "Pcie.h"
 
 void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
-   {
-	
+{
+
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
-	M_UINT64 ImageBufferAddr      = 0;
+	M_UINT64 ImageBufferAddr = 0;
+
+	MIL_ID MilDisplayR;
+	MIL_ID MilGrabBufferR;
+	M_UINT64 ImageBufferAddrR = 0;
+
+	MIL_ID MilDisplayG;
+	MIL_ID MilGrabBufferG;
+	M_UINT64 ImageBufferAddrG = 0;
+
+	MIL_ID MilDisplayB;
+	MIL_ID MilGrabBufferB;
+
+
 	MIL_INT  ImageBufferLinePitch = 0;
 
 	int getch_return;
 	int MonoType = 8;
 	int RGB32Type = 32;
+	int PLANAR = 0;
 
 	int Sortie = 0;
 	char ch;
 
-	bool CheckCRC   = true;
-	bool DisplayOn  = true;
-	int PolldoSleep =0;
-	bool FPS_On     = true;
+	bool CheckCRC = true;
+	bool DisplayOn = true;
+	int PolldoSleep = 0;
+	bool FPS_On = true;
 
 	M_UINT32 ExposureIncr = 10;
-	M_UINT32 BlackOffset  = 0x100;
+	M_UINT32 BlackOffset = 0x100;
+
+	M_UINT32 XGSStart_Y = 0;
 	M_UINT32 XGSSize_Y = 0;
+	M_UINT32 XGSStart_X = 0;
+	M_UINT32 XGSSize_X = 0;
 
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
 
 	M_UINT32 XGSTestImageMode = 0;
 
-	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
+	GrabParamStruct* GrabParams = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
-	DMAParamStruct*    DMAParams    = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
+	DMAParamStruct* DMAParams = XGS_Data->getDMAParams();             // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
 
-	M_UINT32 Overrun      = 0;
+	M_UINT32 Overrun = 0;
 	M_UINT32 OverrunPixel = 0;
 
 	M_UINT32 LUT_PATTERN = 0;
@@ -62,8 +80,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT64 GrabCmd = 0;
 
 	printf_s("\n\n********************************\n");
-	printf_s(    "*    Executing Test0000.cpp    *\n"); 
-	printf_s(    "********************************\n\n");
+	printf_s("*    Executing Test0000.cpp    *\n");
+	printf_s("********************************\n\n");
 
 
 
@@ -73,8 +91,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//XGS_Ctrl->GrabParams.XGS_LINE_SIZE_FACTOR = 2;
 
 	//------------------------------
-    // INITIALIZE XGS SENSOR
-    //------------------------------
+	// INITIALIZE XGS SENSOR
+	//------------------------------
 	XGS_Ctrl->InitXGS();
 	M_UINT32 SensorSpi_0x3402 = XGS_Ctrl->ReadSPI(0x3402);
 
@@ -84,30 +102,62 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Data->HiSpiCalibrate(1);
 
 	//---------------------
-    //
-    // MIL LAYER 
-    //
-    //---------------------
+	//
+	// MIL LAYER 
+	//
+	//---------------------
 
 
 	// Init Display with correct X-Y parameters 
 	if (SensorParams->IS_COLOR == 0) {
-	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, MonoType);
-	  LUT_PATTERN = 0;
-	}
-	else{
-	  ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, RGB32Type);
-	  LUT_PATTERN = 3;
-	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-	  XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-	  XGS_Ctrl->rXGSptr.BAYER.BAYER_CFG.f.BAYER_EN = 1;
-    }
+		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+		LUT_PATTERN = 0;
 
-	ImageBufferLinePitch= MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+	}
+	else
+		if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, RGB32Type);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+		}
+
+		else
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
+
+			ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
+
+			ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
+			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+
 
 
 
@@ -123,23 +173,33 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	//---------------------
-    // GRAB PARAMETERS
-    //---------------------
-	// For a full frame ROI 
-	GrabParams->Y_START = 1;                                                // 1-base Here - Dois etre multiple de 4	
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;	// 1-base Here - Dois etre multiple de 4
-	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
+	// GRAB PARAMETERS
+	//---------------------
+	// For a full Y frame with Interpolation
+	//GrabParams->Y_START = 0;                                                 // Dois etre multiple de 4	
+	//GrabParams->Y_SIZE  = SensorParams->Ysize_Full;                          // Dois etre multiple de 4
+	//GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
 
+	// For a full valid frame ROI 
+	if (SensorParams->IS_COLOR == 0) {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                      // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
+	}
+	else {
+		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                      // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;    // On laisse passer 4 lignes d'interpolation pour le bayer
+	}
 
-	GrabParams->SUBSAMPLING_X        = 0;
-	GrabParams->M_SUBSAMPLING_Y      = 0;
+	GrabParams->M_SUBSAMPLING_Y = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
 
 	XGS_Ctrl->setBlackRef(0);
 	XGS_Ctrl->setAnalogGain(1);        //unitary analog gain   
 	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
 
-	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y) );
+	XGS_Ctrl->setExposure((M_UINT32)XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 
 	// GRAB MODE
@@ -149,15 +209,39 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	//---------------------
-    // DMA PARAMETERS
-    //---------------------
-	DMAParams->FSTART     = ImageBufferAddr;          // Adresse Mono pour DMA
-	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;     
-	DMAParams->LINE_SIZE  = SensorParams->Xsize_Full; // Full window MIL display
+	// DMA PARAMETERS
+	//---------------------
+	DMAParams->ROI_X_EN = 1;
+	DMAParams->X_START = SensorParams->Xstart_valid;      // To remove interpolation pixels
+	DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;
 
+	DMAParams->SUB_X = 0;
+	DMAParams->REVERSE_X = 0;
+	DMAParams->REVERSE_Y = 0;
+
+	DMAParams->FSTART   = ImageBufferAddr;                // Adresse Mono/BGR32/PLANAR B pour DMA
+	DMAParams->FSTART_G = ImageBufferAddrG;               // Adresse PLANAR G pour DMA
+	DMAParams->FSTART_R = ImageBufferAddrR;               // Adresse PLANAR R pour DMA
+
+	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch; // Adresse Mono?BGR32 pour DMA  
+
+	if (SensorParams->IS_COLOR == 0) {
+		DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+		DMAParams->CSC = 0; // MONO
+	}
+	else
+		if (SensorParams->IS_COLOR == 1 && PLANAR == 0) {
+			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);
+			DMAParams->CSC       = 1; // BGR32
+		}
+		else {
+			DMAParams->LINE_SIZE = (DMAParams->X_SIZE + 4) / (DMAParams->SUB_X + 1); //DPC removes 2 front + 2 rear
+			DMAParams->CSC       = 3; // PLANAR
+
+		}
 
 	//Transparent LUTs
-	XGS_Data->ProgramLUT(LUT_PATTERN); 
+	XGS_Data->ProgramLUT(LUT_PATTERN);
 	XGS_Data->EnableLUT();
 
 	printf_s("\n\nTest started at : ");
@@ -215,16 +299,16 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 7;
 
 	// https://imgconf.matrox.com:8443/display/IRIS4/XGS+Controller+timings+specs                   [TEST0000 - Grab continu]
-    // 3) Setup de mesure pour KEEP_OUT_ZONE_START
-    //      Probe1 : Monitor2, NEW_LINE(J204 sur le sensor board 7572 - 00), ce signal dure 1 clk pixel clock(15.625ns avec  un oscillateur de 32 Mhz)
-    //      Probe2 : Debug0(R254  sur le sensor board 7572 - 00), avec Debug0 = Signal interne FPGA keep_out_zone(WritePcie BAR0 + 0x1e0[4:0] = 0x11 (17))
-    //      Probe3 : Debug1(R256  sur le sensor board 7572 - 00), avec Debug1 = Signal interne FPGA xgs_trig_int_delayed(WritePcie BAR0 + 0x1e0[12:8] = 0x12 (18))
-    //      Probe4 : Debug2(R256  sur le sensor board 7572 - 00), avec Debug2 = Signal interne FPGA curr_trig0(WritePcie BAR0 + 0x1e0[20:16] = 0x5 (5))
-    //
-    XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 17;
-    XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 18;
-    XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 5;
-    XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 31; //not used
+	// 3) Setup de mesure pour KEEP_OUT_ZONE_START
+	//      Probe1 : Monitor2, NEW_LINE(J204 sur le sensor board 7572 - 00), ce signal dure 1 clk pixel clock(15.625ns avec  un oscillateur de 32 Mhz)
+	//      Probe2 : Debug0(R254  sur le sensor board 7572 - 00), avec Debug0 = Signal interne FPGA keep_out_zone(WritePcie BAR0 + 0x1e0[4:0] = 0x11 (17))
+	//      Probe3 : Debug1(R256  sur le sensor board 7572 - 00), avec Debug1 = Signal interne FPGA xgs_trig_int_delayed(WritePcie BAR0 + 0x1e0[12:8] = 0x12 (18))
+	//      Probe4 : Debug2(R256  sur le sensor board 7572 - 00), avec Debug2 = Signal interne FPGA curr_trig0(WritePcie BAR0 + 0x1e0[20:16] = 0x5 (5))
+	//
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 17;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 18;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 5;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 31; //not used
 
 
 	//---- END OF DO NOT MODIFY FROM HERE
@@ -246,17 +330,21 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (-) Decrease Exposure");
 	printf_s("\n  (p) Pause grab");
 	printf_s("\n  (t) XGS test images");
+	printf_s("\n");
+	printf_s("\n  (r) Read current ROI configuration");
 	printf_s("\n  (y) Set new ROI (Y-only)");
-	printf_s("\n  (r) Read current ROI configuration in XGS");
-	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n  (x) Set new ROI (X-only)");
+	printf_s("\n  (E) FPGA Reverse X");
 	printf_s("\n  (R) FPGA Reverse Y");
+	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n");
 	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
 	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf_s("\n  (l) Program LUT");
 	printf_s("\n  (2) Digital Gain +1 (XGS Dig Gain)");
 	printf_s("\n  (1) Digital Gain -1 (XGS Dig Gain)");
 	printf_s("\n  (B) White Balance Color Sensor");
-	printf_s("\n  (x) Dump XGS registers");
+	printf_s("\n  (X) Dump XGS registers");
 
 
 	printf_s("\n\n");
@@ -265,8 +353,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	// For debug DMA overrun with any 12Mpix sensor
-	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start   = DMAParams->FSTART;                                                            // 0x10000080;
-	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = (DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE)) ;    // 0x10c00080;
+	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start = DMAParams->FSTART;                                                            // 0x10000080;
+	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = (DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE));    // 0x10c00080;
 
 
 
@@ -346,26 +434,40 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 			printf_s("\r%dfps(%.2f), Calculated Max fps is %lf @Exp_max=~%.0lfus)        ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS,
-				                                                                            XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0,
-				                                                                            XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
-				                                                                            XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y)	);
+				XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS2.f.SENSOR_FPS / 10.0,
+				XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y),
+				XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->M_SUBSAMPLING_Y));
 
 
 		}
 
-	
+
 
 		if (DisplayOn)
-		//{
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+			//{
+			//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
+			if (SensorParams->IS_COLOR == 0)
+				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+			else
+				if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+					MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+				else
+				{
+					MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
+					MbufControl(MilGrabBufferG, M_MODIFIED, M_DEFAULT);
+					MbufControl(MilGrabBufferR, M_MODIFIED, M_DEFAULT);
+				}
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
 		//	//printf_s("%f", DisplayLength1 - DisplayLength0);
 		//}
-		
+
 
 		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		if (SensorParams->IS_COLOR == 0 || (SensorParams->IS_COLOR == 1 && PLANAR == 0))
+			OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		else
+			OverrunPixel = 0; //temp
+
 		if (OverrunPixel != 0)
 		{
 			Overrun++;
@@ -454,24 +556,41 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				break;
 
 			case 'r':
-				Sleep(1000);
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
 				XGS_Ctrl->DisableRegUpdate();
 				Sleep(100);
-				printf_s("\nY start0 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381a), XGS_Ctrl->ReadSPI(0x381a) * 4);
-				printf_s("Y size0  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381c), XGS_Ctrl->ReadSPI(0x381c) * 4);
-				printf_s("Y start1 is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x381e), XGS_Ctrl->ReadSPI(0x381e) * 4);
-				printf_s("Y size1  is 0x%x x4 (%d dec)\n", XGS_Ctrl->ReadSPI(0x3820), XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf_s("\n\n");
+				printf_s("Rev X is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_X);
+				printf_s("Rev Y is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.REVERSE_Y);
+				printf_s("\n");
+				printf_s("Sub X is %d\n", XGS_Ctrl->rXGSptr.DMA.CSC.f.SUB_X);
+				printf_s("Sub Y is %d\n", XGS_Ctrl->rXGSptr.ACQ.SENSOR_SUBSAMPLING.f.ACTIVE_SUBSAMPLING_Y);
+				printf_s("\n");
+				printf_s("X start is %d dec\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_START - SensorParams->Xstart_valid);
+				printf_s("X size  is %d dec\n", XGS_Ctrl->rXGSptr.DMA.ROI_X.f.X_SIZE);
+				printf_s("\n");
+				printf_s("Y start0 is %d dec\n", XGS_Ctrl->ReadSPI(0x381a) * 4 - SensorParams->Ystart_valid);
+				printf_s("Y size0  is %d dec\n", XGS_Ctrl->ReadSPI(0x381c) * 4);
+				printf_s("Y start1 is %d dec\n", XGS_Ctrl->ReadSPI(0x381e) * 4 - SensorParams->Ystart_valid);
+				printf_s("Y size1  is %d dec\n", XGS_Ctrl->ReadSPI(0x3820) * 4);
+				printf_s("\n");
 				printf_s("Readout Lenght %d Lines, 0x%x, %d dec, time is %dns(without FOT)\n", XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.CURR_FRAME_LINES, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH, XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG2.f.READOUT_LENGTH * 16);
+				printf_s("\n");
 				Sleep(100);
 				XGS_Ctrl->EnableRegUpdate();
 				break;
 
 			case 'y':
-				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full);
+				printf_s("\n\nEnter the new Size Y (1-based, multiple of 4x Lines) (Current is: %d), max is %d : ", GrabParams->Y_SIZE, SensorParams->Ysize_Full_valid);
 				scanf_s("%d", &XGSSize_Y);
+				printf_s("\nEnter the new Offset Y (1-based, multiple of 4x Lines) (Current is: %d) : ", GrabParams->Y_START - SensorParams->Ystart_valid);
+				scanf_s("%d", &XGSStart_Y);
+
+				GrabParams->Y_START = SensorParams->Ystart_valid + XGSStart_Y;
 				GrabParams->Y_END = GrabParams->Y_START + (XGSSize_Y)-1;
 				GrabParams->Y_SIZE = XGSSize_Y;
-				DMAParams->Y_SIZE  = XGSSize_Y;
+				DMAParams->Y_SIZE = XGSSize_Y;
 				Pcie->rPcie_ptr.debug.dma_debug1.f.add_start = DMAParams->FSTART;                                                   // 0x10000080;
 				Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE);    // 0x10c00080;
 				MbufClear(MilGrabBuffer, 0);
@@ -479,61 +598,72 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
 				break;
 
+			case 'x':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+				printf_s("\n\nEnter the new Offset X (1-based) (Current is: %d) : ", DMAParams->X_START - SensorParams->Ystart_valid);
+				scanf_s("%d", &XGSStart_X);
+				printf_s("\nEnter the new Size X (1-based) (Current is: %d), max is %d : ", DMAParams->X_SIZE, SensorParams->Xsize_Full_valid);
+				scanf_s("%d", &XGSSize_X);
+				DMAParams->X_START = SensorParams->Xstart_valid + XGSStart_X;
+				DMAParams->X_SIZE = XGSSize_X;
+				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+
+				MbufClear(MilGrabBuffer, 0);
+				break;
+
 			case 'S':
 				XGS_Ctrl->WaitEndExpReadout();
 
 				printf_s("\n\n");
-				printf_s("Subsampling X (0=NO, 1=YES) ? : ");
+				printf_s("Subsampling X (0=NO, 1 to 15= Subsampling factor) ? : ");
 				scanf_s("%d", &SubX);
 				printf_s("Subsampling Y (0=NO, 1=YES) ? : ");
 				scanf_s("%d", &SubY);
 
-				XGS_Ctrl->GrabParams.SUBSAMPLING_X        = SubX;
-				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+				// We dont use SUB_X in sensor, no fps advantages , and noise is increased!
+				// Using DMA subsampling 0(none) to 15 factor
+				DMAParams->SUB_X = SubX;
+				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 
-				if(SubY== 1)
-					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1 )/2;
+				XGS_Ctrl->GrabParams.ACTIVE_SUBSAMPLING_Y = SubY;
+				if (SubY == 1)
+					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1) / 2;
 				else
 					DMAParams->Y_SIZE = (GrabParams->Y_END - GrabParams->Y_START + 1);
 
-				if (SubX == 1) {
-
-                    // see AND9878/D
-                    // Increased Row Noise in Mono Subsampling
-					// When enabling SUBSAMPLING_X register 0x383C[0] for any of the contexts on a mono configured device(reg 0x3800[1] = 0x0), which results in the read−1−skip−1
-                    // configuration for subsampling, the device shows increased row noise.The row noise can be decreased by changing register 0x3402 to 0x1919. The downside of 
-                    // this change is that the power consumption will increase by 42 mW on average.
-					XGS_Ctrl->WriteSPI(0x3402, 0x1919);
-
-					// Set Location of first valid x pixel(including Interpolation)
-					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START = XGS_Ctrl->SensorParams.XGS_X_START-16;
-					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_END   = XGS_Ctrl->SensorParams.XGS_X_START-16 + ((XGS_Ctrl->SensorParams.XGS_X_END + 1 - XGS_Ctrl->SensorParams.XGS_X_START) / 2)-1;
-					XGS_Ctrl->rXGSptr.HISPI.FRAME_CFG_X_VALID.u32       = XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
-
-					XGS_Data->DMAParams.LINE_SIZE = SensorParams->Xsize_Full / 2;
-				}
-				else{
-
-					XGS_Ctrl->WriteSPI(0x3402, SensorSpi_0x3402);
-
-					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_START = XGS_Ctrl->SensorParams.XGS_X_START;
-					XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.f.X_END   = XGS_Ctrl->SensorParams.XGS_X_END;
-			   	    XGS_Ctrl->rXGSptr.HISPI.FRAME_CFG_X_VALID.u32       = XGS_Ctrl->sXGSptr.HISPI.FRAME_CFG_X_VALID.u32;
-
-					XGS_Data->DMAParams.LINE_SIZE = SensorParams->Xsize_Full;
-					
-			    }
-
 				MbufClear(MilGrabBuffer, 0);
 				printf_s("\nNEW calculated Max fps is %lf @Exp_max=~%.0lfus)\n", XGS_Ctrl->Get_Sensor_FPS_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y), XGS_Ctrl->Get_Sensor_EXP_PRED_MAX(GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y));
-				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure() );
+				printf_s("Please adjust exposure time to increase FPS, current Exposure is %dus\n\n", XGS_Ctrl->getExposure());
 
 				break;
+
+
+			case 'R':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_Y == 1)
+					XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				else
+					XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+				break;
+
+			case 'E':
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
+				if (XGS_Data->DMAParams.REVERSE_X == 1)
+					XGS_Data->set_DMA_revX(0);
+				else
+					XGS_Data->set_DMA_revX(1);
+				break;
+
 
 			case 't':
 				XGS_Ctrl->WaitEndExpReadout();
 				cout << "\n";
-				XGSTestImageMode ++;
+				XGSTestImageMode++;
 				if (XGSTestImageMode == 7)
 				{
 					cout << "\nXgs Image Test Mode is Live Mode\n";
@@ -543,7 +673,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				// Programmable Flat Image
 				if (XGSTestImageMode == 1) {
-					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x" ;
+					cout << "\nXgs Image Test Mode is set to Flat Image (Can be programmed to any value), enter pixel 12 bit value : 0x";
 					M_UINT32 pixelvalue;
 					scanf_s("%x", &pixelvalue);
 
@@ -579,7 +709,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					cout << "\nXgs Image Test Mode is set to Diagonal gray x1\n";
 					XGS_Ctrl->WriteSPI(0x3e0e, 4); // diagonal gray x1
 				}
-				
+
 				// diagonal gray x3	
 				if (XGSTestImageMode == 5) {
 					cout << "\nXgs Image Test Mode is set to Diagonal gray x3\n";
@@ -592,7 +722,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 					XGS_Ctrl->WriteSPI(0x3e0e, 6); // White/Black bar(coarse)  : TRES LARGE
 				}
 
-			    //XGS_Ctrl->WriteSPI(0x3e0e, 7);    // White/Black bar(fine)   (NE Marche PAS ???  a cause du 6 Lanes???)			
+				//XGS_Ctrl->WriteSPI(0x3e0e, 7);    // White/Black bar(fine)   (NE Marche PAS ???  a cause du 6 Lanes???)			
 				cout << "\n";
 				break;
 
@@ -603,12 +733,12 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				else
 					DisplayOn = TRUE;
 				break;
-            
+
 			case 'T':
 				XGS_Ctrl->FPGASystemMon();
 				break;
 
-			case 'l':	
+			case 'l':
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(100);
 				LUT_PATTERN++;
@@ -616,14 +746,14 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Data->ProgramLUT(LUT_PATTERN);
 				XGS_Data->EnableLUT();
 				break;
-            
+
 			case '2':
-				if (DigGain == 127) 
-				  DigGain = 127;
+				if (DigGain == 127)
+					DigGain = 127;
 				else
-				  DigGain++;				
+					DigGain++;
 				XGS_Ctrl->setDigitalGain(DigGain);
-                break;
+				break;
 
 			case '1':
 				if (DigGain == 1)
@@ -633,24 +763,14 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->setDigitalGain(DigGain);
 				break;
 
-			case 'x':
+			case 'X':
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(100);
 				XGS_Ctrl->ReadSPI_DumpFile();
 				break;
 
-			case 'R':
-				XGS_Ctrl->WaitEndExpReadout();
-				Sleep(100);
 
-				if(XGS_Data->DMAParams.REVERSE_Y==1)
-				  XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE);
-				else
-				  XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE);
-				  
-				break;
-
-			case 'B':				
+			case 'B':
 				cout << "\nCalculating White Balance...\n";
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(200);
@@ -660,7 +780,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 				XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_B_ACC.f.B_ACC)));
 				XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-				XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_R_ACC.f.R_ACC)));			
+				XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_R_ACC.f.R_ACC)));
 				break;
 
 
@@ -670,14 +790,27 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 
-    printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
+	printf_s("\r%dfps   ", XGS_Ctrl->rXGSptr.ACQ.SENSOR_FPS.f.SENSOR_FPS);
 
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
-	MbufFree(MilGrabBuffer);
-	MdispFree(MilDisplay);
+	if (SensorParams->IS_COLOR == 0 || (SensorParams->IS_COLOR == 1 && PLANAR == 0)) {
+		MbufFree(MilGrabBuffer);
+		MdispFree(MilDisplay);
+	}
+	else {
+		MbufFree(MilGrabBufferB);
+		MbufFree(MilGrabBufferG);
+		MbufFree(MilGrabBufferR);
+		MdispFree(MilDisplayB);
+		MdispFree(MilDisplayG);
+		MdispFree(MilDisplayR);
+	}
 
+
+	
+	
 	//----------------------
 	// Disable HW
 	//----------------------

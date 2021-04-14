@@ -10,14 +10,24 @@
 -- Date:        
 -- Project:     IRIS 4
 --
---                                                
---               _________             _________           __________            _________ 
---    2x10bpp   |         |  2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         | (2x24bpp) 
---   ---------->|   DPC   |---------->|   WB    |-------->|  Bayer   |--------->|   Lut   |----------->  RGB24 : REG_BAYER_EN=1
---              |_________|     |     |_________|         |__________|          |_________|
---                              |                                                
---                               --------------------------------------------------------------------->  RAW8  : REG_BAYER_EN=0
 --
+--                                                                                                               ___***____ 
+--                                                                                                              |         |
+--                                                                                                              |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=3
+--                                                                                                              |_________| (2x16bpp)
+--                                                                                                                  |                                                                         
+--              _________             _________             _________           __________            _________     |
+--   8x10bpp   |   AXIs  | 2x10bpp   |         |  2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         |    |
+--  ---------->|  Width  |---------->|   DPC   |---------->|   WB    |-------->|  Bayer   |--------->|   Lut   |---------------------->  2x RGB24 packed64 : COLOR_SPACE=1
+--             |__Conv_*_|           |_________|     |     |_________|         |__________|          |_________|            (2x24bpp)
+--                  |                                |                                                
+--             * This module is out of this file     --------------------------------------------------------------------------------->  2x RAW8 packed64  : COLOR_SPACE=5
+--
+--
+--
+-- *** NOT CODED YET
+--
+
 -------------------------------------------------------------------------------
 
 library ieee;
@@ -67,9 +77,7 @@ entity xgs_color_proc is
            curr_Ystart                             : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
            curr_Yend                               : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
            curr_Ysub                               : in    std_logic := '0';  
-											      
-	       load_dma_context_EOFOT                  : in    std_logic := '0';  -- in axi_clk
-	       
+											             
            ---------------------------------------------------------------------
            -- Registers
            ---------------------------------------------------------------------
@@ -99,7 +107,10 @@ entity xgs_color_proc is
 		   REG_WB_MULT_G                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   REG_WB_MULT_B                           : in std_logic_vector(15 downto 0):= "0001000000000000";
 		   	   
-           REG_BAYER_EN                            : in std_logic:='0';	   
+		   REG_bayer_ver                           : out std_logic_vector(1 downto 0);	     
+			   
+           load_dma_context                        : in std_logic_vector(1 downto 0):=(others=>'0');
+		   REG_COLOR_SPACE                         : in std_logic_vector(2 downto 0);	   
 			   
            REG_LUT_BYPASS                          : in std_logic;
 		   REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
@@ -249,6 +260,19 @@ constant Pix_type             : integer := 10;
 -----------------------------
 -- TEMP signals/outputs
 -----------------------------
+
+-- Deduced from CSC regsiters:
+signal load_dma_context0_P1 : std_logic :='0';
+signal load_dma_context0_P2 : std_logic :='0';       
+signal load_dma_context1_P1 : std_logic :='0';
+signal load_dma_context1_P2 : std_logic :='0';
+signal curr_csc_reg         : std_logic_vector(2 downto 0) := "000";
+signal curr_csc_reg_DB      : std_logic_vector(2 downto 0) := "000"; 
+
+signal BAYER_EN          : std_logic :='0'; 
+signal YUV_EN            : std_logic :='0';
+signal RAW_EN            : std_logic :='1';
+
 
 -- AXI slave control
 signal s_axis_tready_int     : std_logic :='0';
@@ -455,6 +479,66 @@ BEGIN
   wb_data8      <= wb_data(19 downto 12)  & wb_data(9 downto 2);
 
 
+  ------------------------------------------------------------------
+  -- Configuration of color pipeline depending on DMA CSC registers
+  ------------------------------------------------------------------
+  process(axi_clk)
+  begin
+    if (rising_edge(axi_clk)) then
+      if (axi_reset_n = '0')then
+        load_dma_context0_P1 <='0';
+        load_dma_context0_P2 <='0';
+        
+        load_dma_context1_P1 <='0';
+        load_dma_context1_P2 <='0';
+
+        curr_csc_reg         <= "000";
+		curr_csc_reg_DB      <= "000"; 
+		
+		BAYER_EN             <= '0';
+        YUV_EN               <= '0';
+        RAW_EN               <= '0';
+        
+      else
+        load_dma_context0_P1 <= load_dma_context(0);
+        load_dma_context0_P2 <= load_dma_context0_P1;
+							    
+        load_dma_context1_P1 <= load_dma_context(1);
+        load_dma_context1_P2 <= load_dma_context1_P1;
+
+        -- First FF load
+        if (load_dma_context0_P2 = '0' and load_dma_context0_P1 = '1') then
+          curr_csc_reg <= REG_COLOR_SPACE;
+        end if;
+
+        if (load_dma_context1_P2 = '0' and load_dma_context1_P1 = '1') then
+          curr_csc_reg_DB <= curr_csc_reg;
+        end if;
+        
+		if(curr_csc_reg_DB="001") then  --RGB24
+		  BAYER_EN <= '1';
+          YUV_EN   <= '0';
+          RAW_EN   <= '0';
+		elsif(curr_csc_reg_DB="010") then  --YUV16
+   		  BAYER_EN <= '1';
+          YUV_EN   <= '1';
+          RAW_EN   <= '0';
+		elsif(curr_csc_reg_DB="101") then --RAW
+   		  BAYER_EN <= '0';
+          YUV_EN   <= '0';
+          RAW_EN   <= '1';
+		else
+   		  BAYER_EN <= '0';
+          YUV_EN   <= '0';
+          RAW_EN   <= '0';		
+		end if;  
+  
+		
+      end if;
+    end if;
+  end process;
+
+
 
 
     
@@ -468,16 +552,16 @@ BEGIN
     if (axi_clk'event and axi_clk='1') then
       
 	  ----------------------------------------------------------------------------------
-	  -- First line goes directly to the first fifo in BAYER MODE : REG_BAYER_EN = 1
+	  -- First line goes directly to the first fifo in BAYER MODE : BAYER_EN = 1
       ----------------------------------------------------------------------------------
-	  if(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
+	  if(BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then --give rdy for one complete line at SOG : no wait sinc we enter this line to the first fifo
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '1'; 
 		s_axis_first_prefetch <= "00"; 		
 		s_axis_line_gap       <= '0';
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
-	  elsif(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
+	  elsif(BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tready_int='1' and s_axis_tuser(3)='1') then -- at eol stop first line prefecht
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 	  
 		s_axis_first_prefetch <= "00"; 
@@ -485,7 +569,7 @@ BEGIN
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '1'; 
       
-      elsif(REG_BAYER_EN='1' and s_axis_line_gap='1') then  --put a second wait at EOL, to let DPC absorb the stream(video syncs)
+      elsif(BAYER_EN='1' and s_axis_line_gap='1') then  --put a second wait at EOL, to let DPC absorb the stream(video syncs)
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 	  
 		s_axis_first_prefetch <= "00"; 
@@ -497,8 +581,8 @@ BEGIN
 	  ---------------------------------------------
 	  -- Others lines can be waited by DMA
       ---------------------------------------------	  
-      elsif(REG_BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(2)='1' ) or   -- RGB this gives 4 rdy (RGB) at SOL detection - then wait for master interface 
-	       (REG_BAYER_EN='0' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then -- RAW this gives 3 rdy (RAW) at SOF detection - then wait for master interface
+      elsif(BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(2)='1' ) or   -- RGB this gives 4 rdy (RGB) at SOL detection - then wait for master interface 
+	       (BAYER_EN='0' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then -- RAW this gives 3 rdy (RAW) at SOF detection - then wait for master interface
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= "01";
@@ -506,8 +590,8 @@ BEGIN
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
 
-      elsif(REG_BAYER_EN='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
-	       (REG_BAYER_EN='0' and s_axis_first_prefetch="10" and s_axis_tvalid='1' ) then -- RAW this gives 3 rdy at SOF detection - remove rdy and then listen to master interface to be ready
+      elsif(BAYER_EN='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
+	       (BAYER_EN='0' and s_axis_first_prefetch="10" and s_axis_tvalid='1' ) then -- RAW this gives 3 rdy at SOF detection - remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= "00";  	  
@@ -647,7 +731,7 @@ Xdpc_filter_color : dpc_filter_color
     curr_Yend                            => curr_Yend, 
 	                                       
     curr_Ysub                            => curr_Ysub,
-	load_dma_context_EOFOT               => load_dma_context_EOFOT,
+	load_dma_context_EOFOT               => load_dma_context(1),
 	
     ---------------------------------------------------------------------
     -- Registers
@@ -925,6 +1009,12 @@ wb_data <= C1_wb_data & C0_wb_data;
 --
 --
 --------------------------------------------------------------------
+
+-- REG_bayer_ver : 
+-- 0x0 : Bayer not implemented
+-- 0x1 : Initial Bayer 2x2 version
+REG_bayer_ver <= "01"; 
+
 BayerIn_overscan  <= BayerIn_eol;
 BayerIn_sof       <= wb_sof;     
 BayerIn_sol       <= wb_sol;     
@@ -950,7 +1040,7 @@ begin
 	
 	BayerIn_data_p2         <= BayerIn_data_p1;
 
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       BayerIn_sol_p1          <= '0';
       BayerIn_sol_p2          <= '0';
       BayerIn_sol_p3          <= '0';
@@ -999,7 +1089,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       bayer_is_line0 <= '0';
     elsif(BayerIn_sof= '1') then
       bayer_is_line0 <= '1';
@@ -1014,7 +1104,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       bayer_is_first_word <= '0';
     elsif(BayerIn_sol= '1') then
       bayer_is_first_word <= '1';
@@ -1108,7 +1198,7 @@ BAYER_M0(31 downto 16) <= bayer_r_ram_dat;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       bayer_read_enable  <= '0';
     else
       bayer_read_enable <= BayerIn_data_val and not(bayer_is_line0);
@@ -1120,7 +1210,7 @@ begin
       bayer_r_ram_add <=  bayer_r_ram_add + '1';
     end if;
     
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       BAYER_M0(15 downto 0)   <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1'  and bayer_is_line0 = '0') then
       BAYER_M0(15 downto 0)   <= BAYER_M0(31 downto 16); 
@@ -1137,13 +1227,13 @@ process(axi_clk)
 begin
   if rising_edge(axi_clk) then
 
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       BAYER_M1  <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1' and bayer_is_line0 = '0') then
       BAYER_M1(31 downto 16)  <= BayerIn_data_p1(15 downto 0);  
     end if;
     
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then      
+    if(axi_reset_n='0' or BAYER_EN='0') then      
       BAYER_M1(15 downto 0)  <= (others => '0');
     elsif(BayerIn_data_val_p1 = '1'  and bayer_is_line0 = '0') then
       BAYER_M1(15 downto 0)  <= BAYER_M1(31 downto 16);
@@ -1161,7 +1251,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       is_line_impaire <= '0';
     elsif(BayerIn_sof= '1') then
       is_line_impaire <= '1';         -- XGS On commence toujours sur une ligne pair . On commence a traiter une ligne en retard, donc au SOF on reset a 1 !!!
@@ -1325,7 +1415,7 @@ end process;
 process(axi_clk)
 begin
   if rising_edge(axi_clk) then
-    if(axi_reset_n='0' or REG_BAYER_EN='0') then
+    if(axi_reset_n='0' or BAYER_EN='0') then
       bayer_sof        <= '0';
       bayer_sol        <= '0';
       bayer_data_val   <= '0';
@@ -1447,7 +1537,7 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   process(axi_clk)
   begin
     if rising_edge(axi_clk) then
-      if(axi_reset_n='0' or REG_BAYER_EN='0') then
+      if(axi_reset_n='0' or BAYER_EN='0') then
         lut_sof        <= '0';
         lut_sol        <= '0';
         lut_data_val   <= '0';
@@ -1489,7 +1579,7 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if(axi_sof='1') then  
         m_axis_first_line <= '1';
-	  elsif(REG_BAYER_EN='1') then       -- COLOR
+	  elsif(BAYER_EN='1') then       -- COLOR
 	    if(lut_eol='1') then 	
           m_axis_first_line <= '0';
 		end if;
@@ -1499,7 +1589,7 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
 		end if;		
 	  end if;
       
-	  if(REG_BAYER_EN='1') then       -- COLOR
+	  if(BAYER_EN='1') then       -- COLOR
 	    if(BayerIn_eof='1') then  
           m_axis_last_line <= '1';
 	    elsif(lut_eof='1') then 	
@@ -1518,9 +1608,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(0) <= '0' after 1 ns;
-      elsif(REG_BAYER_EN='1' and lut_sof = '1') then      -- COLOR:  arrive une fois, au debut du frame avant le data
+      elsif(BAYER_EN='1' and lut_sof = '1') then      -- COLOR:  arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;
-      elsif(REG_BAYER_EN='0' and wb_sof = '1') then       -- RAW: arrive une fois, au debut du frame avant le data
+      elsif(BAYER_EN='0' and wb_sof = '1') then         -- RAW: arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;	
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(0) <= '0' after 1 ns;
@@ -1534,9 +1624,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(2) <= '0' after 1 ns;
-      elsif(REG_BAYER_EN='1' and lut_sol = '1' and m_axis_first_line='0')  then      -- COLOR SOL
+      elsif(BAYER_EN='1' and lut_sol = '1' and m_axis_first_line='0')  then      -- COLOR SOL
         m_axis_tuser_int(2) <= '1' after 1 ns;  
-      elsif(REG_BAYER_EN='0' and wb_sol = '1' and m_axis_first_line='0')  then      -- RAW SOL
+      elsif(BAYER_EN='0' and wb_sol = '1' and m_axis_first_line='0')  then         -- RAW SOL
         m_axis_tuser_int(2) <= '1' after 1 ns;      		
 	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(2) <= '0' after 1 ns;
@@ -1550,9 +1640,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(3) <= '0' after 1 ns;
-      elsif(REG_BAYER_EN='1' and bayer_eol = '1'  and m_axis_last_line='0') then    -- COLOR : dont put eol in last line of frame, only eof, un pipe avant lut_eol
+      elsif(BAYER_EN='1' and bayer_eol = '1'  and m_axis_last_line='0') then    -- COLOR : dont put eol in last line of frame, only eof, un pipe avant lut_eol
         m_axis_tuser_int(3) <= '1' after 1 ns;
-      elsif(REG_BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='0') then   --RAW   
+      elsif(BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='0') then   --RAW   
         m_axis_tuser_int(3) <= '1' after 1 ns;		
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(3) <= '0' after 1 ns;
@@ -1568,9 +1658,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(1) <= '0' after 1 ns;
-      elsif(REG_BAYER_EN='1' and bayer_eol = '1' and m_axis_last_line='1') then   -- COLOR   
+      elsif(BAYER_EN='1' and bayer_eol = '1' and m_axis_last_line='1') then   -- COLOR   
         m_axis_tuser_int(1) <= '1' after 1 ns;
-      elsif(REG_BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='1') then   --RAW   
+      elsif(BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='1') then   --RAW   
         m_axis_tuser_int(1) <= '1' after 1 ns;		
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(1) <= '0' after 1 ns;
@@ -1587,14 +1677,14 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tvalid_int <= '0' after 1 ns;
-	  elsif(REG_BAYER_EN='1') then       --COLOR 
+	  elsif(BAYER_EN='1') then       --COLOR 
    	    if(lut_data_val='1') then
           m_axis_tvalid_int <= '1';
 		elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
 	      m_axis_tvalid_int <= bayer_data_val;    -- un pipeline avant lut_data_val
 		end if;  	  
-      else
-  	    if(wb_data_val='1') then            --RAW
+      else                           --RAW
+  	    if(wb_data_val='1') then            
           m_axis_tvalid_int <= '1';		
         elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
 	      m_axis_tvalid_int <= WBIn_data_val_p2;  -- un pipeline avant WB_data_val                                 
@@ -1628,7 +1718,7 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
         if(m_axis_tvalid_int = '1' and m_axis_tready = '0') then -- Dont update data, since the data is not sample yet
           m_axis_tdata_int <= m_axis_tdata_int;
         else  
-          if(REG_BAYER_EN='1') then
+          if(BAYER_EN='1') then
 		    m_axis_tdata_int <= lut_data; -- COLOR : Put new data on the bus
 		  else
 		    m_axis_tdata_int <= raw_data; -- RAW : Put new data on the bus		  
@@ -1649,9 +1739,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
 		m_axis_tlast    <= '0' after 1 ns;		
-      elsif(REG_BAYER_EN='1' and bayer_eol = '1') then   -- COLOR
+      elsif(BAYER_EN='1' and bayer_eol = '1') then   -- COLOR
 		m_axis_tlast    <= '1' after 1 ns;
-      elsif(REG_BAYER_EN='0' and WBIn_eol_p2='1') then   -- un pipeline avant WB_EOL
+      elsif(BAYER_EN='0' and WBIn_eol_p2='1') then   -- un pipeline avant WB_EOL
 		m_axis_tlast    <= '1' after 1 ns;		
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
 		m_axis_tlast    <= '0' after 1 ns;		

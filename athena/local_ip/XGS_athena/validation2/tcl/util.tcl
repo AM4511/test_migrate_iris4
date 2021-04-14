@@ -14,7 +14,7 @@ set message {
 	h       : Display this help
 	n       : Source util.tcl
 	r       : Run tests specific enabled in testbech.sv
-	r 0001  : Run specific test (Here test0001)
+	r 0001  : Run specific mono test (Here test0001)
 	s       : Run all test defined in util.tcl
 }
 
