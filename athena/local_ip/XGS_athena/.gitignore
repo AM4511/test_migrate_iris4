@@ -1,3 +1,8 @@
 *.bak
 XGS_image*
 vsim_stacktrace.vstf
+/registerfile/Cregfile_xgs_athena.cpp
+/registerfile/Cregfile_xgs_athena.h 
+/registerfile/Cregfile_xgs_athena.java 
+/registerfile/regfile_xgs_athena.xml
+/registerfile/.fdksettings/

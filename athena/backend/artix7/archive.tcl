@@ -39,7 +39,12 @@ set VIVADO_PROJECT_DIR_NAME   [file tail ${VIVADO_PROJECT_DIR}]
 #--------------------------------------------
 # On cree les repertoires du nouveau build   
 #--------------------------------------------
-set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${FPGA_FULL_VERSION}/${VIVADO_PROJECT_DIR_NAME}"
+if {$FPGA_IS_NPI_GOLDEN==1} {
+  set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${FPGA_FULL_VERSION}/golden/${VIVADO_PROJECT_DIR_NAME}"
+} else {
+  set pre_release_dir              "//milent/4SightHD/708 IRIS4/10 FPGA/firmwares/athena/prerelease/${FPGA_FULL_VERSION}/upgrade/${VIVADO_PROJECT_DIR_NAME}"
+}
+
 set pre_release_rpt_dir          $pre_release_dir/rpt
 set pre_release_registerfile_dir $pre_release_dir/registerfile
 set pre_release_vivado_dir       $pre_release_dir/vivado

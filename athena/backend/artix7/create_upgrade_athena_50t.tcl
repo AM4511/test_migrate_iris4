@@ -1,6 +1,6 @@
 # ##################################################################################
-# File         : create_athena_50t.tcl
-# Description  : TCL script used to create athena fpga 50T. 
+# File         : create_upgrade_athena_50t.tcl
+# Description  : TCL script used to create UPGRADE MONO athena fpga 50T. 
 #
 # Example      : source $env(IRIS4)/athena/backend/artix7/create_upgrade_athena_50t.tcl
 #
@@ -21,7 +21,7 @@ if {[file exists $myself ]} {
    puts "Running ${myself}"
    set BACKEND_DIR [file normalize [file dirname ${myself}]]
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
-   
+
    set BASE_NAME             "upgrade_athena50t"
    set DEVICE                "xc7a50ticpg236-1L"
    
@@ -44,6 +44,8 @@ if {[file exists $myself ]} {
    # MIL Upgrade : 0x400000)
    set FLASH_OFFSET     0x400000
 
+   # Compile a MONO pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=0
+   set COLOR_FPGA 0
    
    # ############################################
    # Starting generation script
@@ -51,7 +53,6 @@ if {[file exists $myself ]} {
    if {${DEBUG} == 0} {
    source $BACKEND_DIR/create_athena.tcl
    }
-
    
 } else {
    puts "Error : script $myself does not exist!!!"

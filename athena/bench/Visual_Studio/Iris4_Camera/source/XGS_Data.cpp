@@ -42,6 +42,7 @@ CXGS_Data::CXGS_Data(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr):
 	    0,    // REVERSE_Y;
 	    0,    // REVERSE_X;
 	    0,    // SUB_X;
+		0,    // CSC  
  	    0,    // ROI_X_EN;
 	    0,    // X_START;
 	    0     // X_SIZE;
@@ -268,6 +269,7 @@ void CXGS_Data::SetDMA()
     sXGSptr.DMA.ROI_X.f.X_SIZE       = DMAParams.X_SIZE;
 	rXGSptr.DMA.ROI_X.u32            = sXGSptr.DMA.ROI_X.u32;
 
+	sXGSptr.DMA.CSC.f.COLOR_SPACE    = DMAParams.CSC;
 	sXGSptr.DMA.CSC.f.REVERSE_Y      = DMAParams.REVERSE_Y;
 	sXGSptr.DMA.CSC.f.REVERSE_X      = DMAParams.REVERSE_X;
 	sXGSptr.DMA.CSC.f.SUB_X          = DMAParams.SUB_X;
@@ -282,7 +284,7 @@ void CXGS_Data::SetDMA()
 								     
 	sXGSptr.DMA.FSTART_HIGH.u32      = (DMAParams.FSTART & 0xffffffff00000000) >> 32;
 	rXGSptr.DMA.FSTART_HIGH.u32      = sXGSptr.DMA.FSTART_HIGH.u32;
-								     
+
 	sXGSptr.DMA.FSTART_G.u32         = DMAParams.FSTART_G & 0xffffffff;                    // Lo DW ADD64
 	rXGSptr.DMA.FSTART_G.u32         = sXGSptr.DMA.FSTART_G.u32;
 								     

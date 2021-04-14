@@ -898,10 +898,10 @@
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="BAYER" baseAddress="4C0" endAddress="4D4">
-    <registers name="BAYER_CFG">
-      <fields name="BAYER_EN" description="This register enables the Bayer demosaic and RGB LUT.">
-        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RAW8&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Output is RGB24&lt;/matrox_column_delimiter></possibleValues>
+    <registers name="BAYER_CAPABILITIES">
+      <fields name="BAYER_VER" description="Implemented version of the BAYER module" size="2" readWrite="false" readOnly="true">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bayer not implemented&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Initial Bayer 2x2 version&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>

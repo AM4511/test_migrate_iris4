@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/03/18 13:22:44
+-- Created on          : 2021/04/13 16:57:37
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x88271B79
+-- Register file CRC32 : 0x5E93A6C0
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -107,7 +107,7 @@ package regfile_xgs_athena_pack is
    constant K_LUT_LUT_CAPABILITIES_ADDR       : natural := 16#4b0#;
    constant K_LUT_LUT_CTRL_ADDR               : natural := 16#4b4#;
    constant K_LUT_LUT_RB_ADDR                 : natural := 16#4b8#;
-   constant K_BAYER_BAYER_CFG_ADDR            : natural := 16#4c0#;
+   constant K_BAYER_BAYER_CAPABILITIES_ADDR   : natural := 16#4c0#;
    constant K_BAYER_WB_MUL1_ADDR              : natural := 16#4c4#;
    constant K_BAYER_WB_MUL2_ADDR              : natural := 16#4c8#;
    constant K_BAYER_WB_B_ACC_ADDR             : natural := 16#4cc#;
@@ -1602,19 +1602,19 @@ package regfile_xgs_athena_pack is
    function to_LUT_LUT_RB_TYPE(stdlv : std_logic_vector(31 downto 0)) return LUT_LUT_RB_TYPE;
    
    ------------------------------------------------------------------------------------------
-   -- Register Name: BAYER_CFG
+   -- Register Name: BAYER_CAPABILITIES
    ------------------------------------------------------------------------------------------
-   type BAYER_BAYER_CFG_TYPE is record
-      BAYER_EN       : std_logic;
-   end record BAYER_BAYER_CFG_TYPE;
+   type BAYER_BAYER_CAPABILITIES_TYPE is record
+      BAYER_VER      : std_logic_vector(1 downto 0);
+   end record BAYER_BAYER_CAPABILITIES_TYPE;
 
-   constant INIT_BAYER_BAYER_CFG_TYPE : BAYER_BAYER_CFG_TYPE := (
-      BAYER_EN        => 'Z'
+   constant INIT_BAYER_BAYER_CAPABILITIES_TYPE : BAYER_BAYER_CAPABILITIES_TYPE := (
+      BAYER_VER       => (others=> 'Z')
    );
 
    -- Casting functions:
-   function to_std_logic_vector(reg : BAYER_BAYER_CFG_TYPE) return std_logic_vector;
-   function to_BAYER_BAYER_CFG_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CFG_TYPE;
+   function to_std_logic_vector(reg : BAYER_BAYER_CAPABILITIES_TYPE) return std_logic_vector;
+   function to_BAYER_BAYER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CAPABILITIES_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: WB_MUL1
@@ -1909,7 +1909,7 @@ package regfile_xgs_athena_pack is
    -- Section Name: BAYER
    ------------------------------------------------------------------------------------------
    type BAYER_TYPE is record
-      BAYER_CFG      : BAYER_BAYER_CFG_TYPE;
+      BAYER_CAPABILITIES: BAYER_BAYER_CAPABILITIES_TYPE;
       WB_MUL1        : BAYER_WB_MUL1_TYPE;
       WB_MUL2        : BAYER_WB_MUL2_TYPE;
       WB_B_ACC       : BAYER_WB_B_ACC_TYPE;
@@ -1918,7 +1918,7 @@ package regfile_xgs_athena_pack is
    end record BAYER_TYPE;
 
    constant INIT_BAYER_TYPE : BAYER_TYPE := (
-      BAYER_CFG       => INIT_BAYER_BAYER_CFG_TYPE,
+      BAYER_CAPABILITIES => INIT_BAYER_BAYER_CAPABILITIES_TYPE,
       WB_MUL1         => INIT_BAYER_WB_MUL1_TYPE,
       WB_MUL2         => INIT_BAYER_WB_MUL2_TYPE,
       WB_B_ACC        => INIT_BAYER_WB_B_ACC_TYPE,
@@ -4050,26 +4050,26 @@ package body regfile_xgs_athena_pack is
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
-   -- Description: Cast from BAYER_BAYER_CFG_TYPE to std_logic_vector
+   -- Description: Cast from BAYER_BAYER_CAPABILITIES_TYPE to std_logic_vector
    --------------------------------------------------------------------------------
-   function to_std_logic_vector(reg : BAYER_BAYER_CFG_TYPE) return std_logic_vector is
+   function to_std_logic_vector(reg : BAYER_BAYER_CAPABILITIES_TYPE) return std_logic_vector is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(0) := reg.BAYER_EN;
+      output(1 downto 0) := reg.BAYER_VER;
       return output;
    end to_std_logic_vector;
 
    --------------------------------------------------------------------------------
-   -- Function Name: to_BAYER_BAYER_CFG_TYPE
-   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_BAYER_CFG_TYPE
+   -- Function Name: to_BAYER_BAYER_CAPABILITIES_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_BAYER_CAPABILITIES_TYPE
    --------------------------------------------------------------------------------
-   function to_BAYER_BAYER_CFG_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CFG_TYPE is
-   variable output : BAYER_BAYER_CFG_TYPE;
+   function to_BAYER_BAYER_CAPABILITIES_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_BAYER_CAPABILITIES_TYPE is
+   variable output : BAYER_BAYER_CAPABILITIES_TYPE;
    begin
-      output.BAYER_EN := stdlv(0);
+      output.BAYER_VER := stdlv(1 downto 0);
       return output;
-   end to_BAYER_BAYER_CFG_TYPE;
+   end to_BAYER_BAYER_CAPABILITIES_TYPE;
 
    --------------------------------------------------------------------------------
    -- Function Name: to_std_logic_vector
@@ -4196,11 +4196,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/03/18 13:22:44
+-- Created on          : 2021/04/13 16:57:37
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x88271B79
+-- Register file CRC32 : 0x5E93A6C0
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4343,7 +4343,7 @@ signal rb_DPC_DPC_LIST_DATA2_RD                                    : std_logic_v
 signal rb_LUT_LUT_CAPABILITIES                                     : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_CTRL                                             : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_LUT_LUT_RB                                               : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
-signal rb_BAYER_BAYER_CFG                                          : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_BAYER_CAPABILITIES                                 : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_BAYER_WB_MUL1                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_BAYER_WB_MUL2                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_BAYER_WB_B_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
@@ -4519,7 +4519,6 @@ signal field_rw_LUT_LUT_CTRL_LUT_SEL                               : std_logic_v
 signal field_rw_LUT_LUT_CTRL_LUT_WRN                               : std_logic;                                       -- Field: LUT_WRN
 signal field_wautoclr_LUT_LUT_CTRL_LUT_SS                          : std_logic;                                       -- Field: LUT_SS
 signal field_rw_LUT_LUT_CTRL_LUT_ADD                               : std_logic_vector(9 downto 0);                    -- Field: LUT_ADD
-signal field_rw_BAYER_BAYER_CFG_BAYER_EN                           : std_logic;                                       -- Field: BAYER_EN
 signal field_rw_BAYER_WB_MUL1_WB_MULT_G                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
 signal field_rw_BAYER_WB_MUL1_WB_MULT_B                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
 signal field_rw_BAYER_WB_MUL2_WB_MULT_R                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
@@ -4635,7 +4634,7 @@ hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else 
 hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
 hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
 hit(88) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
-hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c0#,12)))	else '0'; -- Addr:  0x04C0	BAYER_CFG
+hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c0#,12)))	else '0'; -- Addr:  0x04C0	BAYER_CAPABILITIES
 hit(90) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c4#,12)))	else '0'; -- Addr:  0x04C4	WB_MUL1
 hit(91) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c8#,12)))	else '0'; -- Addr:  0x04C8	WB_MUL2
 hit(92) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4cc#,12)))	else '0'; -- Addr:  0x04CC	WB_B_ACC
@@ -4741,7 +4740,7 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_LUT_LUT_CAPABILITIES,
                             rb_LUT_LUT_CTRL,
                             rb_LUT_LUT_RB,
-                            rb_BAYER_BAYER_CFG,
+                            rb_BAYER_BAYER_CAPABILITIES,
                             rb_BAYER_WB_MUL1,
                             rb_BAYER_WB_MUL2,
                             rb_BAYER_WB_B_ACC,
@@ -5107,9 +5106,9 @@ begin
       when 16#4B8# =>
          readBackMux <= rb_LUT_LUT_RB;
 
-      -- [0x4c0]: /BAYER/BAYER_CFG
+      -- [0x4c0]: /BAYER/BAYER_CAPABILITIES
       when 16#4C0# =>
-         readBackMux <= rb_BAYER_BAYER_CFG;
+         readBackMux <= rb_BAYER_BAYER_CAPABILITIES;
 
       -- [0x4c4]: /BAYER/WB_MUL1
       when 16#4C4# =>
@@ -11080,34 +11079,17 @@ regfile.LUT.LUT_RB.LUT_RB <= rb_LUT_LUT_RB(7 downto 0);
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
--- Register name: BAYER_BAYER_CFG
+-- Register name: BAYER_BAYER_CAPABILITIES
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(89) <= (hit(89)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: BAYER_EN
--- Field type: RW
+-- Field name: BAYER_VER(1 downto 0)
+-- Field type: RO
 ------------------------------------------------------------------------------------------
-rb_BAYER_BAYER_CFG(0) <= field_rw_BAYER_BAYER_CFG_BAYER_EN;
-regfile.BAYER.BAYER_CFG.BAYER_EN <= field_rw_BAYER_BAYER_CFG_BAYER_EN;
+rb_BAYER_BAYER_CAPABILITIES(1 downto 0) <= regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER;
 
-
-------------------------------------------------------------------------------------------
--- Process: P_BAYER_BAYER_CFG_BAYER_EN
-------------------------------------------------------------------------------------------
-P_BAYER_BAYER_CFG_BAYER_EN : process(sysclk)
-begin
-   if (rising_edge(sysclk)) then
-      if (resetN = '0') then
-         field_rw_BAYER_BAYER_CFG_BAYER_EN <= '0';
-      else
-         if(wEn(89) = '1' and bitEnN(0) = '0') then
-            field_rw_BAYER_BAYER_CFG_BAYER_EN <= reg_writedata(0);
-         end if;
-      end if;
-   end if;
-end process P_BAYER_BAYER_CFG_BAYER_EN;
 
 
 

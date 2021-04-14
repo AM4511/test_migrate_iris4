@@ -231,6 +231,7 @@ proc create_root_design { parentCell } {
   set XGS_athena_0 [ create_bd_cell -type ip -vlnv matrox.com:Imaging:XGS_athena:1.0.0 XGS_athena_0 ]
   set_property -dict [ list \
    CONFIG.BOOL_ENABLE_IDELAYCTRL {true} \
+   CONFIG.COLOR {1} \
    CONFIG.ENABLE_IDELAYCTRL {1} \
    CONFIG.MAX_PCIE_PAYLOAD_SIZE {256} \
    CONFIG.SENSOR_FREQ {32000} \

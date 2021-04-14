@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/03/18 13:22:44
+ ** Created on          : 2021/04/13 16:57:37
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0x88271B79
+ ** Register file CRC32 : 0x5E93A6C0
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -1641,7 +1641,7 @@ typedef union packed
 
 
 /**************************************************************************
-* Register name : BAYER_CFG
+* Register name : BAYER_CAPABILITIES
 ***************************************************************************/
 typedef union packed
 {
@@ -1651,11 +1651,11 @@ typedef union packed
 
    struct packed
    {
-      logic        BAYER_EN;  /* Bits(0:0), null */
-      logic [30:0] rsvd0;     /* Bits(31:1), Reserved */
+      logic [1:0]  BAYER_VER;  /* Bits(1:0), null */
+      logic [29:0] rsvd0;      /* Bits(31:2), Reserved */
    } f;
 
-} fdk_regfile_xgs_athena_BAYER_BAYER_CFG_t;
+} fdk_regfile_xgs_athena_BAYER_BAYER_CAPABILITIES_t;
 
 
 /**************************************************************************
@@ -1996,12 +1996,12 @@ typedef struct packed
 ***************************************************************************/
 typedef struct packed
 {
-   fdk_regfile_xgs_athena_BAYER_BAYER_CFG_t BAYER_CFG;  /* Address offset: 0x0 */
-   fdk_regfile_xgs_athena_BAYER_WB_MUL1_t   WB_MUL1;    /* Address offset: 0x4 */
-   fdk_regfile_xgs_athena_BAYER_WB_MUL2_t   WB_MUL2;    /* Address offset: 0x8 */
-   fdk_regfile_xgs_athena_BAYER_WB_B_ACC_t  WB_B_ACC;   /* Address offset: 0xc */
-   fdk_regfile_xgs_athena_BAYER_WB_G_ACC_t  WB_G_ACC;   /* Address offset: 0x10 */
-   fdk_regfile_xgs_athena_BAYER_WB_R_ACC_t  WB_R_ACC;   /* Address offset: 0x14 */
+   fdk_regfile_xgs_athena_BAYER_BAYER_CAPABILITIES_t BAYER_CAPABILITIES;  /* Address offset: 0x0 */
+   fdk_regfile_xgs_athena_BAYER_WB_MUL1_t            WB_MUL1;             /* Address offset: 0x4 */
+   fdk_regfile_xgs_athena_BAYER_WB_MUL2_t            WB_MUL2;             /* Address offset: 0x8 */
+   fdk_regfile_xgs_athena_BAYER_WB_B_ACC_t           WB_B_ACC;            /* Address offset: 0xc */
+   fdk_regfile_xgs_athena_BAYER_WB_G_ACC_t           WB_G_ACC;            /* Address offset: 0x10 */
+   fdk_regfile_xgs_athena_BAYER_WB_R_ACC_t           WB_R_ACC;            /* Address offset: 0x14 */
 } fdk_regfile_xgs_athena_BAYER_t;
 
 

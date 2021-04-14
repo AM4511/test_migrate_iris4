@@ -587,8 +587,6 @@ architecture struct of XGS_athena is
       curr_Yend   : in std_logic_vector(11 downto 0) := (others => '1');  --line                                                                                                
       curr_Ysub   : in std_logic                     := '0';
 
-      load_dma_context_EOFOT : in std_logic := '0';  -- in axi_clk
-
       ---------------------------------------------------------------------
       -- Registers
       ---------------------------------------------------------------------
@@ -618,7 +616,10 @@ architecture struct of XGS_athena is
       REG_WB_MULT_G : in std_logic_vector(15 downto 0) := "0001000000000000";
       REG_WB_MULT_B : in std_logic_vector(15 downto 0) := "0001000000000000";
 
-      REG_BAYER_EN : in std_logic := '0';
+      REG_bayer_ver : out std_logic_vector(1 downto 0);	     
+
+      load_dma_context  : in std_logic_vector(1 downto 0):=(others=>'0');
+	  REG_COLOR_SPACE   : in std_logic_vector(2 downto 0);	   
 
       REG_LUT_BYPASS : in std_logic;
       REG_LUT_SEL    : in std_logic_vector(3 downto 0);
@@ -997,6 +998,9 @@ architecture struct of XGS_athena is
   signal REG_dpc_list_length  : std_logic_vector(11 downto 0);
   signal REG_dpc_ver          : std_logic_vector(3 downto 0);
 
+  signal REG_bayer_ver        : std_logic_vector(1 downto 0); 
+  
+  
   -- signal temporaire pour d/veloppement
   signal tmp_valid : std_logic;
 
@@ -1272,6 +1276,8 @@ begin
     regfile.BAYER.WB_B_ACC.B_ACC <= (others => '0');
     regfile.BAYER.WB_G_ACC.G_ACC <= (others => '0');
     regfile.BAYER.WB_R_ACC.R_ACC <= (others => '0');
+    
+	regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER  <= "00";
 
     ---------------------------
     -- MONO
@@ -1395,7 +1401,6 @@ begin
 
         curr_Ysub => hispi_subY,
 
-        load_dma_context_EOFOT => load_dma_context(1),
 
         ---------------------------------------------------------------------
         -- Regfile
@@ -1423,7 +1428,10 @@ begin
         REG_WB_MULT_G => regfile.BAYER.WB_MUL1.WB_MULT_G,
         REG_WB_MULT_B => regfile.BAYER.WB_MUL1.WB_MULT_B,
 
-        REG_BAYER_EN => regfile.BAYER.BAYER_CFG.BAYER_EN,
+  	    REG_bayer_ver     => REG_bayer_ver,
+
+        load_dma_context  =>  load_dma_context,  
+		REG_COLOR_SPACE   =>  regfile.DMA.CSC.COLOR_SPACE, 
 
         REG_LUT_BYPASS => regfile.LUT.LUT_CTRL.LUT_BYPASS,
         REG_LUT_SEL    => regfile.LUT.LUT_CTRL.LUT_SEL,
@@ -1446,6 +1454,8 @@ begin
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_x       <= REG_dpc_list_corr_rd(12 downto 0);  --13 bits
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
     regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
+
+    regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER          <= REG_bayer_ver;
 
     x_trim_pixel_width <= "100";
 

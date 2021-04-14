@@ -96,7 +96,7 @@ class Test0020 extends CTest;
 				// BAYER
 				///////////////////////////////////////////////////
                 super.Vlib.setWB('h1000, 'h1000,  'h1000);  // (B,G,R)
-                super.Vlib.setBayer(1);                     // Activate BAYER DEMOSAIC
+                super.Vlib.setCSC(1);                       // Activate BAYER RGB24
 
 		        ///////////////////////////////////////////////////
 				// DPC : COLOR LIST
