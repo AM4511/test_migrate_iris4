@@ -47,14 +47,17 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes, int color)
    SensorParams.XGS_HiSPI_Ch         = 16;
    SensorParams.XGS_HiSPI_Ch_used    = 4;
    SensorParams.XGS_HiSPI_mux        = 4;
-   SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
 
    SensorParams.Xsize_Full          = 2600;                                                // Interpolation INCLUDED
    SensorParams.Xsize_Full_valid    = 2592;
-   if (color == 0)
-	   SensorParams.Xstart_valid    = 4;
-   else
-	   SensorParams.Xstart_valid    = 2;      // When color and DPC enabled, then only remove 2 pix
+   if (color == 0) {
+	   SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
+	   SensorParams.Xstart_valid         = 4;
+   }
+   else {
+	   SensorParams.Xstart_valid         = 2;   // When color and DPC enabled, then only remove 2 pix
+	   SensorParams.XGS_DMA_LinePtrWidth = 1;   //2 line buffers
+   }
 
    SensorParams.Ysize_Full          = 2056;                                                // Interpolation INCLUDED
    SensorParams.Ysize_Full_valid    = 2048;

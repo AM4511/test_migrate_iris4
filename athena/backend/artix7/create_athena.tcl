@@ -90,9 +90,22 @@ set BUILD_TIME  [clock format ${FPGA_BUILD_DATE} -format "%Y-%m-%d %H:%M:%S"]
 set HEX_BUILD_DATE [format "0x%08x" $FPGA_BUILD_DATE]
 
 puts "FPGA_BUILD_DATE =  $HEX_BUILD_DATE (${BUILD_TIME})"
+
 set PROJECT_NAME  ${BASE_NAME}_${HEX_BUILD_DATE}
 
-set PROJECT_DIR  ${VIVADO_DIR}/${PROJECT_NAME}
+if {$COLOR_FPGA == 0} {
+  if {$FPGA_IS_NPI_GOLDEN==1} {
+    set PROJECT_DIR  ${VIVADO_DIR}/golden/${PROJECT_NAME}
+  } else {
+    set PROJECT_DIR  ${VIVADO_DIR}/upgrade/${PROJECT_NAME}
+  }
+} else {
+  if {$FPGA_IS_NPI_GOLDEN==1} {
+    set PROJECT_DIR  ${VIVADO_DIR}/golden/${PROJECT_NAME}_color
+  } else {
+    set PROJECT_DIR  ${VIVADO_DIR}/upgrade/${PROJECT_NAME}_color
+  }
+}
 
 file mkdir $PROJECT_DIR
 
@@ -142,9 +155,13 @@ add_files -norecurse -force $BD_WRAPPER_FILE
 
 reset_target all ${BD_FILE}
 
+# MONO/COLOR Set property COLOR of Block design XGS_athena_0 
+set_property -dict [list CONFIG.COLOR ${COLOR_FPGA}] [get_bd_cells XGS_athena_0]
+
 ## Generate Bloc design global (Out of context does not work)
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
+
 
 
 ################################################

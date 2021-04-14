@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x88271B79
+* Register file CRC32 : 0x5E93A6C0
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -107,7 +107,7 @@
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CAPABILITIES_ADDRESS           0x4B0
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_ADDRESS                   0x4B4
 #define FPGA_REGFILE_XGS_ATHENA_LUT_LUT_RB_ADDRESS                     0x4B8
-#define FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_ADDRESS                0x4C0
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CAPABILITIES_ADDRESS       0x4C0
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_ADDRESS                  0x4C4
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_ADDRESS                  0x4C8
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_ADDRESS                 0x4CC
@@ -1743,7 +1743,7 @@ typedef union
 
 
 /**************************************************************************
-* Register name : BAYER_CFG
+* Register name : BAYER_CAPABILITIES
 ***************************************************************************/
 typedef union
 {
@@ -1753,11 +1753,11 @@ typedef union
 
    struct
    {
-      M_UINT32 BAYER_EN : 1;   /* Bits(0:0), null */
-      M_UINT32 RSVD0    : 31;  /* Bits(31:1), Reserved */
+      M_UINT32 BAYER_VER : 2;   /* Bits(1:0), null */
+      M_UINT32 RSVD0     : 30;  /* Bits(31:2), Reserved */
    } f;
 
-} FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_TYPE;
+} FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CAPABILITIES_TYPE;
 
 
 /**************************************************************************
@@ -2092,12 +2092,12 @@ typedef struct
 ***************************************************************************/
 typedef struct
 {
-   FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CFG_TYPE BAYER_CFG;  /* Address offset: 0x0 */
-   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_TYPE   WB_MUL1;    /* Address offset: 0x4 */
-   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_TYPE   WB_MUL2;    /* Address offset: 0x8 */
-   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_TYPE  WB_B_ACC;   /* Address offset: 0xc */
-   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_TYPE  WB_G_ACC;   /* Address offset: 0x10 */
-   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE  WB_R_ACC;   /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_BAYER_CAPABILITIES_TYPE BAYER_CAPABILITIES;  /* Address offset: 0x0 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL1_TYPE            WB_MUL1;             /* Address offset: 0x4 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_MUL2_TYPE            WB_MUL2;             /* Address offset: 0x8 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_TYPE           WB_B_ACC;            /* Address offset: 0xc */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_TYPE           WB_G_ACC;            /* Address offset: 0x10 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE           WB_R_ACC;            /* Address offset: 0x14 */
 } FPGA_REGFILE_XGS_ATHENA_BAYER_TYPE;
 
 /**************************************************************************

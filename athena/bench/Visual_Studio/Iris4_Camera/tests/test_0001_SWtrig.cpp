@@ -24,7 +24,8 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_ID MilGrabBuffer;
 	M_UINT64 ImageBufferAddr=0;
 	MIL_INT  ImageBufferLinePitch = 0;
-	int MonoType = 8;
+	int MonoType  = 8;
+	int RGB32Type = 32;
 
 	int Sortie = 0;
 	char ch;
@@ -42,6 +43,8 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	M_UINT32 SubX = 0;
 	M_UINT32 SubY = 0;
+
+	M_UINT32 LUT_PATTERN = 0;
 
 	M_UINT32 ExposureIncr = 10;
 	M_UINT32 BlackOffset  = 0x100;
@@ -76,8 +79,18 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
     //
     //---------------------
 	// Init Display with correct X-Y parameters 
-	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+	// Init Display with correct X-Y parameters 
+	if (SensorParams->IS_COLOR == 0) {
+		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+		LUT_PATTERN = 0;
+	}
+	else {
+		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 2 * SensorParams->Ysize_Full, RGB32Type);
+		LUT_PATTERN = 3;
+		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+		XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+	}	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
 	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
@@ -133,7 +146,17 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	DMAParams->FSTART = ImageBufferAddr;          // Adresse Mono pour DMA
 	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch;
-	DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+	if (SensorParams->IS_COLOR == 0) {
+		DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+		DMAParams->CSC = 0; // MONO
+	}
+	else {
+		DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);
+		DMAParams->CSC = 1; // BGR32
+	}
+	//Transparent LUTs
+	XGS_Data->ProgramLUT(LUT_PATTERN);
+	XGS_Data->EnableLUT();
 
 
 

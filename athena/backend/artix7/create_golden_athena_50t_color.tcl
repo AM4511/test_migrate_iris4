@@ -1,8 +1,8 @@
 # ##################################################################################
-# File         : create_golden_athena_50t.tcl
-# Description  : TCL script used to create GOLDEN MONO athena fpga 50T. 
+# File         : create_golden_athena_50t_color.tcl
+# Description  : TCL script used to create GOLDEN COLOR athena fpga 50T. 
 #
-# Example      : source $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t.tcl
+# Example      : source $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t_color.tcl
 #
 # ##################################################################################
 set DEBUG 0
@@ -10,7 +10,7 @@ set DEBUG 0
 if {$DEBUG == 0} {
   set myself [info script]
 } else {
-  set myself $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t.tcl
+  set myself $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t_color.tcl
 }
 
 
@@ -44,9 +44,10 @@ if {[file exists $myself ]} {
    # MIL Upgrade : 0x400000)
    set FLASH_OFFSET     0x000000
    set NEXT_CONFIG_ADDR 0x400000
-   
-   # Compile a MONO pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=0
-   set COLOR_FPGA 0
+
+   # Compile a COLOR pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=1
+   set COLOR_FPGA 1
+
    
    # ############################################
    # Starting generation script

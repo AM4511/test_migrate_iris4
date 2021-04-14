@@ -96,7 +96,7 @@ class Test0021 extends CTest;
 				// BAYER
 				///////////////////////////////////////////////////
                 super.Vlib.setWB('h1000, 'h1000,  'h1000);  // (B,G,R)
-                super.Vlib.setBayer(0);                     // Activate RAW COLOR (NO DEMOSAIC)
+                super.Vlib.setCSC(5);                       // Activate RAW COLOR (NO DEMOSAIC)
 
 		        ///////////////////////////////////////////////////
 				// DPC : COLOR LIST

@@ -81,7 +81,7 @@ class CVlib;
     parameter WB_MUL1                      = 16'h4c4;
     parameter WB_MUL2                      = 16'h4c8;
     // BAYER
-	parameter BAYER_CFG                    = 16'h4c0;
+	parameter BAYER_CAPABILITIES           = 16'h4c0;
 
     // LUT
     parameter LUT_CAPABILITIES             = 16'h4B0;
@@ -897,14 +897,23 @@ class CVlib;
     endtask : setWB
 
     ///////////////////////////////////////////////////
-	//BAYER Enable
+	// CSC
 	///////////////////////////////////////////////////
-    task setBayer(int Enable);
-     	host.write(BAYER_CFG, Enable);
-		this.bayer = Enable;
-    endtask : setBayer
+    task setCSC(int COLOR_SPACE);
+        int reg_value;
 
+		// FPGA CSC
+		host.read(CSC_OFFSET, reg_value);
+		reg_value = reg_value | (COLOR_SPACE<<24) ;
+		host.write(CSC_OFFSET, reg_value);
+		
+		// For prediction
+		if(COLOR_SPACE==1) //RGB32
+		  this.bayer = 1;
+		else               
+		  this.bayer = 0;  //RAW
 
+    endtask : setCSC
 
 
 

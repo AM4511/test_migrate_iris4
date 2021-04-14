@@ -1,8 +1,8 @@
 # ##################################################################################
-# File         : create_golden_athena_50t.tcl
-# Description  : TCL script used to create GOLDEN MONO athena fpga 50T. 
+# File         : create_golden_athena_35t_color.tcl
+# Description  : TCL script used to create GOLDEN COLOR athena fpga 35T. 
 #
-# Example      : source $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t.tcl
+# Example      : source $env(IRIS4)/athena/backend/artix7/create_golden_athena_35t_color.tcl
 #
 # ##################################################################################
 set DEBUG 0
@@ -10,7 +10,7 @@ set DEBUG 0
 if {$DEBUG == 0} {
   set myself [info script]
 } else {
-  set myself $env(IRIS4)/athena/backend/artix7/create_golden_athena_50t.tcl
+  set myself $env(IRIS4)/athena/backend/artix7/create_golden_athena_35t_color.tcl
 }
 
 
@@ -21,16 +21,16 @@ if {[file exists $myself ]} {
    puts "Running ${myself}"
    set BACKEND_DIR [file normalize [file dirname ${myself}]]
    set WORKDIR   [file normalize [file join ${BACKEND_DIR} "../.."]]
-
-   set BASE_NAME             "golden_athena50t"
-   set DEVICE                "xc7a50ticpg236-1L"
+   
+   set BASE_NAME             "golden_athena35t"
+   set DEVICE                "xc7a35ticpg236-1L"
    
    # FPGA_DEVICE_ID (DEVICE ID MAP) :
    # Generic passed to VHDL top level file by generic
    #  0      : xc7a50ticpg236-1L
    #  1      : xc7a35ticpg236-1L
    #  Others : reserved
-   set FPGA_DEVICE_ID 0
+   set FPGA_DEVICE_ID 1
    
    # Generic passed to VHDL top level file by generic
    # 0      : MIL upgrade firmware
@@ -45,9 +45,9 @@ if {[file exists $myself ]} {
    set FLASH_OFFSET     0x000000
    set NEXT_CONFIG_ADDR 0x400000
    
-   # Compile a MONO pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=0
-   set COLOR_FPGA 0
-   
+   # Compile a COLOR pipeline fpga, Set Block design XGS_athena_0 parameter COLOR=1
+   set COLOR_FPGA 1
+     
    # ############################################
    # Starting generation script
    # ############################################
