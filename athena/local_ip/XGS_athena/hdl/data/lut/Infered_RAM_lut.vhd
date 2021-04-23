@@ -51,21 +51,30 @@ type ram_type is array ((2**C_RAM_DEPTH)-1 downto 0) of std_logic_vector (C_RAM_
 --
 -- Initialisation function
 --
-function init_ram
+function init_ram(init_mode : in integer )
   return ram_type is 
   variable tmp : ram_type := (others => (others => '0'));
   begin 
-    for addr_pos in 0 to ((2**C_RAM_DEPTH)/4 - 1) loop 
-      -- Initialize 10 bits address x 8 bits data x 2 palettes
-      tmp((addr_pos*4) + 0 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
-      tmp((addr_pos*4) + 1 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
-      tmp((addr_pos*4) + 2 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
-      tmp((addr_pos*4) + 3 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
-    end loop;
+    
+	if(init_mode=8) then
+      for addr_pos in 0 to ((2**C_RAM_DEPTH)/4 - 1) loop 
+       -- Initialize 10 bits address x 8 bits data 
+       tmp((addr_pos*4) + 0 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
+       tmp((addr_pos*4) + 1 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
+       tmp((addr_pos*4) + 2 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
+       tmp((addr_pos*4) + 3 ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
+      end loop;
+	elsif(init_mode=10)	then
+      for addr_pos in 0 to ((2**C_RAM_DEPTH) - 1) loop 
+        -- Initialize 10 bits address x 10 bits data 
+        tmp(addr_pos ) := std_logic_vector(to_unsigned(addr_pos, C_RAM_WIDTH));
+      end loop;
+    end if;
+	
   return tmp;
 end init_ram;
 
-signal shared_ram : ram_type := init_ram;
+signal shared_ram : ram_type := init_ram(C_RAM_WIDTH);
 
 
 

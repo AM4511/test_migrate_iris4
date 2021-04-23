@@ -621,12 +621,32 @@ architecture struct of XGS_athena is
       load_dma_context  : in std_logic_vector(1 downto 0):=(others=>'0');
 	  REG_COLOR_SPACE   : in std_logic_vector(2 downto 0);	   
 
-      REG_LUT_BYPASS : in std_logic;
+      REG_LUT_BYPASS       : in std_logic;
+      REG_LUT_BYPASS_COLOR : in std_logic;
       REG_LUT_SEL    : in std_logic_vector(3 downto 0);
       REG_LUT_SS     : in std_logic;
       REG_LUT_WRN    : in std_logic;
       REG_LUT_ADD    : in std_logic_vector;
-      REG_LUT_DATA_W : in std_logic_vector
+      REG_LUT_DATA_W : in std_logic_vector;
+	  
+	  CCM_EN         : in std_logic;
+	  
+      KRr            : in std_logic_vector(11 downto 0);
+      KRg            : in std_logic_vector(11 downto 0); 
+      KRb            : in std_logic_vector(11 downto 0);
+      Offr           : in std_logic_vector(8 downto 0); 
+
+      KGr            : in std_logic_vector(11 downto 0);
+      KGg            : in std_logic_vector(11 downto 0); 
+      KGb            : in std_logic_vector(11 downto 0);
+      Offg           : in std_logic_vector(8 downto 0); 
+
+      KBr            : in std_logic_vector(11 downto 0);
+      KBg            : in std_logic_vector(11 downto 0); 
+      KBb            : in std_logic_vector(11 downto 0);
+      Offb           : in std_logic_vector(8 downto 0) 
+
+
 
       );
   end component;
@@ -1433,12 +1453,31 @@ begin
         load_dma_context  =>  load_dma_context,  
 		REG_COLOR_SPACE   =>  regfile.DMA.CSC.COLOR_SPACE, 
 
-        REG_LUT_BYPASS => regfile.LUT.LUT_CTRL.LUT_BYPASS,
+        REG_LUT_BYPASS       => regfile.LUT.LUT_CTRL.LUT_BYPASS,
+        REG_LUT_BYPASS_COLOR => regfile.LUT.LUT_CTRL.LUT_BYPASS_COLOR,
+		
         REG_LUT_SEL    => regfile.LUT.LUT_CTRL.LUT_SEL,
         REG_LUT_SS     => regfile.LUT.LUT_CTRL.LUT_SS,
         REG_LUT_WRN    => regfile.LUT.LUT_CTRL.LUT_WRN,
         REG_LUT_ADD    => regfile.LUT.LUT_CTRL.LUT_ADD,
-        REG_LUT_DATA_W => regfile.LUT.LUT_CTRL.LUT_DATA_W
+        REG_LUT_DATA_W => regfile.LUT.LUT_CTRL.LUT_DATA_W,
+
+        CCM_EN		   => regfile.BAYER.CCM_CTRL.CCM_EN,
+	    
+		KRr            => regfile.BAYER.CCM_KR1.Kr,
+        KRg            => regfile.BAYER.CCM_KR1.Kg,
+        KRb            => regfile.BAYER.CCM_KR2.Kb,
+        Offr           => regfile.BAYER.CCM_KR2.KOff,
+
+        KGr            => regfile.BAYER.CCM_KG1.Kr,  
+        KGg            => regfile.BAYER.CCM_KG1.Kg,   
+        KGb            => regfile.BAYER.CCM_KG2.Kb,  
+        Offg           => regfile.BAYER.CCM_KG2.KOff,  
+        
+        KBr            => regfile.BAYER.CCM_KB1.Kr,  
+        KBg            => regfile.BAYER.CCM_KB1.Kg,   
+        KBb            => regfile.BAYER.CCM_KB2.Kb,   
+        Offb           => regfile.BAYER.CCM_KB2.KOff  		
 
         );
 

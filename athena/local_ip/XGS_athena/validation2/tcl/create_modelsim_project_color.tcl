@@ -93,6 +93,8 @@ ${DATA_SRC_PATH}/x_trim_streamout.vhd \
 ${DATA_SRC_PATH}/x_trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/axis_width_conv.vhd \
+${DATA_SRC_PATH}/rgb_2_yuv.vhd \
+${DATA_SRC_PATH}/ccm.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
@@ -139,6 +141,7 @@ ${TESTBENCH_SRC_PATH}/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/Ctest.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0020.svh \
 ${TESTBENCH_SRC_PATH}/tests/test0021.svh \
+${TESTBENCH_SRC_PATH}/tests/test0022.svh \
 ${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_color.sv \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \

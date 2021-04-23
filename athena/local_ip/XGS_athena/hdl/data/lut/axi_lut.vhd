@@ -151,7 +151,7 @@ regfile.LUT.LUT_CAPABILITIES.LUT_SIZE_CONFIG  <= conv_std_logic_vector(1 , regfi
 
 RAM_W_enable             <= '1' when  (regfile.LUT.LUT_CTRL.LUT_SEL(3)='1' and regfile.LUT.LUT_CTRL.LUT_SS='1' and regfile.LUT.LUT_CTRL.LUT_WRN='1') else '0';
 RAM_W_address            <=  regfile.LUT.LUT_CTRL.LUT_ADD;
-RAM_W_data               <=  regfile.LUT.LUT_CTRL.LUT_DATA_W; --LUT is only 8 bits! (driver is program MSB bits when LUT 8 bits)
+RAM_W_data               <=  regfile.LUT.LUT_CTRL.LUT_DATA_W(RAM_W_data'range); --LUT is only 8 bits! (driver is program MSB bits when LUT 8 bits)
                          
                             
 --Readback of LUT not supported to remove logic, see LUT_WRN in condition for the enable.

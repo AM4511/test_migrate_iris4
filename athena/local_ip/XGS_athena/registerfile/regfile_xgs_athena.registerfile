@@ -876,13 +876,16 @@
       </fields>
     </registers>
     <registers name="LUT_CTRL" offsetFromParent="4">
-      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT logic will not be used, and the 8MSB bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga." lsb="28"/>
-      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT." lsb="16" size="8"/>
+      <fields name="LUT_BYPASS_COLOR" alias="LUT BYPASS COLOR" description="When set this register to '1', the RGB LUT logic will not be used, and the 8 bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga." lsb="29" valueAtReset="1"/>
+      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT will not be used&#xD;&#xA;&#xD;&#xA;If a 10 to 8 LUT is used, the 8MSB bits of the input data will send to the DMA. &#xD;&#xA;&#xD;&#xA;Bypassing the LUT, decrease power comsumption of the fpga." lsb="28" valueAtReset="1"/>
+      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT.&#xD;&#xA;&#xD;&#xA;When using 10 to 8 bits LUT, program bits LUT_DATA_W(7 :0)&#xD;&#xA;&#xD;&#xA;When using 10 to 10 bits LUT, program bits LUT_DATA_W(9 :0)" lsb="16" size="10"/>
       <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;" lsb="12" size="4">
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Blue LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Green LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Red LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write all LUT with same data (Mono or Color)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write all component RGB LUT (Color only)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write LUT 10 to 8 with same data (Mono or Color)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="LUT_WRN" alias="LUT Write ReadNot" description="LUT Write mode" lsb="11">
@@ -891,13 +894,13 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
       <fields name="LUT_SS" alias="LUT SnapShot" description="Start the LUT READ or WRITE OPERATION " lsb="10" readWrite="false" writeOnly="true"/>
-      <fields name="LUT_ADD" size="10"/>
+      <fields name="LUT_ADD" description="When writing to RGB LUT( after the bayer demosaic, 8 to 8 LUT), only the LSB bits of the address are used." size="10"/>
     </registers>
     <registers name="LUT_RB" offsetFromParent="8">
       <fields name="LUT_RB" description="Not Implemented to save FPGA ressources" size="8" readWrite="false" staticVal="true"/>
     </registers>
   </registerFileAbstractNodes>
-  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="BAYER" baseAddress="4C0" endAddress="4D4">
+  <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:Section" name="BAYER" baseAddress="4C0" endAddress="4F0">
     <registers name="BAYER_CAPABILITIES">
       <fields name="BAYER_VER" description="Implemented version of the BAYER module" size="2" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Bayer not implemented&lt;/matrox_column_delimiter></possibleValues>
@@ -920,6 +923,33 @@
     </registers>
     <registers name="WB_R_ACC" offsetFromParent="14">
       <fields name="R_ACC" description="ACQuisition Red ACCumulator" size="31" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="CCM_CTRL" offsetFromParent="18">
+      <fields name="CCM_EN"/>
+    </registers>
+    <registers name="CCM_KR1" offsetFromParent="1C">
+      <fields name="Kg" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" lsb="16" size="12" valueAtReset="000"/>
+      <fields name="Kr" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="100"/>
+    </registers>
+    <registers name="CCM_KR2" offsetFromParent="20">
+      <fields name="KOff" description="Signed 9 bits value, complement a 2 : s8" lsb="16" size="9" valueAtReset="00"/>
+      <fields name="Kb" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="000"/>
+    </registers>
+    <registers name="CCM_KG1" offsetFromParent="24">
+      <fields name="Kg" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" lsb="16" size="12" valueAtReset="100"/>
+      <fields name="Kr" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="000"/>
+    </registers>
+    <registers name="CCM_KG2" offsetFromParent="28">
+      <fields name="KOff" description="Signed 9 bits value, complement a 2 : s8" lsb="16" size="9" valueAtReset="00"/>
+      <fields name="Kb" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="000"/>
+    </registers>
+    <registers name="CCM_KB1" offsetFromParent="2C">
+      <fields name="Kg" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" lsb="16" size="12" valueAtReset="00"/>
+      <fields name="Kr" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="00"/>
+    </registers>
+    <registers name="CCM_KB2" offsetFromParent="30">
+      <fields name="KOff" description="Signed 9 bits value, complement a 2 : s8" lsb="16" size="9" valueAtReset="00"/>
+      <fields name="Kb" description="Signed 12 bits value, complement a 2 :&#xD;&#xA;s3.8" size="12" valueAtReset="100"/>
     </registers>
   </registerFileAbstractNodes>
   <registerFileAbstractNodes xsi:type="com.matrox.fdk.editor.registerfile:External" name="SYSMONXIL" alias="SYSMONXIL" description="Access Xilinx embedded system monitoring module.&#xD;&#xA;See Xilinx UG480" baseAddress="700" endAddress="7FC" totalSize="64" useTotalSize="true">

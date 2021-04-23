@@ -37,19 +37,30 @@ library work;
 
 entity rgb_2_yuv is
   port(
-    pix_clk              : in    std_logic;
-    pix_reset            : in    std_logic;
+    pix_clk              : in      std_logic;
+    pix_reset_n          : in      std_logic;
 
-    pixel_en_in          : in    std_logic;
-    red_in               : in  std_logic_vector (7 downto 0);
-    green_in             : in  std_logic_vector (7 downto 0);
-    blue_in              : in  std_logic_vector (7 downto 0);
+    pixel_sof_in         : in      std_logic;
+    pixel_sol_in         : in      std_logic;
+    pixel_en_in          : in      std_logic;
+    pixel_eol_in         : in      std_logic;
+    pixel_eof_in         : in      std_logic;
 
-    pixel_en_out         : buffer   std_logic;
-    Y                    : buffer std_logic_vector (7 downto 0);
-    U                    : buffer std_logic_vector (7 downto 0);
-    V                    : buffer std_logic_vector (7 downto 0);
-    UV_subsampled        : out std_logic_vector (7 downto 0)
+    red_in               : in      std_logic_vector (7 downto 0);
+    green_in             : in      std_logic_vector (7 downto 0);
+    blue_in              : in      std_logic_vector (7 downto 0);
+
+    pixel_sof_out        : out     std_logic;
+    pixel_sol_out        : out     std_logic;
+    pixel_en_out         : buffer  std_logic;
+    pixel_eol_m1_out     : out     std_logic;  -- EOL one clk before
+    pixel_eol_out        : out     std_logic;
+    pixel_eof_out        : out     std_logic;
+
+    Y                    : buffer  std_logic_vector (7 downto 0);
+    U                    : buffer  std_logic_vector (7 downto 0);
+    V                    : buffer  std_logic_vector (7 downto 0);
+    UV_subsampled        : out     std_logic_vector (7 downto 0)
   );
 end rgb_2_yuv;
 
@@ -144,7 +155,11 @@ architecture functional of rgb_2_yuv is
   signal UaddRGB : std_logic_vector(UaddR'range);
   signal VaddRGB : std_logic_vector(VaddR'range);
 
+  signal pixel_sof_p    : std_logic_vector(0 to 4);
+  signal pixel_sol_p    : std_logic_vector(0 to 4);
   signal pixel_valid_p  : std_logic_vector(0 to 4);
+  signal pixel_eol_p    : std_logic_vector(0 to 4);
+  signal pixel_eof_p    : std_logic_vector(0 to 4);
 
   signal Y_p1 : std_logic_vector(Y'range);
   signal U_p1 : std_logic_vector(Y'range);
@@ -201,7 +216,7 @@ BEGIN
   begin
     if(rising_edge(pix_clk)) then
 
-      if(pix_reset = '1') then
+      if(pix_reset_n = '0') then
         pixel_en_in_p1          <= '0';
         pixel_en_in_p2          <= '0';
       else
@@ -209,7 +224,7 @@ BEGIN
         pixel_en_in_p2          <= pixel_en_in_p1;
       end if;  
 
-      if(pix_reset = '1') then
+      if(pix_reset_n = '0') then
         old_pixel_en_out            <= '0';
       else
         old_pixel_en_out            <= pixel_en_in_p2;
@@ -221,7 +236,7 @@ BEGIN
   oldMini_packer_16bits : process(pix_clk) 
   begin
     if(rising_edge(pix_clk)) then
-      --if(pix_reset = '1') then
+      --if(pix_reset_n = '0') then
       --  yuv_cntr   <= '0';
       --elsif(pixel_en_in_p2='1') then
       --  yuv_cntr <= not(yuv_cntr);
@@ -309,16 +324,42 @@ BEGIN
   pipeline: process(pix_clk)
   begin
     if rising_edge(pix_clk) then
-      if(pix_reset = '1') then
-        pixel_valid_p <= (others => '0');
-        pixel_en_out            <= '0';
+      if(pix_reset_n = '0') then
+        pixel_sof_p    <= (others => '0');
+        pixel_sof_out  <= '0';
+        pixel_sol_p    <= (others => '0');
+        pixel_sol_out  <= '0';  
+        pixel_valid_p  <= (others => '0');
+        pixel_en_out   <= '0';
+        pixel_eol_p    <= (others => '0');
+        pixel_eol_out  <= '0';
+        pixel_eof_p    <= (others => '0');
+        pixel_eof_out  <= '0';	
       else
-        pixel_valid_p(1) <= pixel_en_in;
+        pixel_sof_p(1)                         <= pixel_sof_in;
+        pixel_sof_p(2 to pixel_sof_p'high)     <= pixel_sof_p(1 to pixel_sof_p'high-1);
+        pixel_sof_out                          <= pixel_sof_p(pixel_sof_p'high);
+ 	  
+        pixel_sol_p(1)                         <= pixel_sol_in;
+        pixel_sol_p(2 to pixel_sol_p'high)     <= pixel_sol_p(1 to pixel_sol_p'high-1);
+        pixel_sol_out                          <= pixel_sol_p(pixel_sol_p'high);
+	  
+        pixel_valid_p(1)                       <= pixel_en_in;
         pixel_valid_p(2 to pixel_valid_p'high) <= pixel_valid_p(1 to pixel_valid_p'high-1);
-        pixel_en_out            <= pixel_valid_p(pixel_valid_p'high);
+        pixel_en_out                           <= pixel_valid_p(pixel_valid_p'high);
+		
+		pixel_eol_p(1)                         <= pixel_eol_in;
+        pixel_eol_p(2 to pixel_eol_p'high)     <= pixel_eol_p(1 to pixel_eol_p'high-1);
+        pixel_eol_out                          <= pixel_eol_p(pixel_eol_p'high);
+
+        pixel_eof_p(1)                         <= pixel_eof_in;
+        pixel_eof_p(2 to pixel_eof_p'high)     <= pixel_eof_p(1 to pixel_eof_p'high-1);
+        pixel_eof_out                          <= pixel_eof_p(pixel_eof_p'high);
       end if;
     end if;
   end process;
+  
+  pixel_eol_m1_out <= pixel_eol_p(pixel_eol_p'high);  --EOL one clk before
 
   -- validation d'equivalence!
   check:  process(pix_clk)
@@ -341,7 +382,7 @@ BEGIN
   Mini_packer_16bits : process(pix_clk) 
   begin
     if(rising_edge(pix_clk)) then
-      if(pix_reset = '1') then
+      if(pix_reset_n = '0') then
         yuv_cntr   <= '0';
       elsif( pixel_valid_p(pixel_valid_p'high) ='1') then
         yuv_cntr <= not(yuv_cntr);

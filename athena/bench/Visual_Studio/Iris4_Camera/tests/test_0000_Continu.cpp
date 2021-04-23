@@ -39,9 +39,12 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_INT  ImageBufferLinePitch = 0;
 
 	int getch_return;
-	int MonoType = 8;
+	int MonoType  = 8;
+	int YUVType   = 16;
 	int RGB32Type = 32;
+	
 	int PLANAR = 0;
+	int YUV    = 0;
 
 	int Sortie = 0;
 	char ch;
@@ -120,7 +123,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	}
 	else
-		if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0)
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, RGB32Type);
 			LUT_PATTERN = 3;
@@ -133,8 +136,22 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 		}
+		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, YUVType);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
 
-		else
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+	    
+		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0)         
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
 			LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
@@ -230,16 +247,19 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		DMAParams->CSC = 0; // MONO
 	}
 	else
-		if (SensorParams->IS_COLOR == 1 && PLANAR == 0) {
+		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0) {
 			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);
 			DMAParams->CSC       = 1; // BGR32
 		}
-		else {
+		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0 )
+		{
 			DMAParams->LINE_SIZE = (DMAParams->X_SIZE + 4) / (DMAParams->SUB_X + 1); //DPC removes 2 front + 2 rear
 			DMAParams->CSC       = 3; // PLANAR
-
 		}
-
+		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1) {
+			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);  //pour le moment
+			DMAParams->CSC = 2; // YUV
+		}
 	//Transparent LUTs
 	XGS_Data->ProgramLUT(LUT_PATTERN);
 	XGS_Data->EnableLUT();
@@ -380,7 +400,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//XGS_Ctrl->WriteSPI(0x3e0e, 1);             // Solid color
 
 
-
 	while (Sortie == 0)
 	{
 
@@ -450,7 +469,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 			else
 				if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
-					MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+					MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT); //RGB32 YUV32
 				else
 				{
 					MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
@@ -478,6 +497,23 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		}
 
+
+
+//		if (GrabCmd > 100 && GrabCmd % 25 == 0)
+//		{
+//			XGS_Ctrl->WaitEndExpReadout();
+//			Sleep(1000);
+//		
+//			if (GrabCmd % 50 == 0) {
+//				DMAParams->X_START = SensorParams->Xstart_valid + 0;
+//				DMAParams->X_SIZE = 32;
+//				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+//			} else {
+//				DMAParams->X_START = SensorParams->Xstart_valid + 0;
+//				DMAParams->X_SIZE = 16;
+//				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+//			}
+//		}
 
 
 		if (_kbhit())

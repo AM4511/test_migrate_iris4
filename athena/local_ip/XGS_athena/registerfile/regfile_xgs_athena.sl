@@ -653,13 +653,15 @@ Register("lut_capabilities", 0x4b0, 4, "null");
 			FieldValue("Initial color LUT", 1);
 
 Register("lut_ctrl", 0x4b4, 4, "null");
-		Field("lut_bypass", 28, 28, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS");
-		Field("lut_data_w", 23, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT DATA to Write");
+		Field("lut_bypass_color", 29, 29, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS COLOR");
+		Field("lut_bypass", 28, 28, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT BYPASS");
+		Field("lut_data_w", 25, 16, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT DATA to Write");
 		Field("lut_sel", 15, 12, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT SELection");
 			FieldValue("Write Blue LUT(Color only)", 1);
 			FieldValue("Write Green LUT(Color only)", 2);
 			FieldValue("Write Red LUT(Color only)", 4);
-			FieldValue("Write all LUT with same data (Mono or Color)", 8);
+			FieldValue("Write all component RGB LUT (Color only)", 7);
+			FieldValue("Write LUT 10 to 8 with same data (Mono or Color)", 8);
 		Field("lut_wrn", 11, 11, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT Write ReadNot");
 			FieldValue("Read operation", 0);
 			FieldValue("Write operation", 1);
@@ -694,6 +696,33 @@ Register("wb_g_acc", 0x4d0, 4, "null");
 
 Register("wb_r_acc", 0x4d4, 4, "null");
 		Field("r_acc", 30, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("ccm_ctrl", 0x4d8, 4, "null");
+		Field("ccm_en", 0, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kr1", 0x4dc, 4, "null");
+		Field("kg", 27, 16, "rd|wr", 0x0, 0x000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kr", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kr2", 0x4e0, 4, "null");
+		Field("koff", 24, 16, "rd|wr", 0x0, 0x00, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kb", 11, 0, "rd|wr", 0x0, 0x000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kg1", 0x4e4, 4, "null");
+		Field("kg", 27, 16, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kr", 11, 0, "rd|wr", 0x0, 0x000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kg2", 0x4e8, 4, "null");
+		Field("koff", 24, 16, "rd|wr", 0x0, 0x00, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kb", 11, 0, "rd|wr", 0x0, 0x000, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kb1", 0x4ec, 4, "null");
+		Field("kg", 27, 16, "rd|wr", 0x0, 0x00, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kr", 11, 0, "rd|wr", 0x0, 0x00, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
+Register("ccm_kb2", 0x4f0, 4, "null");
+		Field("koff", 24, 16, "rd|wr", 0x0, 0x00, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("kb", 11, 0, "rd|wr", 0x0, 0x100, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 %=================================================================
 % EXTERNAL NAME	: SYSMONXIL

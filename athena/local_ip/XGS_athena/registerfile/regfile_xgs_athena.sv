@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/04/13 16:57:37
+ ** Created on          : 2021/04/23 14:23:10
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0x5E93A6C0
+ ** Register file CRC32 : 0x33086B25
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -1609,14 +1609,15 @@ typedef union packed
 
    struct packed
    {
-      logic [9:0] LUT_ADD;     /* Bits(9:0), null */
-      logic       LUT_SS;      /* Bits(10:10), LUT SnapShot */
-      logic       LUT_WRN;     /* Bits(11:11), LUT Write ReadNot */
-      logic [3:0] LUT_SEL;     /* Bits(15:12), LUT SELection */
-      logic [7:0] LUT_DATA_W;  /* Bits(23:16), LUT DATA to Write */
-      logic [3:0] rsvd0;       /* Bits(27:24), Reserved */
-      logic       LUT_BYPASS;  /* Bits(28:28), LUT BYPASS */
-      logic [2:0] rsvd1;       /* Bits(31:29), Reserved */
+      logic [9:0] LUT_ADD;           /* Bits(9:0), null */
+      logic       LUT_SS;            /* Bits(10:10), LUT SnapShot */
+      logic       LUT_WRN;           /* Bits(11:11), LUT Write ReadNot */
+      logic [3:0] LUT_SEL;           /* Bits(15:12), LUT SELection */
+      logic [9:0] LUT_DATA_W;        /* Bits(25:16), LUT DATA to Write */
+      logic [1:0] rsvd0;             /* Bits(27:26), Reserved */
+      logic       LUT_BYPASS;        /* Bits(28:28), LUT BYPASS */
+      logic       LUT_BYPASS_COLOR;  /* Bits(29:29), LUT BYPASS COLOR */
+      logic [1:0] rsvd1;             /* Bits(31:30), Reserved */
    } f;
 
 } fdk_regfile_xgs_athena_LUT_LUT_CTRL_t;
@@ -1745,6 +1746,144 @@ typedef union packed
    } f;
 
 } fdk_regfile_xgs_athena_BAYER_WB_R_ACC_t;
+
+
+/**************************************************************************
+* Register name : CCM_CTRL
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic        CCM_EN;  /* Bits(0:0), null */
+      logic [30:0] rsvd0;   /* Bits(31:1), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_CTRL_t;
+
+
+/**************************************************************************
+* Register name : CCM_KR1
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kr;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [11:0] Kg;     /* Bits(27:16), null */
+      logic [3:0]  rsvd1;  /* Bits(31:28), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KR1_t;
+
+
+/**************************************************************************
+* Register name : CCM_KR2
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kb;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [8:0]  KOff;   /* Bits(24:16), null */
+      logic [6:0]  rsvd1;  /* Bits(31:25), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KR2_t;
+
+
+/**************************************************************************
+* Register name : CCM_KG1
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kr;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [11:0] Kg;     /* Bits(27:16), null */
+      logic [3:0]  rsvd1;  /* Bits(31:28), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KG1_t;
+
+
+/**************************************************************************
+* Register name : CCM_KG2
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kb;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [8:0]  KOff;   /* Bits(24:16), null */
+      logic [6:0]  rsvd1;  /* Bits(31:25), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KG2_t;
+
+
+/**************************************************************************
+* Register name : CCM_KB1
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kr;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [11:0] Kg;     /* Bits(27:16), null */
+      logic [3:0]  rsvd1;  /* Bits(31:28), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KB1_t;
+
+
+/**************************************************************************
+* Register name : CCM_KB2
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [11:0] Kb;     /* Bits(11:0), null */
+      logic [3:0]  rsvd0;  /* Bits(15:12), Reserved */
+      logic [8:0]  KOff;   /* Bits(24:16), null */
+      logic [6:0]  rsvd1;  /* Bits(31:25), Reserved */
+   } f;
+
+} fdk_regfile_xgs_athena_BAYER_CCM_KB2_t;
 
 
 /**************************************************************************
@@ -2002,6 +2141,13 @@ typedef struct packed
    fdk_regfile_xgs_athena_BAYER_WB_B_ACC_t           WB_B_ACC;            /* Address offset: 0xc */
    fdk_regfile_xgs_athena_BAYER_WB_G_ACC_t           WB_G_ACC;            /* Address offset: 0x10 */
    fdk_regfile_xgs_athena_BAYER_WB_R_ACC_t           WB_R_ACC;            /* Address offset: 0x14 */
+   fdk_regfile_xgs_athena_BAYER_CCM_CTRL_t           CCM_CTRL;            /* Address offset: 0x18 */
+   fdk_regfile_xgs_athena_BAYER_CCM_KR1_t            CCM_KR1;             /* Address offset: 0x1c */
+   fdk_regfile_xgs_athena_BAYER_CCM_KR2_t            CCM_KR2;             /* Address offset: 0x20 */
+   fdk_regfile_xgs_athena_BAYER_CCM_KG1_t            CCM_KG1;             /* Address offset: 0x24 */
+   fdk_regfile_xgs_athena_BAYER_CCM_KG2_t            CCM_KG2;             /* Address offset: 0x28 */
+   fdk_regfile_xgs_athena_BAYER_CCM_KB1_t            CCM_KB1;             /* Address offset: 0x2c */
+   fdk_regfile_xgs_athena_BAYER_CCM_KB2_t            CCM_KB2;             /* Address offset: 0x30 */
 } fdk_regfile_xgs_athena_BAYER_t;
 
 
@@ -2038,7 +2184,7 @@ typedef struct packed
    fdk_regfile_xgs_athena_LUT_t       LUT;           /* Section; Base address offset: 0x4b0 */
    uint32_t                           rsvd5;         /* Padding; Size (4 Bytes) */
    fdk_regfile_xgs_athena_BAYER_t     BAYER;         /* Section; Base address offset: 0x4c0 */
-   uint32_t                           [137:0]rsvd6;  /* Padding; Size (552 Bytes) */
+   uint32_t                           [130:0]rsvd6;  /* Padding; Size (524 Bytes) */
    fdk_regfile_xgs_athena_SYSMONXIL_t SYSMONXIL;     /* External section; Base address offset: 0x700 */
 } fdk_regfile_xgs_athena_t;
 
