@@ -81,7 +81,7 @@ architecture rtl of axi_stream_in is
   end component;
 
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_PCI_BACK_PRESSURE, S_EOF);
-  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_INIT, S_TRANSFER, S_TRANSFER_WAIT, S_EOL, S_END_OF_DMA, S_DONE);
 
   constant BUFFER_DATA_WIDTH     : integer := 72;
   constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
@@ -96,6 +96,8 @@ architecture rtl of axi_stream_in is
   signal buffer_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
   signal buffer_read_en      : std_logic;
+  signal buffer_read_en_P1   : std_logic := '0';
+  
   signal buffer_read_address : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
   signal last_row            : std_logic;
@@ -490,7 +492,7 @@ begin
       q         => buffer_read_data
       );
 
-  buffer_read_en <= line_buffer_read_en;
+  buffer_read_en <= '1' when (line_buffer_read_en='1' and rd_state=S_TRANSFER) else '0';
 
 
   -----------------------------------------------------------------------------
@@ -567,6 +569,16 @@ begin
           --  S_TRANSFER : the DMA transfer occurs in this state
           -------------------------------------------------------------------
           when S_TRANSFER =>
+            if (buffer_read_en_P1='1' and (read_sync = "1000" or read_sync = "0010") ) then
+              rd_state <= S_TRANSFER_WAIT;
+            else
+              rd_state <= S_TRANSFER;
+            end if;
+
+          -------------------------------------------------------------------
+          --  S_TRANSFER_WAIT : Wait for line_transferted to be 1
+          -------------------------------------------------------------------
+          when S_TRANSFER_WAIT =>
             if (line_transfered = '1') then
               if (last_row = '1') then
                 rd_state <= S_END_OF_DMA;
@@ -613,10 +625,12 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-        last_row <= '0';
+        buffer_read_en_P1 <= '0';
+		last_row <= '0';
       else
+	    buffer_read_en_P1 <= buffer_read_en; 
         -- If we detect an end of frame
-        if (rd_state = S_TRANSFER and read_sync(1) = '1') then
+        if (rd_state = S_TRANSFER and buffer_read_en_P1='1' and read_sync = "0010") then  --READ EOF
           last_row <= '1';
         -- Cleared once the frame completely evacuated
         elsif (rd_state = S_END_OF_DMA) then

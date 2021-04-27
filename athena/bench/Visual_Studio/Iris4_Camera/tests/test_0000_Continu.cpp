@@ -499,21 +499,23 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
-//		if (GrabCmd > 100 && GrabCmd % 25 == 0)
-//		{
-//			XGS_Ctrl->WaitEndExpReadout();
-//			Sleep(1000);
-//		
-//			if (GrabCmd % 50 == 0) {
-//				DMAParams->X_START = SensorParams->Xstart_valid + 0;
-//				DMAParams->X_SIZE = 32;
-//				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
-//			} else {
-//				DMAParams->X_START = SensorParams->Xstart_valid + 0;
-//				DMAParams->X_SIZE = 16;
-//				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
-//			}
-//		}
+		//if (GrabCmd > 100 && GrabCmd % 25 == 0)
+		//{
+		//	XGS_Ctrl->WaitEndExpReadout();
+		//	Sleep(1000);
+        //    if (GrabCmd % 50 == 0) {
+		//		DMAParams->X_START = SensorParams->Xstart_valid + 0;
+		//		DMAParams->X_SIZE = 32;
+		//		DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+		//	} 
+		//	else if (GrabCmd % 25 == 0) {
+		//		DMAParams->X_START = SensorParams->Xstart_valid + 0;
+		//		DMAParams->X_SIZE = 16;
+		//		DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+		//	}
+		//}
+
+
 
 
 		if (_kbhit())
