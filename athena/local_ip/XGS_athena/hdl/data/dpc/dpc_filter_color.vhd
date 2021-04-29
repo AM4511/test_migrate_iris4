@@ -15,7 +15,7 @@
 --
 -- Nombre de pixels maximum a corriger :
 --
--- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 6+1+4:  11 RAM36K   <--- *default au 28 septembre
+-- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 1+ 2x(0.5):  2 RAM36K   <--- *default au 28 septembre
 --
 --
 -- Compte tenu des ressources disponibles dans le fpga une implementation 5x1 est implemente

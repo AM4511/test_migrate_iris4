@@ -1201,7 +1201,7 @@ end process;
 
 
 --C0 and C1 MULTIPLICATORS 
-process (axi_clk)
+WB_DSP_MULT : process (axi_clk)
 begin      
   if (axi_clk'event and axi_clk='1') then
     if(WBIn_data_val_p1='1') then
