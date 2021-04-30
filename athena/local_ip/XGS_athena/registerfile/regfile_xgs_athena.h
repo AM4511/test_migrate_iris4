@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0x5E93A6C0
+* Register file CRC32 : 0x33086B25
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -113,6 +113,13 @@
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_ADDRESS                 0x4CC
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_ADDRESS                 0x4D0
 #define FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_ADDRESS                 0x4D4
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_CTRL_ADDRESS                 0x4D8
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR1_ADDRESS                  0x4DC
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR2_ADDRESS                  0x4E0
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG1_ADDRESS                  0x4E4
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG2_ADDRESS                  0x4E8
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB1_ADDRESS                  0x4EC
+#define FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB2_ADDRESS                  0x4F0
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TEMP_ADDRESS                 0x700
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCINT_ADDRESS               0x704
 #define FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_VCCAUX_ADDRESS               0x708
@@ -1711,14 +1718,15 @@ typedef union
 
    struct
    {
-      M_UINT32 LUT_ADD    : 10;  /* Bits(9:0), null */
-      M_UINT32 LUT_SS     : 1;   /* Bits(10:10), LUT SnapShot */
-      M_UINT32 LUT_WRN    : 1;   /* Bits(11:11), LUT Write ReadNot */
-      M_UINT32 LUT_SEL    : 4;   /* Bits(15:12), LUT SELection */
-      M_UINT32 LUT_DATA_W : 8;   /* Bits(23:16), LUT DATA to Write */
-      M_UINT32 RSVD0      : 4;   /* Bits(27:24), Reserved */
-      M_UINT32 LUT_BYPASS : 1;   /* Bits(28:28), LUT BYPASS */
-      M_UINT32 RSVD1      : 3;   /* Bits(31:29), Reserved */
+      M_UINT32 LUT_ADD          : 10;  /* Bits(9:0), null */
+      M_UINT32 LUT_SS           : 1;   /* Bits(10:10), LUT SnapShot */
+      M_UINT32 LUT_WRN          : 1;   /* Bits(11:11), LUT Write ReadNot */
+      M_UINT32 LUT_SEL          : 4;   /* Bits(15:12), LUT SELection */
+      M_UINT32 LUT_DATA_W       : 10;  /* Bits(25:16), LUT DATA to Write */
+      M_UINT32 RSVD0            : 2;   /* Bits(27:26), Reserved */
+      M_UINT32 LUT_BYPASS       : 1;   /* Bits(28:28), LUT BYPASS */
+      M_UINT32 LUT_BYPASS_COLOR : 1;   /* Bits(29:29), LUT BYPASS COLOR */
+      M_UINT32 RSVD1            : 2;   /* Bits(31:30), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_LUT_LUT_CTRL_TYPE;
@@ -1847,6 +1855,144 @@ typedef union
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_CTRL
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 CCM_EN : 1;   /* Bits(0:0), null */
+      M_UINT32 RSVD0  : 31;  /* Bits(31:1), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_CTRL_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KR1
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KR    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KG    : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1 : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR1_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KR2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KB    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KOFF  : 9;   /* Bits(24:16), null */
+      M_UINT32 RSVD1 : 7;   /* Bits(31:25), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR2_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KG1
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KR    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KG    : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1 : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG1_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KG2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KB    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KOFF  : 9;   /* Bits(24:16), null */
+      M_UINT32 RSVD1 : 7;   /* Bits(31:25), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG2_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KB1
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KR    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KG    : 12;  /* Bits(27:16), null */
+      M_UINT32 RSVD1 : 4;   /* Bits(31:28), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB1_TYPE;
+
+
+/**************************************************************************
+* Register name : CCM_KB2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 KB    : 12;  /* Bits(11:0), null */
+      M_UINT32 RSVD0 : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 KOFF  : 9;   /* Bits(24:16), null */
+      M_UINT32 RSVD1 : 7;   /* Bits(31:25), Reserved */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB2_TYPE;
 
 
 /**************************************************************************
@@ -2098,6 +2244,13 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_BAYER_WB_B_ACC_TYPE           WB_B_ACC;            /* Address offset: 0xc */
    FPGA_REGFILE_XGS_ATHENA_BAYER_WB_G_ACC_TYPE           WB_G_ACC;            /* Address offset: 0x10 */
    FPGA_REGFILE_XGS_ATHENA_BAYER_WB_R_ACC_TYPE           WB_R_ACC;            /* Address offset: 0x14 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_CTRL_TYPE           CCM_CTRL;            /* Address offset: 0x18 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR1_TYPE            CCM_KR1;             /* Address offset: 0x1c */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KR2_TYPE            CCM_KR2;             /* Address offset: 0x20 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG1_TYPE            CCM_KG1;             /* Address offset: 0x24 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KG2_TYPE            CCM_KG2;             /* Address offset: 0x28 */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB1_TYPE            CCM_KB1;             /* Address offset: 0x2c */
+   FPGA_REGFILE_XGS_ATHENA_BAYER_CCM_KB2_TYPE            CCM_KB2;             /* Address offset: 0x30 */
 } FPGA_REGFILE_XGS_ATHENA_BAYER_TYPE;
 
 /**************************************************************************
@@ -2133,7 +2286,7 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_LUT_TYPE       LUT;         /* Section; Base address offset: 0x4b0 */
    M_UINT32                               RSVD5[1];    /* Padding; Size (4 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_BAYER_TYPE     BAYER;       /* Section; Base address offset: 0x4c0 */
-   M_UINT32                               RSVD6[138];  /* Padding; Size (552 Bytes) */
+   M_UINT32                               RSVD6[131];  /* Padding; Size (524 Bytes) */
    FPGA_REGFILE_XGS_ATHENA_SYSMONXIL_TYPE SYSMONXIL;   /* External section; Base address offset: 0x700 */
 } FPGA_REGFILE_XGS_ATHENA_TYPE;
 

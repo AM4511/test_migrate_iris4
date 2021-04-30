@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/04/13 16:57:37
+-- Created on          : 2021/04/23 14:23:10
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x5E93A6C0
+-- Register file CRC32 : 0x33086B25
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -113,6 +113,13 @@ package regfile_xgs_athena_pack is
    constant K_BAYER_WB_B_ACC_ADDR             : natural := 16#4cc#;
    constant K_BAYER_WB_G_ACC_ADDR             : natural := 16#4d0#;
    constant K_BAYER_WB_R_ACC_ADDR             : natural := 16#4d4#;
+   constant K_BAYER_CCM_CTRL_ADDR             : natural := 16#4d8#;
+   constant K_BAYER_CCM_KR1_ADDR              : natural := 16#4dc#;
+   constant K_BAYER_CCM_KR2_ADDR              : natural := 16#4e0#;
+   constant K_BAYER_CCM_KG1_ADDR              : natural := 16#4e4#;
+   constant K_BAYER_CCM_KG2_ADDR              : natural := 16#4e8#;
+   constant K_BAYER_CCM_KB1_ADDR              : natural := 16#4ec#;
+   constant K_BAYER_CCM_KB2_ADDR              : natural := 16#4f0#;
    
    ------------------------------------------------------------------------------------------
    -- Register Name: TAG
@@ -1565,8 +1572,9 @@ package regfile_xgs_athena_pack is
    -- Register Name: LUT_CTRL
    ------------------------------------------------------------------------------------------
    type LUT_LUT_CTRL_TYPE is record
+      LUT_BYPASS_COLOR: std_logic;
       LUT_BYPASS     : std_logic;
-      LUT_DATA_W     : std_logic_vector(7 downto 0);
+      LUT_DATA_W     : std_logic_vector(9 downto 0);
       LUT_SEL        : std_logic_vector(3 downto 0);
       LUT_WRN        : std_logic;
       LUT_SS         : std_logic;
@@ -1574,6 +1582,7 @@ package regfile_xgs_athena_pack is
    end record LUT_LUT_CTRL_TYPE;
 
    constant INIT_LUT_LUT_CTRL_TYPE : LUT_LUT_CTRL_TYPE := (
+      LUT_BYPASS_COLOR => 'Z',
       LUT_BYPASS      => 'Z',
       LUT_DATA_W      => (others=> 'Z'),
       LUT_SEL         => (others=> 'Z'),
@@ -1692,6 +1701,123 @@ package regfile_xgs_athena_pack is
    -- Casting functions:
    function to_std_logic_vector(reg : BAYER_WB_R_ACC_TYPE) return std_logic_vector;
    function to_BAYER_WB_R_ACC_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_WB_R_ACC_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_CTRL
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_CTRL_TYPE is record
+      CCM_EN         : std_logic;
+   end record BAYER_CCM_CTRL_TYPE;
+
+   constant INIT_BAYER_CCM_CTRL_TYPE : BAYER_CCM_CTRL_TYPE := (
+      CCM_EN          => 'Z'
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_CTRL_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_CTRL_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KR1
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KR1_TYPE is record
+      Kg             : std_logic_vector(11 downto 0);
+      Kr             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KR1_TYPE;
+
+   constant INIT_BAYER_CCM_KR1_TYPE : BAYER_CCM_KR1_TYPE := (
+      Kg              => (others=> 'Z'),
+      Kr              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KR1_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KR1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KR1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KR2
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KR2_TYPE is record
+      KOff           : std_logic_vector(8 downto 0);
+      Kb             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KR2_TYPE;
+
+   constant INIT_BAYER_CCM_KR2_TYPE : BAYER_CCM_KR2_TYPE := (
+      KOff            => (others=> 'Z'),
+      Kb              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KR2_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KR2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KR2_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KG1
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KG1_TYPE is record
+      Kg             : std_logic_vector(11 downto 0);
+      Kr             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KG1_TYPE;
+
+   constant INIT_BAYER_CCM_KG1_TYPE : BAYER_CCM_KG1_TYPE := (
+      Kg              => (others=> 'Z'),
+      Kr              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KG1_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KG1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KG1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KG2
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KG2_TYPE is record
+      KOff           : std_logic_vector(8 downto 0);
+      Kb             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KG2_TYPE;
+
+   constant INIT_BAYER_CCM_KG2_TYPE : BAYER_CCM_KG2_TYPE := (
+      KOff            => (others=> 'Z'),
+      Kb              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KG2_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KG2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KG2_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KB1
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KB1_TYPE is record
+      Kg             : std_logic_vector(11 downto 0);
+      Kr             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KB1_TYPE;
+
+   constant INIT_BAYER_CCM_KB1_TYPE : BAYER_CCM_KB1_TYPE := (
+      Kg              => (others=> 'Z'),
+      Kr              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KB1_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KB1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KB1_TYPE;
+   
+   ------------------------------------------------------------------------------------------
+   -- Register Name: CCM_KB2
+   ------------------------------------------------------------------------------------------
+   type BAYER_CCM_KB2_TYPE is record
+      KOff           : std_logic_vector(8 downto 0);
+      Kb             : std_logic_vector(11 downto 0);
+   end record BAYER_CCM_KB2_TYPE;
+
+   constant INIT_BAYER_CCM_KB2_TYPE : BAYER_CCM_KB2_TYPE := (
+      KOff            => (others=> 'Z'),
+      Kb              => (others=> 'Z')
+   );
+
+   -- Casting functions:
+   function to_std_logic_vector(reg : BAYER_CCM_KB2_TYPE) return std_logic_vector;
+   function to_BAYER_CCM_KB2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KB2_TYPE;
    
    ------------------------------------------------------------------------------------------
    -- Section Name: SYSTEM
@@ -1915,6 +2041,13 @@ package regfile_xgs_athena_pack is
       WB_B_ACC       : BAYER_WB_B_ACC_TYPE;
       WB_G_ACC       : BAYER_WB_G_ACC_TYPE;
       WB_R_ACC       : BAYER_WB_R_ACC_TYPE;
+      CCM_CTRL       : BAYER_CCM_CTRL_TYPE;
+      CCM_KR1        : BAYER_CCM_KR1_TYPE;
+      CCM_KR2        : BAYER_CCM_KR2_TYPE;
+      CCM_KG1        : BAYER_CCM_KG1_TYPE;
+      CCM_KG2        : BAYER_CCM_KG2_TYPE;
+      CCM_KB1        : BAYER_CCM_KB1_TYPE;
+      CCM_KB2        : BAYER_CCM_KB2_TYPE;
    end record BAYER_TYPE;
 
    constant INIT_BAYER_TYPE : BAYER_TYPE := (
@@ -1923,7 +2056,14 @@ package regfile_xgs_athena_pack is
       WB_MUL2         => INIT_BAYER_WB_MUL2_TYPE,
       WB_B_ACC        => INIT_BAYER_WB_B_ACC_TYPE,
       WB_G_ACC        => INIT_BAYER_WB_G_ACC_TYPE,
-      WB_R_ACC        => INIT_BAYER_WB_R_ACC_TYPE
+      WB_R_ACC        => INIT_BAYER_WB_R_ACC_TYPE,
+      CCM_CTRL        => INIT_BAYER_CCM_CTRL_TYPE,
+      CCM_KR1         => INIT_BAYER_CCM_KR1_TYPE,
+      CCM_KR2         => INIT_BAYER_CCM_KR2_TYPE,
+      CCM_KG1         => INIT_BAYER_CCM_KG1_TYPE,
+      CCM_KG2         => INIT_BAYER_CCM_KG2_TYPE,
+      CCM_KB1         => INIT_BAYER_CCM_KB1_TYPE,
+      CCM_KB2         => INIT_BAYER_CCM_KB2_TYPE
    );
 
    ------------------------------------------------------------------------------------------
@@ -4000,8 +4140,9 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(29) := reg.LUT_BYPASS_COLOR;
       output(28) := reg.LUT_BYPASS;
-      output(23 downto 16) := reg.LUT_DATA_W;
+      output(25 downto 16) := reg.LUT_DATA_W;
       output(15 downto 12) := reg.LUT_SEL;
       output(11) := reg.LUT_WRN;
       output(10) := reg.LUT_SS;
@@ -4016,8 +4157,9 @@ package body regfile_xgs_athena_pack is
    function to_LUT_LUT_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return LUT_LUT_CTRL_TYPE is
    variable output : LUT_LUT_CTRL_TYPE;
    begin
+      output.LUT_BYPASS_COLOR := stdlv(29);
       output.LUT_BYPASS := stdlv(28);
-      output.LUT_DATA_W := stdlv(23 downto 16);
+      output.LUT_DATA_W := stdlv(25 downto 16);
       output.LUT_SEL := stdlv(15 downto 12);
       output.LUT_WRN := stdlv(11);
       output.LUT_SS := stdlv(10);
@@ -4188,6 +4330,179 @@ package body regfile_xgs_athena_pack is
       return output;
    end to_BAYER_WB_R_ACC_TYPE;
 
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_CTRL_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_CTRL_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(0) := reg.CCM_EN;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_CTRL_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_CTRL_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_CTRL_TYPE is
+   variable output : BAYER_CCM_CTRL_TYPE;
+   begin
+      output.CCM_EN := stdlv(0);
+      return output;
+   end to_BAYER_CCM_CTRL_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KR1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KR1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.Kg;
+      output(11 downto 0) := reg.Kr;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KR1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KR1_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KR1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KR1_TYPE is
+   variable output : BAYER_CCM_KR1_TYPE;
+   begin
+      output.Kg := stdlv(27 downto 16);
+      output.Kr := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KR1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KR2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KR2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(24 downto 16) := reg.KOff;
+      output(11 downto 0) := reg.Kb;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KR2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KR2_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KR2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KR2_TYPE is
+   variable output : BAYER_CCM_KR2_TYPE;
+   begin
+      output.KOff := stdlv(24 downto 16);
+      output.Kb := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KR2_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KG1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KG1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.Kg;
+      output(11 downto 0) := reg.Kr;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KG1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KG1_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KG1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KG1_TYPE is
+   variable output : BAYER_CCM_KG1_TYPE;
+   begin
+      output.Kg := stdlv(27 downto 16);
+      output.Kr := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KG1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KG2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KG2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(24 downto 16) := reg.KOff;
+      output(11 downto 0) := reg.Kb;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KG2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KG2_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KG2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KG2_TYPE is
+   variable output : BAYER_CCM_KG2_TYPE;
+   begin
+      output.KOff := stdlv(24 downto 16);
+      output.Kb := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KG2_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KB1_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KB1_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(27 downto 16) := reg.Kg;
+      output(11 downto 0) := reg.Kr;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KB1_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KB1_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KB1_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KB1_TYPE is
+   variable output : BAYER_CCM_KB1_TYPE;
+   begin
+      output.Kg := stdlv(27 downto 16);
+      output.Kr := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KB1_TYPE;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_std_logic_vector
+   -- Description: Cast from BAYER_CCM_KB2_TYPE to std_logic_vector
+   --------------------------------------------------------------------------------
+   function to_std_logic_vector(reg : BAYER_CCM_KB2_TYPE) return std_logic_vector is
+   variable output : std_logic_vector(31 downto 0);
+   begin
+      output := (others=>'0'); -- Unassigned bits set to low
+      output(24 downto 16) := reg.KOff;
+      output(11 downto 0) := reg.Kb;
+      return output;
+   end to_std_logic_vector;
+
+   --------------------------------------------------------------------------------
+   -- Function Name: to_BAYER_CCM_KB2_TYPE
+   -- Description: Cast from std_logic_vector(31 downto 0) to BAYER_CCM_KB2_TYPE
+   --------------------------------------------------------------------------------
+   function to_BAYER_CCM_KB2_TYPE(stdlv : std_logic_vector(31 downto 0)) return BAYER_CCM_KB2_TYPE is
+   variable output : BAYER_CCM_KB2_TYPE;
+   begin
+      output.KOff := stdlv(24 downto 16);
+      output.Kb := stdlv(11 downto 0);
+      return output;
+   end to_BAYER_CCM_KB2_TYPE;
+
    
 end package body;
 
@@ -4196,11 +4511,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/04/13 16:57:37
+-- Created on          : 2021/04/23 14:23:10
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0x5E93A6C0
+-- Register file CRC32 : 0x33086B25
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4248,8 +4563,8 @@ architecture rtl of regfile_xgs_athena is
 -- Signals declaration
 ------------------------------------------------------------------------------------------
 signal readBackMux                                                 : std_logic_vector(31 downto 0);                   -- Data readback multiplexer
-signal hit                                                         : std_logic_vector(95 downto 0);                   -- Address decode hit
-signal wEn                                                         : std_logic_vector(94 downto 0);                   -- Write Enable
+signal hit                                                         : std_logic_vector(102 downto 0);                  -- Address decode hit
+signal wEn                                                         : std_logic_vector(101 downto 0);                  -- Write Enable
 signal fullAddr                                                    : std_logic_vector(11 downto 0):= (others => '0'); -- Full Address
 signal fullAddrAsInt                                               : integer;                                        
 signal bitEnN                                                      : std_logic_vector(31 downto 0);                   -- Bits enable
@@ -4349,6 +4664,13 @@ signal rb_BAYER_WB_MUL2                                            : std_logic_v
 signal rb_BAYER_WB_B_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_BAYER_WB_G_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal rb_BAYER_WB_R_ACC                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_CTRL                                           : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KR1                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KR2                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KG1                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KG2                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KB1                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
+signal rb_BAYER_CCM_KB2                                            : std_logic_vector(31 downto 0):= (others => '0'); -- Readback Register
 signal field_rw_SYSTEM_SCRATCHPAD_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CTRL_GRAB_QUEUE_EN                             : std_logic;                                       -- Field: GRAB_QUEUE_EN
 signal field_rw_DMA_FSTART_VALUE                                   : std_logic_vector(31 downto 0);                   -- Field: VALUE
@@ -4513,8 +4835,9 @@ signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_add                     : std_logic_v
 signal field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_y                 : std_logic_vector(11 downto 0);                   -- Field: dpc_list_corr_y
 signal field_rw_DPC_DPC_LIST_DATA1_dpc_list_corr_x                 : std_logic_vector(12 downto 0);                   -- Field: dpc_list_corr_x
 signal field_rw_DPC_DPC_LIST_DATA2_dpc_list_corr_pattern           : std_logic_vector(7 downto 0);                    -- Field: dpc_list_corr_pattern
+signal field_rw_LUT_LUT_CTRL_LUT_BYPASS_COLOR                      : std_logic;                                       -- Field: LUT_BYPASS_COLOR
 signal field_rw_LUT_LUT_CTRL_LUT_BYPASS                            : std_logic;                                       -- Field: LUT_BYPASS
-signal field_rw_LUT_LUT_CTRL_LUT_DATA_W                            : std_logic_vector(7 downto 0);                    -- Field: LUT_DATA_W
+signal field_rw_LUT_LUT_CTRL_LUT_DATA_W                            : std_logic_vector(9 downto 0);                    -- Field: LUT_DATA_W
 signal field_rw_LUT_LUT_CTRL_LUT_SEL                               : std_logic_vector(3 downto 0);                    -- Field: LUT_SEL
 signal field_rw_LUT_LUT_CTRL_LUT_WRN                               : std_logic;                                       -- Field: LUT_WRN
 signal field_wautoclr_LUT_LUT_CTRL_LUT_SS                          : std_logic;                                       -- Field: LUT_SS
@@ -4522,6 +4845,19 @@ signal field_rw_LUT_LUT_CTRL_LUT_ADD                               : std_logic_v
 signal field_rw_BAYER_WB_MUL1_WB_MULT_G                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_G
 signal field_rw_BAYER_WB_MUL1_WB_MULT_B                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_B
 signal field_rw_BAYER_WB_MUL2_WB_MULT_R                            : std_logic_vector(15 downto 0);                   -- Field: WB_MULT_R
+signal field_rw_BAYER_CCM_CTRL_CCM_EN                              : std_logic;                                       -- Field: CCM_EN
+signal field_rw_BAYER_CCM_KR1_Kg                                   : std_logic_vector(11 downto 0);                   -- Field: Kg
+signal field_rw_BAYER_CCM_KR1_Kr                                   : std_logic_vector(11 downto 0);                   -- Field: Kr
+signal field_rw_BAYER_CCM_KR2_KOff                                 : std_logic_vector(8 downto 0);                    -- Field: KOff
+signal field_rw_BAYER_CCM_KR2_Kb                                   : std_logic_vector(11 downto 0);                   -- Field: Kb
+signal field_rw_BAYER_CCM_KG1_Kg                                   : std_logic_vector(11 downto 0);                   -- Field: Kg
+signal field_rw_BAYER_CCM_KG1_Kr                                   : std_logic_vector(11 downto 0);                   -- Field: Kr
+signal field_rw_BAYER_CCM_KG2_KOff                                 : std_logic_vector(8 downto 0);                    -- Field: KOff
+signal field_rw_BAYER_CCM_KG2_Kb                                   : std_logic_vector(11 downto 0);                   -- Field: Kb
+signal field_rw_BAYER_CCM_KB1_Kg                                   : std_logic_vector(11 downto 0);                   -- Field: Kg
+signal field_rw_BAYER_CCM_KB1_Kr                                   : std_logic_vector(11 downto 0);                   -- Field: Kr
+signal field_rw_BAYER_CCM_KB2_KOff                                 : std_logic_vector(8 downto 0);                    -- Field: KOff
+signal field_rw_BAYER_CCM_KB2_Kb                                   : std_logic_vector(11 downto 0);                   -- Field: Kb
 signal ext_SYSMONXIL_readDataValid_FF                              : std_logic;                                       -- Pipelined version of ext_SYSMONXIL_readDataValid
 signal ext_SYSMONXIL_readData_FF                                   : std_logic_vector(31 downto 0);                   -- Pipelined version of ext_SYSMONXIL_readData
 signal ext_SYSMONXIL_readPending                                   : std_logic;                                       -- Read pending for the SYSMONXIL external section
@@ -4545,103 +4881,110 @@ end process P_bitEnN;
 --------------------------------------------------------------------------------
 fullAddr(10 downto 2)<= reg_addr;
 
-hit(0)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#0#,12)))	else '0'; -- Addr:  0x0000	TAG
-hit(1)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4#,12)))	else '0'; -- Addr:  0x0004	VERSION
-hit(2)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	CAPABILITY
-hit(3)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	SCRATCHPAD
-hit(4)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	CTRL
-hit(5)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART
-hit(6)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_HIGH
-hit(7)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G
-hit(8)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_G_HIGH
-hit(9)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R
-hit(10) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	FSTART_R_HIGH
-hit(11) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_PITCH
-hit(12) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	LINE_SIZE
-hit(13) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98#,12)))	else '0'; -- Addr:  0x0098	CSC
-hit(14) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a8#,12)))	else '0'; -- Addr:  0x00A8	OUTPUT_BUFFER
-hit(15) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#ac#,12)))	else '0'; -- Addr:  0x00AC	TLP
-hit(16) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#b0#,12)))	else '0'; -- Addr:  0x00B0	ROI_X
-hit(17) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	GRAB_CTRL
-hit(18) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	GRAB_STAT
-hit(19) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
-hit(20) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#114#,12)))	else '0'; -- Addr:  0x0114	READOUT_CFG_FRAME_LINE
-hit(21) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#118#,12)))	else '0'; -- Addr:  0x0118	READOUT_CFG2
-hit(22) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#120#,12)))	else '0'; -- Addr:  0x0120	READOUT_CFG3
-hit(23) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#124#,12)))	else '0'; -- Addr:  0x0124	READOUT_CFG4
-hit(24) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	EXP_CTRL1
-hit(25) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	EXP_CTRL2
-hit(26) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	EXP_CTRL3
-hit(27) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#140#,12)))	else '0'; -- Addr:  0x0140	TRIGGER_DELAY
-hit(28) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#148#,12)))	else '0'; -- Addr:  0x0148	STROBE_CTRL1
-hit(29) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#150#,12)))	else '0'; -- Addr:  0x0150	STROBE_CTRL2
-hit(30) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#158#,12)))	else '0'; -- Addr:  0x0158	ACQ_SER_CTRL
-hit(31) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#160#,12)))	else '0'; -- Addr:  0x0160	ACQ_SER_ADDATA
-hit(32) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#168#,12)))	else '0'; -- Addr:  0x0168	ACQ_SER_STAT
-hit(33) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#190#,12)))	else '0'; -- Addr:  0x0190	SENSOR_CTRL
-hit(34) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#198#,12)))	else '0'; -- Addr:  0x0198	SENSOR_STAT
-hit(35) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#19c#,12)))	else '0'; -- Addr:  0x019C	SENSOR_SUBSAMPLING
-hit(36) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
-hit(37) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
-hit(38) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
-hit(39) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b8#,12)))	else '0'; -- Addr:  0x01B8	SENSOR_M_LINES
-hit(40) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else '0'; -- Addr:  0x01BC	SENSOR_DP_GR
-hit(41) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GB
-hit(42) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_R
-hit(43) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_B
-hit(44) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1cc#,12)))	else '0'; -- Addr:  0x01CC	SENSOR_GAIN_DIG_G
-hit(45) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d0#,12)))	else '0'; -- Addr:  0x01D0	SENSOR_GAIN_DIG_RB
-hit(46) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d8#,12)))	else '0'; -- Addr:  0x01D8	FPGA_ROI_X_START
-hit(47) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	FPGA_ROI_X_SIZE
-hit(48) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
-hit(49) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
-hit(50) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
-hit(51) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f4#,12)))	else '0'; -- Addr:  0x01F4	SENSOR_FPS2
-hit(52) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
-hit(53) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
-hit(54) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
-hit(55) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
-hit(56) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d0#,12)))	else '0'; -- Addr:  0x02D0	TIMER_CTRL
-hit(57) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d4#,12)))	else '0'; -- Addr:  0x02D4	TIMER_DELAY
-hit(58) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d8#,12)))	else '0'; -- Addr:  0x02D8	TIMER_DURATION
-hit(59) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
-hit(60) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
-hit(61) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,12)))	else '0'; -- Addr:  0x0408	IDELAYCTRL_STATUS
-hit(62) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,12)))	else '0'; -- Addr:  0x040C	IDLE_CHARACTER
-hit(63) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,12)))	else '0'; -- Addr:  0x0410	PHY
-hit(64) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#414#,12)))	else '0'; -- Addr:  0x0414	FRAME_CFG
-hit(65) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else '0'; -- Addr:  0x0418	FRAME_CFG_X_VALID
-hit(66) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_DECODER_STATUS[0]
-hit(67) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	LANE_DECODER_STATUS[1]
-hit(68) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	LANE_DECODER_STATUS[2]
-hit(69) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	LANE_DECODER_STATUS[3]
-hit(70) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	LANE_DECODER_STATUS[4]
-hit(71) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#438#,12)))	else '0'; -- Addr:  0x0438	LANE_DECODER_STATUS[5]
-hit(72) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#43c#,12)))	else '0'; -- Addr:  0x043C	TAP_HISTOGRAM[0]
-hit(73) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#440#,12)))	else '0'; -- Addr:  0x0440	TAP_HISTOGRAM[1]
-hit(74) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else '0'; -- Addr:  0x0444	TAP_HISTOGRAM[2]
-hit(75) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	TAP_HISTOGRAM[3]
-hit(76) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	TAP_HISTOGRAM[4]
-hit(77) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#450#,12)))	else '0'; -- Addr:  0x0450	TAP_HISTOGRAM[5]
-hit(78) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else '0'; -- Addr:  0x0454	DEBUG
-hit(79) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_CAPABILITIES
-hit(80) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_CTRL
-hit(81) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_STAT
-hit(82) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA1
-hit(83) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
-hit(84) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
-hit(85) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
-hit(86) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
-hit(87) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
-hit(88) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
-hit(89) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c0#,12)))	else '0'; -- Addr:  0x04C0	BAYER_CAPABILITIES
-hit(90) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c4#,12)))	else '0'; -- Addr:  0x04C4	WB_MUL1
-hit(91) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c8#,12)))	else '0'; -- Addr:  0x04C8	WB_MUL2
-hit(92) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4cc#,12)))	else '0'; -- Addr:  0x04CC	WB_B_ACC
-hit(93) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d0#,12)))	else '0'; -- Addr:  0x04D0	WB_G_ACC
-hit(94) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d4#,12)))	else '0'; -- Addr:  0x04D4	WB_R_ACC
+hit(0)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#0#,12)))	else '0'; -- Addr:  0x0000	TAG
+hit(1)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4#,12)))	else '0'; -- Addr:  0x0004	VERSION
+hit(2)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8#,12)))	else '0'; -- Addr:  0x0008	CAPABILITY
+hit(3)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#c#,12)))	else '0'; -- Addr:  0x000C	SCRATCHPAD
+hit(4)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#70#,12)))	else '0'; -- Addr:  0x0070	CTRL
+hit(5)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#78#,12)))	else '0'; -- Addr:  0x0078	FSTART
+hit(6)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#7c#,12)))	else '0'; -- Addr:  0x007C	FSTART_HIGH
+hit(7)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#80#,12)))	else '0'; -- Addr:  0x0080	FSTART_G
+hit(8)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#84#,12)))	else '0'; -- Addr:  0x0084	FSTART_G_HIGH
+hit(9)   <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#88#,12)))	else '0'; -- Addr:  0x0088	FSTART_R
+hit(10)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#8c#,12)))	else '0'; -- Addr:  0x008C	FSTART_R_HIGH
+hit(11)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#90#,12)))	else '0'; -- Addr:  0x0090	LINE_PITCH
+hit(12)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#94#,12)))	else '0'; -- Addr:  0x0094	LINE_SIZE
+hit(13)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#98#,12)))	else '0'; -- Addr:  0x0098	CSC
+hit(14)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#a8#,12)))	else '0'; -- Addr:  0x00A8	OUTPUT_BUFFER
+hit(15)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#ac#,12)))	else '0'; -- Addr:  0x00AC	TLP
+hit(16)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#b0#,12)))	else '0'; -- Addr:  0x00B0	ROI_X
+hit(17)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#100#,12)))	else '0'; -- Addr:  0x0100	GRAB_CTRL
+hit(18)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#108#,12)))	else '0'; -- Addr:  0x0108	GRAB_STAT
+hit(19)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#110#,12)))	else '0'; -- Addr:  0x0110	READOUT_CFG1
+hit(20)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#114#,12)))	else '0'; -- Addr:  0x0114	READOUT_CFG_FRAME_LINE
+hit(21)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#118#,12)))	else '0'; -- Addr:  0x0118	READOUT_CFG2
+hit(22)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#120#,12)))	else '0'; -- Addr:  0x0120	READOUT_CFG3
+hit(23)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#124#,12)))	else '0'; -- Addr:  0x0124	READOUT_CFG4
+hit(24)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#128#,12)))	else '0'; -- Addr:  0x0128	EXP_CTRL1
+hit(25)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#130#,12)))	else '0'; -- Addr:  0x0130	EXP_CTRL2
+hit(26)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#138#,12)))	else '0'; -- Addr:  0x0138	EXP_CTRL3
+hit(27)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#140#,12)))	else '0'; -- Addr:  0x0140	TRIGGER_DELAY
+hit(28)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#148#,12)))	else '0'; -- Addr:  0x0148	STROBE_CTRL1
+hit(29)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#150#,12)))	else '0'; -- Addr:  0x0150	STROBE_CTRL2
+hit(30)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#158#,12)))	else '0'; -- Addr:  0x0158	ACQ_SER_CTRL
+hit(31)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#160#,12)))	else '0'; -- Addr:  0x0160	ACQ_SER_ADDATA
+hit(32)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#168#,12)))	else '0'; -- Addr:  0x0168	ACQ_SER_STAT
+hit(33)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#190#,12)))	else '0'; -- Addr:  0x0190	SENSOR_CTRL
+hit(34)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#198#,12)))	else '0'; -- Addr:  0x0198	SENSOR_STAT
+hit(35)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#19c#,12)))	else '0'; -- Addr:  0x019C	SENSOR_SUBSAMPLING
+hit(36)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a4#,12)))	else '0'; -- Addr:  0x01A4	SENSOR_GAIN_ANA
+hit(37)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1a8#,12)))	else '0'; -- Addr:  0x01A8	SENSOR_ROI_Y_START
+hit(38)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1ac#,12)))	else '0'; -- Addr:  0x01AC	SENSOR_ROI_Y_SIZE
+hit(39)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1b8#,12)))	else '0'; -- Addr:  0x01B8	SENSOR_M_LINES
+hit(40)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1bc#,12)))	else '0'; -- Addr:  0x01BC	SENSOR_DP_GR
+hit(41)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c0#,12)))	else '0'; -- Addr:  0x01C0	SENSOR_DP_GB
+hit(42)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c4#,12)))	else '0'; -- Addr:  0x01C4	SENSOR_DP_R
+hit(43)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1c8#,12)))	else '0'; -- Addr:  0x01C8	SENSOR_DP_B
+hit(44)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1cc#,12)))	else '0'; -- Addr:  0x01CC	SENSOR_GAIN_DIG_G
+hit(45)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d0#,12)))	else '0'; -- Addr:  0x01D0	SENSOR_GAIN_DIG_RB
+hit(46)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1d8#,12)))	else '0'; -- Addr:  0x01D8	FPGA_ROI_X_START
+hit(47)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1dc#,12)))	else '0'; -- Addr:  0x01DC	FPGA_ROI_X_SIZE
+hit(48)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e0#,12)))	else '0'; -- Addr:  0x01E0	DEBUG_PINS
+hit(49)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1e8#,12)))	else '0'; -- Addr:  0x01E8	TRIGGER_MISSED
+hit(50)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f0#,12)))	else '0'; -- Addr:  0x01F0	SENSOR_FPS
+hit(51)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#1f4#,12)))	else '0'; -- Addr:  0x01F4	SENSOR_FPS2
+hit(52)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a0#,12)))	else '0'; -- Addr:  0x02A0	DEBUG
+hit(53)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2a8#,12)))	else '0'; -- Addr:  0x02A8	DEBUG_CNTR1
+hit(54)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2b8#,12)))	else '0'; -- Addr:  0x02B8	EXP_FOT
+hit(55)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2c0#,12)))	else '0'; -- Addr:  0x02C0	ACQ_SFNC
+hit(56)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d0#,12)))	else '0'; -- Addr:  0x02D0	TIMER_CTRL
+hit(57)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d4#,12)))	else '0'; -- Addr:  0x02D4	TIMER_DELAY
+hit(58)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#2d8#,12)))	else '0'; -- Addr:  0x02D8	TIMER_DURATION
+hit(59)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#400#,12)))	else '0'; -- Addr:  0x0400	CTRL
+hit(60)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#404#,12)))	else '0'; -- Addr:  0x0404	STATUS
+hit(61)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#408#,12)))	else '0'; -- Addr:  0x0408	IDELAYCTRL_STATUS
+hit(62)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#40c#,12)))	else '0'; -- Addr:  0x040C	IDLE_CHARACTER
+hit(63)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#410#,12)))	else '0'; -- Addr:  0x0410	PHY
+hit(64)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#414#,12)))	else '0'; -- Addr:  0x0414	FRAME_CFG
+hit(65)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#418#,12)))	else '0'; -- Addr:  0x0418	FRAME_CFG_X_VALID
+hit(66)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#424#,12)))	else '0'; -- Addr:  0x0424	LANE_DECODER_STATUS[0]
+hit(67)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#428#,12)))	else '0'; -- Addr:  0x0428	LANE_DECODER_STATUS[1]
+hit(68)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#42c#,12)))	else '0'; -- Addr:  0x042C	LANE_DECODER_STATUS[2]
+hit(69)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#430#,12)))	else '0'; -- Addr:  0x0430	LANE_DECODER_STATUS[3]
+hit(70)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#434#,12)))	else '0'; -- Addr:  0x0434	LANE_DECODER_STATUS[4]
+hit(71)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#438#,12)))	else '0'; -- Addr:  0x0438	LANE_DECODER_STATUS[5]
+hit(72)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#43c#,12)))	else '0'; -- Addr:  0x043C	TAP_HISTOGRAM[0]
+hit(73)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#440#,12)))	else '0'; -- Addr:  0x0440	TAP_HISTOGRAM[1]
+hit(74)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#444#,12)))	else '0'; -- Addr:  0x0444	TAP_HISTOGRAM[2]
+hit(75)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#448#,12)))	else '0'; -- Addr:  0x0448	TAP_HISTOGRAM[3]
+hit(76)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#44c#,12)))	else '0'; -- Addr:  0x044C	TAP_HISTOGRAM[4]
+hit(77)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#450#,12)))	else '0'; -- Addr:  0x0450	TAP_HISTOGRAM[5]
+hit(78)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#454#,12)))	else '0'; -- Addr:  0x0454	DEBUG
+hit(79)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#480#,12)))	else '0'; -- Addr:  0x0480	DPC_CAPABILITIES
+hit(80)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#484#,12)))	else '0'; -- Addr:  0x0484	DPC_LIST_CTRL
+hit(81)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#488#,12)))	else '0'; -- Addr:  0x0488	DPC_LIST_STAT
+hit(82)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#48c#,12)))	else '0'; -- Addr:  0x048C	DPC_LIST_DATA1
+hit(83)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#490#,12)))	else '0'; -- Addr:  0x0490	DPC_LIST_DATA2
+hit(84)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#494#,12)))	else '0'; -- Addr:  0x0494	DPC_LIST_DATA1_RD
+hit(85)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#498#,12)))	else '0'; -- Addr:  0x0498	DPC_LIST_DATA2_RD
+hit(86)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b0#,12)))	else '0'; -- Addr:  0x04B0	LUT_CAPABILITIES
+hit(87)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b4#,12)))	else '0'; -- Addr:  0x04B4	LUT_CTRL
+hit(88)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4b8#,12)))	else '0'; -- Addr:  0x04B8	LUT_RB
+hit(89)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c0#,12)))	else '0'; -- Addr:  0x04C0	BAYER_CAPABILITIES
+hit(90)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c4#,12)))	else '0'; -- Addr:  0x04C4	WB_MUL1
+hit(91)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4c8#,12)))	else '0'; -- Addr:  0x04C8	WB_MUL2
+hit(92)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4cc#,12)))	else '0'; -- Addr:  0x04CC	WB_B_ACC
+hit(93)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d0#,12)))	else '0'; -- Addr:  0x04D0	WB_G_ACC
+hit(94)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d4#,12)))	else '0'; -- Addr:  0x04D4	WB_R_ACC
+hit(95)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4d8#,12)))	else '0'; -- Addr:  0x04D8	CCM_CTRL
+hit(96)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4dc#,12)))	else '0'; -- Addr:  0x04DC	CCM_KR1
+hit(97)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4e0#,12)))	else '0'; -- Addr:  0x04E0	CCM_KR2
+hit(98)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4e4#,12)))	else '0'; -- Addr:  0x04E4	CCM_KG1
+hit(99)  <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4e8#,12)))	else '0'; -- Addr:  0x04E8	CCM_KG2
+hit(100) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4ec#,12)))	else '0'; -- Addr:  0x04EC	CCM_KB1
+hit(101) <= '1' when (fullAddr = std_logic_vector(to_unsigned(16#4f0#,12)))	else '0'; -- Addr:  0x04F0	CCM_KB2
 
-hit(95) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
+hit(102) <= '1' when (fullAddr >= std_logic_vector(to_unsigned(16#700#,12)) and fullAddr <= std_logic_vector(to_unsigned(16#7fc#,12)))	else '0'; -- Addr:  0x0700 to 0x07FC	SYSMONXIL
 
 
 fullAddrAsInt <= CONV_integer(fullAddr);
@@ -4746,6 +5089,13 @@ P_readBackMux_Mux : process(fullAddrAsInt,
                             rb_BAYER_WB_B_ACC,
                             rb_BAYER_WB_G_ACC,
                             rb_BAYER_WB_R_ACC,
+                            rb_BAYER_CCM_CTRL,
+                            rb_BAYER_CCM_KR1,
+                            rb_BAYER_CCM_KR2,
+                            rb_BAYER_CCM_KG1,
+                            rb_BAYER_CCM_KG2,
+                            rb_BAYER_CCM_KB1,
+                            rb_BAYER_CCM_KB2,
                             ext_SYSMONXIL_readData_FF
                            )
 begin
@@ -5129,6 +5479,34 @@ begin
       -- [0x4d4]: /BAYER/WB_R_ACC
       when 16#4D4# =>
          readBackMux <= rb_BAYER_WB_R_ACC;
+
+      -- [0x4d8]: /BAYER/CCM_CTRL
+      when 16#4D8# =>
+         readBackMux <= rb_BAYER_CCM_CTRL;
+
+      -- [0x4dc]: /BAYER/CCM_KR1
+      when 16#4DC# =>
+         readBackMux <= rb_BAYER_CCM_KR1;
+
+      -- [0x4e0]: /BAYER/CCM_KR2
+      when 16#4E0# =>
+         readBackMux <= rb_BAYER_CCM_KR2;
+
+      -- [0x4e4]: /BAYER/CCM_KG1
+      when 16#4E4# =>
+         readBackMux <= rb_BAYER_CCM_KG1;
+
+      -- [0x4e8]: /BAYER/CCM_KG2
+      when 16#4E8# =>
+         readBackMux <= rb_BAYER_CCM_KG2;
+
+      -- [0x4ec]: /BAYER/CCM_KB1
+      when 16#4EC# =>
+         readBackMux <= rb_BAYER_CCM_KB1;
+
+      -- [0x4f0]: /BAYER/CCM_KB2
+      when 16#4F0# =>
+         readBackMux <= rb_BAYER_CCM_KB2;
 
       -- [0x700:0x7fc] SYSMONXIL external section
       when 16#700# to 16#7FC# =>
@@ -10907,6 +11285,30 @@ rb_LUT_LUT_CAPABILITIES(3 downto 0) <= regfile.LUT.LUT_CAPABILITIES.LUT_VER;
 wEn(87) <= (hit(87)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
+-- Field name: LUT_BYPASS_COLOR
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_LUT_LUT_CTRL(29) <= field_rw_LUT_LUT_CTRL_LUT_BYPASS_COLOR;
+regfile.LUT.LUT_CTRL.LUT_BYPASS_COLOR <= field_rw_LUT_LUT_CTRL_LUT_BYPASS_COLOR;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_LUT_LUT_CTRL_LUT_BYPASS_COLOR
+------------------------------------------------------------------------------------------
+P_LUT_LUT_CTRL_LUT_BYPASS_COLOR : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_LUT_LUT_CTRL_LUT_BYPASS_COLOR <= '1';
+      else
+         if(wEn(87) = '1' and bitEnN(29) = '0') then
+            field_rw_LUT_LUT_CTRL_LUT_BYPASS_COLOR <= reg_writedata(29);
+         end if;
+      end if;
+   end if;
+end process P_LUT_LUT_CTRL_LUT_BYPASS_COLOR;
+
+------------------------------------------------------------------------------------------
 -- Field name: LUT_BYPASS
 -- Field type: RW
 ------------------------------------------------------------------------------------------
@@ -10921,7 +11323,7 @@ P_LUT_LUT_CTRL_LUT_BYPASS : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_LUT_LUT_CTRL_LUT_BYPASS <= '0';
+         field_rw_LUT_LUT_CTRL_LUT_BYPASS <= '1';
       else
          if(wEn(87) = '1' and bitEnN(28) = '0') then
             field_rw_LUT_LUT_CTRL_LUT_BYPASS <= reg_writedata(28);
@@ -10931,11 +11333,11 @@ begin
 end process P_LUT_LUT_CTRL_LUT_BYPASS;
 
 ------------------------------------------------------------------------------------------
--- Field name: LUT_DATA_W(23 downto 16)
+-- Field name: LUT_DATA_W(25 downto 16)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_LUT_LUT_CTRL(23 downto 16) <= field_rw_LUT_LUT_CTRL_LUT_DATA_W(7 downto 0);
-regfile.LUT.LUT_CTRL.LUT_DATA_W <= field_rw_LUT_LUT_CTRL_LUT_DATA_W(7 downto 0);
+rb_LUT_LUT_CTRL(25 downto 16) <= field_rw_LUT_LUT_CTRL_LUT_DATA_W(9 downto 0);
+regfile.LUT.LUT_CTRL.LUT_DATA_W <= field_rw_LUT_LUT_CTRL_LUT_DATA_W(9 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -10945,9 +11347,9 @@ P_LUT_LUT_CTRL_LUT_DATA_W : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_LUT_LUT_CTRL_LUT_DATA_W <= std_logic_vector(to_unsigned(integer(0),8));
+         field_rw_LUT_LUT_CTRL_LUT_DATA_W <= std_logic_vector(to_unsigned(integer(0),10));
       else
-         for j in  23 downto 16  loop
+         for j in  25 downto 16  loop
             if(wEn(87) = '1' and bitEnN(j) = '0') then
                field_rw_LUT_LUT_CTRL_LUT_DATA_W(j-16) <= reg_writedata(j);
             end if;
@@ -11235,6 +11637,405 @@ wEn(94) <= (hit(94)) and (reg_write);
 rb_BAYER_WB_R_ACC(30 downto 0) <= regfile.BAYER.WB_R_ACC.R_ACC;
 
 
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_CTRL
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(95) <= (hit(95)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: CCM_EN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_CTRL(0) <= field_rw_BAYER_CCM_CTRL_CCM_EN;
+regfile.BAYER.CCM_CTRL.CCM_EN <= field_rw_BAYER_CCM_CTRL_CCM_EN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_CTRL_CCM_EN
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_CTRL_CCM_EN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_CTRL_CCM_EN <= '0';
+      else
+         if(wEn(95) = '1' and bitEnN(0) = '0') then
+            field_rw_BAYER_CCM_CTRL_CCM_EN <= reg_writedata(0);
+         end if;
+      end if;
+   end if;
+end process P_BAYER_CCM_CTRL_CCM_EN;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KR1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(96) <= (hit(96)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: Kg(27 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KR1(27 downto 16) <= field_rw_BAYER_CCM_KR1_Kg(11 downto 0);
+regfile.BAYER.CCM_KR1.Kg <= field_rw_BAYER_CCM_KR1_Kg(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KR1_Kg
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KR1_Kg : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KR1_Kg <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  27 downto 16  loop
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KR1_Kg(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KR1_Kg;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kr(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KR1(11 downto 0) <= field_rw_BAYER_CCM_KR1_Kr(11 downto 0);
+regfile.BAYER.CCM_KR1.Kr <= field_rw_BAYER_CCM_KR1_Kr(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KR1_Kr
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KR1_Kr : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KR1_Kr <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(96) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KR1_Kr(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KR1_Kr;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KR2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(97) <= (hit(97)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: KOff(24 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KR2(24 downto 16) <= field_rw_BAYER_CCM_KR2_KOff(8 downto 0);
+regfile.BAYER.CCM_KR2.KOff <= field_rw_BAYER_CCM_KR2_KOff(8 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KR2_KOff
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KR2_KOff : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KR2_KOff <= std_logic_vector(to_unsigned(integer(0),9));
+      else
+         for j in  24 downto 16  loop
+            if(wEn(97) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KR2_KOff(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KR2_KOff;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kb(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KR2(11 downto 0) <= field_rw_BAYER_CCM_KR2_Kb(11 downto 0);
+regfile.BAYER.CCM_KR2.Kb <= field_rw_BAYER_CCM_KR2_Kb(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KR2_Kb
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KR2_Kb : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KR2_Kb <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(97) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KR2_Kb(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KR2_Kb;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KG1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(98) <= (hit(98)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: Kg(27 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KG1(27 downto 16) <= field_rw_BAYER_CCM_KG1_Kg(11 downto 0);
+regfile.BAYER.CCM_KG1.Kg <= field_rw_BAYER_CCM_KG1_Kg(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KG1_Kg
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KG1_Kg : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KG1_Kg <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  27 downto 16  loop
+            if(wEn(98) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KG1_Kg(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KG1_Kg;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kr(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KG1(11 downto 0) <= field_rw_BAYER_CCM_KG1_Kr(11 downto 0);
+regfile.BAYER.CCM_KG1.Kr <= field_rw_BAYER_CCM_KG1_Kr(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KG1_Kr
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KG1_Kr : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KG1_Kr <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(98) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KG1_Kr(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KG1_Kr;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KG2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(99) <= (hit(99)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: KOff(24 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KG2(24 downto 16) <= field_rw_BAYER_CCM_KG2_KOff(8 downto 0);
+regfile.BAYER.CCM_KG2.KOff <= field_rw_BAYER_CCM_KG2_KOff(8 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KG2_KOff
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KG2_KOff : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KG2_KOff <= std_logic_vector(to_unsigned(integer(0),9));
+      else
+         for j in  24 downto 16  loop
+            if(wEn(99) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KG2_KOff(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KG2_KOff;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kb(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KG2(11 downto 0) <= field_rw_BAYER_CCM_KG2_Kb(11 downto 0);
+regfile.BAYER.CCM_KG2.Kb <= field_rw_BAYER_CCM_KG2_Kb(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KG2_Kb
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KG2_Kb : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KG2_Kb <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(99) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KG2_Kb(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KG2_Kb;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KB1
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(100) <= (hit(100)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: Kg(27 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KB1(27 downto 16) <= field_rw_BAYER_CCM_KB1_Kg(11 downto 0);
+regfile.BAYER.CCM_KB1.Kg <= field_rw_BAYER_CCM_KB1_Kg(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KB1_Kg
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KB1_Kg : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KB1_Kg <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  27 downto 16  loop
+            if(wEn(100) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KB1_Kg(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KB1_Kg;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kr(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KB1(11 downto 0) <= field_rw_BAYER_CCM_KB1_Kr(11 downto 0);
+regfile.BAYER.CCM_KB1.Kr <= field_rw_BAYER_CCM_KB1_Kr(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KB1_Kr
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KB1_Kr : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KB1_Kr <= std_logic_vector(to_unsigned(integer(0),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(100) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KB1_Kr(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KB1_Kr;
+
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+-- Register name: BAYER_CCM_KB2
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+wEn(101) <= (hit(101)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: KOff(24 downto 16)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KB2(24 downto 16) <= field_rw_BAYER_CCM_KB2_KOff(8 downto 0);
+regfile.BAYER.CCM_KB2.KOff <= field_rw_BAYER_CCM_KB2_KOff(8 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KB2_KOff
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KB2_KOff : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KB2_KOff <= std_logic_vector(to_unsigned(integer(0),9));
+      else
+         for j in  24 downto 16  loop
+            if(wEn(101) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KB2_KOff(j-16) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KB2_KOff;
+
+------------------------------------------------------------------------------------------
+-- Field name: Kb(11 downto 0)
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_BAYER_CCM_KB2(11 downto 0) <= field_rw_BAYER_CCM_KB2_Kb(11 downto 0);
+regfile.BAYER.CCM_KB2.Kb <= field_rw_BAYER_CCM_KB2_Kb(11 downto 0);
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_BAYER_CCM_KB2_Kb
+------------------------------------------------------------------------------------------
+P_BAYER_CCM_KB2_Kb : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_BAYER_CCM_KB2_Kb <= std_logic_vector(to_unsigned(integer(256),12));
+      else
+         for j in  11 downto 0  loop
+            if(wEn(101) = '1' and bitEnN(j) = '0') then
+               field_rw_BAYER_CCM_KB2_Kb(j-0) <= reg_writedata(j);
+            end if;
+         end loop;
+      end if;
+   end if;
+end process P_BAYER_CCM_KB2_Kb;
+
 ------------------------------------------------------------------------------------------
 -- External section: SYSMONXIL
 ------------------------------------------------------------------------------------------
@@ -11264,7 +12065,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readEn <= '0';
       else
-         ext_SYSMONXIL_readEn <= hit(95) and reg_read;
+         ext_SYSMONXIL_readEn <= hit(102) and reg_read;
       end if;
    end if;
 end process P_ext_SYSMONXIL_readEn;
@@ -11309,7 +12110,7 @@ begin
       if (resetN = '0') then
          ext_SYSMONXIL_readPending <= '0';
       else
-         if (reg_read = '1' and hit(95) = '1') then
+         if (reg_read = '1' and hit(102) = '1') then
             ext_SYSMONXIL_readPending <= '1';
 
          elsif (ext_SYSMONXIL_readDataValid_FF = '1') then
@@ -11357,7 +12158,7 @@ begin
 end process P_reg_readdatavalid;
 
 
-ldData <= (reg_read and not(hit(95)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
+ldData <= (reg_read and not(hit(102)))  or (ext_SYSMONXIL_readPending and ext_SYSMONXIL_readDataValid_FF);
 
 end rtl;
 

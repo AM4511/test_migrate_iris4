@@ -51,6 +51,7 @@ module testbench;
   Test0010 test0010;
   Test0020 test0020;  //color RGB32
   Test0021 test0021;  //color RAW
+  Test0022 test0022;  //color RAW
 
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
   CTest t;
@@ -96,7 +97,9 @@ module testbench;
       top_string_factory["Test0009"] = objectRegistry#(Test0009)::get();
       top_string_factory["Test0010"] = objectRegistry#(Test0010)::get();      
       top_string_factory["Test0020"] = objectRegistry#(Test0020)::get();   
-      top_string_factory["Test0021"] = objectRegistry#(Test0021)::get();        
+      top_string_factory["Test0021"] = objectRegistry#(Test0021)::get();     
+      top_string_factory["Test0022"] = objectRegistry#(Test0022)::get();         
+      
       tb_RESETn = 1'b0;
       repeat(20)@(posedge tb_CLK);
       tb_RESETn = 1'b1;

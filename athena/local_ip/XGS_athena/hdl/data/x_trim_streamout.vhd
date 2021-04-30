@@ -516,18 +516,18 @@ begin
           if (bclk_align_packer_valid_vect = "01") then
             if (bclk_cmd_sync = "01") then
               -- SOF
-              bclk_align_packer_user(0) <= '1';
+              bclk_align_packer_user <= "0001";  -- jmansill (0)
             else
               -- SOL
-              bclk_align_packer_user(2) <= '1';
+              bclk_align_packer_user <= "0100"; -- jmansill (2)
             end if;
           elsif (bclk_align_packer_valid_vect = "11" and bclk_read_data_valid = '0') then
             -- EOF
             if (bclk_cmd_sync = "10") then
-              bclk_align_packer_user(1) <= '1';
+              bclk_align_packer_user <= "0010"; -- jmansill (1)
             -- EOL
             else
-              bclk_align_packer_user(3) <= '1';
+              bclk_align_packer_user <= "1000"; -- jmansill (3)
             end if;
           else
             bclk_align_packer_user <= "0000";

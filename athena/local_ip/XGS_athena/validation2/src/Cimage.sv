@@ -1040,7 +1040,7 @@ class CImage;
         shortint image_new[];
         int new_size_x ;
 
-        // determiner la nouvelle dimension, Mono8 to RGB32
+        // determiner la nouvelle dimension, Mono8 to RGB32 (Bytes)
         new_size_x = pgm_size_x*4;
 
         image_new = new[new_size_x * pgm_size_y];
@@ -1089,6 +1089,55 @@ class CImage;
         image_new.delete;
 
     endfunction : BayerDemosaic
+
+
+    // Bayer2yuv conversion
+    function void Bayer2YUV();
+
+	      // Y Coefficients
+        shortint CYr    =	 77;
+	      shortint CYg    =	 150;
+	      shortint CYb    =	 29;
+	      // U Coefficients
+	      shortint CUr    = 43;
+	      shortint CUg    = 85; 
+	      shortint CUb    = 128;
+	      // V Coefficients
+	      shortint CVr    = 128;
+	      shortint CVg    = 107;
+	      shortint CVb    = 21 ;
+        
+        // pixels from RGB32
+        shortint B0 ;
+        shortint G0 ;
+        shortint R0 ;
+        shortint B1 ;
+        shortint G1 ;
+        shortint R1 ;
+
+        // RGB to YUV
+        for(int y = 0; y < pgm_size_y; y += 1) begin
+            for(int x = 0; x < pgm_size_x-1; x += 8) begin  //jump 2 pixels rgb32   
+                B0 = get_pixel(x,   y);
+                G0 = get_pixel(x+1, y);
+                R0 = get_pixel(x+2, y);
+
+                B1 = get_pixel(x+4, y);
+                G1 = get_pixel(x+5, y);
+                R1 = get_pixel(x+6, y);
+
+                image[y * pgm_size_x + x + 0] = ((CYr * R0) + (CYg * G0) + (CYb * B0))>>8;                // Y0 = (CYr x R0) + (CYg x G0) + (CYb x B0)
+                image[y * pgm_size_x + x + 1] = (-(CUr * R0) - (CUg * G0) + (CUb * B0) + (128<<8))>>8;    // U0 = - (CUr x R0) - (CUg x G0) + (CUb x B0) + 128
+                image[y * pgm_size_x + x + 2] = 0;                                                        // 0  
+                image[y * pgm_size_x + x + 3] = 0;                                                        // 0
+     
+                image[y * pgm_size_x + x + 4] = ((CYr * R1) + (CYg * G1) + (CYb * B1))>>8;                // Y1 = (CYr x R1) + (CYg x G1) + (CYb x B1)
+                image[y * pgm_size_x + x + 5] = ((CVr * R0) - (CVg * G0) - (CVb * B0) + (128<<8))>>8;     // V0 = (CVr x R0) - (CVg x G0) - (CVb x B0) + 128 
+                image[y * pgm_size_x + x + 6] = 0;                                                        // 0  
+                image[y * pgm_size_x + x + 7] = 0;                                                        // 0                   
+             end  // X
+        end // Y
+    endfunction : Bayer2YUV
 
 
 

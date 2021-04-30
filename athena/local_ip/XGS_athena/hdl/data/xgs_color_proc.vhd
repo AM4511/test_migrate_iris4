@@ -11,23 +11,28 @@
 -- Project:     IRIS 4
 --
 --
---                                                                                                               ___***____ 
---                                                                                                              |         |
---                                                                                                              |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=3
---                                                                                                              |_________| (2x16bpp)
---                                                                                                                  |                                                                         
---              _________             _________             _________           __________            _________     |
---   8x10bpp   |   AXIs  | 2x10bpp   |         |  2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         |    |
---  ---------->|  Width  |---------->|   DPC   |---------->|   WB    |-------->|  Bayer   |--------->|   Lut   |---------------------->  2x RGB24 packed64 : COLOR_SPACE=1
---             |__Conv_*_|           |_________|     |     |_________|         |__________|          |_________|            (2x24bpp)
---                  |                                |                                                
---             * This module is out of this file     --------------------------------------------------------------------------------->  2x RAW8 packed64  : COLOR_SPACE=5
+--                                                                                                                                                           __________ 
+--                                                                                                                                                          |         |  (2x16bpp)
+--                                                                                                                                                          |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=3
+--                                                                                                                                                          |_________| 
+--                                                                                                                                                               ^                                                             
+--              _________             _________            _________              _________           __________            _________            _________       |
+--   8x10bpp   |   AXIs  | 2x10bpp   |         |  2x10bpp |   Lut   |   2x10bpp  |         | 2x8bpp  |          | 2x24bpp  |         | 2x24bpp  |   Lut   |      |       (2x24bpp)
+--  ---------->|  Width  |---------->|   DPC   |----------|  10x10  |----------->|   WB    |-------->|  Bayer   |--------->|   CCM   |--------->|   per   |----------------------->  2x RGB24 packed64 : COLOR_SPACE=1
+--             |__Conv_*_|           |_________|          |_________|     |      |_________|         |__________|          |_________|          |__comp___| 
+--                  |                                                     |                                                       
+--             * This module is out of this file                          |                                                       
+--                                                                        |                                                                   
+--                                                                        |
+--                                                                        |    (msb of 2x10bpp)
+--                                                                        |------------------------------------------------------------------------------------------------------->  2x RAW8 packed64  : COLOR_SPACE=5 
+--
+-- 
 --
 --
+-- Open issues :
 --
--- *** NOT CODED YET
 --
-
 -------------------------------------------------------------------------------
 
 library ieee;
@@ -113,11 +118,31 @@ entity xgs_color_proc is
 		   REG_COLOR_SPACE                         : in std_logic_vector(2 downto 0);	   
 			   
            REG_LUT_BYPASS                          : in std_logic;
+           REG_LUT_BYPASS_COLOR                    : in std_logic;
 		   REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
 		   REG_LUT_SS                              : in std_logic;
 		   REG_LUT_WRN                             : in std_logic;
            REG_LUT_ADD                             : in std_logic_vector;
-           REG_LUT_DATA_W                          : in std_logic_vector
+           REG_LUT_DATA_W                          : in std_logic_vector;
+		   
+	       CCM_EN                                  : in  std_logic;
+
+           KRr                                     : in std_logic_vector(11 downto 0);
+           KRg                                     : in std_logic_vector(11 downto 0); 
+           KRb                                     : in std_logic_vector(11 downto 0);
+           Offr                                    : in std_logic_vector(8 downto 0); 
+
+           KGr                                     : in std_logic_vector(11 downto 0);
+           KGg                                     : in std_logic_vector(11 downto 0); 
+           KGb                                     : in std_logic_vector(11 downto 0);
+           Offg                                    : in std_logic_vector(8 downto 0); 
+
+           KBr                                     : in std_logic_vector(11 downto 0);
+           KBg                                     : in std_logic_vector(11 downto 0); 
+           KBb                                     : in std_logic_vector(11 downto 0);
+           Offb                                    : in std_logic_vector(8 downto 0) 
+
+
 
 		   
         );
@@ -190,6 +215,7 @@ component dpc_filter_color
     dpc_data_val                         : out   std_logic;
     dpc_data                             : out   std_logic_vector(19 downto 0);
     dpc_eol                              : out   std_logic;	
+	dpc_eof_m1                           : out   std_logic; 
 	dpc_eof                              : out   std_logic
 	
   );
@@ -198,7 +224,7 @@ end component;
 
 
 
-component Infered_RAM
+component Infered_RAM  --Ram non initialise
 generic (
         C_RAM_WIDTH      : integer := 10;                                                 -- Specify data width 
         C_RAM_DEPTH      : integer := 10                                                  -- Specify RAM depth (bits de l'adresse de la ram)
@@ -218,6 +244,26 @@ port (
      );
 end component;  
 
+
+component Infered_RAM_lut  --Ram initialise avec ramp
+   generic (
+           C_RAM_WIDTH      : integer := 8;                                                  -- Specify data width 
+           C_RAM_DEPTH      : integer := 10                                                  -- Specify RAM depth (bits de l'adresse de la ram)
+           );
+   port (  
+           RAM_W_clk        : in  std_logic;
+           RAM_W_WRn        : in  std_logic:='1';                                            -- Write cycle
+           RAM_W_enable     : in  std_logic:='0';                                            -- Write/READn enable
+           RAM_W_address    : in  std_logic_vector(C_RAM_DEPTH-1 downto 0);                  -- Write address bus, width determined from RAM_DEPTH
+           RAM_W_data       : in  std_logic_vector(C_RAM_WIDTH-1 downto 0);                  -- RAM input data
+           RAM_W_dataR      : out std_logic_vector(C_RAM_WIDTH-1 downto 0):= (others=>'0');  -- RAM read data
+
+           RAM_R_clk        : in  std_logic;
+           RAM_R_enable     : in  std_logic:='0';                                            -- Read enable
+           RAM_R_address    : in  std_logic_vector(C_RAM_DEPTH-1 downto 0);                  -- Read address bus, width determined from RAM_DEPTH
+           RAM_R_data       : out std_logic_vector(C_RAM_WIDTH-1 downto 0):= (others=>'0')   -- RAM output data
+        );
+end component;
 
 
 component Infered_RAM_lutC
@@ -242,7 +288,81 @@ end component;
 
 
 
+component rgb_2_yuv 
+  port(
+    pix_clk              : in    std_logic;
+    pix_reset_n          : in    std_logic;
 
+    pixel_sof_in         : in      std_logic;
+    pixel_sol_in         : in      std_logic;
+    pixel_en_in          : in      std_logic;
+    pixel_eol_in         : in      std_logic;
+    pixel_eof_in         : in      std_logic;
+
+    red_in               : in  std_logic_vector (7 downto 0);
+    green_in             : in  std_logic_vector (7 downto 0);
+    blue_in              : in  std_logic_vector (7 downto 0);
+
+    pixel_sof_out        : out     std_logic;
+    pixel_sol_out        : out     std_logic;
+    pixel_en_out         : buffer  std_logic;
+    pixel_eol_m1_out     : out     std_logic;  -- EOL one clk before
+    pixel_eol_out        : out     std_logic;
+    pixel_eof_out        : out     std_logic;
+	
+    Y                    : buffer std_logic_vector (7 downto 0);
+    U                    : buffer std_logic_vector (7 downto 0);
+    V                    : buffer std_logic_vector (7 downto 0);
+    UV_subsampled        : out std_logic_vector (7 downto 0)
+  );
+end component;
+
+
+
+component ccm is
+  port(
+    pix_clk              : in      std_logic;
+    pix_reset_n          : in      std_logic;
+
+    pixel_sof_in         : in  std_logic;
+    pixel_sol_in         : in  std_logic;
+    pixel_en_in          : in  std_logic;
+    pixel_eol_in         : in  std_logic;
+    pixel_eof_in         : in  std_logic;
+
+    red_in               : in      std_logic_vector (7 downto 0);
+    green_in             : in      std_logic_vector (7 downto 0);
+    blue_in              : in      std_logic_vector (7 downto 0);
+
+    CCM_EN               : in  std_logic;
+
+    KRr                  : in      std_logic_vector(11 downto 0);
+    KRg                  : in      std_logic_vector(11 downto 0); 
+    KRb                  : in      std_logic_vector(11 downto 0);
+    Offr                 : in      std_logic_vector(8 downto 0); 
+
+    KGr                  : in      std_logic_vector(11 downto 0);
+    KGg                  : in      std_logic_vector(11 downto 0); 
+    KGb                  : in      std_logic_vector(11 downto 0);
+    Offg                 : in      std_logic_vector(8 downto 0); 
+
+    KBr                  : in      std_logic_vector(11 downto 0);
+    KBg                  : in      std_logic_vector(11 downto 0); 
+    KBb                  : in      std_logic_vector(11 downto 0);
+    Offb                 : in      std_logic_vector(8 downto 0); 
+
+    pixel_sof_out        : out     std_logic;
+    pixel_sol_out        : out     std_logic;
+    pixel_en_out         : out     std_logic;
+    pixel_eol_out        : out     std_logic;
+    pixel_eof_out        : out     std_logic;
+
+    red_out              : out     std_logic_vector (7 downto 0);
+    green_out            : out     std_logic_vector (7 downto 0);
+    blue_out             : out     std_logic_vector (7 downto 0)
+    
+  );
+end component;
 
 
 -- Domain synchro
@@ -324,7 +444,31 @@ signal dpc_sol                  : std_logic;
 signal dpc_data_val             : std_logic;
 signal dpc_data                 : std_logic_vector(19 downto 0);
 signal dpc_eol                  : std_logic;
+signal dpc_eof_m1               : std_logic; 
 signal dpc_eof                  : std_logic;
+
+
+
+
+--------------------------------------------------------------------
+--  LUT CORRECTION (10 to 8 LUT)  (1 palette)
+--------------------------------------------------------------------
+signal LUT10_10_RAM_W_enable      : std_logic:= '0';
+signal LUT10_10_RAM_W_address     : std_logic_vector(REG_LUT_ADD'range);
+signal LUT10_10_RAM_W_data        : std_logic_vector(9 downto 0);
+signal LUT10_10_RAM_R_enable_ored : std_logic;
+signal LUT10_10_RAM_R_DATA_RAM    : std_logic_vector(19 downto 0);
+type LUT_ADDxCH_type is array (0 to 1) of std_logic_vector(9 downto 0);
+signal LUT10_10_RAM_R_address     : LUT_ADDxCH_type;
+
+signal dpc_data_P1                : std_logic_vector(dpc_data'range);
+signal LUT10_10_lut_sof           : std_logic:= '0';
+signal LUT10_10_lut_sol           : std_logic:= '0';
+signal LUT10_10_lut_data_val      : std_logic:= '0';
+signal LUT10_10_lut_data          : std_logic_vector(19 downto 0); -- output is 10bpp
+signal LUT10_10_lut_eol           : std_logic:= '0';
+signal LUT10_10_lut_eof           : std_logic:= '0';
+
 
 ----------------------------------
 -- White balancing pipeline
@@ -443,6 +587,26 @@ signal bayer_eol                : std_logic;
 signal bayer_eof                : std_logic;
 
 
+-----------------------------------------------------
+-- CCM FUTURE 
+-----------------------------------------------------
+signal ccm_sof                : std_logic;
+signal ccm_sol                : std_logic;
+signal ccm_data_val           : std_logic;
+signal ccm_eol                : std_logic;
+signal ccm_eof                : std_logic;
+
+signal ccm_R0                 : std_logic_vector(7 downto 0); 
+signal ccm_G0                 : std_logic_vector(7 downto 0); 
+signal ccm_B0                 : std_logic_vector(7 downto 0); 
+signal ccm_R1                 : std_logic_vector(7 downto 0); 
+signal ccm_G1                 : std_logic_vector(7 downto 0); 
+signal ccm_B1                 : std_logic_vector(7 downto 0); 
+
+signal ccm_data               : std_logic_vector(63 downto 0);
+signal ccm_data_P1            : std_logic_vector(63 downto 0);
+
+
 
 -----------------------------------------------------
 -- LUT RGB
@@ -455,9 +619,24 @@ signal lut_sof                : std_logic;
 signal lut_sol                : std_logic;
 signal lut_data_val           : std_logic;
 signal lut_data               : std_logic_vector(63 downto 0);
+signal lut_data_RAM           : std_logic_vector(63 downto 0);
 signal lut_eol                : std_logic;
 signal lut_eof                : std_logic;
 signal lut_eol_comb           : std_logic; -- pour generation m_axis : eol, eof, tlast
+
+
+-----------------------------------------------------
+-- YUV 422
+-----------------------------------------------------
+signal yuv_sof                : std_logic;
+signal yuv_sol                : std_logic;
+signal yuv_data_val           : std_logic;
+signal yuv_data               : std_logic_vector(63 downto 0);
+signal yuv_eol_m1             : std_logic; -- EOL one clk before
+signal yuv_eol                : std_logic;
+signal yuv_eof                : std_logic;
+
+
 
 signal raw_data               : std_logic_vector(63 downto 0);
 
@@ -770,13 +949,98 @@ Xdpc_filter_color : dpc_filter_color
     dpc_sof                              => dpc_sof,      
 	dpc_sol                              => dpc_sol,      
     dpc_data_val                         => dpc_data_val, 
-    dpc_data                             => dpc_data,     
+    dpc_data                             => dpc_data, 
     dpc_eol                              => dpc_eol,      
+	dpc_eof_m1                           =>	dpc_eof_m1,
 	dpc_eof                              => dpc_eof      
 	
   );
 
 
+
+
+
+
+
+
+--------------------------------------------------------------------
+--
+--
+--  LUT CORRECTION (10 to 10 LUT)  (1 palette)
+--
+--
+--------------------------------------------------------------------
+LUT10_10_RAM_W_enable             <= '1' when  (REG_LUT_SEL(3)='1' and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
+LUT10_10_RAM_W_address            <=  REG_LUT_ADD;
+LUT10_10_RAM_W_data               <=  REG_LUT_DATA_W(9 downto 0); --LUT is 10 bits!
+                                  
+LUT10_10_RAM_R_enable_ored <= '1' when (REG_LUT_BYPASS='0' and dpc_data_val='1') else '0'; 
+		
+----------------------------
+-- Generation of LUTS(x2)
+----------------------------
+Gen_ch_output : for ch in 0 to 1  generate
+begin
+  
+  LUT10_10_RAM_R_address(ch)(9 downto 0)    <= dpc_data( (9+ch*10) downto (ch*10) );
+  
+  XLUT_10_10 : Infered_RAM_lut
+   generic map (
+           C_RAM_WIDTH      => 10,                    -- Specify data width 
+           C_RAM_DEPTH      => 10                     -- Specify RAM depth (bits de l'adresse de la ram)
+           )
+   port map (  
+           RAM_W_clk        =>  axi_clk,
+           RAM_W_WRn        =>  '1',                           -- Write cycle
+           RAM_W_enable     =>  LUT10_10_RAM_W_enable,          -- Write enable
+           RAM_W_address    =>  LUT10_10_RAM_W_address,         -- Write address bus, width determined from RAM_DEPTH
+           RAM_W_data       =>  LUT10_10_RAM_W_data,            -- RAM input data
+           RAM_W_dataR      =>  open,                          -- RAM read data
+
+           RAM_R_clk        =>  axi_clk,
+           RAM_R_enable     =>  LUT10_10_RAM_R_enable_ored,                      -- Read enable
+           RAM_R_address    =>  LUT10_10_RAM_R_address(ch),                      -- Read address bus, width determined from RAM_DEPTH
+           RAM_R_data       =>  LUT10_10_RAM_R_DATA_RAM (9+ch*10  downto ch*10)  -- RAM output data
+        );
+
+end generate;
+
+
+-- for lut bypass
+process(axi_clk)
+begin
+  if rising_edge(axi_clk) then
+    if(REG_LUT_BYPASS='1') then  
+       dpc_data_P1 <= dpc_data;
+     end if;
+  end if;
+end process;  
+
+
+  
+  -------------------------------------------------------------
+  -- LUT OUTPUTS
+  -------------------------------------------------------------
+  process(axi_clk)
+  begin
+    if rising_edge(axi_clk) then
+      if(axi_reset_n='0') then
+        LUT10_10_lut_sof        <= '0';
+        LUT10_10_lut_sol        <= '0';
+        LUT10_10_lut_data_val   <= '0';
+        LUT10_10_lut_eol        <= '0';
+        LUT10_10_lut_eof        <= '0';
+      else
+        LUT10_10_lut_sof        <= dpc_sof;     
+        LUT10_10_lut_sol        <= dpc_sol;     
+        LUT10_10_lut_data_val   <= dpc_data_val;
+        LUT10_10_lut_eol        <= dpc_eol;     
+        LUT10_10_lut_eof        <= dpc_eof;     
+      end if;
+    end if;
+  end process;
+    
+  LUT10_10_lut_data <=  LUT10_10_RAM_R_DATA_RAM when (REG_LUT_BYPASS='0')  else dpc_data_P1(19 downto 0);
 
  
 
@@ -788,12 +1052,12 @@ Xdpc_filter_color : dpc_filter_color
 --
 --
 --------------------------------------------------------------------
-WBIn_sof          <= DPC_sof;     
-WBIn_sol          <= DPC_sol;     
-WBIn_data_val     <= DPC_data_val;
-WBIn_data         <= DPC_data;    
-WBIn_eol          <= DPC_eol;     
-WBIn_eof          <= DPC_eof;     
+WBIn_sof          <= LUT10_10_lut_sof;      --DPC_sof;     
+WBIn_sol          <= LUT10_10_lut_sol;      --DPC_sol;     
+WBIn_data_val     <= LUT10_10_lut_data_val; --DPC_data_val;
+WBIn_data         <= LUT10_10_lut_data;     --DPC_data;    
+WBIn_eol          <= LUT10_10_lut_eol;      --DPC_eol;     
+WBIn_eof          <= LUT10_10_lut_eof;      --DPC_eof;     
 
 
 
@@ -898,6 +1162,7 @@ REG_wb_r_acc <= wb_r_acc;
 
 
 
+
 --------------------------------------------------------------------
 --
 --
@@ -936,7 +1201,7 @@ end process;
 
 
 --C0 and C1 MULTIPLICATORS 
-process (axi_clk)
+WB_DSP_MULT : process (axi_clk)
 begin      
   if (axi_clk'event and axi_clk='1') then
     if(WBIn_data_val_p1='1') then
@@ -1437,6 +1702,106 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
 
 
 
+  ----------------------------------------------
+  -- COLOR CORRECTION MATRIX (CCM)
+  ----------------------------------------------   
+
+  XCCM_0 : ccm 
+  port map(
+    pix_clk              => axi_clk,
+    pix_reset_n          => axi_reset_n, 
+
+    pixel_sof_in         => bayer_sof,     
+    pixel_sol_in         => bayer_sol,     
+    pixel_en_in          => bayer_data_val,
+    pixel_eol_in         => bayer_eol,     
+    pixel_eof_in         => bayer_eof,     
+
+    red_in               => C0_R_PIX_end_mosaic,            -- R0
+    green_in             => C0_G_PIX_end_mosaic,            -- G0
+    blue_in              => C0_B_PIX_end_mosaic,            -- B0
+
+    CCM_EN               => CCM_EN,
+
+	KRr                  => KRr, 
+    KRg                  => KRg,  
+    KRb                  => KRb, 
+    Offr                 => Offr,
+
+    KGr                  => KGr, 
+    KGg                  => KGg,  
+    KGb                  => KGb, 
+    Offg                 => Offg,
+
+    KBr                  => KBr, 
+    KBg                  => KBg,  
+    KBb                  => KBb, 
+    Offb                 => Offb,
+
+    pixel_sof_out        => ccm_sof,     
+    pixel_sol_out        => ccm_sol,     
+    pixel_en_out         => ccm_data_val,
+    pixel_eol_out        => ccm_eol,     
+    pixel_eof_out        => ccm_eof,     
+
+    red_out              => ccm_R0,
+    green_out            => ccm_G0,
+    blue_out             => ccm_B0
+    
+  );
+
+  XCCM_1 : ccm 
+  port map(
+    pix_clk              => axi_clk,
+    pix_reset_n          => axi_reset_n, 
+
+    pixel_sof_in         => bayer_sof,     
+    pixel_sol_in         => bayer_sol,     
+    pixel_en_in          => bayer_data_val,
+    pixel_eol_in         => bayer_eol,     
+    pixel_eof_in         => bayer_eof,     
+
+    red_in               => C1_R_PIX_end_mosaic,            -- R0
+    green_in             => C1_G_PIX_end_mosaic,            -- G0
+    blue_in              => C1_B_PIX_end_mosaic,            -- B0
+
+    CCM_EN               => CCM_EN,
+
+	KRr                  => KRr, 
+    KRg                  => KRg,  
+    KRb                  => KRb, 
+    Offr                 => Offr,
+
+    KGr                  => KGr, 
+    KGg                  => KGg,  
+    KGb                  => KGb, 
+    Offg                 => Offg,
+
+    KBr                  => KBr, 
+    KBg                  => KBg,  
+    KBb                  => KBb, 
+    Offb                 => Offb,
+
+    pixel_sof_out        => open,
+    pixel_sol_out        => open,
+    pixel_en_out         => open,
+    pixel_eol_out        => open,
+    pixel_eof_out        => open,
+
+    red_out              => ccm_R1,
+    green_out            => ccm_G1,
+    blue_out             => ccm_B1
+    
+  );
+
+
+
+
+  ccm_data        <= "--------" & ccm_R1 & ccm_G1 & ccm_B1 &
+				     "--------" & ccm_R0 & ccm_G0 & ccm_B0;
+
+
+
 
   ----------------------------------------------
   -- STEP 
@@ -1451,7 +1816,7 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   --------------------------------------------------------------------
   --
   --
-  --  LUT CORRECTION (8 to 8 LUT)  (1 palette)
+  --  LUT RGB COMPONENT CORRECTION (8 to 8 LUT)  (1 palette)
   --
   --
   --------------------------------------------------------------------
@@ -1459,9 +1824,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   --(0) is blue
   --(1) is green
   --(2) is Red
-  LUT_RAM_W_enable(0)    <= '1' when  ((REG_LUT_SEL(0)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
-  LUT_RAM_W_enable(1)    <= '1' when  ((REG_LUT_SEL(1)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
-  LUT_RAM_W_enable(2)    <= '1' when  ((REG_LUT_SEL(2)='1' or REG_LUT_SEL(3)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';                        
+  LUT_RAM_W_enable(0)    <= '1' when  ((REG_LUT_SEL(0)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
+  LUT_RAM_W_enable(1)    <= '1' when  ((REG_LUT_SEL(1)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';
+  LUT_RAM_W_enable(2)    <= '1' when  ((REG_LUT_SEL(2)='1') and REG_LUT_SS='1' and REG_LUT_WRN='1') else '0';                        
                               
   ----------------------------
   -- Generation of LUTS Path 0
@@ -1484,13 +1849,13 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   
              RAM_R_clk        =>  axi_clk,
              RAM_R_enable     =>  RAM_R_enable_ored,                 -- Read enable
-             RAM_R_address    =>  bayer_data(7+ch*8  downto ch*8),   -- Read address bus, width determined from RAM_DEPTH
-             RAM_R_data       =>  lut_data(7+ch*8  downto ch*8)      -- RAM output data
+             RAM_R_address    =>  ccm_data(7+ch*8  downto ch*8),     -- Read address bus, width determined from RAM_DEPTH
+             RAM_R_data       =>  lut_data_RAM(7+ch*8  downto ch*8)      -- RAM output data
           );  
   end generate;
 
   -- To save power
-  RAM_R_enable_ored <= '1' when (REG_LUT_BYPASS='0' and bayer_data_val='1') else '0'; 
+  RAM_R_enable_ored <= '1' when (REG_LUT_BYPASS_COLOR='0' and ccm_data_val='1') else '0'; 
 
   ----------------------------
   -- Generation of LUTS Path 1
@@ -1513,8 +1878,8 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   
              RAM_R_clk        =>  axi_clk,
              RAM_R_enable     =>  RAM_R_enable_ored,                        -- Read enable
-             RAM_R_address    =>  bayer_data(32+7+ch*8  downto 32+ch*8),    -- Read address bus, width determined from RAM_DEPTH
-             RAM_R_data       =>  lut_data  (32+7+ch*8  downto 32+ch*8)     -- RAM output data
+             RAM_R_address    =>  ccm_data(32+7+ch*8  downto 32+ch*8),      -- Read address bus, width determined from RAM_DEPTH
+             RAM_R_data       =>  lut_data_RAM (32+7+ch*8  downto 32+ch*8)  -- RAM output data
           );  
   end generate;
 
@@ -1522,8 +1887,8 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   process(axi_clk)
   begin
     if rising_edge(axi_clk) then
-      if(REG_LUT_BYPASS='1') then  
-        bayer_data_P1 <= bayer_data;
+      if(REG_LUT_BYPASS_COLOR='1') then  
+        ccm_data_P1 <= ccm_data;
 	  end if;
 
     end if;
@@ -1544,28 +1909,110 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
         lut_eol        <= '0';
         lut_eof        <= '0';
       else
-        lut_sof        <= bayer_sof;     
-        lut_sol        <= bayer_sol;     
-        lut_data_val   <= bayer_data_val;
-        lut_eol        <= bayer_eol;     
-        lut_eof        <= bayer_eof;     
+        lut_sof        <= ccm_sof;     
+        lut_sol        <= ccm_sol;     
+        lut_data_val   <= ccm_data_val;
+        lut_eol        <= ccm_eol;     
+        lut_eof        <= ccm_eof;     
       end if;
     end if;
   end process;
   
-   
+  
+  lut_data(23 downto 0)  <= lut_data_RAM(23 downto 0) when (REG_LUT_BYPASS_COLOR='0') else ccm_data_P1(23 downto 0); 
   lut_data(31 downto 24) <= "00000000";
+  lut_data(55 downto 32) <= lut_data_RAM(55 downto 32) when (REG_LUT_BYPASS_COLOR='0') else ccm_data_P1(55 downto 32);
   lut_data(63 downto 56) <= "00000000";
   
   
+
+
+  --------------------------------------------------------------------
+  --
+  --
+  --  YUV 4:2:2
+  --  
+  --  Pour le moment packed YUV16 4:2:2 is
+  --  
+  --  Data64 : 00-00-V0-Y1-00-00-U0-Y0
+  --            |                    |
+  --           MSB                  LSB
+  --
+  --------------------------------------------------------------------
+
+  X0_rgb_2_yuv : rgb_2_yuv 
+  port map(
+    pix_clk              => axi_clk,
+    pix_reset_n          => axi_reset_n, 
+
+	pixel_sof_in         => lut_sof,     
+    pixel_sol_in         => lut_sol,     
+    pixel_en_in          => lut_data_val,
+    pixel_eol_in         => lut_eol,     
+    pixel_eof_in         => lut_eof,     
+	
+    red_in               => lut_data(23 downto 16),  -- R0
+    green_in             => lut_data(15 downto 8),   -- G0
+    blue_in              => lut_data(7 downto 0),    -- B0
+
+	pixel_sof_out        => yuv_sof,     
+    pixel_sol_out        => yuv_sol,     
+    pixel_en_out         => yuv_data_val,
+    pixel_eol_m1_out     => yuv_eol_m1,   -- EOL one clk before
+    pixel_eol_out        => yuv_eol,     
+    pixel_eof_out        => yuv_eof,     
+	
+    Y                    => yuv_data(7 downto 0),    -- Y0
+    U                    => yuv_data(15 downto 8),   -- U0
+    V                    => yuv_data(47 downto 40),  -- V0
+    --Y                    => yuv_data(7 downto 0),    -- Y0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
+    --U                    => yuv_data(15 downto 8),   -- U0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
+    --V                    => yuv_data(31 downto 24),  -- V0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
+
+    UV_subsampled        => open
+  );
+
+  X1_rgb_2_yuv : rgb_2_yuv 
+  port map(
+    pix_clk              => axi_clk,
+    pix_reset_n          => axi_reset_n, 
+
+	pixel_sof_in         => '0',     
+    pixel_sol_in         => '0',     
+    pixel_en_in          => lut_data_val,
+    pixel_eol_in         => '0',     
+    pixel_eof_in         => '0',     
+
+    red_in               => lut_data(55 downto 48),  -- R1 
+    green_in             => lut_data(47 downto 40),  -- G1
+    blue_in              => lut_data(39 downto 32),  -- B1
+
+	pixel_sof_out        => open,
+    pixel_sol_out        => open,
+    pixel_en_out         => open,
+    pixel_eol_m1_out     => open,   -- EOL one clk before	
+    pixel_eol_out        => open,
+    pixel_eof_out        => open,
+
+    Y                    => yuv_data(39 downto 32),  -- Y1
+    --Y                    => yuv_data(23 downto 16),  -- Y1  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
+    U                    => open,                  
+    V                    => open,                  
+    UV_subsampled        => open
+  );
+
+  yuv_data(31 downto 16) <= (others =>'0');
+  yuv_data(63 downto 48) <= (others =>'0');
+  --yuv_data(63 downto 32) <= (others =>'0');  --temp mapping
+
+
 
  
   ----------------------------------------------
   -- for RAW
   ----------------------------------------------   
-  raw_data       <= "00000000" & "0000000000000000" & wb_data(19 downto 12) & 
-                    "00000000" & "0000000000000000" & wb_data(9 downto 2);		  
-
+  raw_data       <= "00000000" & "0000000000000000" & LUT10_10_lut_data(19 downto 12) & 
+                    "00000000" & "0000000000000000" & LUT10_10_lut_data(9 downto 2);		  
  
   
   ----------------------------------------------
@@ -1580,22 +2027,22 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
       if(axi_sof='1') then  
         m_axis_first_line <= '1';
 	  elsif(BAYER_EN='1') then       -- COLOR
-	    if(lut_eol='1') then 	
+	    if(YUV_EN='0' and lut_eol='1')  or (YUV_EN='1' and yuv_eol='1') then 	
           m_axis_first_line <= '0';
 		end if;
-	  else                                  -- RAW MONO
-	    if(wb_eol='1') then 	
+	  else                           -- RAW MONO
+	    if(LUT10_10_lut_eol='1') then 	
           m_axis_first_line <= '0';
 		end if;		
 	  end if;
       
-	  if(BAYER_EN='1') then       -- COLOR
+	  if(BAYER_EN='1') then          -- COLOR
 	    if(BayerIn_eof='1') then  
           m_axis_last_line <= '1';
-	    elsif(lut_eof='1') then 	
+	    elsif(YUV_EN='0' and lut_eof='1') or (YUV_EN='1' and yuv_eof='1') then 	
           m_axis_last_line <= '0';		  
 	    end if;
-	  else                               -- RAW MONO (no need)
+	  else                           -- RAW MONO (no need)
         m_axis_last_line <= '0';		  
       end if;	  
     end if;
@@ -1608,9 +2055,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(0) <= '0' after 1 ns;
-      elsif(BAYER_EN='1' and lut_sof = '1') then      -- COLOR:  arrive une fois, au debut du frame avant le data
+      elsif(BAYER_EN='1' and YUV_EN='0' and lut_sof = '1') or (BAYER_EN='1' and YUV_EN='1' and yuv_sof = '1')then      -- COLOR:  arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;
-      elsif(BAYER_EN='0' and wb_sof = '1') then         -- RAW: arrive une fois, au debut du frame avant le data
+      elsif(BAYER_EN='0' and LUT10_10_lut_sof = '1') then       -- RAW: arrive une fois, au debut du frame avant le data
         m_axis_tuser_int(0) <= '1' after 1 ns;	
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(0) <= '0' after 1 ns;
@@ -1624,9 +2071,9 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
         m_axis_tuser_int(2) <= '0' after 1 ns;
-      elsif(BAYER_EN='1' and lut_sol = '1' and m_axis_first_line='0')  then      -- COLOR SOL
+      elsif(BAYER_EN='1' and YUV_EN='0' and lut_sol = '1' and m_axis_first_line='0')  or (BAYER_EN='1' and YUV_EN='1' and yuv_sol = '1' and m_axis_first_line='0') then   -- COLOR SOL
         m_axis_tuser_int(2) <= '1' after 1 ns;  
-      elsif(BAYER_EN='0' and wb_sol = '1' and m_axis_first_line='0')  then         -- RAW SOL
+      elsif(BAYER_EN='0' and LUT10_10_lut_sol = '1' and m_axis_first_line='0')  then         -- RAW SOL
         m_axis_tuser_int(2) <= '1' after 1 ns;      		
 	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(2) <= '0' after 1 ns;
@@ -1639,10 +2086,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   begin
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
-        m_axis_tuser_int(3) <= '0' after 1 ns;
-      elsif(BAYER_EN='1' and bayer_eol = '1'  and m_axis_last_line='0') then    -- COLOR : dont put eol in last line of frame, only eof, un pipe avant lut_eol
+        m_axis_tuser_int(3) <= '0' after 1 ns;                                                                            
+      elsif(BAYER_EN='1' and YUV_EN='0' and ccm_eol = '1' and m_axis_last_line='0') or (BAYER_EN='1' and YUV_EN='1' and yuv_eol_m1 = '1' and m_axis_last_line='0')then    -- COLOR : dont put eol in last line of frame, only eof, un pipe avant lut_eol
         m_axis_tuser_int(3) <= '1' after 1 ns;
-      elsif(BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='0') then   --RAW   
+      elsif(BAYER_EN='0' and  dpc_eol='1' and dpc_eof_m1='0') then   --RAW   
         m_axis_tuser_int(3) <= '1' after 1 ns;		
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then  -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(3) <= '0' after 1 ns;
@@ -1657,10 +2104,10 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   begin
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
-        m_axis_tuser_int(1) <= '0' after 1 ns;
-      elsif(BAYER_EN='1' and bayer_eol = '1' and m_axis_last_line='1') then   -- COLOR   
+        m_axis_tuser_int(1) <= '0' after 1 ns;                                                                             
+      elsif(BAYER_EN='1' and YUV_EN='0' and ccm_eol = '1' and m_axis_last_line='1') or (BAYER_EN='1' and YUV_EN='1' and yuv_eol_m1 = '1' and m_axis_last_line='1') then   -- COLOR   un pipeline avant eol_lut
         m_axis_tuser_int(1) <= '1' after 1 ns;
-      elsif(BAYER_EN='0' and  WBIn_eol_p2='1' and WBIn_eof_p1='1') then   --RAW   
+      elsif(BAYER_EN='0' and dpc_eol='1' and dpc_eof_m1='1') then   --RAW   
         m_axis_tuser_int(1) <= '1' after 1 ns;		
       elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
         m_axis_tuser_int(1) <= '0' after 1 ns;
@@ -1678,16 +2125,16 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
       if axi_reset_n = '0' then
         m_axis_tvalid_int <= '0' after 1 ns;
 	  elsif(BAYER_EN='1') then       --COLOR 
-   	    if(lut_data_val='1') then
+   	    if(YUV_EN='0' and lut_data_val='1') or (YUV_EN='1' and yuv_data_val='1') then
           m_axis_tvalid_int <= '1';
 		elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
-	      m_axis_tvalid_int <= bayer_data_val;    -- un pipeline avant lut_data_val
+	      m_axis_tvalid_int <= ccm_data_val;    -- un pipeline avant lut_data_val
 		end if;  	  
       else                           --RAW
-  	    if(wb_data_val='1') then            
+  	    if(LUT10_10_lut_data_val='1') then            
           m_axis_tvalid_int <= '1';		
         elsif(m_axis_tvalid_int='1' and m_axis_tready='1') then
-	      m_axis_tvalid_int <= WBIn_data_val_p2;  -- un pipeline avant WB_data_val                                 
+	      m_axis_tvalid_int <= dpc_data_val;  -- un pipeline avant LUT1010_data_val                                 
 		end if;  
       end if;
 	  	  
@@ -1719,7 +2166,11 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
           m_axis_tdata_int <= m_axis_tdata_int;
         else  
           if(BAYER_EN='1') then
-		    m_axis_tdata_int <= lut_data; -- COLOR : Put new data on the bus
+		    if(YUV_EN='0') then 
+		      m_axis_tdata_int <= lut_data; -- COLOR RGB24: Put new data on the bus
+		    else
+		      m_axis_tdata_int <= yuv_data; -- COLOR YUV: Put new data on the bus			
+            end if;  			
 		  else
 		    m_axis_tdata_int <= raw_data; -- RAW : Put new data on the bus		  
           end if; 		  
@@ -1738,17 +2189,16 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   begin
     if rising_edge(axi_clk) then
       if axi_reset_n = '0' then
-		m_axis_tlast    <= '0' after 1 ns;		
-      elsif(BAYER_EN='1' and bayer_eol = '1') then   -- COLOR
+		m_axis_tlast    <= '0' after 1 ns;		                                                 
+      elsif(BAYER_EN='1' and YUV_EN='0' and ccm_eol = '1') or (BAYER_EN='1' and YUV_EN='1' and yuv_eol_m1 = '1') then   -- COLOR un pipeline avant eol_lut
 		m_axis_tlast    <= '1' after 1 ns;
-      elsif(BAYER_EN='0' and WBIn_eol_p2='1') then   -- un pipeline avant WB_EOL
+      elsif(BAYER_EN='0' and dpc_eol='1') then   -- un pipeline avant LUT1010_EOL
 		m_axis_tlast    <= '1' after 1 ns;		
   	  elsif m_axis_tvalid_int='1' and m_axis_tready='1' then -- le data vient d'etre transfere, donc le pixel suivant on descend le SOF
 		m_axis_tlast    <= '0' after 1 ns;		
       end if;
     end if;
   end process;    
-
 
 
 

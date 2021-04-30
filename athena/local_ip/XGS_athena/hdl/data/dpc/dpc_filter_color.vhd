@@ -15,7 +15,7 @@
 --
 -- Nombre de pixels maximum a corriger :
 --
--- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 6+1+4:  11 RAM36K   <--- *default au 28 septembre
+-- DPC_CORR_PIXELS_DEPTH=9  =>  511 pixels, 1+ 2x(0.5):  2 RAM36K   <--- *default au 28 septembre
 --
 --
 -- Compte tenu des ressources disponibles dans le fpga une implementation 5x1 est implemente
@@ -104,6 +104,7 @@ entity dpc_filter_color is
     dpc_data_val                         : out   std_logic;
     dpc_data                             : out   std_logic_vector(19 downto 0);
     dpc_eol                              : out   std_logic;	
+	dpc_eof_m1                           : out   std_logic; 
 	dpc_eof                              : out   std_logic
 	
 	
@@ -640,6 +641,7 @@ dpc_data_val      <= kernel_data_val_P2;
 dpc_data          <= dpc_kernel_proc_data_out;
 dpc_data16        <= dpc_kernel_proc_data_out(19 downto 12) & dpc_kernel_proc_data_out(9 downto 2);         
 dpc_eol           <= kernel_eol_P2;      
+dpc_eof_m1        <= kernel_eof_P1;  
 dpc_eof           <= kernel_eof_P2;      
 
 

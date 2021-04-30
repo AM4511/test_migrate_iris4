@@ -72,6 +72,10 @@ set_property PACKAGE_PIN N18 [get_ports debug_uart_txd]
 ####################################################
 set_property PACKAGE_PIN B18 [get_ports {acq_led[0]}]
 set_property PACKAGE_PIN A18 [get_ports {acq_led[1]}]
+set_property PULLDOWN true [get_ports {acq_led[0]}]
+set_property PULLDOWN true [get_ports {acq_led[1]}]
+
+
 set_property PACKAGE_PIN C15 [get_ports acq_exposure]
 set_property PACKAGE_PIN B15 [get_ports acq_strobe]
 set_property PACKAGE_PIN A17 [get_ports acq_trigger_ready]

@@ -124,6 +124,7 @@ class CVlib;
 	int DPC_list_count = 0;
 
     int bayer = 0;
+    int yuv = 0;
 
 
     /////////////////////////////
@@ -795,6 +796,9 @@ class CVlib;
 		else
 		  XGS_image.mono8_2_mono32();
 
+        if(yuv==1)
+		  XGS_image.Bayer2YUV(); 
+
         //XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X
 		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
         //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X
@@ -908,13 +912,19 @@ class CVlib;
 		host.write(CSC_OFFSET, reg_value);
 		
 		// For prediction
-		if(COLOR_SPACE==1) //RGB32
+		if(COLOR_SPACE==1) begin      // RGB32   
 		  this.bayer = 1;
-		else               
-		  this.bayer = 0;  //RAW
-
+		  this.yuv   = 0;
+        end
+		else if(COLOR_SPACE==2) begin // YUV   
+		  this.bayer = 1;
+		  this.yuv   = 1;
+		end
+		else begin                    // RAW    
+		  this.bayer = 0; 
+		  this.yuv   = 0;  
+        end 
     endtask : setCSC
-
 
 
 
