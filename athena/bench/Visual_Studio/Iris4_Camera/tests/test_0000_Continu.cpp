@@ -230,7 +230,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	DMAParams->ROI_X_EN = 1;
 	DMAParams->X_START = SensorParams->Xstart_valid;      // To remove interpolation pixels
-	DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;
+	DMAParams->X_SIZE  = SensorParams->Xsize_Full_valid;
 
 	DMAParams->SUB_X = 0;
 	DMAParams->REVERSE_X = 0;
@@ -639,7 +639,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'x':
 				XGS_Ctrl->WaitEndExpReadout();
 				Sleep(100);
-				printf_s("\n\nEnter the new Offset X (1-based) (Current is: %d) : ", DMAParams->X_START - SensorParams->Ystart_valid);
+				printf_s("\n\nEnter the new Offset X (1-based) (Current is: %d) : ", DMAParams->X_START - SensorParams->Xstart_valid);
 				scanf_s("%d", &XGSStart_X);
 				printf_s("\nEnter the new Size X (1-based) (Current is: %d), max is %d : ", DMAParams->X_SIZE, SensorParams->Xsize_Full_valid);
 				scanf_s("%d", &XGSSize_X);
