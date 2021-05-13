@@ -876,15 +876,15 @@
       </fields>
     </registers>
     <registers name="LUT_CTRL" offsetFromParent="4">
-      <fields name="LUT_BYPASS_COLOR" alias="LUT BYPASS COLOR" description="When set this register to '1', the RGB LUT logic will not be used, and the 8 bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga." lsb="29" valueAtReset="1"/>
-      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT will not be used&#xD;&#xA;&#xD;&#xA;If a 10 to 8 LUT is used, the 8MSB bits of the input data will send to the DMA. &#xD;&#xA;&#xD;&#xA;Bypassing the LUT, decrease power comsumption of the fpga." lsb="28" valueAtReset="1"/>
-      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT.&#xD;&#xA;&#xD;&#xA;When using 10 to 8 bits LUT, program bits LUT_DATA_W(7 :0)&#xD;&#xA;&#xD;&#xA;When using 10 to 10 bits LUT, program bits LUT_DATA_W(9 :0)" lsb="16" size="10"/>
+      <fields name="LUT_BYPASS_COLOR" alias="LUT BYPASS COLOR" description="When set this register to '1', the RGB LUT logic will not be used, and the 8 bits of the input data will send to the DMA. Bypassing the LUT, decrease power comsunption of the fpga.&#xD;&#xA;&#xD;&#xA;This register applies to :&#xD;&#xA;1) Color sensors 10 to 8 per component LUT (between CCM and DMA/YUV conversion)" lsb="29" valueAtReset="1"/>
+      <fields name="LUT_BYPASS" alias="LUT BYPASS" description="When set this register to '1', the LUT will not be used&#xD;&#xA;&#xD;&#xA;This register applies to :&#xD;&#xA;1) Mono sensors 10 to 8 LUT&#xD;&#xA;2) Color sensors 10 to 10 LUT (between DPC and WB)&#xD;&#xA;&#xD;&#xA;If a 10 to 8 LUT is used, the 8MSB bits of the input data will send to the DMA. &#xD;&#xA;&#xD;&#xA;Bypassing the LUT, decrease power comsumption of the fpga." lsb="28" valueAtReset="1"/>
+      <fields name="LUT_DATA_W" alias="LUT DATA to Write" description="Data to write in the LUT.&#xD;&#xA;&#xD;&#xA;When using 10 to 8 bits LUT (Mono camera), program bits LUT_DATA_W(7 :0)&#xD;&#xA;When using 8 to 8 bits LUT (Color camera, RGB LUT), program bits LUT_DATA_W(7 :0)&#xD;&#xA;When using 10 to 10 bits LUT(Color camera RAW LUT), program bits LUT_DATA_W(9 :0)" lsb="16" size="10"/>
       <fields name="LUT_SEL" alias="LUT SELection" description="LUT programmation selector. &#xD;&#xA;&#xD;&#xA;" lsb="12" size="4">
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Blue LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=2&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Green LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=4&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write Red LUT(Color only)&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=7&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write all component RGB LUT (Color only)&lt;/matrox_column_delimiter></possibleValues>
-        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write LUT 10 to 8 with same data (Mono or Color)&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=8&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Write LUT 10 to 8(Mono) or LUT 10 to 10(color) with same data &lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>

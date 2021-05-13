@@ -529,15 +529,25 @@ void CXGS_Ctrl::InitXGS()
 		if ((DataRead & 0x3) == 1) {
 			printf_s("  XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+
 		}
 		else if ((DataRead & 0x3) == 2) {
 			printf_s("  XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
 			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+
 		}
+
+		//Force COLOR on mono sensor
+		//SensorParams.IS_COLOR = 1;
+		//GrabParams.XGS_LINE_SIZE_FACTOR = 4;
+
 
 
 		if (((DataRead & 0x1c) >> 2) == 0) {
@@ -613,14 +623,17 @@ void CXGS_Ctrl::InitXGS()
 		if ((DataRead & 0x3) == 1) {
 			printf_s("  XGS is COLOR\n");
 			SensorParams.IS_COLOR = 1;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 4;
 		}
 		else if ((DataRead & 0x3) == 2) {
 			printf_s("  XGS is MONO\n");
 			SensorParams.IS_COLOR = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
 			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
+			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 
 		XGS16M_SetGrabParamsInit16000(6, SensorParams.IS_COLOR);
