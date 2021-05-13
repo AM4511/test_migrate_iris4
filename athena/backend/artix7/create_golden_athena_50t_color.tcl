@@ -27,10 +27,12 @@ if {[file exists $myself ]} {
    
    # FPGA_DEVICE_ID (DEVICE ID MAP) :
    # Generic passed to VHDL top level file by generic
-   #  0      : xc7a50ticpg236-1L
-   #  1      : xc7a35ticpg236-1L
+   #  0      : xc7a50ticpg236-1L (MONO)
+   #  1      : xc7a35ticpg236-1L (MONO)
+   #  2      : xc7a50ticpg236-1L (COLOR)
+   #  3      : xc7a35ticpg236-1L (COLOR)
    #  Others : reserved
-   set FPGA_DEVICE_ID 0
+   set FPGA_DEVICE_ID 2
    
    # Generic passed to VHDL top level file by generic
    # 0      : MIL upgrade firmware
