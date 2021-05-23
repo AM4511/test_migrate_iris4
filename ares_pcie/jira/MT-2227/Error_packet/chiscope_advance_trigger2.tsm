@@ -1,0 +1,57 @@
+########################################################################
+#
+########################################################################
+#
+#state S_INIT_COUNTER:
+#  ###################################################
+#  # Detect start of packet
+#  ###################################################
+#  if ((ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tvalid == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tready == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tdata == 32'h718211D1))  then
+#    reset_counter $counter0;
+#    goto S_DATA_COUNTER;
+#  ###################################################
+#  # Else wait for next packet
+#  ###################################################
+#  else
+#    goto S_INIT_COUNTER;
+#  endif
+  
+state S_DATA_COUNTER:
+  ###################################################
+  # Detect end of packet
+  ###################################################
+  if ((ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tvalid == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tready == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tdata == 32'h09800000))  then
+      increment_counter $counter0;
+      goto S_DATA_COUNTER;
+  elseif ($counter0 == 16'h000c) then
+      trigger;
+  else
+      goto S_DATA_COUNTER;
+#  if ($counter0 == 16'h0002) then
+#    trigger;
+#  ###################################################
+#  # Detect first occurence of 00000000
+#  ###################################################
+#  elseif ((ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tvalid == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tready == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tdata == 32'h09800000))  then
+#    increment_counter $counter0;
+#    trigger;
+#    #goto S_COUNT_OF_PACKET;
+#  else 
+#    goto S_COUNT_OF_PACKET;
+  endif 
+   
+#state S_COUNT_OF_PACKET:
+#  ###################################################
+#  # Detect start of packet
+#  ###################################################
+#  if ((ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tvalid == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tready == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tdata == 32'h718211D1))  then
+#    goto S_DATA_COUNTER;
+#  ###################################################
+#  # Else wait for next packet
+#  ###################################################
+#  else
+#    goto S_COUNT_OF_PACKET;
+#  endif
+ 	    		
+
+  

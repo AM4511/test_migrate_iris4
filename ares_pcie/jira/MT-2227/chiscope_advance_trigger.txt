@@ -1,0 +1,35 @@
+########################################################################
+#
+########################################################################
+#
+state S_WAIT_FOR_MAX_COUNT:
+  ###################################################
+  # Max packet count reached
+  ###################################################
+  if ((tlast == 1'bR) && ($counter0 == 16'h0003)) then
+    reset_counter $counter0;
+    goto S_WAIT_PKT_TYPE;
+    #trigger;
+	
+  ###################################################
+  # End of packet detected; we increment count
+  ###################################################
+  elseif (tlast == 1'bR) then
+    increment_counter $counter0;
+    goto S_WAIT_FOR_MAX_COUNT;
+	
+  ###################################################
+  # Else wait for next packet
+  ###################################################
+  else
+    goto S_WAIT_FOR_MAX_COUNT;
+  endif
+	    		
+
+state S_WAIT_PKT_TYPE:
+  if ((ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tvalid == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tready == 1'b1) && (ares_pb_i/ares_pb_i/system_ila_0/U0/net_slot_1_axis_tdata == 32'hxxxx8009))  then
+    trigger;
+  else
+    goto S_WAIT_PKT_TYPE;
+  endif
+  

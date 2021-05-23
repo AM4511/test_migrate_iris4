@@ -1,0 +1,293 @@
+=================================================================================
+Test en boucle essai #1
+
+
+Test loop : 68
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #2
+
+
+Test loop : 6
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0xAAAA; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #3
+
+
+Test loop : 12
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #4
+
+
+Test loop : 12
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #5
+
+
+Test loop : 15
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #6
+
+
+Test loop : 62
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #7
+
+
+Test loop : 3
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #8
+
+
+Test loop : 34
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #9
+
+
+Test loop : 3
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #10
+
+
+Test loop : 29
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+
+
+
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+Reboot du cpu board (power-down/power up)
+
+
+
+
+=================================================================================
+Test en boucle essai #1
+
+
+Test loop : 28
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+Read 32 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0xA5A5A5A5; exp : 0x1;
+          32-bit test: FAILED
+=================================================================================
+Test en boucle essai #2
+
+
+Test loop : 29
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x5555; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #3
+
+
+Test loop : 6
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x510; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #4
+
+
+Test loop : 0
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x9; exp : 0x1;
+          16-bit test: FAILED
+=================================================================================
+Test en boucle essai #5
+
+
+Test loop : 0
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+Read 32 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0xBC02BC01; exp : 0x1;
+          32-bit test: FAILED
+=================================================================================
+Test en boucle essai #6
+
+
+Test loop : 19
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x2009; exp : 0x1;
+          16-bit test: FAILED
+		  
+		  
+		  
+		  
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+In the following loop below, added the test of the hyperram status register to 
+see if somme errors are reported.
+
+Test en boucle essai #7
+
+
+Test loop : 3
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+Read 32 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x80001; exp : 0x1;
+          32-bit test: FAILED
+CSR: 0x00000000
+=================================================================================
+Test en boucle essai #8
+
+Test loop : 9
+             Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+          32-bit test: PASSED
+Read 16 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0xA2A8; exp : 0x1;
+          16-bit test: FAILED
+CSR: 0x00000000
+
+
+
+
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+=================================================================================
+In the following loop below, when a an error occures, read again the failing 
+address for determining if aa read error or a write error.
+Test loop : 58
+              Testing memory region: rpc2_ctrl_controller_0_Mem
+    Memory Controller: rpc2_ctrl_controller_0
+         Base Address: 0x80000000
+                 Size: 0x04000000 bytes 
+          Tested Size: 0x00100000 bytes 
+Read 32 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x22AAA2A8; exp : 0x1;
+Read_0 : data : 0x22AAA2A8
+Read_1 : data : 0x22AAA2A8
+Read_2 : data : 0x22AAA2A8
+Read_3 : data : 0x22AAA2A8
+Read_4 : data : 0x22AAA2A8
+Read 32 XIL_TESTMEM_INCREMENT => addr : 0x80000000; read : 0x22AAA2A8; exp : 0x1;
+          32-bit test: FAILED
+CSR: 0x00000000
+
