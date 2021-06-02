@@ -6,3 +6,4 @@ RemoteSystemsTempFiles
 .sdk
 webtalk
 *.log
+/Debug/
