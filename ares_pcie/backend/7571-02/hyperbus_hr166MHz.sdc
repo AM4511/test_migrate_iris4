@@ -16,12 +16,12 @@
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0.100
 
 #150.0 MHz version
-#create_clock -period 6.667 -name VIRT_CLK
-#create_clock -period 6.667 -name RDS_CLK [get_ports hb_rwds]
+create_clock -period 6.667 -name VIRT_CLK
+create_clock -period 6.667 -name RDS_CLK [get_ports hb_rwds]
 
 #166.666 MHz version
-create_clock -period 6.000 -name VIRT_CLK
-create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
+#create_clock -period 6.000 -name VIRT_CLK
+#create_clock -period 6.000 -name RDS_CLK [get_ports hb_rwds]
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0.100
 
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks *RDS*] 0.300 j'enleve au départ, pour ne pas me nuire, car je me demande si le 0.3 améliore ou détériore le timing
