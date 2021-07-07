@@ -66,10 +66,13 @@ puts "Running ${myself}"
 #                MIL Upgrade : 0x400000
 #         Added new field in register FPGA_ID (@0x0020): 
 #                regfile.Device_specific.FPGA_ID.NPI_GOLDEN (Read only)
+#
+# 0.2.1 : Enable hardware exception interrupt in the microblaze core
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     2
-set FPGA_SUB_MINOR_VERSION 0
+set FPGA_SUB_MINOR_VERSION 1
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
