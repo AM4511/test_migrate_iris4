@@ -69,7 +69,7 @@ puts "Running ${myself}"
 #
 # 0.2.1 : Enable hardware exception interrupt in the microblaze core
 #
-# 0.2.2 : Increase memory cache size to 32 KB in the microblaze core
+# 0.2.2 : Increased memory cache size to 32 KB in the microblaze core
 #             See JIRA :  https://jira.matrox.com:8443/browse/IRIS4-467 
 #
 # ################################################################
