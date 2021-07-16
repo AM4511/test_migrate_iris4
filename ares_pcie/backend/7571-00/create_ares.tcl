@@ -69,10 +69,13 @@ puts "Running ${myself}"
 #
 # 0.2.1 : Enable hardware exception interrupt in the microblaze core
 #
+# 0.2.2 : Increased memory cache size to 32 KB in the microblaze core
+#             See JIRA :  https://jira.matrox.com:8443/browse/IRIS4-467 
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     2
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 2
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
