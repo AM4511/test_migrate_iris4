@@ -518,12 +518,12 @@ proc create_root_design { parentCell } {
   # Create instance: microblaze_0, and set properties
   set microblaze_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze:11.0 microblaze_0 ]
   set_property -dict [ list \
-   CONFIG.C_ADDR_TAG_BITS {13} \
+   CONFIG.C_ADDR_TAG_BITS {11} \
    CONFIG.C_AREA_OPTIMIZED {0} \
    CONFIG.C_BRANCH_TARGET_CACHE_SIZE {0} \
-   CONFIG.C_CACHE_BYTE_SIZE {8192} \
-   CONFIG.C_DCACHE_ADDR_TAG {13} \
-   CONFIG.C_DCACHE_BYTE_SIZE {8192} \
+   CONFIG.C_CACHE_BYTE_SIZE {32768} \
+   CONFIG.C_DCACHE_ADDR_TAG {11} \
+   CONFIG.C_DCACHE_BYTE_SIZE {32768} \
    CONFIG.C_DCACHE_LINE_LEN {16} \
    CONFIG.C_DCACHE_USE_WRITEBACK {1} \
    CONFIG.C_DCACHE_VICTIMS {0} \
