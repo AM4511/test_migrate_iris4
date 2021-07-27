@@ -47,7 +47,7 @@ set SUB_MINOR [regsub -nocase "FPGA_SUB_MINOR_VERSION=" $generic "" ]
 set FPGA_VERSION "${MAJOR}.${MINOR}.${SUB_MINOR}"
 
 
-set FPGA_DESCRIPTION "IrisGTX Athena FPGA"
+set FPGA_DESCRIPTION "IrisGTX Ares FPGA"
 set YEAR [clock format ${buildid} -format {%Y}]
 set BUILD_DATE [clock format ${buildid} -format "%Y-%m-%d  %H:%M:%S"]
 set VIVADO_SHORT_VERSION [version -short]
