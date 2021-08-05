@@ -1,14 +1,13 @@
-#166.666 MHz version
-#set CLK_PERIOD 6.000
-set CLK_PERIOD 6.000
+#142.857 MHz version
+set CLK_PERIOD 6.667
 create_clock -period ${CLK_PERIOD} -name VIRT_CLK
 create_clock -period ${CLK_PERIOD} -name RDS_CLK [get_ports hb_rwds]
 #set_clock_uncertainty -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0.100
 
 # Propagate RDS_CLK through a BUFR ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/x_buffr_rds_clk
-#create_generated_clock -name RDS_CLK -source [get_ports hb_rwds] -multiply_by 1 [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/x_buffr_rds_clk/O]
+create_generated_clock -name RDS_CLK_BUFR -source [get_ports hb_rwds] -multiply_by 1 [get_pins ares_pb_i/ares_pb_i/rpc2_ctrl_controller_0/inst/rpc2_ctrl_io/x_buffr_rds_clk/O]
 
-#set_bus_skew -from [get_clocks VIRT_CLK] -to  [get_clocks RDS_CLK] 2.200
+set_bus_skew -from [get_clocks VIRT_CLK] -to  [get_clocks RDS_CLK_BUFR] 2.000
 
 
 # #########################################################################################################
@@ -42,21 +41,21 @@ set_input_delay -clock VIRT_CLK -clock_fall -min -add_delay -0.450 [get_ports {h
 # Methode propre pour décrire l'analyse de setup time:
 # on retarde rwds pour sampler, il faut donc clocker le data de 0 ns avec la clock de 0 ns (same edge),
 # puis enlever les paths impossibles (opposite edges)
-set_multicycle_path -setup -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] 0
-set_false_path -setup -rise_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
-set_false_path -setup -fall_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
+set_multicycle_path -setup -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK_BUFR] 0
+set_false_path -setup -rise_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK_BUFR]
+set_false_path -setup -fall_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK_BUFR]
 
 # Methode propre pour décrire l'analyse de hold time:
 # Par défaute hold est toujours évalué sur le edge précédent le setup
 # c'est pourquoi le multicyclepath est de -1 car le setup est à 0.Donc les edges valides sont de Rise à fall ainsi que
 # de fall à rising. On enlèeve les false path rise à rise et fall à fall.
-set_multicycle_path -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK] -1
-set_false_path -hold -rise_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK]
-set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK]
+set_multicycle_path -hold -from [get_clocks VIRT_CLK] -to [get_clocks RDS_CLK_BUFR] -1
+set_false_path -hold -rise_from [get_clocks VIRT_CLK] -rise_to [get_clocks RDS_CLK_BUFR]
+set_false_path -hold -fall_from [get_clocks VIRT_CLK] -fall_to [get_clocks RDS_CLK_BUFR]
 
 # Report Timing Template
-# report_timing -rise_from [get_ports {hb_dq[*]}] -max_paths 64 -nworst 20 -delay_type min_max -name sys_sync_ddr_in_rise -file sys_sync_ddr_in_rise.txt;		
-# report_timing -fall_from [get_ports {hb_dq[*]}] -max_paths 64 -nworst 20 -delay_type min_max -name sys_sync_ddr_in_fall -file sys_sync_ddr_in_fall.txt;
+#report_timing -rise_from [get_ports {hb_dq[*]}] -max_paths 64 -nworst 20 -delay_type min_max -name sys_sync_ddr_in_rise -file sys_sync_ddr_in_rise.txt;		
+#report_timing -fall_from [get_ports {hb_dq[*]}] -max_paths 64 -nworst 20 -delay_type min_max -name sys_sync_ddr_in_fall -file sys_sync_ddr_in_fall.txt;
 
 
 # #########################################################################################################
@@ -103,8 +102,8 @@ set_output_delay -clock RPC_CK -min -0.600 [get_ports {{hb_dq[*]} hb_rwds}]
 set_output_delay -clock RPC_CK -clock_fall -max -add_delay 0.600 [get_ports {{hb_dq[*]} hb_rwds}]
 set_output_delay -clock RPC_CK -clock_fall -min -add_delay -0.600 [get_ports {{hb_dq[*]} hb_rwds}]
 
-# RDS_CLK est la strobe utilise en input. Elle ne doit pas etre utilise pour clocker sa propre pin
-set_false_path -from [get_clocks RDS_CLK] -to [get_ports hb_rwds]
+# RDS_CLK_BUFR est la strobe utilise en input. Elle ne doit pas etre utilise pour clocker sa propre pin
+set_false_path -from [get_clocks RDS_CLK_BUFR] -to [get_ports hb_rwds]
 
 
 # Exceptions
