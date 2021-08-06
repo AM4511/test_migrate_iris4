@@ -1,6 +1,7 @@
 # ##################################################################################
-# File         : create_ares_50t_rev0.tcl
-# Description  : TCL script used to create the MIOX fpga project. 
+# File         : create_upgrade_ares_50t_rev2_142MHz.tcl
+# Description  : TCL script used to create the MIOX fpga project 
+#                (Hyperam I/F @142.857MHz). 
 #
 # Example      : source $env(IRIS4)/ares_pcie/backend/7571-02/create_upgrade_ares_50t_rev2_142MHz.tcl
 # 
