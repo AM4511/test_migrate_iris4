@@ -1,7 +1,7 @@
 # Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
-# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_x_chopper.tcl
+# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_x_trim.tcl
 #
 set validation_dir         validation2        
 

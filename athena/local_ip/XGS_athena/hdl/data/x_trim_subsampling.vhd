@@ -91,7 +91,7 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_state
-  -- Description : 
+  -- Description : Subsampling controller main state machine
   -----------------------------------------------------------------------------
   P_state : process (aclk) is
   begin
@@ -162,7 +162,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_subs_lut
+  -- Description : Subsampling lookup table
   -----------------------------------------------------------------------------
   P_subs_lut : process (aclk) is
   begin
@@ -171,23 +172,24 @@ begin
         subs_lut <= "1111111111111111";
       else
         if (state = S_INIT) then
+          -- Create lookup table vs the subsampling factor (0-based)
           case aclk_x_subsampling is
-            when "0000" => subs_lut <= "1111111111111111";
-            when "0001" => subs_lut <= "--------01010101";
-            when "0010" => subs_lut <= "1001001001001001";
-            when "0011" => subs_lut <= "0001000100010001";
-            when "0100" => subs_lut <= "1000010000100001";
-            when "0101" => subs_lut <= "0001000001000001";
-            when "0110" => subs_lut <= "0100000010000001";
-            when "0111" => subs_lut <= "0000000100000001";
-            when "1000" => subs_lut <= "0000001000000001";
-            when "1001" => subs_lut <= "0000010000000001";
-            when "1010" => subs_lut <= "0000100000000001";
-            when "1011" => subs_lut <= "0001000000000001";
-            when "1100" => subs_lut <= "0010000000000001";
-            when "1101" => subs_lut <= "0100000000000001";
-            when "1110" => subs_lut <= "1000000000000001";
-            when "1111" => subs_lut <= "0000000000000001";
+            when "0000" => subs_lut <= "1111111111111111"; -- subs. by 1
+            when "0001" => subs_lut <= "--------01010101"; -- subs. by 2
+            when "0010" => subs_lut <= "1001001001001001"; -- subs. by 3
+            when "0011" => subs_lut <= "0001000100010001"; -- subs. by 4
+            when "0100" => subs_lut <= "1000010000100001"; -- subs. by 5
+            when "0101" => subs_lut <= "0001000001000001"; -- subs. by 6
+            when "0110" => subs_lut <= "0100000010000001"; -- subs. by 7
+            when "0111" => subs_lut <= "0000000100000001"; -- subs. by 8
+            when "1000" => subs_lut <= "0000001000000001"; -- subs. by 9
+            when "1001" => subs_lut <= "0000010000000001"; -- subs. by 10
+            when "1010" => subs_lut <= "0000100000000001"; -- subs. by 11
+            when "1011" => subs_lut <= "0001000000000001"; -- subs. by 12
+            when "1100" => subs_lut <= "0010000000000001"; -- subs. by 13
+            when "1101" => subs_lut <= "0100000000000001"; -- subs. by 14
+            when "1110" => subs_lut <= "1000000000000001"; -- subs. by 15
+            when "1111" => subs_lut <= "0000000000000001"; -- subs. by 16
             when others =>
               null;
           end case;
@@ -196,8 +198,10 @@ begin
     end if;
   end process;
 
+  
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_modulo_count
+  -- Description : Modulo counter treshold
   -----------------------------------------------------------------------------
   P_modulo_count : process (aclk) is
   begin
@@ -233,7 +237,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_subs_cntr
+  -- Description : 8 Subsampling counters in parallel (one per byte)
   -----------------------------------------------------------------------------
   P_subs_cntr : process (aclk) is
     variable sum : unsigned(4 downto 0);
@@ -281,10 +286,10 @@ begin
                 subs_cntr(1) <= "00000";
                 subs_cntr(2) <= "00000";
                 subs_cntr(3) <= "00000";
-                subs_cntr(4) <= "00010";
-                subs_cntr(5) <= "00010";
-                subs_cntr(6) <= "00010";
-                subs_cntr(7) <= "00010";
+                subs_cntr(4) <= "00001";
+                subs_cntr(5) <= "00001";
+                subs_cntr(6) <= "00001";
+                subs_cntr(7) <= "00001";
                 pix_per_clk  <= "00010";
               when others =>
                 subs_cntr(0) <= "00000";
@@ -321,7 +326,11 @@ begin
   end process;
 
 
-
+  -----------------------------------------------------------------------------
+  -- Process     : P_subs_ben
+  -- Description : Deternmine the byte enable value based on the modulo counter
+  --               and the ben lookup-table
+  -----------------------------------------------------------------------------
   P_subs_ben : process (subs_cntr, subs_lut) is
   begin  -- process P_aa
     for i in 0 to 7 loop

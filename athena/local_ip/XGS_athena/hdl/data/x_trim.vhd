@@ -360,12 +360,12 @@ begin
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.pixel_width <= aclk_pixel_width;
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;
-  aclk_strm_context_in.x_start     <= aclk_x_start;
-  aclk_strm_context_in.x_size      <= aclk_x_size;
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;
+  aclk_strm_context_in.pixel_width <= aclk_pixel_width;  -- Units in bytes
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;    -- Boolean
+  aclk_strm_context_in.x_start     <= aclk_x_start;      -- Units in pixels
+  aclk_strm_context_in.x_size      <= aclk_x_size;       -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;      -- Units in pixels
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;    -- Boolean
 
 
   -----------------------------------------------------------------------------
@@ -382,7 +382,7 @@ begin
         aclk_ld_strm_ctx_FF2 <= (others => '0');
         aclk_strm_context_P0 <= INIT_STRM_CONTEXT_TYPE;
         aclk_strm_context_P1 <= INIT_STRM_CONTEXT_TYPE;
-        
+
       else
         aclk_ld_strm_ctx_FF1 <= aclk_load_context;
         aclk_ld_strm_ctx_FF2 <= aclk_ld_strm_ctx_FF1;
@@ -418,6 +418,7 @@ begin
                aclk_strm_context_in;
 
 
+  -- Combinatorial flag used to indicate data ready on the axi stream input port
   aclk_tready_int <= '1' when (aclk_state = S_IDLE and aclk_full = '0') else
                      '1' when (aclk_state = S_WRITE) else
                      '0';
@@ -425,10 +426,14 @@ begin
 
 
 
+  -- Combinatorial flag used to indicate data is consumed on the axi stream interface
   aclk_ack <= '1' when (aclk_tready_int = '1'and aclk_tvalid = '1') else
               '0';
 
 
+  -----------------------------------------------------------------------------
+  -- Cropping window parameters (Units in pixels)
+  -----------------------------------------------------------------------------
   aclk_crop_start <= unsigned(aclk_x_start(aclk_pix_cntr'range)) when (aclk_x_crop_en = '1') else
                      (aclk_pix_cntr'range => '0');
   aclk_crop_size <= unsigned(aclk_x_size(aclk_pix_cntr'range));
@@ -439,37 +444,38 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Determine the valid  start and stop boundaries (Quad Word Aligned)
   -----------------------------------------------------------------------------
-  P_aclk_pixel_width : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
+  P_aclk_pixel_valid : process (aclk_pixel_width, aclk_crop_start, aclk_crop_stop) is
   begin
     case aclk_pixel_width is
       -- One byte per pixel
       when "001" =>
-        aclk_pix_incr    <= 8;
+        aclk_pix_incr    <= 8;          -- We receive 8 pix/data beat
         aclk_valid_start <= aclk_crop_start(12 downto 3) & "000";
         aclk_valid_stop  <= aclk_crop_stop(12 downto 3) & "000";
 
       -- Two bytes per pixel
       when "010" =>
-        aclk_pix_incr    <= 4;
+        aclk_pix_incr    <= 4;          -- We receive 4 pix/data beat
         aclk_valid_start <= aclk_crop_start(12 downto 2) & "00";
         aclk_valid_stop  <= aclk_crop_stop(12 downto 2) & "00";
 
       -- Four bytes per pixel
       when "100" =>
-        aclk_pix_incr    <= 2;
+        aclk_pix_incr    <= 2;          -- We receive 2 pix/data beat
         aclk_valid_start <= aclk_crop_start(12 downto 1) & '0';
         aclk_valid_stop  <= aclk_crop_stop(12 downto 1) & '0';
 
       when others =>
-        aclk_pix_incr    <= 0;
+        aclk_pix_incr    <= 0;          -- Unsupported
         aclk_valid_start <= (others => '0');
         aclk_valid_stop  <= (others => '0');
     end case;
   end process;
 
 
+  -- Combinatorial flag indication valid data beats
   aclk_crop_window_valid <= '1' when (aclk_pix_cntr >= aclk_valid_start and aclk_pix_cntr <= aclk_valid_stop) else
                             '0';
 
@@ -477,7 +483,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_pix_cntr
+  -- Description : Pixel counter. Count the number of pixel entering at each
+  --               valid axi data beat (aclk_ack = '1'). Units are in pixel
   -----------------------------------------------------------------------------
   P_aclk_pix_cntr : process (aclk) is
   begin
@@ -496,7 +504,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_crop_packer_valid
+  -- Description : Cropping packer valid signal (Shift right register)
   -----------------------------------------------------------------------------
   P_aclk_crop_packer_valid : process (aclk) is
   begin
@@ -507,14 +516,22 @@ begin
 
         if (aclk_state = S_DONE) then
           aclk_crop_packer_valid <= (others => '0');
+        -- On a valid data beat on the axi stream input interface
         elsif (aclk_ack = '1') then
+          -- If data is part of the valid window then the entering data beat is
+          -- declared valid
           if (aclk_crop_window_valid = '1') then
             aclk_crop_packer_valid(1) <= '1';
             aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
+
+          -- Else the data is outside of the valid window then the entering data beat is
+          -- declared invalid
           else
             aclk_crop_packer_valid(1) <= '0';
             aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
           end if;
+
+        -- When we flush the pipeline no valid data is entering the packer
         elsif (aclk_state = S_FLUSH) then
           aclk_crop_packer_valid(1) <= '0';
           aclk_crop_packer_valid(0) <= aclk_crop_packer_valid(1);
@@ -528,7 +545,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_crop_packer_ben
+  -- Description : Cropping packer byte enable generation
   -----------------------------------------------------------------------------
   P_aclk_crop_packer_ben : process (aclk) is
   begin
@@ -543,32 +561,77 @@ begin
         -- Shift right process
         -----------------------------------------------------------------------
         elsif (aclk_ack = '1') then
+
           ---------------------------------------------------------------------
-          -- Stop border of the valid window
+          -- Stop border of the valid window (Quad word units)
           ---------------------------------------------------------------------
           if (aclk_pix_cntr < aclk_valid_stop) then
             aclk_crop_packer_ben(15 downto 8) <= (others => '1');
 
           elsif (aclk_pix_cntr = aclk_valid_stop) then
-            case aclk_crop_stop_mask_sel is
-              when "000" => aclk_crop_packer_ben(15 downto 8) <= "00000001";
-              when "001" => aclk_crop_packer_ben(15 downto 8) <= "00000011";
-              when "010" => aclk_crop_packer_ben(15 downto 8) <= "00000111";
-              when "011" => aclk_crop_packer_ben(15 downto 8) <= "00001111";
-              when "100" => aclk_crop_packer_ben(15 downto 8) <= "00011111";
-              when "101" => aclk_crop_packer_ben(15 downto 8) <= "00111111";
-              when "110" => aclk_crop_packer_ben(15 downto 8) <= "01111111";
-              when "111" => aclk_crop_packer_ben(15 downto 8) <= "11111111";
-              when others =>
-                null;
+            case aclk_pixel_width is
+              -----------------------------------------------------------------
+              -- One byte per pixel
+              -----------------------------------------------------------------
+              when "001" =>
+                case aclk_crop_stop_mask_sel is
+                  when "000" => aclk_crop_packer_ben(15 downto 8) <= "00000001";
+                  when "001" => aclk_crop_packer_ben(15 downto 8) <= "00000011";
+                  when "010" => aclk_crop_packer_ben(15 downto 8) <= "00000111";
+                  when "011" => aclk_crop_packer_ben(15 downto 8) <= "00001111";
+                  when "100" => aclk_crop_packer_ben(15 downto 8) <= "00011111";
+                  when "101" => aclk_crop_packer_ben(15 downto 8) <= "00111111";
+                  when "110" => aclk_crop_packer_ben(15 downto 8) <= "01111111";
+                  when "111" => aclk_crop_packer_ben(15 downto 8) <= "11111111";
+                  when others =>
+                    null;
+                end case;
+
+              -----------------------------------------------------------------
+              -- Two bytes per pixel
+              -----------------------------------------------------------------
+              when "010" =>
+                case aclk_crop_stop_mask_sel(2 downto 1) is
+                  when "00" => aclk_crop_packer_ben(15 downto 8) <= "00000011";
+                  when "01" => aclk_crop_packer_ben(15 downto 8) <= "00001111";
+                  when "10" => aclk_crop_packer_ben(15 downto 8) <= "00111111";
+                  when "11" => aclk_crop_packer_ben(15 downto 8) <= "11111111";
+                  when others =>
+                    null;
+                end case;
+
+              -----------------------------------------------------------------
+              -- Four bytes per pixel
+              -----------------------------------------------------------------
+              when "100" =>
+                case aclk_crop_stop_mask_sel(2) is
+                  when '0' => aclk_crop_packer_ben(15 downto 8) <= "00001111";
+                  when '1' => aclk_crop_packer_ben(15 downto 8) <= "11111111";
+                  when others =>
+                    null;
+                end case;
+
+              when others => null;
             end case;
 
+
+          -------------------------------------------------------------------
+          -- Pixels outside the cropping window
+          -------------------------------------------------------------------
           elsif (aclk_pix_cntr > aclk_valid_stop) then
             aclk_crop_packer_ben(15 downto 8) <= (others => '0');
 
           end if;
+
+          ---------------------------------------------------------------------
+          -- Cropping packet shift right
+          ---------------------------------------------------------------------
           aclk_crop_packer_ben(7 downto 0) <= aclk_crop_packer_ben(15 downto 8);
 
+
+        -----------------------------------------------------------------------
+        -- When we flush the pipeline and thhe packer bytes are disabled
+        -----------------------------------------------------------------------
         elsif (aclk_state = S_FLUSH) then
           aclk_crop_packer_ben(15 downto 8) <= (others => '0');
           aclk_crop_packer_ben(7 downto 0)  <= aclk_crop_packer_ben(15 downto 8);
@@ -578,9 +641,10 @@ begin
   end process;
 
 
-
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_crop_packer
+  -- Description : Cropping packer. Pack cropped data in 2 QWORD wide using a
+  --               QWORD shift right register. 
   -----------------------------------------------------------------------------
   P_aclk_crop_packer : process (aclk) is
   begin
@@ -608,13 +672,15 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Modulo 8 equivalent equation
+  -- Modulo 8 equivalent equation. Find the alignment of the first valid pixel
+  -- in the cropping window.
   -----------------------------------------------------------------------------
   aclk_crop_mux_sel <= std_logic_vector(to_unsigned(to_integer(aclk_crop_start) * to_integer(unsigned(aclk_pixel_width)), 3));
 
 
   -----------------------------------------------------------------------------
-  -- Mux alignment (Align first valid pixel to byte 0)
+  -- Process     : P_aclk_crop_mux
+  -- Mux alignment (Align first valid pixel of the cropped data to byte 0)
   -----------------------------------------------------------------------------
   P_aclk_crop_mux : process (aclk) is
   begin
@@ -659,7 +725,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_crop_data_rdy
+  -- Description : Flag used to indicate if there is valid data in the
+  --               aclk_crop_data_mux pipeline.
   -----------------------------------------------------------------------------
   P_aclk_crop_data_rdy : process (aclk) is
   begin
@@ -678,7 +746,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_aclk_crop_last_data_mux
+  -- Description : 
   -----------------------------------------------------------------------------
   P_aclk_crop_last_data_mux : process (aclk) is
   begin
@@ -788,17 +857,25 @@ begin
   end process P_aclk_state;
 
 
+  -----------------------------------------------------------------------------
+  -- Flag used to initialize the line buffer pointer on the write side. The
+  -- line buffer is initialized at each new frame
+  -----------------------------------------------------------------------------
   aclk_init_buffer_ptr <= '1' when (aclk_state = S_SOF) else
                           '0';
 
+  -----------------------------------------------------------------------------
+  -- Flag used to increment the line buffer pointer is increment at each end of
+  -- line
+  -----------------------------------------------------------------------------
   aclk_nxt_buffer <= '1' when (aclk_state = S_DONE) else
                      '0';
 
 
------------------------------------------------------------------------------
--- Process     : P_aclk_buffer_ptr
--- Description : Buffer pointer. 
------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_buffer_ptr
+  -- Description : Line buffer pointer. 
+  -----------------------------------------------------------------------------
   P_aclk_buffer_ptr : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -815,13 +892,17 @@ begin
   end process;
 
 
-
+  -----------------------------------------------------------------------------
+  -- Flag used to initialize the word pointer
+  -----------------------------------------------------------------------------
   aclk_init_word_ptr <= '1' when (aclk_state = S_DONE) else
                         '0';
 
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
+  
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_word_ptr
+  -- Description : Word pointer in the line buffer
+  -----------------------------------------------------------------------------
   P_aclk_word_ptr : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -838,6 +919,9 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- Resynchonizer. Resynchronize the bclk_full flag on the aclk domain
+  -----------------------------------------------------------------------------
   M_aclk_full : mtx_resync
     port map (
       aClk  => bclk,
@@ -851,14 +935,17 @@ begin
       );
 
 
+  -----------------------------------------------------------------------------
+  -- Flag used to store a command in the command FiFo
+  -----------------------------------------------------------------------------
   aclk_cmd_wen <= '1' when (aclk_state = S_DONE) else
                   '0';
 
 
-
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Process     : P_aclk_cmd_sync
+  -- Description : Line Sync Marker generation
+  -----------------------------------------------------------------------------
   P_aclk_cmd_sync : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -877,6 +964,9 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
   P_aclk_cmd_last_ben : process (aclk) is
   begin
     if (rising_edge(aclk)) then
@@ -893,18 +983,15 @@ begin
   end process;
 
 
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
   aclk_cmd_size <= std_logic_vector(aclk_word_ptr);
 
------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------
   aclk_cmd_buff_ptr <= std_logic_vector(aclk_buffer_ptr);
 
 
-
+  
+  -----------------------------------------------------------------------------
+  -- Command fields aggregation
+  -----------------------------------------------------------------------------
   aclk_cmd_data <= aclk_cmd_last_ben & aclk_cmd_sync & aclk_cmd_buff_ptr & aclk_cmd_size;
 
 
@@ -924,7 +1011,6 @@ begin
       rData  => bclk_cmd_data,
       rEmpty => bclk_cmd_empty
       );
-
 
 
   aclk_init_subsampling <= '1' when (aclk_state = S_SOF or aclk_state = S_SOL) else
@@ -957,11 +1043,9 @@ begin
                    '0';
 
 
-
-
------------------------------------------------------------------------------
--- Line buffer (2xline buffer size to support double buffering)
------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Line buffer (2xline buffer size to support double buffering)
+  -----------------------------------------------------------------------------
   xdual_port_ram : dualPortRamVar
     generic map(
       DATAWIDTH => BUFFER_DATA_WIDTH,
