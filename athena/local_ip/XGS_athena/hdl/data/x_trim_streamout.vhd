@@ -277,12 +277,11 @@ begin
         -- Initialize the counter treshold value right after a new command was
         -- retrieved.
         if (bclk_state = S_INIT) then
-          -- In reverse mode the treshold is set to 1 transfer
           if (bclk_x_reverse = '1') then
-            bclk_word_cntr_treshold <= to_unsigned(1, bclk_word_cntr_treshold'length);
-          -- In forward mode the treshold is set to 2 transfers
+            -- In reverse we count down to 0
+            bclk_word_cntr_treshold <= to_unsigned(0, bclk_word_cntr_treshold'length);
           else
-            --bclk_word_cntr_treshold <= bclk_cmd_size-2;
+            -- In forward addressing we count upto bclk_cmd_size-1
             bclk_word_cntr_treshold <= bclk_cmd_size-1;
           end if;
         end if;
