@@ -326,7 +326,7 @@ architecture rtl of x_trim is
 
   signal bclk_reset : std_logic;
   signal bclk_full  : std_logic;
-  signal bclk_empty : std_logic;
+  --signal bclk_empty : std_logic;
 
 
   signal bclk_row_cntr      : integer;
@@ -340,10 +340,10 @@ architecture rtl of x_trim is
   signal bclk_cmd_ren       : std_logic;
   signal bclk_cmd_empty     : std_logic;
   signal bclk_cmd_data      : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
-  signal bclk_cmd_sync      : std_logic_vector(1 downto 0);
-  signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_last_ben  : std_logic_vector(7 downto 0);
+  --signal bclk_cmd_sync      : std_logic_vector(1 downto 0);
+  --signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  --signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
+  --signal bclk_cmd_last_ben  : std_logic_vector(7 downto 0);
 
   -----------------------------------------------------------------------------
   -- Debug attributes 

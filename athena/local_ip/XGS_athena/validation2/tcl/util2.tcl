@@ -39,22 +39,22 @@ proc r {} {
 }
 
 proc a {} {
-	set DEBUG 1
+	set DEBUG 0
     if {$DEBUG == 1} {
-	set PIXEL_WIDTH 4
+	set PIXEL_WIDTH 1
 	set Y_SIZE 3
 	set X_SIZE_RANGE {128}
 	set X_ROI_EN 1
-	set X_ROI_START 0
+	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 127
 	set X_ROI_SIZE_MAX 128
 	set X_REVERSE_RANGE {0}
-	set X_SCALING_RANGE {1}
+	set X_SCALING_RANGE {15}
     } else {
-	set PIXEL_WIDTH 4
+	set PIXEL_WIDTH 1
 	set Y_SIZE 3
 	set X_SIZE_RANGE {256}
-	set X_ROI_EN 0
+	set X_ROI_EN 1
 	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 128
 	set X_ROI_SIZE_MAX 129
