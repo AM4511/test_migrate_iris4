@@ -357,6 +357,10 @@ begin
               elsif (line_buffer_full = '1') then
                 wr_state <= S_PCI_BACK_PRESSURE;
               -- Line buffer full, go switch to next line buffer
+			  -- synthesis translate_off
+                 assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
+              -- synthesis translate_on
+
               else
                 wr_state <= S_TOGGLE_BUFFER;
               end if;
@@ -373,7 +377,7 @@ begin
             if (line_buffer_full = '1') then
               wr_state <= S_PCI_BACK_PRESSURE;
               -- synthesis translate_off
-              assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
+              -- assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
               -- synthesis translate_on
 
             else

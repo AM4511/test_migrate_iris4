@@ -371,47 +371,47 @@ architecture struct of XGS_athena is
   end component;
 
 
-  component xgs_mono_pipeline is
-    generic (
-      SIMULATION : integer := 0
-      );
-    port (
-      ---------------------------------------------------------------------------
-      -- Register file
-      ---------------------------------------------------------------------------
-      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
+  -- component xgs_mono_pipeline is
+    -- generic (
+      -- SIMULATION : integer := 0
+      -- );
+    -- port (
+      -- ---------------------------------------------------------------------------
+      -- -- Register file
+      -- ---------------------------------------------------------------------------
+      -- regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
-      ---------------------------------------------------------------------------
-      -- AXI Slave interface
-      ---------------------------------------------------------------------------
-      sclk         : in std_logic;
-      sclk_reset_n : in std_logic;
+      -- ---------------------------------------------------------------------------
+      -- -- AXI Slave interface
+      -- ---------------------------------------------------------------------------
+      -- sclk         : in std_logic;
+      -- sclk_reset_n : in std_logic;
 
-      ---------------------------------------------------------------------------
-      -- AXI slave stream input interface
-      ---------------------------------------------------------------------------
-      sclk_tready : out std_logic;
-      sclk_tvalid : in  std_logic;
-      sclk_tuser  : in  std_logic_vector(3 downto 0);
-      sclk_tlast  : in  std_logic;
-      sclk_tdata  : in  std_logic_vector(79 downto 0);
+      -- ---------------------------------------------------------------------------
+      -- -- AXI slave stream input interface
+      -- ---------------------------------------------------------------------------
+      -- sclk_tready : out std_logic;
+      -- sclk_tvalid : in  std_logic;
+      -- sclk_tuser  : in  std_logic_vector(3 downto 0);
+      -- sclk_tlast  : in  std_logic;
+      -- sclk_tdata  : in  std_logic_vector(79 downto 0);
 
-      ---------------------------------------------------------------------------
-      -- AXI Slave interface
-      ---------------------------------------------------------------------------
-      aclk         : in std_logic;
-      aclk_reset_n : in std_logic;
+      -- ---------------------------------------------------------------------------
+      -- -- AXI Slave interface
+      -- ---------------------------------------------------------------------------
+      -- aclk         : in std_logic;
+      -- aclk_reset_n : in std_logic;
 
-      ---------------------------------------------------------------------------
-      -- AXI master stream output interface
-      ---------------------------------------------------------------------------
-      aclk_tready : in  std_logic;
-      aclk_tvalid : out std_logic;
-      aclk_tuser  : out std_logic_vector(3 downto 0);
-      aclk_tlast  : out std_logic;
-      aclk_tdata  : out std_logic_vector(79 downto 0)
-      );
-  end component;
+      -- ---------------------------------------------------------------------------
+      -- -- AXI master stream output interface
+      -- ---------------------------------------------------------------------------
+      -- aclk_tready : in  std_logic;
+      -- aclk_tvalid : out std_logic;
+      -- aclk_tuser  : out std_logic_vector(3 downto 0);
+      -- aclk_tlast  : out std_logic;
+      -- aclk_tdata  : out std_logic_vector(79 downto 0)
+      -- );
+  -- end component;
 
 
   component dpc_filter is

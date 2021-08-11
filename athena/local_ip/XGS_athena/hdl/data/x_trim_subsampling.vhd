@@ -346,11 +346,26 @@ begin
   end process;
 
 
+
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Pipeline #1 Apply the subsampling mask to the data 
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+
+  -----------------------------------------------------------------------------
+  -- Combinatorial flag used to load the data in the first pipeline
+  -----------------------------------------------------------------------------
   p1_ld <= '1' when (aclk_en = '1' and state = S_SUB_SAMPLE) else
            '0';
 
+  
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p1_valid
+  -- Description : Pipeline 1 data valid flag. Indicates that there is data
+  --               valid in the first pipeline
   -----------------------------------------------------------------------------
   P_p1_valid : process (aclk) is
   begin
@@ -358,8 +373,12 @@ begin
       if (aclk_reset = '1')then
         p1_valid <= '0';
       else
+        -- Load only data if enabled data in the DWORD
         if (p1_ld = '1' and (subs_mask /= "00000000")) then
           p1_valid <= '1';
+
+        -- If we did not load data and and the current P1 data moved
+        -- forward to P2 then we declare no more valid data in P1
         elsif (p2_ld = '1') then
           p1_valid <= '0';
         end if;
@@ -367,10 +386,16 @@ begin
     end if;
   end process;
 
+
+  -----------------------------------------------------------------------------
+  -- Gate the input data ben nus with the subsampling mask
+  -----------------------------------------------------------------------------
   subs_mask <= subs_ben and aclk_ben_in;
+
   
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p1_ben
+  -- Description : Pipeline 1 byte enable
   -----------------------------------------------------------------------------
   P_p1_ben : process (aclk) is
   begin
@@ -390,7 +415,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p1_data
+  -- Description : Pipeline 1 data
   -----------------------------------------------------------------------------
   P_p1_data : process (aclk) is
   begin
@@ -406,12 +432,27 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Pipeline #2 Using the byte enable (sub-sampling mask) this pipeline
+  -- concatenate all the valid data bytes to the right (shift right). 
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+
+  
+  -----------------------------------------------------------------------------
+  -- Combinatorial flag used to load the data in the second pipeline
+  -----------------------------------------------------------------------------
   p2_ld <= '1' when (p1_valid = '1' and (aclk_en = '1' or state = S_FLUSH)) else
            '0';
 
   
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p2_valid
+  -- Description : Pipeline 2 data valid flag. Indicates that there is data
+  --               valid in the second pipeline stage.
   -----------------------------------------------------------------------------
   P_p2_valid : process (aclk) is
   begin
@@ -419,8 +460,11 @@ begin
       if (aclk_reset = '1')then
         p2_valid <= '0';
       else
+        -- If we load data from previous pipeline we declare valid data
         if (p2_ld = '1') then
           p2_valid <= '1';
+        -- If we did not load data from P1 and the current P2 data moved
+        -- forward to P3 then we declare no more valid data in P2
         elsif (p3_ld = '1') then
           p2_valid <= '0';
         end if;
@@ -430,7 +474,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p2_data
+  -- Description : Pipeline 2 data and byte enable (Shift right pipeline).
+  -- Shift only the valid data to the right
   -----------------------------------------------------------------------------
   P_p2_data : process (aclk) is
     variable shift_value : integer;
@@ -443,15 +489,30 @@ begin
         p2_data     <= (others => '0');
         p2_byte_cnt <= (others => '0');
       else
+        -- If the pipeline move forward
         if (p2_ld = '1') then
+          -- First we initialize the pipeline to a default value
           p2_ben      <= (others => '0');
           p2_data     <= (others => '0');
           p2_byte_cnt <= (others => '0');
           byte_cnt    := 0;
+
+          ---------------------------------------------------------------------
+          -- Look at all valid ben from the previous pipeline
+          ---------------------------------------------------------------------
           for i in 0 to 7 loop
+
+            -------------------------------------------------------------------
+            -- If the byte(i) is enabled, we increment the valid byte count and
+            -- determine the next available position to where to shift the vali
+            -- byte.
+            -------------------------------------------------------------------
             if (p1_ben(i) = '1') then
               shift_value := 0;
-              byte_cnt    := byte_cnt+1;
+              byte_cnt    := byte_cnt+1; -- We increment the valid byte count variable
+
+              -- Except for byte(0) we determine by how many byte position we
+              -- have to shift the valid byte to the right.
               if (i > 0) then
                 for j in i-1 downto 0 loop
                   if (p1_ben(j) = '0') then
@@ -465,7 +526,13 @@ begin
               p2_byte_cnt                             <= to_unsigned(byte_cnt, 4);
             end if;
 
-          end loop;  -- i 
+          end loop;  -- i : we shifted the valid byte to the available position
+
+
+        -----------------------------------------------------------------------
+        -- Else no data was loaded in the pipeline 2 and the current data moved
+        -- to pipeline 3, we disable the data in this pipeline stage.
+        -----------------------------------------------------------------------        
         elsif (p3_ld = '1') then
           p2_ben      <= (others => '0');
           p2_byte_cnt <= (others => '0');
@@ -474,12 +541,28 @@ begin
     end if;
   end process;
 
+  
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -- Pipeline #3 Using the p2_byte_cnt from the previous stage,
+  -- concatenate all the valid data bytes starting at the MSB position. 
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
+  -----------------------------------------------------------------------------
 
+
+  -----------------------------------------------------------------------------
+  -- Combinatorial flag used to load the data in the thirs pipeline
+  -----------------------------------------------------------------------------
   p3_ld <= '1' when (p2_valid = '1'and (aclk_en = '1' or state = S_FLUSH)) else
            '0';
 
+  
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p3_valid
+  -- Description : Pipeline 3 data valid flag. Indicates that there is data
+  --               valid in the third pipeline stage
   -----------------------------------------------------------------------------
   P_p3_valid : process (aclk) is
   begin
@@ -487,6 +570,7 @@ begin
       if (aclk_reset = '1')then
         p3_valid <= '0';
       else
+        -- If we load data from previous pipeline we declare valid data
         if (p3_ld = '1') then
           p3_valid <= '1';
         elsif (p3_byte_ptr(3) = '1') then
@@ -499,12 +583,17 @@ begin
   end process;
 
 
-
+  -----------------------------------------------------------------------------
+  -- Combinatorial flag used to indicate This is the last data valid in the
+  -- pipeline
+  -----------------------------------------------------------------------------
   p3_last_data <= '1' when (state = S_FLUSH and p1_valid = '0' and p2_valid = '0' and p3_valid = '1') else
                   '0';
 
+
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p3_byte_ptr
+  -- Description : 
   -----------------------------------------------------------------------------
   P_p3_byte_ptr : process (aclk) is
     variable sum : unsigned(3 downto 0);
@@ -532,7 +621,9 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_p3_data
+  -- Description : Concatenate data from pipeline 2 which is completely right
+  --               aligned.
   -----------------------------------------------------------------------------
   P_p3_data : process (aclk) is
     variable shift_value : integer;

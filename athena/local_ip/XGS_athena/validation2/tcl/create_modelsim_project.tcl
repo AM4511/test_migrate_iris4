@@ -94,6 +94,7 @@ ${DATA_SRC_PATH}/x_trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/axis_width_conv.vhd \
 ${DATA_SRC_PATH}/rgb_2_yuv.vhd \
+${DATA_SRC_PATH}/CCM.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
