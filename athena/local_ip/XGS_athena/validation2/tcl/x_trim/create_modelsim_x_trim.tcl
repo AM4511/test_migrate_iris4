@@ -1,8 +1,11 @@
-# Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
+# ###########################################################################
+#
+# Require the MS-Windows environment variable IRIS4 and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
-# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_x_trim.tcl
+# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/x_trim/create_modelsim_x_trim.tcl
 #
+# ###########################################################################
 set validation_dir         validation2        
 
 set MTI_LIB_XILINX_PATH    $env(MTI_LIB_XILINX_PATH)
@@ -18,7 +21,7 @@ set LIBRARY_NAME           ${PROJECT_NAME}.lib
 set COMMON_SRC_PATH        ${IPCORES}/common/design
 set VLIB_PATH              ${IPCORES}/vlib       
 
-set XGS_MODEL_DIR           ${ATHENA}/testbench/models/XGS_model
+set XGS_MODEL_DIR          ${ATHENA}/testbench/models/XGS_model
 
 set TESTBENCH_SRC_PATH     ${ROOT_PATH}/${validation_dir}/src
 set DUT_SRC_PATH           ${ROOT_PATH}/hdl
@@ -33,12 +36,12 @@ set MODELSIM_PROJECT_PATH  ${ROOT_PATH}/${validation_dir}/mti
 set MODELSIM_INI           ${MODELSIM_PROJECT_PATH}/modelsim.ini
 
 set LIBRARY_PATH           ${ROOT_PATH}/${validation_dir}/mti/${LIBRARY_NAME}
-set TCL_PATH               ${ROOT_PATH}/${validation_dir}/tcl
+set TCL_PATH               ${ROOT_PATH}/${validation_dir}/tcl/x_trim
 
 set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy   
 
 
-
+# Define the common files
 set common_fileset [join [list  [subst { 
 ${COMMON_SRC_PATH}/mtx_types_pkg.vhd
 ${COMMON_SRC_PATH}/dualPortRamVar.vhd \
@@ -53,6 +56,7 @@ ${COMMON_SRC_PATH}/axiSlave2RegFile.vhd
 ]
 
 
+# Define the DUT design files
 set dut_fileset [join [list  [subst { 
 ${DATA_SRC_PATH}/x_trim_subsampling.vhd
 ${DATA_SRC_PATH}/x_trim_streamout.vhd
@@ -63,6 +67,7 @@ ${DATA_SRC_PATH}/x_trim.vhd
 ]
 
 
+# Define the testbench files
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/testbench_x_trim.sv
 }
@@ -100,7 +105,8 @@ proc add_file_set {file_set} {
     }
 }
 
-#source ${VLIB_PATH}/tcl/vlib_fileset.do
+
+# Add all the above listed files in the modelsim project
 add_file_set $common_fileset
 add_file_set $dut_fileset
 add_file_set $testbench_fileset
@@ -115,4 +121,5 @@ project compileall
 ############################################################
 # Find compile order and Compile files
 ############################################################
-source $TCL_PATH/util2.tcl
+source $TCL_PATH/util.tcl
+

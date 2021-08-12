@@ -11,8 +11,8 @@ proc h {} {
 
 	h   : Display this help
 	n   : Source util.tcl
-	r   : Run the full simulation
-	a   : Run all
+	r   : Run the default simulation
+	a   : Run simulation with a range of image configurations
 }
 
     puts $message
@@ -24,7 +24,7 @@ proc h {} {
 proc n {} {
     set IPCORES_PATH $::env(IRIS4)/athena/local_ip
     set IP ${IPCORES_PATH}/XGS_athena
-    source $IP/validation2/tcl/util2.tcl
+    source $IP/validation2/tcl/x_trim/util.tcl
 }
 
 #####################################################
@@ -40,6 +40,8 @@ proc r {} {
 
 proc a {} {
 	set DEBUG 0
+	
+	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
 	set PIXEL_WIDTH 1
 	set Y_SIZE 3
@@ -51,6 +53,7 @@ proc a {} {
 	set X_REVERSE_RANGE {0}
 	set X_SCALING_RANGE {6}
     } else {
+    # In non debug mode run a range of different configurations
 	set PIXEL_WIDTH 4
 	set Y_SIZE 3
 	set X_SIZE_RANGE {1024}
