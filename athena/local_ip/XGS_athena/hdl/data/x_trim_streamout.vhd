@@ -213,11 +213,6 @@ begin
   -- Line buffer read enable. This flag is used to request the databeat located
   -- @bclk_read_address from the line buffer.
   -----------------------------------------------------------------------------
-  -- bclk_read_en_int <= '1' when (bclk_state = S_READ_DATA and bclk_ack = '1') else
-  --                     '1' when (bclk_state = S_EOL and bclk_ack = '1') else
-  --                     '1' when (bclk_state = S_EOF and bclk_ack = '1') else
-  --                     '0';
-
   bclk_read_en_int <= '1' when (bclk_state = S_READ_DATA and bclk_ack = '1') else
                       '0';
 
@@ -246,7 +241,7 @@ begin
   bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
   bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
 
-  
+
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_last_read_data
   -- Description : 
@@ -532,51 +527,7 @@ begin
   -- Process     : P_bclk_align_packer_user
   -- Description : 
   -----------------------------------------------------------------------------
-  -- P_bclk_align_packer_user : process (bclk) is
-  -- begin
-  --   if (rising_edge(bclk)) then
-  --     if (bclk_reset = '1')then
-  --       bclk_align_packer_user <= (others => '0');
-  --     else
-  --       if (bclk_ack = '1') then
-  --         -----------------------------------------------------------------------
-  --         -- User sync in reverse packing
-  --         -----------------------------------------------------------------------
-  --         -- SOF or SOL
-  --         if (bclk_align_packer_valid_vect = "01") then
-  --           -- First line of frame
-  --           if (bclk_cmd_sync = "01") then
-  --             -- SOF
-  --             bclk_align_packer_user(0) <= '1';  -- amarchan
-  --           else
-  --             -- SOL
-  --             bclk_align_packer_user(2) <= '1';  -- amarchan
-  --           end if;
-
-  --           -- Corner case (SOL and EOL in same databeat i.e. line only 1 databeat)
-  --           if (bclk_cmd_size = "000000001") then
-  --             bclk_align_packer_user(3) <= '1';  -- amarchan
-  --           end if;
-
-  --         elsif (bclk_last_read_data = '1') then
-  --           -- EOF
-  --           if (bclk_cmd_sync = "10") then
-  --             --bclk_align_packer_user <= "0010"; -- jmansill (1)
-  --             bclk_align_packer_user(1) <= '1';  -- amarchan
-  --           -- EOL
-  --           else
-  --             --bclk_align_packer_user <= "1000"; -- jmansill (3)
-  --             bclk_align_packer_user(3) <= '1';  -- amarchan
-  --           end if;
-  --         else
-  --           bclk_align_packer_user <= "0000";
-  --         end if;
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
-
- P_bclk_align_packer_user : process (bclk) is
+  P_bclk_align_packer_user : process (bclk) is
   begin
     if (rising_edge(bclk)) then
       if (bclk_reset = '1')then
@@ -588,7 +539,7 @@ begin
           -----------------------------------------------------------------------
           -- Start of line
           if (bclk_align_packer_valid_vect = "01") then
-              bclk_align_packer_user(2) <= '1';
+            bclk_align_packer_user(2) <= '1';
             -- Start of frame
             if (bclk_cmd_sync = "01") then
               bclk_align_packer_user(0) <= '1';
@@ -605,7 +556,7 @@ begin
 
           -- End of line
           elsif (bclk_last_read_data = '1') then
-              bclk_align_packer_user(3) <= '1';
+            bclk_align_packer_user(3) <= '1';
             -- End of Frame
             if (bclk_cmd_sync = "10") then
               bclk_align_packer_user(1) <= '1';
@@ -763,7 +714,7 @@ begin
         if (bclk_ack = '1') then
           if (bclk_align_packer_valid = '1') then
             bclk_align_user <= bclk_align_packer_user;
-            
+
           else
             bclk_align_user <= "0000";
           end if;
