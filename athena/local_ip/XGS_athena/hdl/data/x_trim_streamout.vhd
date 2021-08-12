@@ -763,6 +763,9 @@ begin
         if (bclk_ack = '1') then
           if (bclk_align_packer_valid = '1') then
             bclk_align_user <= bclk_align_packer_user;
+            
+          else
+            bclk_align_user <= "0000";
           end if;
         end if;
       end if;
@@ -783,7 +786,7 @@ begin
         if (bclk_ack = '1') then
           if (bclk_align_packer_valid = '1') then
             bclk_tvalid_int <= '1';
-          elsif (bclk_tready = '1') then
+          else
             bclk_tvalid_int <= '0';
           end if;
         end if;
