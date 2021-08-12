@@ -647,7 +647,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>c169dcaa</spirit:value>
+            <spirit:value>45b94a44</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -665,7 +665,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>84e4549a</spirit:value>
+            <spirit:value>45b94a44</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -679,7 +679,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>4b641931</spirit:value>
+            <spirit:value>26d483e2</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1711,6 +1711,11 @@
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/CCM.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/dpc/Infered_RAM.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
@@ -1759,6 +1764,11 @@
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/axis_width_conv.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -1864,6 +1874,11 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/rgb_2_yuv.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/system_monitor/system_monitor.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
@@ -1873,11 +1888,6 @@
         <spirit:name>hdl/data/tap_controller.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/axis_width_conv.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
@@ -1921,20 +1931,8 @@
       <spirit:file>
         <spirit:name>hdl/controller/xgs_spi.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_fa5d6dc5</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_397e4ebc</spirit:userFileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/rgb_2_yuv.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_99646668</spirit:userFileType>
-        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/CCM.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_ca3282c4</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
@@ -1962,6 +1960,11 @@
         <spirit:userFileType>xci</spirit:userFileType>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/CCM.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/data/dpc/Infered_RAM.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
@@ -2010,6 +2013,11 @@
       </spirit:file>
       <spirit:file>
         <spirit:name>hdl/dma/axi_stream_in.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/data/axis_width_conv.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
@@ -2115,6 +2123,11 @@
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
       </spirit:file>
       <spirit:file>
+        <spirit:name>hdl/data/rgb_2_yuv.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/system_monitor/system_monitor.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
@@ -2169,16 +2182,6 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
         <spirit:logicalName>XGS_athena_lib</spirit:logicalName>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/rgb_2_yuv.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>hdl/data/CCM.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>USED_IN_ipstatic</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -2272,11 +2275,11 @@
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
       <xilinx:vendorDisplayName>Matrox Electronic Systems</xilinx:vendorDisplayName>
       <xilinx:vendorURL>https://www.matrox.com/imaging</xilinx:vendorURL>
-      <xilinx:coreRevision>119</xilinx:coreRevision>
+      <xilinx:coreRevision>120</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>matrox.com:user:XGS_athena:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2021-04-20T12:59:12Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2021-08-12T14:50:09Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@616448f3_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@3bc016e5_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena/package</xilinx:tag>
@@ -3638,13 +3641,24 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@384a9971_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@20d72df_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@670c984a_ARCHIVE_LOCATION">c:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@307fdffb_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6696cf3e_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f20841d_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@131fd17_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1e83e90c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6146b4c0_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3828fdc0_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@260f1fb7_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@41105350_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5045381c_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@625013a1_ARCHIVE_LOCATION">d:/work/iris4/athena/local_ip/XGS_athena</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2019.1</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="bc582e6f"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="37925ff9"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="8500814d"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6be9c6fc"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="3002d94a"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="bb647dbf"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="b64ab1c1"/>

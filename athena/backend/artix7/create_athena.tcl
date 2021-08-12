@@ -50,12 +50,14 @@ puts "Running ${myself}"
 #              ** X_reverse
 #
 # 0.4.0 : Implemented Golden upgrade mechanism
-#         Connected the register field fpga.version.firmware type to the Athena top level Generic : FPGA_IS_NPI_GOLDEN
+#         Connected the register field fpga.version.firmware type to the Athena top level Generic : FPGA_IS_NPI_GOLDEN       
+#
+# 0.5.0 : Added support of color mode
 #          
 #
 
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     4
+set FPGA_MINOR_VERSION     5
 set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
