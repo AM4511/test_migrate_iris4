@@ -1,4 +1,4 @@
-# Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
+# Require the MS-Windows environment variable IRIS4 and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
 # source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_project_color.tcl
