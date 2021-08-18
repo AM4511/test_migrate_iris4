@@ -269,6 +269,7 @@ void CXGS_Data::SetDMA()
     sXGSptr.DMA.ROI_X.f.X_SIZE       = DMAParams.X_SIZE;
 	rXGSptr.DMA.ROI_X.u32            = sXGSptr.DMA.ROI_X.u32;
 
+	//sXGSptr.DMA.CSC.f.DUP_LAST_LINE = ;  //not implemented in XGS
 	sXGSptr.DMA.CSC.f.COLOR_SPACE    = DMAParams.CSC;
 	sXGSptr.DMA.CSC.f.REVERSE_Y      = DMAParams.REVERSE_Y;
 	sXGSptr.DMA.CSC.f.REVERSE_X      = DMAParams.REVERSE_X;

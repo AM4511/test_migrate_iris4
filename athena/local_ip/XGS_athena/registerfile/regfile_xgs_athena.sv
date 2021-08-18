@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/04/30 12:07:08
+ ** Created on          : 2021/08/18 16:17:35
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0x2ED35CB2
+ ** Register file CRC32 : 0xF3B3DD1A
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -338,6 +338,27 @@ typedef union packed
    } f;
 
 } fdk_regfile_xgs_athena_DMA_ROI_X_t;
+
+
+/**************************************************************************
+* Register name : ROI_Y
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [12:0] Y_START;                 /* Bits(12:0), null */
+      logic [2:0]  rsvd0;                   /* Bits(15:13), Reserved */
+      logic [12:0] Y_SIZE;                  /* Bits(28:16), null */
+      logic [2:0]  rsvd1;                   /* Bits(31:29), Reserved */
+      logic        rsvd_register_space[2];  /* Reserved space below */
+   } f;
+
+} fdk_regfile_xgs_athena_DMA_ROI_Y_t;
 
 
 /**************************************************************************
@@ -2033,6 +2054,7 @@ typedef struct packed
    fdk_regfile_xgs_athena_DMA_OUTPUT_BUFFER_t OUTPUT_BUFFER;  /* Address offset: 0x38 */
    fdk_regfile_xgs_athena_DMA_TLP_t           TLP;            /* Address offset: 0x3c */
    fdk_regfile_xgs_athena_DMA_ROI_X_t         ROI_X;          /* Address offset: 0x40 */
+   fdk_regfile_xgs_athena_DMA_ROI_Y_t         ROI_Y;          /* Address offset: 0x4c */
 } fdk_regfile_xgs_athena_DMA_t;
 
 
@@ -2174,7 +2196,7 @@ typedef struct packed
    fdk_regfile_xgs_athena_SYSTEM_t    SYSTEM;        /* Section; Base address offset: 0x0 */
    uint32_t                           [23:0]rsvd0;   /* Padding; Size (96 Bytes) */
    fdk_regfile_xgs_athena_DMA_t       DMA;           /* Section; Base address offset: 0x70 */
-   uint32_t                           [16:0]rsvd1;   /* Padding; Size (68 Bytes) */
+   uint32_t                           [13:0]rsvd1;   /* Padding; Size (56 Bytes) */
    fdk_regfile_xgs_athena_ACQ_t       ACQ;           /* Section; Base address offset: 0x100 */
    uint32_t                           [72:0]rsvd2;   /* Padding; Size (292 Bytes) */
    fdk_regfile_xgs_athena_HISPI_t     HISPI;         /* Section; Base address offset: 0x400 */

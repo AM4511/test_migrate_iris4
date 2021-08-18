@@ -125,7 +125,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	else
 		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0)
 		{
-			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, RGB32Type);
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
 			LUT_PATTERN = 3;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
@@ -138,7 +138,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		}
 		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1)
 		{
-			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, YUVType);
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
 			LUT_PATTERN = 3;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
@@ -153,13 +153,13 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	    
 		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0)         
 		{
-			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 			LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
 
-			ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 			LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
 
-			ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);
+			ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 			LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
 
 			ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
@@ -205,8 +205,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	}
 	else {
 		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                      // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;    // On laisse passer 4 lignes d'interpolation pour le bayer
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid+4;                     // Dois etre multiple de 4
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 ;         // On laisse passer 4 lignes d'interpolation pour le bayer
 	}
 
 	GrabParams->M_SUBSAMPLING_Y = 0;
@@ -248,16 +248,16 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	}
 	else
 		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0) {
-			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);
+			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);
 			DMAParams->CSC       = 1; // BGR32
 		}
 		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0 )
 		{
-			DMAParams->LINE_SIZE = (DMAParams->X_SIZE + 4) / (DMAParams->SUB_X + 1); //DPC removes 2 front + 2 rear
+			DMAParams->LINE_SIZE = (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1); //DPC removes 2 front + 2 rear
 			DMAParams->CSC       = 3; // PLANAR
 		}
 		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1) {
-			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE + 8) / (DMAParams->SUB_X + 1);  //pour le moment
+			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
 			DMAParams->CSC = 2; // YUV
 		}
 	//Transparent LUTs
@@ -482,8 +482,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 		//Overrun detection
-		if (SensorParams->IS_COLOR == 0 || (SensorParams->IS_COLOR == 1 && PLANAR == 0))
+		if (SensorParams->IS_COLOR == 0) 
 			OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+			OverrunPixel = 0;
 		else
 			OverrunPixel = 0; //temp
 
