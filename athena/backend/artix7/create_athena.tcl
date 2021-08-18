@@ -52,7 +52,7 @@ puts "Running ${myself}"
 # 0.4.0 : Implemented Golden upgrade mechanism
 #         Connected the register field fpga.version.firmware type to the Athena top level Generic : FPGA_IS_NPI_GOLDEN       
 #
-# 0.5.0 : Added support of color mode
+# 0.5.0 : Added support for color mode
 #          
 #
 
