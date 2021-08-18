@@ -126,6 +126,10 @@ Register("roi_x", 0xb0, 4, "null");
 		Field("x_size", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
+Register("roi_y", 0xbc, 4, "null");
+		Field("y_size", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+		Field("y_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+
 %=================================================================
 % SECTION NAME	: ACQ
 %=================================================================
@@ -661,7 +665,7 @@ Register("lut_ctrl", 0x4b4, 4, "null");
 			FieldValue("Write Green LUT(Color only)", 2);
 			FieldValue("Write Red LUT(Color only)", 4);
 			FieldValue("Write all component RGB LUT (Color only)", 7);
-			FieldValue("Write LUT 10 to 8 with same data (Mono or Color)", 8);
+			FieldValue("Write LUT 10 to 8(Mono) or LUT 10 to 10(color) with same data ", 8);
 		Field("lut_wrn", 11, 11, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "LUT Write ReadNot");
 			FieldValue("Read operation", 0);
 			FieldValue("Write operation", 1);
