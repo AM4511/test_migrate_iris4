@@ -28,7 +28,7 @@ set_clock_groups -asynchronous -group [get_clocks axi_clk100MHz] -group [get_clo
 set_clock_groups -asynchronous -group [get_clocks axi_clk100MHz] -group [get_clocks rpc_clk_0]
 set_clock_groups -asynchronous -group [get_clocks axi_clk100MHz] -group [get_clocks rpc_clk_200MHz]
 set_clock_groups -asynchronous -group [get_clocks rpc_clk_0] -group [get_clocks rpc_clk_200MHz]
-set_clock_groups -asynchronous -group [get_clocks RDS_CLK] -group [get_clocks rpc_clk_0]
+set_clock_groups -asynchronous -group [get_clocks  -filter {NAME=~RDS_CLK*}] -group [get_clocks rpc_clk_0]
 set_clock_groups -asynchronous -group [get_clocks RPC_CK] -group [get_clocks rpc_clk_0]
 
 #System resets
@@ -56,6 +56,7 @@ set_false_path -to [get_ports pwm_out]
 
 set_false_path -to [get_ports debug_uart_txd]
 set_false_path -from [get_ports debug_uart_rxd]
+set_false_path -from [get_ports hb_rwds] -to [get_ports hb_rwds]
 
 ###################################################################################
 ## Because of the PLL phase advance, we need to specify on which edge we want the

@@ -66,10 +66,19 @@ puts "Running ${myself}"
 #                MIL Upgrade : 0x400000
 #         Added new field in register FPGA_ID (@0x0020): 
 #                regfile.Device_specific.FPGA_ID.NPI_GOLDEN (Read only)
+#
+# 0.2.1 : Enable hardware exception interrupt in the microblaze core
+#
+# 0.2.2 : Increased memory cache size to 32 KB in the microblaze core
+#             See JIRA :  https://jira.matrox.com:8443/browse/IRIS4-467 
+#
+# 0.2.3 : Reduce cache line size to 32 bytes in the microblaze core
+#             See JIRA :  https://jira.matrox.com:8443/browse/IRIS4-472
+# 
 # ################################################################
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     2
-set FPGA_SUB_MINOR_VERSION 0
+set FPGA_SUB_MINOR_VERSION 3
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
