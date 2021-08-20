@@ -1,34 +1,19 @@
 -----------------------------------------------------------------------
 -- MODULE        : trim
 -- 
--- DESCRIPTION   : 
+-- DESCRIPTION   : Trimming module. This module can trim data directly
+--                 from a streamed frame. It support the following
+--                 trimming options:
+--                          * Pixel cropping in the x direction
+--                          * Pixel subsampling in the X direction
+--                          * Line cropping in the Y direction
+--                          * Support pixels of 1,2, 4 components (8bits)
 --              
---
--- ToDO: 
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- Crop (xstart + xsize)
--- sub  (div2. )
--- reverse
--- rgba
-
--- #  
--- # ---------------------------------
--- #  Results of testlist simulation  
--- # ---------------------------------
--- # test0001_result : PASS
--- # test0002_result : PASS
--- # test0003_result : PASS
--- # test0004_result : PASS
--- # test0005_result : FAIL
--- # test0006_result : PASS
--- # test0007_result : FAIL
--- # test0008_result : FAIL ->Revx
--- # test0009_result : PASS
--- # test0010_result : FAIL -> cropping x
 
 entity trim is
   generic (
@@ -219,7 +204,7 @@ architecture rtl of trim is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  -- attribute mark_debug of bclk_tready          : signal is "true";
+  -- attribute mark_debug of aclk_tready_int    : signal is "true";
 
 
 begin
@@ -232,11 +217,11 @@ begin
   -----------------------------------------------------------------------------
   aclk_strm_context_in.pixel_width <= aclk_pixel_width;       -- Units in bytes
   aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;         -- Boolean
-  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);  -- Units in pixels
+  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start); -- Units in pixels
   aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);  -- Units in pixels
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;  -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;           -- Units in pixels
   aclk_strm_context_in.x_reverse   <= aclk_x_reverse;         -- Boolean
-  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);  -- Units in lines
+  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start); -- Units in lines
   aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);  -- Units in lines
 
 
@@ -317,7 +302,6 @@ begin
   -----------------------------------------------------------------------------
   -- Module      : x_trim
   -- Description : 
-  --               
   -----------------------------------------------------------------------------
   x_trim_inst : x_trim
     generic map(

@@ -95,9 +95,9 @@ proc s {args} {
 	# Print all results
 	puts " "
 	puts " "
-    puts "---------------------------------"
-    puts " Results of testlist simulation  "
-    puts "---------------------------------"
+    puts "---------------------------------------"
+    puts " Results of color testlist simulation  "
+    puts "---------------------------------------"
 	set currtest 1
     foreach i $testlist {
 	    puts "test${i}_result : $testresult_array(${currtest})" 

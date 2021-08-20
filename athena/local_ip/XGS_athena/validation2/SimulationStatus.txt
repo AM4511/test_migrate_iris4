@@ -1,0 +1,8 @@
+2021-08-20 
+
+# --------------------------------------
+#  Results of color testlist simulation  
+# --------------------------------------
+# test0020_result : PASS
+# test0021_result : PASS
+# test0022_result : PASS

@@ -1,34 +1,14 @@
------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- MODULE        : x_trim
 -- 
--- DESCRIPTION   : 
---              
+-- DESCRIPTION   : Module used to crop Pixels at the beginning and the
+--                 end of each line of an axi streamed frame.
 --
--- ToDO: 
------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- Crop (xstart + xsize)
--- sub  (div2. )
--- reverse
--- rgba
-
--- #  
--- # ---------------------------------
--- #  Results of testlist simulation  
--- # ---------------------------------
--- # test0001_result : PASS
--- # test0002_result : PASS
--- # test0003_result : PASS
--- # test0004_result : PASS
--- # test0005_result : FAIL
--- # test0006_result : PASS
--- # test0007_result : FAIL
--- # test0008_result : FAIL ->Revx
--- # test0009_result : PASS
--- # test0010_result : FAIL -> cropping x
 
 entity x_trim is
   generic (

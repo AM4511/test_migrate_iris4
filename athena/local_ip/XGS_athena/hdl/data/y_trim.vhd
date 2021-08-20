@@ -1,10 +1,9 @@
 -----------------------------------------------------------------------
 -- MODULE        : y_trim
 -- 
--- DESCRIPTION   : 
+-- DESCRIPTION   : Module used to crop line at the beginning and the
+--                 end of an axi streamed frame.
 --              
---
--- ToDO: 
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -79,6 +78,9 @@ architecture rtl of y_trim is
 begin
 
 
+  -----------------------------------------------------------------------------
+  -- Infer y_stop boundary
+  -----------------------------------------------------------------------------
   aclk_y_stop <= aclk_y_start + aclk_y_size - 1;
 
 
@@ -105,14 +107,17 @@ begin
   end process;
 
 
-
+  -----------------------------------------------------------------------------
+  -- Combinatorial flag used for indicating if the current line is part of the
+  -- valid window.
+  -----------------------------------------------------------------------------
   aclk_line_valid <= aclk_tvalid when (aclk_line_cntr >= unsigned(aclk_y_start) and aclk_line_cntr <= aclk_y_stop) else
                      '0';
 
 
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_state
-  -- Description : 
+  -- Description : Main FSM
   -----------------------------------------------------------------------------
   P_aclk_state : process (aclk) is
   begin
@@ -159,7 +164,7 @@ begin
             -------------------------------------------------------------------
             when S_CROP =>
               if (aclk_tvalid = '1') then
-                -- If first valid line of the frame : start of frame
+                -- If first valid line of the frame : we declare a start of frame
                 if (aclk_tuser(2) = '1' and aclk_line_cntr = unsigned(aclk_y_start)) then
                   aclk_state <= S_SOF;
                 else
@@ -186,7 +191,7 @@ begin
 
 
             -------------------------------------------------------------------
-            --  S_WRITE : 
+            --  S_WRITE : Line data transfer
             -------------------------------------------------------------------
             when S_WRITE =>
               if (aclk_tvalid = '1') then
@@ -204,27 +209,26 @@ begin
 
 
             -------------------------------------------------------------------
-            -- S_EOL : End of line encounter
+            -- S_EOL : End of line encountered
             -------------------------------------------------------------------
             when S_EOL =>
               aclk_state <= S_HBLANK;
 
             -------------------------------------------------------------------
-            -- S_EOF : End of line encounter
+            -- S_EOF : End of frame encountered
             -------------------------------------------------------------------
             when S_EOF =>
               aclk_state <= S_DONE;
 
 
-
             -------------------------------------------------------------------
-            -- S_DONE : Switch line buffer
+            -- S_DONE : Frame transfered
             -------------------------------------------------------------------
             when S_DONE =>
               aclk_state <= S_IDLE;
 
             -------------------------------------------------------------------
-            -- 
+            -- Others states
             -------------------------------------------------------------------
             when others =>
               null;
@@ -237,7 +241,8 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_aclk_tuser_int
-  -- Description : 
+  -- Description : Regenerate the sync when cropping occures SOF and/or EOF
+  --               need to be regenerated. 
   -----------------------------------------------------------------------------
   P_aclk_tuser_int : process (aclk) is
   begin
@@ -262,7 +267,6 @@ begin
             ---------------------------------------------------------------------
             -- Regenerate EOL and EOF of the cropped window
             ---------------------------------------------------------------------
-
             if (aclk_line_cntr = aclk_y_stop) then
               aclk_tuser_int(1) <= aclk_tuser(1) or aclk_tuser(3);
               aclk_tuser_int(3) <= '0';
@@ -306,9 +310,16 @@ begin
   end process;
 
 
-  aclk_ack        <= aclk_tready_out;
-  aclk_tready     <= aclk_tready_out;
-  
+  aclk_ack    <= aclk_tready_out;
+
+
+  -----------------------------------------------------------------------------
+  -- Output port mapping
+  -----------------------------------------------------------------------------
+  -- Stream input I/F
+  aclk_tready <= aclk_tready_out;
+
+  -- Stream output I/F
   aclk_tvalid_out <= aclk_tvalid_int;
   aclk_tuser_out  <= aclk_tuser_int;
   aclk_tlast_out  <= aclk_tlast_int;
