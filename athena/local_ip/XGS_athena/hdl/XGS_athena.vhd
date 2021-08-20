@@ -652,7 +652,7 @@ architecture struct of XGS_athena is
   end component;
 
 
-  component x_trim is
+  component trim is
     generic (
       NUMB_LINE_BUFFER : integer range 2 to 4 := 2
       );
@@ -668,6 +668,8 @@ architecture struct of XGS_athena is
       aclk_x_size        : in std_logic_vector(12 downto 0);
       aclk_x_scale       : in std_logic_vector(3 downto 0);
       aclk_x_reverse     : in std_logic;
+      aclk_y_start       : in std_logic_vector(12 downto 0);
+      aclk_y_size        : in std_logic_vector(12 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Slave interface
@@ -966,13 +968,13 @@ architecture struct of XGS_athena is
   -- AXI drive by LUT in Modo (COLOR=0) or by
   -- xgs_color_proc in color mode (COLOR=1)
   -- sys_clk : 62.5mhz
-  signal x_trim_pixel_width : std_logic_vector(2 downto 0):= "000";  --temp
+  signal trim_pixel_width : std_logic_vector(2 downto 0):= "000";  --temp
   
-  signal xtrim_tready : std_logic;
-  signal xtrim_tvalid : std_logic;
-  signal xtrim_tdata  : std_logic_vector(63 downto 0);
-  signal xtrim_tuser  : std_logic_vector(3 downto 0);
-  signal xtrim_tlast  : std_logic;
+  signal trim_tready : std_logic;
+  signal trim_tvalid : std_logic;
+  signal trim_tdata  : std_logic_vector(63 downto 0);
+  signal trim_tuser  : std_logic_vector(3 downto 0);
+  signal trim_tlast  : std_logic;
 
 
   -- AXI received by DMA
@@ -1280,11 +1282,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        m_axis_tvalid => xtrim_tvalid,
-        m_axis_tready => xtrim_tready,
-        m_axis_tuser  => xtrim_tuser,
-        m_axis_tlast  => xtrim_tlast,
-        m_axis_tdata  => xtrim_tdata,
+        m_axis_tvalid => trim_tvalid,
+        m_axis_tready => trim_tready,
+        m_axis_tuser  => trim_tuser,
+        m_axis_tlast  => trim_tlast,
+        m_axis_tdata  => trim_tdata,
 
         ---------------------------------------------------------------------------
         --  Registers
@@ -1324,7 +1326,7 @@ begin
     --lut_tdata   <= aclk_tdata(79 downto 72) & aclk_tdata(69 downto 62) & aclk_tdata(59 downto 52) & aclk_tdata(49 downto 42) &
     --               aclk_tdata(39 downto 32) & aclk_tdata(29 downto 22) & aclk_tdata(19 downto 12) & aclk_tdata(9  downto  2) ; 
 
-    x_trim_pixel_width <= "001";
+    trim_pixel_width <= "001";
 
     
   end generate G_MONO_PIPELINE;  --MONO PIPELINE
@@ -1397,11 +1399,11 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        --m_axis_tready => xtrim_tready,
-        --m_axis_tvalid => xtrim_tvalid,
-        --m_axis_tuser  => xtrim_tuser,
-        --m_axis_tlast  => xtrim_tlast,
-        --m_axis_tdata  => xtrim_tdata,
+        --m_axis_tready => trim_tready,
+        --m_axis_tvalid => trim_tvalid,
+        --m_axis_tuser  => trim_tuser,
+        --m_axis_tlast  => trim_tlast,
+        --m_axis_tdata  => trim_tdata,
 
         m_axis_tready => dma_tready,
         m_axis_tvalid => dma_tvalid,
@@ -1496,7 +1498,7 @@ begin
 
     regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER          <= REG_bayer_ver;
 
-    x_trim_pixel_width <= "100";
+    trim_pixel_width <= "100";
 
   end generate G_COLOR_PIPELINE;
 
@@ -1504,27 +1506,29 @@ begin
 
   
   -- For the moment bypass X_TRIM in color mode    
-  G_MONO_XTRIM : if (COLOR = 0) generate
-    x_trim_inst : x_trim
+  G_MONO_TRIM : if (COLOR = 0) generate
+    trim_inst : trim
       generic map(
         NUMB_LINE_BUFFER => 2
         )
       port map(
         aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
         aclk_load_context  => load_dma_context,
-        aclk_pixel_width   => x_trim_pixel_width,
+        aclk_pixel_width   => trim_pixel_width,
         aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
         aclk_x_start       => regfile.DMA.ROI_X.X_START,
         aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
         aclk_x_scale       => regfile.DMA.CSC.SUB_X,
         aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
+        aclk_y_start       => regfile.DMA.ROI_Y.Y_START,
+        aclk_y_size        => regfile.DMA.ROI_Y.Y_SIZE,
         aclk               => aclk,
         aclk_reset_n       => aclk_reset_n,
-        aclk_tready        => xtrim_tready,
-        aclk_tvalid        => xtrim_tvalid,
-        aclk_tuser         => xtrim_tuser,
-        aclk_tlast         => xtrim_tlast,
-        aclk_tdata         => xtrim_tdata,
+        aclk_tready        => trim_tready,
+        aclk_tvalid        => trim_tvalid,
+        aclk_tuser         => trim_tuser,
+        aclk_tlast         => trim_tlast,
+        aclk_tdata         => trim_tdata,
         bclk               => aclk,
         bclk_reset_n       => aclk_reset_n,
         bclk_tready        => dma_tready,

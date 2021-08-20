@@ -44,8 +44,10 @@ proc a {} {
 	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
 	set PIXEL_WIDTH 1
-	set Y_SIZE 3
+	set Y_SIZE 5
 	set X_SIZE_RANGE {128}
+	set Y_ROI_SIZE 3
+	set Y_ROI_START 1
 	set X_ROI_EN 0
 	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 127
@@ -57,6 +59,8 @@ proc a {} {
 	set PIXEL_WIDTH 4
 	set Y_SIZE 3
 	set X_SIZE_RANGE {1024}
+	set Y_ROI_SIZE 3
+	set Y_ROI_START 0
 	set X_ROI_EN 1
 	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 128
@@ -80,7 +84,7 @@ proc a {} {
 		    # set PARAMETER_LIST "{-GTEST_NAME=${test_name}} -gPIXEL_WIDTH=${PIXEL_WIDTH} -gY_SIZE=${Y_SIZE} -gX_SIZE=${X_SIZE} -gX_ROI_EN=${X_ROI_EN} -gX_ROI_START=${X_ROI_START} -gX_ROI_SIZE=${X_ROI_SIZE} -gX_REVERSE=${X_REVERSE} {-GX_SCALING=${X_SCALING}}"
 		    set logfile "${test_name}.log"
 
-		    vsim -gui work.testbench -do "${IP}/validation2/tcl/valid.do" -GTEST_NAME=${test_name} -GPIXEL_WIDTH=${PIXEL_WIDTH} -GY_SIZE=${Y_SIZE} -GX_SIZE=${X_SIZE} -GX_ROI_EN=${X_ROI_EN} -GX_ROI_START=${X_ROI_START} -GX_ROI_SIZE=${X_ROI_SIZE} -GX_REVERSE=${X_REVERSE} -GX_SCALING=${X_SCALING} -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -l ${logfile}
+		    vsim -gui work.testbench -do "${IP}/validation2/tcl/valid.do" -GTEST_NAME=${test_name} -GPIXEL_WIDTH=${PIXEL_WIDTH} -GY_SIZE=${Y_SIZE} -GX_SIZE=${X_SIZE} -GX_ROI_EN=${X_ROI_EN} -GX_ROI_START=${X_ROI_START} -GX_ROI_SIZE=${X_ROI_SIZE} -GX_REVERSE=${X_REVERSE} -GX_SCALING=${X_SCALING} -GY_ROI_SIZE=${Y_ROI_SIZE} -GY_ROI_START=${Y_ROI_START} -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -l ${logfile}
 		    run -all
 		    set ERR_CNT [examine /testbench/error]
 		    if { [examine /testbench/error] != "32'h00000000"} {

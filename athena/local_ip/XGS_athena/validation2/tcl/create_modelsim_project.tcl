@@ -91,6 +91,8 @@ ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
 ${DATA_SRC_PATH}/x_trim_subsampling.vhd \
 ${DATA_SRC_PATH}/x_trim_streamout.vhd \
 ${DATA_SRC_PATH}/x_trim.vhd \
+${DATA_SRC_PATH}/y_trim.vhd \
+${DATA_SRC_PATH}/trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/axis_width_conv.vhd \
 ${DATA_SRC_PATH}/rgb_2_yuv.vhd \

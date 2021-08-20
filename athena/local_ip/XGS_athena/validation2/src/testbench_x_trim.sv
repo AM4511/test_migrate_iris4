@@ -4,13 +4,15 @@
 module testbench();
    parameter TEST_NAME = "UNKNOWN";
    parameter PIXEL_WIDTH = 1;  // size in bytes
-   parameter Y_SIZE = 4;       // size in rows
+   parameter Y_SIZE = 5;       // size in rows
    parameter X_SIZE = 256;     // size in pixels
    parameter X_ROI_EN = 1;
    parameter X_ROI_START = 0;  // size in pixels
    parameter X_ROI_SIZE = 128; // size in pixels
    parameter X_REVERSE = 0;
    parameter X_SCALING = 0;    // size in pixels
+   parameter Y_ROI_START = 0;  // size in pixels
+   parameter Y_ROI_SIZE = Y_SIZE-1; // size in pixels
 
    parameter WATCHDOG_MAX_CNT = 1000;
 
@@ -38,7 +40,8 @@ module testbench();
    bit [3:0] 	  aclk_x_scale;
    bit 		  aclk_x_crop_en;
    bit 		  aclk_x_reverse;
-
+   bit [12:0] 	  aclk_y_size;
+   bit [12:0] 	  aclk_y_start;
    bit 		  bclk;
    bit 		  bclk_reset_n;
    bit 		  bclk_tready;
@@ -58,30 +61,32 @@ module testbench();
    //assign bclk_tready = 1;
    int 		  watchdog;
    int 		  error;
-   x_trim DUT(
-	      . aclk_grab_queue_en(aclk_grab_queue_en),
-	      .aclk_load_context(aclk_load_context),
-	      .aclk_pixel_width(aclk_pixel_width),
-	      .aclk_x_crop_en(aclk_x_crop_en),
-	      .aclk_x_start(aclk_x_start),
-	      .aclk_x_size(aclk_x_size),
-	      .aclk_x_scale(aclk_x_scale),
-	      .aclk_x_reverse(aclk_x_reverse),
-	      .aclk(aclk),
-	      .aclk_reset_n(aclk_reset_n),
-	      .aclk_tready(aclk_tready),
-	      .aclk_tvalid(aclk_tvalid),
-	      .aclk_tuser(aclk_tuser),
-	      .aclk_tlast(aclk_tlast),
-	      .aclk_tdata(aclk_tdata),
-	      .bclk(bclk),
-	      .bclk_reset_n(bclk_reset_n),
-	      .bclk_tready(bclk_tready),
-	      .bclk_tvalid(bclk_tvalid),
-	      .bclk_tuser(bclk_tuser),
-	      .bclk_tlast(bclk_tlast),
-	      .bclk_tdata(bclk_tdata)
-	      );
+   trim DUT(
+	    .aclk_grab_queue_en(aclk_grab_queue_en),
+	    .aclk_load_context(aclk_load_context),
+	    .aclk_pixel_width(aclk_pixel_width),
+	    .aclk_x_crop_en(aclk_x_crop_en),
+	    .aclk_x_start(aclk_x_start),
+	    .aclk_x_size(aclk_x_size),
+	    .aclk_x_scale(aclk_x_scale),
+	    .aclk_x_reverse(aclk_x_reverse),
+	    .aclk_y_start(aclk_y_start),
+            .aclk_y_size(aclk_y_size),
+	    .aclk(aclk),
+	    .aclk_reset_n(aclk_reset_n),
+	    .aclk_tready(aclk_tready),
+	    .aclk_tvalid(aclk_tvalid),
+	    .aclk_tuser(aclk_tuser),
+	    .aclk_tlast(aclk_tlast),
+	    .aclk_tdata(aclk_tdata),
+	    .bclk(bclk),
+	    .bclk_reset_n(bclk_reset_n),
+	    .bclk_tready(bclk_tready),
+	    .bclk_tvalid(bclk_tvalid),
+	    .bclk_tuser(bclk_tuser),
+	    .bclk_tlast(bclk_tlast),
+	    .bclk_tdata(bclk_tdata)
+	    );
 
 
    initial begin
@@ -104,9 +109,11 @@ module testbench();
       // ROI setting
       aclk_x_crop_en = X_ROI_EN;
       aclk_x_start = X_ROI_START;
-      aclk_x_size = X_ROI_SIZE;
-      aclk_x_stop = aclk_x_start + aclk_x_size -1;
+      aclk_x_size  = X_ROI_SIZE;
+      aclk_x_stop  = aclk_x_start + aclk_x_size -1;
       aclk_x_scale = X_SCALING;
+      aclk_y_start = Y_ROI_START;
+      aclk_y_size  = Y_ROI_SIZE;
 
       $display("\n\n");
       $display("DISPLAY     : %s",TEST_NAME);
@@ -268,8 +275,8 @@ module testbench();
 
 	    int        longest_row_size;
 
-	    axi_received_stream = new[Y_SIZE];
-	    axi_predicted_stream = new[Y_SIZE];
+	    axi_received_stream = new[Y_ROI_SIZE];
+	    axi_predicted_stream = new[Y_ROI_SIZE];
 	    
 
 	    ///////////////////////////////////////////////////////
@@ -342,7 +349,7 @@ module testbench();
 
 
 	    // Process each row
-	    for (j=0;  j<Y_SIZE;  j++) begin
+	    for (j=0;  j < Y_ROI_SIZE;  j++) begin
 	       subs_cntr = 0;
 	       // Process each pixel of the current row
 	       for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
