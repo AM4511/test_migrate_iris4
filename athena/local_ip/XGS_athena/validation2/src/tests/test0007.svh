@@ -4,13 +4,12 @@
 // SUBSAMPLING X-Y TEST
 //
 
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
-import xgs_athena_pkg::*;
 
 
 
-class Test0007 extends CTest;
+class Test0007 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;

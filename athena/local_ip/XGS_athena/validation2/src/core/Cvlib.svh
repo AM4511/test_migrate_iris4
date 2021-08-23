@@ -5,17 +5,17 @@
 // Description:
 // La classe CDut contient les modules servant a envoyer des stimulis au device-under-test
 //
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 
-package CVlibPkg;
-import core_pkg::*;   //Cstatus is inside
-import driver_pkg::*;
+//import xgs_athena_pkg
+//import core_pkg::*;   //Cstatus is inside
+//import driver_pkg::*;
+//
+//typedef class Cimage;
+//`include "Cimage.sv"
 
-typedef class CImage;
-`include "Cimage.sv"
 
-
-class CVlib;
+class Cvlib;
 
 
     parameter BAR_XGS_ATHENA        = 32'h00000000;
@@ -34,6 +34,7 @@ class CVlib;
 	parameter CSC_OFFSET            = 'h098;
 	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
 	parameter ROI_X_OFFSET          = 'h0B0;
+	parameter ROI_Y_OFFSET          = 'h0BC;
 
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
@@ -146,9 +147,9 @@ class CVlib;
     Cdriver_axil host;
     virtual axi_stream_interface tx_axis_if;
 
-    CImage XGS_imageSRC;
-    CImage XGS_image;
-    CImage XGS_imageDPC;
+    Cimage XGS_imageSRC;
+    Cimage XGS_image;
+    Cimage XGS_imageDPC;
 
 
     function new( Cdriver_axil host, Cstatus TestStatus, virtual axi_stream_interface tx_axis_if);
@@ -658,12 +659,33 @@ class CVlib;
 
 
     //---------------------------------------
-    //  SET Y ROI IN IMG
+    //  SET Y ROI IN XGS IMG sensor
     //---------------------------------------
     task Set_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);
         host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START);
 		host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE);
+		//host.write(ROI_Y_OFFSET, (ROI_Y_SIZE<<16) + ROI_Y_START);
     endtask : Set_Y_ROI
+
+    //---------------------------------------
+    //  SET Y ROI IN TRim module (DMA Cropping)
+    //---------------------------------------
+    task Set_DMA_Trim_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);
+       // host.write(SENSOR_ROI_Y_START_OFFSET, ROI_Y_START);
+		//host.write(SENSOR_ROI_Y_SIZE_OFFSET, ROI_Y_SIZE);
+		host.write(ROI_Y_OFFSET, (ROI_Y_SIZE<<16) + ROI_Y_START);
+    endtask : Set_DMA_Trim_Y_ROI
+
+
+
+    //---------------------------------------
+    //  SET ROI X
+    //---------------------------------------
+//	task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);
+	task Set_DMA_Trim_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
+		host.write(ROI_X_OFFSET, (ROI_EN<<31) + (ROI_X_SIZE<<16)+ ROI_X_START);
+	endtask : 	Set_DMA_Trim_X_ROI
+
 
     //---------------------------------------
     //  SET SUBSAMPLING MODE
@@ -708,14 +730,6 @@ class CVlib;
 		host.write(CSC_OFFSET, reg_value);
 
 	endtask : 	Set_REV_Y
-
-    //---------------------------------------
-    //  SET ROI X
-    //---------------------------------------
-//	task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);
-	task Set_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
-		host.write(ROI_X_OFFSET, (ROI_EN<<31) + (ROI_X_SIZE<<16)+ ROI_X_START);
-	endtask : 	Set_X_ROI
 
     //---------------------------------------
     //  SET EXPOSURE
@@ -928,7 +942,7 @@ class CVlib;
 
 
 
-endclass : CVlib
+endclass : Cvlib
 
 
-endpackage : CVlibPkg
+//endpackage : CVlibPkg

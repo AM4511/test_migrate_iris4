@@ -9,23 +9,23 @@
  */
 package tests_pkg;
     
-  `include "Ctest.svh"
-  `include "./tests/test0001.svh"
-  `include "./tests/test0002.svh"
-  `include "./tests/test0003.svh"
-  `include "./tests/test0004.svh"
-  `include "./tests/test0005.svh"
-  `include "./tests/test0006.svh"
-  `include "./tests/test0007.svh"
-  `include "./tests/test0008.svh"
-  `include "./tests/test0009.svh"
-  `include "./tests/test0010.svh"
-  `include "./tests/test0020.svh"
-  `include "./tests/test0021.svh"
-  `include "./tests/test0022.svh"
-  `include "./tests/test0023.svh"  
+  //`include "Ctest.svh"
+  `include "test0001.svh"
+  `include "test0002.svh"
+  `include "test0003.svh"
+  `include "test0004.svh"
+  `include "test0005.svh"
+  `include "test0006.svh"
+  `include "test0007.svh"
+  `include "test0008.svh"
+  `include "test0009.svh"
+  `include "test0010.svh"
+  `include "test0020.svh"
+  `include "test0021.svh"
+  `include "test0022.svh"
+  `include "test0023.svh"  
 
-  typedef class CTest;
+  //typedef class CTest;
   typedef class Test0001;
   typedef class Test0002;  
   typedef class Test0003;    
