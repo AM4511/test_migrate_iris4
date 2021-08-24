@@ -5,17 +5,11 @@
 // Description:
 // La classe CDut contient les modules servant a envoyer des stimulis au device-under-test
 //
-`timescale 1ns / 1ps
-
-package CVlibPkg;
-import core_pkg::*;   //Cstatus is inside
 import driver_pkg::*;
-
-typedef class CImage;
-`include "Cimage.sv"
+import core_pkg::*;
 
 
-class CVlib;
+class Cvlib;
 
 
     parameter BAR_XGS_ATHENA        = 32'h00000000;
@@ -77,6 +71,12 @@ class CVlib;
     parameter DPC_LIST_DATA1_RD            = 16'h494;
     parameter DPC_LIST_DATA2_RD            = 16'h498;
 
+    // WB
+    parameter WB_MUL1                      = 16'h4c4;
+    parameter WB_MUL2                      = 16'h4c8;
+    // BAYER
+	parameter BAYER_CAPABILITIES           = 16'h4c0;
+
     // LUT
     parameter LUT_CAPABILITIES             = 16'h4B0;
 	parameter LUT_CTRL                     = 16'h4B4;
@@ -117,7 +117,8 @@ class CVlib;
 
 	int DPC_list_count = 0;
 
-
+    int bayer = 0;
+    int yuv = 0;
 
 
     /////////////////////////////
@@ -139,9 +140,9 @@ class CVlib;
     Cdriver_axil host;
     virtual axi_stream_interface tx_axis_if;
 
-    CImage XGS_imageSRC;
-    CImage XGS_image;
-    CImage XGS_imageDPC;
+    Cimage XGS_imageSRC;
+    Cimage XGS_image;
+    Cimage XGS_imageDPC;
 
 
     function new( Cdriver_axil host, Cstatus TestStatus, virtual axi_stream_interface tx_axis_if);
@@ -300,7 +301,7 @@ class CVlib;
     //---------------------------------------
     //  Program XGS MODEL
     //---------------------------------------
-    task setXGSmodel();
+    task setXGSmodel(input int Color=0);
 
         int data_rd;
 		int axi_addr;
@@ -381,8 +382,12 @@ class CVlib;
 
 		// XGS model : Set line time (for 6 lanes)
 		$display("  4.7 SPI write XGS set line time @0x%h", SPI_LINE_TIME_REG);
-		line_time = 'h02dc;                              // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
-		XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
+		if(Color==0)
+          line_time = 'h02dc;   //MONO                           // default in model and in devware is 0xe6  (24 lanes), XGS12M register is 0x16e @32.4Mhz (T=30.864ns)
+		else
+          line_time = 'h0b70;   //COLOR(4 * 0x2dc)
+		
+        XGS_WriteSPI(SPI_LINE_TIME_REG, line_time);      // register_map(1032) <= X"00E6";    --Address 0x3810 - line_time
 
 
 		// XGS model : Slave Mode And ENABLE SEQUENCER
@@ -414,6 +419,7 @@ class CVlib;
 		XGS_WriteSPI(8, 16'h0001);           // Cree le .pgm et loade le modele XGS vhdl dew facon SW par ecriture ds le modele
 		#10us;
 		XGS_WriteSPI(8, 16'h0000);
+		#50us;
 	endtask : GenImage_XGS
 
 
@@ -592,7 +598,7 @@ class CVlib;
     //---------------------------------------
     //  setHISPI_X_window X Origine
     //---------------------------------------
-    task setHISPI_X_window();
+    task setHISPI_X_window(int Interpolation = 0);
 		bit [31:0] reg_value;
 		///////////////////////////////////////////////////
 		// Program X Origin of valid data, in HiSPI
@@ -605,13 +611,15 @@ class CVlib;
 		//MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1 + P_INTERPOLATION;
 		//MODEL_X_END    = MODEL_X_START+P_ROI_WIDTH-1;
 
-		//Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
-		MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
-		MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;
-
-		//Image qui part a 0,  avec tous les pixels interpolation(x8)
-		//MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;
-
+		if (Interpolation==0) begin
+		  //Image qui part a 0,  max 4096 (on dumpe 8 pixels a la fin, comme si on dumpait 8 dummys)
+		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH -1;
+		end else begin
+		  //Image qui part a 0,  avec tous les pixels interpolation(x8)
+		  MODEL_X_START  = P_LEFT_DUMMY_0 + P_LEFT_BLACKREF + P_LEFT_DUMMY_1;
+		  MODEL_X_END    = MODEL_X_START + P_ROI_WIDTH + 2* P_INTERPOLATION -1;
+		end
 		reg_value = (MODEL_X_END<<16) + MODEL_X_START;
 		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);
 
@@ -698,7 +706,8 @@ class CVlib;
     //---------------------------------------
     //  SET ROI X
     //---------------------------------------
-    task Set_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
+//	task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);
+	task Set_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
 		host.write(ROI_X_OFFSET, (ROI_EN<<31) + (ROI_X_SIZE<<16)+ ROI_X_START);
 	endtask : 	Set_X_ROI
 
@@ -760,6 +769,36 @@ class CVlib;
 
 
 
+    //---------------------------------------
+    //  Task : Prediction image de grab COLOR
+    //---------------------------------------
+    task Gen_predict_img_color(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
+   		XGS_image = XGS_imageSRC.copy;
+		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                         // Sensor ROI Y
+		XGS_image.sub_Y(SUB_Y);                                                                           // Sensor SUB Y
+
+   		XGS_image.reduce_bit_depth(10);                                                                   // FPGA 12bpp to 10bpp
+ 		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                                 // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
+
+   	    //XGS_image.mono_2_color_patch(); //on ramase 2 pixel LSB, on dumpe 6 ...
+    	XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
+		XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC
+        XGS_image.reduce_bit_depth(8);                                                                    // FPGA 10bpp to 8bpp
+
+		if(bayer==1)
+		  XGS_image.BayerDemosaic();                                                                      // Bayer : Mono8 to RGB32
+		else
+		  XGS_image.mono8_2_mono32();
+
+        if(yuv==1)
+		  XGS_image.Bayer2YUV(); 
+
+        //XGS_image.crop_X(ROI_X_START, ROI_X_END);                                                    // FPGA ROI X
+		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
+        //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X
+		//XGS_image.rev_Y(REV_Y);                                                                      // FPGA REV Y  : fait au niveau de la generation d'adresse du scoreboard
+
+	endtask : Gen_predict_img_color
 
 
 
@@ -809,8 +848,81 @@ class CVlib;
     endtask : DPC_add_list
 
 
+    ///////////////////////////////////////////////////
+	// DPC ADD COLOR PIXEL LIST
+	///////////////////////////////////////////////////
+    task DPC_COLOR_add_list();
+        int i;
+        int j;
+		int DPC_PATTERN;
 
-endclass : CVlib
+		//Replace by R pixel
+		DPC_PATTERN = 1;       //replace by R pixel
+		for (j = 0; j < 4; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin
+		       DPC_add(i, j, DPC_PATTERN);
+		    end
+
+        //Replace by L pixel
+		DPC_PATTERN = 16;       //replace by L pixel
+		for (j = 4; j < 8; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin
+		       DPC_add(i, j, DPC_PATTERN);
+		    end
+
+       //Replace by L+R/2 pixel
+		DPC_PATTERN = 17;
+		for (j = 8; j < 12; j++)
+		  for (i = 0; i < 128; i=i+8)
+		    begin
+		       DPC_add(i, j, DPC_PATTERN);
+		    end
 
 
-endpackage : CVlibPkg
+        DPC_en(1, 1);  // (Enable, REG_DPC_PATTERN0_CFG: 0=bypass 1=white)
+
+    endtask : DPC_COLOR_add_list
+
+
+    ///////////////////////////////////////////////////
+	// White Balance
+	///////////////////////////////////////////////////
+    task setWB(int B_FACT, int G_FACT, int R_FACT);
+    	host.write(WB_MUL1,  (G_FACT<<16) + B_FACT );
+    	host.write(WB_MUL2,  R_FACT );
+    endtask : setWB
+
+    ///////////////////////////////////////////////////
+	// CSC
+	///////////////////////////////////////////////////
+    task setCSC(int COLOR_SPACE);
+        int reg_value;
+
+		// FPGA CSC
+		host.read(CSC_OFFSET, reg_value);
+		reg_value = reg_value | (COLOR_SPACE<<24) ;
+		host.write(CSC_OFFSET, reg_value);
+		
+		// For prediction
+		if(COLOR_SPACE==1) begin      // RGB32   
+		  this.bayer = 1;
+		  this.yuv   = 0;
+        end
+		else if(COLOR_SPACE==2) begin // YUV   
+		  this.bayer = 1;
+		  this.yuv   = 1;
+		end
+		else begin                    // RAW    
+		  this.bayer = 0; 
+		  this.yuv   = 0;  
+        end 
+    endtask : setCSC
+
+
+
+endclass : Cvlib
+
+
+//endpackage : CvlibPkg

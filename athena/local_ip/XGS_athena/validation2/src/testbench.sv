@@ -1,15 +1,13 @@
 //---------------------------------------------------------------------------
 // Testbench  
 //---------------------------------------------------------------------------
-//
-//***************************************************************************
-//
- 
+
 
 `timescale 1ns / 1ps
 
-import tests_pkg::*;
 import driver_pkg::*;
+import core_pkg::*;
+import tests_pkg::*;
 
 
 
@@ -17,7 +15,7 @@ module testbench;
 
  	parameter AXIL_DATA_WIDTH  = 32;
 	parameter AXIL_ADDR_WIDTH  = 11;
-  parameter AXIS_DATA_WIDTH  = 64;
+    parameter AXIS_DATA_WIDTH  = 64;
 	parameter AXIS_USER_WIDTH  = 4;
 	parameter GPIO_NUMB_INPUT  = 1;
 	parameter GPIO_NUMB_OUTPUT = 3;  // [2]   = Anput Ext trigger
@@ -55,8 +53,8 @@ module testbench;
   Test0020 test0023;  //color RGB32 12M
 
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
-  CTest t;
-  CTestProxy top_string_factory[string];
+  Ctest t;
+  CtestProxy top_string_factory[string];
   string test_number_string;
   string test_index;
 

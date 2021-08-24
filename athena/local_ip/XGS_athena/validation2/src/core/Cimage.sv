@@ -14,7 +14,7 @@
 // objet_image.pgm_size_y;
 
 //
-// function CImage copy;
+// function Cimage copy;
 // Fait une deep-copy de l'objet, donc de l'image.
 //
 // task reduce_bit_depth;
@@ -55,7 +55,7 @@
 `timescale 1ns / 1ps
 
 
-class CImage;
+class Cimage;
 
     //int i;
     //int pixel;
@@ -79,7 +79,7 @@ class CImage;
 	endfunction
 
 
-    function CImage copy;
+    function Cimage copy;
         copy = new;
         copy.pgm_size_x = pgm_size_x; // Fill in data values
         copy.pgm_size_y = pgm_size_y;
@@ -1141,4 +1141,4 @@ class CImage;
 
 
 
-endclass :  CImage
+endclass :  Cimage

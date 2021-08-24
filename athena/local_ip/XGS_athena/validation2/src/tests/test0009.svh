@@ -4,13 +4,12 @@
 // Rev Y test
 //
 
-import tests_pkg::*;
 import driver_pkg::*;
-import xgs_athena_pkg::*;
+import core_pkg::*;
 
 
 
-class Test0009 extends CTest;
+class Test0009 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
