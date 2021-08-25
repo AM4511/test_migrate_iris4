@@ -39,7 +39,7 @@ proc r {} {
 }
 
 proc a {} {
-	set DEBUG 1
+	set DEBUG 0
 	
 	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
@@ -58,17 +58,18 @@ proc a {} {
     } else {
     # In non debug mode run a range of different configurations
 	set PIXEL_WIDTH 4
-	set Y_SIZE 3
+	set Y_SIZE 5
 	set X_SIZE_RANGE {1024}
-	set Y_ROI_EN 0
+	set Y_ROI_EN 1
 	set Y_ROI_SIZE 3
-	set Y_ROI_START 0
+	set Y_ROI_START 1
 	set X_ROI_EN 1
 	set X_ROI_START 1
 	set X_ROI_SIZE_MIN 128
 	set X_ROI_SIZE_MAX 136
 	set X_REVERSE_RANGE {0 1}
-	set X_SCALING_RANGE {0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15}
+	#set X_SCALING_RANGE {0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15}
+	set X_SCALING_RANGE {0 1 2 3}
 	#set X_SCALING_RANGE {15}
     }
     set IPCORES_PATH $::env(IRIS4)/athena/local_ip

@@ -15,7 +15,7 @@ module testbench();
    parameter Y_ROI_START = 0;  // size in pixels
    parameter Y_ROI_SIZE = Y_SIZE-1; // size in pixels
 
-   parameter WATCHDOG_MAX_CNT = 1000;
+   parameter WATCHDOG_MAX_CNT = 100000;
 
 
    typedef struct {
