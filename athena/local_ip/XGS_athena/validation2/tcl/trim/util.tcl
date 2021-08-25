@@ -24,7 +24,7 @@ proc h {} {
 proc n {} {
     set IPCORES_PATH $::env(IRIS4)/athena/local_ip
     set IP ${IPCORES_PATH}/XGS_athena
-    source $IP/validation2/tcl/x_trim/util.tcl
+    source $IP/validation2/tcl/trim/util.tcl
 }
 
 #####################################################
@@ -39,13 +39,14 @@ proc r {} {
 }
 
 proc a {} {
-	set DEBUG 0
+	set DEBUG 1
 	
 	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
-	set PIXEL_WIDTH 1
+	set PIXEL_WIDTH 4
 	set Y_SIZE 5
 	set X_SIZE_RANGE {128}
+    set Y_ROI_EN 1
 	set Y_ROI_SIZE 3
 	set Y_ROI_START 1
 	set X_ROI_EN 0
@@ -53,12 +54,13 @@ proc a {} {
 	set X_ROI_SIZE_MIN 127
 	set X_ROI_SIZE_MAX 128
 	set X_REVERSE_RANGE {0}
-	set X_SCALING_RANGE {6}
+	set X_SCALING_RANGE {0}
     } else {
     # In non debug mode run a range of different configurations
 	set PIXEL_WIDTH 4
 	set Y_SIZE 3
 	set X_SIZE_RANGE {1024}
+	set Y_ROI_EN 0
 	set Y_ROI_SIZE 3
 	set Y_ROI_START 0
 	set X_ROI_EN 1
@@ -84,7 +86,7 @@ proc a {} {
 		    # set PARAMETER_LIST "{-GTEST_NAME=${test_name}} -gPIXEL_WIDTH=${PIXEL_WIDTH} -gY_SIZE=${Y_SIZE} -gX_SIZE=${X_SIZE} -gX_ROI_EN=${X_ROI_EN} -gX_ROI_START=${X_ROI_START} -gX_ROI_SIZE=${X_ROI_SIZE} -gX_REVERSE=${X_REVERSE} {-GX_SCALING=${X_SCALING}}"
 		    set logfile "${test_name}.log"
 
-		    vsim -gui work.testbench -do "${IP}/validation2/tcl/valid.do" -GTEST_NAME=${test_name} -GPIXEL_WIDTH=${PIXEL_WIDTH} -GY_SIZE=${Y_SIZE} -GX_SIZE=${X_SIZE} -GX_ROI_EN=${X_ROI_EN} -GX_ROI_START=${X_ROI_START} -GX_ROI_SIZE=${X_ROI_SIZE} -GX_REVERSE=${X_REVERSE} -GX_SCALING=${X_SCALING} -GY_ROI_SIZE=${Y_ROI_SIZE} -GY_ROI_START=${Y_ROI_START} -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -l ${logfile}
+		    vsim -gui work.testbench -do "${IP}/validation2/tcl/valid.do" -GTEST_NAME=${test_name} -GPIXEL_WIDTH=${PIXEL_WIDTH} -GY_SIZE=${Y_SIZE} -GX_SIZE=${X_SIZE} -GX_ROI_EN=${X_ROI_EN} -GX_ROI_START=${X_ROI_START} -GX_ROI_SIZE=${X_ROI_SIZE} -GX_REVERSE=${X_REVERSE} -GX_SCALING=${X_SCALING} -GY_ROI_EN=${Y_ROI_EN} -GY_ROI_SIZE=${Y_ROI_SIZE} -GY_ROI_START=${Y_ROI_START} -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -l ${logfile}
 		    run -all
 		    set ERR_CNT [examine /testbench/error]
 		    if { [examine /testbench/error] != "32'h00000000"} {

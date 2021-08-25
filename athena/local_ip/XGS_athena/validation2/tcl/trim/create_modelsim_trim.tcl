@@ -3,7 +3,7 @@
 # Require the MS-Windows environment variable IRIS4 and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
-# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/x_trim/create_modelsim_x_trim.tcl
+# source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/trim/create_modelsim_trim.tcl
 #
 # ###########################################################################
 set validation_dir         validation2        
@@ -14,7 +14,7 @@ set ATHENA                 $env(IRIS4)/athena
 set IPCORES                ${ATHENA}/ipcores
 set LOCAL_IP               ${ATHENA}/local_ip
 
-set PROJECT_NAME           x_trim  
+set PROJECT_NAME           trim  
 set ROOT_PATH              ${LOCAL_IP}/XGS_athena
 set LIBRARY_NAME           ${PROJECT_NAME}.lib
 
@@ -36,7 +36,7 @@ set MODELSIM_PROJECT_PATH  ${ROOT_PATH}/${validation_dir}/mti
 set MODELSIM_INI           ${MODELSIM_PROJECT_PATH}/modelsim.ini
 
 set LIBRARY_PATH           ${ROOT_PATH}/${validation_dir}/mti/${LIBRARY_NAME}
-set TCL_PATH               ${ROOT_PATH}/${validation_dir}/tcl/x_trim
+set TCL_PATH               ${ROOT_PATH}/${validation_dir}/tcl/trim
 
 set XILINX_IP_PATH         ${DATA_SRC_PATH}/phy   
 
@@ -71,7 +71,7 @@ ${DATA_SRC_PATH}/trim.vhd
 
 # Define the testbench files
 set testbench_fileset [join [list  [subst {
-${TESTBENCH_SRC_PATH}/testbench_x_trim.sv
+${TESTBENCH_SRC_PATH}/testbench_trim.sv
 }
 ]
 ]
