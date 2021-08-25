@@ -1504,7 +1504,6 @@ begin
   end generate G_COLOR_PIPELINE;
 
 
-
   
   -- For the moment bypass X_TRIM in color mode    
   G_MONO_TRIM : if (COLOR = 0) generate

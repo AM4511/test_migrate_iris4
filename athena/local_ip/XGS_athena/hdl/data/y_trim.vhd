@@ -126,7 +126,7 @@ begin
       if (aclk_reset = '1') then
         aclk_state <= S_IDLE;
       else
-        if (aclk_ack = '1') then
+        if (aclk_y_roi_en = '1' and aclk_ack = '1') then
 
           case aclk_state is
             -------------------------------------------------------------------
@@ -251,7 +251,7 @@ begin
       if (aclk_reset = '1') then
         aclk_tuser_int <= (others => '0');
       else
-        if (aclk_ack = '1') then
+        if (aclk_y_roi_en = '1' and aclk_ack = '1') then
 
           if (aclk_tvalid = '1' and aclk_line_valid = '1') then
             ---------------------------------------------------------------------
@@ -296,7 +296,7 @@ begin
         aclk_tlast_int  <= '0';
         aclk_tdata_int  <= (others => '0');
       else
-        if (aclk_ack = '1') then
+        if (aclk_y_roi_en = '1' and aclk_ack = '1') then
           if (aclk_line_valid = '1') then
             aclk_tvalid_int <= '1';
             aclk_tlast_int  <= aclk_tlast;
@@ -321,9 +321,16 @@ begin
   aclk_tready <= aclk_tready_out;
 
   -- Stream output I/F
-  aclk_tvalid_out <= aclk_tvalid_int;
-  aclk_tuser_out  <= aclk_tuser_int;
-  aclk_tlast_out  <= aclk_tlast_int;
-  aclk_tdata_out  <= aclk_tdata_int;
-
+  aclk_tvalid_out <= aclk_tvalid_int when (aclk_y_roi_en = '1') else
+                     aclk_tvalid;
+  
+  aclk_tuser_out  <= aclk_tuser_int when (aclk_y_roi_en = '1') else
+                     aclk_tuser;
+  
+  aclk_tlast_out  <= aclk_tlast_int when (aclk_y_roi_en = '1') else
+                     aclk_tlast;
+  
+  aclk_tdata_out  <= aclk_tdata_int when (aclk_y_roi_en = '1') else
+                     aclk_tdata;
+  
 end architecture rtl;
