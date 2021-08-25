@@ -21,7 +21,7 @@ package core_pkg;
 	`include "Cstatus.svh"
 	`include "Ctest.svh"
 	`include "Cscoreboard.svh"
-	`include "Cimage.sv"
+	`include "Cimage.svh"
 	
 	
     //Grab SOURCE
@@ -37,4 +37,4 @@ package core_pkg;
 	const int ANY=2; 
 	const int LEVEL_HI=3; 
 	const int LEVEL_LO=4; 
-endpackage
+endpackage : core_pkg

@@ -3,8 +3,10 @@
 //
 //
 //
-import driver_pkg::*;
+
 import core_pkg::*;
+import driver_pkg::*;
+
 
 
 class Test0001 extends Ctest;
@@ -123,6 +125,10 @@ class Test0001 extends Ctest;
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				// DMA TRIM 
+				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE);
+				
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;

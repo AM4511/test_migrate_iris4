@@ -1,7 +1,5 @@
-//import CvlibPkg::*;
 import core_pkg::*;
 import driver_pkg::*;
-
 
 
 

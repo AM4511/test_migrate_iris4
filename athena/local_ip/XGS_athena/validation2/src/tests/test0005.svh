@@ -4,8 +4,8 @@
 // SUBSAMPLING X TEST
 //
 
-import driver_pkg::*;
 import core_pkg::*;
+import driver_pkg::*;
 
 
 
@@ -110,9 +110,15 @@ class Test0005 extends Ctest;
 				ROI_Y_SIZE  = 8;           // Doit etre multiple de 4, // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
 
-				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
-				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
+                // Sensor exposure
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
+
+                // Sensor Y ROI
+				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
+				
+				// DMA Trim module
+				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE);
 
 
 				///////////////////////////////////////////////////

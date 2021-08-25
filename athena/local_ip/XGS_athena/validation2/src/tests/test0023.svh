@@ -3,8 +3,9 @@
 //
 //
 //
-import driver_pkg::*;
+
 import core_pkg::*;
+import driver_pkg::*;
 
 
 
