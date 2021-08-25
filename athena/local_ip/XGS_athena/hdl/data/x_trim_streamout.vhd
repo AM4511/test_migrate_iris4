@@ -121,7 +121,7 @@ architecture rtl of x_trim_streamout is
 
   type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_READ_CMD, S_READ_DATA, S_SOF, S_SOL, S_READ, S_EOL, S_EOF, S_DONE);
 
-  constant WORD_PTR_WIDTH      : integer := 9;
+  constant WORD_PTR_WIDTH      : integer := 2+9;
   constant BUFF_PTR_WIDTH      : integer := 1;
   constant BUFFER_DATA_WIDTH   : integer := 64;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
@@ -236,10 +236,10 @@ begin
   -----------------------------------------------------------------------------
   -- Remapping the current command fields
   -----------------------------------------------------------------------------
-  bclk_cmd_last_ben <= bclk_cmd_data(19 downto 12);
-  bclk_cmd_sync     <= bclk_cmd_data(11 downto 10);
-  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
-  bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
+  bclk_cmd_last_ben <= bclk_cmd_data(21 downto 14);
+  bclk_cmd_sync     <= bclk_cmd_data(13 downto 12);
+  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(11 downto 11));
+  bclk_cmd_size     <= unsigned(bclk_cmd_data(10 downto 0));
 
 
   -----------------------------------------------------------------------------

@@ -1400,17 +1400,17 @@ begin
         ---------------------------------------------------------------------
         -- AXI out
         ---------------------------------------------------------------------
-        --m_axis_tready => trim_tready,
-        --m_axis_tvalid => trim_tvalid,
-        --m_axis_tuser  => trim_tuser,
-        --m_axis_tlast  => trim_tlast,
-        --m_axis_tdata  => trim_tdata,
+        m_axis_tready => trim_tready,
+        m_axis_tvalid => trim_tvalid,
+        m_axis_tuser  => trim_tuser,
+        m_axis_tlast  => trim_tlast,
+        m_axis_tdata  => trim_tdata,
 
-        m_axis_tready => dma_tready,
-        m_axis_tvalid => dma_tvalid,
-        m_axis_tuser  => dma_tuser,
-        m_axis_tlast  => dma_tlast,
-        m_axis_tdata  => dma_tdata,
+        -- m_axis_tready => dma_tready,
+        -- m_axis_tvalid => dma_tvalid,
+        -- m_axis_tuser  => dma_tuser,
+        -- m_axis_tlast  => dma_tlast,
+        -- m_axis_tdata  => dma_tdata,
         
         
         ---------------------------------------------------------------------              
@@ -1506,7 +1506,7 @@ begin
 
   
   -- For the moment bypass X_TRIM in color mode    
-  G_MONO_TRIM : if (COLOR = 0) generate
+  --G_MONO_TRIM : if (COLOR = 0) generate
     trim_inst : trim
       generic map(
         NUMB_LINE_BUFFER => 2
@@ -1538,7 +1538,7 @@ begin
         bclk_tlast         => dma_tlast,
         bclk_tdata         => dma_tdata
         );
-  end generate;  
+  --end generate;  
 
 
   xdmawr2tlp : dmawr2tlp

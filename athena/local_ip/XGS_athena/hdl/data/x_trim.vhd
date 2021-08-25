@@ -211,7 +211,7 @@ architecture rtl of x_trim is
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
 
 
-  constant WORD_PTR_WIDTH      : integer := 9;
+  constant WORD_PTR_WIDTH      : integer := 2+9;
   constant BUFF_PTR_WIDTH      : integer := 1;
   constant BUFFER_ADDR_WIDTH   : integer := BUFF_PTR_WIDTH + WORD_PTR_WIDTH;  -- in bits
   constant BUFFER_DATA_WIDTH   : integer := 64;
