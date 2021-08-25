@@ -14,8 +14,9 @@ entity y_trim is
     ---------------------------------------------------------------------------
     -- Register file
     ---------------------------------------------------------------------------
-    aclk_y_start : in unsigned(12 downto 0);
-    aclk_y_size  : in unsigned(12 downto 0);
+    aclk_y_roi_en : in std_logic;
+    aclk_y_start  : in unsigned(12 downto 0);
+    aclk_y_size   : in unsigned(12 downto 0);
 
     ---------------------------------------------------------------------------
     -- AXI Slave interface

@@ -155,6 +155,11 @@
       </fields>
     </registers>
     <registers name="ROI_Y" offsetFromParent="4C" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="2">
+      <fields name="ROI_EN" alias="Region of interest enable" description="This bit activate the region of interest mechanism (cropping)in the Y axix. If enabled,  this mechanism rely on the Y_START and Y_SIZE parameters to determine the valid region of a row. If ROI_EN is disabled the full sensor image is sent to the host.&#xD;&#xA;The first valide line is located at Y_START and the last valid line is located at at Y_STOP = Y_START + (Y_SIZE -1)&#xD;&#xA;" lsb="31">
+        <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Region of interest is disabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Region of interest is enabled&lt;/matrox_column_delimiter></possibleValues>
+        <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
+      </fields>
       <fields name="Y_SIZE" description="This register defines the size in lines of the region of interest ." lsb="16" size="13" valueAtReset="3ff">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>

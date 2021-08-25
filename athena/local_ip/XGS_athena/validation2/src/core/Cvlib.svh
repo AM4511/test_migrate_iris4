@@ -28,6 +28,7 @@ class Cvlib;
 	parameter CSC_OFFSET            = 'h098;
 	parameter OUTPUT_BUFFER_OFFSET  = 'h0A8;
 	parameter ROI_X_OFFSET          = 'h0B0;
+	parameter ROI_Y_OFFSET          = 'h0BC;
 
 	// XGS_athena controller
 	parameter GRAB_CTRL_OFFSET          = 'h0100;
@@ -706,10 +707,16 @@ class Cvlib;
     //---------------------------------------
     //  SET ROI X
     //---------------------------------------
-//	task Set_X_ROI(input int ROI_X_START, input int ROI_X_END);
 	task Set_X_ROI(input int ROI_X_START, input int ROI_X_SIZE, input int ROI_EN = 1);
 		host.write(ROI_X_OFFSET, (ROI_EN<<31) + (ROI_X_SIZE<<16)+ ROI_X_START);
 	endtask : 	Set_X_ROI
+
+    //---------------------------------------
+    //  SET ROI Y
+    //---------------------------------------
+	task Set_TRIM_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);
+		host.write(ROI_Y_OFFSET, (ROI_Y_SIZE<<16)+ ROI_Y_START);
+	endtask : 	Set_TRIM_Y_ROI
 
     //---------------------------------------
     //  SET EXPOSURE

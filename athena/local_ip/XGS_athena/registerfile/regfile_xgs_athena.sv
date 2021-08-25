@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/08/18 16:17:35
- ** Created by          : jmansill
+ ** Created on          : 2021/08/25 10:20:42
+ ** Created by          : amarchan
  ** FDK IDE Version     : 4.7.0_beta4
  ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0xF3B3DD1A
+ ** Register file CRC32 : 0x9D7A0FC4
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -354,7 +354,8 @@ typedef union packed
       logic [12:0] Y_START;                 /* Bits(12:0), null */
       logic [2:0]  rsvd0;                   /* Bits(15:13), Reserved */
       logic [12:0] Y_SIZE;                  /* Bits(28:16), null */
-      logic [2:0]  rsvd1;                   /* Bits(31:29), Reserved */
+      logic [1:0]  rsvd1;                   /* Bits(30:29), Reserved */
+      logic        ROI_EN;                  /* Bits(31:31), Region of interest enable */
       logic        rsvd_register_space[2];  /* Reserved space below */
    } f;
 

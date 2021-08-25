@@ -11,6 +11,7 @@ module testbench();
    parameter X_ROI_SIZE = 128; // size in pixels
    parameter X_REVERSE = 0;
    parameter X_SCALING = 0;    // size in pixels
+   parameter Y_ROI_EN = 0;
    parameter Y_ROI_START = 0;  // size in pixels
    parameter Y_ROI_SIZE = Y_SIZE-1; // size in pixels
 
@@ -40,6 +41,7 @@ module testbench();
    bit [3:0] 	  aclk_x_scale;
    bit 		  aclk_x_crop_en;
    bit 		  aclk_x_reverse;
+   bit 		  aclk_y_roi_en;
    bit [12:0] 	  aclk_y_size;
    bit [12:0] 	  aclk_y_start;
    bit 		  bclk;
@@ -69,7 +71,8 @@ module testbench();
 	    .aclk_x_start(aclk_x_start),
 	    .aclk_x_size(aclk_x_size),
 	    .aclk_x_scale(aclk_x_scale),
-	    .aclk_x_reverse(aclk_x_reverse),
+	    .aclk_x_reverse(aclk_x_reverse),    
+            .aclk_y_roi_en(aclk_y_roi_en),
 	    .aclk_y_start(aclk_y_start),
             .aclk_y_size(aclk_y_size),
 	    .aclk(aclk),
@@ -108,12 +111,13 @@ module testbench();
 
       // ROI setting
       aclk_x_crop_en = X_ROI_EN;
-      aclk_x_start = X_ROI_START;
-      aclk_x_size  = X_ROI_SIZE;
-      aclk_x_stop  = aclk_x_start + aclk_x_size -1;
-      aclk_x_scale = X_SCALING;
-      aclk_y_start = Y_ROI_START;
-      aclk_y_size  = Y_ROI_SIZE;
+      aclk_x_start   = X_ROI_START;
+      aclk_x_size    = X_ROI_SIZE;
+      aclk_x_stop    = aclk_x_start + aclk_x_size -1;
+      aclk_x_scale   = X_SCALING;
+      aclk_y_start   = Y_ROI_START;
+      aclk_y_size    = Y_ROI_SIZE;
+      aclk_y_roi_en  = Y_ROI_EN;
 
       $display("\n\n");
       $display("DISPLAY     : %s",TEST_NAME);

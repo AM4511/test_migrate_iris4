@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/08/18 16:17:35
--- Created by          : jmansill
+-- Created on          : 2021/08/25 10:20:42
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xF3B3DD1A
+-- Register file CRC32 : 0x9D7A0FC4
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -411,11 +411,13 @@ package regfile_xgs_athena_pack is
    -- Register Name: ROI_Y
    ------------------------------------------------------------------------------------------
    type DMA_ROI_Y_TYPE is record
+      ROI_EN         : std_logic;
       Y_SIZE         : std_logic_vector(12 downto 0);
       Y_START        : std_logic_vector(12 downto 0);
    end record DMA_ROI_Y_TYPE;
 
    constant INIT_DMA_ROI_Y_TYPE : DMA_ROI_Y_TYPE := (
+      ROI_EN          => 'Z',
       Y_SIZE          => (others=> 'Z'),
       Y_START         => (others=> 'Z')
    );
@@ -2540,6 +2542,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.ROI_EN;
       output(28 downto 16) := reg.Y_SIZE;
       output(12 downto 0) := reg.Y_START;
       return output;
@@ -2552,6 +2555,7 @@ package body regfile_xgs_athena_pack is
    function to_DMA_ROI_Y_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_ROI_Y_TYPE is
    variable output : DMA_ROI_Y_TYPE;
    begin
+      output.ROI_EN := stdlv(31);
       output.Y_SIZE := stdlv(28 downto 16);
       output.Y_START := stdlv(12 downto 0);
       return output;
@@ -4556,11 +4560,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/08/18 16:17:35
--- Created by          : jmansill
+-- Created on          : 2021/08/25 10:20:42
+-- Created by          : amarchan
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xF3B3DD1A
+-- Register file CRC32 : 0x9D7A0FC4
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4738,6 +4742,7 @@ signal field_wautoclr_DMA_OUTPUT_BUFFER_CLR_MAX_LINE_BUFF_CNT      : std_logic; 
 signal field_rw_DMA_ROI_X_ROI_EN                                   : std_logic;                                       -- Field: ROI_EN
 signal field_rw_DMA_ROI_X_X_SIZE                                   : std_logic_vector(12 downto 0);                   -- Field: X_SIZE
 signal field_rw_DMA_ROI_X_X_START                                  : std_logic_vector(12 downto 0);                   -- Field: X_START
+signal field_rw_DMA_ROI_Y_ROI_EN                                   : std_logic;                                       -- Field: ROI_EN
 signal field_rw_DMA_ROI_Y_Y_SIZE                                   : std_logic_vector(12 downto 0);                   -- Field: Y_SIZE
 signal field_rw_DMA_ROI_Y_Y_START                                  : std_logic_vector(12 downto 0);                   -- Field: Y_START
 signal field_rw_ACQ_GRAB_CTRL_RESET_GRAB                           : std_logic;                                       -- Field: RESET_GRAB
@@ -6365,6 +6370,30 @@ end process P_DMA_ROI_X_X_START;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(17) <= (hit(17)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: ROI_EN
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DMA_ROI_Y(31) <= field_rw_DMA_ROI_Y_ROI_EN;
+regfile.DMA.ROI_Y.ROI_EN <= field_rw_DMA_ROI_Y_ROI_EN;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DMA_ROI_Y_ROI_EN
+------------------------------------------------------------------------------------------
+P_DMA_ROI_Y_ROI_EN : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DMA_ROI_Y_ROI_EN <= '0';
+      else
+         if(wEn(17) = '1' and bitEnN(31) = '0') then
+            field_rw_DMA_ROI_Y_ROI_EN <= reg_writedata(31);
+         end if;
+      end if;
+   end if;
+end process P_DMA_ROI_Y_ROI_EN;
 
 ------------------------------------------------------------------------------------------
 -- Field name: Y_SIZE(28 downto 16)

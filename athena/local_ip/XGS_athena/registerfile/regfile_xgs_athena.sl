@@ -127,6 +127,9 @@ Register("roi_x", 0xb0, 4, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("roi_y", 0xbc, 4, "null");
+		Field("roi_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Region of interest enable");
+			FieldValue("Region of interest is disabled", 0);
+			FieldValue("Region of interest is enabled", 1);
 		Field("y_size", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("y_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 

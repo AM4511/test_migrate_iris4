@@ -668,6 +668,7 @@ architecture struct of XGS_athena is
       aclk_x_size        : in std_logic_vector(12 downto 0);
       aclk_x_scale       : in std_logic_vector(3 downto 0);
       aclk_x_reverse     : in std_logic;
+      aclk_y_roi_en      : in std_logic;
       aclk_y_start       : in std_logic_vector(12 downto 0);
       aclk_y_size        : in std_logic_vector(12 downto 0);
 
@@ -1520,6 +1521,7 @@ begin
         aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
         aclk_x_scale       => regfile.DMA.CSC.SUB_X,
         aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
+        aclk_y_roi_en      => regfile.DMA.ROI_Y.ROI_EN,
         aclk_y_start       => regfile.DMA.ROI_Y.Y_START,
         aclk_y_size        => regfile.DMA.ROI_Y.Y_SIZE,
         aclk               => aclk,

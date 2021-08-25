@@ -31,6 +31,7 @@ entity trim is
     aclk_x_size        : in std_logic_vector(12 downto 0);
     aclk_x_scale       : in std_logic_vector(3 downto 0);
     aclk_x_reverse     : in std_logic;
+    aclk_y_roi_en      : in std_logic;
     aclk_y_start       : in std_logic_vector(12 downto 0);
     aclk_y_size        : in std_logic_vector(12 downto 0);
 
@@ -127,8 +128,9 @@ architecture rtl of trim is
       ---------------------------------------------------------------------------
       -- Register file
       ---------------------------------------------------------------------------
-      aclk_y_start : in unsigned(12 downto 0);
-      aclk_y_size  : in unsigned(12 downto 0);
+      aclk_y_roi_en : in std_logic;
+      aclk_y_start  : in unsigned(12 downto 0);
+      aclk_y_size   : in unsigned(12 downto 0);
 
       ---------------------------------------------------------------------------
       -- AXI Slave interface
@@ -165,6 +167,7 @@ architecture rtl of trim is
     x_size      : unsigned(12 downto 0);
     x_scale     : std_logic_vector(3 downto 0);
     x_reverse   : std_logic;
+    y_roi_en    : std_logic;
     y_start     : unsigned(12 downto 0);
     y_size      : unsigned(12 downto 0);
   end record STRM_CONTEXT_TYPE;
@@ -177,6 +180,7 @@ architecture rtl of trim is
     x_size      => (others => '0'),
     x_scale     => (others => '0'),
     x_reverse   => '0',
+    y_roi_en    => '0',
     y_start     => (others => '0'),
     y_size      => (others => '0')
     );
@@ -215,14 +219,15 @@ begin
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.pixel_width <= aclk_pixel_width;       -- Units in bytes
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;         -- Boolean
-  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start); -- Units in pixels
-  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);  -- Units in pixels
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;           -- Units in pixels
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;         -- Boolean
-  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start); -- Units in lines
-  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);  -- Units in lines
+  aclk_strm_context_in.pixel_width <= aclk_pixel_width;        -- Units in bytes
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;          -- Boolean
+  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);  -- Units in pixels
+  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);   -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;            -- Units in pixels
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;          -- Boolean
+  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;           -- Units in lines
+  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);  -- Units in lines
+  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);   -- Units in lines
 
 
   -----------------------------------------------------------------------------
@@ -282,6 +287,7 @@ begin
   -----------------------------------------------------------------------------
   y_trim_inst : y_trim
     port map(
+      aclk_y_roi_en   => aclk_strm.y_roi_en,
       aclk_y_start    => aclk_strm.y_start,
       aclk_y_size     => aclk_strm.y_size,
       aclk            => aclk,
