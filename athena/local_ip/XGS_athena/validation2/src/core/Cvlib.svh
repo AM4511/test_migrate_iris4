@@ -662,8 +662,8 @@ class Cvlib;
     //---------------------------------------
     //  SET Y ROI IN Trim module (DMA Cropping)
     //---------------------------------------
-    task Set_DMA_Trim_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE);
-		host.write(ROI_Y_OFFSET, (ROI_Y_SIZE<<16) + ROI_Y_START);
+    task Set_DMA_Trim_Y_ROI(input int ROI_Y_START, input int ROI_Y_SIZE, input int ROI_EN = 1);
+		host.write(ROI_Y_OFFSET, (ROI_EN<<31) + (ROI_Y_SIZE<<16) + ROI_Y_START);
     endtask : Set_DMA_Trim_Y_ROI
 
 

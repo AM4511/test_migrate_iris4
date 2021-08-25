@@ -311,6 +311,9 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  --  aclk_ack : Combinatorial flag. Act as a pipeline forward enable. 
+  -----------------------------------------------------------------------------
   aclk_ack    <= aclk_tready_out;
 
 
@@ -320,7 +323,11 @@ begin
   -- Stream input I/F
   aclk_tready <= aclk_tready_out;
 
+  -----------------------------------------------------------------------------
   -- Stream output I/F
+  -- The axi stream bypass y_trim if aclk_y_roi_en = '0'
+  -----------------------------------------------------------------------------
+ 
   aclk_tvalid_out <= aclk_tvalid_int when (aclk_y_roi_en = '1') else
                      aclk_tvalid;
   

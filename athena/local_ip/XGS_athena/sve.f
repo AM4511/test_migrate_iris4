@@ -7,10 +7,9 @@
 +incdir+./validation2/src/athena
 ./validation2/src/athena/athena_pkg.sv
 ./validation2/src/core/core_pkg.sv
-./validation2/src/core_pkg.sv
-./validation2/src/Cstatus.svh
-./validation2/src/Ctest.svh
-./validation2/src/CVlib.sv
+./validation2/src/core/Cstatus.svh
+./validation2/src/core/Ctest.svh
+./validation2/src/core/Cvlib.svh
 ./validation2/src/drivers/driver_pkg.sv
 ./validation2/src/fdkide/fdkide_pkg.sv
 ./validation2/src/fpga_cfg_pkg_color.sv
@@ -24,7 +23,7 @@
 ./validation2/src/interfaces/tlp_interface.sv
 ./validation2/src/system_top.sv
 ./validation2/src/testbench.sv
-./validation2/src/testbench_x_trim.sv
+./validation2/src/testbench_trim.sv
 ./validation2/src/tests/test2000.svh
 ./validation2/src/tests/test9999.svh
 ./validation2/src/tests/tests_pkg.sv

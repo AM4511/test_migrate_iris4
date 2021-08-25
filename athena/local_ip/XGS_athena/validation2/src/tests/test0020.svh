@@ -126,6 +126,8 @@ class Test0020 extends Ctest;
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
                 super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
+                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE);
+
 				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us

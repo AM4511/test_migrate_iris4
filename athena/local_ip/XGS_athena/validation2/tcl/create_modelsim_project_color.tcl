@@ -96,7 +96,7 @@ ${DATA_SRC_PATH}/trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/axis_width_conv.vhd \
 ${DATA_SRC_PATH}/rgb_2_yuv.vhd \
-${DATA_SRC_PATH}/ccm.vhd \
+${DATA_SRC_PATH}/CCM.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
@@ -123,7 +123,6 @@ set model_file_list [join [list  [subst {
 ]
 ]
 
-
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
 ${TESTBENCH_SRC_PATH}/interfaces/axi_lite_interface.sv \
@@ -133,7 +132,7 @@ ${TESTBENCH_SRC_PATH}/interfaces/io_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/tlp_interface.sv \
 ${TESTBENCH_SRC_PATH}/drivers/driver_pkg.sv \
 ${TESTBENCH_SRC_PATH}/core/core_pkg.sv \
-${TESTBENCH_SRC_PATH}/tests_pkg.sv \
+${TESTBENCH_SRC_PATH}/tests/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_color.sv \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
@@ -145,38 +144,7 @@ ${TESTBENCH_SRC_PATH}/testbench.sv
 ]
 ]
 
-
-# set testbench_fileset [join [list  [subst {
-# ${TESTBENCH_SRC_PATH}/glbl.v \
-# ${TESTBENCH_SRC_PATH}/interfaces/axi_lite_interface.sv \
-# ${TESTBENCH_SRC_PATH}/interfaces/axi_stream_interface.sv \
-# ${TESTBENCH_SRC_PATH}/interfaces/hispi_interface.sv \
-# ${TESTBENCH_SRC_PATH}/interfaces/io_interface.sv \
-# ${TESTBENCH_SRC_PATH}/interfaces/tlp_interface.sv \
-# ${TESTBENCH_SRC_PATH}/drivers/driver_pkg.sv \
-# ${TESTBENCH_SRC_PATH}/drivers/Cdriver_axil.svh \
-# ${TESTBENCH_SRC_PATH}/Cimage.sv \
-# ${TESTBENCH_SRC_PATH}/core_pkg.sv \
-# ${TESTBENCH_SRC_PATH}/Cstatus.svh \
-# ${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
-# ${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
-# ${TESTBENCH_SRC_PATH}/CVlib.sv \
-# ${TESTBENCH_SRC_PATH}/tests_pkg.sv \
-# ${TESTBENCH_SRC_PATH}/Ctest.svh \
-# ${TESTBENCH_SRC_PATH}/tests/test0020.svh \
-# ${TESTBENCH_SRC_PATH}/tests/test0021.svh \
-# ${TESTBENCH_SRC_PATH}/tests/test0022.svh \
-# ${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_color.sv \
-# ${TESTBENCH_SRC_PATH}/system_top.sv \
-# ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
-# ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pciepack.vhd \
-# ${LOCAL_IP}/pcie2AxiMaster_v3.0/design/pcie_tx_axi.vhd \
-# ${TESTBENCH_SRC_PATH}/testbench.sv
-# }
-# ]
-# ]
-# ]
-
+		
 ############################################################
 # Create the modelsim project file
 ############################################################
@@ -211,7 +179,6 @@ proc add_file_set {file_set} {
     }
 }
 
-#source ${VLIB_PATH}/tcl/vlib_fileset.do
 add_file_set $common_fileset
 add_file_set $technology_specific_fileset
 add_file_set $dut_fileset
