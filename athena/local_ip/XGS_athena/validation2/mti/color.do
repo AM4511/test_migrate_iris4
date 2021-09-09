@@ -1,7 +1,17 @@
 onerror {resume}
-quietly virtual signal -install /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color { /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_data(12 downto 0)} X_POS
-quietly virtual signal -install /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color { /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_data(24 downto 13)} Y_POS
-quietly virtual signal -install /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color { /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_data(32 downto 25)} Pattern
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data(19 downto 10)} LUT10_LUT_data1_10
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data(9 downto 0)} LUT10_LUT_data0_10
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data(9 downto 2)} LUT10_LUT_Pix1_8
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data(9 downto 2)} LUT10_LUT_Pix0_8
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data(19 downto 12)} LUT10_LUT_Pix1_8001
+quietly virtual signal -install /testbench/system_top/DUT { /testbench/system_top/DUT/conv_tdata(19 downto 12)} conv_tdata_8_1
+quietly virtual signal -install /testbench/system_top/DUT { /testbench/system_top/DUT/conv_tdata(9 downto 2)} conv_tdata_8_0
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data(19 downto 12)} dpc_data_8_1
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data(9 downto 2)} dpc_data_8_0
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(39 downto 32)} data_8_1
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(9 downto 2)} data_8_0
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(39 downto 32)} m_axis_data_8_pix1
+quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(7 downto 0)} m_axis_data_8_pix0
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /testbench/system_top/XGS_MODEL_5000/xgs_image_inst/dataline
 add wave -noupdate /testbench/system_top/XGS_MODEL_5000/xgs_image_inst/frame
@@ -9,398 +19,77 @@ add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_trig_int
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor0
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor1
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor2
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_enable
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_address
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/X_POS
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/Y_POS
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/Pattern
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_end
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_enable
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_address
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/X_POS
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/Y_POS
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/Pattern
-add wave -noupdate -group {XGS SENSOR} -group DPC_READED_PIX /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/RAM_R_end
-add wave -noupdate -group {XGS SENSOR} -expand -subitemconfig {/testbench/system_top/DUT/regfile.BAYER.BAYER_CFG -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL1 -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL2 -expand} /testbench/system_top/DUT/regfile.BAYER
+add wave -noupdate -group {XGS SENSOR} -expand -subitemconfig {/testbench/system_top/DUT/regfile.BAYER.WB_MUL1 -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL2 -expand} /testbench/system_top/DUT/regfile.BAYER
 add wave -noupdate -group {XGS SENSOR} -divider {AXI 2 MATROX}
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_trig_int
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor0
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor1
 add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor2
-add wave -noupdate -group {XGS SENSOR} -expand -subitemconfig {/testbench/system_top/DUT/regfile.BAYER.BAYER_CFG -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL1 -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL2 -expand} /testbench/system_top/DUT/regfile.BAYER
+add wave -noupdate -group {XGS SENSOR} -expand -subitemconfig {/testbench/system_top/DUT/regfile.BAYER.WB_MUL1 -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL2 -expand} /testbench/system_top/DUT/regfile.BAYER
 add wave -noupdate -group {XGS SENSOR} -divider {AXI 2 MATROX}
-add wave -noupdate /testbench/system_top/DUT/Xxgs_color_proc/REG_BAYER_EN
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tvalid
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tready
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tdata
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tdata8
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tlast
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tuser
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tvalid
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tready
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tdata
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tdata8
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tlast
-add wave -noupdate -expand -group AXI_AMARCHAND /testbench/system_top/DUT/Xxgs_color_proc/s_axis_tuser
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_sof
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_sol
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data_val
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data8
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_eol
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_eof
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_sof
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_sol
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data_val
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_data8
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_eol
-add wave -noupdate -group AXIS_TO_MATROX /testbench/system_top/DUT/Xxgs_color_proc/axi_eof
+add wave -noupdate -divider {Axis width conv}
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tready
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tvalid
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tdata
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tuser
+add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/system_top/DUT/conv_tuser
+add wave -noupdate /testbench/system_top/DUT/conv_tvalid
+add wave -noupdate /testbench/system_top/DUT/conv_tready
+add wave -noupdate /testbench/system_top/DUT/conv_tdata_8_1
+add wave -noupdate /testbench/system_top/DUT/conv_tdata_8_0
+add wave -noupdate /testbench/system_top/DUT/conv_tdata
+add wave -noupdate /testbench/system_top/DUT/conv_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/s_axis_first_prefetch
 add wave -noupdate -divider DPC
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/pix_clk
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/pix_reset_n
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_eol
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/REG_dpc_pattern0_cfg
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_reset
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_reset_done
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_data_in
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_write_in
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_list_rdy
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_0
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_2
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_3
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_4
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_0_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_1_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_2_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_3_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_4_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_this_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_pattern_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Curr_out
-add wave -noupdate -group DPC -group DPC_CORE0 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/deadpix_exist
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_X_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_Y_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_X_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_Y_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_mode_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_enable_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_srst
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_pattern_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_rd_en
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_dout
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_full
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_empty
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_rst_busy
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_rst_busy_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/sum_comb
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/pix_clk
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/pix_reset_n
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_eol
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/REG_dpc_pattern0_cfg
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_reset
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_reset_done
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_data_in
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_write_in
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_list_rdy
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_0
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_2
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_3
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_4
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_0_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_1_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_2_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_3_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/in_4_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_this_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_pattern_P1
-add wave -noupdate -group DPC -group DPC_CORE0 -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Curr_out
-add wave -noupdate -group DPC -group DPC_CORE0 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/deadpix_exist
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_X_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_Y_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_X_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_Y_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/Correct_mode_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_enable_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_srst
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/proc_nxt_pattern_corr
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_rd_en
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_dout
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_full
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_fifo_empty
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_rst_busy
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/dpc_rst_busy_P1
-add wave -noupdate -group DPC -group DPC_CORE0 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(0)/Xdpc_kernel_proc_color/sum_comb
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/pix_clk
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/pix_reset_n
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_eol
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/REG_dpc_pattern0_cfg
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_reset
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_reset_done
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_data_in
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_write_in
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_list_rdy
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_0
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_2
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_3
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_4
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_X_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_Y_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_X_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_Y_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_0_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_1_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_2_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_3_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_4_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_this_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_pattern_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Curr_out
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_srst
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_pattern_corr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_rd_en
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_dout
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_full
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_empty
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_rst_busy
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_rst_busy_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/deadpix_exist
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_mode_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/sum_comb
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/pix_clk
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/pix_reset_n
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_eol
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/REG_dpc_pattern0_cfg
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_reset
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_reset_done
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_data_in
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_write_in
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_list_rdy
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_0
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_2
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_3
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_4
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_X_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_Y_pix_curr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_X_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_Y_pix_corr
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_0_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_1_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_2_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_3_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/in_4_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_this_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color Gold /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_pattern_P1
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Curr_out
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC -group DPC_CORE1 -color {Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_srst
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_nxt_pattern_corr
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_rd_en
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_dout
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_full
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_fifo_empty
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_rst_busy
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/dpc_rst_busy_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/deadpix_exist
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/Correct_mode_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/proc_enable_P1
-add wave -noupdate -group DPC -group DPC_CORE1 /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/GEN_2_CORE(1)/Xdpc_kernel_proc_color/sum_comb
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_clk
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data_val
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data16
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_eof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_pipeline_loaded
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data_val
-add wave -noupdate -group DPC -expand /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_5x1_curr
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data_6x1_8bpp
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_eof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data16
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_eof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_clk
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data_val
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_data16
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/axi_eof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_pipeline_loaded
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data_val
-add wave -noupdate -group DPC -expand /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_5x1_curr
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_data_6x1_8bpp
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/kernel_eof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_sof
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_sol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data_val
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_data16
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_eol
-add wave -noupdate -group DPC /testbench/system_top/DUT/Xxgs_color_proc/Xdpc_filter_color/dpc_eof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/Xdpc_filter_color/REG_dpc_enable
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/Xdpc_filter_color/REG_dpc_enable_DB
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/Xdpc_filter_color/REG_dpc_enable_P1
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_sof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_sol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_data_val
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_data8
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_eol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/axi_eof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_sof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_sol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data_val
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data_8_1
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data_8_0
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_data
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_eol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/dpc_eof
 add wave -noupdate -divider WB
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WBIn_eof
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WB_is_line_impaire
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_b_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_g_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_r_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_B
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_G
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_R
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WB_is_line_impaire
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/C0_wb_factor
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/C1_wb_factor
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_sof
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_sol
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data_val
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data8
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_eol
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_eof
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WBIn_eof
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WB_is_line_impaire
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_b_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_g_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_r_acc
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_B
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_G
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/REG_WB_MULT_R
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/WB_is_line_impaire
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/C0_wb_factor
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/C1_wb_factor
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_sof
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_sol
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data_val
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_data8
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_eol
-add wave -noupdate -group WB /testbench/system_top/DUT/Xxgs_color_proc/wb_eof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/BAYER_EN
 add wave -noupdate -divider BAYER
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_sof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_sol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_overscan
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_is_first_word
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p2
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p3
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/bayer_write_enable
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/bayer_w_ram_add
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_p2
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_read_enable
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_r_ram_add
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_r_ram_dat
-add wave -noupdate -group BAYER -color Red /testbench/system_top/DUT/Xxgs_color_proc/BAYER_M0
-add wave -noupdate -group BAYER -color Red /testbench/system_top/DUT/Xxgs_color_proc/BAYER_M1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_B_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_G_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_R_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_B_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_G_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_R_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p2
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p3
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p4
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_sof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_sol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_data
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_eol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_eof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_sof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_sol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_overscan
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_is_first_word
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p2
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_val_p3
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/bayer_write_enable
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/bayer_w_ram_add
-add wave -noupdate -group BAYER -color Gold /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_data_p2
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_read_enable
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_r_ram_add
-add wave -noupdate -group BAYER -color {Medium Violet Red} /testbench/system_top/DUT/Xxgs_color_proc/bayer_r_ram_dat
-add wave -noupdate -group BAYER -color Red /testbench/system_top/DUT/Xxgs_color_proc/BAYER_M0
-add wave -noupdate -group BAYER -color Red /testbench/system_top/DUT/Xxgs_color_proc/BAYER_M1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_B_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_G_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C0_R_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_B_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_G_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/C1_R_PIX_end_mosaic
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p1
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p2
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p3
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/BayerIn_eol_p4
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_sof
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_sol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_data_val
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_data
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_eol
-add wave -noupdate -group BAYER /testbench/system_top/DUT/Xxgs_color_proc/bayer_eof
 add wave -noupdate -divider LUT
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_sof
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_sol
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_data_val
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_data
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_eol
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_eof
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_sof
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_sol
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_data_val
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_data
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_eol
-add wave -noupdate -expand -group LUT /testbench/system_top/DUT/Xxgs_color_proc/lut_eof
+add wave -noupdate /testbench/system_top/DUT/xregfile_xgs_athena/regfile
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/REG_LUT_BYPASS
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_sof
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_sol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_data_val
+add wave -noupdate -label LUT10_LUT_Pix1_8 /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_LUT_Pix1_8001
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_LUT_Pix0_8
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_eol
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/LUT10_10_lut_eof
 add wave -noupdate -divider {COLOR AXIS_OUT}
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tvalid
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tready
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tuser
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tdata
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tlast
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tvalid
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tready
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tuser
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tdata
-add wave -noupdate -expand -group AXIS_OUTPUT /testbench/system_top/DUT/Xxgs_color_proc/m_axis_tlast
+add wave -noupdate -divider {New Divider}
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_sof
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_sol
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_data_val
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_data
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_eol
+add wave -noupdate -color {Medium Violet Red} /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/bayer_eof
+add wave -noupdate -divider {COLOR OUTPUT AXIS}
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tvalid
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tready
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_data_8_pix1
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_data_8_pix0
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tuser
+add wave -noupdate -divider {New Divider}
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/DUT/regfile.DMA.LINE_PITCH.VALUE
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/DUT/regfile.DMA.LINE_SIZE.VALUE
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tuser
@@ -408,24 +97,140 @@ add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tvali
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tready
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tdata
 add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tlast
-add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tuser
-add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tvalid
-add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tready
-add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tdata
-add wave -noupdate -expand -group AXI_PCIE /testbench/system_top/s_axis_tx_tlast
-add wave -noupdate /testbench/system_top/XGS_MODEL_5000/xgs_image_inst/dataline
-add wave -noupdate /testbench/system_top/XGS_MODEL_5000/xgs_image_inst/frame
-add wave -noupdate /testbench/system_top/DUT/Xxgs_color_proc/REG_BAYER_EN
 add wave -noupdate -divider DPC
 add wave -noupdate -divider WB
 add wave -noupdate -divider BAYER
 add wave -noupdate -divider LUT
 add wave -noupdate -divider {COLOR AXIS_OUT}
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_grab_queue_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_ld_strm_ctx
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_ld_strm_ctx_FF1
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_ld_strm_ctx_FF2
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_load_context
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_pixel_width
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_reset
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_reset_n
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_strm
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_strm_context_in
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_strm_context_P0
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_strm_context_P1
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_tdata_int
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_tlast_int
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_tready_int
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/aclk_tuser
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/aclk_tvalid
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/aclk_tready
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/aclk_tdata
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/aclk_tlast
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_x_crop_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_x_reverse
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_x_scale
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_x_size
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_x_start
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_y_roi_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_y_size
+add wave -noupdate /testbench/system_top/DUT/trim_inst/aclk_y_start
+add wave -noupdate /testbench/system_top/DUT/trim_inst/bclk
+add wave -noupdate /testbench/system_top/DUT/trim_inst/bclk_reset_n
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tvalid
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tready
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tdata
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tuser
+add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tlast
+add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_pixel_width
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_crop_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_start
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_size
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_scale
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_reverse
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_reset
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tready
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tvalid
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tuser
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tlast
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tdata
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_reset_n
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_tready
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_tvalid
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_tuser
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_tlast
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_tdata
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_state
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_full
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_tready_int
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_init_word_ptr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_word_ptr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_buffer_ptr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_init_buffer_ptr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_init_subsampling
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_nxt_buffer
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_write_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_write_address
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_write_data
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_wen
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_full
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_data
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_sync
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_size
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_buff_ptr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_cmd_last_ben
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_ack
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_pix_incr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_start
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_stop
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_size
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_stop_mask_sel
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_data_rdy
+add wave -noupdate -color Goldenrod /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_pix_cntr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_valid_start
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_valid_stop
+add wave -noupdate -color Red /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_window_valid
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_packer
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_packer_ben
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_data_mux
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_last_data_mux
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_ben_mux
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_mux_sel
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_crop_packer_valid
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_empty
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_data_valid
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_last_data
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_data
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_ben
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_x_reverse_Meta
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_x_reverse
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_pixel_width
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_reset
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_full
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_row_cntr
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_read_address
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_read_en
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_read_data
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_used_buffer
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_transfer_done
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_init
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_buffer_rdy
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_cmd_ren
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_cmd_empty
+add wave -noupdate /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_cmd_data
+add wave -noupdate -divider {New Divider}
+add wave -noupdate -divider {New Divider}
+add wave -noupdate -divider {New Divider}
+add wave -noupdate /testbench/system_top/s_axis_tx_tuser
+add wave -noupdate /testbench/system_top/s_axis_tx_tvalid
+add wave -noupdate /testbench/system_top/s_axis_tx_tready
+add wave -noupdate /testbench/system_top/s_axis_tx_tdata
+add wave -noupdate /testbench/system_top/s_axis_tx_tlast
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {261610109 ps} 0} {{Cursor 2} {2699004093 ps} 0} {{Cursor 3} {1925331534 ps} 0} {{Cursor 4} {1547482725 ps} 0}
-quietly wave cursor active 4
-configure wave -namecolwidth 204
-configure wave -valuecolwidth 146
+quietly WaveActivateNextPane
+WaveRestoreCursors {{Cursor 3} {5634059698 ps} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 223
+configure wave -valuecolwidth 170
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -438,4 +243,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1547418454 ps} {1547633420 ps}
+WaveRestoreZoom {5633410251 ps} {5635163758 ps}

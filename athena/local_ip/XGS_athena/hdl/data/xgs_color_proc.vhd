@@ -760,8 +760,8 @@ BEGIN
 	  ---------------------------------------------
 	  -- Others lines can be waited by DMA
       ---------------------------------------------	  
-      elsif(BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(2)='1' ) or   -- RGB this gives 4 rdy (RGB) at SOL detection - then wait for master interface 
-	       (BAYER_EN='0' and s_axis_tvalid='1' and s_axis_tuser(0)='1' ) then -- RAW this gives 3 rdy (RAW) at SOF detection - then wait for master interface
+      elsif(BAYER_EN='1' and s_axis_tvalid='1' and s_axis_tuser(2)='1' ) or                            -- RGB this gives 4 rdy (RGB) at SOL detection - then wait for master interface 
+	       (BAYER_EN='0' and s_axis_tvalid='1' and (s_axis_tuser(0)='1' or s_axis_tuser(2)='1') ) then -- RAW this gives 2 rdy (RAW) at SOF and SOL detection - then wait for master interface
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= "01";
@@ -770,7 +770,7 @@ BEGIN
         s_axis_frame_done     <= '0'; 
 
       elsif(BAYER_EN='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
-	       (BAYER_EN='0' and s_axis_first_prefetch="10" and s_axis_tvalid='1' ) then -- RAW this gives 3 rdy at SOF detection - remove rdy and then listen to master interface to be ready
+	       (BAYER_EN='0' and s_axis_first_prefetch="01" and s_axis_tvalid='1' ) then -- RAW this gives 2 rdy at SOF detection - remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= "00";  	  
@@ -778,7 +778,7 @@ BEGIN
         s_axis_line_wait      <= '1'; 	 
         s_axis_frame_done     <= '0'; 
 
-      elsif(s_axis_first_prefetch/="00" and s_axis_tvalid='1' ) then -- this gives 4/3 rdy at SOL/SOF detection - remove rdy and then listen to master interface to be ready
+      elsif(s_axis_first_prefetch/="00" and s_axis_tvalid='1' ) then -- this gives 4/2 rdy at SOL/SOF detection - remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= s_axis_first_prefetch+'1';  	  
