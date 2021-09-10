@@ -170,7 +170,7 @@ class Test0021 extends Ctest;
 
 
 				///////////////////////////////////////////////////
-				// Wait for the 2 images
+				// Wait for the 1 image
 				///////////////////////////////////////////////////
                 super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;

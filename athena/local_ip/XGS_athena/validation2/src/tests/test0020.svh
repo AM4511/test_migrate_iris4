@@ -32,7 +32,6 @@ class Test0020 extends Ctest;
 	int SUB_Y;
 	int REV_X = 0;
 	int REV_Y = 0;
-    int TEMP_LINE_SIZE;
 
     int test_nb_images;
 
@@ -172,7 +171,7 @@ class Test0020 extends Ctest;
 
 
 				///////////////////////////////////////////////////
-				// Wait for the 2 images
+				// Wait for the 1 image
 				///////////////////////////////////////////////////
                 super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;
