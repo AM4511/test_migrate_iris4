@@ -9,6 +9,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.dbg_pack.all;
+
 
 entity x_trim is
   generic (
@@ -270,7 +272,7 @@ architecture rtl of x_trim is
   signal aclk_subs_last_data  : std_logic;
   signal aclk_subs_data       : std_logic_vector(63 downto 0);
   signal aclk_subs_ben        : std_logic_vector(7 downto 0);
-
+  signal aclk_tvalid_dbg      : std_logic;
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
@@ -294,12 +296,17 @@ architecture rtl of x_trim is
   signal bclk_cmd_ren       : std_logic;
   signal bclk_cmd_empty     : std_logic;
   signal bclk_cmd_data      : std_logic_vector(CMD_FIFO_DATA_WIDTH-1 downto 0);
+  
+  signal bclk_tvalid_dbg    : std_logic;
+  signal bclk_tvalid_int : std_logic;
+  signal bclk_tuser_int  : std_logic_vector(3 downto 0);
+  signal bclk_tlast_int  : std_logic;
+  signal bclk_tdata_int  : std_logic_vector(63 downto 0);
 
-
-  -----------------------------------------------------------------------------
-  -- Debug attributes 
-  -----------------------------------------------------------------------------
-  -- attribute mark_debug of bclk_tready          : signal is "true";
+    -----------------------------------------------------------------------------
+    -- Debug attributes 
+    -----------------------------------------------------------------------------
+    -- attribute mark_debug of bclk_tready          : signal is "true";
 
 
 begin
@@ -1040,11 +1047,53 @@ begin
       bclk_read_address => bclk_read_address,
       bclk_read_data    => bclk_read_data,
       bclk_tready       => bclk_tready,
-      bclk_tvalid       => bclk_tvalid,
-      bclk_tuser        => bclk_tuser,
-      bclk_tlast        => bclk_tlast,
-      bclk_tdata        => bclk_tdata
+      bclk_tvalid       => bclk_tvalid_int,
+      bclk_tuser        => bclk_tuser_int,
+      bclk_tlast        => bclk_tlast_int,
+      bclk_tdata        => bclk_tdata_int
       );
 
+  bclk_tvalid <= bclk_tvalid_int;
+  bclk_tuser  <= bclk_tuser_int;
+  bclk_tlast  <= bclk_tlast_int;
+  bclk_tdata  <= bclk_tdata_int;
+
+  
+  -- synthesis translate_off
+  -----------------------------------------------------------------------------
+  -- Stream input
+  -----------------------------------------------------------------------------
+  aclk_tvalid_dbg <= aclk_tready_int and aclk_tvalid;
+  dbg_input_strm : dbg_strm
+    generic map(
+      output_file => "dgb_x_trim_strm_in.strm",
+      module_name => "dgb_x_trim_strm_in"
+      )
+    port map(
+      aclk        => aclk,
+      aclk_tvalid => aclk_tvalid_dbg,
+      aclk_tuser  => aclk_tuser,
+      aclk_tlast  => aclk_tlast,
+      aclk_tdata  => aclk_tdata
+      );
+
+
+  -----------------------------------------------------------------------------
+  -- Stream output
+  -----------------------------------------------------------------------------
+  bclk_tvalid_dbg <= bclk_tready and bclk_tvalid_int;
+  dbg_output_strm : dbg_strm
+    generic map(
+      output_file => "dgb_x_trim_strm_out.strm",
+      module_name => "dgb_x_trim_strm_out"
+      )
+    port map(
+      aclk        => bclk,
+      aclk_tvalid => bclk_tvalid_dbg,
+      aclk_tuser  => bclk_tuser_int,
+      aclk_tlast  => bclk_tlast_int,
+      aclk_tdata  => bclk_tdata_int
+      );
+  -- synthesis translate_on
 
 end architecture rtl;

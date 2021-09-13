@@ -9,6 +9,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.dbg_pack.all;
+
 entity y_trim is
   port (
     ---------------------------------------------------------------------------
@@ -48,12 +50,33 @@ end y_trim;
 
 architecture rtl of y_trim is
 
+  component dbg_strm is
+    generic (
+      output_file : string;
+      module_name : string
+      );
+    port (
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk : in std_logic;
 
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_tvalid : in std_logic;
+      aclk_tuser  : in std_logic_vector(3 downto 0);
+      aclk_tlast  : in std_logic;
+      aclk_tdata  : in std_logic_vector(63 downto 0)
+      );
+  end component;
+  
   attribute mark_debug : string;
   attribute keep       : string;
 
 
   type FSM_TYPE is (S_IDLE, S_CROP, S_SOF, S_SOL, S_WRITE, S_HBLANK, S_EOL, S_EOF, S_DONE);
+
 
 
   -----------------------------------------------------------------------------
@@ -68,6 +91,7 @@ architecture rtl of y_trim is
   signal aclk_tlast_int  : std_logic;
   signal aclk_tdata_int  : std_logic_vector(63 downto 0);
   signal aclk_ack        : std_logic;
+  signal aclk_tvalid_dbg : std_logic;
 
 
   -----------------------------------------------------------------------------
@@ -77,7 +101,7 @@ architecture rtl of y_trim is
 
 
 begin
-
+  
 
   -----------------------------------------------------------------------------
   -- Infer y_stop boundary
@@ -339,5 +363,29 @@ begin
   
   aclk_tdata_out  <= aclk_tdata_int when (aclk_y_roi_en = '1') else
                      aclk_tdata;
+
+
+
+
+  -- synthesis translate_off
+  -----------------------------------------------------------------------------
+  -- Stream input
+  -----------------------------------------------------------------------------
+  aclk_tvalid_dbg<= aclk_tready_out and aclk_tvalid;
+  dbg_input_strm : dbg_strm
+    generic map(
+      output_file => "dgb_y_trim_strm_in.strm",
+      module_name => "dgb_y_trim_strm_in"
+      )
+    port map(
+      aclk        => aclk,
+      aclk_tvalid => aclk_tvalid_dbg,
+      aclk_tuser  => aclk_tuser,
+      aclk_tlast  => aclk_tlast,
+      aclk_tdata  => aclk_tdata
+      );
+  -- synthesis translate_on
+
+
   
 end architecture rtl;

@@ -74,6 +74,26 @@ architecture rtl of trim is
   attribute mark_debug : string;
   attribute keep       : string;
 
+  component dbg_strm is
+    generic (
+      output_file : string;
+      module_name : string
+      );
+    port (
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      aclk : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      aclk_tvalid : in std_logic;
+      aclk_tuser  : in std_logic_vector(3 downto 0);
+      aclk_tlast  : in std_logic;
+      aclk_tdata  : in std_logic_vector(63 downto 0)
+      );
+  end component;
 
   component x_trim is
     generic (
@@ -93,8 +113,8 @@ architecture rtl of trim is
       ---------------------------------------------------------------------------
       -- AXI Slave interface
       ---------------------------------------------------------------------------
-      aclk         : in std_logic;
-      aclk_reset   : in std_logic;
+      aclk       : in std_logic;
+      aclk_reset : in std_logic;
 
       ---------------------------------------------------------------------------
       -- AXI slave stream input interface
@@ -219,15 +239,15 @@ begin
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.pixel_width <= aclk_pixel_width;        -- Units in bytes
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;          -- Boolean
+  aclk_strm_context_in.pixel_width <= aclk_pixel_width;       -- Units in bytes
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;         -- Boolean
   aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);  -- Units in pixels
-  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);   -- Units in pixels
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;            -- Units in pixels
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;          -- Boolean
-  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;           -- Units in lines
+  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);  -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;  -- Units in pixels
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;         -- Boolean
+  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;          -- Units in lines
   aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);  -- Units in lines
-  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);   -- Units in lines
+  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);  -- Units in lines
 
 
   -----------------------------------------------------------------------------
@@ -304,7 +324,7 @@ begin
       aclk_tdata_out  => aclk_tdata_int
       );
 
-
+  
   -----------------------------------------------------------------------------
   -- Module      : x_trim
   -- Description : 
@@ -336,5 +356,5 @@ begin
       bclk_tdata       => bclk_tdata
       );
 
-  
+
 end architecture rtl;
