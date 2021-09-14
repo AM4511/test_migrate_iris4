@@ -15,6 +15,7 @@ add wave -noupdate -expand -group x_trim -expand -group {Stream Input I/F} /test
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_reset
 add wave -noupdate -expand -group x_trim -color {Medium Orchid} /testbench/DUT/x_trim_inst/aclk_state
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_full
+add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_color_space
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_tready_int
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_init_word_ptr
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_word_ptr
@@ -35,21 +36,23 @@ add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_cmd_las
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_ack
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_pix_cntr
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_pix_incr
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_valid_start
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_valid_stop
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_start
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_stop
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_size
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_stop_mask_sel
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_data_rdy
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_window_valid
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_packer
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_packer_ben
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_data_mux
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_last_data_mux
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_ben_mux
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_mux_sel
-add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_crop_packer_valid
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_start
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_size
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_stop
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_stop_mask_sel
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_data_rdy
+add wave -noupdate -expand -group x_trim -expand -group Cropping -expand -group Valid /testbench/DUT/x_trim_inst/aclk_valid_start
+add wave -noupdate -expand -group x_trim -expand -group Cropping -expand -group Valid /testbench/DUT/x_trim_inst/aclk_valid_stop
+add wave -noupdate -expand -group x_trim -expand -group Cropping -expand -group Valid /testbench/DUT/x_trim_inst/aclk_crop_window_valid
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_packer
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_packer_ben
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_data_mux
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_last_data_mux
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_ben_mux
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_mux_sel
+add wave -noupdate -expand -group x_trim -expand -group Cropping /testbench/DUT/x_trim_inst/aclk_crop_packer_valid
+add wave -noupdate -expand -group x_trim -radix binary /testbench/DUT/x_trim_inst/aclk_packing_mask
+add wave -noupdate -expand -group x_trim -radix binary /testbench/DUT/x_trim_inst/aclk_subs_ben_in
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_subs_empty
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_subs_data_valid
 add wave -noupdate -expand -group x_trim /testbench/DUT/x_trim_inst/aclk_subs_last_data
@@ -79,7 +82,7 @@ add wave -noupdate -expand -group x_trim -group {Stream output I/F} /testbench/D
 add wave -noupdate -expand -group x_trim -group {Stream output I/F} /testbench/DUT/x_trim_inst/bclk_tlast
 add wave -noupdate -expand -group x_trim -group {Stream output I/F} /testbench/DUT/x_trim_inst/bclk_tdata
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2057241 ps} 0}
+WaveRestoreCursors {{Cursor 1} {4769837 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 223
 configure wave -valuecolwidth 100
@@ -95,4 +98,4 @@ configure wave -griddelta 40
 configure wave -timeline 1
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {18968250 ps}
+WaveRestoreZoom {0 ps} {19808250 ps}

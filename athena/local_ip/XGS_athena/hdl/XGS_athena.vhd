@@ -662,7 +662,7 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       aclk_grab_queue_en : in std_logic;
       aclk_load_context  : in std_logic_vector(1 downto 0);
-      aclk_pixel_width   : in std_logic_vector(2 downto 0);
+      aclk_color_space   : in std_logic_vector(2 downto 0);
       aclk_x_crop_en     : in std_logic;
       aclk_x_start       : in std_logic_vector(12 downto 0);
       aclk_x_size        : in std_logic_vector(12 downto 0);
@@ -1501,10 +1501,10 @@ begin
 
     regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER          <= REG_bayer_ver;
 
-    trim_pixel_width <= "001" when (regfile.DMA.CSC.COLOR_SPACE = "101") else    --RAW
-                        "100" when (regfile.DMA.CSC.COLOR_SPACE = "001") else    --RGB32
-						"010" when (regfile.DMA.CSC.COLOR_SPACE = "010") else    --YUV
-						"001";
+    -- trim_pixel_width <= "001" when (regfile.DMA.CSC.COLOR_SPACE = "101") else    --RAW
+    --                     "100" when (regfile.DMA.CSC.COLOR_SPACE = "001") else    --RGB32
+    --     					"010" when (regfile.DMA.CSC.COLOR_SPACE = "010") else    --YUV
+    --     					"001";
 						
   end generate G_COLOR_PIPELINE;
 
@@ -1519,7 +1519,7 @@ begin
       port map(
         aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
         aclk_load_context  => load_dma_context,
-        aclk_pixel_width   => trim_pixel_width,
+        aclk_color_space   => regfile.DMA.CSC.COLOR_SPACE,
         aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
         aclk_x_start       => regfile.DMA.ROI_X.X_START,
         aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,

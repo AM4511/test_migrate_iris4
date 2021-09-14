@@ -3,7 +3,7 @@
 
 module testbench();
    parameter TEST_NAME = "UNKNOWN";
-   parameter PIXEL_WIDTH = 1;  // size in bytes
+   parameter COLOR_SPACE = 0;  // COLOR_SPACE
    parameter Y_SIZE = 5;       // size in rows
    parameter X_SIZE = 256;     // size in pixels
    parameter X_ROI_EN = 1;
@@ -34,7 +34,7 @@ module testbench();
 
    bit [3:0] 	  aclk_tuser;
    bit [63:0] 	  aclk_tdata;
-   bit [2:0] 	  aclk_pixel_width;
+   bit [2:0] 	  aclk_color_space;
    bit [12:0] 	  aclk_x_size;
    bit [12:0] 	  aclk_x_start;
    bit [12:0] 	  aclk_x_stop;
@@ -55,6 +55,8 @@ module testbench();
    bit 		  aclk_grab_queue_en;
    bit [1:0] 	  aclk_load_context;
 
+   int 	  src_pixel_width;
+   int 	  pred_pixel_width;
 
    // Clock and Reset generation
    //always #2.7 sys_clk          = ~sys_clk;
@@ -63,10 +65,12 @@ module testbench();
    //assign bclk_tready = 1;
    int 		  watchdog;
    int 		  error;
+
+
    trim DUT(
 	    .aclk_grab_queue_en(aclk_grab_queue_en),
 	    .aclk_load_context(aclk_load_context),
-	    .aclk_pixel_width(aclk_pixel_width),
+	    .aclk_color_space(aclk_color_space),
 	    .aclk_x_crop_en(aclk_x_crop_en),
 	    .aclk_x_start(aclk_x_start),
 	    .aclk_x_size(aclk_x_size),
@@ -104,8 +108,22 @@ module testbench();
       ////////////////////////////////////////////////////////
       // Create src data
       ////////////////////////////////////////////////////////
-      aclk_pixel_width = PIXEL_WIDTH; // in bytes
-
+      //aclk_pixel_width = src_pixel_width; // in bytes
+      aclk_color_space = COLOR_SPACE;
+      	case (COLOR_SPACE) 
+	  0 : src_pixel_width = 1; 
+	  1 : src_pixel_width = 4;
+	  2 : src_pixel_width = 4; 
+	  5 : src_pixel_width = 4;
+	  default : src_pixel_width = 1; 
+	endcase
+      	case (COLOR_SPACE) 
+	  0 : pred_pixel_width = 1; 
+	  1 : pred_pixel_width = 4;
+	  2 : pred_pixel_width = 2; 
+	  5 : pred_pixel_width = 1;
+	  default : src_pixel_width = 1; 
+	endcase
       // Reverse setting
       aclk_x_reverse = X_REVERSE;
 
@@ -119,14 +137,16 @@ module testbench();
       aclk_y_size    = Y_ROI_SIZE;
       aclk_y_roi_en  = Y_ROI_EN;
 
+      
       $display("\n\n");
-      $display("DISPLAY     : %s",TEST_NAME);
-      $display("PIXEL_WIDTH : %0d",aclk_pixel_width);
-      $display("X_REVERSE   : %0d",aclk_x_reverse);
-      $display("X_ROI_EN    : %0d",aclk_x_crop_en);
-      $display("X_ROI_START : %0d",aclk_x_start);
-      $display("X_ROI_SIZE  : %0d",aclk_x_size);
-      $display("X_SCALING   : %0d",aclk_x_scale);
+      $display("DISPLAY         : %s",TEST_NAME);
+      $display("COLOR_SPACE     : %0d",COLOR_SPACE);
+      $display("SRC_PIXEL_WIDTH : %0d",src_pixel_width);
+      $display("X_REVERSE       : %0d",aclk_x_reverse);
+      $display("X_ROI_EN        : %0d",aclk_x_crop_en);
+      $display("X_ROI_START     : %0d",aclk_x_start);
+      $display("X_ROI_SIZE      : %0d",aclk_x_size);
+      $display("X_SCALING       : %0d",aclk_x_scale);
 
       // Reset interface
       #100;
@@ -169,10 +189,10 @@ module testbench();
                // Process each pixel of a row
 	       for (i=0;  i < X_SIZE;  i++) begin
 		   
-		  pixel_ptr = (PIXEL_WIDTH*i)%8;
+		  pixel_ptr = (src_pixel_width*i)%8;
 		  
 		  // Process each component of a pixel
-		  for (c=0; c< PIXEL_WIDTH; c++) begin
+		  for (c=0; c< src_pixel_width; c++) begin
 		     
 		     db[byte_ptr*8 +: 8] = i;
 
@@ -358,7 +378,7 @@ module testbench();
 	       // Process each pixel of the current row
 	       for (i=aclk_x_start;  i<= aclk_x_stop;  i++) begin
 		  if (subs_cntr % (X_SCALING+1) == 0) begin
-		     for (c = 0; c < PIXEL_WIDTH; c++) begin
+		     for (c = 0; c < pred_pixel_width; c++) begin
 			byte_stream.push_back(i);
 		     end
 		  end 
@@ -459,7 +479,7 @@ module testbench();
                // mask_size = 8 * ((X_ROI_SIZE + X_SIZE) % 8);
 
 	       // mask_size (in bits) = 8 * (Window size in pixel mod scaling factor) mod 8 bytes
-               mask_size = 8 * (((aclk_x_stop - aclk_x_start + 1)/(X_SCALING + 1) * PIXEL_WIDTH ) % 8);
+               mask_size = 8 * (((aclk_x_stop - aclk_x_start + 1)/(X_SCALING + 1) * pred_pixel_width ) % 8);
 	       byte_mask = ~(-1 << mask_size);
 	       for (i=0; i<longest_row_size; i++) begin
 		  c = " ";

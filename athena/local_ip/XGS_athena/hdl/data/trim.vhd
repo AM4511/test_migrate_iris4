@@ -25,7 +25,7 @@ entity trim is
     ---------------------------------------------------------------------------
     aclk_grab_queue_en : in std_logic;
     aclk_load_context  : in std_logic_vector(1 downto 0);
-    aclk_pixel_width   : in std_logic_vector(2 downto 0);
+    aclk_color_space   : in std_logic_vector(2 downto 0);
     aclk_x_crop_en     : in std_logic;
     aclk_x_start       : in std_logic_vector(12 downto 0);
     aclk_x_size        : in std_logic_vector(12 downto 0);
@@ -103,7 +103,7 @@ architecture rtl of trim is
       ---------------------------------------------------------------------------
       -- Register file
       ---------------------------------------------------------------------------
-      aclk_pixel_width : in std_logic_vector(2 downto 0);
+      aclk_color_space : in std_logic_vector(2 downto 0);
       aclk_x_crop_en   : in std_logic;
       aclk_x_start     : in unsigned(12 downto 0);
       aclk_x_size      : in unsigned(12 downto 0);
@@ -181,7 +181,7 @@ architecture rtl of trim is
 
 
   type STRM_CONTEXT_TYPE is record
-    pixel_width : std_logic_vector(2 downto 0);
+    color_space : std_logic_vector(2 downto 0);
     x_crop_en   : std_logic;
     x_start     : unsigned(12 downto 0);
     x_size      : unsigned(12 downto 0);
@@ -194,7 +194,7 @@ architecture rtl of trim is
 
 
   constant INIT_STRM_CONTEXT_TYPE : STRM_CONTEXT_TYPE := (
-    pixel_width => (others => '0'),
+    color_space => (others => '0'),
     x_crop_en   => '0',
     x_start     => (others => '0'),
     x_size      => (others => '0'),
@@ -239,15 +239,15 @@ begin
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.pixel_width <= aclk_pixel_width;       -- Units in bytes
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;         -- Boolean
-  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);  -- Units in pixels
-  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);  -- Units in pixels
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;  -- Units in pixels
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;         -- Boolean
-  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;          -- Units in lines
-  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);  -- Units in lines
-  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);  -- Units in lines
+  aclk_strm_context_in.color_space <= aclk_color_space;         -- Units in bytes
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;           -- Boolean
+  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);   -- Units in pixels
+  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);    -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;             -- Units in pixels
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;           -- Boolean
+  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;            -- Units in lines
+  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);   -- Units in lines
+  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);    -- Units in lines
 
 
   -----------------------------------------------------------------------------
@@ -334,7 +334,7 @@ begin
       NUMB_LINE_BUFFER => NUMB_LINE_BUFFER
       )
     port map(
-      aclk_pixel_width => aclk_strm.pixel_width,
+      aclk_color_space => aclk_strm.color_space,
       aclk_x_crop_en   => aclk_strm.x_crop_en,
       aclk_x_start     => aclk_strm.x_start,
       aclk_x_size      => aclk_strm.x_size,

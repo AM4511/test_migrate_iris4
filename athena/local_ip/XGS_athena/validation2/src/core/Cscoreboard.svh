@@ -70,8 +70,18 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 		bit [15:0] requester_id;
 		longint nxt_pcie_address;
 		int tlp_id;
+		int file_desc;
+		
 		//memory_entry entry;
 
+
+        file_desc = $fopen("./Cscoreboard.dump", "w");
+		if (file_desc) $display("./Cscoreboard.dump open successfully");
+		else $error("Can't open ./Cscoreboard.dump");
+		
+	    $fdisplay (file_desc, "titi");
+		$fflush(file_desc);
+		
 		/////////////////////////////////////////////////////////////////////////
 		// Initialization
 		/////////////////////////////////////////////////////////////////////////
@@ -131,7 +141,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 						nxt_pcie_address[63:32] = 0;
 						nxt_pcie_address[31:0]  = this.axis.tdata[31:0];
 						//$display("Header DW3 is data %h", this.axis.tdata[63:32] );
-				    	validate_DW(nxt_pcie_address, this.axis.tdata[63:32]);			
+				    	validate_DW(file_desc, nxt_pcie_address, this.axis.tdata[63:32]);			
 						nxt_pcie_address = nxt_pcie_address + 4;
 						tlp_length--;
 					end else if (header_dw==4) begin
@@ -146,13 +156,13 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 				else if (tlp_cntr > 1 && has_data > 0) begin
 					
 					//$display("Data DW Lo is %h", this.axis.tdata[31:0] );
-					validate_DW(nxt_pcie_address, this.axis.tdata[31:0]);
+					validate_DW(file_desc, nxt_pcie_address, this.axis.tdata[31:0]);
 					nxt_pcie_address = nxt_pcie_address + 4;
 					tlp_length--;
 					
 		            if(tlp_length!=0) begin  // pour n'est pas ecrire le dernier DW xxxxxxxx 
 					  //$display("Data DW Hi is %h", this.axis.tdata[63:32] );
-					  validate_DW(nxt_pcie_address, this.axis.tdata[63:32]);
+					  validate_DW(file_desc, nxt_pcie_address, this.axis.tdata[63:32]);
 					  nxt_pcie_address = nxt_pcie_address + 4;
 					  tlp_length--;
 					end;
@@ -223,7 +233,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	/////////////////////////////////////////////////////////////////////////
 	// Inline validation
 	/////////////////////////////////////////////////////////////////////////
-    task validate_DW(longint address, int data);    
+    task validate_DW(int file_desc, longint address, int data);    
       
 	  int data_LE;
 	  
@@ -240,14 +250,21 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	  if (this.Pcie32_queue.size() > 0) begin
 	    DW_pred = this.Pcie32_queue.pop_front();
 	    if(IgnorePrediction==0) begin
+		  
 	      if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin	
 	        $display ("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+			//Print in the output file for debug
+	        $fdisplay (file_desc, "ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
             number_of_errors++;	
             if(number_of_errors>0) begin
 		      //#10us;
+			  $fclose(file_desc);
 		      $stop;           
 		    end 
-		  end 		 
+		  end else begin
+		     // Print in the output file for debug
+		     $fdisplay (file_desc, "0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+          end		  
 		end  
       end  else begin
 	  	$display ("ERROR Pcie queue is empty and still have transactions pending!");
