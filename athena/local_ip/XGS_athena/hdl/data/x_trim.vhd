@@ -400,18 +400,18 @@ begin
             aclk_packing_mask    <= "11111111";
 
           ---------------------------------------------------------------------
-          -- YUV 4:2:2 : 2 bytes per pixels, 4 pixels/QWORD
+          -- YUV 4:2:2 : 2 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "010" =>
-            aclk_pix_incr        <= 2;  -- We receive 4 pix/data beat
-            aclk_valid_start     <= aclk_crop_start(12 downto 2) & "00";
-            aclk_valid_stop      <= aclk_crop_stop(12 downto 2) & "00";
+            aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
+            aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
+            aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
             aclk_src_pixel_width <= "100";
             aclk_dst_pixel_width <= "010";
             aclk_packing_mask    <= "00110011";
 
           ---------------------------------------------------------------------
-          -- RAW : 4 bytes per pixels, 2 pixels/QWORD
+          -- RAW : 1 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "101" =>
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat

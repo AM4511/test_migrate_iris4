@@ -137,6 +137,7 @@ class Test0022 extends Ctest;
                 // Final FPGA ROI
 				ROI_X_START = 0;
 				ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant)
+				//ROI_X_SIZE  = super.Vlib.P_INTERPOLATION + super.Vlib.P_ROI_WIDTH + super.Vlib.P_INTERPOLATION;  // Xsize with interpolation
 				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
 
 				SUB_X       = 0;
@@ -149,11 +150,13 @@ class Test0022 extends Ctest;
                 //Sensor Y ROI
 
                 //Fpga X-Y ROI (TRIM MODULE)
-                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE*2);   // <----- ATTENTION YUV N'EST PAS PACK!!!!! il faut faire *2 !!!!!
-                super.Vlib.Set_SUB(SUB_X+1, SUB_Y);                //en YUV SUBX 0->1 pour faire le sumsamplig de yuv32->yuv16
+                //super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE*2);   // <----- ATTENTION YUV N'EST PAS PACK!!!!! il faut faire *2 !!!!!
+                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE); 
+               //super.Vlib.Set_SUB(SUB_X+1, SUB_Y);              //en YUV SUBX 0->1 pour faire le sumsamplig de yuv32->yuv16 [AM] Subsampling not required anymore. Now support YUV 422 packing
+                super.Vlib.Set_SUB(SUB_X, SUB_Y);
 
    				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4); //In XGS SENSOR
-                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);    //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
+                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-4);    //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
 
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 

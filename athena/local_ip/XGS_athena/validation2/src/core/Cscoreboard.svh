@@ -73,7 +73,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 		int file_desc;
 		
 		//memory_entry entry;
-
+        $timeformat(-9, 2, " ns", 20);
 
         file_desc = $fopen("./Cscoreboard.dump", "w");
 		if (file_desc) $display("./Cscoreboard.dump open successfully");
@@ -250,7 +250,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	    if(IgnorePrediction==0) begin
 		  
 	      if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin	
-	        $display ("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+	        $error("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
 			//Print in the output file for debug
 	        $fdisplay (file_desc, "ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
             number_of_errors++;	
@@ -265,7 +265,8 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
           end		  
 		end  
       end  else begin
-	  	$display ("ERROR Pcie queue is empty and still have transactions pending!");
+	  	$error("Pcie prediction queue is empty and still have transactions pending!");
+        number_of_errors++;	
 	  
 	  end
 	    
