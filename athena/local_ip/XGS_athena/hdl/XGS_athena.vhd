@@ -65,13 +65,13 @@ use work.hispi_pack.all;
 
 entity XGS_athena is
   generic (
-    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;      -- Boolean (0 or 1)
-    NUMBER_OF_LANE        : integer              := 6;      -- 4 or 6 lanes only
+    ENABLE_IDELAYCTRL     : integer range 0 to 1 := 1;  -- Boolean (0 or 1)
+    NUMBER_OF_LANE        : integer              := 6;  -- 4 or 6 lanes only
     MAX_PCIE_PAYLOAD_SIZE : integer              := 128;
     SYS_CLK_PERIOD        : integer              := 16;     -- Units in ns
     SENSOR_FREQ           : integer              := 32400;  -- Units in KHz
     SIMULATION            : integer              := 0;
-    COLOR                 : integer range 0 to 1 := 0       -- Boolean (0 or 1)
+    COLOR                 : integer range 0 to 1 := 0   -- Boolean (0 or 1)
     );
   port (
     ---------------------------------------------------------------------------
@@ -319,8 +319,8 @@ architecture struct of XGS_athena is
   component xgs_hispi_top is
     generic (
       HW_VERSION     : integer range 0 to 255 := 0;
-      NUMBER_OF_LANE : integer                := 6; -- 4 or 6 lanes supported
-      COLOR          : integer                := 0  -- 0 Mono; 1 Color
+      NUMBER_OF_LANE : integer                := 6;  -- 4 or 6 lanes supported
+      COLOR          : integer                := 0   -- 0 Mono; 1 Color
       );
     port (
       ---------------------------------------------------------------------------
@@ -369,49 +369,6 @@ architecture struct of XGS_athena is
       sclk_tdata  : out std_logic_vector(79 downto 0)
       );
   end component;
-
-
-  -- component xgs_mono_pipeline is
-    -- generic (
-      -- SIMULATION : integer := 0
-      -- );
-    -- port (
-      -- ---------------------------------------------------------------------------
-      -- -- Register file
-      -- ---------------------------------------------------------------------------
-      -- regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
-
-      -- ---------------------------------------------------------------------------
-      -- -- AXI Slave interface
-      -- ---------------------------------------------------------------------------
-      -- sclk         : in std_logic;
-      -- sclk_reset_n : in std_logic;
-
-      -- ---------------------------------------------------------------------------
-      -- -- AXI slave stream input interface
-      -- ---------------------------------------------------------------------------
-      -- sclk_tready : out std_logic;
-      -- sclk_tvalid : in  std_logic;
-      -- sclk_tuser  : in  std_logic_vector(3 downto 0);
-      -- sclk_tlast  : in  std_logic;
-      -- sclk_tdata  : in  std_logic_vector(79 downto 0);
-
-      -- ---------------------------------------------------------------------------
-      -- -- AXI Slave interface
-      -- ---------------------------------------------------------------------------
-      -- aclk         : in std_logic;
-      -- aclk_reset_n : in std_logic;
-
-      -- ---------------------------------------------------------------------------
-      -- -- AXI master stream output interface
-      -- ---------------------------------------------------------------------------
-      -- aclk_tready : in  std_logic;
-      -- aclk_tvalid : out std_logic;
-      -- aclk_tuser  : out std_logic_vector(3 downto 0);
-      -- aclk_tlast  : out std_logic;
-      -- aclk_tdata  : out std_logic_vector(79 downto 0)
-      -- );
-  -- end component;
 
 
   component dpc_filter is
@@ -516,37 +473,37 @@ architecture struct of XGS_athena is
       );
   end component;
 
-  component axis_width_conv 
-   port (  
+  component axis_width_conv
+    port (
 
-           ---------------------------------------------------------------------
-           -- Axi domain reset and clock signals
-           ---------------------------------------------------------------------
-           axi_clk                                 : in    std_logic;
-           axi_reset_n                             : in    std_logic;
+      ---------------------------------------------------------------------
+      -- Axi domain reset and clock signals
+      ---------------------------------------------------------------------
+      axi_clk     : in std_logic;
+      axi_reset_n : in std_logic;
 
-           ---------------------------------------------------------------------
-           -- AXI in
-           ---------------------------------------------------------------------  
-           s_axis_tvalid                           : in   std_logic;
-           s_axis_tready                           : out  std_logic;
-           s_axis_tuser                            : in   std_logic_vector(3 downto 0);
-           s_axis_tlast                            : in   std_logic;
-           s_axis_tdata                            : in   std_logic_vector(79 downto 0);	
-           
-           ---------------------------------------------------------------------
-           -- AXI out
-           ---------------------------------------------------------------------
-           m_axis_tready                           : in  std_logic;
-           m_axis_tvalid                           : out std_logic;
-           m_axis_tuser                            : out std_logic_vector(3 downto 0);
-           m_axis_tlast                            : out std_logic;
-           m_axis_tdata                            : out std_logic_vector(19 downto 0)
+      ---------------------------------------------------------------------
+      -- AXI in
+      ---------------------------------------------------------------------  
+      s_axis_tvalid : in  std_logic;
+      s_axis_tready : out std_logic;
+      s_axis_tuser  : in  std_logic_vector(3 downto 0);
+      s_axis_tlast  : in  std_logic;
+      s_axis_tdata  : in  std_logic_vector(79 downto 0);
 
-        );
-  end component;  
-  
-  
+      ---------------------------------------------------------------------
+      -- AXI out
+      ---------------------------------------------------------------------
+      m_axis_tready : in  std_logic;
+      m_axis_tvalid : out std_logic;
+      m_axis_tuser  : out std_logic_vector(3 downto 0);
+      m_axis_tlast  : out std_logic;
+      m_axis_tdata  : out std_logic_vector(19 downto 0)
+
+      );
+  end component;
+
+
   component xgs_color_proc
     generic(DPC_CORR_PIXELS_DEPTH : integer := 9  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
@@ -564,7 +521,6 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------  
       s_axis_tvalid : in  std_logic;
       s_axis_tready : out std_logic;
-      --s_axis_tready_int                       : in   std_logic;   --temporaire on va juste se hooker
       s_axis_tuser  : in  std_logic_vector(3 downto 0);
       s_axis_tlast  : in  std_logic;
       s_axis_tdata  : in  std_logic_vector(19 downto 0);
@@ -616,35 +572,35 @@ architecture struct of XGS_athena is
       REG_WB_MULT_G : in std_logic_vector(15 downto 0) := "0001000000000000";
       REG_WB_MULT_B : in std_logic_vector(15 downto 0) := "0001000000000000";
 
-      REG_bayer_ver : out std_logic_vector(1 downto 0);	     
+      REG_bayer_ver : out std_logic_vector(1 downto 0);
 
-      load_dma_context  : in std_logic_vector(1 downto 0):=(others=>'0');
-	  REG_COLOR_SPACE   : in std_logic_vector(2 downto 0);	   
+      load_dma_context : in std_logic_vector(1 downto 0) := (others => '0');
+      REG_COLOR_SPACE  : in std_logic_vector(2 downto 0);
 
       REG_LUT_BYPASS       : in std_logic;
       REG_LUT_BYPASS_COLOR : in std_logic;
-      REG_LUT_SEL    : in std_logic_vector(3 downto 0);
-      REG_LUT_SS     : in std_logic;
-      REG_LUT_WRN    : in std_logic;
-      REG_LUT_ADD    : in std_logic_vector;
-      REG_LUT_DATA_W : in std_logic_vector;
-	  
-	  CCM_EN         : in std_logic;
-	  
-      KRr            : in std_logic_vector(11 downto 0);
-      KRg            : in std_logic_vector(11 downto 0); 
-      KRb            : in std_logic_vector(11 downto 0);
-      Offr           : in std_logic_vector(8 downto 0); 
+      REG_LUT_SEL          : in std_logic_vector(3 downto 0);
+      REG_LUT_SS           : in std_logic;
+      REG_LUT_WRN          : in std_logic;
+      REG_LUT_ADD          : in std_logic_vector;
+      REG_LUT_DATA_W       : in std_logic_vector;
 
-      KGr            : in std_logic_vector(11 downto 0);
-      KGg            : in std_logic_vector(11 downto 0); 
-      KGb            : in std_logic_vector(11 downto 0);
-      Offg           : in std_logic_vector(8 downto 0); 
+      CCM_EN : in std_logic;
 
-      KBr            : in std_logic_vector(11 downto 0);
-      KBg            : in std_logic_vector(11 downto 0); 
-      KBb            : in std_logic_vector(11 downto 0);
-      Offb           : in std_logic_vector(8 downto 0) 
+      KRr  : in std_logic_vector(11 downto 0);
+      KRg  : in std_logic_vector(11 downto 0);
+      KRb  : in std_logic_vector(11 downto 0);
+      Offr : in std_logic_vector(8 downto 0);
+
+      KGr  : in std_logic_vector(11 downto 0);
+      KGg  : in std_logic_vector(11 downto 0);
+      KGb  : in std_logic_vector(11 downto 0);
+      Offg : in std_logic_vector(8 downto 0);
+
+      KBr  : in std_logic_vector(11 downto 0);
+      KBg  : in std_logic_vector(11 downto 0);
+      KBb  : in std_logic_vector(11 downto 0);
+      Offb : in std_logic_vector(8 downto 0)
 
 
 
@@ -731,7 +687,7 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------
       -- RegisterFile I/F
       ---------------------------------------------------------------------
-      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;  -- Register file
+      regfile : inout REGFILE_XGS_ATHENA_TYPE := INIT_REGFILE_XGS_ATHENA_TYPE;
 
 
 
@@ -816,9 +772,9 @@ architecture struct of XGS_athena is
       ---------------------------------------------------------------------------
       anput_ext_trig : in std_logic;
 
-      anput_strobe_out   : out std_logic;  --
-      anput_exposure_out : out std_logic;  --
-      anput_trig_rdy_out : out std_logic;  --
+      anput_strobe_out   : out std_logic;
+      anput_exposure_out : out std_logic;
+      anput_trig_rdy_out : out std_logic;
 
       led_out : out std_logic_vector(1 downto 0);  -- led_out(0) --> vert, led_out(1) --> rouge
 
@@ -965,12 +921,12 @@ architecture struct of XGS_athena is
   signal conv_tuser  : std_logic_vector(3 downto 0);
   signal conv_tlast  : std_logic;
   signal conv_tdata  : std_logic_vector(19 downto 0);
-  
+
   -- AXI drive by LUT in Modo (COLOR=0) or by
   -- xgs_color_proc in color mode (COLOR=1)
   -- sys_clk : 62.5mhz
-  signal trim_pixel_width : std_logic_vector(2 downto 0):= "000";  --temp
-  
+  signal trim_pixel_width : std_logic_vector(2 downto 0) := "000";  --temp
+
   signal trim_tready : std_logic;
   signal trim_tvalid : std_logic;
   signal trim_tdata  : std_logic_vector(63 downto 0);
@@ -1021,13 +977,11 @@ architecture struct of XGS_athena is
   signal REG_dpc_list_length  : std_logic_vector(11 downto 0);
   signal REG_dpc_ver          : std_logic_vector(3 downto 0);
 
-  signal REG_bayer_ver        : std_logic_vector(1 downto 0); 
-  
-  
-  signal trim_x_scale         : std_logic_vector(regfile.DMA.CSC.SUB_X'range);
-  
-  -- signal temporaire pour d/veloppement
-  signal tmp_valid : std_logic;
+  signal REG_bayer_ver : std_logic_vector(1 downto 0);
+
+
+  signal trim_x_scale : std_logic_vector(regfile.DMA.CSC.SUB_X'range);
+
 
 
 begin
@@ -1117,8 +1071,6 @@ begin
       COLOR          => COLOR
       )
     port map(
-      -- sclk                     => sclk,
-      -- sclk_reset_n             => sclk_reset_n,
       sclk                     => aclk,
       sclk_reset_n             => aclk_reset_n,
       rclk                     => aclk,
@@ -1144,29 +1096,6 @@ begin
       sclk_tdata               => aclk_tdata
       );
 
-
-  -- xgs_mono_pipeline_inst : xgs_mono_pipeline
-  --   generic map(
-  --     SIMULATION => SIMULATION
-  --     )
-  --   port map(
-  --     regfile      => regfile,
-  --     sclk         => sclk,
-  --     sclk_reset_n => sclk_reset_n,
-  --     sclk_tready  => sclk_tready,
-  --     sclk_tvalid  => sclk_tvalid,
-  --     sclk_tuser   => sclk_tuser,
-  --     sclk_tlast   => sclk_tlast,
-  --     sclk_tdata   => sclk_tdata,
-
-  --     aclk         => aclk,
-  --     aclk_reset_n => aclk_reset_n,
-  --     aclk_tready  => aclk_tready,
-  --     aclk_tvalid  => aclk_tvalid,
-  --     aclk_tuser   => aclk_tuser,
-  --     aclk_tlast   => aclk_tlast,
-  --     aclk_tdata   => aclk_tdata
-  --     );
 
 
   ----------------------------------
@@ -1301,8 +1230,8 @@ begin
     regfile.BAYER.WB_B_ACC.B_ACC <= (others => '0');
     regfile.BAYER.WB_G_ACC.G_ACC <= (others => '0');
     regfile.BAYER.WB_R_ACC.R_ACC <= (others => '0');
-    
-	regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER  <= "00";
+
+    regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER <= "00";
 
     ---------------------------
     -- MONO
@@ -1331,7 +1260,7 @@ begin
 
     trim_pixel_width <= "001";
 
-    
+
   end generate G_MONO_PIPELINE;  --MONO PIPELINE
 
 
@@ -1346,38 +1275,38 @@ begin
   ----------------------------------
   G_COLOR_PIPELINE : if (COLOR = 1) generate
 
-  
-  
-  Xaxis_width_conv : axis_width_conv
-   port map(  
 
-           ---------------------------------------------------------------------
-           -- Axi domain reset and clock signals
-           ---------------------------------------------------------------------
-           axi_clk                                 => aclk,
-           axi_reset_n                             => aclk_reset_n,
 
-           ---------------------------------------------------------------------
-           -- AXI in
-           ---------------------------------------------------------------------  
-           s_axis_tvalid                           => aclk_tvalid,
-           s_axis_tready                           => aclk_tready,
-           s_axis_tuser                            => aclk_tuser,
-           s_axis_tlast                            => aclk_tlast,
-           s_axis_tdata                            => aclk_tdata,	
-           
-           ---------------------------------------------------------------------
-           -- AXI out
-           ---------------------------------------------------------------------
-           m_axis_tready                           => conv_tready,
-           m_axis_tvalid                           => conv_tvalid,
-           m_axis_tuser                            => conv_tuser,
-           m_axis_tlast                            => conv_tlast,
-           m_axis_tdata                            => conv_tdata
+    Xaxis_width_conv : axis_width_conv
+      port map(
+
+        ---------------------------------------------------------------------
+        -- Axi domain reset and clock signals
+        ---------------------------------------------------------------------
+        axi_clk     => aclk,
+        axi_reset_n => aclk_reset_n,
+
+        ---------------------------------------------------------------------
+        -- AXI in
+        ---------------------------------------------------------------------  
+        s_axis_tvalid => aclk_tvalid,
+        s_axis_tready => aclk_tready,
+        s_axis_tuser  => aclk_tuser,
+        s_axis_tlast  => aclk_tlast,
+        s_axis_tdata  => aclk_tdata,
+
+        ---------------------------------------------------------------------
+        -- AXI out
+        ---------------------------------------------------------------------
+        m_axis_tready => conv_tready,
+        m_axis_tvalid => conv_tvalid,
+        m_axis_tuser  => conv_tuser,
+        m_axis_tlast  => conv_tlast,
+        m_axis_tdata  => conv_tdata
 
         );
 
-  
+
     Xxgs_color_proc : xgs_color_proc
       generic map(DPC_CORR_PIXELS_DEPTH => DPC_CORR_PIXELS_DEPTH  --6=>64,  7=>128, 8=>256, 9=>512, 10=>1024
 
@@ -1408,18 +1337,12 @@ begin
         m_axis_tlast  => trim_tlast,
         m_axis_tdata  => trim_tdata,
 
-        -- m_axis_tready => dma_tready,
-        -- m_axis_tvalid => dma_tvalid,
-        -- m_axis_tuser  => dma_tuser,
-        -- m_axis_tlast  => dma_tlast,
-        -- m_axis_tdata  => dma_tdata,
-        
-        
+
         ---------------------------------------------------------------------              
         -- Grab parameters         
         ---------------------------------------------------------------------
-        curr_Xstart   => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
-        curr_Xend     => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
+        curr_Xstart => regfile.HISPI.FRAME_CFG_X_VALID.X_START,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally 
+        curr_Xend   => regfile.HISPI.FRAME_CFG_X_VALID.X_END,  -- This register includes blanking, BL, Dummy, interpolations. It will be corrected internally
 
         curr_Ystart => hispi_ystart,
         curr_Yend   => hispi_yend,
@@ -1453,36 +1376,36 @@ begin
         REG_WB_MULT_G => regfile.BAYER.WB_MUL1.WB_MULT_G,
         REG_WB_MULT_B => regfile.BAYER.WB_MUL1.WB_MULT_B,
 
-  	    REG_bayer_ver     => REG_bayer_ver,
+        REG_bayer_ver => REG_bayer_ver,
 
-        load_dma_context  =>  load_dma_context,  
-		REG_COLOR_SPACE   =>  regfile.DMA.CSC.COLOR_SPACE, 
+        load_dma_context => load_dma_context,
+        REG_COLOR_SPACE  => regfile.DMA.CSC.COLOR_SPACE,
 
         REG_LUT_BYPASS       => regfile.LUT.LUT_CTRL.LUT_BYPASS,
         REG_LUT_BYPASS_COLOR => regfile.LUT.LUT_CTRL.LUT_BYPASS_COLOR,
-		
+
         REG_LUT_SEL    => regfile.LUT.LUT_CTRL.LUT_SEL,
         REG_LUT_SS     => regfile.LUT.LUT_CTRL.LUT_SS,
         REG_LUT_WRN    => regfile.LUT.LUT_CTRL.LUT_WRN,
         REG_LUT_ADD    => regfile.LUT.LUT_CTRL.LUT_ADD,
         REG_LUT_DATA_W => regfile.LUT.LUT_CTRL.LUT_DATA_W,
 
-        CCM_EN		   => regfile.BAYER.CCM_CTRL.CCM_EN,
-	    
-		KRr            => regfile.BAYER.CCM_KR1.Kr,
-        KRg            => regfile.BAYER.CCM_KR1.Kg,
-        KRb            => regfile.BAYER.CCM_KR2.Kb,
-        Offr           => regfile.BAYER.CCM_KR2.KOff,
+        CCM_EN => regfile.BAYER.CCM_CTRL.CCM_EN,
 
-        KGr            => regfile.BAYER.CCM_KG1.Kr,  
-        KGg            => regfile.BAYER.CCM_KG1.Kg,   
-        KGb            => regfile.BAYER.CCM_KG2.Kb,  
-        Offg           => regfile.BAYER.CCM_KG2.KOff,  
-        
-        KBr            => regfile.BAYER.CCM_KB1.Kr,  
-        KBg            => regfile.BAYER.CCM_KB1.Kg,   
-        KBb            => regfile.BAYER.CCM_KB2.Kb,   
-        Offb           => regfile.BAYER.CCM_KB2.KOff  		
+        KRr  => regfile.BAYER.CCM_KR1.Kr,
+        KRg  => regfile.BAYER.CCM_KR1.Kg,
+        KRb  => regfile.BAYER.CCM_KR2.Kb,
+        Offr => regfile.BAYER.CCM_KR2.KOff,
+
+        KGr  => regfile.BAYER.CCM_KG1.Kr,
+        KGg  => regfile.BAYER.CCM_KG1.Kg,
+        KGb  => regfile.BAYER.CCM_KG2.Kb,
+        Offg => regfile.BAYER.CCM_KG2.KOff,
+
+        KBr  => regfile.BAYER.CCM_KB1.Kr,
+        KBg  => regfile.BAYER.CCM_KB1.Kg,
+        KBb  => regfile.BAYER.CCM_KB2.Kb,
+        Offb => regfile.BAYER.CCM_KB2.KOff
 
         );
 
@@ -1499,58 +1422,42 @@ begin
     regfile.DPC.DPC_LIST_DATA1_RD.dpc_list_corr_y       <= REG_dpc_list_corr_rd(24 downto 13);  --12 bits
     regfile.DPC.DPC_LIST_DATA2_RD.dpc_list_corr_pattern <= REG_dpc_list_corr_rd(32 downto 25);  --8 bits   
 
-    regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER          <= REG_bayer_ver;
-
-    -- trim_pixel_width <= "001" when (regfile.DMA.CSC.COLOR_SPACE = "101") else    --RAW
-    --                     "100" when (regfile.DMA.CSC.COLOR_SPACE = "001") else    --RGB32
-    --     					"010" when (regfile.DMA.CSC.COLOR_SPACE = "010") else    --YUV
-    --     					"001";
-						
+    regfile.BAYER.BAYER_CAPABILITIES.BAYER_VER <= REG_bayer_ver;
+  
   end generate G_COLOR_PIPELINE;
 
 
-  
-  -- For the moment bypass X_TRIM in color mode    
-  --G_MONO_TRIM : if (COLOR = 0) generate
-    trim_inst : trim
-      generic map(
-        NUMB_LINE_BUFFER => 2
-        )
-      port map(
-        aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
-        aclk_load_context  => load_dma_context,
-        aclk_color_space   => regfile.DMA.CSC.COLOR_SPACE,
-        aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
-        aclk_x_start       => regfile.DMA.ROI_X.X_START,
-        aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
-        --aclk_x_scale       => trim_x_scale,
-        aclk_x_scale       => regfile.DMA.CSC.SUB_X,
-        aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
-        aclk_y_roi_en      => regfile.DMA.ROI_Y.ROI_EN,
-        aclk_y_start       => regfile.DMA.ROI_Y.Y_START,
-        aclk_y_size        => regfile.DMA.ROI_Y.Y_SIZE,
-        aclk               => aclk,
-        aclk_reset_n       => aclk_reset_n,
-        aclk_tready        => trim_tready,
-        aclk_tvalid        => trim_tvalid,
-        aclk_tuser         => trim_tuser,
-        aclk_tlast         => trim_tlast,
-        aclk_tdata         => trim_tdata,
-        bclk               => aclk,
-        bclk_reset_n       => aclk_reset_n,
-        bclk_tready        => dma_tready,
-        bclk_tvalid        => dma_tvalid,
-        bclk_tuser         => dma_tuser,
-        bclk_tlast         => dma_tlast,
-        bclk_tdata         => dma_tdata
-        );
-  --end generate;  
-
-
-  -- trim_x_scale <= "0011" when (regfile.DMA.CSC.COLOR_SPACE = "101") else  -- RAW mode (div4)
-  --                  regfile.DMA.CSC.SUB_X;                                -- Normal scaling in color mode
-                   
-
+  trim_inst : trim
+    generic map(
+      NUMB_LINE_BUFFER => 2
+      )
+    port map(
+      aclk_grab_queue_en => regfile.DMA.CTRL.GRAB_QUEUE_EN,
+      aclk_load_context  => load_dma_context,
+      aclk_color_space   => regfile.DMA.CSC.COLOR_SPACE,
+      aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
+      aclk_x_start       => regfile.DMA.ROI_X.X_START,
+      aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
+      aclk_x_scale       => regfile.DMA.CSC.SUB_X,
+      aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
+      aclk_y_roi_en      => regfile.DMA.ROI_Y.ROI_EN,
+      aclk_y_start       => regfile.DMA.ROI_Y.Y_START,
+      aclk_y_size        => regfile.DMA.ROI_Y.Y_SIZE,
+      aclk               => aclk,
+      aclk_reset_n       => aclk_reset_n,
+      aclk_tready        => trim_tready,
+      aclk_tvalid        => trim_tvalid,
+      aclk_tuser         => trim_tuser,
+      aclk_tlast         => trim_tlast,
+      aclk_tdata         => trim_tdata,
+      bclk               => aclk,
+      bclk_reset_n       => aclk_reset_n,
+      bclk_tready        => dma_tready,
+      bclk_tvalid        => dma_tvalid,
+      bclk_tuser         => dma_tuser,
+      bclk_tlast         => dma_tlast,
+      bclk_tdata         => dma_tdata
+      );
 
 
   xdmawr2tlp : dmawr2tlp

@@ -152,7 +152,8 @@ class Test0023 extends Ctest;
 
                 //Fpga X-Y ROI (TRIM MODULE)
                 super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
-                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);  //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
+                //super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);  //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
+                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-4);  
 
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us

@@ -1,16 +1,5 @@
 class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
-	//	class memory_entry;
-	//		longint pcie_address;
-	//		int pcie_data;
-	//		function new(longint address, int data);
-	//			this.pcie_address = address;
-	//			this.pcie_data = data;
-	//		endfunction
-	//	endclass
 
-
-	// Parameters
-    
     int ImagePredicted =0;
 	
 	typedef struct {
@@ -253,7 +242,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	        $error("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
 			//Print in the output file for debug
 	        $fdisplay (file_desc, "ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
-            number_of_errors++;	
+            this.number_of_errors++;	
             if(number_of_errors>0) begin
 		      //#10us;
 			  $fclose(file_desc);
@@ -265,8 +254,8 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
           end		  
 		end  
       end  else begin
-	  	$error("Pcie prediction queue is empty and still have transactions pending!");
-        number_of_errors++;	
+	  $error("Pcie prediction queue is empty and still have transactions pending!");
+      this.number_of_errors++;	
 	  
 	  end
 	    

@@ -1,10 +1,21 @@
 -----------------------------------------------------------------------
 -- MODULE        : x_trim_subsampling
 -- 
--- DESCRIPTION   : 
---              
+-- DESCRIPTION   : Sub-sample and pack stream input pixels. Subsampling
+--                 factors are interegr value from 0 to 15. This factor is 0
+--                 base so
 --
--- ToDO: Implement sub-sampling
+--                 Case : aclk_x_subsampling
+--                        when 0 : Subsampling factor -> 1/1
+--                        when 1 : Subsampling factor -> 1/2
+--                        when 2 : Subsampling factor -> 1/3
+--                        when 3 : Subsampling factor -> 1/4
+--                        ...
+--                        when 12 : Subsampling factor -> 1/13
+--                        when 13 : Subsampling factor -> 1/14
+--                        when 14 : Subsampling factor -> 1/15
+--                        when 15 : Subsampling factor -> 1/16
+--              
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -672,6 +683,9 @@ begin
   end process;
 
 
+  -----------------------------------------------------------------------------
+  -- Output ports mapping
+  -----------------------------------------------------------------------------
   aclk_empty <= '1' when (p1_valid = '0' and p2_valid = '0' and p3_valid = '0') else
                 '0';
 
