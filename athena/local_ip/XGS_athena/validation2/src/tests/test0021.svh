@@ -155,6 +155,7 @@ class Test0021 extends Ctest;
 
                 super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE);  // Do not remove any lines in RAW mode, since we want to transfert full RAW image
 
+                // in RAW mode, VHDL sets SUBX as 3 : 1/4 pixels  
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 

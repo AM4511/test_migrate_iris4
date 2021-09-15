@@ -990,6 +990,40 @@ class Cimage;
 
 
 
+    // YUV32 to YUV16 pack prediction
+    function void yuv32_2_yuv16();
+
+        shortint image_new[];
+        int new_size_x ;
+
+        // determiner la nouvelle dimension en bytes
+        new_size_x = pgm_size_x/2;
+
+        image_new = new[new_size_x * pgm_size_y];
+
+        for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < pgm_size_x; x += 16) begin                     //take 2 Qwords to generate 1
+                image_new[y * new_size_x + x/2 + 0] = get_pixel(x+0,y);
+                image_new[y * new_size_x + x/2 + 1] = get_pixel(x+1,y);
+                image_new[y * new_size_x + x/2 + 2] = get_pixel(x+4,y);
+                image_new[y * new_size_x + x/2 + 3] = get_pixel(x+5,y);
+
+                image_new[y * new_size_x + x/2 + 4] = get_pixel(x+8,y);
+                image_new[y * new_size_x + x/2 + 5] = get_pixel(x+9,y);
+                image_new[y * new_size_x + x/2 + 6] = get_pixel(x+12,y);
+                image_new[y * new_size_x + x/2 + 7] = get_pixel(x+13,y);
+
+            end
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image_new); // ici il faut faire une reallocation augmentee!
+        pgm_size_x = new_size_x;
+
+        image_new.delete;
+
+    endfunction : yuv32_2_yuv16
+
+
+
 
     //---------------------------------------------------------------------------------------------------------------------
     //  This task correct dead pixel from one COLOR image stored in Class ---- to a new corrected image stored in DPC_grab_image Class.
