@@ -150,7 +150,9 @@ class Test0021 extends Ctest;
 				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
 
                 //Fpga X-Y ROI (TRIM MODULE)
-                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE*4);
+                //super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE*4); [AM] new trim. Handle raw mode without subsampling
+				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
+
                 super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE);  // Do not remove any lines in RAW mode, since we want to transfert full RAW image
 
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);

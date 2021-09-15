@@ -1523,7 +1523,8 @@ begin
         aclk_x_crop_en     => regfile.DMA.ROI_X.ROI_EN,
         aclk_x_start       => regfile.DMA.ROI_X.X_START,
         aclk_x_size        => regfile.DMA.ROI_X.X_SIZE,
-        aclk_x_scale       => trim_x_scale,
+        --aclk_x_scale       => trim_x_scale,
+        aclk_x_scale       => regfile.DMA.CSC.SUB_X,
         aclk_x_reverse     => regfile.DMA.CSC.REVERSE_X,
         aclk_y_roi_en      => regfile.DMA.ROI_Y.ROI_EN,
         aclk_y_start       => regfile.DMA.ROI_Y.Y_START,
@@ -1546,8 +1547,8 @@ begin
   --end generate;  
 
 
-  trim_x_scale <= "0011" when (regfile.DMA.CSC.COLOR_SPACE = "101") else  -- RAW mode (div4)
-                   regfile.DMA.CSC.SUB_X;                                -- Normal scaling in color mode
+  -- trim_x_scale <= "0011" when (regfile.DMA.CSC.COLOR_SPACE = "101") else  -- RAW mode (div4)
+  --                  regfile.DMA.CSC.SUB_X;                                -- Normal scaling in color mode
                    
 
 

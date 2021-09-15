@@ -43,7 +43,7 @@ proc a {} {
 	
 	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
-	set COLOR_SPACE_RANGE {0}
+	set COLOR_SPACE_RANGE {5}
 	set Y_SIZE 5
 	set X_SIZE_RANGE {128}
         set Y_ROI_EN 1

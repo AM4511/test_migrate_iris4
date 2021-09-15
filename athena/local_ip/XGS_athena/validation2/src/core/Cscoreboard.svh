@@ -78,9 +78,7 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
         file_desc = $fopen("./Cscoreboard.dump", "w");
 		if (file_desc) $display("./Cscoreboard.dump open successfully");
 		else $error("Can't open ./Cscoreboard.dump");
-		
-	    $fdisplay (file_desc, "titi");
-		$fflush(file_desc);
+	   
 		
 		/////////////////////////////////////////////////////////////////////////
 		// Initialization
