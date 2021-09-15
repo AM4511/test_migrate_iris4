@@ -107,6 +107,8 @@ class Test0023 extends Ctest;
 				tx_axis_if.tready_packet_delai_cfg    = 1; //random backpressure
 				tx_axis_if.tready_packet_random_min   = 1;
 	            tx_axis_if.tready_packet_random_max   = 31;
+	            //tx_axis_if.tready_packet_random_max   = 10; //backpressure ok!
+
 				//tx_axis_if.tready_packet_delai_cfg    = 0;   // Static backpressure
                 //tx_axis_if.tready_packet_delai        = 0;   // tready_packet_delai = 28;  => overrun
 

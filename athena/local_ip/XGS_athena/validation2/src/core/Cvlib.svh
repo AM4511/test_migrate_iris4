@@ -815,24 +815,26 @@ class Cvlib;
         // ne sont plus representes en pixels mais en bytes!
          
 		if(bayer==1)
-		  XGS_image.BayerDemosaic();                                                                    // Bayer : Mono8 to RGB32, attention c pas des pixel RGB32!!!
-		else
-		  XGS_image.mono8_2_mono32();
+          if(yuv==0) begin                                                                               // *** RGB32 
+		    XGS_image.BayerDemosaic();
+            XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
+            XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
 
-        if(yuv==1)
-		  XGS_image.Bayer2YUV(); 
-
-        // Image pixels are 8 bits, not RGB32/yuv16/mono32 
-
-        if(bayer==1) begin        	                                      // Bayer (RGB32 ou YUV)                  
+		  end else begin                                                                                 // *** YUV
+		    XGS_image.BayerDemosaic();      
+		    XGS_image.Bayer2YUV();   
+            XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X - in YUV32 domain
+            XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
+            XGS_image.yuv32_2_yuv16();                                                                   // FPGA YUV32 to YUV16 pack 
+		  end                                                          
+		else begin                                                                                       // *** RAW
+		  XGS_image.mono8_2_mono32();                                                                    // RAW Mono8 to MONO32
           XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                         // FPGA ROI X
-          XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-3);                                               // FPGA ROI Y (-3 lignes) Remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
-        end else begin                                                    // Color RAW (MONO32)
-          XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                         // FPGA ROI X
-          XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END);                                                 // FPGA ROI Y (-3 lignes) Remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)       
+          XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END);                                                 // FPGA ROI Y 
           XGS_image.fpga_sub_X(3);                                                                       // FPGA MONO32 to MONO8
         end
 
+        
 
 		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
         //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X

@@ -147,19 +147,20 @@ class Test0022 extends Ctest;
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
                 
                 //Sensor Y ROI
-				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
 
                 //Fpga X-Y ROI (TRIM MODULE)
-                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
-                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);  //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
+                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE*2);   // <----- ATTENTION YUV N'EST PAS PACK!!!!! il faut faire *2 !!!!!
+                super.Vlib.Set_SUB(SUB_X+1, SUB_Y);                //en YUV SUBX 0->1 pour faire le sumsamplig de yuv32->yuv16
 
-                super.Vlib.Set_SUB(SUB_X, SUB_Y);
+   				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4); //In XGS SENSOR
+                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);    //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
+
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 
                 super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
-                // In this test Bayer is active
-                // Line size is valid*4 (RGB32)	              
- 				super.Vlib.setDMA('hA0000000, 'h4000, (ROI_X_SIZE*4)/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+                // In this test Bayer is active, YUV16
+                // Line size is valid*2 (YUV16)	        
+ 				super.Vlib.setDMA('hA0000000, 'h4000, (ROI_X_SIZE*2)/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
