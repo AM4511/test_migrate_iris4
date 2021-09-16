@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Test0020 : XGS 5000 : BAYER COLOR DEMOSAIC : RGB32
 //
-// Description : Send one color frame of 16 lines 
-//               (20 from the sensor for bayer 1-line consumption)
+// Description : Send one color frame of 16 lines. Destination buffer is BGR32.
+//               (20 from the sensor because of bayer 1-line consumption)
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 import core_pkg::*;
@@ -34,6 +34,7 @@ class Test0020 extends Ctest;
     int TRIM_ROI_X_START;
     int TRIM_ROI_X_SIZE;
     int DMA_NB_LINE;
+    int DMA_PIX_WIDTH;
     int DMA_LINE_SIZE;
 
     int SUB_X;
@@ -174,7 +175,8 @@ class Test0020 extends Ctest;
 				// DMA
 				///////////////////////////////////////////////////////
 				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
-				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*4/(SUB_X+1); // Units in bytes
+				DMA_PIX_WIDTH = 4; // Units in bytes
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
 				
 				super.Vlib.setDMA('hA0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
