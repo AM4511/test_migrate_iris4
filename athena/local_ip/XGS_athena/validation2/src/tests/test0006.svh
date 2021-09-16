@@ -4,13 +4,12 @@
 // SUBSAMPLING Y TEST
 //
 
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
-import xgs_athena_pkg::*;
 
 
 
-class Test0006 extends CTest;
+class Test0006 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -41,12 +40,12 @@ class Test0006 extends CTest;
         super.new("Test0006", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
+        this.scoreboard = new(tx_axis_if,this);
     endfunction
 
     task run();
 
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 

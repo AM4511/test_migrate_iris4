@@ -14,7 +14,7 @@
 // objet_image.pgm_size_y;
 
 //
-// function CImage copy;
+// function Cimage copy;
 // Fait une deep-copy de l'objet, donc de l'image.
 //
 // task reduce_bit_depth;
@@ -55,7 +55,7 @@
 `timescale 1ns / 1ps
 
 
-class CImage;
+class Cimage;
 
     //int i;
     //int pixel;
@@ -79,7 +79,7 @@ class CImage;
 	endfunction
 
 
-    function CImage copy;
+    function Cimage copy;
         copy = new;
         copy.pgm_size_x = pgm_size_x; // Fill in data values
         copy.pgm_size_y = pgm_size_y;
@@ -281,7 +281,7 @@ class CImage;
     endfunction : crop_X
 
 
-    // CROP_Y
+    // SENSOR CROP_Y
     function void crop_Y(input int y_start, input int y_end);
 
         int new_size_y;
@@ -317,6 +317,31 @@ class CImage;
 
     endfunction : crop_Y
 
+    // FPGA CROP_Y
+    function void fpga_crop_Y(input int y_start, input int y_end);
+
+        int new_size_y;
+
+        // determiner la nouvelle dimension
+        new_size_y = y_end - y_start + 1;
+
+        // allouer et copier dans un nouveau array.
+        // on presume que crop reduit la dimension tout le temps, il faudrait le verifier
+        if(new_size_y > pgm_size_y) begin
+            $display("Appel illegal a crop_Y(), size_y plus grand que le array source");
+            $stop();
+        end
+
+        //new_image = new[pgm_size_x*new_size_y];
+        for(int y = 0; y < new_size_y; y += 1)
+            for(int x = 0; x < pgm_size_x; x += 1)
+                image[y * pgm_size_x + x] = get_pixel(x,y + y_start);
+
+        // replacer dans l'image
+        image = new[pgm_size_x*new_size_y](image); // ici il faut faire une reallocation reduite!
+        pgm_size_y = new_size_y;
+
+    endfunction : fpga_crop_Y
 
 
 
@@ -366,6 +391,28 @@ class CImage;
         end
 
     endfunction : sub_X
+
+ 
+    // sub=1 , 1/2
+    // sub=2 , 1/3
+    // sub=3 , 1/4
+    function void fpga_sub_X(input int x_sub);
+
+        //shortint new_image[];
+        int new_size_x, x_factor;
+
+        // determiner la nouvelle dimension
+        new_size_x = pgm_size_x/(x_sub+1);
+        x_factor   = (x_sub+1);
+        
+        //new_image = new[new_size_x*pgm_size_y];
+        for(int y = 0; y < pgm_size_y; y += 1)
+          for(int x = 0; x < new_size_x; x += 1)
+              image[y * new_size_x + x] = get_pixel(x*x_factor,y);
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
+        pgm_size_x = new_size_x;
+    endfunction : fpga_sub_X
 
 
 //    // reverse dans la direction x
@@ -943,6 +990,40 @@ class CImage;
 
 
 
+    // YUV32 to YUV16 pack prediction
+    function void yuv32_2_yuv16();
+
+        shortint image_new[];
+        int new_size_x ;
+
+        // determiner la nouvelle dimension en bytes
+        new_size_x = pgm_size_x/2;
+
+        image_new = new[new_size_x * pgm_size_y];
+
+        for(int y = 0; y < pgm_size_y; y += 1)
+            for(int x = 0; x < pgm_size_x; x += 16) begin                     //take 2 Qwords to generate 1
+                image_new[y * new_size_x + x/2 + 0] = get_pixel(x+0,y);
+                image_new[y * new_size_x + x/2 + 1] = get_pixel(x+1,y);
+                image_new[y * new_size_x + x/2 + 2] = get_pixel(x+4,y);
+                image_new[y * new_size_x + x/2 + 3] = get_pixel(x+5,y);
+
+                image_new[y * new_size_x + x/2 + 4] = get_pixel(x+8,y);
+                image_new[y * new_size_x + x/2 + 5] = get_pixel(x+9,y);
+                image_new[y * new_size_x + x/2 + 6] = get_pixel(x+12,y);
+                image_new[y * new_size_x + x/2 + 7] = get_pixel(x+13,y);
+
+            end
+        // replacer dans l'image
+        image = new[new_size_x*pgm_size_y](image_new); // ici il faut faire une reallocation augmentee!
+        pgm_size_x = new_size_x;
+
+        image_new.delete;
+
+    endfunction : yuv32_2_yuv16
+
+
+
 
     //---------------------------------------------------------------------------------------------------------------------
     //  This task correct dead pixel from one COLOR image stored in Class ---- to a new corrected image stored in DPC_grab_image Class.
@@ -1087,7 +1168,7 @@ class CImage;
         pgm_size_x = new_size_x;
 
         image_new.delete;
-
+     
     endfunction : BayerDemosaic
 
 
@@ -1141,4 +1222,4 @@ class CImage;
 
 
 
-endclass :  CImage
+endclass :  Cimage

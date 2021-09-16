@@ -13,9 +13,15 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.sveditor.core.SVProjectBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>net.sf.sveditor.core.SVNature</nature>
+		<nature>org.sveditor.core.SVNature</nature>
 	</natures>
 	<linkedResources>
 		<link>

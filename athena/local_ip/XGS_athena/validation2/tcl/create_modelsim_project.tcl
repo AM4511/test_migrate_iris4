@@ -1,4 +1,4 @@
-# Require the MS-Windows environment variable IPCORES and MTI_LIB_XILINX_PATH
+# Require the MS-Windows environment variable IRIS4 and MTI_LIB_XILINX_PATH
 # to be defined. 
 #
 # source $env(IRIS4)/athena/local_ip/XGS_athena/validation2/tcl/create_modelsim_project.tcl
@@ -76,6 +76,8 @@ ${DATA_SRC_PATH}/tap_controller.vhd \
 ${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/lane_decoder.vhd \
 ${DATA_SRC_PATH}/hispi_phy.vhd \
+${DATA_SRC_PATH}/dbg_pack.vhd \
+${DATA_SRC_PATH}/dbg_strm.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
 ${DATA_SRC_PATH}/lut/Infered_RAM_lut.vhd \
@@ -91,9 +93,12 @@ ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
 ${DATA_SRC_PATH}/x_trim_subsampling.vhd \
 ${DATA_SRC_PATH}/x_trim_streamout.vhd \
 ${DATA_SRC_PATH}/x_trim.vhd \
+${DATA_SRC_PATH}/y_trim.vhd \
+${DATA_SRC_PATH}/trim.vhd \
 ${DATA_SRC_PATH}/Infered_RAM_lutC.vhd \
 ${DATA_SRC_PATH}/axis_width_conv.vhd \
 ${DATA_SRC_PATH}/rgb_2_yuv.vhd \
+${DATA_SRC_PATH}/CCM.vhd \
 ${DATA_SRC_PATH}/xgs_color_proc.vhd \
 ${DMA_SRC_PATH}/dma_pack.vhd \
 ${DMA_SRC_PATH}/axi_stream_in.vhd \
@@ -120,7 +125,6 @@ set model_file_list [join [list  [subst {
 ]
 ]
 
-
 set testbench_fileset [join [list  [subst {
 ${TESTBENCH_SRC_PATH}/glbl.v \
 ${TESTBENCH_SRC_PATH}/interfaces/axi_lite_interface.sv \
@@ -129,25 +133,8 @@ ${TESTBENCH_SRC_PATH}/interfaces/hispi_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/io_interface.sv \
 ${TESTBENCH_SRC_PATH}/interfaces/tlp_interface.sv \
 ${TESTBENCH_SRC_PATH}/drivers/driver_pkg.sv \
-${TESTBENCH_SRC_PATH}/drivers/Cdriver_axil.svh \
-${TESTBENCH_SRC_PATH}/Cimage.sv \
-${TESTBENCH_SRC_PATH}/core_pkg.sv \
-${TESTBENCH_SRC_PATH}/Cstatus.svh \
-${TESTBENCH_SRC_PATH}/xgs_athena_pkg.sv \
-${TESTBENCH_SRC_PATH}/Cscoreboard.svh \
-${TESTBENCH_SRC_PATH}/CVlib.sv \
-${TESTBENCH_SRC_PATH}/tests_pkg.sv \
-${TESTBENCH_SRC_PATH}/Ctest.svh \
-${TESTBENCH_SRC_PATH}/tests/test0001.svh \
-${TESTBENCH_SRC_PATH}/tests/test0002.svh \
-${TESTBENCH_SRC_PATH}/tests/test0003.svh \
-${TESTBENCH_SRC_PATH}/tests/test0004.svh \
-${TESTBENCH_SRC_PATH}/tests/test0005.svh \
-${TESTBENCH_SRC_PATH}/tests/test0006.svh \
-${TESTBENCH_SRC_PATH}/tests/test0007.svh \
-${TESTBENCH_SRC_PATH}/tests/test0008.svh \
-${TESTBENCH_SRC_PATH}/tests/test0009.svh \
-${TESTBENCH_SRC_PATH}/tests/test0010.svh \
+${TESTBENCH_SRC_PATH}/core/core_pkg.sv \
+${TESTBENCH_SRC_PATH}/tests/tests_pkg.sv \
 ${TESTBENCH_SRC_PATH}/fpga_cfg_pkg_mono.sv \
 ${TESTBENCH_SRC_PATH}/system_top.sv \
 ${LOCAL_IP}/pcie2AxiMaster_v3.0/registerfile/regfile_pcie2AxiMaster.vhd \
@@ -194,7 +181,6 @@ proc add_file_set {file_set} {
     }
 }
 
-#source ${VLIB_PATH}/tcl/vlib_fileset.do
 add_file_set $common_fileset
 add_file_set $technology_specific_fileset
 add_file_set $dut_fileset

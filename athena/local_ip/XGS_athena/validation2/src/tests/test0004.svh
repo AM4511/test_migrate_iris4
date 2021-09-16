@@ -4,13 +4,12 @@
 // Test of Acquisition Trigger level Hi and trigger level LO
 //
 
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
-import xgs_athena_pkg::*;
 
 
 
-class Test0004 extends CTest;
+class Test0004 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -43,12 +42,12 @@ class Test0004 extends CTest;
         super.new("Test0004", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
-    endfunction
+        this.scoreboard = new(tx_axis_if,this);
+   endfunction
 
     task run();
 
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 
@@ -124,7 +123,7 @@ class Test0004 extends CTest;
 
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
 
-				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
+				//super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
 				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
@@ -140,6 +139,9 @@ class Test0004 extends CTest;
 
                 //IMG #1
 		        super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+		        // DMA TRIM 
+		        super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+		        //super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -149,6 +151,9 @@ class Test0004 extends CTest;
 
                 //IMG #2
 		        super.Vlib.setDMA('hB0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+		        // DMA TRIM 
+		        super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+		        //super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -161,6 +166,9 @@ class Test0004 extends CTest;
 
 				//IMG #3
 		        super.Vlib.setDMA('hC0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+		        // DMA TRIM 
+		        super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+		        //super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -187,6 +195,9 @@ class Test0004 extends CTest;
 
                 //IMG #1
 		        super.Vlib.setDMA('hD0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+		        // DMA TRIM 
+		        super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+		        //super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -196,6 +207,9 @@ class Test0004 extends CTest;
 
                 //IMG #2
   		        super.Vlib.setDMA('hE0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+  		        // DMA TRIM 
+  		        super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+  		        //super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE);
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -208,6 +222,9 @@ class Test0004 extends CTest;
 
 				//IMG #3
 				super.Vlib.setDMA('hF0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				// DMA TRIM 
+				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -232,6 +249,9 @@ class Test0004 extends CTest;
 
                 //IMG #1 : Active HI
 				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				// DMA TRIM 
+				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_HI);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -241,6 +261,9 @@ class Test0004 extends CTest;
 
                 //IMG #2 : Active LO
 				super.Vlib.setDMA('hB0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				// DMA TRIM 
+				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(HW_TRIG, LEVEL_LO);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;

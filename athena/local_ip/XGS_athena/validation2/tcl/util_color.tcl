@@ -1,6 +1,5 @@
-set me      [file normalize [info script]]
-set my_path [file dirname $me]
-
+set ATHENA                 $::env(IRIS4)/athena
+set me                     ${ATHENA}/local_ip/XGS_athena/validation2/tcl/util_color.tcl
 
 
 #####################################################
@@ -32,6 +31,8 @@ proc h {} {
 # n : New Command
 #####################################################
 proc n {} {
+    
+	puts "Running : $::me"
 	source  $::me
 }
 
@@ -67,13 +68,13 @@ proc s {args} {
     .main clear
 
     # Liste de tests dans la suite de tests
-	set testlist [list 0020 0021 0022]
+	set testlist [list 0020 0021 0022 0023]
 
     set currtest 1
 	
   	set ATHENA                 $::env(IRIS4)/athena
 	set IP                     ${ATHENA}/local_ip/XGS_athena
-     
+	
     foreach i $testlist {  
        puts "Running runsim with test${i}"	
 	   vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=$i  -l "test${i}_vsim.log" -wlf "test${i}_vsim.wlf"  
@@ -95,9 +96,9 @@ proc s {args} {
 	# Print all results
 	puts " "
 	puts " "
-    puts "---------------------------------"
-    puts " Results of testlist simulation  "
-    puts "---------------------------------"
+    puts "---------------------------------------"
+    puts " Results of color testlist simulation  "
+    puts "---------------------------------------"
 	set currtest 1
     foreach i $testlist {
 	    puts "test${i}_result : $testresult_array(${currtest})" 
@@ -113,7 +114,6 @@ proc s {args} {
 
 
 puts "Running : ${me}"
-puts "MY PATH : ${my_path}"
 puts " "
 puts [helpme]
 

@@ -357,6 +357,10 @@ begin
               elsif (line_buffer_full = '1') then
                 wr_state <= S_PCI_BACK_PRESSURE;
               -- Line buffer full, go switch to next line buffer
+			  -- synthesis translate_off
+                 assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
+              -- synthesis translate_on
+
               else
                 wr_state <= S_TOGGLE_BUFFER;
               end if;
@@ -373,7 +377,7 @@ begin
             if (line_buffer_full = '1') then
               wr_state <= S_PCI_BACK_PRESSURE;
               -- synthesis translate_off
-              assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
+              -- assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
               -- synthesis translate_on
 
             else
@@ -569,7 +573,9 @@ begin
           --  S_TRANSFER : the DMA transfer occurs in this state
           -------------------------------------------------------------------
           when S_TRANSFER =>
-            if (buffer_read_en_P1='1' and (read_sync = "1000" or read_sync = "0010") ) then
+            --if (buffer_read_en_P1='1' and (read_sync = "1000" or read_sync = "0010") ) then
+            -- If end of line or end of frame encountered
+            if (buffer_read_en_P1='1' and (read_sync(3) = '1' or read_sync(1) = '1') ) then
               rd_state <= S_TRANSFER_WAIT;
             else
               rd_state <= S_TRANSFER;
@@ -630,7 +636,7 @@ begin
       else
 	    buffer_read_en_P1 <= buffer_read_en; 
         -- If we detect an end of frame
-        if (rd_state = S_TRANSFER and buffer_read_en_P1='1' and read_sync = "0010") then  --READ EOF
+        if (rd_state = S_TRANSFER and buffer_read_en_P1='1' and read_sync(1) = '1') then  --READ EOF
           last_row <= '1';
         -- Cleared once the frame completely evacuated
         elsif (rd_state = S_END_OF_DMA) then

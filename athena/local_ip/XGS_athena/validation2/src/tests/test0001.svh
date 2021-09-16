@@ -4,13 +4,12 @@
 //
 //
 
-import tests_pkg::*;
+import core_pkg::*;
 import driver_pkg::*;
-import xgs_athena_pkg::*;
 
 
 
-class Test0001 extends CTest;
+class Test0001 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -41,11 +40,11 @@ class Test0001 extends CTest;
         super.new("Test0001", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
-    endfunction
+        this.scoreboard = new(tx_axis_if,this);
+   endfunction
 
     task run();
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 
@@ -87,8 +86,8 @@ class Test0001 extends CTest;
 				//   2 : Ramp 8bpp (MSB, +16pixel 12bpp)
 				//
 				//--------------------------------------------------
-				//super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
-				super.Vlib.GenImage_XGS(1);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
+				super.Vlib.GenImage_XGS(2);                                   // Le modele XGS cree le .pgm et loade dans le vhdl
+				//super.Vlib.GenImage_XGS(1);                                     // Le modele XGS cree le .pgm et loade dans le vhdl
 				super.Vlib.XGS_imageSRC.load_image(XGS_Model);                  // Load le .pgm dans la class SystemVerilog
 
 
@@ -125,6 +124,10 @@ class Test0001 extends CTest;
                 super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+				// DMA TRIM 
+				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
+				
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;

@@ -201,6 +201,7 @@ architecture rtl of xgs_hispi_top is
       );
   end component;
 
+  
   attribute mark_debug : string;
   attribute keep       : string;
 

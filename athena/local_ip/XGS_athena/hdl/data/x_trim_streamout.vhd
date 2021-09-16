@@ -121,7 +121,7 @@ architecture rtl of x_trim_streamout is
 
   type OUTPUT_FSM_TYPE is (S_IDLE, S_INIT, S_READ_CMD, S_READ_DATA, S_SOF, S_SOL, S_READ, S_EOL, S_EOF, S_DONE);
 
-  constant WORD_PTR_WIDTH      : integer := 9;
+  constant WORD_PTR_WIDTH      : integer := 2+9;
   constant BUFF_PTR_WIDTH      : integer := 1;
   constant BUFFER_DATA_WIDTH   : integer := 64;
   constant CMD_FIFO_ADDR_WIDTH : integer := 1;
@@ -129,15 +129,16 @@ architecture rtl of x_trim_streamout is
   -----------------------------------------------------------------------------
   -- BCLK clock domain
   -----------------------------------------------------------------------------
-  signal bclk_state         : OUTPUT_FSM_TYPE;
-  signal bclk_row_cntr      : integer;
-  signal bclk_used_buffer   : unsigned(BUFF_PTR_WIDTH downto 0);
-  signal bclk_transfer_done : std_logic;
-  signal bclk_cmd_sync      : std_logic_vector(1 downto 0);
-  signal bclk_cmd_size      : unsigned(WORD_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_buff_ptr  : unsigned(BUFF_PTR_WIDTH-1 downto 0);
-  signal bclk_cmd_last_ben  : std_logic_vector(7 downto 0);
-  signal bclk_read_en_int   : std_logic;
+  signal bclk_state          : OUTPUT_FSM_TYPE;
+  signal bclk_row_cntr       : integer;
+  signal bclk_used_buffer    : unsigned(BUFF_PTR_WIDTH downto 0);
+  signal bclk_transfer_done  : std_logic;
+  signal bclk_last_read_data : std_logic;
+  signal bclk_cmd_sync       : std_logic_vector(1 downto 0);
+  signal bclk_cmd_size       : unsigned(WORD_PTR_WIDTH-1 downto 0);
+  signal bclk_cmd_buff_ptr   : unsigned(BUFF_PTR_WIDTH-1 downto 0);
+  signal bclk_cmd_last_ben   : std_logic_vector(7 downto 0);
+  signal bclk_read_en_int    : std_logic;
 
   signal bclk_word_cntr          : unsigned(WORD_PTR_WIDTH-1 downto 0);
   signal bclk_word_cntr_treshold : unsigned(WORD_PTR_WIDTH-1 downto 0);
@@ -213,8 +214,6 @@ begin
   -- @bclk_read_address from the line buffer.
   -----------------------------------------------------------------------------
   bclk_read_en_int <= '1' when (bclk_state = S_READ_DATA and bclk_ack = '1') else
-                      '1' when (bclk_state = S_EOL and bclk_ack = '1') else
-                      '1' when (bclk_state = S_EOF and bclk_ack = '1') else
                       '0';
 
 
@@ -237,10 +236,26 @@ begin
   -----------------------------------------------------------------------------
   -- Remapping the current command fields
   -----------------------------------------------------------------------------
-  bclk_cmd_last_ben <= bclk_cmd_data(19 downto 12);
-  bclk_cmd_sync     <= bclk_cmd_data(11 downto 10);
-  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(9 downto 9));
-  bclk_cmd_size     <= unsigned(bclk_cmd_data(8 downto 0));
+  bclk_cmd_last_ben <= bclk_cmd_data(21 downto 14);
+  bclk_cmd_sync     <= bclk_cmd_data(13 downto 12);
+  bclk_cmd_buff_ptr <= unsigned(bclk_cmd_data(11 downto 11));
+  bclk_cmd_size     <= unsigned(bclk_cmd_data(10 downto 0));
+
+
+  -----------------------------------------------------------------------------
+  -- Process     : P_bclk_last_read_data
+  -- Description : 
+  -----------------------------------------------------------------------------
+  P_bclk_last_read_data : process (bclk) is
+  begin
+    if (rising_edge(bclk)) then
+      if (bclk_reset = '1')then
+        bclk_last_read_data <= '0';
+      else
+        bclk_last_read_data <= bclk_transfer_done;
+      end if;
+    end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
@@ -257,12 +272,12 @@ begin
         -- Initialize the counter treshold value right after a new command was
         -- retrieved.
         if (bclk_state = S_INIT) then
-          -- In reverse mode the treshold is set to 1 transfer
           if (bclk_x_reverse = '1') then
-            bclk_word_cntr_treshold <= to_unsigned(1, bclk_word_cntr_treshold'length);
-          -- In forward mode the treshold is set to 2 transfers
+            -- In reverse we count down to 0
+            bclk_word_cntr_treshold <= to_unsigned(0, bclk_word_cntr_treshold'length);
           else
-            bclk_word_cntr_treshold <= bclk_cmd_size-2;
+            -- In forward addressing we count upto bclk_cmd_size-1
+            bclk_word_cntr_treshold <= bclk_cmd_size-1;
           end if;
         end if;
       end if;
@@ -354,6 +369,16 @@ begin
           -------------------------------------------------------------------
           when S_INIT =>
             bclk_state <= S_READ_DATA;
+            -- Corner case only one data beat in th edata fifo
+            -- if (bclk_cmd_size = "000000001") then
+            --   if (bclk_cmd_sync(1) = '1') then
+            --     bclk_state <= S_EOF;
+            --   else
+            --     bclk_state <= S_EOL;
+            --   end if;
+            -- else
+            --   bclk_state <= S_READ_DATA;
+            -- end if;
 
           -------------------------------------------------------------------
           --  S_READ_DATA : While in this state, we read the line buffer data
@@ -512,22 +537,29 @@ begin
           -----------------------------------------------------------------------
           -- User sync in reverse packing
           -----------------------------------------------------------------------
-          -- SOF or SOL
+          -- Start of line
           if (bclk_align_packer_valid_vect = "01") then
+            bclk_align_packer_user(2) <= '1';
+            -- Start of frame
             if (bclk_cmd_sync = "01") then
-              -- SOF
-              bclk_align_packer_user <= "0001";  -- jmansill (0)
-            else
-              -- SOL
-              bclk_align_packer_user <= "0100"; -- jmansill (2)
+              bclk_align_packer_user(0) <= '1';
             end if;
-          elsif (bclk_align_packer_valid_vect = "11" and bclk_read_data_valid = '0') then
-            -- EOF
+
+            -- Corner case (SOL and EOL in same databeat i.e. line only 1 databeat)
+            if (bclk_last_read_data = '1') then
+              bclk_align_packer_user(3) <= '1';
+              -- End of Frame
+              if (bclk_cmd_sync = "10") then
+                bclk_align_packer_user(1) <= '1';
+              end if;
+            end if;
+
+          -- End of line
+          elsif (bclk_last_read_data = '1') then
+            bclk_align_packer_user(3) <= '1';
+            -- End of Frame
             if (bclk_cmd_sync = "10") then
-              bclk_align_packer_user <= "0010"; -- jmansill (1)
-            -- EOL
-            else
-              bclk_align_packer_user <= "1000"; -- jmansill (3)
+              bclk_align_packer_user(1) <= '1';
             end if;
           else
             bclk_align_packer_user <= "0000";
@@ -682,6 +714,9 @@ begin
         if (bclk_ack = '1') then
           if (bclk_align_packer_valid = '1') then
             bclk_align_user <= bclk_align_packer_user;
+
+          else
+            bclk_align_user <= "0000";
           end if;
         end if;
       end if;
@@ -702,7 +737,7 @@ begin
         if (bclk_ack = '1') then
           if (bclk_align_packer_valid = '1') then
             bclk_tvalid_int <= '1';
-          elsif (bclk_tready = '1') then
+          else
             bclk_tvalid_int <= '0';
           end if;
         end if;
@@ -715,7 +750,9 @@ begin
                 '0';
 
 
-
+  -----------------------------------------------------------------------------
+  -- Acknowledge forward pipeline
+  -----------------------------------------------------------------------------
   bclk_ack <= '1' when (bclk_tready = '1' and bclk_tvalid_int = '1') else
               '1' when (bclk_tvalid_int = '0') else
               '0';

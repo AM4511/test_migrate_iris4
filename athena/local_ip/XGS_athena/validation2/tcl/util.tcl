@@ -1,6 +1,5 @@
-set me      [file normalize [info script]]
-set my_path [file dirname $me]
-
+set ATHENA                 $::env(IRIS4)/athena
+set me                     ${ATHENA}/local_ip/XGS_athena/validation2/tcl/util.tcl
 
 
 #####################################################
@@ -32,6 +31,8 @@ proc h {} {
 # n : New Command
 #####################################################
 proc n {} {
+    
+	puts "Running : $::me"
 	source  $::me
 }
 
@@ -95,9 +96,9 @@ proc s {args} {
 	# Print all results
 	puts " "
 	puts " "
-    puts "---------------------------------"
-    puts " Results of testlist simulation  "
-    puts "---------------------------------"
+    puts "---------------------------------------"
+    puts " Results of mono testlist simulation   "
+    puts "---------------------------------------"
 	set currtest 1
     foreach i $testlist {
 	    puts "test${i}_result : $testresult_array(${currtest})" 
@@ -113,7 +114,6 @@ proc s {args} {
 
 
 puts "Running : ${me}"
-puts "MY PATH : ${my_path}"
 puts " "
 puts [helpme]
 

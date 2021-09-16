@@ -88,6 +88,11 @@ Register("csc", 0x98, 4, "null");
 			FieldValue("normal processing", 0);
 			FieldValue("last line is duplicated", 1);
 		Field("sub_x", 13, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
+			FieldValue("No subsampling", 0);
+			FieldValue("1/2", 1);
+			FieldValue("1/3", 2);
+			FieldValue("1/4", 3);
+			FieldValue("1/5", 4);
 		Field("reverse_y", 9, 9, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "REVERSE Y ");
 			FieldValue("Bottom to top readout", 0);
 			FieldValue("Top to bottom readout", 1);
@@ -127,6 +132,9 @@ Register("roi_x", 0xb0, 4, "null");
 		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 
 Register("roi_y", 0xbc, 4, "null");
+		Field("roi_en", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Region of interest enable");
+			FieldValue("Region of interest is disabled", 0);
+			FieldValue("Region of interest is enabled", 1);
 		Field("y_size", 28, 16, "rd|wr", 0x0, 0x3ff, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("y_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 

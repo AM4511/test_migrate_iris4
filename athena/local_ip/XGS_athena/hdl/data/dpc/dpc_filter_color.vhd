@@ -208,6 +208,9 @@ signal axi_data_val_P1   :  std_logic := '0';
 signal axi_data_val_P2   :  std_logic := '0';
 signal axi_data_val_P3   :  std_logic := '0';			
 
+signal axi_data_P1       :  std_logic_vector(19 downto 0);
+signal axi_data_P2       :  std_logic_vector(19 downto 0);
+
 signal axi_eol_P1        :  std_logic := '0';
 signal axi_eol_P2        :  std_logic := '0';
 signal axi_eol_P3        :  std_logic := '0';
@@ -619,12 +622,23 @@ kernel_data_6x1_8bpp <= kernel_data(59 downto 52) & kernel_data(49 downto 42) & 
 process(axi_clk)
 begin
   if (axi_clk'event and axi_clk='1') then
-     kernel_sof_P1         <= kernel_sof;
-     kernel_sol_P1         <= kernel_sol;
-     kernel_data_val_P1    <= kernel_data_val;
-     kernel_eol_P1         <= kernel_eol;
-     kernel_eof_P1         <= kernel_eof;
-     
+     if(REG_dpc_enable_DB='1') then
+	   kernel_sof_P1         <= kernel_sof;
+       kernel_sol_P1         <= kernel_sol;
+       kernel_data_val_P1    <= kernel_data_val;
+       kernel_eol_P1         <= kernel_eol;
+       kernel_eof_P1         <= kernel_eof;
+     else
+	   kernel_sof_P1         <= axi_sof;
+       kernel_sol_P1         <= axi_sol;
+       kernel_data_val_P1    <= axi_data_val;
+       kernel_eol_P1         <= axi_eol;
+       kernel_eof_P1         <= axi_eof;
+     end if;
+	   
+	 axi_data_P1           <= axi_data;  
+	 axi_data_P2           <= axi_data_P1;    
+	   
      kernel_sof_P2         <= kernel_sof_P1 ;
      kernel_sol_P2         <= kernel_sol_P1;
      kernel_data_val_P2    <= kernel_data_val_P1;
@@ -635,11 +649,12 @@ end process;
 
  
   
-dpc_sof           <= kernel_sof_P2;      
-dpc_sol           <= kernel_sol_P2;      
-dpc_data_val      <= kernel_data_val_P2;       
-dpc_data          <= dpc_kernel_proc_data_out;
-dpc_data16        <= dpc_kernel_proc_data_out(19 downto 12) & dpc_kernel_proc_data_out(9 downto 2);         
+dpc_sof           <= kernel_sof_P2;           
+dpc_sol           <= kernel_sol_P2;            
+dpc_data_val      <= kernel_data_val_P2;        
+dpc_data          <= dpc_kernel_proc_data_out when (REG_dpc_enable_DB='1') else axi_data_P2;
+dpc_data16        <= dpc_kernel_proc_data_out(19 downto 12) & dpc_kernel_proc_data_out(9 downto 2) when (REG_dpc_enable_DB='1') else
+                     axi_data_P2(19 downto 12) & axi_data_P2(9 downto 2) ;         
 dpc_eol           <= kernel_eol_P2;      
 dpc_eof_m1        <= kernel_eof_P1;  
 dpc_eof           <= kernel_eof_P2;      
