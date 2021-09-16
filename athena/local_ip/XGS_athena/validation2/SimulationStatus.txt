@@ -1,4 +1,4 @@
-2021-08-25 
+2021-09-16 
 
 # ---------------------------------------
 #  Results of mono testlist simulation   
@@ -14,6 +14,11 @@
 # test0009_result : PASS
 # test0010_result : PASS
 
-# --------------------------------------
+
+# ---------------------------------------
 #  Results of color testlist simulation  
-# --------------------------------------
+# ---------------------------------------
+# test0020_result : PASS
+# test0021_result : PASS
+# test0022_result : PASS
+# test0023_result : PASS

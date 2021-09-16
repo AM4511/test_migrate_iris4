@@ -76,6 +76,8 @@ ${DATA_SRC_PATH}/tap_controller.vhd \
 ${DATA_SRC_PATH}/line_buffer.vhd \
 ${DATA_SRC_PATH}/lane_decoder.vhd \
 ${DATA_SRC_PATH}/hispi_phy.vhd \
+${DATA_SRC_PATH}/dbg_pack.vhd \
+${DATA_SRC_PATH}/dbg_strm.vhd \
 ${DATA_SRC_PATH}/axi_line_streamer.vhd \
 ${DATA_SRC_PATH}/xgs_hispi_top.vhd \
 ${DATA_SRC_PATH}/lut/Infered_RAM_lut.vhd \

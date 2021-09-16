@@ -40,12 +40,12 @@ class Test0005 extends Ctest;
         super.new("Test0005", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
+        this.scoreboard = new(tx_axis_if,this);
     endfunction
 
     task run();
 
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 
@@ -118,7 +118,7 @@ class Test0005 extends Ctest;
 				
 				// DMA Trim module
 				super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
-				super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 
 
 				///////////////////////////////////////////////////

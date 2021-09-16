@@ -47,13 +47,13 @@ class Test0020 extends Ctest;
 
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
         super.new("Test0020", host, tx_axis_if);
-        this.host       = host;
+        this.host = host;
         this.tx_axis_if = tx_axis_if;
+        this.scoreboard = new(tx_axis_if,this);
     endfunction
 
     task run();
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 

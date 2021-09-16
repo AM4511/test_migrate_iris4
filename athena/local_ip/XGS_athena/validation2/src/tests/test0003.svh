@@ -40,12 +40,12 @@ class Test0003 extends Ctest;
         super.new("Test0003", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
+        this.scoreboard = new(tx_axis_if,this);
     endfunction
 
     task run();
 
 
-        scoreboard     = new(tx_axis_if);
 
         super.say_hello();
 
@@ -120,7 +120,8 @@ class Test0003 extends Ctest;
 				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				// DMA TRIM 
 				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
-				super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
+				
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
@@ -155,7 +156,7 @@ class Test0003 extends Ctest;
 				super.Vlib.setDMA('hA0000000, 'h2000, ROI_X_SIZE/(SUB_X+1), REV_Y, ROI_Y_SIZE);
 				// DMA TRIM 
 				super.Vlib.Set_DMA_Trim_X_ROI(ROI_X_START, ROI_X_SIZE);
-				super.Vlib.Set_DMA_Trim_Y_ROI(ROI_Y_START, ROI_Y_SIZE);
+				//super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE); //No ROI Y in mono
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
