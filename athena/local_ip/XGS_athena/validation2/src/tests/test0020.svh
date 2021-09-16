@@ -22,12 +22,19 @@ class Test0020 extends Ctest;
     int XGS_Model;
 
     int EXPOSURE;
-	int ROI_X_START;
-	int ROI_X_SIZE;
-    int ROI_X_END;
-	int ROI_Y_START;
-	int ROI_Y_SIZE;
-    int ROI_Y_END;
+	int XGS_ROI_X_START;
+	int XGS_ROI_X_SIZE;
+    int XGS_ROI_X_END;
+	int XGS_ROI_Y_START;
+	int XGS_ROI_Y_SIZE;
+    int XGS_ROI_Y_END;
+    int TRIM_ROI_Y_START;
+    int TRIM_ROI_Y_SIZE;
+    int TRIM_ROI_X_START;
+    int TRIM_ROI_X_SIZE;
+    int DMA_NB_LINE;
+    int DMA_LINE_SIZE;
+
     int SUB_X;
 	int SUB_Y;
 	int REV_X = 0;
@@ -124,49 +131,73 @@ class Test0020 extends Ctest;
                 // do not consume pixels. The Trim module will crop the excedent data
                 // 
                 //--------------------------------------------------------------------------------------------------------------------------------------------- 
+               
+	            
+	            ///////////////////////////////////////////////////////
+	            // Sensor Y ROI
+	            ///////////////////////////////////////////////////////
+				XGS_ROI_Y_START = 0;           // Doit etre multiple de 4
+				XGS_ROI_Y_SIZE  = 16+4;        // Doit etre multiple de 4, (XGS_ROI_Y_START+XGS_ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030), on laisse passer 4 interpolation de plus pour consommation bayer
+				XGS_ROI_Y_END   = XGS_ROI_Y_START + XGS_ROI_Y_SIZE - 1;
 
+				XGS_ROI_X_START = 0;
+				XGS_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant)
+				XGS_ROI_X_END   = XGS_ROI_X_START + XGS_ROI_X_SIZE - 1;
 
-                // Sensor X ROI
-                // ROI is Interpolation+Valid
+				//Set the XGS sensor Y ROI
+				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", XGS_ROI_X_START, XGS_ROI_X_SIZE, XGS_ROI_Y_START, XGS_ROI_Y_SIZE);
+				super.Vlib.Set_Y_ROI(XGS_ROI_Y_START/4, XGS_ROI_Y_SIZE/4);
+				
+				
+				///////////////////////////////////////////////////////
+				// Trim module ROI
+				///////////////////////////////////////////////////////
+				TRIM_ROI_Y_START = 0;
+				TRIM_ROI_Y_SIZE  = 16;
+				TRIM_ROI_X_START = 0;
+				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH; // Units in pixels
 
-                // Sensor Y ROI
-				ROI_Y_START = 0;           // Doit etre multiple de 4
-				ROI_Y_SIZE  = 16+4;        // Doit etre multiple de 4, (ROI_Y_START+ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030), on laisse passer 4 interpolation de plus pour consommation bayer
-				ROI_Y_END   = ROI_Y_START + ROI_Y_SIZE - 1;
+				//Set the fpga trim module X-Y ROI
+				super.Vlib.Set_X_ROI(TRIM_ROI_X_START, TRIM_ROI_X_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE);
 
-                // Final FPGA ROI
-				ROI_X_START = 0;
-				ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant)
-				ROI_X_END   = ROI_X_START + ROI_X_SIZE - 1;
-
+				
+				///////////////////////////////////////////////////////
+				// Subsampling
+				///////////////////////////////////////////////////////
 				SUB_X       = 0;
 				SUB_Y       = 0;
+				super.Vlib.Set_SUB(SUB_X, SUB_Y);
+				
+				///////////////////////////////////////////////////////
+				// DMA
+				///////////////////////////////////////////////////////
+				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*4/(SUB_X+1); // Units in bytes
+				
+				super.Vlib.setDMA('hA0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
+				
+				///////////////////////////////////////////////////////
+				// Exposure
+				///////////////////////////////////////////////////////
 			    EXPOSURE    = 50; // exposure=50us
-
-				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", ROI_X_START, ROI_X_SIZE, ROI_Y_START, ROI_Y_SIZE);
-                
-                //Sensor Y ROI
-				super.Vlib.Set_Y_ROI(ROI_Y_START/4, ROI_Y_SIZE/4);
-
-                //Fpga X-Y ROI (TRIM MODULE)
-                super.Vlib.Set_X_ROI(ROI_X_START, ROI_X_SIZE);
-                super.Vlib.Set_DMA_Trim_Y_ROI(0, ROI_Y_SIZE-3);  //remove 3 lines (transfered 4 interpolation lines for bayer, because bayer consumes 1, so remove 3 at end)
-
-                super.Vlib.Set_SUB(SUB_X, SUB_Y);
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 
                 super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
-                // In this test Bayer is active
-                // Line size is valid*4 (RGB32)	              
- 				super.Vlib.setDMA('hA0000000, 'h4000, (ROI_X_SIZE*4)/(SUB_X+1), REV_Y, ROI_Y_SIZE);
+            
 				
+                ///////////////////////////////////////////////////////
+                // Start the grab
+                ///////////////////////////////////////////////////////
 				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
 				super.Vlib.Grab_CMD();
 				test_nb_images++;
 
+				///////////////////////////////////////////////////////
 				// Prediction
-				super.Vlib.Gen_predict_img_color(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				///////////////////////////////////////////////////////
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
@@ -177,6 +208,9 @@ class Test0020 extends Ctest;
                 #250us;
 
 
+                ///////////////////////////////////////////////////
+                // Stop the test
+                ///////////////////////////////////////////////////
 		        super.say_goodbye();
 		    end
 
