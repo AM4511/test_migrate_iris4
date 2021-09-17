@@ -34,6 +34,7 @@ class Test0023 extends Ctest;
     int TRIM_ROI_X_START;
     int TRIM_ROI_X_SIZE;
     int DMA_NB_LINE;
+    int DMA_PIX_WIDTH;    
     int DMA_LINE_SIZE;
 
     int SUB_X;
@@ -176,7 +177,8 @@ class Test0023 extends Ctest;
 				///////////////////////////////////////////////////////
 				// DMA
 				///////////////////////////////////////////////////////
-				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
+				DMA_NB_LINE   = TRIM_ROI_Y_SIZE;
+				DMA_PIX_WIDTH = 4;                           // Units in bytes (4:RGB32)
 				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*4/(SUB_X+1); // Units in bytes
 
 				super.Vlib.setDMA('hA0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
