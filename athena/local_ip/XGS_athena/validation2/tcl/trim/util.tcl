@@ -43,17 +43,17 @@ proc a {} {
 	
 	# In debug mode run a specific configuration
     if {$DEBUG == 1} {
-	set COLOR_SPACE_RANGE {5}
+	set COLOR_SPACE_RANGE {1}
 	set Y_SIZE 5
 	set X_SIZE_RANGE {128}
-        set Y_ROI_EN 1
-	set Y_ROI_SIZE 3
+        set Y_ROI_EN 0
+	set Y_ROI_SIZE 1
 	set Y_ROI_START 1
-	set X_ROI_EN 0
+	set X_ROI_EN 1
 	set X_ROI_START 1
-	set X_ROI_SIZE_MIN 127
-	set X_ROI_SIZE_MAX 128
-	set X_REVERSE_RANGE {0}
+	set X_ROI_SIZE_MIN 1
+	set X_ROI_SIZE_MAX 2
+	set X_REVERSE_RANGE {1}
 	set X_SCALING_RANGE {0}
     } else {
     # In non debug mode run a range of different configurations

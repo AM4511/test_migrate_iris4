@@ -411,6 +411,17 @@ begin
             aclk_packing_mask    <= "00110011";
 
           ---------------------------------------------------------------------
+          -- Y : 1 bytes per pixels, 2 pixels/QWORD (Y component of YUV)
+          ---------------------------------------------------------------------
+          when "100" =>
+            aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
+            aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
+            aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
+            aclk_src_pixel_width <= "100";
+            aclk_dst_pixel_width <= "001";
+            aclk_packing_mask    <= "00010001";
+
+          ---------------------------------------------------------------------
           -- RAW : 1 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "101" =>
