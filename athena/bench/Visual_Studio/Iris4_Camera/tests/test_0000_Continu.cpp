@@ -43,8 +43,11 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	int YUVType   = 16;
 	int RGB32Type = 32;
 	
+	int Color_type = 0;
+	int RGB32  = 0;
 	int PLANAR = 0;
 	int YUV    = 0;
+	int RAW    = 0;
 
 	int Sortie = 0;
 	char ch;
@@ -112,6 +115,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	// Init Display with correct X-Y parameters 
+	
+	//--------------------------------
+	// MONO TRANSFER
+	//--------------------------------
 	if (SensorParams->IS_COLOR == 0) {
 		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 		LUT_PATTERN = 0;
@@ -120,10 +127,31 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
 		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-
 	}
 	else
-		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0)
+
+		//----------------------------------------------------
+		// This is a color camera, configure transfer type
+		//----------------------------------------------------
+		printf_s("\nThis is a color camera, what color type do you want to use? \n");
+	    printf_s(  "0: RGB32 \n");
+		printf_s(  "1: YUV16 \n");
+		printf_s(  "2: PLANAR (not supported yet) \n");
+		printf_s(  "3: RAW \n");
+
+	    scanf_s("%d", &Color_type);
+	    printf_s("\n");
+
+		if (Color_type == 0) RGB32  = 1;
+		if (Color_type == 1) YUV    = 1;
+		if (Color_type == 2) PLANAR = 1; 
+		if (Color_type == 3) RAW    = 1;
+
+
+		//--------------------------------
+        // RGB24 TRANSFER
+        //--------------------------------
+		if (RGB32==1)
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
 			LUT_PATTERN = 3;
@@ -136,7 +164,11 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 		}
-		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1)
+
+	    //--------------------------------
+	    // YUV16 TRANSFER
+	    //--------------------------------
+		else if (YUV == 1)
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
 			LUT_PATTERN = 3;
@@ -150,8 +182,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 		}
-	    
-		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0)         
+   	    //--------------------------------
+	    // PLANAR TRANSFER (NOT SUPPORTED YET)
+	    //--------------------------------
+		else if(PLANAR == 1)         
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
 			LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
@@ -171,6 +205,17 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
 			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
 			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
+			printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+		else if (RAW == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
+			LUT_PATTERN = 3;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
 			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 		}
@@ -200,14 +245,20 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// For a full valid frame ROI 
 	if (SensorParams->IS_COLOR == 0) {
 		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                      // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
+		GrabParams->Y_SIZE  = SensorParams->Ysize_Full_valid;                      // Dois etre multiple de 4
+		GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1;		
 	}
-	else {
+	else if (RGB32 == 1 || YUV==1 || PLANAR==1)	{
 		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid+4;                     // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 ;         // On laisse passer 4 lignes d'interpolation pour le bayer
+		GrabParams->Y_SIZE  = SensorParams->Ysize_Full_valid+4;                    // Dois etre multiple de 4
+		GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1 ;       // On laisse passer 4 lignes d'interpolation pour le bayer, elles se feront couper au trim
 	}
+	else if (RAW == 1) 	{                                                                             // Le raw est utilise pour le calcul du DPC, on va charcher la full surface
+		GrabParams->Y_START = 0;                                                  // Dois etre multiple de 4	
+		GrabParams->Y_SIZE  = SensorParams->Ysize_Full;                            // Dois etre multiple de 4
+		GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1;         // On laisse passer 4 lignes d'interpolation pour le bayer		
+	}
+
 
 	GrabParams->M_SUBSAMPLING_Y = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;
@@ -228,10 +279,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------
 	// DMA PARAMETERS
 	//---------------------
-	DMAParams->ROI_X_EN = 1;
-	DMAParams->X_START = SensorParams->Xstart_valid;      // To remove interpolation pixels
-	DMAParams->X_SIZE  = SensorParams->Xsize_Full_valid;
-
 	DMAParams->SUB_X = 0;
 	DMAParams->REVERSE_X = 0;
 	DMAParams->REVERSE_Y = 0;
@@ -243,23 +290,72 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch; // Adresse Mono?BGR32 pour DMA  
 
 	if (SensorParams->IS_COLOR == 0) {
+		DMAParams->ROI_X_EN = 1;
+		DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
+		DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+
 		DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 		DMAParams->CSC = 0; // MONO
+
+		DMAParams->ROI_Y_EN = 0;
+		DMAParams->Y_START = 0;
+		DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;
+
 	}
 	else
-		if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 0) {
+		if (RGB32==1) {
+			DMAParams->ROI_X_EN = 1;
+			DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
+			DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+
 			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);
 			DMAParams->CSC       = 1; // BGR32
+
+			DMAParams->ROI_Y_EN = 1;                                                   // Trim to cut 3 last lines after bayer 
+			DMAParams->Y_START = 0;
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;
 		}
-		else if(SensorParams->IS_COLOR == 1 && PLANAR == 1 && YUV == 0 )
+
+		else if(PLANAR == 1)
 		{
+			DMAParams->ROI_X_EN = 1;
+			DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
+			DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+
 			DMAParams->LINE_SIZE = (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1); //DPC removes 2 front + 2 rear
 			DMAParams->CSC       = 3; // PLANAR
+
+			DMAParams->ROI_Y_EN = 1;                                                   // Trim to cut 3 last lines after bayer 
+			DMAParams->Y_START   = 0;
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;
 		}
-		else if (SensorParams->IS_COLOR == 1 && PLANAR == 0 && YUV == 1) {
-			DMAParams->LINE_SIZE = 4 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
+		else if (YUV == 1) {
+			DMAParams->ROI_X_EN = 1;
+			DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
+			DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+
+			DMAParams->LINE_SIZE = 2 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
 			DMAParams->CSC = 2; // YUV
+
+			DMAParams->ROI_Y_EN = 1;                                                   // Trim to cut 3 last lines after bayer 
+			DMAParams->Y_START  = 0;
+			DMAParams->Y_SIZE   = SensorParams->Ysize_Full_valid;
 		}
+		else if (RAW == 1) {
+
+			DMAParams->ROI_X_EN = 0;
+			DMAParams->X_START = 0;
+			DMAParams->X_SIZE = SensorParams->Xsize_Full;
+
+			DMAParams->LINE_SIZE = 1 * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
+			DMAParams->CSC = 5; // RAW
+
+			DMAParams->ROI_Y_EN = 0;
+			DMAParams->Y_START = 0;
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full;
+
+		}
+
 	//Transparent LUTs
 	XGS_Data->ProgramLUT(LUT_PATTERN);
 	XGS_Data->EnableLUT();
@@ -684,9 +780,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 
 				if (XGS_Data->DMAParams.REVERSE_Y == 1)
-					XGS_Data->set_DMA_revY(0, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+					XGS_Data->set_DMA_revY(0, DMAParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
 				else
-					XGS_Data->set_DMA_revY(1, GrabParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
+					XGS_Data->set_DMA_revY(1, DMAParams->Y_SIZE, GrabParams->ACTIVE_SUBSAMPLING_Y);
 				break;
 
 			case 'E':
