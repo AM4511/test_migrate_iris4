@@ -37,6 +37,8 @@ CXGS_Data::CXGS_Data(volatile FPGA_REGFILE_XGS_ATHENA_TYPE& i_rXGSptr):
 	    0,    // M_UINT64 FSTART_R;
 	    0,    // M_UINT32 LINE_PITCH;
 	    0,    // M_UINT32 LINE_SIZE;
+		0,    // ROI_Y_EN;
+		0,    // Y_START;
 		0,    // Y_SIZE
 		0,    // Y_SUB;  //used in class for adress generation in sub Y
 	    0,    // REVERSE_Y;
@@ -268,6 +270,11 @@ void CXGS_Data::SetDMA()
 	sXGSptr.DMA.ROI_X.f.X_START      = DMAParams.X_START;
     sXGSptr.DMA.ROI_X.f.X_SIZE       = DMAParams.X_SIZE;
 	rXGSptr.DMA.ROI_X.u32            = sXGSptr.DMA.ROI_X.u32;
+
+	sXGSptr.DMA.ROI_Y.f.ROI_EN       = DMAParams.ROI_Y_EN;
+	sXGSptr.DMA.ROI_Y.f.Y_START      = DMAParams.Y_START;
+	sXGSptr.DMA.ROI_Y.f.Y_SIZE       = DMAParams.Y_SIZE;
+	rXGSptr.DMA.ROI_Y.u32            = sXGSptr.DMA.ROI_Y.u32;
 
 	//sXGSptr.DMA.CSC.f.DUP_LAST_LINE = ;  //not implemented in XGS
 	sXGSptr.DMA.CSC.f.COLOR_SPACE    = DMAParams.CSC;
@@ -519,7 +526,15 @@ void CXGS_Data::ProgramLUT(M_UINT32 LUT_TYPE)
 
 	//Transparent 8 a 8 (COLOR) 
 	else if (LUT_TYPE == 3) {
-		printf_s("\nLUT is now 8 to 8 bits, for color sensor\n");
+
+		printf_s("\nFirst LUT is now 10 to 10 bits transparent\n");
+		for (int i = 0; i < 1024; i++) {
+			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_DATA_W = i;
+			rXGSptr.LUT.LUT_CTRL.f.LUT_SS = 1;
+		}
+
+		printf_s("\n3 Component LUT is now 8 to 8 bits transparent, for color sensor\n");
 		rXGSptr.LUT.LUT_CTRL.f.LUT_SEL = 7;
 		for (int i = 0; i < 256; i++) {
 			rXGSptr.LUT.LUT_CTRL.f.LUT_ADD = i;

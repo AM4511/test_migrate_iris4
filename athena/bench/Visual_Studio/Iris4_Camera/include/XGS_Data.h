@@ -16,6 +16,8 @@ struct DMAParamStruct
 	M_UINT64 FSTART_R;
 	M_UINT32 LINE_PITCH;
 	M_UINT32 LINE_SIZE;
+	M_UINT32 ROI_Y_EN;
+	M_UINT32 Y_START;
 	M_UINT32 Y_SIZE;
 	M_UINT32 Y_SUB;  //used in class for adress generation in sub Y
 	M_UINT32 REVERSE_Y;

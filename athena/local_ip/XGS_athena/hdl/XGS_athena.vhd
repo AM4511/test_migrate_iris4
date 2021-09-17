@@ -542,7 +542,7 @@ architecture struct of XGS_athena is
       curr_Ystart : in std_logic_vector(11 downto 0) := (others => '0');  --line
       curr_Yend   : in std_logic_vector(11 downto 0) := (others => '1');  --line                                                                                                
       curr_Ysub   : in std_logic                     := '0';
-
+           
       ---------------------------------------------------------------------
       -- Registers
       ---------------------------------------------------------------------
@@ -576,6 +576,7 @@ architecture struct of XGS_athena is
 
       load_dma_context : in std_logic_vector(1 downto 0) := (others => '0');
       REG_COLOR_SPACE  : in std_logic_vector(2 downto 0);
+      REG_REVERSE_X    : in std_logic; 			  
 
       REG_LUT_BYPASS       : in std_logic;
       REG_LUT_BYPASS_COLOR : in std_logic;
@@ -1336,8 +1337,7 @@ begin
         m_axis_tuser  => trim_tuser,
         m_axis_tlast  => trim_tlast,
         m_axis_tdata  => trim_tdata,
-
-
+           
         ---------------------------------------------------------------------              
         -- Grab parameters         
         ---------------------------------------------------------------------
@@ -1380,7 +1380,8 @@ begin
 
         load_dma_context => load_dma_context,
         REG_COLOR_SPACE  => regfile.DMA.CSC.COLOR_SPACE,
-
+        REG_REVERSE_X    => regfile.DMA.CSC.REVERSE_X, 
+		   
         REG_LUT_BYPASS       => regfile.LUT.LUT_CTRL.LUT_BYPASS,
         REG_LUT_BYPASS_COLOR => regfile.LUT.LUT_CTRL.LUT_BYPASS_COLOR,
 

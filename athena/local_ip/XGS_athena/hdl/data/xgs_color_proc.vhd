@@ -13,7 +13,7 @@
 --
 --                                                                                                                                                           __________ 
 --                                                                                                                                                          |         |  (2x16bpp)
---                                                                                                                                                          |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=3
+--                                                                                                                                                          |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=2/4
 --                                                                                                                                                          |_________| 
 --                                                                                                                                                               ^                                                             
 --              _________             _________            _________              _________           __________            _________            _________       |
@@ -82,7 +82,7 @@ entity xgs_color_proc is
            curr_Ystart                             : in    std_logic_vector(11 downto 0) :=(others=>'0');   --line
            curr_Yend                               : in    std_logic_vector(11 downto 0) :=(others=>'1');   --line    
            curr_Ysub                               : in    std_logic := '0';  
-											             
+
            ---------------------------------------------------------------------
            -- Registers
            ---------------------------------------------------------------------
@@ -116,7 +116,8 @@ entity xgs_color_proc is
 			   
            load_dma_context                        : in std_logic_vector(1 downto 0):=(others=>'0');
 		   REG_COLOR_SPACE                         : in std_logic_vector(2 downto 0);	   
-			   
+           REG_REVERSE_X                           : in std_logic; 			  
+			  
            REG_LUT_BYPASS                          : in std_logic;
            REG_LUT_BYPASS_COLOR                    : in std_logic;
 		   REG_LUT_SEL                             : in std_logic_vector(3 downto 0);
@@ -382,12 +383,19 @@ constant Pix_type             : integer := 10;
 -----------------------------
 
 -- Deduced from CSC regsiters:
+signal load_dma_context0_P0 : std_logic :='0';
 signal load_dma_context0_P1 : std_logic :='0';
 signal load_dma_context0_P2 : std_logic :='0';       
+signal load_dma_context1_P0 : std_logic :='0';
 signal load_dma_context1_P1 : std_logic :='0';
 signal load_dma_context1_P2 : std_logic :='0';
 signal curr_csc_reg         : std_logic_vector(2 downto 0) := "000";
 signal curr_csc_reg_DB      : std_logic_vector(2 downto 0) := "000"; 
+
+
+signal curr_revx_reg        : std_logic :='0'; 
+signal curr_revx_reg_DB     : std_logic :='0';
+
 
 signal BAYER_EN          : std_logic :='0'; 
 signal YUV_EN            : std_logic :='0';
@@ -628,6 +636,10 @@ signal lut_eol_comb           : std_logic; -- pour generation m_axis : eol, eof,
 -----------------------------------------------------
 -- YUV 422
 -----------------------------------------------------
+signal YUV_U                  : std_logic_vector(7 downto 0);
+signal YUV_V                  : std_logic_vector(7 downto 0);
+
+
 signal yuv_sof                : std_logic;
 signal yuv_sol                : std_logic;
 signal yuv_data_val           : std_logic;
@@ -658,6 +670,7 @@ BEGIN
   wb_data8      <= wb_data(19 downto 12)  & wb_data(9 downto 2);
 
 
+
   ------------------------------------------------------------------
   -- Configuration of color pipeline depending on DMA CSC registers
   ------------------------------------------------------------------
@@ -665,40 +678,49 @@ BEGIN
   begin
     if (rising_edge(axi_clk)) then
       if (axi_reset_n = '0')then
+        load_dma_context0_P0 <='0';
         load_dma_context0_P1 <='0';
         load_dma_context0_P2 <='0';
         
+        load_dma_context1_P0 <='0';
         load_dma_context1_P1 <='0';
         load_dma_context1_P2 <='0';
 
         curr_csc_reg         <= "000";
 		curr_csc_reg_DB      <= "000"; 
 		
+		curr_revx_reg        <= '0';
+		curr_revx_reg_DB     <= '0';
+		
 		BAYER_EN             <= '0';
         YUV_EN               <= '0';
         RAW_EN               <= '0';
         
       else
-        load_dma_context0_P1 <= load_dma_context(0);
+	    load_dma_context0_P0 <= load_dma_context(0);
+        load_dma_context0_P1 <= load_dma_context0_P0;
         load_dma_context0_P2 <= load_dma_context0_P1;
 							    
-        load_dma_context1_P1 <= load_dma_context(1);
+        load_dma_context1_P0 <= load_dma_context(1);
+        load_dma_context1_P1 <= load_dma_context1_P0;
         load_dma_context1_P2 <= load_dma_context1_P1;
 
         -- First FF load
         if (load_dma_context0_P2 = '0' and load_dma_context0_P1 = '1') then
-          curr_csc_reg <= REG_COLOR_SPACE;
+          curr_csc_reg  <= REG_COLOR_SPACE;
+		  curr_revx_reg <= REG_REVERSE_X;
         end if;
 
         if (load_dma_context1_P2 = '0' and load_dma_context1_P1 = '1') then
-          curr_csc_reg_DB <= curr_csc_reg;
+          curr_csc_reg_DB  <= curr_csc_reg;
+		  curr_revx_reg_DB <= curr_revx_reg;
         end if;
         
 		if(curr_csc_reg_DB="001") then  --RGB24
 		  BAYER_EN <= '1';
           YUV_EN   <= '0';
           RAW_EN   <= '0';
-		elsif(curr_csc_reg_DB="010") then  --YUV16
+		elsif(curr_csc_reg_DB="010" or curr_csc_reg_DB="100") then  --YUV16 ou Y (Y will be extracted in TRim module)
    		  BAYER_EN <= '1';
           YUV_EN   <= '1';
           RAW_EN   <= '0';
@@ -716,8 +738,6 @@ BEGIN
       end if;
     end if;
   end process;
-
-
 
 
     
@@ -1963,14 +1983,21 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     pixel_eof_out        => yuv_eof,     
 	
     Y                    => yuv_data(7 downto 0),    -- Y0
-    U                    => yuv_data(15 downto 8),   -- U0
-    V                    => yuv_data(47 downto 40),  -- V0
+    U                    => YUV_U,   -- U0
+    V                    => YUV_V,   -- V0
     --Y                    => yuv_data(7 downto 0),    -- Y0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
     --U                    => yuv_data(15 downto 8),   -- U0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
     --V                    => yuv_data(31 downto 24),  -- V0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
 
     UV_subsampled        => open
   );
+
+  -- POUR SUPPORTER LE REVERSE X en YUV
+  yuv_data(15 downto 8)  <= YUV_U when (curr_revx_reg_DB='0') else YUV_V;
+  yuv_data(47 downto 40) <= YUV_V when (curr_revx_reg_DB='0') else YUV_U;
+
+
+
 
   X1_rgb_2_yuv : rgb_2_yuv 
   port map(
