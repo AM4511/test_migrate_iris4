@@ -142,6 +142,7 @@ architecture rtl of xgs_hispi_top is
 
   component axi_line_streamer is
     generic (
+      COLOR                     : integer := 0;  -- 0 Mono; 1 Color
       LANE_PER_PHY              : integer := 3;  -- Physical lane
       MUX_RATIO                 : integer := 4;
       LINE_BUFFER_PTR_WIDTH     : integer := 1;
@@ -791,7 +792,8 @@ begin
   -----------------------------------------------------------------------------
   xaxi_line_streamer : axi_line_streamer
     generic map(
-      LANE_PER_PHY              => LANE_PER_PHY,
+      COLOR                     => COLOR,
+	  LANE_PER_PHY              => LANE_PER_PHY,
       MUX_RATIO                 => MUX_RATIO,
       LINE_BUFFER_PTR_WIDTH     => LINE_BUFFER_PTR_WIDTH,
       LINE_BUFFER_DATA_WIDTH    => LINE_BUFFER_DATA_WIDTH,
