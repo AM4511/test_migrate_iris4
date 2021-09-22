@@ -12,7 +12,7 @@
 --
 --
 --                                                                                                                                                           __________ 
---                                                                                                                                                          |         |  (2x16bpp)
+--                                                                                                                                                          |         |  (2x16bpp)      4:4:4
 --                                                                                                                                                          |  YUV16  |----------->  2x YUV16 packed64 : COLOR_SPACE=2/4
 --                                                                                                                                                          |_________| 
 --                                                                                                                                                               ^                                                             
@@ -1950,11 +1950,11 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   --------------------------------------------------------------------
   --
   --
-  --  YUV 4:2:2
+  --  YUV 4:4:4
   --  
-  --  Pour le moment packed YUV16 4:2:2 is
+  --  Pour le moment packed YUV16 4:4:4 is
   --  
-  --  Data64 : 00-00-V0-Y1-00-00-U0-Y0
+  --  Data64 : 00-V0-U0-Y1-00-Y0-U0-Y0
   --            |                    |
   --           MSB                  LSB
   --
@@ -1982,20 +1982,15 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     pixel_eol_out        => yuv_eol,     
     pixel_eof_out        => yuv_eof,     
 	
-    Y                    => yuv_data(7 downto 0),    -- Y0
-    U                    => YUV_U,   -- U0
-    V                    => YUV_V,   -- V0
-    --Y                    => yuv_data(7 downto 0),    -- Y0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
-    --U                    => yuv_data(15 downto 8),   -- U0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
-    --V                    => yuv_data(31 downto 24),  -- V0  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
+    Y                    => yuv_data(7 downto 0),     -- Y0
+    U                    => yuv_data(15 downto 8),    -- U0
+    V                    => yuv_data(23 downto 16),   -- V0
 
     UV_subsampled        => open
   );
 
-  -- POUR SUPPORTER LE REVERSE X en YUV
-  yuv_data(15 downto 8)  <= YUV_U when (curr_revx_reg_DB='0') else YUV_V;
-  yuv_data(47 downto 40) <= YUV_V when (curr_revx_reg_DB='0') else YUV_U;
 
+  yuv_data(31 downto 24) <= (others =>'0');
 
 
 
@@ -2022,15 +2017,14 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
     pixel_eof_out        => open,
 
     Y                    => yuv_data(39 downto 32),  -- Y1
-    --Y                    => yuv_data(23 downto 16),  -- Y1  --temp mapping 00-00-00-00-V0-Y1-U0-Y0 ,pour display
-    U                    => open,                  
-    V                    => open,                  
+    U                    => yuv_data(47 downto 40),  -- U1                
+    V                    => yuv_data(55 downto 48),  -- V1                
     UV_subsampled        => open
   );
 
-  yuv_data(31 downto 16) <= (others =>'0');
-  yuv_data(63 downto 48) <= (others =>'0');
-  --yuv_data(63 downto 32) <= (others =>'0');  --temp mapping
+
+  yuv_data(63 downto 56) <= (others =>'0');
+
 
 
 

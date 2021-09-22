@@ -509,7 +509,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (x) Set new ROI (X-only)");
 	printf_s("\n  (E) FPGA Reverse X");
 	printf_s("\n  (R) FPGA Reverse Y");
-	printf_s("\n  (S) Subsampling mode");
+	printf_s("\n  (s) Subsampling X mode");
+	printf_s("\n  (S) Subsampling Y mode");
 	printf_s("\n");
 	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
 	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
@@ -865,7 +866,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				// We dont use SUB_X in sensor, no fps advantages , and noise is increased!
 				// Using DMA subsampling 0(none) to 15 factor
 				DMAParams->SUB_X = SubX;
-				DMAParams->LINE_SIZE = DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
+				DMAParams->LINE_SIZE = BYTE_PER_PIXEL * DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 
 				MbufClear(MilGrabBuffer, 0);
 				break;
