@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/09/09 15:51:51
+-- Created on          : 2021/09/27 13:24:13
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA02D6828
+-- Register file CRC32 : 0xEFAD055C
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1465,6 +1465,7 @@ package regfile_xgs_athena_pack is
    -- Register Name: DPC_LIST_CTRL
    ------------------------------------------------------------------------------------------
    type DPC_DPC_LIST_CTRL_TYPE is record
+      dpc_highlight_all: std_logic;
       dpc_fifo_reset : std_logic;
       dpc_firstlast_line_rem: std_logic;
       dpc_list_count : std_logic_vector(11 downto 0);
@@ -1476,6 +1477,7 @@ package regfile_xgs_athena_pack is
    end record DPC_DPC_LIST_CTRL_TYPE;
 
    constant INIT_DPC_DPC_LIST_CTRL_TYPE : DPC_DPC_LIST_CTRL_TYPE := (
+      dpc_highlight_all => 'Z',
       dpc_fifo_reset  => 'Z',
       dpc_firstlast_line_rem => 'Z',
       dpc_list_count  => (others=> 'Z'),
@@ -4006,6 +4008,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.dpc_highlight_all;
       output(29) := reg.dpc_fifo_reset;
       output(28) := reg.dpc_firstlast_line_rem;
       output(27 downto 16) := reg.dpc_list_count;
@@ -4024,6 +4027,7 @@ package body regfile_xgs_athena_pack is
    function to_DPC_DPC_LIST_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_CTRL_TYPE is
    variable output : DPC_DPC_LIST_CTRL_TYPE;
    begin
+      output.dpc_highlight_all := stdlv(31);
       output.dpc_fifo_reset := stdlv(29);
       output.dpc_firstlast_line_rem := stdlv(28);
       output.dpc_list_count := stdlv(27 downto 16);
@@ -4560,11 +4564,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/09/09 15:51:51
+-- Created on          : 2021/09/27 13:24:13
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta4
 -- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA02D6828
+-- Register file CRC32 : 0xEFAD055C
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4877,6 +4881,7 @@ signal field_rw_HISPI_DEBUG_TAP_LANE_3                             : std_logic_v
 signal field_rw_HISPI_DEBUG_TAP_LANE_2                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_2
 signal field_rw_HISPI_DEBUG_TAP_LANE_1                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_1
 signal field_rw_HISPI_DEBUG_TAP_LANE_0                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_0
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all                : std_logic;                                       -- Field: dpc_highlight_all
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset                   : std_logic;                                       -- Field: dpc_fifo_reset
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem           : std_logic;                                       -- Field: dpc_firstlast_line_rem
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_count                   : std_logic_vector(11 downto 0);                   -- Field: dpc_list_count
@@ -11039,6 +11044,30 @@ rb_DPC_DPC_CAPABILITIES(3 downto 0) <= regfile.DPC.DPC_CAPABILITIES.DPC_VER;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(81) <= (hit(81)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_highlight_all
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(31) <= field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all;
+regfile.DPC.DPC_LIST_CTRL.dpc_highlight_all <= field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_highlight_all
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_highlight_all : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all <= '0';
+      else
+         if(wEn(81) = '1' and bitEnN(31) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all <= reg_writedata(31);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_highlight_all;
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_reset

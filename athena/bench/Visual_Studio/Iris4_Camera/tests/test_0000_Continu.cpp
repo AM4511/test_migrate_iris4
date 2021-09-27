@@ -2,6 +2,7 @@
 //
 //  Simple continu test grab Iris4
 //
+//  Mono et Couleur
 //-----------------------------------------------
 
 /* Headers */
@@ -24,23 +25,20 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	MIL_ID MilGrabBuffer;
 	M_UINT64 ImageBufferAddr = 0;
 
-	MIL_ID MilDisplayR;
 	MIL_ID MilGrabBufferR;
 	M_UINT64 ImageBufferAddrR = 0;
 
-	MIL_ID MilDisplayG;
 	MIL_ID MilGrabBufferG;
 	M_UINT64 ImageBufferAddrG = 0;
 
-	MIL_ID MilDisplayB;
 	MIL_ID MilGrabBufferB;
-
 
 	MIL_INT  ImageBufferLinePitch = 0;
 
 	int getch_return;
 	int MonoType  = 8;
 	int YUVType   = 16;
+	int PlanarType = 24;
 	int RGB32Type = 32;
 	
 	int Color_type = 0;
@@ -117,8 +115,6 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// MIL LAYER 
 	//
 	//---------------------
-
-
 	// Init Display with correct X-Y parameters 
 	
 	//--------------------------------
@@ -196,26 +192,39 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	    //--------------------------------
 		else if(PLANAR == 1)         
 		{
-			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
+			//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
+			//
+			//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
+			//
+			//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
 
-			ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
 
-			ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
 
-			ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
+			MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
+			MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
+			MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
+			
+			ImageBufferAddr  = LayerGetHostAddressBuffer(MilGrabBufferB);
+			ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
+			ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
+
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
+
 			LUT_PATTERN = 3;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
 			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
 
 			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
-			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
-			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
+			printf_s("Adresse buffer display PLANAR G(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
+			printf_s("Adresse buffer display PLANAR R(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
 			printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
-
+			//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
 		}
 		else if (RAW == 1)
 		{
@@ -528,7 +537,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	// For debug DMA overrun with any 12Mpix sensor
 	Pcie->rPcie_ptr.debug.dma_debug1.f.add_start = DMAParams->FSTART;                                                            // 0x10000080;
-	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = (DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)GrabParams->Y_SIZE));    // 0x10c00080;
+	Pcie->rPcie_ptr.debug.dma_debug2.f.add_overrun = (DMAParams->FSTART + ((M_INT64)DMAParams->LINE_PITCH * (M_INT64)DMAParams->Y_SIZE));    // 0x10c00080;
 
 
 
@@ -616,20 +625,23 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
+
 		if (DisplayOn)
+			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 			//{
 			//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			if (SensorParams->IS_COLOR == 0)
-				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-			else
-				if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
-					MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT); //RGB32 YUV32
-				else
-				{
-					MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
-					MbufControl(MilGrabBufferG, M_MODIFIED, M_DEFAULT);
-					MbufControl(MilGrabBufferR, M_MODIFIED, M_DEFAULT);
-				}
+			//if (SensorParams->IS_COLOR == 0)
+			//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+			//else
+			//	if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+			//		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT); //RGB32 YUV32
+			//	else
+			//	{
+			//		MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
+			//		MbufControl(MilGrabBufferG, M_MODIFIED, M_DEFAULT);
+			//		MbufControl(MilGrabBufferR, M_MODIFIED, M_DEFAULT);
+			//	}
+
 		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
 		//	//printf_s("%f", DisplayLength1 - DisplayLength0);
 		//}
@@ -1038,12 +1050,15 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MdispFree(MilDisplay);
 	}
 	else {
+		MbufFree(MilGrabBuffer);
 		MbufFree(MilGrabBufferB);
 		MbufFree(MilGrabBufferG);
 		MbufFree(MilGrabBufferR);
-		MdispFree(MilDisplayB);
-		MdispFree(MilDisplayG);
-		MdispFree(MilDisplayR);
+		//MdispFree(MilDisplayB);
+		//MdispFree(MilDisplayG);
+		//MdispFree(MilDisplayR);
+		MdispFree(MilDisplay);
+
 	}
 
 

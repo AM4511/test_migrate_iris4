@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta4
 * Build ID            : I20191220-1537
-* Register file CRC32 : 0xA02D6828
+* Register file CRC32 : 0xEFAD055C
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1609,7 +1609,8 @@ typedef union
       M_UINT32 DPC_LIST_COUNT         : 12;  /* Bits(27:16), null */
       M_UINT32 DPC_FIRSTLAST_LINE_REM : 1;   /* Bits(28:28), null */
       M_UINT32 DPC_FIFO_RESET         : 1;   /* Bits(29:29), null */
-      M_UINT32 RSVD0                  : 2;   /* Bits(31:30), Reserved */
+      M_UINT32 RSVD0                  : 1;   /* Bits(30:30), Reserved */
+      M_UINT32 DPC_HIGHLIGHT_ALL      : 1;   /* Bits(31:31), null */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_CTRL_TYPE;

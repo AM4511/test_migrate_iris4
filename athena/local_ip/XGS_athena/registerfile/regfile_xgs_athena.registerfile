@@ -818,6 +818,7 @@
       </fields>
     </registers>
     <registers name="DPC_LIST_CTRL" offsetFromParent="4">
+      <fields name="dpc_highlight_all" description="When set this bit to 1, all dead pixels in the list will be set to white." lsb="31"/>
       <fields name="dpc_fifo_reset" description="Write '1' then '0' to field dpcL_FIFO_RST to reset overrun/underrun flags of the line buffers and reset the Fifo logic.&#xD;&#xA;&#xD;&#xA;The DPC dual port ram  is not SW reset .&#xD;&#xA;&#xD;&#xA;The fifo in each  processing DPC unit is HW reset at each SOF. " lsb="29">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in normal operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in reset State&lt;/matrox_column_delimiter></possibleValues>

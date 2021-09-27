@@ -607,6 +607,7 @@ Register("dpc_capabilities", 0x480, 4, "null");
 			FieldValue("Initial monochrone correction only, 2 lines buffered.", 0);
 
 Register("dpc_list_ctrl", 0x484, 4, "null");
+		Field("dpc_highlight_all", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("dpc_fifo_reset", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Fifo in normal operation", 0);
 			FieldValue("Fifo in reset State", 1);

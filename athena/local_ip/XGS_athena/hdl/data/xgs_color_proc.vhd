@@ -92,6 +92,7 @@ entity xgs_color_proc is
            REG_dpc_enable                          : in    std_logic :='1';
 											     
            REG_dpc_pattern0_cfg                    : in    std_logic :='0';
+           REG_dpc_highlight_all                   : in    std_logic:='0';
 											     
            REG_dpc_list_wrn                        : in    std_logic; 
            REG_dpc_list_add                        : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
@@ -186,6 +187,7 @@ component dpc_filter_color
     REG_dpc_enable                       : in    std_logic :='1';
 
     REG_dpc_pattern0_cfg                 : in    std_logic :='0';
+    REG_dpc_highlight_all                : in    std_logic:='0';
       
     REG_dpc_list_wrn                     : in    std_logic; 
     REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
@@ -941,6 +943,7 @@ Xdpc_filter_color : dpc_filter_color
     REG_dpc_enable                       => REG_dpc_enable,           
 
     REG_dpc_pattern0_cfg                 => REG_dpc_pattern0_cfg,     
+    REG_dpc_highlight_all                => REG_dpc_highlight_all,
 
     REG_dpc_list_wrn                     => REG_dpc_list_wrn,         
     REG_dpc_list_add                     => REG_dpc_list_add,         

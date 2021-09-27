@@ -2,6 +2,11 @@
 //
 //  Simple continu test grab Iris4
 //
+//  2 ROI
+//
+//  Mono Only
+//
+//
 //-----------------------------------------------
 
 /* Headers */
@@ -118,9 +123,9 @@ void test_0002_Continu_2xROI(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
 	}
 	else {
-		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
+		printf_s("No COLOR SUPPORT IN THIS TEST, press enter to quit\n\n");
+		Sortie = 1;
+		_getch();
 	}
 
 	GrabParams->M_SUBSAMPLING_Y = 0;
@@ -425,7 +430,7 @@ void test_0002_Continu_2xROI(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 	XGS_Ctrl->DisableXGS();  //reset and disable clk
 
 	printf_s("\n\n********************************\n");
-	printf_s("*    End of Test0000.cpp    *\n");
+	printf_s("*    End of Test0002.cpp    *\n");
 	printf_s("********************************\n\n");
 
    }
