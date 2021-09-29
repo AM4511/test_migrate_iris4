@@ -92,7 +92,7 @@ architecture rtl of dma_line_buffer is
   end component;
 
   constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - 2);
-  constant INFO_WIDTH            : integer := 16;
+  constant INFO_WIDTH            : integer := BUFFER_WORD_PTR_WIDTH+BUFFER_ADDR_WIDTH+1 ;
 
   type QWORD_ARRAY is array (natural range <>) of std_logic_vector (63 downto 0);
   signal srst                      : std_logic;
