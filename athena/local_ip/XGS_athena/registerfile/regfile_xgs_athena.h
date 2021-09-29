@@ -8,9 +8,9 @@
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version     : 4.7.0_beta4
-* Build ID            : I20191220-1537
-* Register file CRC32 : 0xEFAD055C
+* FDK IDE Version     : 4.7.0_beta3
+* Build ID            : I20191219-1127
+* Register file CRC32 : 0x1CE9A656
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -1273,10 +1273,9 @@ typedef union
 
    struct
    {
-      M_UINT32 EXP_FOT_TIME           : 12;  /* Bits(11:0), EXPosure during FOT TIME */
-      M_UINT32 RSVD0                  : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 EXP_FOT_TIME           : 16;  /* Bits(15:0), EXPosure during FOT TIME */
       M_UINT32 EXP_FOT                : 1;   /* Bits(16:16), EXPosure during FOT */
-      M_UINT32 RSVD1                  : 15;  /* Bits(31:17), Reserved */
+      M_UINT32 RSVD0                  : 15;  /* Bits(31:17), Reserved */
       M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 

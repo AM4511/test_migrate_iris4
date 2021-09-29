@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
-%  FDK IDE Version: 4.7.0_beta4
-%  Build ID: I20191220-1537
+%  FDK IDE Version: 4.7.0_beta3
+%  Build ID: I20191219-1127
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -446,7 +446,7 @@ Register("exp_fot", 0x2b8, 4, "null");
 		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
 			FieldValue("Disable exposure during FOT in output exposure signal and Strobe", 0);
 			FieldValue("Enable exposure during FOT in output exposure signal and Strobe", 1);
-		Field("exp_fot_time", 11, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
+		Field("exp_fot_time", 15, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
 
 Register("acq_sfnc", 0x2c0, 4, "null");
 		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");

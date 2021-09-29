@@ -641,7 +641,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable exposure during FOT in output exposure signal and Strobe&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="EXP_FOT_TIME" alias="EXPosure during FOT TIME" description="This is the time of the exposure during the FOT.&#xD;&#xA;This timing must be calculated from the OnSemi setting files .&#xD;&#xA;&#xD;&#xA;From DCF v1.2, for all LVDS modes : &#xD;&#xA;&#xD;&#xA;P5000 &amp; P2000&#xD;&#xA;EXP_FOT=40.666us, program value  0x9ee&#xD;&#xA;&#xD;&#xA;P1300 &amp; P500 &amp; P300&#xD;&#xA;EXP_FOT=27.333us, program value  0x6ac" size="12" valueAtReset="9ee">
+      <fields name="EXP_FOT_TIME" alias="EXPosure during FOT TIME" description="This is the time of the exposure during the FOT.&#xD;&#xA;This timing must be calculated from the OnSemi setting files .&#xD;&#xA;&#xD;&#xA;" size="16" valueAtReset="9ee">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>

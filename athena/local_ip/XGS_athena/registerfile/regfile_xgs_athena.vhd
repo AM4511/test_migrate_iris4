@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/09/27 13:24:13
+-- Created on          : 2021/09/29 10:48:08
 -- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20191220-1537
--- Register file CRC32 : 0xEFAD055C
+-- FDK IDE Version     : 4.7.0_beta3
+-- Build ID            : I20191219-1127
+-- Register file CRC32 : 0x1CE9A656
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -1140,7 +1140,7 @@ package regfile_xgs_athena_pack is
    ------------------------------------------------------------------------------------------
    type ACQ_EXP_FOT_TYPE is record
       EXP_FOT        : std_logic;
-      EXP_FOT_TIME   : std_logic_vector(11 downto 0);
+      EXP_FOT_TIME   : std_logic_vector(15 downto 0);
    end record ACQ_EXP_FOT_TYPE;
 
    constant INIT_ACQ_EXP_FOT_TYPE : ACQ_EXP_FOT_TYPE := (
@@ -3577,7 +3577,7 @@ package body regfile_xgs_athena_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(16) := reg.EXP_FOT;
-      output(11 downto 0) := reg.EXP_FOT_TIME;
+      output(15 downto 0) := reg.EXP_FOT_TIME;
       return output;
    end to_std_logic_vector;
 
@@ -3589,7 +3589,7 @@ package body regfile_xgs_athena_pack is
    variable output : ACQ_EXP_FOT_TYPE;
    begin
       output.EXP_FOT := stdlv(16);
-      output.EXP_FOT_TIME := stdlv(11 downto 0);
+      output.EXP_FOT_TIME := stdlv(15 downto 0);
       return output;
    end to_ACQ_EXP_FOT_TYPE;
 
@@ -4564,11 +4564,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/09/27 13:24:13
+-- Created on          : 2021/09/29 10:48:08
 -- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20191220-1537
--- Register file CRC32 : 0xEFAD055C
+-- FDK IDE Version     : 4.7.0_beta3
+-- Build ID            : I20191219-1127
+-- Register file CRC32 : 0x1CE9A656
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4818,7 +4818,7 @@ signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                           : std_logic; 
 signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                           : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
 signal field_rw_ACQ_DEBUG_LED_TEST                                 : std_logic;                                       -- Field: LED_TEST
 signal field_rw_ACQ_EXP_FOT_EXP_FOT                                : std_logic;                                       -- Field: EXP_FOT
-signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                           : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
+signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                           : std_logic_vector(15 downto 0);                   -- Field: EXP_FOT_TIME
 signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS                    : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
 signal field_rw_ACQ_TIMER_CTRL_ADAPTATIVE                          : std_logic;                                       -- Field: ADAPTATIVE
 signal field_wautoclr_ACQ_TIMER_CTRL_TIMERSTOP                     : std_logic;                                       -- Field: TIMERSTOP
@@ -8877,11 +8877,11 @@ begin
 end process P_ACQ_EXP_FOT_EXP_FOT;
 
 ------------------------------------------------------------------------------------------
--- Field name: EXP_FOT_TIME(11 downto 0)
+-- Field name: EXP_FOT_TIME(15 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_EXP_FOT(11 downto 0) <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(11 downto 0);
-regfile.ACQ.EXP_FOT.EXP_FOT_TIME <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(11 downto 0);
+rb_ACQ_EXP_FOT(15 downto 0) <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(15 downto 0);
+regfile.ACQ.EXP_FOT.EXP_FOT_TIME <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(15 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -8891,9 +8891,9 @@ P_ACQ_EXP_FOT_EXP_FOT_TIME : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),12));
+         field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),16));
       else
-         for j in  11 downto 0  loop
+         for j in  15 downto 0  loop
             if(wEn(55) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(j-0) <= reg_writedata(j);
             end if;
