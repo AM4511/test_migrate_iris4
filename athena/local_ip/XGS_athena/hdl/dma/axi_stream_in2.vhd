@@ -156,7 +156,7 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of buffer_read_address      : signal is "true";
   attribute mark_debug of buffer_read_data         : signal is "true";
   attribute mark_debug of last_row                 : signal is "true";
-  attribute mark_debug of read_sync                : signal is "true";
+  --attribute mark_debug of read_sync                : signal is "true";
   attribute mark_debug of init_line_ptr            : signal is "true";
   attribute mark_debug of incr_wr_line_ptr         : signal is "true";
   attribute mark_debug of incr_rd_line_ptr         : signal is "true";
@@ -699,24 +699,24 @@ begin
   -- Description : Flag used to indicate to rd_state we are evacuating the 
   --               last row of the frame.
   -----------------------------------------------------------------------------
-  P_last_row : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        buffer_read_en_P1 <= '0';
-        last_row          <= '0';
-      else
-        buffer_read_en_P1 <= buffer_read_en;
-        -- If we detect an end of frame
-        if (rd_state = S_TRANSFER and buffer_read_en_P1 = '1' and read_sync(1) = '1') then  --READ EOF
-          last_row <= '1';
-        -- Cleared once the frame completely evacuated
-        elsif (rd_state = S_END_OF_DMA) then
-          last_row <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
+  -- P_last_row : process (sclk) is
+  -- begin
+  --   if (rising_edge(sclk)) then
+  --     if (srst_n = '0')then
+  --       buffer_read_en_P1 <= '0';
+  --       last_row          <= '0';
+  --     else
+  --       buffer_read_en_P1 <= buffer_read_en;
+  --       -- If we detect an end of frame
+  --       if (rd_state = S_TRANSFER and buffer_read_en_P1 = '1' and read_sync(1) = '1') then  --READ EOF
+  --         last_row <= '1';
+  --       -- Cleared once the frame completely evacuated
+  --       elsif (rd_state = S_END_OF_DMA) then
+  --         last_row <= '0';
+  --       end if;
+  --     end if;
+  --   end if;
+  -- end process;
 
 
   -----------------------------------------------------------------------------
