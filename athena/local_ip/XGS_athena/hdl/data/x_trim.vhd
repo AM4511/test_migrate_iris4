@@ -431,6 +431,8 @@ begin
             aclk_src_pixel_width <= "100";
             aclk_dst_pixel_width <= "001";
             aclk_packing_mask    <= "00010001";
+            -- aclk_dst_pixel_width <= "010";
+            -- aclk_packing_mask    <= "00110011";
 
           when others =>
             aclk_pix_incr        <= 0;  -- Unsupported

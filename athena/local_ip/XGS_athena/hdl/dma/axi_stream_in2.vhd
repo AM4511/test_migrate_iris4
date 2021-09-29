@@ -514,8 +514,8 @@ begin
   sclk_info_weof <= '1' when (wr_state = S_EOF) else
                     '0';
 
-  sclk_info_wlength<= std_logic_vector(buffer_write_ptr);
-  
+  sclk_info_wlength <= std_logic_vector(buffer_write_ptr);
+
   sclk_info_wbuff_id <= std_logic_vector(wr_line_ptr);
 
 
@@ -546,13 +546,13 @@ begin
       sclk_rddata        => buffer_read_data
       );
 
- sclk_info_rden <= '1' when (rd_state = S_READ_CONTEXT) else
+  sclk_info_rden <= '1' when (rd_state = S_READ_CONTEXT) else
                     '0';
 
 
 
 
-  
+
   buffer_read_en <= '1' when (line_buffer_read_en = '1' and rd_state = S_TRANSFER) else '0';
 
 
@@ -625,7 +625,7 @@ begin
           -------------------------------------------------------------------
           when S_READ_CONTEXT =>
             rd_state <= S_INIT;
-            
+
           -------------------------------------------------------------------
           -- S_INIT : Initialize the DMA transfer
           -------------------------------------------------------------------
@@ -693,30 +693,30 @@ begin
   sclk_rd_last_data <= '1' when (unsigned(line_buffer_read_address) = unsigned(sclk_info_rlength) - 1) else
                        '0';
 
-  
+
   -----------------------------------------------------------------------------
-  -- Process     : P_last_row
+  -- Process     : P_buffer_read_en_P1
   -- Description : Flag used to indicate to rd_state we are evacuating the 
   --               last row of the frame.
   -----------------------------------------------------------------------------
-  -- P_last_row : process (sclk) is
-  -- begin
-  --   if (rising_edge(sclk)) then
-  --     if (srst_n = '0')then
-  --       buffer_read_en_P1 <= '0';
-  --       last_row          <= '0';
-  --     else
-  --       buffer_read_en_P1 <= buffer_read_en;
-  --       -- If we detect an end of frame
-  --       if (rd_state = S_TRANSFER and buffer_read_en_P1 = '1' and read_sync(1) = '1') then  --READ EOF
-  --         last_row <= '1';
-  --       -- Cleared once the frame completely evacuated
-  --       elsif (rd_state = S_END_OF_DMA) then
-  --         last_row <= '0';
-  --       end if;
-  --     end if;
-  --   end if;
-  -- end process;
+  P_buffer_read_en_P1 : process (sclk) is
+  begin
+    if (rising_edge(sclk)) then
+      if (srst_n = '0')then
+        buffer_read_en_P1 <= '0';
+      --last_row          <= '0';
+      else
+        buffer_read_en_P1 <= buffer_read_en;
+      -- If we detect an end of frame
+      -- if (rd_state = S_TRANSFER and buffer_read_en_P1 = '1' and read_sync(1) = '1') then  --READ EOF
+      --  last_row <= '1';
+      -- Cleared once the frame completely evacuated
+      --elsif (rd_state = S_END_OF_DMA) then
+      --  last_row <= '0';
+      end if;
+    end if;
+  --end if;
+  end process;
 
 
   -----------------------------------------------------------------------------
