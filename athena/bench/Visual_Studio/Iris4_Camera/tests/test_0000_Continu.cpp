@@ -329,7 +329,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		DMAParams->ROI_X_EN = 1;
 		DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
-		DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+		DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;
 
 		DMAParams->LINE_SIZE = BYTE_PER_PIXEL*DMAParams->X_SIZE / (DMAParams->SUB_X + 1);
 		DMAParams->CSC = 0; // MONO
@@ -348,6 +348,13 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			DMAParams->ROI_X_EN = 1;
 			DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
 			DMAParams->X_SIZE   = SensorParams->Xsize_Full_valid;
+			
+			//DMAParams->X_SIZE   = 4096;
+			//DMAParams->X_SIZE   = 4092;
+			//DMAParams->X_SIZE   = 4048;
+			//DMAParams->X_SIZE   = 4000;
+			//DMAParams->X_SIZE   = 3072;
+			//DMAParams->X_SIZE   = 2048;
 
 			DMAParams->LINE_SIZE = BYTE_PER_PIXEL * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);
 			DMAParams->CSC       = 1; // BGR32
@@ -475,10 +482,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//      Probe3 : Monitor1, EFOT(J204 sur le sensor board 7572 - 00)
 	//      Probe4 : Debug0(R254  sur le sensor board 7572 - 00), avec Debug0 = Signal interne FPGA FOT interne(WritePcie BAR0 + 0x1e0[4:0] = 0x7)
 	//
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 7;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 7;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 7;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 7;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 7;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 7;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 7;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 7;
 
 	// https://imgconf.matrox.com:8443/display/IRIS4/XGS+Controller+timings+specs                   [TEST0000 - Grab continu]
 	// 3) Setup de mesure pour KEEP_OUT_ZONE_START
@@ -487,10 +494,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//      Probe3 : Debug1(R256  sur le sensor board 7572 - 00), avec Debug1 = Signal interne FPGA xgs_trig_int_delayed(WritePcie BAR0 + 0x1e0[12:8] = 0x12 (18))
 	//      Probe4 : Debug2(R256  sur le sensor board 7572 - 00), avec Debug2 = Signal interne FPGA curr_trig0(WritePcie BAR0 + 0x1e0[20:16] = 0x5 (5))
 	//
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 17;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 18;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 5;
-	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 31; //not used
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 17;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 18;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 5;
+	//XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 31; //not used
 
 
 	//---- END OF DO NOT MODIFY FROM HERE
