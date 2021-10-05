@@ -22,7 +22,8 @@ package tests_pkg;
   `include "test0020.svh"
   `include "test0021.svh"
   `include "test0022.svh"
-  `include "test0023.svh"  
+  `include "test0023.svh" 
+  `include "test0024.svh"   
 
   typedef class Test0001;
   typedef class Test0002;  
@@ -38,4 +39,6 @@ package tests_pkg;
   typedef class Test0021;
   typedef class Test0022;    
   typedef class Test0023;     
+  typedef class Test0024;     
+
 endpackage
