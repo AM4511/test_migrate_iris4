@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0xD302CB0B
+* Register file CRC32 : 0xA9A5AAFB
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -351,8 +351,8 @@ typedef union
 
    struct
    {
-      M_UINT32 VALUE : 14;  /* Bits(13:0), Host Line size */
-      M_UINT32 RSVD0 : 18;  /* Bits(31:14), Reserved */
+      M_UINT32 VALUE : 15;  /* Bits(14:0), Host Line size */
+      M_UINT32 RSVD0 : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE;
@@ -632,8 +632,7 @@ typedef union
    {
       M_UINT32 KEEP_OUT_TRIG_START : 16;  /* Bits(15:0), null */
       M_UINT32 KEEP_OUT_TRIG_ENA   : 1;   /* Bits(16:16), null */
-      M_UINT32 RSVD0               : 3;   /* Bits(19:17), Reserved */
-      M_UINT32 KEEP_OUT_TRIG_STOP  : 12;  /* Bits(31:20), null */
+      M_UINT32 RSVD0               : 15;  /* Bits(31:17), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_READOUT_CFG4_TYPE;

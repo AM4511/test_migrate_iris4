@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/09/29 10:48:08
+-- Created on          : 2021/10/04 10:10:37
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x1CE9A656
+-- Register file CRC32 : 0xA9A5AAFB
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -310,7 +310,7 @@ package regfile_xgs_athena_pack is
    -- Register Name: LINE_SIZE
    ------------------------------------------------------------------------------------------
    type DMA_LINE_SIZE_TYPE is record
-      VALUE          : std_logic_vector(13 downto 0);
+      VALUE          : std_logic_vector(14 downto 0);
    end record DMA_LINE_SIZE_TYPE;
 
    constant INIT_DMA_LINE_SIZE_TYPE : DMA_LINE_SIZE_TYPE := (
@@ -2405,7 +2405,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(13 downto 0) := reg.VALUE;
+      output(14 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
@@ -2416,7 +2416,7 @@ package body regfile_xgs_athena_pack is
    function to_DMA_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_SIZE_TYPE is
    variable output : DMA_LINE_SIZE_TYPE;
    begin
-      output.VALUE := stdlv(13 downto 0);
+      output.VALUE := stdlv(14 downto 0);
       return output;
    end to_DMA_LINE_SIZE_TYPE;
 
@@ -4564,11 +4564,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/09/29 10:48:08
+-- Created on          : 2021/10/04 10:10:37
 -- Created by          : jmansill
 -- FDK IDE Version     : 4.7.0_beta3
 -- Build ID            : I20191219-1127
--- Register file CRC32 : 0x1CE9A656
+-- Register file CRC32 : 0xA9A5AAFB
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4734,7 +4734,7 @@ signal field_rw_DMA_FSTART_G_HIGH_VALUE                            : std_logic_v
 signal field_rw_DMA_FSTART_R_VALUE                                 : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_FSTART_R_HIGH_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_LINE_PITCH_VALUE                               : std_logic_vector(15 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_SIZE_VALUE                                : std_logic_vector(13 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_SIZE_VALUE                                : std_logic_vector(14 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CSC_COLOR_SPACE                                : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
 signal field_rw_DMA_CSC_DUP_LAST_LINE                              : std_logic;                                       -- Field: DUP_LAST_LINE
 signal field_rw_DMA_CSC_SUB_X                                      : std_logic_vector(3 downto 0);                    -- Field: SUB_X
@@ -5991,11 +5991,11 @@ end process P_DMA_LINE_PITCH_VALUE;
 wEn(12) <= (hit(12)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: VALUE(13 downto 0)
+-- Field name: VALUE(14 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_LINE_SIZE(13 downto 0) <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
-regfile.DMA.LINE_SIZE.VALUE <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
+rb_DMA_LINE_SIZE(14 downto 0) <= field_rw_DMA_LINE_SIZE_VALUE(14 downto 0);
+regfile.DMA.LINE_SIZE.VALUE <= field_rw_DMA_LINE_SIZE_VALUE(14 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -6005,9 +6005,9 @@ P_DMA_LINE_SIZE_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_LINE_SIZE_VALUE <= std_logic_vector(to_unsigned(integer(0),14));
+         field_rw_DMA_LINE_SIZE_VALUE <= std_logic_vector(to_unsigned(integer(0),15));
       else
-         for j in  13 downto 0  loop
+         for j in  14 downto 0  loop
             if(wEn(12) = '1' and bitEnN(j) = '0') then
                field_rw_DMA_LINE_SIZE_VALUE(j-0) <= reg_writedata(j);
             end if;

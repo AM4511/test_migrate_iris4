@@ -73,7 +73,7 @@ Register("line_pitch", 0x90, 4, "Grab Line Pitch Register");
 		Field("value", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
 
 Register("line_size", 0x94, 4, "Host Line Size Register");
-		Field("value", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
+		Field("value", 14, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
 			FieldValue("Auto-compute line size from sensor data.", 0);
 
 Register("csc", 0x98, 4, "null");

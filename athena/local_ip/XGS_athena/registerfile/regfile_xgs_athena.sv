@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/09/29 10:48:08
+ ** Created on          : 2021/10/04 10:10:37
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0x1CE9A656
+ ** Register file CRC32 : 0xA9A5AAFB
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -241,8 +241,8 @@ typedef union packed
 
    struct packed
    {
-      logic [13:0] VALUE;  /* Bits(13:0), Host Line size */
-      logic [17:0] rsvd0;  /* Bits(31:14), Reserved */
+      logic [14:0] VALUE;  /* Bits(14:0), Host Line size */
+      logic [16:0] rsvd0;  /* Bits(31:15), Reserved */
    } f;
 
 } fdk_regfile_xgs_athena_DMA_LINE_SIZE_t;
