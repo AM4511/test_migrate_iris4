@@ -87,7 +87,6 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit5000(int lanes, int color)
 	   SensorParams.EXP_FOT             = 7000;
 	   SensorParams.EXP_FOT_TIME        = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
 	   SensorParams.KEEP_OUT_ZONE_START = 0xb1a; 
-
    }
    GrabParams.FOT                   = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 
@@ -107,14 +106,17 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes, int color)
 	SensorParams.XGS_HiSPI_Ch         = 16;
 	SensorParams.XGS_HiSPI_Ch_used    = 4;
 	SensorParams.XGS_HiSPI_mux        = 4;
-	SensorParams.XGS_DMA_LinePtrWidth = 2; //4 line buffers
 
 	SensorParams.Xsize_Full           = 1928;                                                // Interpolation INCLUDED
 	SensorParams.Xsize_Full_valid     = 1920;
-	if (color == 0)
-		SensorParams.Xstart_valid     = 4;
-	else
-		SensorParams.Xstart_valid     = 2;      // When color and DPC enabled, then only remove 2 pix
+	if (color == 0) {
+		SensorParams.XGS_DMA_LinePtrWidth = 2;  //4 line buffers
+		SensorParams.Xstart_valid         = 4;
+	}
+	else {
+		SensorParams.XGS_DMA_LinePtrWidth = 1;   //2 line buffers
+		SensorParams.Xstart_valid         = 2;   // When color and DPC enabled, then only remove 2 pix
+	}
 
 	SensorParams.Ysize_Full           = 1208;                                                // Interpolation INCLUDED
 	SensorParams.Ysize_Full_valid     = 1200;
@@ -127,18 +129,23 @@ void CXGS_Ctrl::XGS5M_SetGrabParamsInit2000(int lanes, int color)
 	SensorParams.XGS_Y_SIZE = 1230;                                                // FULL Y, including everything (M_LINES as in the SPEC, may be modified with dcf M_LINES PROGRAMMED)
 
 	// This may depend on the configuration (Lanes+LineSize) 
-
-	SensorParams.FOTn_2_EXP = 76800;
-
-	SensorParams.ReadOutN_2_TrigN = 51200;
-
-	SensorParams.TrigN_2_FOT = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
-
-	SensorParams.EXP_FOT = 7000;
-
-	SensorParams.EXP_FOT_TIME = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
-
-	SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
+	if (color == 0) {
+		SensorParams.FOTn_2_EXP          = 76800;
+		SensorParams.ReadOutN_2_TrigN    = 51200;
+		SensorParams.TrigN_2_FOT         = 23000 * GrabParams.XGS_LINE_SIZE_FACTOR;
+		SensorParams.EXP_FOT             = 7000;
+		SensorParams.EXP_FOT_TIME        = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+		SensorParams.KEEP_OUT_ZONE_START = 0x2bf;
+	}
+	else
+	{
+		SensorParams.FOTn_2_EXP          = 213600;
+		SensorParams.ReadOutN_2_TrigN    = 188400;
+		SensorParams.TrigN_2_FOT         = 91200;
+		SensorParams.EXP_FOT             = 7000;
+		SensorParams.EXP_FOT_TIME        = SensorParams.TrigN_2_FOT + SensorParams.EXP_FOT;  //TOTAL : 23us trig fall to FOT START  + 5.36us calculated from start of FOT to end of real exposure in dev board, to validate!
+		SensorParams.KEEP_OUT_ZONE_START = 0xb1a;
+	}
 
 	GrabParams.FOT = 10; // FOT exprime en nombre de ligne senseur, utilise en mode EO_FOT_SEL=1.
 

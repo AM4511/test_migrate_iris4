@@ -463,7 +463,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	//---- DO NOT MODIFY FROM HERE
 
-	// Some measure needs PET engin Disabled, do it here 
+	// Some measure needs PET engin Disabled, do it here . Or pres 'P' during the test to swicth form pet on-off
 	//XGS_Ctrl->GrabParams.TRIGGER_OVERLAP       = 0;
 	//XGS_Ctrl->GrabParams.TRIGGER_OVERLAP_BUFFN = 0;
 
@@ -1043,6 +1043,27 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
 				XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = unsigned long(4096 * (float(XGS_Ctrl->rXGSptr.BAYER.WB_G_ACC.f.G_ACC >> 1) / float(XGS_Ctrl->rXGSptr.BAYER.WB_R_ACC.f.R_ACC)));
 				break;
+
+			case 'P':
+				cout << "\nPet engin\n";
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+
+				if (XGS_Ctrl->GrabParams.TRIGGER_OVERLAP == 0) {
+					XGS_Ctrl->GrabParams.TRIGGER_OVERLAP       = 1;
+					XGS_Ctrl->GrabParams.TRIGGER_OVERLAP_BUFFN = 1;
+					cout << "\nPet engin enabled\n";
+
+				}
+				else {
+					XGS_Ctrl->GrabParams.TRIGGER_OVERLAP       = 0;
+					XGS_Ctrl->GrabParams.TRIGGER_OVERLAP_BUFFN = 0;
+					cout << "\nPet engin disabled\n";
+				}
+				Sleep(200);
+
+				break;
+
 
 
 			}
