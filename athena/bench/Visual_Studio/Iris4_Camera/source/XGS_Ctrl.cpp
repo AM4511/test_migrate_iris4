@@ -746,13 +746,19 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us, M_UINT32 info)
 {
 	
 
-	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
+	if (SensorParams.IS_COLOR==0 &&  exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
 		if(info==1) printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
-	}
+	} else
+	  if (SensorParams.IS_COLOR == 1 && exposure_ss_us >= 240 && exposure_ss_us <= 4200000) {
+			GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
+			if (info == 1) printf_s("Exposure set to %dus\n", exposure_ss_us);
+			CurrExposure = exposure_ss_us;
+		}
+
 	else {
-		printf_s("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+		printf_s("XGS ne supporte pas exposure <60us(MONO), <240us(COLOR), XGS ne reponds pas\n");
 	}
 	
 }
