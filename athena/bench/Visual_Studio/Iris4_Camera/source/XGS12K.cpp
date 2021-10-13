@@ -2,7 +2,7 @@
 //
 //  Configuration for XGS12000
 //
-//  From WIP Last Changed Rev: WIP Last Changed Rev: 18245:  
+//  From WIP Last Changed Rev: WIP Last Changed Rev: 18961:  
 //    C:\Aptina Imaging\apps_data\XGS12M-REV2.ini 
 //    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS12M-REV2.ini   
 //-----------------------------------------------
@@ -15,7 +15,7 @@
 
 
 //Derniere version du microcode de Onsemi pour la famaille XGS12K
-M_UINT32 XGS12K_WIP = 18245;
+M_UINT32 XGS12K_WIP = 18961;
 
 
 

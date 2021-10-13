@@ -205,6 +205,10 @@ private:
 	void XGS5M_LoadDCF(int lanes);
 	void XGS5M_Check_otpm_depended_uploads(void);
 	void XGS5M_Enable4lanes(void);
+	void XGS5M_Req_Reg_Up_0(void);
+	void XGS5M_Req_Reg_Up_2(void);
+	void XGS5M_Timing_Up(void);
+
 };
   
 

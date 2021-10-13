@@ -2,7 +2,7 @@
 //
 //  Configuration for XGS16000
 //
-//  From WIP Last Changed Rev: 18293 (r0 only)
+//  From WIP Last Changed Rev: 18963 (r0 only)
 //    C:\Aptina Imaging\apps_data\XGS16M-REV0.ini 
 //    $iris4\athena\bench\XGS_OnSemi_ini_files\XGS16M-REV0.ini   
 
@@ -14,7 +14,7 @@
 #include "XGS_Ctrl.h"
 
 //Derniere version du microcode de Onsemi pour la famaille XGS12K
-M_UINT32 XGS16K_WIP = 18293;
+M_UINT32 XGS16K_WIP = 18963;
 
 
 
