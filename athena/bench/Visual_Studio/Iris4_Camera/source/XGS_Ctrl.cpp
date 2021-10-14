@@ -746,13 +746,19 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us, M_UINT32 info)
 {
 	
 
-	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
+	if (SensorParams.IS_COLOR==0 &&  exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
 		if(info==1) printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
-	}
+	} else
+	  if (SensorParams.IS_COLOR == 1 && exposure_ss_us >= 240 && exposure_ss_us <= 4200000) {
+			GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
+			if (info == 1) printf_s("Exposure set to %dus\n", exposure_ss_us);
+			CurrExposure = exposure_ss_us;
+		}
+
 	else {
-		printf_s("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+		printf_s("XGS ne supporte pas exposure <60us(MONO), <240us(COLOR), XGS ne reponds pas\n");
 	}
 	
 }
@@ -1244,6 +1250,7 @@ void CXGS_Ctrl::StopHWTimer(void) {
 // Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
 // Tfot fixe en nombre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
 // Y_SIZE must be 4 lines factor
+// In color mode, Y_SIZE already contains the 4 interpolation lines
 double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// FOT ici
@@ -1260,6 +1267,7 @@ double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_
 // alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
 // width minimum sur le signal trig0 du senseur.
 // Y_SIZE must be 4 lines factor
+// In color mode, Y_SIZE already contains the 4 interpolation lines
 double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// Pas de FOT ici

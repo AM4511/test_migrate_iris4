@@ -67,7 +67,7 @@ entity dma_write is
     host_number_of_plane : in integer;
     host_write_address   : in HOST_ADDRESS_ARRAY(NUMBER_OF_PLANE-1 downto 0);
     host_line_pitch      : in std_logic_vector(15 downto 0);
-    host_line_size       : in std_logic_vector(13 downto 0);
+    host_line_size       : in std_logic_vector(14 downto 0);
     host_reverse_y       : in std_logic;  -- ecrire a l'envers.
 
     -- To Sensor interface, grab abort logic

@@ -2,6 +2,8 @@
 //
 //  Corrtion du noir avec premieres lignes noire dans la region M-LINE 
 //
+//  Mono only
+//
 //-----------------------------------------------
 
 /* Headers */
@@ -87,9 +89,18 @@ void test_0006_SWtrig_BlackCorr(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS
     // GRAB PARAMETERS
     //---------------------
 	// For a full frame ROI 
-	GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	
-	GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
-	GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
+	// For a full valid frame ROI 
+	if (SensorParams->IS_COLOR == 0) {
+	    GrabParams->Y_START = 0;                                                //1-base Here - Dois etre multiple de 4	
+	    GrabParams->Y_END   = GrabParams->Y_START + SensorParams->Ysize_Full;   //1-base Here - Dois etre multiple de 4
+	    GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          //1-base Here - Dois etre multiple de 4
+	}
+	else {
+		printf_s("No COLOR SUPPORT IN THIS TEST, press enter to quit\n\n");
+		Sortie = 1;
+		_getch();
+	}
+
 
 	GrabParams->M_SUBSAMPLING_Y      = 0;
 	GrabParams->ACTIVE_SUBSAMPLING_Y = 0;

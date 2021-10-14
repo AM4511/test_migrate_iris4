@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Test0022 : XGS 5000 : BAYER COLOR DEMOSAIC : Y (Color to mono)
-// Description : Send one color frame of 16 lines. Destination buffer is Mono8.
+// Test0024 : XGS 12000 : BAYER COLOR DEMOSAIC : RGB32
+//
+// Description : Send one color frame of 16 lines. Destination buffer is BGR32.
 //               (20 from the sensor because of bayer 1-line consumption)
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +71,7 @@ class Test0024 extends Ctest;
                 //-------------------------------------------------
 				// SELECTION DU MODELE XGS
                 //-------------------------------------------------
-                XGS_Model = 5000;
+                XGS_Model = 12000;
 
 		        host.reset(20);
 		        #100us;
@@ -102,7 +103,7 @@ class Test0024 extends Ctest;
 				// BAYER
 				///////////////////////////////////////////////////
                 super.Vlib.setWB('h1000, 'h1000,  'h1000);  // (B,G,R)
-                super.Vlib.setCSC(4);                       // Activate YUV 4:2:2 to Mono8
+                super.Vlib.setCSC(1);                       // Activate BAYER RGB24
 
 		        ///////////////////////////////////////////////////
 				// DPC : COLOR LIST
@@ -114,7 +115,10 @@ class Test0024 extends Ctest;
 				///////////////////////////////////////////////////
 				tx_axis_if.tready_packet_delai_cfg    = 1; //random backpressure
 				tx_axis_if.tready_packet_random_min   = 1;
-	            tx_axis_if.tready_packet_random_max   = 31;
+	            //tx_axis_if.tready_packet_random_max   = 31;
+	            tx_axis_if.tready_packet_random_max   = 10; //backpressure ok!
+
+
 				//tx_axis_if.tready_packet_delai_cfg    = 0;   // Static backpressure
                 //tx_axis_if.tready_packet_delai        = 0;   // tready_packet_delai = 28;  => overrun
 
@@ -174,8 +178,8 @@ class Test0024 extends Ctest;
 				// DMA
 				///////////////////////////////////////////////////////
 				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
-				DMA_PIX_WIDTH = 1; // Units in bytes
-				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
+				DMA_PIX_WIDTH = 4;                           // Units in bytes (4:RGB32)
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*4/(SUB_X+1); // Units in bytes
 
 				super.Vlib.setDMA('hA0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
                 
@@ -186,7 +190,7 @@ class Test0024 extends Ctest;
 			    EXPOSURE    = 50; // exposure=50us
                 super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
 
-                //super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
+                super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
 
 				
                 ///////////////////////////////////////////////////////

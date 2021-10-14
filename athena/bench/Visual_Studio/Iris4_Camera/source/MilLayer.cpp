@@ -115,6 +115,18 @@ M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysi
                      GrabBuffer);
       }
 
+   else if (PixelType_bpp == 24) //24bpp PLANAR
+   {
+	   MbufAllocColor(M_DEFAULT_HOST,
+		   3,                                   // 3 band
+		   MIL_INT(Xsize),
+		   MIL_INT(Ysize),
+		   M_UNSIGNED + 8,
+		   M_IMAGE + M_DISP + M_NON_PAGED + M_PLANAR,
+		   GrabBuffer);
+   }
+
+
 
    MbufClear(*GrabBuffer, 0);
 
@@ -143,12 +155,16 @@ void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum)
      sprintf_s(title, "MONO8 MIL Display");
    if (DisplayNum == 1)
 	   sprintf_s(title, "RGB32 MIL Display");
-   if (DisplayNum == 2)
-	   sprintf_s(title, "RAW BLUE MIL Display");
-   if (DisplayNum == 3)
-	   sprintf_s(title, "RAW GREEN MIL Display");
+//   if (DisplayNum == 2)
+//	   sprintf_s(title, "RAW BLUE MIL Display");
+//   if (DisplayNum == 3)
+//	   sprintf_s(title, "RAW GREEN MIL Display");
+//   if (DisplayNum == 4)
+//	   sprintf_s(title, "RAW RED MIL Display");
    if (DisplayNum == 4)
-	   sprintf_s(title, "RAW RED MIL Display");
+	   sprintf_s(title, "PLANAR RED MIL Display");
+
+
    //---------------------
    //
    // Create display

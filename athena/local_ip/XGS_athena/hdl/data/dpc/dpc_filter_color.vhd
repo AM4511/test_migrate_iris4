@@ -74,6 +74,7 @@ entity dpc_filter_color is
     REG_dpc_enable                       : in    std_logic :='1';
 
     REG_dpc_pattern0_cfg                 : in    std_logic :='0';
+    REG_dpc_highlight_all                : in    std_logic:='0';
       
     REG_dpc_list_wrn                     : in    std_logic; 
     REG_dpc_list_add                     : in    std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0); 
@@ -165,6 +166,7 @@ component dpc_kernel_proc_color
     proc_Y_pix_curr                      : in    std_logic_vector(11 downto 0);    
  
     REG_dpc_pattern0_cfg                 : in    std_logic:='0';
+    REG_dpc_highlight_all                : in    std_logic:='0';
  
     dpc_fifo_reset                       : in    std_logic;
 	dpc_fifo_reset_done                  : out   std_logic;
@@ -591,6 +593,7 @@ kernel_data_6x1_8bpp <= kernel_data(59 downto 52) & kernel_data(49 downto 42) & 
       proc_Y_pix_curr                      => kernel_5x1_curr.Y_pos,
 	  
       REG_dpc_pattern0_cfg                 => REG_dpc_pattern0_cfg,
+      REG_dpc_highlight_all                => REG_dpc_highlight_all,
 	  
       dpc_fifo_reset                       => dpc_fifo_reset,
       dpc_fifo_data_in                     => dpc_fifo_data,

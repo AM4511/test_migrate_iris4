@@ -1,7 +1,8 @@
 //-----------------------------------------------
 //
-//  Simple continu pour scanner les 
+//  Simple continu pour scanner les FPS en MONO
 //
+//  Mono Only
 //-----------------------------------------------
 
 /* Headers */

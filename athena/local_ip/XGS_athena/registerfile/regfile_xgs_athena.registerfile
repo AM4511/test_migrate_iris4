@@ -69,8 +69,8 @@
       </fields>
     </registers>
     <registers name="LINE_SIZE" alias="Host Line Size Register" description="Host Line Size Register." offsetFromParent="24" address="110">
-      <fields name="VALUE" alias="Host Line size" description="This is the line size when writing in host ram. It is measured in bytes, not pixels.  If this register is higher than the actual data provided by the sensor, stray data will be written into host memory.  If this register is lower than the data provided by the sensor, image data will be cropped at the end of the line.&#xD;&#xA;&#xD;&#xA;For backward compatibility, the value of 0 indicates that the FPGA should auto-compute the line sized based on data provided by the sensor interface." size="14" readOnlyMsb="2">
-        <possibleValues>&lt;matrox_column_delimiter>range=1-16383&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Written line size in host frame.&lt;/matrox_column_delimiter></possibleValues>
+      <fields name="VALUE" alias="Host Line size" description="This is the line size when writing in host ram. It is measured in bytes, not pixels.  If this register is higher than the actual data provided by the sensor, stray data will be written into host memory.  If this register is lower than the data provided by the sensor, image data will be cropped at the end of the line.&#xD;&#xA;&#xD;&#xA;For backward compatibility, the value of 0 indicates that the FPGA should auto-compute the line sized based on data provided by the sensor interface." size="15" readOnlyMsb="2">
+        <possibleValues>&lt;matrox_column_delimiter>range=1-32767&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Written line size in host frame.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Auto-compute line size from sensor data.&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -641,7 +641,7 @@
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Enable exposure during FOT in output exposure signal and Strobe&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
-      <fields name="EXP_FOT_TIME" alias="EXPosure during FOT TIME" description="This is the time of the exposure during the FOT.&#xD;&#xA;This timing must be calculated from the OnSemi setting files .&#xD;&#xA;&#xD;&#xA;From DCF v1.2, for all LVDS modes : &#xD;&#xA;&#xD;&#xA;P5000 &amp; P2000&#xD;&#xA;EXP_FOT=40.666us, program value  0x9ee&#xD;&#xA;&#xD;&#xA;P1300 &amp; P500 &amp; P300&#xD;&#xA;EXP_FOT=27.333us, program value  0x6ac" size="12" valueAtReset="9ee">
+      <fields name="EXP_FOT_TIME" alias="EXPosure during FOT TIME" description="This is the time of the exposure during the FOT.&#xD;&#xA;This timing must be calculated from the OnSemi setting files .&#xD;&#xA;&#xD;&#xA;" size="16" valueAtReset="9ee">
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
@@ -818,6 +818,7 @@
       </fields>
     </registers>
     <registers name="DPC_LIST_CTRL" offsetFromParent="4">
+      <fields name="dpc_highlight_all" description="When set this bit to 1, all dead pixels in the list will be set to white." lsb="31"/>
       <fields name="dpc_fifo_reset" description="Write '1' then '0' to field dpcL_FIFO_RST to reset overrun/underrun flags of the line buffers and reset the Fifo logic.&#xD;&#xA;&#xD;&#xA;The DPC dual port ram  is not SW reset .&#xD;&#xA;&#xD;&#xA;The fifo in each  processing DPC unit is HW reset at each SOF. " lsb="29">
         <possibleValues>&lt;matrox_column_delimiter>value=0&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in normal operation&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>value=1&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Fifo in reset State&lt;/matrox_column_delimiter></possibleValues>

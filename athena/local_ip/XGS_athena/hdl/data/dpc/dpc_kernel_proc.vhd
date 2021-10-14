@@ -65,6 +65,7 @@ entity dpc_kernel_proc is
     proc_Y_pix_curr                      : in    std_logic_vector(11 downto 0);    
  
     REG_dpc_pattern0_cfg                 : in    std_logic:='0';
+    REG_dpc_highlight_all                : in    std_logic:='0';
  
     dpc_fifo_reset                       : in    std_logic;
 	dpc_fifo_reset_done                  : out   std_logic;
@@ -370,7 +371,10 @@ xpm_sensor_ser_fifo : xpm_fifo_sync
         if(deadpix_exist='1' and proc_X_pix_curr = proc_nxt_X_pix_corr and proc_Y_pix_curr = proc_nxt_Y_pix_corr ) then
           
           -- TEST MODE PIXEL
-          if( proc_nxt_pattern_corr=X"00" ) then  -- testmode set a white pixel
+          if(REG_dpc_highlight_all='1') then     -- Set all pixel list to white (highlight)
+            Correct_mode_P1 <= "100";
+            Correct_this_P1 <= '1';
+          elsif( proc_nxt_pattern_corr=X"00" ) then  -- testmode set a white pixel
             Correct_mode_P1 <= "100";    
             if(REG_dpc_pattern0_cfg='0') then
               Correct_this_P1 <= '0';  -- bypass (use current pixel)

@@ -8,8 +8,8 @@
 %
 %  DESCRIPTION: Register file of the regfile_xgs_athena module
 %
-%  FDK IDE Version: 4.7.0_beta4
-%  Build ID: I20191220-1537
+%  FDK IDE Version: 4.7.0_beta3
+%  Build ID: I20191219-1127
 %  
 %  DO NOT MODIFY MANUALLY.
 %
@@ -73,7 +73,7 @@ Register("line_pitch", 0x90, 4, "Grab Line Pitch Register");
 		Field("value", 15, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Grab LinePitch");
 
 Register("line_size", 0x94, 4, "Host Line Size Register");
-		Field("value", 13, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
+		Field("value", 14, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "Host Line size");
 			FieldValue("Auto-compute line size from sensor data.", 0);
 
 Register("csc", 0x98, 4, "null");
@@ -446,7 +446,7 @@ Register("exp_fot", 0x2b8, 4, "null");
 		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
 			FieldValue("Disable exposure during FOT in output exposure signal and Strobe", 0);
 			FieldValue("Enable exposure during FOT in output exposure signal and Strobe", 1);
-		Field("exp_fot_time", 11, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
+		Field("exp_fot_time", 15, 0, "rd|wr", 0x0, 0x9ee, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT TIME");
 
 Register("acq_sfnc", 0x2c0, 4, "null");
 		Field("reload_grab_params", 0, 0, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "");
@@ -607,6 +607,7 @@ Register("dpc_capabilities", 0x480, 4, "null");
 			FieldValue("Initial monochrone correction only, 2 lines buffered.", 0);
 
 Register("dpc_list_ctrl", 0x484, 4, "null");
+		Field("dpc_highlight_all", 31, 31, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("dpc_fifo_reset", 29, 29, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("Fifo in normal operation", 0);
 			FieldValue("Fifo in reset State", 1);
