@@ -130,7 +130,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 	}
 	else
-
+	{
 		//----------------------------------------------------
 		// This is a color camera, configure transfer type
 		//----------------------------------------------------
@@ -248,7 +248,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 
 		}
-
+	}
 
 
 	//printf_s("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
