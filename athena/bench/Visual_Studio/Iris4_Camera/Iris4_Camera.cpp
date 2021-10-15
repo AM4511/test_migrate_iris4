@@ -506,8 +506,18 @@ int main(void)
 					string cin_imagefilename;
 					std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
 					cin >> cin_imagefilename;
-					FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
-					printf_s("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Athena fpga firmware\n\n");
+					
+					MIL_UINT8 FlashResult= FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
+					
+					if(FlashResult==0)
+					  printf_s("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Athena fpga firmware\n\n");
+					else
+					  if (FlashResult == 1)
+						printf_s("\nERROR DURING FLASH UPDATE. TRYING TO PROGRAM UPDATE FIRMWARE WHERE NO GOLDEN IS PRESENT. Press 'q' to quit. \n\n");
+   					  else
+					    printf_s("\nERROR DURING FLASH UPDATE. Press 'q' to quit. \n\n");
+
+
 				//} else {
 				//	if (Ares_nbFPGA == 1) {
 				//		printf_s("\n---------------------------------");
