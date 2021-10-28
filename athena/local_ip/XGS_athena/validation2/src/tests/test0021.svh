@@ -157,7 +157,7 @@ class Test0021 extends Ctest;
 				TRIM_ROI_Y_START = 0;
 				TRIM_ROI_Y_SIZE  = 16;
 				TRIM_ROI_X_START = 0;
-				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH; // Units in pixels
+				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH + 2*(super.Vlib.P_INTERPOLATION); // Units in pixels
 
 				//Set the fpga trim module X-Y ROI
 				super.Vlib.Set_X_ROI(TRIM_ROI_X_START, TRIM_ROI_X_SIZE);

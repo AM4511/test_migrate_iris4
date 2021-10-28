@@ -235,19 +235,18 @@ begin
 
   aclk_reset <= not aclk_reset_n;
 
-
   -----------------------------------------------------------------------------
   -- Remap stream context from registerfile
   -----------------------------------------------------------------------------
-  aclk_strm_context_in.color_space <= aclk_color_space;         -- Units in bytes
-  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;           -- Boolean
-  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);   -- Units in pixels
-  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);    -- Units in pixels
-  aclk_strm_context_in.x_scale     <= aclk_x_scale;             -- Units in pixels
-  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;           -- Boolean
-  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;            -- Units in lines
-  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);   -- Units in lines
-  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);    -- Units in lines
+  aclk_strm_context_in.color_space <= aclk_color_space;       -- Units in bytes
+  aclk_strm_context_in.x_crop_en   <= aclk_x_crop_en;         -- Boolean
+  aclk_strm_context_in.x_start     <= unsigned(aclk_x_start);  -- Units in pixels
+  aclk_strm_context_in.x_size      <= unsigned(aclk_x_size);  -- Units in pixels
+  aclk_strm_context_in.x_scale     <= aclk_x_scale;  -- Units in pixels
+  aclk_strm_context_in.x_reverse   <= aclk_x_reverse;         -- Boolean
+  aclk_strm_context_in.y_roi_en    <= aclk_y_roi_en;          -- Units in lines
+  aclk_strm_context_in.y_start     <= unsigned(aclk_y_start);  -- Units in lines
+  aclk_strm_context_in.y_size      <= unsigned(aclk_y_size);  -- Units in lines
 
 
   -----------------------------------------------------------------------------
@@ -324,7 +323,7 @@ begin
       aclk_tdata_out  => aclk_tdata_int
       );
 
-  
+
   -----------------------------------------------------------------------------
   -- Module      : x_trim
   -- Description : 

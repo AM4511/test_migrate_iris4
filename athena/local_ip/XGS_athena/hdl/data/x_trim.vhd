@@ -210,6 +210,40 @@ architecture rtl of x_trim is
   end component;
 
 
+  component x_trim_pack422 is
+    port (
+      ---------------------------------------------------------------------------
+      -- AXI Slave interface
+      ---------------------------------------------------------------------------
+      bclk       : in std_logic;
+      bclk_reset : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- 
+      ---------------------------------------------------------------------------
+      bclk_pack_en : in std_logic;
+
+      ---------------------------------------------------------------------------
+      -- AXI slave stream input interface
+      ---------------------------------------------------------------------------
+      bclk_tready : out std_logic;
+      bclk_tvalid : in  std_logic;
+      bclk_tuser  : in  std_logic_vector(3 downto 0);
+      bclk_tlast  : in  std_logic;
+      bclk_tdata  : in  std_logic_vector(63 downto 0);
+
+      ---------------------------------------------------------------------------
+      -- AXI master stream output interface
+      ---------------------------------------------------------------------------
+      bclk_tready_out : in  std_logic;
+      bclk_tvalid_out : out std_logic;
+      bclk_tuser_out  : out std_logic_vector(3 downto 0);
+      bclk_tlast_out  : out std_logic;
+      bclk_tdata_out  : out std_logic_vector(63 downto 0)
+      );
+  end component;
+
+
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_FLUSH, S_EOL, S_DONE);
 
 
@@ -268,7 +302,7 @@ architecture rtl of x_trim is
   signal aclk_crop_packer_valid  : std_logic_vector(1 downto 0);
   signal aclk_src_pixel_width    : std_logic_vector(2 downto 0);
   signal aclk_dst_pixel_width    : std_logic_vector(2 downto 0);
-  
+
   signal aclk_subs_empty      : std_logic;
   signal aclk_subs_data_valid : std_logic;
   signal aclk_subs_last_data  : std_logic;
@@ -277,13 +311,14 @@ architecture rtl of x_trim is
   signal aclk_subs_ben_in     : std_logic_vector(7 downto 0);
   signal aclk_packing_mask    : std_logic_vector(7 downto 0);
   signal aclk_tvalid_dbg      : std_logic;
+  signal aclk_pack_en         : std_logic;
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
   -----------------------------------------------------------------------------
-  signal bclk_x_reverse_Meta : std_logic;
-  signal bclk_x_reverse      : std_logic;
-  signal bclk_dst_pixel_width    : std_logic_vector(2 downto 0);
+  signal bclk_x_reverse_Meta  : std_logic;
+  signal bclk_x_reverse       : std_logic;
+  signal bclk_dst_pixel_width : std_logic_vector(2 downto 0);
 
   signal bclk_reset : std_logic;
   signal bclk_full  : std_logic;
@@ -306,6 +341,15 @@ architecture rtl of x_trim is
   signal bclk_tuser_int  : std_logic_vector(3 downto 0);
   signal bclk_tlast_int  : std_logic;
   signal bclk_tdata_int  : std_logic_vector(63 downto 0);
+  signal bclk_pack_en    : std_logic;
+
+  signal bclk_tvalid_pack422_dbg : std_logic;
+  signal bclk_tready_pack422       : std_logic;
+  signal bclk_tvalid_pack422       : std_logic;
+  signal bclk_tuser_pack422        : std_logic_vector(3 downto 0);
+  signal bclk_tlast_pack422        : std_logic;
+  signal bclk_tdata_pack422        : std_logic_vector(63 downto 0);
+
 
   -----------------------------------------------------------------------------
   -- Debug attributes 
@@ -375,12 +419,15 @@ begin
         aclk_src_pixel_width <= "001";
         aclk_dst_pixel_width <= "001";
         aclk_packing_mask    <= "11111111";
+        aclk_pack_en         <= '0';
+
       else
         case aclk_color_space is
           ---------------------------------------------------------------------
           -- Mono : 1 byte per pixels, 8 pixels/QWORD
           ---------------------------------------------------------------------
           when "000" =>
+            aclk_pack_en         <= '0';
             aclk_pix_incr        <= 8;  -- We receive 8 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 3) & "000";
             aclk_valid_stop      <= aclk_crop_stop(12 downto 3) & "000";
@@ -403,17 +450,19 @@ begin
           -- YUV 4:2:2 : 2 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "010" =>
+            aclk_pack_en         <= '1';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
             aclk_src_pixel_width <= "100";
             aclk_dst_pixel_width <= "010";
-            aclk_packing_mask    <= "00110011";
+            aclk_packing_mask    <= "11111111";
 
           ---------------------------------------------------------------------
           -- Y : 1 bytes per pixels, 2 pixels/QWORD (Y component of YUV)
           ---------------------------------------------------------------------
           when "100" =>
+            aclk_pack_en         <= '0';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
@@ -425,16 +474,16 @@ begin
           -- RAW : 1 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "101" =>
+            aclk_pack_en         <= '0';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
             aclk_src_pixel_width <= "100";
             aclk_dst_pixel_width <= "001";
             aclk_packing_mask    <= "00010001";
-            -- aclk_dst_pixel_width <= "010";
-            -- aclk_packing_mask    <= "00110011";
 
           when others =>
+            aclk_pack_en         <= '0';
             aclk_pix_incr        <= 0;  -- Unsupported
             aclk_valid_start     <= (others => '0');
             aclk_valid_stop      <= (others => '0');
@@ -702,6 +751,12 @@ begin
     end if;
   end process;
 
+
+
+  -----------------------------------------------------------------------------
+  -- BeN mask is the AND gated combination of the cropping mask (BeN for the
+  -- last data of the line) and the YUV422 mask in case of YUV CSC
+  -----------------------------------------------------------------------------
   aclk_subs_ben_in <= aclk_crop_ben_mux and aclk_packing_mask;
 
   -----------------------------------------------------------------------------
@@ -1003,20 +1058,20 @@ begin
   -----------------------------------------------------------------------------
   x_trim_subsampling_inst : x_trim_subsampling
     port map (
-      aclk                 => aclk,
-      aclk_reset           => aclk_reset,
-      aclk_pixel_width     => aclk_src_pixel_width,
-      aclk_x_subsampling   => aclk_x_scale,
-      aclk_en              => aclk_crop_data_rdy,
-      aclk_init            => aclk_init_subsampling,
-      aclk_last_data_in    => aclk_crop_last_data_mux,
-      aclk_data_in         => aclk_crop_data_mux,
-      aclk_ben_in          => aclk_subs_ben_in,
-      aclk_empty           => aclk_subs_empty,
-      aclk_data_valid_out  => aclk_subs_data_valid,
-      aclk_last_data_out   => aclk_subs_last_data,
-      aclk_data_out        => aclk_subs_data,
-      aclk_ben_out         => aclk_subs_ben
+      aclk                => aclk,
+      aclk_reset          => aclk_reset,
+      aclk_pixel_width    => aclk_src_pixel_width,
+      aclk_x_subsampling  => aclk_x_scale,
+      aclk_en             => aclk_crop_data_rdy,
+      aclk_init           => aclk_init_subsampling,
+      aclk_last_data_in   => aclk_crop_last_data_mux,
+      aclk_data_in        => aclk_crop_data_mux,
+      aclk_ben_in         => aclk_subs_ben_in,
+      aclk_empty          => aclk_subs_empty,
+      aclk_data_valid_out => aclk_subs_data_valid,
+      aclk_last_data_out  => aclk_subs_last_data,
+      aclk_data_out       => aclk_subs_data,
+      aclk_ben_out        => aclk_subs_ben
       );
 
 
@@ -1068,6 +1123,7 @@ begin
   -- register field. This is simply a false path, no resynchronizer is requires
   -----------------------------------------------------------------------------
   bclk_dst_pixel_width <= aclk_dst_pixel_width;
+  bclk_pack_en         <= aclk_pack_en;
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_x_reverse
@@ -1106,11 +1162,29 @@ begin
       bclk_read_en      => bclk_read_en,
       bclk_read_address => bclk_read_address,
       bclk_read_data    => bclk_read_data,
-      bclk_tready       => bclk_tready,
-      bclk_tvalid       => bclk_tvalid_int,
-      bclk_tuser        => bclk_tuser_int,
-      bclk_tlast        => bclk_tlast_int,
-      bclk_tdata        => bclk_tdata_int
+      bclk_tready       => bclk_tready_pack422,
+      bclk_tvalid       => bclk_tvalid_pack422,
+      bclk_tuser        => bclk_tuser_pack422,
+      bclk_tlast        => bclk_tlast_pack422,
+      bclk_tdata        => bclk_tdata_pack422
+      );
+
+
+  x_trim_pack422_inst : x_trim_pack422
+    port map(
+      bclk            => bclk,
+      bclk_reset      => bclk_reset,
+      bclk_pack_en    => bclk_pack_en,
+      bclk_tready     => bclk_tready_pack422,
+      bclk_tvalid     => bclk_tvalid_pack422,
+      bclk_tuser      => bclk_tuser_pack422,
+      bclk_tlast      => bclk_tlast_pack422,
+      bclk_tdata      => bclk_tdata_pack422,
+      bclk_tready_out => bclk_tready,
+      bclk_tvalid_out => bclk_tvalid_int,
+      bclk_tuser_out  => bclk_tuser_int,
+      bclk_tlast_out  => bclk_tlast_int,
+      bclk_tdata_out  => bclk_tdata_int
       );
 
   bclk_tvalid <= bclk_tvalid_int;
@@ -1140,6 +1214,22 @@ begin
       aclk_tdata  => aclk_tdata
       );
 
+  -----------------------------------------------------------------------------
+  -- Stream packer 422
+  -----------------------------------------------------------------------------
+  bclk_tvalid_pack422_dbg <= bclk_tready_pack422 and bclk_tvalid_pack422;
+  dbg_strm_pack422 : dbg_strm
+    generic map(
+      output_file => "dgb_x_trim_pack422.strm",
+      module_name => "dgb_x_trim_pack422"
+      )
+    port map(
+      aclk        => bclk,
+      aclk_tvalid => bclk_tvalid_pack422_dbg,
+      aclk_tuser  => bclk_tuser_pack422,
+      aclk_tlast  => bclk_tlast_pack422,
+      aclk_tdata  => bclk_tdata_pack422
+      );
 
   -----------------------------------------------------------------------------
   -- Stream output
