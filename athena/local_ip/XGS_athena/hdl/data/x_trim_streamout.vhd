@@ -252,7 +252,16 @@ begin
       if (bclk_reset = '1')then
         bclk_last_read_data <= '0';
       else
-        bclk_last_read_data <= bclk_transfer_done;
+        --bclk_last_read_data <= bclk_transfer_done; [AM] Original line
+
+        -- [AM] The following lines fix issue reported in JIRA MT-3122
+        if (bclk_transfer_done = '1') then
+          bclk_last_read_data <= '1';
+        elsif (bclk_ack = '1' and (bclk_align_packer_user(1) = '1' or bclk_align_packer_user(3) = '1')) then
+          bclk_last_read_data <= '0';
+        end if;
+        -- End of the fix [AM]
+        
       end if;
     end if;
   end process;
