@@ -119,6 +119,7 @@ class Cvlib;
 
     int bayer = 0;
     int yuv = 0;
+    int mono8 = 0;
 
 
     /////////////////////////////
@@ -815,12 +816,20 @@ class Cvlib;
         // ne sont plus representes en pixels mais en bytes!
          
 		if(bayer==1)
-          if(yuv==0) begin                                                                               // *** RGB32 
+		  //Color output packed BGR32
+          if(yuv==0 && mono8==0) begin                                                                               // *** RGB32 
 		    XGS_image.BayerDemosaic();
             XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
             XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
-
-		  end else begin                                                                                 // *** YUV
+          //Color output packed mono8
+          end else if (yuv==0 && mono8==1)begin
+          	XGS_image.BayerDemosaic();      
+          	XGS_image.Bayer2YUV();   
+          	XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X - in YUV32 domain
+          	XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
+          	XGS_image.yuv32_2_mono8();
+         //Color output packed YUV422
+         end else if (yuv==1 && mono8==0)begin
 		    XGS_image.BayerDemosaic();      
 		    XGS_image.Bayer2YUV();   
             XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X - in YUV32 domain
@@ -948,17 +957,25 @@ class Cvlib;
 		host.write(CSC_OFFSET, reg_value);
 		
 		// For prediction
-		if(COLOR_SPACE==1) begin      // RGB32   
+		if(COLOR_SPACE==1) begin      // RGB32->RGB32
 		  this.bayer = 1;
 		  this.yuv   = 0;
+		  this.mono8 = 0;
         end
-		else if(COLOR_SPACE==2) begin // YUV   
+		else if(COLOR_SPACE==2) begin // RGB32->YUV   
 		  this.bayer = 1;
 		  this.yuv   = 1;
+		  this.mono8 = 0;
 		end
-		else begin                    // RAW    
+		else if(COLOR_SPACE==4) begin // RGB32->Mono8   
+			this.bayer = 1;
+			this.yuv   = 0;
+			this.mono8 = 1;
+		end
+		else begin                    // RAW->Mono8    
 		  this.bayer = 0; 
 		  this.yuv   = 0;  
+		  this.mono8 = 0;
         end 
     endtask : setCSC
 

@@ -1,7 +1,8 @@
 //-----------------------------------------------
 //
-//  Simple continu test grab Iris4
+//  Simple continu test grab Iris4, defined number of frames
 //
+//  Mono only
 //-----------------------------------------------
 
 /* Headers */
@@ -130,9 +131,9 @@ int test_0010_Continu_nbframes(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_
 		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;
 	}
 	else {
-		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
+		printf_s("No COLOR SUPPORT IN THIS TEST, press enter to quit\n\n");
+		Sortie = 1;
+		_getch();
 	}
 
 	GrabParams->M_SUBSAMPLING_Y = 0;

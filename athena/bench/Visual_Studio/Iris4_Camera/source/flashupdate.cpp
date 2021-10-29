@@ -94,7 +94,7 @@ Notes: Retrun TRUE for success, else FALSE
 ****************************************************************/
 BOOL CFpgaEeprom::FPGAROMApiFlashFromFile(string &ImageFileName)
    {
-   BOOL bRetVal;
+    MIL_UINT8 byRetVal = FPGA_SUCCESS;
 
    printf_s("\nNow Loading Bitstream file from firmware file, please wait... ");
 
@@ -113,24 +113,29 @@ BOOL CFpgaEeprom::FPGAROMApiFlashFromFile(string &ImageFileName)
 
    m_FirstEepromAddress = Decoder.BaseAddress();
 
-   bRetVal = FPGAROMApiFlashFromMemory(Data);
+   if(m_FirstEepromAddress==0)
+       printf_s("\nLoaded Bitstream is a Golden image, bitstream in flash start at address 0x%X.", m_FirstEepromAddress);
+   else
+       printf_s("\nLoaded Bitstream is a Update image, bitstream in flash start at address 0x%X.", m_FirstEepromAddress);
 
+   if ((m_FirstEepromAddress == 0) || CheckDualBootCompatibility() )
+       byRetVal = FPGAROMApiFlashFromMemory(Data);
+   else
+       byRetVal = FPGA_ERR_NO_DUALBOOT;
 
-   return bRetVal;
+   return byRetVal;
+
    }
 
 /***************************************************************
 Function Name:  FPGAROMApiFlashFromMemory
 
 ****************************************************************/
-BOOL CFpgaEeprom::FPGAROMApiFlashFromMemory(const std::vector<uint8_t>& Data)
+MIL_UINT8 CFpgaEeprom::FPGAROMApiFlashFromMemory(const std::vector<uint8_t>& Data)
 {
    MIL_UINT8 EpromWriteStatus;
    EpromWriteStatus = EepromMemoryWrite(Data);
-   if (EpromWriteStatus == FPGA_SUCCESS)
-      return TRUE;
-   else
-      return FALSE;
+   return EpromWriteStatus;
 }
 
 
@@ -405,7 +410,7 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
       {
       printf_s("\nNow clearing the grab flash eeprom, please wait...");
       DWORD lFlashOffset = 0;
-      while (lFlashOffset < dwAlignedImageSize)
+      while ((m_FirstEepromAddress + lFlashOffset) < dwAlignedImageSize)
          {
          SendEpromCommand(EPR_WRITE_ENABLE, 0, NULL, 0);
          //Write Status cycle time: 15 ms max
@@ -417,7 +422,7 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
          // Write bytes cycle time: 5 ms max
          WaitForWriteInProgress(150, 1, TRUE);
 
-         dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
+         dwProgressPercent = lFlashOffset * 100 / (dwAlignedImageSize - m_FirstEepromAddress);
          if (dwProgressPercent > 100)
              dwProgressPercent = 100;
          if (dwProgressPercent <= 100)
@@ -426,18 +431,18 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
 
       printf_s("\nNow writing the FPGA file in the grab flash eeprom, please wait...");
       lFlashOffset = 0;
-      while (lFlashOffset < dwAlignedImageSize)
+      while ((m_FirstEepromAddress + lFlashOffset) < dwAlignedImageSize)
          {
          SendEpromCommand(EPR_WRITE_ENABLE, 0, NULL, 0);
          //Write Status cycle time: 15 ms max
          WaitForWriteInProgress(15, 1, FALSE);
 
-         SendEpromCommand(EPR_WRITE_BYTES, m_FirstEepromAddress + lFlashOffset, (BYTE *)&Data[lFlashOffset], 0);
+         SendEpromCommand(EPR_WRITE_BYTES, m_FirstEepromAddress + lFlashOffset, (BYTE *)&Data[m_FirstEepromAddress + lFlashOffset], 0);
          lFlashOffset += EEPROM_PAGE_SIZE;
 
          // Write bytes cycle time: 5 ms max
          WaitForWriteInProgress(5, 1, TRUE);
-         dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
+         dwProgressPercent = lFlashOffset * 100 / (dwAlignedImageSize - m_FirstEepromAddress);
          if (dwProgressPercent <= 100)
              printf_s("\rNow writing the FPGA file in the grab flash eeprom, please wait... %d%% ", dwProgressPercent);
          }
@@ -449,19 +454,19 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
          {
          lFlashOffset = 0;
          byRetVal = FPGA_SUCCESS;
-         while (lFlashOffset < dwAlignedImageSize)
+         while ((m_FirstEepromAddress + lFlashOffset) < dwAlignedImageSize)
             {
             SendEpromCommand(EPR_READ_BYTES, m_FirstEepromAddress + lFlashOffset, &pbyRdBckData[lFlashOffset], EEPROM_PAGE_SIZE);
             for (DWORD ii = 0; ii < EEPROM_PAGE_SIZE; ii++)
                {
-               if (pbyRdBckData[ii + lFlashOffset] != Data[ii + lFlashOffset])
+               if (pbyRdBckData[ii + lFlashOffset] != Data[m_FirstEepromAddress + ii + lFlashOffset])
                   {
                   byRetVal = FPGA_ERR_BADRDBACK;
                   break;
                   }
                }
             lFlashOffset += EEPROM_PAGE_SIZE;
-            dwProgressPercent = lFlashOffset * 100 / dwAlignedImageSize;
+            dwProgressPercent = lFlashOffset * 100 / (dwAlignedImageSize - m_FirstEepromAddress);
             if (dwProgressPercent <= 100)
                 printf_s("\rNow verifying the FPGA file in the grab flash eeprom, please wait... %d%% ", dwProgressPercent);
             }
@@ -478,3 +483,54 @@ MIL_UINT8 CFpgaEeprom::EepromMemoryWrite(const std::vector<uint8_t>& Data)
       printf_s("\n");
       return byRetVal;
    }
+
+bool CFpgaEeprom::CheckDualBootCompatibility()
+{
+    bool FoundDualBootCompatibility = false;
+    int i;
+    int LastIndexToCheck = (EEPROM_PAGE_SIZE - (2 * sizeof(DWORD)));
+    const DWORD SyncWord = 0x665599AA;  // Bitstream should have in header: AA 99 55 66
+    const DWORD WBSTAR_Ident = 0x01000230; // Warm Boot Start Address is identified by 30 02 00 01
+    DWORD WBStar = 0;
+
+    BYTE* pbyFpgaBootData = (BYTE*)malloc(EEPROM_PAGE_SIZE);
+
+    // Enable SPI
+    m_EepromCtrlValue.spiregin.u32 = 0;
+    m_EepromCtrlValue.spiregin.f.spi_enable = 1;
+    m_pEepromCtrl->spiregin.u32 = m_EepromCtrlValue.spiregin.u32;
+
+    SendEpromCommand(EPR_READ_BYTES, 0x0, pbyFpgaBootData, EEPROM_PAGE_SIZE);
+
+    // Disable SPI
+    m_EepromCtrlValue.spiregin.f.spi_enable = 0;
+    m_pEepromCtrl->spiregin.u32 = m_EepromCtrlValue.spiregin.u32;
+
+    // Find Sync Word
+    for (i = 0; i < LastIndexToCheck; i++)
+    {
+        if ((*(DWORD*)(pbyFpgaBootData + i)) == SyncWord)
+        {
+            break;
+        }
+    }
+
+    i += 4;
+    // Find Warm Boot Start Address.
+    while (i < LastIndexToCheck)
+    {
+        if ((*(DWORD*)(pbyFpgaBootData + i)) == WBSTAR_Ident)
+        {
+            WBStar = (pbyFpgaBootData[i + 4] << 24) | (pbyFpgaBootData[i + 5] << 16) | (pbyFpgaBootData[i + 6] << 8) | (pbyFpgaBootData[i + 7]);
+            break;
+        }
+        i++;
+    }
+    free(pbyFpgaBootData);
+
+    WBStar &= 0x1FFFFFFF;
+    if ((WBStar != 0) && (WBStar == m_FirstEepromAddress))
+        FoundDualBootCompatibility = true;
+
+    return FoundDualBootCompatibility;
+}

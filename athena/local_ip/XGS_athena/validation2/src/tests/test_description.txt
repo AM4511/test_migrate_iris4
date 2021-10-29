@@ -13,20 +13,21 @@ Test0010    XGS 12000  ROI X test
 Test0020    XGS 5000   BAYER COLOR DEMOSAIC : RGB32
 Test0021    XGS 5000   BAYER RAW MONO : MONO32
 Test0022    XGS 5000   BAYER YUV 
-
-
+Test0023    XGS 16000  BAYER RGB32 
+Test0024    XGS 12000  BAYER RGB32 
+Test0025    XGS 12000  mono 2 images 1)full 2)32pixels 
 
 
 # ---------------------------------
 #  Results of testlist simulation  
 # ---------------------------------
-# test0001_result : PASS
-# test0002_result : PASS
-# test0003_result : FAIL
-# test0004_result : PASS
-# test0005_result : PASS
-# test0006_result : FAIL
-# test0007_result : FAIL
-# test0008_result : PASS
-# test0009_result : PASS
-# test0010_result : PASS
+# test0001_result : 
+# test0002_result : 
+# test0003_result : 
+# test0004_result : 
+# test0005_result : 
+# test0006_result : 
+# test0007_result : 
+# test0008_result : 
+# test0009_result : 
+# test0010_result : 

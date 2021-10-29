@@ -69,6 +69,7 @@ entity dpc_filter is
     REG_dpc_enable                       : in    std_logic :='1';
 
     REG_dpc_pattern0_cfg                 : in    std_logic :='0';
+    REG_dpc_highlight_all                : in    std_logic:='0';
     
     REG_dpc_fifo_rst                     : in    std_logic :='0';
     REG_dpc_fifo_ovr                     : out   std_logic;
@@ -193,6 +194,7 @@ architecture functional of dpc_filter is
     proc_last_line                       : in    std_logic;
     
     REG_dpc_pattern0_cfg                 : in    std_logic;
+    REG_dpc_highlight_all                : in    std_logic:='0';
     
     proc_X_pix_curr                      : in    std_logic_vector(12 downto 0);
     proc_Y_pix_curr                      : in    std_logic_vector(11 downto 0);
@@ -955,7 +957,8 @@ begin
       proc_Y_pix_curr                      => kernel_10x3_curr.Y_pos,
 
       REG_dpc_pattern0_cfg                 => REG_dpc_pattern0_cfg,
-      
+      REG_dpc_highlight_all                => REG_dpc_highlight_all,
+
       dpc_fifo_reset                       => dpc_fifo_reset,
       dpc_fifo_data_in                     => dpc_fifo_data,
       dpc_fifo_write_in                    => dpc_fifo_write(i),

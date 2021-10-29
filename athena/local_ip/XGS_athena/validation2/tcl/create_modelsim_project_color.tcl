@@ -92,6 +92,7 @@ ${DATA_SRC_PATH}/dpc/dpc_filter_color.vhd \
 ${DATA_SRC_PATH}/xgs_mono_pipeline.vhd \
 ${DATA_SRC_PATH}/x_trim_subsampling.vhd \
 ${DATA_SRC_PATH}/x_trim_streamout.vhd \
+${DATA_SRC_PATH}/x_trim_pack422.vhd \
 ${DATA_SRC_PATH}/x_trim.vhd \
 ${DATA_SRC_PATH}/y_trim.vhd \
 ${DATA_SRC_PATH}/trim.vhd \
