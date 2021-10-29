@@ -10,12 +10,13 @@ Test0007    XGS 12000  SUBSAMPLING X-Y TEST
 Test0008    XGS 12000  Rev X test
 Test0009    XGS 12000  Rev Y test
 Test0010    XGS 12000  ROI X test
+Test0011    XGS 12000  mono 2 images 1)full 2)32pixels 
 Test0020    XGS 5000   BAYER COLOR DEMOSAIC : RGB32
 Test0021    XGS 5000   BAYER RAW MONO : MONO32
 Test0022    XGS 5000   BAYER YUV 
 Test0023    XGS 16000  BAYER RGB32 
 Test0024    XGS 12000  BAYER RGB32 
-Test0025    XGS 12000  mono 2 images 1)full 2)32pixels 
+
 
 
 # ---------------------------------

@@ -1,5 +1,5 @@
 //
-// Test0002 : XGS 12000
+// Test0011 : XGS 12000
 //
 // Description : Send 2 monochrone frames one of full valid X size, second of only 32 pixels. This test was coded to debug a problem found by schampagne
 //
@@ -10,7 +10,7 @@ import driver_pkg::*;
 
 
 
-class Test0025 extends Ctest;
+class Test0011 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -38,7 +38,7 @@ class Test0025 extends Ctest;
 
 
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
-        super.new("Test0025", host, tx_axis_if);
+        super.new("Test0011", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
         this.scoreboard = new(tx_axis_if,this);

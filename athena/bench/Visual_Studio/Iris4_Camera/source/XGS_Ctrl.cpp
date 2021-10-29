@@ -478,6 +478,11 @@ void CXGS_Ctrl::InitXGS()
 
 		}
 
+		printf_s("  XGS is MONO\n");
+		SensorParams.IS_COLOR = 0;
+		GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+
+
 		if (((DataRead & 0x7c) >> 2) == 0x18) {
 			printf_s("  XGS Resolution is 5Mp\n");
 			XGS5M_SetGrabParamsInit5000(4, SensorParams.IS_COLOR);
