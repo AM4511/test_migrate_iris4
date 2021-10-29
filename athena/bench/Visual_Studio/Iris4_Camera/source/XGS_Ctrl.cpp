@@ -439,6 +439,10 @@ void CXGS_Ctrl::InitXGS()
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 	DataRead = ReadSPI(0x0);
+	
+	//-----------------------------------
+	// XGS5M Family
+	//-----------------------------------
 	if (DataRead == 0x0358) {
 		printf_s("XGS Model ID detected is 0x358, XGS5M Family, ");
 		DataRead = ReadSPI(0x2);
@@ -467,9 +471,11 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 5000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR           = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+			XGS5M_SetGrabParamsInit5000(4, SensorParams.IS_COLOR);
+
 		}
 
 		if (((DataRead & 0x7c) >> 2) == 0x18) {
@@ -508,6 +514,9 @@ void CXGS_Ctrl::InitXGS()
 
 	}
 
+	//-----------------------------------
+    // XGS12M Family
+    //-----------------------------------
 	else if (DataRead == 0x0058) {
 		printf_s("XGS Model ID detected is 0x58, XGS12M Family\n");
 		DataRead = ReadSPI(0x2);
@@ -538,10 +547,10 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 12000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
-
+			XGS12M_SetGrabParamsInit12000(6, SensorParams.IS_COLOR);
 		}
 
 		//Force COLOR on mono sensor
@@ -581,7 +590,9 @@ void CXGS_Ctrl::InitXGS()
 		XGS12M_LoadDCF(6);
 	}
 
-	//16Mpix family
+	//-----------------------------------
+	// XGS16M Family
+	//-----------------------------------
 	else if (DataRead == 0x0258) {
 		printf_s("XGS Model ID detected is 0x258, XGS16M Family\n");
 		DataRead = ReadSPI(0x2);
@@ -631,7 +642,7 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 16000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
