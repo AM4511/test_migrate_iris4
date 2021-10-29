@@ -127,126 +127,126 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 	}
 	else
-
+	{
 		//----------------------------------------------------
 		// This is a color camera, configure transfer type
 		//----------------------------------------------------
 		printf_s("\nThis is a color camera, what color type do you want to use? \n");
-	printf_s("0: RGB32 \n");
-	printf_s("1: YUV16 \n");
-	printf_s("2: PLANAR (not supported yet) \n");
-	printf_s("3: RAW \n");
-	printf_s("4: MONO8 Conversion \n");
+		printf_s("0: RGB32 \n");
+		printf_s("1: YUV16 \n");
+		printf_s("2: PLANAR (not supported yet) \n");
+		printf_s("3: RAW \n");
+		printf_s("4: MONO8 Conversion \n");
 
 
-	scanf_s("%d", &Color_type);
-	printf_s("\n");
+		scanf_s("%d", &Color_type);
+		printf_s("\n");
 
-	if (Color_type == 0) RGB32 = 1;
-	if (Color_type == 1) YUV = 1;
-	if (Color_type == 2) PLANAR = 1;
-	if (Color_type == 3) RAW = 1;
-	if (Color_type == 4) COLOR_Y = 1;
+		if (Color_type == 0) RGB32 = 1;
+		if (Color_type == 1) YUV = 1;
+		if (Color_type == 2) PLANAR = 1;
+		if (Color_type == 3) RAW = 1;
+		if (Color_type == 4) COLOR_Y = 1;
 
 
 
-	//--------------------------------
-	// RGB24 TRANSFER
-	//--------------------------------
-	if (RGB32 == 1)
-	{
-		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
-		LUT_PATTERN = 3;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+		//--------------------------------
+		// RGB24 TRANSFER
+		//--------------------------------
+		if (RGB32 == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
 
-		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+		}
+
+		//--------------------------------
+		// YUV16 TRANSFER
+		//--------------------------------
+		else if (YUV == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+		//--------------------------------
+		// PLANAR TRANSFER (NOT SUPPORTED YET)
+		//--------------------------------
+		else if (PLANAR == 1)
+		{
+			//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
+			//
+			//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
+			//
+			//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
+
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+
+			MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
+			MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
+			MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
+
+			ImageBufferAddr = LayerGetHostAddressBuffer(MilGrabBufferB);
+			ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
+			ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
+
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
+
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Adresse buffer display PLANAR G(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
+			printf_s("Adresse buffer display PLANAR R(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
+			printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
+			//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
+		}
+		else if (RAW == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
+			LUT_PATTERN = 3;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+		else if (COLOR_Y == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			LUT_PATTERN = 3;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+
 	}
-
-	//--------------------------------
-	// YUV16 TRANSFER
-	//--------------------------------
-	else if (YUV == 1)
-	{
-		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
-		LUT_PATTERN = 3;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-
-		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-
-	}
-	//--------------------------------
-	// PLANAR TRANSFER (NOT SUPPORTED YET)
-	//--------------------------------
-	else if (PLANAR == 1)
-	{
-		//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
-		//
-		//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
-		//
-		//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
-
-		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
-
-		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-
-		MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
-		MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
-		MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
-
-		ImageBufferAddr = LayerGetHostAddressBuffer(MilGrabBufferB);
-		ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
-		ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
-
-		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
-
-		LUT_PATTERN = 3;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-		XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-
-		printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
-		printf_s("Adresse buffer display PLANAR G(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
-		printf_s("Adresse buffer display PLANAR R(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
-		printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
-		//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
-	}
-	else if (RAW == 1)
-	{
-		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
-		LUT_PATTERN = 3;
-
-		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
-		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-
-	}
-	else if (COLOR_Y == 1)
-	{
-		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		LUT_PATTERN = 3;
-
-		ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
-		printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-
-	}
-
-
 	//printf_s("\nDo you want to transfer grab images to host frame memory?  (0=No, 1=Yes) : ");
 	//ch = _getch();
 	ch = '1';
@@ -521,9 +521,9 @@ void test_0007_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN = 1;  //replace pixel by 0xff
 		int j = 0;
 		if (SensorParams->IS_COLOR == 0)
-		  XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0x11; //XoX
+			XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0x0; //0x11; //XoX
 		else
-  		  XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0x11; // X-o-X
+			XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0x0;// 0x11; // X-o-X
 
 		for (M_UINT32 i = 0; i < 200; i = i + 2)
 		{
