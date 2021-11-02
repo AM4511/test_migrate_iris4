@@ -407,7 +407,6 @@ class Cvlib;
     endtask : setXGSmodel
 
 
-
 	////////////////////////////////////////////////////////////////
 	// Task : GenImage_XGS
 	////////////////////////////////////////////////////////////////
@@ -421,8 +420,6 @@ class Cvlib;
 		XGS_WriteSPI(8, 16'h0000);
 		#50us;
 	endtask : GenImage_XGS
-
-
 
 
 	////////////////////////////////////////////////////////////////
@@ -456,8 +453,6 @@ class Cvlib;
 		host.read(axi_addr, data_rd);
 		data= data_rd & 'h0000ffff;
 	endtask : XGS_ReadSPI
-
-
 
 
     //---------------------------------------
@@ -532,7 +527,6 @@ class Cvlib;
     endtask : setXGScontroller
 
 
-
     //---------------------------------------
     //  setHISPI
     //---------------------------------------
@@ -595,6 +589,7 @@ class Cvlib;
 
  	endtask : 	setHISPI
 
+
     //---------------------------------------
     //  setHISPI_X_window X Origine
     //---------------------------------------
@@ -624,9 +619,6 @@ class Cvlib;
 		host.write(FRAME_CFG_X_VALID_OFFSET,  reg_value);
 
 	endtask : 	setHISPI_X_window
-
-
-
 
 
     //---------------------------------------
@@ -791,7 +783,6 @@ class Cvlib;
     endtask : Gen_predict_img
 
 
-
     //---------------------------------------
     //  Task : Prediction image de grab COLOR
     //---------------------------------------
@@ -819,6 +810,7 @@ class Cvlib;
 		    XGS_image.BayerDemosaic();
             XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
             XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
+			XGS_image.RGB32_To_Planar8();																 // Generate planar R8, G8 and B8 from RGB32
 
 		  end else begin                                                                                 // *** YUV
 		    XGS_image.BayerDemosaic();      
@@ -833,8 +825,6 @@ class Cvlib;
           XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END);                                                 // FPGA ROI Y 
           XGS_image.fpga_sub_X(3);                                                                       // FPGA MONO32 to MONO8
         end
-
-        
 
 		//XGS_image.sub_X(SUB_X);                                                                      // FPGA SUB X
         //XGS_image.rev_X(REV_X);                                                                      // FPGA REV X

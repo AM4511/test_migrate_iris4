@@ -60,8 +60,12 @@ class Cimage;
     //int i;
     //int pixel;
 	  integer pgm_size_x, pgm_size_y, pgm_max;
+    int planar_size_x;
     shortint image[];
     shortint image_DPC[];
+    byte image_R[];
+    byte image_G[];
+    byte image_B[];
 
     typedef struct packed{
       int dpc_x, dpc_y, dpc_pat;
@@ -95,9 +99,6 @@ class Cimage;
         for (int j = 0; j < (pgm_size_x * pgm_size_y); j += 1) begin
             copy.image[j] = this.image[j];
         end
-
-
-
 
     endfunction
 
@@ -466,8 +467,6 @@ class Cimage;
 //    endfunction : rev_Y
 
 
-
-
     function shortint get_pixel_DPC(input int x, y);
         //return image[y * pgm_size_x + x];
         get_pixel_DPC = image_DPC[y * pgm_size_x + x];
@@ -477,6 +476,18 @@ class Cimage;
         //return image[y * pgm_size_x + x];
         get_pixel = image[y * pgm_size_x + x];
     endfunction : get_pixel
+
+    function byte get_pixel_R(input x,y);
+        get_pixel_R = image_R[y*planar_size_x + x];
+    endfunction : get_pixel_R
+
+    function byte get_pixel_G(input x,y);
+        get_pixel_G = image_G[y*planar_size_x + x];
+    endfunction : get_pixel_G
+
+    function byte get_pixel_B(input x,y);
+        get_pixel_B = image_B[y*planar_size_x + x];
+    endfunction : get_pixel_B
 
     function void set_pixel(input int x, y, input shortint value);
          //$display("Enter SetPixel  x=%0d, y=%0d value=%0d", x, y, value );
@@ -1221,5 +1232,44 @@ class Cimage;
     endfunction : Bayer2YUV
 
 
+    function void RGB32_To_Planar8();
+
+      // Line size for planar images
+      int new_size_x = pgm_size_x/4;
+
+      // Temporary images
+      byte image_new_R[] = new [pgm_size_y*new_size_x];
+      byte image_new_G[] = new [pgm_size_y*new_size_x];
+      byte image_new_B[] = new [pgm_size_y*new_size_x];
+
+      // From RGB32 image grab bytes concerning R, G and B
+      int new_x;
+      for(int y = 0; y < pgm_size_y; y += 1) begin
+          
+          new_x = 0;
+          for(int x = 0; x < pgm_size_x; x += 4) begin                               
+                  
+                  image_new_R[y * new_size_x + new_x] = get_pixel(x+2, y); // R[23:16] 
+                  image_new_G[y * new_size_x + new_x] = get_pixel(x+1, y); // G[15:8]
+                  image_new_B[y * new_size_x + new_x] = get_pixel(x  , y); // B[7:0]
+
+                  new_x++;
+          end
+      end
+          
+      // New line size for planar images    
+      planar_size_x = new_size_x;
+
+      // Allocate new planar images
+      image_R = new[pgm_size_y*new_size_x](image_new_R);
+      image_G = new[pgm_size_y*new_size_x](image_new_G);
+      image_B = new[pgm_size_y*new_size_x](image_new_B); 
+        
+      // Deallocate
+      image_new_R.delete;
+      image_new_G.delete;
+      image_new_B.delete;
+
+    endfunction : RGB32_To_Planar8
 
 endclass :  Cimage
