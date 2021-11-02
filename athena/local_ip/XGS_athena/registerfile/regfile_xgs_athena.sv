@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/09/09 15:51:51
+ ** Created on          : 2021/10/04 10:10:37
  ** Created by          : jmansill
- ** FDK IDE Version     : 4.7.0_beta4
- ** Build ID            : I20191220-1537
- ** Register file CRC32 : 0xA02D6828
+ ** FDK IDE Version     : 4.7.0_beta3
+ ** Build ID            : I20191219-1127
+ ** Register file CRC32 : 0xA9A5AAFB
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -241,8 +241,8 @@ typedef union packed
 
    struct packed
    {
-      logic [13:0] VALUE;  /* Bits(13:0), Host Line size */
-      logic [17:0] rsvd0;  /* Bits(31:14), Reserved */
+      logic [14:0] VALUE;  /* Bits(14:0), Host Line size */
+      logic [16:0] rsvd0;  /* Bits(31:15), Reserved */
    } f;
 
 } fdk_regfile_xgs_athena_DMA_LINE_SIZE_t;
@@ -1163,10 +1163,9 @@ typedef union packed
 
    struct packed
    {
-      logic [11:0] EXP_FOT_TIME;            /* Bits(11:0), EXPosure during FOT TIME */
-      logic [3:0]  rsvd0;                   /* Bits(15:12), Reserved */
+      logic [15:0] EXP_FOT_TIME;            /* Bits(15:0), EXPosure during FOT TIME */
       logic        EXP_FOT;                 /* Bits(16:16), EXPosure during FOT */
-      logic [14:0] rsvd1;                   /* Bits(31:17), Reserved */
+      logic [14:0] rsvd0;                   /* Bits(31:17), Reserved */
       logic        rsvd_register_space[1];  /* Reserved space below */
    } f;
 
@@ -1499,7 +1498,8 @@ typedef union packed
       logic [11:0] dpc_list_count;          /* Bits(27:16), null */
       logic        dpc_firstlast_line_rem;  /* Bits(28:28), null */
       logic        dpc_fifo_reset;          /* Bits(29:29), null */
-      logic [1:0]  rsvd0;                   /* Bits(31:30), Reserved */
+      logic        rsvd0;                   /* Bits(30:30), Reserved */
+      logic        dpc_highlight_all;       /* Bits(31:31), null */
    } f;
 
 } fdk_regfile_xgs_athena_DPC_DPC_LIST_CTRL_t;

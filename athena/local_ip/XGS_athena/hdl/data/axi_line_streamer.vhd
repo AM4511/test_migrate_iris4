@@ -16,6 +16,7 @@ use work.hispi_pack.all;
 
 entity axi_line_streamer is
   generic (
+    COLOR                     : integer := 0;  -- 0 Mono; 1 Color
     LANE_PER_PHY              : integer := 3;  -- Physical lane
     MUX_RATIO                 : integer := 4;
     LINE_BUFFER_PTR_WIDTH     : integer := 1;
@@ -746,12 +747,13 @@ begin
 
   -----------------------------------------------------------------------------
   -- odd_line : This flag indicates when the current line is an ODD line number.
-  --            Note : When Y subsampling is enabled in the XGS sensor (div by
-  --            2), there are no ODD line received from the sensor. Only even
-  --            lines.  
+  --            Note for MONO sensors: When Y subsampling is enabled in the XGS sensor 
+  --            (div by 2), there are no ODD line received from the sensor. Only even lines.  
+  --            Note for COLOR sensors: When Y subsampling is enabled in the XGS sensor,
+  --            sensor follows a read-2-skip-2 pattern so odd lines exist.  
   -----------------------------------------------------------------------------
-  odd_line <= line_cntr(0) when (y_div2_en = '0') else
-              '0';
+  odd_line <= '0' when (y_div2_en = '1' and COLOR=0) else
+              line_cntr(0);
 
 
   -----------------------------------------------------------------------------

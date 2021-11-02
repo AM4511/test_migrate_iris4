@@ -79,7 +79,7 @@ void CXGS_Ctrl::XGS_Activate_sensor() {
 
 	read = ReadSPI(0x3800);
 	if (read == 0x31 || read == 0x33)
-		printf_s("XGS sequencer enable!!!\n\n\n");
+		printf_s("XGS sequencer enable, COLOR=%d!!!\n\n\n", ((read&0x2)>>1) );
 
 	// Par defaut XGS mets une latence de UN frame pour les registre OFFSET_LAT_COMP et GAIN_LAT_COMP, nous les ecritures registres sont allignees au EO_FOT
 	// alors on ne veux pas une latence de 1 frame. Mettre OFFSET_LAT_COMP et GAIN_LAT_COMP a 0

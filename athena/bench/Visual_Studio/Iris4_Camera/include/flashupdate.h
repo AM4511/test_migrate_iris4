@@ -57,6 +57,7 @@ using namespace std;
 #define FPGA_ERR_BADEPROM       2
 #define FPGA_ERR_BADRDBACK      3
 #define FPGA_ERR_NOTSUPPORTED   4
+#define FPGA_ERR_NO_DUALBOOT    5
 
 #define FPGA_ROM_SIZE           0x800000
 
@@ -123,7 +124,7 @@ public:
    ~CFpgaEeprom();
 
    BOOL FPGAROMApiFlashFromFile(string &ImageFileName);
-   BOOL FPGAROMApiFlashFromMemory(const std::vector<uint8_t>& Data);
+   MIL_UINT8 FPGAROMApiFlashFromMemory(const std::vector<uint8_t>& Data);
 
    // Event used to terminate progress and update thread
    MIL_CONST_TEXT_PTR m_BoardName;
@@ -135,7 +136,7 @@ private:
    MIL_UINT8 EepromMemoryWrite(const std::vector<uint8_t>& Data);
    void SendEpromCommand(BYTE byOpCode, DWORD dwAddress, BYTE *pbyData, DWORD dwNbBytesToRead);
    void WaitForWriteInProgress(DWORD dwMilli, DWORD dwIncrement, BOOL WaitForNotWrEnLatch);
-
+   bool CheckDualBootCompatibility(void);
    // Size of the FPGA Eeprom
    unsigned long m_dwFlashSize;
 

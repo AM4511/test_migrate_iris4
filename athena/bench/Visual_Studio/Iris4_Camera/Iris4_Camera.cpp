@@ -239,7 +239,8 @@ int main(void)
 
 
 	//Print build ID
-	printf_s("\n\nAthena FPGA Build is ID is %d (0x%X), builded on ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+	printf_s("\nAthena FPGA Firmware is ID is %d (0x%X), builded on ", Pcie->rPcie_ptr.fpga.build_id.f.value , Pcie->rPcie_ptr.fpga.build_id.f.value );
+
 	//Epoch to human understandable time
 	time_t rawtime = Pcie->rPcie_ptr.fpga.build_id.f.value;
 	struct tm  ts;
@@ -248,6 +249,23 @@ int main(void)
 	ts = *localtime(&rawtime);
 	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 	printf_s("%s\n", buf);
+
+	if (Pcie->rPcie_ptr.fpga.version.f.firmware_type == 0)
+		printf_s("Athena FPGA Firmware is UPDATE fpga \n");
+	if (Pcie->rPcie_ptr.fpga.version.f.firmware_type == 1)
+		printf_s("Athena FPGA Firmware is GOLDEN fpga \n");
+	if (Pcie->rPcie_ptr.fpga.version.f.firmware_type == 2)
+		printf_s("Athena FPGA Firmware is ING fpga\n");
+
+	if (Pcie->rPcie_ptr.fpga.device.f.id == 0)
+		printf_s("Athena FPGA Firmware is MONO-A50\n");
+	if (Pcie->rPcie_ptr.fpga.device.f.id == 1)
+		printf_s("Athena FPGA Firmware is MONO-A35\n");
+	if (Pcie->rPcie_ptr.fpga.device.f.id == 2)
+		printf_s("Athena FPGA Firmware is COLOR-A50\n");
+	if (Pcie->rPcie_ptr.fpga.device.f.id == 3)
+		printf_s("Athena FPGA Firmware is COLOR-A35\n");
+
 
 	if (Ares_nbFPGA == 1)
 	{
@@ -488,8 +506,18 @@ int main(void)
 					string cin_imagefilename;
 					std::cout << "\nEnter the filename and path of the .firmware file (ex: c:\\athena_1599678296.firmware) : ";
 					cin >> cin_imagefilename;
-					FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
-					printf_s("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Athena fpga firmware\n\n");
+					
+					MIL_UINT8 FlashResult= FpgaEeprom->FPGAROMApiFlashFromFile(cin_imagefilename);
+					
+					if(FlashResult==0)
+					  printf_s("\nDone. Press 'q' to quit. Please do a shutdown power cycle to the Iris GTx Camera to load the new Athena fpga firmware\n\n");
+					else
+					  if (FlashResult == 1)
+						printf_s("\nERROR DURING FLASH UPDATE. TRYING TO PROGRAM UPDATE FIRMWARE WHERE NO GOLDEN IS PRESENT. Press 'q' to quit. \n\n");
+   					  else
+					    printf_s("\nERROR DURING FLASH UPDATE. Press 'q' to quit. \n\n");
+
+
 				//} else {
 				//	if (Ares_nbFPGA == 1) {
 				//		printf_s("\n---------------------------------");

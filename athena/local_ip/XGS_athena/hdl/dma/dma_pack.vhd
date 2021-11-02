@@ -8,7 +8,7 @@ package dma_pack is
   type DMA_CONTEXT_TYPE is record
     frame_start : HOST_ADDRESS_ARRAY(2 downto 0);
     line_pitch  : std_logic_vector(15 downto 0);
-    line_size   : std_logic_vector(13 downto 0);
+    line_size   : std_logic_vector(14 downto 0);
     reverse_y   : std_logic;
     numb_plane  : integer;
   end record DMA_CONTEXT_TYPE;

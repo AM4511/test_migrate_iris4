@@ -404,6 +404,7 @@ architecture struct of XGS_athena is
       REG_dpc_enable : in std_logic := '1';
 
       REG_dpc_pattern0_cfg : in std_logic := '0';
+      REG_dpc_highlight_all  : in    std_logic:='0';
 
       REG_dpc_fifo_rst : in  std_logic := '0';
       REG_dpc_fifo_ovr : out std_logic;
@@ -552,6 +553,7 @@ architecture struct of XGS_athena is
       REG_dpc_enable : in std_logic := '1';
 
       REG_dpc_pattern0_cfg : in std_logic := '0';
+      REG_dpc_highlight_all  : in    std_logic:='0';
 
       REG_dpc_list_wrn   : in std_logic;
       REG_dpc_list_add   : in std_logic_vector(DPC_CORR_PIXELS_DEPTH-1 downto 0);
@@ -1146,6 +1148,7 @@ begin
         REG_dpc_enable => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
 
         REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+        REG_dpc_highlight_all=> regfile.DPC.DPC_LIST_CTRL.dpc_highlight_all,
 
         REG_dpc_fifo_rst => regfile.DPC.DPC_LIST_CTRL.dpc_fifo_reset,
         REG_dpc_fifo_ovr => REG_DPC_FIFO_OVR,
@@ -1358,6 +1361,8 @@ begin
 
         REG_dpc_enable       => regfile.DPC.DPC_LIST_CTRL.dpc_enable,
         REG_dpc_pattern0_cfg => regfile.DPC.DPC_LIST_CTRL.dpc_pattern0_cfg,
+		REG_dpc_highlight_all=> regfile.DPC.DPC_LIST_CTRL.dpc_highlight_all,
+
         REG_dpc_list_wrn     => regfile.DPC.DPC_LIST_CTRL.dpc_list_WRn,
         REG_dpc_list_add     => regfile.DPC.DPC_LIST_CTRL.dpc_list_add(DPC_CORR_PIXELS_DEPTH-1 downto 0),
         REG_dpc_list_ss      => regfile.DPC.DPC_LIST_CTRL.dpc_list_ss,

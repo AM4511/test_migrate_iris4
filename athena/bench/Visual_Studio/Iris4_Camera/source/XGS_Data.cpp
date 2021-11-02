@@ -276,7 +276,6 @@ void CXGS_Data::SetDMA()
 	sXGSptr.DMA.ROI_Y.f.Y_SIZE       = DMAParams.Y_SIZE;
 	rXGSptr.DMA.ROI_Y.u32            = sXGSptr.DMA.ROI_Y.u32;
 
-	//sXGSptr.DMA.CSC.f.DUP_LAST_LINE = ;  //not implemented in XGS
 	sXGSptr.DMA.CSC.f.COLOR_SPACE    = DMAParams.CSC;
 	sXGSptr.DMA.CSC.f.REVERSE_Y      = DMAParams.REVERSE_Y;
 	sXGSptr.DMA.CSC.f.REVERSE_X      = DMAParams.REVERSE_X;
@@ -286,7 +285,7 @@ void CXGS_Data::SetDMA()
 	if(DMAParams.REVERSE_Y==0) 
       sXGSptr.DMA.FSTART.u32         = DMAParams.FSTART & 0xffffffff;                      // Lo DW ADD64
 	else
-	  sXGSptr.DMA.FSTART.u32          = (DMAParams.FSTART & 0xffffffff) + ((DMAParams.Y_SIZE/(DMAParams.Y_SUB+1))-1)*DMAParams.LINE_PITCH;                      // Lo DW ADD64
+	  sXGSptr.DMA.FSTART.u32          = (DMAParams.FSTART & 0xffffffff) + ((DMAParams.Y_SIZE-1)*DMAParams.LINE_PITCH);                      // Lo DW ADD64
 	
 	rXGSptr.DMA.FSTART.u32           = sXGSptr.DMA.FSTART.u32;
 								     

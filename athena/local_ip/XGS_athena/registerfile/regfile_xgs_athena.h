@@ -8,9 +8,9 @@
 *
 * Hardware native endianness: little endian
 *
-* FDK IDE Version     : 4.7.0_beta4
-* Build ID            : I20191220-1537
-* Register file CRC32 : 0xA02D6828
+* FDK IDE Version     : 4.7.0_beta3
+* Build ID            : I20191219-1127
+* Register file CRC32 : 0xA9A5AAFB
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -351,8 +351,8 @@ typedef union
 
    struct
    {
-      M_UINT32 VALUE : 14;  /* Bits(13:0), Host Line size */
-      M_UINT32 RSVD0 : 18;  /* Bits(31:14), Reserved */
+      M_UINT32 VALUE : 15;  /* Bits(14:0), Host Line size */
+      M_UINT32 RSVD0 : 17;  /* Bits(31:15), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_LINE_SIZE_TYPE;
@@ -1273,10 +1273,9 @@ typedef union
 
    struct
    {
-      M_UINT32 EXP_FOT_TIME           : 12;  /* Bits(11:0), EXPosure during FOT TIME */
-      M_UINT32 RSVD0                  : 4;   /* Bits(15:12), Reserved */
+      M_UINT32 EXP_FOT_TIME           : 16;  /* Bits(15:0), EXPosure during FOT TIME */
       M_UINT32 EXP_FOT                : 1;   /* Bits(16:16), EXPosure during FOT */
-      M_UINT32 RSVD1                  : 15;  /* Bits(31:17), Reserved */
+      M_UINT32 RSVD0                  : 15;  /* Bits(31:17), Reserved */
       M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 
@@ -1609,7 +1608,8 @@ typedef union
       M_UINT32 DPC_LIST_COUNT         : 12;  /* Bits(27:16), null */
       M_UINT32 DPC_FIRSTLAST_LINE_REM : 1;   /* Bits(28:28), null */
       M_UINT32 DPC_FIFO_RESET         : 1;   /* Bits(29:29), null */
-      M_UINT32 RSVD0                  : 2;   /* Bits(31:30), Reserved */
+      M_UINT32 RSVD0                  : 1;   /* Bits(30:30), Reserved */
+      M_UINT32 DPC_HIGHLIGHT_ALL      : 1;   /* Bits(31:31), null */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DPC_DPC_LIST_CTRL_TYPE;

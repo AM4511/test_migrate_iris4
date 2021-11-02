@@ -2,11 +2,11 @@
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena_pack
--- Created on          : 2021/09/09 15:51:51
+-- Created on          : 2021/10/04 10:10:37
 -- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA02D6828
+-- FDK IDE Version     : 4.7.0_beta3
+-- Build ID            : I20191219-1127
+-- Register file CRC32 : 0xA9A5AAFB
 -------------------------------------------------------------------------------
 library ieee;        -- The standard IEEE library
    use ieee.std_logic_1164.all  ;
@@ -310,7 +310,7 @@ package regfile_xgs_athena_pack is
    -- Register Name: LINE_SIZE
    ------------------------------------------------------------------------------------------
    type DMA_LINE_SIZE_TYPE is record
-      VALUE          : std_logic_vector(13 downto 0);
+      VALUE          : std_logic_vector(14 downto 0);
    end record DMA_LINE_SIZE_TYPE;
 
    constant INIT_DMA_LINE_SIZE_TYPE : DMA_LINE_SIZE_TYPE := (
@@ -1140,7 +1140,7 @@ package regfile_xgs_athena_pack is
    ------------------------------------------------------------------------------------------
    type ACQ_EXP_FOT_TYPE is record
       EXP_FOT        : std_logic;
-      EXP_FOT_TIME   : std_logic_vector(11 downto 0);
+      EXP_FOT_TIME   : std_logic_vector(15 downto 0);
    end record ACQ_EXP_FOT_TYPE;
 
    constant INIT_ACQ_EXP_FOT_TYPE : ACQ_EXP_FOT_TYPE := (
@@ -1465,6 +1465,7 @@ package regfile_xgs_athena_pack is
    -- Register Name: DPC_LIST_CTRL
    ------------------------------------------------------------------------------------------
    type DPC_DPC_LIST_CTRL_TYPE is record
+      dpc_highlight_all: std_logic;
       dpc_fifo_reset : std_logic;
       dpc_firstlast_line_rem: std_logic;
       dpc_list_count : std_logic_vector(11 downto 0);
@@ -1476,6 +1477,7 @@ package regfile_xgs_athena_pack is
    end record DPC_DPC_LIST_CTRL_TYPE;
 
    constant INIT_DPC_DPC_LIST_CTRL_TYPE : DPC_DPC_LIST_CTRL_TYPE := (
+      dpc_highlight_all => 'Z',
       dpc_fifo_reset  => 'Z',
       dpc_firstlast_line_rem => 'Z',
       dpc_list_count  => (others=> 'Z'),
@@ -2403,7 +2405,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
-      output(13 downto 0) := reg.VALUE;
+      output(14 downto 0) := reg.VALUE;
       return output;
    end to_std_logic_vector;
 
@@ -2414,7 +2416,7 @@ package body regfile_xgs_athena_pack is
    function to_DMA_LINE_SIZE_TYPE(stdlv : std_logic_vector(31 downto 0)) return DMA_LINE_SIZE_TYPE is
    variable output : DMA_LINE_SIZE_TYPE;
    begin
-      output.VALUE := stdlv(13 downto 0);
+      output.VALUE := stdlv(14 downto 0);
       return output;
    end to_DMA_LINE_SIZE_TYPE;
 
@@ -3575,7 +3577,7 @@ package body regfile_xgs_athena_pack is
    begin
       output := (others=>'0'); -- Unassigned bits set to low
       output(16) := reg.EXP_FOT;
-      output(11 downto 0) := reg.EXP_FOT_TIME;
+      output(15 downto 0) := reg.EXP_FOT_TIME;
       return output;
    end to_std_logic_vector;
 
@@ -3587,7 +3589,7 @@ package body regfile_xgs_athena_pack is
    variable output : ACQ_EXP_FOT_TYPE;
    begin
       output.EXP_FOT := stdlv(16);
-      output.EXP_FOT_TIME := stdlv(11 downto 0);
+      output.EXP_FOT_TIME := stdlv(15 downto 0);
       return output;
    end to_ACQ_EXP_FOT_TYPE;
 
@@ -4006,6 +4008,7 @@ package body regfile_xgs_athena_pack is
    variable output : std_logic_vector(31 downto 0);
    begin
       output := (others=>'0'); -- Unassigned bits set to low
+      output(31) := reg.dpc_highlight_all;
       output(29) := reg.dpc_fifo_reset;
       output(28) := reg.dpc_firstlast_line_rem;
       output(27 downto 16) := reg.dpc_list_count;
@@ -4024,6 +4027,7 @@ package body regfile_xgs_athena_pack is
    function to_DPC_DPC_LIST_CTRL_TYPE(stdlv : std_logic_vector(31 downto 0)) return DPC_DPC_LIST_CTRL_TYPE is
    variable output : DPC_DPC_LIST_CTRL_TYPE;
    begin
+      output.dpc_highlight_all := stdlv(31);
       output.dpc_fifo_reset := stdlv(29);
       output.dpc_firstlast_line_rem := stdlv(28);
       output.dpc_list_count := stdlv(27 downto 16);
@@ -4560,11 +4564,11 @@ end package body;
 -- File                : regfile_xgs_athena.vhd
 -- Project             : FDK
 -- Module              : regfile_xgs_athena
--- Created on          : 2021/09/09 15:51:51
+-- Created on          : 2021/10/04 10:10:37
 -- Created by          : jmansill
--- FDK IDE Version     : 4.7.0_beta4
--- Build ID            : I20191220-1537
--- Register file CRC32 : 0xA02D6828
+-- FDK IDE Version     : 4.7.0_beta3
+-- Build ID            : I20191219-1127
+-- Register file CRC32 : 0xA9A5AAFB
 -------------------------------------------------------------------------------
 -- The standard IEEE library
 library ieee;
@@ -4730,7 +4734,7 @@ signal field_rw_DMA_FSTART_G_HIGH_VALUE                            : std_logic_v
 signal field_rw_DMA_FSTART_R_VALUE                                 : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_FSTART_R_HIGH_VALUE                            : std_logic_vector(31 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_LINE_PITCH_VALUE                               : std_logic_vector(15 downto 0);                   -- Field: VALUE
-signal field_rw_DMA_LINE_SIZE_VALUE                                : std_logic_vector(13 downto 0);                   -- Field: VALUE
+signal field_rw_DMA_LINE_SIZE_VALUE                                : std_logic_vector(14 downto 0);                   -- Field: VALUE
 signal field_rw_DMA_CSC_COLOR_SPACE                                : std_logic_vector(2 downto 0);                    -- Field: COLOR_SPACE
 signal field_rw_DMA_CSC_DUP_LAST_LINE                              : std_logic;                                       -- Field: DUP_LAST_LINE
 signal field_rw_DMA_CSC_SUB_X                                      : std_logic_vector(3 downto 0);                    -- Field: SUB_X
@@ -4814,7 +4818,7 @@ signal field_rw_ACQ_DEBUG_DEBUG_RST_CNTR                           : std_logic; 
 signal field_rw_ACQ_DEBUG_LED_TEST_COLOR                           : std_logic_vector(1 downto 0);                    -- Field: LED_TEST_COLOR
 signal field_rw_ACQ_DEBUG_LED_TEST                                 : std_logic;                                       -- Field: LED_TEST
 signal field_rw_ACQ_EXP_FOT_EXP_FOT                                : std_logic;                                       -- Field: EXP_FOT
-signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                           : std_logic_vector(11 downto 0);                   -- Field: EXP_FOT_TIME
+signal field_rw_ACQ_EXP_FOT_EXP_FOT_TIME                           : std_logic_vector(15 downto 0);                   -- Field: EXP_FOT_TIME
 signal field_rw_ACQ_ACQ_SFNC_RELOAD_GRAB_PARAMS                    : std_logic;                                       -- Field: RELOAD_GRAB_PARAMS
 signal field_rw_ACQ_TIMER_CTRL_ADAPTATIVE                          : std_logic;                                       -- Field: ADAPTATIVE
 signal field_wautoclr_ACQ_TIMER_CTRL_TIMERSTOP                     : std_logic;                                       -- Field: TIMERSTOP
@@ -4877,6 +4881,7 @@ signal field_rw_HISPI_DEBUG_TAP_LANE_3                             : std_logic_v
 signal field_rw_HISPI_DEBUG_TAP_LANE_2                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_2
 signal field_rw_HISPI_DEBUG_TAP_LANE_1                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_1
 signal field_rw_HISPI_DEBUG_TAP_LANE_0                             : std_logic_vector(4 downto 0);                    -- Field: TAP_LANE_0
+signal field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all                : std_logic;                                       -- Field: dpc_highlight_all
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_fifo_reset                   : std_logic;                                       -- Field: dpc_fifo_reset
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_firstlast_line_rem           : std_logic;                                       -- Field: dpc_firstlast_line_rem
 signal field_rw_DPC_DPC_LIST_CTRL_dpc_list_count                   : std_logic_vector(11 downto 0);                   -- Field: dpc_list_count
@@ -5986,11 +5991,11 @@ end process P_DMA_LINE_PITCH_VALUE;
 wEn(12) <= (hit(12)) and (reg_write);
 
 ------------------------------------------------------------------------------------------
--- Field name: VALUE(13 downto 0)
+-- Field name: VALUE(14 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_DMA_LINE_SIZE(13 downto 0) <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
-regfile.DMA.LINE_SIZE.VALUE <= field_rw_DMA_LINE_SIZE_VALUE(13 downto 0);
+rb_DMA_LINE_SIZE(14 downto 0) <= field_rw_DMA_LINE_SIZE_VALUE(14 downto 0);
+regfile.DMA.LINE_SIZE.VALUE <= field_rw_DMA_LINE_SIZE_VALUE(14 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -6000,9 +6005,9 @@ P_DMA_LINE_SIZE_VALUE : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_DMA_LINE_SIZE_VALUE <= std_logic_vector(to_unsigned(integer(0),14));
+         field_rw_DMA_LINE_SIZE_VALUE <= std_logic_vector(to_unsigned(integer(0),15));
       else
-         for j in  13 downto 0  loop
+         for j in  14 downto 0  loop
             if(wEn(12) = '1' and bitEnN(j) = '0') then
                field_rw_DMA_LINE_SIZE_VALUE(j-0) <= reg_writedata(j);
             end if;
@@ -8872,11 +8877,11 @@ begin
 end process P_ACQ_EXP_FOT_EXP_FOT;
 
 ------------------------------------------------------------------------------------------
--- Field name: EXP_FOT_TIME(11 downto 0)
+-- Field name: EXP_FOT_TIME(15 downto 0)
 -- Field type: RW
 ------------------------------------------------------------------------------------------
-rb_ACQ_EXP_FOT(11 downto 0) <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(11 downto 0);
-regfile.ACQ.EXP_FOT.EXP_FOT_TIME <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(11 downto 0);
+rb_ACQ_EXP_FOT(15 downto 0) <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(15 downto 0);
+regfile.ACQ.EXP_FOT.EXP_FOT_TIME <= field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(15 downto 0);
 
 
 ------------------------------------------------------------------------------------------
@@ -8886,9 +8891,9 @@ P_ACQ_EXP_FOT_EXP_FOT_TIME : process(sysclk)
 begin
    if (rising_edge(sysclk)) then
       if (resetN = '0') then
-         field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),12));
+         field_rw_ACQ_EXP_FOT_EXP_FOT_TIME <= std_logic_vector(to_unsigned(integer(2542),16));
       else
-         for j in  11 downto 0  loop
+         for j in  15 downto 0  loop
             if(wEn(55) = '1' and bitEnN(j) = '0') then
                field_rw_ACQ_EXP_FOT_EXP_FOT_TIME(j-0) <= reg_writedata(j);
             end if;
@@ -11039,6 +11044,30 @@ rb_DPC_DPC_CAPABILITIES(3 downto 0) <= regfile.DPC.DPC_CAPABILITIES.DPC_VER;
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 wEn(81) <= (hit(81)) and (reg_write);
+
+------------------------------------------------------------------------------------------
+-- Field name: dpc_highlight_all
+-- Field type: RW
+------------------------------------------------------------------------------------------
+rb_DPC_DPC_LIST_CTRL(31) <= field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all;
+regfile.DPC.DPC_LIST_CTRL.dpc_highlight_all <= field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all;
+
+
+------------------------------------------------------------------------------------------
+-- Process: P_DPC_DPC_LIST_CTRL_dpc_highlight_all
+------------------------------------------------------------------------------------------
+P_DPC_DPC_LIST_CTRL_dpc_highlight_all : process(sysclk)
+begin
+   if (rising_edge(sysclk)) then
+      if (resetN = '0') then
+         field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all <= '0';
+      else
+         if(wEn(81) = '1' and bitEnN(31) = '0') then
+            field_rw_DPC_DPC_LIST_CTRL_dpc_highlight_all <= reg_writedata(31);
+         end if;
+      end if;
+   end if;
+end process P_DPC_DPC_LIST_CTRL_dpc_highlight_all;
 
 ------------------------------------------------------------------------------------------
 -- Field name: dpc_fifo_reset

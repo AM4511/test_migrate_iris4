@@ -439,6 +439,10 @@ void CXGS_Ctrl::InitXGS()
 	rXGSptr.ACQ.SENSOR_CTRL.u32 = sXGSptr.ACQ.SENSOR_CTRL.u32;
 
 	DataRead = ReadSPI(0x0);
+	
+	//-----------------------------------
+	// XGS5M Family
+	//-----------------------------------
 	if (DataRead == 0x0358) {
 		printf_s("XGS Model ID detected is 0x358, XGS5M Family, ");
 		DataRead = ReadSPI(0x2);
@@ -467,10 +471,17 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 5000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR           = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+			XGS5M_SetGrabParamsInit5000(4, SensorParams.IS_COLOR);
+
 		}
+
+		printf_s("  XGS is MONO\n");
+		SensorParams.IS_COLOR = 0;
+		GrabParams.XGS_LINE_SIZE_FACTOR = 1;
+
 
 		if (((DataRead & 0x7c) >> 2) == 0x18) {
 			printf_s("  XGS Resolution is 5Mp\n");
@@ -508,6 +519,9 @@ void CXGS_Ctrl::InitXGS()
 
 	}
 
+	//-----------------------------------
+    // XGS12M Family
+    //-----------------------------------
 	else if (DataRead == 0x0058) {
 		printf_s("XGS Model ID detected is 0x58, XGS12M Family\n");
 		DataRead = ReadSPI(0x2);
@@ -538,10 +552,10 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 12000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
-
+			XGS12M_SetGrabParamsInit12000(6, SensorParams.IS_COLOR);
 		}
 
 		//Force COLOR on mono sensor
@@ -581,7 +595,9 @@ void CXGS_Ctrl::InitXGS()
 		XGS12M_LoadDCF(6);
 	}
 
-	//16Mpix family
+	//-----------------------------------
+	// XGS16M Family
+	//-----------------------------------
 	else if (DataRead == 0x0258) {
 		printf_s("XGS Model ID detected is 0x258, XGS16M Family\n");
 		DataRead = ReadSPI(0x2);
@@ -631,7 +647,7 @@ void CXGS_Ctrl::InitXGS()
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
 		else {
-			printf_s("  XGS is set to MONO default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
+			printf_s("  XGS is set to MONO XGS 16000 default (reg 0x3012, color field is other than value 1 or 2, this means that the OTPM read returs 0)\n");
 			SensorParams.IS_COLOR = 0;
 			GrabParams.XGS_LINE_SIZE_FACTOR = 1;
 		}
@@ -746,13 +762,19 @@ void CXGS_Ctrl::setExposure(M_UINT32 exposure_ss_us, M_UINT32 info)
 {
 	
 
-	if (exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
+	if (SensorParams.IS_COLOR==0 &&  exposure_ss_us >= 60 && exposure_ss_us <= 4200000) {
 		GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us*1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
 		if(info==1) printf_s("Exposure set to %dus\n", exposure_ss_us);
 		CurrExposure = exposure_ss_us;
-	}
+	} else
+	  if (SensorParams.IS_COLOR == 1 && exposure_ss_us >= 240 && exposure_ss_us <= 4200000) {
+			GrabParams.Exposure = (M_UINT32)((double)exposure_ss_us * 1000.0 / SystemPeriodNanoSecond); // Exposure in ns	
+			if (info == 1) printf_s("Exposure set to %dus\n", exposure_ss_us);
+			CurrExposure = exposure_ss_us;
+		}
+
 	else {
-		printf_s("Pour le moment, pas de support pour exposure < 60us, XGS ne reponds pas\n");
+		printf_s("XGS ne supporte pas exposure <60us(MONO), <240us(COLOR), XGS ne reponds pas\n");
 	}
 	
 }
@@ -1244,6 +1266,7 @@ void CXGS_Ctrl::StopHWTimer(void) {
 // Le max FPS est facile a calculer : Treadout2trigfall + Ttrigfall2FOTstart + Tfot + Treadout(3+Mline+1xEmb+YReadout+7exp+7dummy)
 // Tfot fixe en nombre de lignes est plus securitaire car il permet un calcul plus precis sans imprecissions
 // Y_SIZE must be 4 lines factor
+// In color mode, Y_SIZE already contains the 4 interpolation lines
 double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// FOT ici
@@ -1260,6 +1283,7 @@ double CXGS_Ctrl::Get_Sensor_FPS_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_
 // alors il est tres difficile de calculer le bon Exposure max. De plus ca peux expliquer aussi pourquoi il y a un 
 // width minimum sur le signal trig0 du senseur.
 // Y_SIZE must be 4 lines factor
+// In color mode, Y_SIZE already contains the 4 interpolation lines
 double CXGS_Ctrl::Get_Sensor_EXP_PRED_MAX(M_UINT32 Y_SIZE, M_UINT32 SUBSAMPLING_Y) {
 	
 	// Pas de FOT ici
