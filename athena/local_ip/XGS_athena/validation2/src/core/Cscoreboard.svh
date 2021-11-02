@@ -205,17 +205,17 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	/////////////////////////////////////////////////////////////////////////
 	// Prediction for planar G8, R8, and B8 images
 	/////////////////////////////////////////////////////////////////////////
-	task predict_img_planar(input Cimage Image, longint fstartB, int line_pitchB, longint fstartG, int line_pitchG, longint fstartR, int line_pitchR, int line_size, int REV_Y);
+	task predict_img_planar(input Cimage Image, longint fstartB, longint fstartG, longint fstartR, int line_size, int line_pitch, int REV_Y);
 
 		int nbElements=0;	   
 		Pcie32_trans DW_pred;	   
 
 		$display ("Planar Image Prediction");
-		$display ("Planar B8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartB, line_size, line_pitchB);
+		$display ("Planar B8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartB, line_size, line_pitch);
 		ImagePredicted++;
-		$display ("Planar G8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartG, line_size, line_pitchG);
+		$display ("Planar G8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartG, line_size, line_pitch);
 		ImagePredicted++;      
-		$display ("Planar R8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartR, line_size, line_pitchR);       
+		$display ("Planar R8 Image %h Predictor, XGS Xsize=%0d, XGS Ysize=%0d, fstart=0x%h, line_size=0x%h, line_pitch=0x%h ", ImagePredicted, Image.planar_size_x, Image.pgm_size_y, fstartR, line_size, line_pitch);       
         
 	   	//Order matters: 1 line of B8, 1 line of G8, 1 line of R8
 		for(int y = 0; y < Image.pgm_size_y; y = y+1)
@@ -232,9 +232,9 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 				DW_pred.Data32[7:0]   = Image.get_pixel_B(x+0, y);
 			 
 				if(REV_Y==0) begin
-					DW_pred.Add64 = fstartB + (line_pitchB*y) + x ; 
+					DW_pred.Add64 = fstartB + (line_pitch*y) + x ; 
 				end else begin
-					DW_pred.Add64 = fstartB - (line_pitchB*y) + x ;	 
+					DW_pred.Add64 = fstartB - (line_pitch*y) + x ;	 
 				end			
 				
 				this.Pcie32_queue.push_back(DW_pred);
@@ -254,9 +254,9 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 				DW_pred.Data32[7:0]   = Image.get_pixel_G(x+0, y);
 			 
 				if(REV_Y==0) begin
-					DW_pred.Add64 = fstartG + (line_pitchG*y) + x ; 
+					DW_pred.Add64 = fstartG + (line_pitch*y) + x ; 
 				end else begin
-					DW_pred.Add64 = fstartG - (line_pitchG*y) + x ;	 
+					DW_pred.Add64 = fstartG - (line_pitch*y) + x ;	 
 				end			
 				
 				this.Pcie32_queue.push_back(DW_pred);
@@ -276,9 +276,9 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 				DW_pred.Data32[7:0]   = Image.get_pixel_R(x+0, y);
 			 
 				if(REV_Y==0) begin
-					DW_pred.Add64 = fstartR + (line_pitchR*y) + x ; 
+					DW_pred.Add64 = fstartR + (line_pitch*y) + x ; 
 				end else begin
-					DW_pred.Add64 = fstartR - (line_pitchR*y) + x ;	 
+					DW_pred.Add64 = fstartR - (line_pitch*y) + x ;	 
 				end			
 				
 				this.Pcie32_queue.push_back(DW_pred);

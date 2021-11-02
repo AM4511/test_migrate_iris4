@@ -477,15 +477,15 @@ class Cimage;
         get_pixel = image[y * pgm_size_x + x];
     endfunction : get_pixel
 
-    function byte get_pixel_R(input x,y);
+    function byte get_pixel_R(input int x,y);
         get_pixel_R = image_R[y*planar_size_x + x];
     endfunction : get_pixel_R
 
-    function byte get_pixel_G(input x,y);
+    function byte get_pixel_G(input int x,y);
         get_pixel_G = image_G[y*planar_size_x + x];
     endfunction : get_pixel_G
 
-    function byte get_pixel_B(input x,y);
+    function byte get_pixel_B(input int x,y);
         get_pixel_B = image_B[y*planar_size_x + x];
     endfunction : get_pixel_B
 
