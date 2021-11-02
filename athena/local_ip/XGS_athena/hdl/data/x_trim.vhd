@@ -311,7 +311,7 @@ architecture rtl of x_trim is
   signal aclk_subs_ben_in     : std_logic_vector(7 downto 0);
   signal aclk_packing_mask    : std_logic_vector(7 downto 0);
   signal aclk_tvalid_dbg      : std_logic;
-  signal aclk_pack_en         : std_logic;
+  signal aclk_pack422_en      : std_logic;
 
   -----------------------------------------------------------------------------
   -- BCLK clock domain
@@ -341,14 +341,14 @@ architecture rtl of x_trim is
   signal bclk_tuser_int  : std_logic_vector(3 downto 0);
   signal bclk_tlast_int  : std_logic;
   signal bclk_tdata_int  : std_logic_vector(63 downto 0);
-  signal bclk_pack_en    : std_logic;
+  signal bclk_pack422_en : std_logic;
 
   signal bclk_tvalid_pack422_dbg : std_logic;
-  signal bclk_tready_pack422       : std_logic;
-  signal bclk_tvalid_pack422       : std_logic;
-  signal bclk_tuser_pack422        : std_logic_vector(3 downto 0);
-  signal bclk_tlast_pack422        : std_logic;
-  signal bclk_tdata_pack422        : std_logic_vector(63 downto 0);
+  signal bclk_tready_pack422     : std_logic;
+  signal bclk_tvalid_pack422     : std_logic;
+  signal bclk_tuser_pack422      : std_logic_vector(3 downto 0);
+  signal bclk_tlast_pack422      : std_logic;
+  signal bclk_tdata_pack422      : std_logic_vector(63 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -419,7 +419,7 @@ begin
         aclk_src_pixel_width <= "001";
         aclk_dst_pixel_width <= "001";
         aclk_packing_mask    <= "11111111";
-        aclk_pack_en         <= '0';
+        aclk_pack422_en      <= '0';
 
       else
         case aclk_color_space is
@@ -427,7 +427,7 @@ begin
           -- Mono : 1 byte per pixels, 8 pixels/QWORD
           ---------------------------------------------------------------------
           when "000" =>
-            aclk_pack_en         <= '0';
+            aclk_pack422_en      <= '0';
             aclk_pix_incr        <= 8;  -- We receive 8 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 3) & "000";
             aclk_valid_stop      <= aclk_crop_stop(12 downto 3) & "000";
@@ -439,6 +439,7 @@ begin
           -- BGR32 : 4 byte per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "001" =>
+            aclk_pack422_en      <= '0';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
@@ -450,7 +451,7 @@ begin
           -- YUV 4:2:2 : 2 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "010" =>
-            aclk_pack_en         <= '1';
+            aclk_pack422_en      <= '1';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
@@ -459,10 +460,23 @@ begin
             aclk_packing_mask    <= "11111111";
 
           ---------------------------------------------------------------------
+          -- Planar: 4 bytes per pixels, 2 pixels/QWORD (Like BGR32)
+          ---------------------------------------------------------------------
+          when "011" =>
+            aclk_pack422_en      <= '0';
+            aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
+            aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
+            aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
+            aclk_src_pixel_width <= "100";
+            aclk_dst_pixel_width <= "100";
+            aclk_packing_mask    <= "11111111";
+
+
+          ---------------------------------------------------------------------
           -- Y : 1 bytes per pixels, 2 pixels/QWORD (Y component of YUV)
           ---------------------------------------------------------------------
           when "100" =>
-            aclk_pack_en         <= '0';
+            aclk_pack422_en      <= '0';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
@@ -474,7 +488,7 @@ begin
           -- RAW : 1 bytes per pixels, 2 pixels/QWORD
           ---------------------------------------------------------------------
           when "101" =>
-            aclk_pack_en         <= '0';
+            aclk_pack422_en      <= '0';
             aclk_pix_incr        <= 2;  -- We receive 2 pix/data beat
             aclk_valid_start     <= aclk_crop_start(12 downto 1) & '0';
             aclk_valid_stop      <= aclk_crop_stop(12 downto 1) & '0';
@@ -483,7 +497,7 @@ begin
             aclk_packing_mask    <= "00010001";
 
           when others =>
-            aclk_pack_en         <= '0';
+            aclk_pack422_en      <= '0';
             aclk_pix_incr        <= 0;  -- Unsupported
             aclk_valid_start     <= (others => '0');
             aclk_valid_stop      <= (others => '0');
@@ -1123,7 +1137,7 @@ begin
   -- register field. This is simply a false path, no resynchronizer is requires
   -----------------------------------------------------------------------------
   bclk_dst_pixel_width <= aclk_dst_pixel_width;
-  bclk_pack_en         <= aclk_pack_en;
+  bclk_pack422_en      <= aclk_pack422_en;
 
   -----------------------------------------------------------------------------
   -- Process     : P_bclk_x_reverse
@@ -1174,7 +1188,7 @@ begin
     port map(
       bclk            => bclk,
       bclk_reset      => bclk_reset,
-      bclk_pack_en    => bclk_pack_en,
+      bclk_pack_en    => bclk_pack422_en,
       bclk_tready     => bclk_tready_pack422,
       bclk_tvalid     => bclk_tvalid_pack422,
       bclk_tuser      => bclk_tuser_pack422,

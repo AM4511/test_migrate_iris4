@@ -103,6 +103,7 @@ architecture rtl of dmawr2tlp is
       ----------------------------------------------------
       -- Line buffer config (Register file I/F)
       ----------------------------------------------------
+      planar_en                   : in  std_logic;
       clr_max_line_buffer_cnt     : in  std_logic;
       line_ptr_width              : in  std_logic_vector(1 downto 0);
       max_line_buffer_cnt         : out std_logic_vector(3 downto 0);
@@ -212,8 +213,8 @@ architecture rtl of dmawr2tlp is
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
 
-  
-  
+
+
   signal dma_idle                    : std_logic;
   signal dma_pcie_state              : std_logic_vector(2 downto 0);
   signal start_of_frame              : std_logic;
@@ -229,6 +230,7 @@ architecture rtl of dmawr2tlp is
   signal max_line_buffer_cnt         : std_logic_vector(3 downto 0);
   signal pcie_back_pressure_detected : std_logic;
   signal dbg_fifo_error              : std_logic;
+  signal planar_en                   : std_logic;
 
 
   -----------------------------------------------------------------------------
@@ -243,8 +245,8 @@ architecture rtl of dmawr2tlp is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of   dbg_fifo_error              : signal is "true";
- 
+  attribute mark_debug of dbg_fifo_error : signal is "true";
+
 begin
 
 
@@ -260,16 +262,16 @@ begin
 
   dma_context_mapping.numb_plane <= 3 when (regfile.DMA.CSC.COLOR_SPACE = "011") else  --RGB PLANAR - 3 BUFFERS
                                     1;
-  
-  
-  regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE,12));
+
+
+  regfile.DMA.TLP.MAX_PAYLOAD   <= std_logic_vector(to_unsigned(MAX_PCIE_PAYLOAD_SIZE, 12));
   regfile.DMA.TLP.CFG_MAX_PLD   <= cfg_setmaxpld;
   regfile.DMA.TLP.BUS_MASTER_EN <= cfg_bus_mast_en;
 
 
   -- Debug probe
-  dbg_fifo_error <=  regfile.HISPI.STATUS.FIFO_ERROR;
-  
+  dbg_fifo_error <= regfile.HISPI.STATUS.FIFO_ERROR;
+
 
   -----------------------------------------------------------------------------
   -- Grab context pipeline
@@ -281,11 +283,11 @@ begin
   begin
     if (rising_edge(sclk)) then
       if (srst_n = '0')then
-	    context_strb_P1<= (others=>'0');
-        dma_context_p0 <= INIT_DMA_CONTEXT_TYPE;
-        dma_context_p1 <= INIT_DMA_CONTEXT_TYPE;
+        context_strb_P1 <= (others => '0');
+        dma_context_p0  <= INIT_DMA_CONTEXT_TYPE;
+        dma_context_p1  <= INIT_DMA_CONTEXT_TYPE;
       else
-	    context_strb_P1  <= context_strb;
+        context_strb_P1 <= context_strb;
         if (context_strb(0) = '1' and context_strb_P1(0) = '0') then
           dma_context_p0 <= dma_context_mapping;
         end if;
@@ -310,6 +312,13 @@ begin
   clr_max_line_buffer_cnt                          <= regfile.DMA.OUTPUT_BUFFER.CLR_MAX_LINE_BUFF_CNT;
   regfile.DMA.OUTPUT_BUFFER.PCIE_BACK_PRESSURE_set <= pcie_back_pressure_detected;
 
+
+  -----------------------------------------------------------------------------
+  -- Enable the planar Mode in the line buffer of the axi_stream_in
+  -----------------------------------------------------------------------------
+  planar_en <= '1' when (dma_context_mux.numb_plane > 1) else
+               '0';
+
   xaxi_stream_in : axi_stream_in
     generic map(
       AXIS_DATA_WIDTH   => AXIS_DATA_WIDTH,
@@ -319,6 +328,7 @@ begin
     port map(
       sclk                        => sclk,
       srst_n                      => srst_n,
+      planar_en                   => planar_en,
       clr_max_line_buffer_cnt     => clr_max_line_buffer_cnt,
       line_ptr_width              => line_ptr_width,
       max_line_buffer_cnt         => max_line_buffer_cnt,

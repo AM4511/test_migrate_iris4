@@ -26,6 +26,7 @@ entity axi_stream_in is
     ----------------------------------------------------
     -- Line buffer config (Register file I/F)
     ----------------------------------------------------
+    planar_en                   : in  std_logic;
     clr_max_line_buffer_cnt     : in  std_logic;
     line_ptr_width              : in  std_logic_vector(1 downto 0);
     max_line_buffer_cnt         : out std_logic_vector(3 downto 0);
@@ -131,7 +132,7 @@ architecture rtl of axi_stream_in is
   signal line_buffer_full  : std_logic;
   signal line_buffer_empty : std_logic;
   signal numb_line_buffer  : std_logic_vector(3 downto 0);
-  signal sclk_unpack       : std_logic;
+  --signal sclk_unpack       : std_logic;
 
   signal sclk_info_wren     : std_logic;
   signal sclk_info_wlength  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
@@ -504,7 +505,7 @@ begin
   buffer_write_data <= s_axis_tdata;
 
 
-  sclk_unpack <= '0';
+  --sclk_unpack <= '0';
 
 
 
@@ -529,7 +530,7 @@ begin
       ---------------------------------------------------------------------
       sclk               => sclk,
       srst_n             => srst_n,
-      sclk_unpack        => sclk_unpack,
+      sclk_unpack        => planar_en,
       sclk_info_wren     => sclk_info_wren,
       sclk_info_wlength  => sclk_info_wlength,
       sclk_info_weof     => sclk_info_weof,
