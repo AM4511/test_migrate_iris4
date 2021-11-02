@@ -120,12 +120,15 @@ class Cvlib;
     int bayer = 0;
     int yuv = 0;
     int mono8 = 0;
+    int planar = 0;
 
 
     /////////////////////////////
 	// DMA parameter
 	/////////////////////////////
     longint fstart;
+    longint fstartG;
+    longint fstartR;    
 	int line_pitch;
 	int line_size;
 	int output_buffer_value;
@@ -257,7 +260,7 @@ class Cvlib;
 
 
     //---------------------------------------
-    //  DMA PARAMS
+    //  DMA PARAMS MONO/YUV/RGB32/RAW
     //---------------------------------------
     task setDMA(longint fstart, int line_pitch, int line_size, int REV_Y, int ROI_Y_SIZE);
 
@@ -298,6 +301,63 @@ class Cvlib;
 
     endtask : setDMA
 
+
+    //---------------------------------------
+    //  DMA PARAMS PLANAR
+    //---------------------------------------
+    task setDMAPlanar(longint fstartB, longint fstartG, longint fstartR,int line_pitch, int line_size, int REV_Y, int ROI_Y_SIZE);
+
+      if(REV_Y==1) begin
+		this.fstart      = fstartB + (ROI_Y_SIZE-1)*line_pitch;  //set rev-y add
+		this.fstartG     = fstartG + (ROI_Y_SIZE-1)*line_pitch;  //set rev-y add
+		this.fstartR     = fstartR + (ROI_Y_SIZE-1)*line_pitch;  //set rev-y add
+
+	  end else begin
+        this.fstart      = fstartB;
+        this.fstartG     = fstartG;
+        this.fstartR     = fstartR;
+	  end
+
+	  this.line_pitch = line_pitch;
+	  //this.line_size  = P_ROI_WIDTH;
+	  this.line_size  = line_size;
+
+	  // DMA Grab queue enable!
+     host.write(CTRL, 1);
+
+	  // DMA frame start register
+	  $display("  2.3.1 Write FSTART BLUE  register 0x%h 0x%h", FSTART_OFFSET,  fstartB);
+	  $display("  2.3.1 Write FSTART GREEN register 0x%h 0x%h", FSTART_G_OFFSET,fstartG);
+	  $display("  2.3.1 Write FSTART RED   register 0x%h 0x%h", FSTART_R_OFFSET,fstartR);
+
+	  host.write(FSTART_OFFSET, this.fstart);
+	  host.write(FSTART_HIGH_OFFSET, this.fstart>>32);
+
+	  host.write(FSTART_G_OFFSET, this.fstartG);
+	  host.write(FSTART_G_OFFSET_HIGH , this.fstartG>>32);
+
+	  host.write(FSTART_R_OFFSET, this.fstartR);
+	  host.write(FSTART_R_OFFSET_HIGH, this.fstartR>>32);
+
+	  host.wait_n(10);
+
+      // DMA line pitch register
+	  $display("  2.5 Write LINESIZE register @0x%h", LINE_PITCH_OFFSET);
+	  host.write(LINE_PITCH_OFFSET, line_pitch);
+	  host.wait_n(10);
+
+	  // DMA line size register
+	  $display("  2.4 Write LINESIZE register @0x%h", LINE_SIZE_OFFSET);
+	  host.write(LINE_SIZE_OFFSET, line_size );
+	  host.wait_n(10);
+
+	  // DMA output buffer configuration
+	  $display("  2.6 Write OUTPUT_BUFFER register @0x%h", OUTPUT_BUFFER_OFFSET);
+	  output_buffer_value =  P_LINE_PTR_WIDTH << 24;
+	  host.write(OUTPUT_BUFFER_OFFSET, output_buffer_value);
+	  host.wait_n(10);
+
+    endtask : setDMAPlanar
 
     //---------------------------------------
     //  Program XGS MODEL
@@ -958,24 +1018,34 @@ class Cvlib;
 		
 		// For prediction
 		if(COLOR_SPACE==1) begin      // RGB32->RGB32
-		  this.bayer = 1;
-		  this.yuv   = 0;
-		  this.mono8 = 0;
+		  this.bayer  = 1;
+		  this.yuv    = 0;
+		  this.mono8  = 0;
+		  this.planar = 0;		  
         end
 		else if(COLOR_SPACE==2) begin // RGB32->YUV   
-		  this.bayer = 1;
-		  this.yuv   = 1;
-		  this.mono8 = 0;
+		  this.bayer  = 1;
+		  this.yuv    = 1;
+		  this.mono8  = 0;
+		  this.planar = 0;		  	  
+		end
+		else if(COLOR_SPACE==3) begin // RGB32->PLANAR   
+		  this.bayer  = 1;
+		  this.yuv    = 0;
+		  this.mono8  = 0;
+		  this.planar = 1;		  
 		end
 		else if(COLOR_SPACE==4) begin // RGB32->Mono8   
-			this.bayer = 1;
-			this.yuv   = 0;
-			this.mono8 = 1;
+			this.bayer  = 1;
+			this.yuv    = 0;
+			this.mono8  = 1;
+  		    this.planar = 0;		  
 		end
 		else begin                    // RAW->Mono8    
-		  this.bayer = 0; 
-		  this.yuv   = 0;  
-		  this.mono8 = 0;
+		  this.bayer  = 0; 
+		  this.yuv    = 0;  
+		  this.mono8  = 0;
+  		  this.planar = 0;			  
         end 
     endtask : setCSC
 
