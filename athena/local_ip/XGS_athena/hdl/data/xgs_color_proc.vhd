@@ -718,7 +718,7 @@ BEGIN
 		  curr_revx_reg_DB <= curr_revx_reg;
         end if;
         
-		if(curr_csc_reg_DB="001") then  --RGB24
+		if(curr_csc_reg_DB="001" or curr_csc_reg_DB="011") then  --RGB24 ou Planar
 		  BAYER_EN <= '1';
           YUV_EN   <= '0';
           RAW_EN   <= '0';
