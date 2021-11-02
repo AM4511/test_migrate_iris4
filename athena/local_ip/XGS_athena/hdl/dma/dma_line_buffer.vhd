@@ -196,56 +196,59 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_sclk_rddata
-  -- Description : Pack data per component or per pixel according to the
+  -- Description : Extract data per component or per pixel according to the
   --               sclk_unpack input flag.
   -----------------------------------------------------------------------------
   P_sclk_rddata : process (sclk_unpack, sclk_rdaddress, sclk_buffer_read_data_mux) is
   begin
     ---------------------------------------------------------------------------
-    -- Unpacking BGR Data
+    -- Unpacking BGR Data to planar
     ---------------------------------------------------------------------------
     if (sclk_unpack = '1') then
       sclk_buffer_read_address <= sclk_rdaddress(BUFFER_WORD_PTR_WIDTH-1 downto 0);
 
-      case sclk_rdaddress_P1(11 downto 10) is
+      -------------------------------------------------------------------------
+      -- Use the base address of the plane to de-interlace (de-pack) data
+      -------------------------------------------------------------------------
+      case sclk_rdaddress_P1(11 downto 10) is 
         -----------------------------------------------------------------------
         -- Extract QWORDs of Component 0
         -----------------------------------------------------------------------
         when "00" =>
-          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);
-          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(39 downto 32);
-          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);
-          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(39 downto 32);
-          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);
-          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(39 downto 32);
-          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);
-          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(39 downto 32);
+          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);   -- Byte 0
+          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(39 downto 32); -- Byte 4
+          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);   -- Byte 8
+          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(39 downto 32); -- Byte 12
+          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);   -- Byte 16
+          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(39 downto 32); -- Byte 20
+          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);   -- Byte 24
+          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(39 downto 32); -- Byte 28
 
         -----------------------------------------------------------------------
         -- Extract QWORDs of Component 1
         -----------------------------------------------------------------------
         when "01" =>
-          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);
-          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(39 downto 32);
-          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);
-          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(39 downto 32);
-          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);
-          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(39 downto 32);
-          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);
-          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(39 downto 32);
+          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(15 downto 8);   -- Byte 1
+          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(47 downto 40);  -- Byte 5
+          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(15 downto 8);   -- Byte 9
+          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(47 downto 40);  -- Byte 13
+          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(15 downto 8);   -- Byte 17
+          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(47 downto 40);  -- Byte 21
+          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(15 downto 8);   -- Byte 25
+          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(47 downto 40);  -- Byte 29
 
         -----------------------------------------------------------------------
         -- Extract QWORDs of Component 2
         -----------------------------------------------------------------------
         when "10" =>
-          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);
-          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(39 downto 32);
-          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);
-          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(39 downto 32);
-          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);
-          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(39 downto 32);
-          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);
-          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(39 downto 32);
+          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(23 downto 16);   -- Byte 2
+          sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(55 downto 48);   -- Byte 6
+          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(23 downto 16);   -- Byte 10
+          sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(55 downto 48);   -- Byte 14
+          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(23 downto 16);   -- Byte 18
+          sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(55 downto 48);   -- Byte 22
+          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(23 downto 16);   -- Byte 26
+          sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(55 downto 48);   -- Byte 30
 
         when others =>
           null;
