@@ -12,7 +12,6 @@ quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_
 quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(9 downto 2)} data_8_0
 quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(39 downto 32)} m_axis_data_8_pix1
 quietly virtual signal -install /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc { /testbench/system_top/DUT/G_COLOR_PIPELINE/Xxgs_color_proc/m_axis_tdata(7 downto 0)} m_axis_data_8_pix0
-quietly virtual function -install /testbench/system_top -env /testbench/#INITIAL#72 { &{/testbench/system_top/s_axis_tx_tdata[38], /testbench/system_top/s_axis_tx_tdata[37], /testbench/system_top/s_axis_tx_tdata[36], /testbench/system_top/s_axis_tx_tdata[35], /testbench/system_top/s_axis_tx_tdata[34], /testbench/system_top/s_axis_tx_tdata[33], /testbench/system_top/s_axis_tx_tdata[32], /testbench/system_top/s_axis_tx_tdata[31], /testbench/system_top/s_axis_tx_tdata[47], /testbench/system_top/s_axis_tx_tdata[46], /testbench/system_top/s_axis_tx_tdata[45], /testbench/system_top/s_axis_tx_tdata[44], /testbench/system_top/s_axis_tx_tdata[43], /testbench/system_top/s_axis_tx_tdata[42], /testbench/system_top/s_axis_tx_tdata[41], /testbench/system_top/s_axis_tx_tdata[40], /testbench/system_top/s_axis_tx_tdata[39], /testbench/system_top/s_axis_tx_tdata[55], /testbench/system_top/s_axis_tx_tdata[54], /testbench/system_top/s_axis_tx_tdata[53], /testbench/system_top/s_axis_tx_tdata[52], /testbench/system_top/s_axis_tx_tdata[51], /testbench/system_top/s_axis_tx_tdata[50], /testbench/system_top/s_axis_tx_tdata[49], /testbench/system_top/s_axis_tx_tdata[48], /testbench/system_top/s_axis_tx_tdata[63], /testbench/system_top/s_axis_tx_tdata[62], /testbench/system_top/s_axis_tx_tdata[61], /testbench/system_top/s_axis_tx_tdata[60], /testbench/system_top/s_axis_tx_tdata[59], /testbench/system_top/s_axis_tx_tdata[58], /testbench/system_top/s_axis_tx_tdata[57], /testbench/system_top/s_axis_tx_tdata[56] }} s_axis_tx_data_DW0
 quietly virtual signal -install /testbench/system_top/inst_pcie_tx_axi { (context /testbench/system_top/inst_pcie_tx_axi )( s_axis_tx_tdata(39 downto 32) & s_axis_tx_tdata(47 downto 40) & s_axis_tx_tdata(55 downto 48) & s_axis_tx_tdata(63 downto 56) )} DW0
 quietly virtual signal -install /testbench/system_top/inst_pcie_tx_axi { (context /testbench/system_top/inst_pcie_tx_axi )( s_axis_tx_tdata(7 downto 0) & s_axis_tx_tdata(15 downto 8) & s_axis_tx_tdata(23 downto 16) & s_axis_tx_tdata(31 downto 24) )} DW1
 quietly WaveActivateNextPane {} 0
@@ -31,11 +30,26 @@ add wave -noupdate -group {XGS SENSOR} /testbench/system_top/DUT/xgs_monitor2
 add wave -noupdate -group {XGS SENSOR} -expand -subitemconfig {/testbench/system_top/DUT/regfile.BAYER.WB_MUL1 -expand /testbench/system_top/DUT/regfile.BAYER.WB_MUL2 -expand} /testbench/system_top/DUT/regfile.BAYER
 add wave -noupdate -group {XGS SENSOR} -divider {AXI 2 MATROX}
 add wave -noupdate -divider {Axis width conv}
-add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tready
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/axi_clk
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/axi_reset_n
 add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tvalid
-add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tdata
-add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tready
 add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tuser
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tdata
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/curr_axis_state
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tvalid
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tready
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tuser
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tlast
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tdata
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tvalid_latched
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tdata_latched
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tuser_latched
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tlast_latched
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/axis_count
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/s_axis_tdata_64
+add wave -noupdate /testbench/system_top/DUT/G_COLOR_PIPELINE/Xaxis_width_conv/m_axis_tdata_16
 add wave -noupdate -divider {New Divider}
 add wave -noupdate /testbench/system_top/DUT/conv_tuser
 add wave -noupdate /testbench/system_top/DUT/conv_tvalid
@@ -127,7 +141,6 @@ add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_
 add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tuser
 add wave -noupdate -color {Orange Red} /testbench/system_top/DUT/trim_inst/bclk_tlast
 add wave -noupdate -divider {New Divider}
-add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_pixel_width
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_crop_en
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_start
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_x_size
@@ -191,7 +204,6 @@ add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_tr
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/aclk_subs_ben
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_x_reverse_Meta
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_x_reverse
-add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_pixel_width
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_reset
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_full
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_row_cntr
@@ -206,10 +218,10 @@ add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_tr
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_cmd_empty
 add wave -noupdate -group {TRIM INSIDE} /testbench/system_top/DUT/trim_inst/x_trim_inst/bclk_cmd_data
 add wave -noupdate -divider {New Divider}
-add wave -noupdate /testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA
+add wave -noupdate -expand /testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA
 add wave -noupdate /testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA.ROI_X.X_START
 add wave -noupdate -divider {New Divider}
-add wave -noupdate -expand /testbench/system_top/DUT/xregfile_xgs_athena/regfile
+add wave -noupdate -subitemconfig {/testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA {-childformat {{/testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA.LINE_PITCH -radix hexadecimal}} -expand} /testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA.LINE_PITCH {-radix hexadecimal} /testbench/system_top/DUT/xregfile_xgs_athena/regfile.DMA.CSC -expand} /testbench/system_top/DUT/xregfile_xgs_athena/regfile
 add wave -noupdate -divider {PCIE OUT}
 add wave -noupdate /testbench/system_top/s_axis_tx_tuser
 add wave -noupdate /testbench/system_top/s_axis_tx_tvalid
@@ -219,9 +231,9 @@ add wave -noupdate -label s_axi_tx_data_DW0_reversed /testbench/system_top/inst_
 add wave -noupdate /testbench/system_top/inst_pcie_tx_axi/s_axis_tx_tdata
 add wave -noupdate /testbench/system_top/s_axis_tx_tlast
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {6495328017 ps} 0}
+WaveRestoreCursors {{Cursor 3} {5728357650 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 176
+configure wave -namecolwidth 216
 configure wave -valuecolwidth 170
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
@@ -235,4 +247,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {6495267971 ps} {6495381692 ps}
+WaveRestoreZoom {5412013399 ps} {5966660735 ps}
