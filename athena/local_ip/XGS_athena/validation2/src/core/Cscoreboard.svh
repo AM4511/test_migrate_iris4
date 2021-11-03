@@ -224,29 +224,30 @@ class Cscoreboard #(int AXIS_DATA_WIDTH=64, int AXIS_USER_WIDTH=4);
 	  	  
 		if (this.Pcie32_queue.size() > 0) begin
 			DW_pred = this.Pcie32_queue.pop_front();
-			if(IgnorePrediction==0) begin
 		  
-				// If any error detected in the prediction
-				if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin
-	      	
-					this.current_test.TestStatus.errors++;
-					$error("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
-			
-					//Print in the output file for debug
-					$fdisplay (file_desc, "ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+			// If any error detected in the prediction
+			if(address!=DW_pred.Add64 || data_LE!=DW_pred.Data32) begin
+      	
+				this.current_test.TestStatus.errors++;
+				$error("ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);    
+
+    			//Print in the output file for debug
+				$fdisplay (file_desc, "ERROR predicted: 0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
 	       
-					// Close the dump file
-					$fclose(file_desc);
+				// Close the dump file
+				$fclose(file_desc);
+                  
+                 if(IgnorePrediction==0 || IgnorePrediction==this.current_test.TestStatus.errors) begin
+                 	//We stop the simulation
+				    this.current_test.say_goodbye();
+				    $stop;
+                 end
 	        
-					//We stop the simulation
-					this.current_test.say_goodbye();
-					$stop;
-	        
-				end else begin
-					// Print in the output file for debug
-					$fdisplay (file_desc, "0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
-				end		  
-			end  
+			end else begin
+				// Print in the output file for debug
+				$fdisplay (file_desc, "0x%h 0x%h , Simulated 0x%h 0x%h ", DW_pred.Add64, DW_pred.Data32, address, data_LE);
+			end		  
+
 		end  else begin
 			$error("Pcie prediction queue is empty and still have transactions pending!");
 			this.current_test.TestStatus.errors++;
