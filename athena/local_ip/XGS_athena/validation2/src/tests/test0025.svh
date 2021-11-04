@@ -61,7 +61,7 @@ class Test0025 extends Ctest;
 
 			// Start the scoreboard
 			begin
-				scoreboard.IgnorePrediction=0;  // 1: Dont use rediction, 0: Use rediction
+				scoreboard.IgnorePrediction=100000;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
 			    scoreboard.run();
 			end
 
@@ -178,8 +178,8 @@ class Test0025 extends Ctest;
 				// DMA
 				///////////////////////////////////////////////////////
 				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
-				DMA_PIX_WIDTH = 4;                           // Units in bytes (4:RGB32)
-				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*4/(SUB_X+1); // Units in bytes
+				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
 
 				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
@@ -211,7 +211,7 @@ class Test0025 extends Ctest;
 				// super.Vlib.fstartR
 				//
 				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
-				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
+				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
 				///////////////////////////////////////////////////
