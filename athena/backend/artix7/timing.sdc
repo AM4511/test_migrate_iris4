@@ -207,7 +207,7 @@ set_false_path -from [get_pins */*/*/*/Xregfile_i2c/*I2C*/C] -to [get_clocks i2c
 
 # ff in the IOB
 # clk cannot be placed in REG IOB becase it is used internally!
-#set_property IOB TRUE [get_cells {xi2c_if/GEN_X1_ser_data_out.clk_outx_reg[0]}]
+set_property IOB TRUE [get_cells {*/*/*/*/Xi2c_if/GEN_X1_ser_data_out.clk_outx_reg[0]}]                                          
 set_property IOB TRUE [get_cells {*/*/*/*/Xi2c_if/GEN_X1_ser_data_out.data_outx_reg[0]}]
 
 #je rajoute le datapath_only pour enlever le check de hold.  Le check de setup etait mauvais de toute facon!

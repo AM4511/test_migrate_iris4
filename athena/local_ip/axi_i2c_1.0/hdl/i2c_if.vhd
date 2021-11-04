@@ -146,7 +146,8 @@ architecture functionnal of i2c_if is
   -- ***************************************************************************
 
   -- *********************** internal signal declaration ***********************
-
+  signal ser_clk_in_pin  : std_logic_vector(NB_INTERFACE-1 downto 0);
+  
   signal ser_data_in     : std_logic;
   signal ser_data_in_pin : std_logic_vector(NB_INTERFACE-1 downto 0);
   
@@ -283,94 +284,19 @@ end generate Gen_i2c_clk_from_125;
   -----------------------------------------------
   --  OLD I2C LOGIC START
   -----------------------------------------------
-
+  -- version generique
   GEN_INTERFACE :  for i in 0 to (NB_INTERFACE-1) generate
-    process(clk_outx)
-    begin
-      -- serial clock buffer
-      --if clk_outx90(i) = '0' then  -- une clock retarde de 120 degree en fait c'est plus conforme au I2C et c'est trop tard pour le clock stretching
-      if clk_outx(i) = '0' then
-        ser_clk(i) <= '0';
-      else 
-        ser_clk(i) <= 'Z';
-      end if;
-    end process;
+    
+    IOCLKBUFTinst : IOBUF
+      port map(
+        O  => ser_clk_in_pin(i),  -- Buffer output
+        IO => ser_clk(i),         -- Buffer inout port (connect directly to top-level port)
+        I  => '0',                -- Buffer input
+        T  => clk_outx(i)         -- 3-state enable input, high=input, low=output
+    );
+    
   end generate;
 
---   GEN_X1_ser_data_in : if(NB_INTERFACE=1) generate
---     x1_1_IOBUF : IOBUF
---     port map(
---       O  => ser_data_in_pin(0), -- Buffer output
---       IO => ser_data(0),        -- Buffer inout port (connect directly to top-level port)
---       I  => '0',                -- Buffer input
---       T  => data_outx(0)        -- 3-state enable input, high=input, low=output
---     );
---     
---     ser_data_in <= ser_data_in_pin(0);
---     
---   end generate;
--- 
---   GEN_X2_ser_data_in : if(NB_INTERFACE=2) generate
---       x2_1_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(0), -- Buffer output
---         IO => ser_data(0),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(0)        -- 3-state enable input, high=input, low=output
---       );
---     
---     x2_2_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(1), -- Buffer output
---         IO => ser_data(1),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(1)        -- 3-state enable input, high=input, low=output
---       );
---     
---     ser_data_in <= ser_data_in_pin(0) when device_sel_data="00" else ser_data_in_pin(1);
---     
---   end generate;
--- 
--- 
---   GEN_X4_ser_data_in : if(NB_INTERFACE=4) generate
---     x4_1_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(0), -- Buffer output
---         IO => ser_data(0),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(0)        -- 3-state enable input, high=input, low=output
---       );
---     
---     x4_2_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(1), -- Buffer output
---         IO => ser_data(1),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(1)        -- 3-state enable input, high=input, low=output
---       );
---     
---     x4_3_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(2), -- Buffer output
---         IO => ser_data(2),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(2)        -- 3-state enable input, high=input, low=output
---       );
---     
---     x4_4_IOBUF : IOBUF
---       port map(
---         O  => ser_data_in_pin(3), -- Buffer output
---         IO => ser_data(3),        -- Buffer inout port (connect directly to top-level port)
---         I  => '0',                -- Buffer input
---         T  => data_outx(3)        -- 3-state enable input, high=input, low=output
---       );
---     
---     ser_data_in <= ser_data_in_pin(0) when device_sel_data="00" else 
---                    ser_data_in_pin(1) when device_sel_data="01" else 
---                    ser_data_in_pin(2) when device_sel_data="10" else 
---                    ser_data_in_pin(3);
---     
---   end generate;
 
   -- version generique
   iobuftoutgen : for i in 0 to NB_INTERFACE-1 generate
@@ -642,7 +568,7 @@ end generate;
     devsel := conv_integer(device_sel_data);
     if falling_edge(i2c_clk) then
       if devsel < ser_clk'length then
-        sampled_ser_clk <= ser_clk(devsel);
+        sampled_ser_clk <= ser_clk_in_pin(devsel);
       else
         sampled_ser_clk <= '1';
       end if;
