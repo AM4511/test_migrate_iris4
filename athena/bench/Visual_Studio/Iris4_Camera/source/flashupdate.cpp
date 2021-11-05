@@ -92,7 +92,7 @@ ProgressCallback: The caller can provide a function pointer as this
 	
 Notes: Retrun TRUE for success, else FALSE
 ****************************************************************/
-BOOL CFpgaEeprom::FPGAROMApiFlashFromFile(string &ImageFileName)
+MIL_UINT8 CFpgaEeprom::FPGAROMApiFlashFromFile(string &ImageFileName)
    {
     MIL_UINT8 byRetVal = FPGA_SUCCESS;
 
