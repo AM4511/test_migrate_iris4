@@ -213,7 +213,7 @@ architecture rtl of dmawr2tlp is
   --constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
   constant BUFFER_PTR_WIDTH    : integer := 2;
   constant BUFFER_ADDR_WIDTH   : integer := DMA_ADDR_WIDTH+BUFFER_PTR_WIDTH;
-  constant READ_ADDRESS_MSB    : integer := 10;
+  --constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
 

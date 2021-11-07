@@ -64,8 +64,9 @@ architecture rtl of axi_stream_in is
 
   component dma_line_buffer is
     generic (
-      BUFFER_ADDR_WIDTH     : integer := 11;  -- in bits
-      BUFFER_LINE_PTR_WIDTH : integer := 2
+      DMA_ADDR_WIDTH        : integer := 11;  -- in bits
+      BUFFER_LINE_PTR_WIDTH : integer := 2;
+      BUFFER_ADDR_WIDTH     : integer := 13
       );
     port (
       ---------------------------------------------------------------------
@@ -100,10 +101,10 @@ architecture rtl of axi_stream_in is
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_PCI_BACK_PRESSURE, S_EOF);
   type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_READ_CONTEXT, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
 
-  constant BUFFER_DATA_WIDTH     : integer := 64;
+  constant BUFFER_DATA_WIDTH : integer := 64;
   --constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
   --constant BUFFER_LINE_PTR_WIDTH : integer := BUFFER_PTR_WIDTH;  -- in bits
-  constant BUFFER_ADDR_WIDTH     : integer := DMA_ADDR_WIDTH+BUFFER_LINE_PTR_WIDTH;
+  constant BUFFER_ADDR_WIDTH : integer := DMA_ADDR_WIDTH+BUFFER_LINE_PTR_WIDTH;
 
   signal wr_state : FSM_TYPE        := S_IDLE;
   signal rd_state : OUTPUT_FSM_TYPE := S_IDLE;
@@ -315,7 +316,7 @@ begin
       end if;
     end if;
   end process;
-  
+
   max_line_buffer_cnt(max_distance'range) <= std_logic_vector(max_distance);
 
 
@@ -523,6 +524,7 @@ begin
 
   xdma_line_buffer : dma_line_buffer
     generic map(
+      DMA_ADDR_WIDTH        => DMA_ADDR_WIDTH,
       BUFFER_ADDR_WIDTH     => BUFFER_ADDR_WIDTH,
       BUFFER_LINE_PTR_WIDTH => BUFFER_LINE_PTR_WIDTH
       )

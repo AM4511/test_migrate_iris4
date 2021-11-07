@@ -183,7 +183,7 @@ begin
   -- Change read buffer address scheme depending if we are in planar mode or
   -- in packed mode.
   -----------------------------------------------------------------------------
-  sclk_buffer_read_address <= sclk_rdaddress(12 downto 11) & sclk_rdaddress(8 downto 0) when (sclk_unpack = '1') else
+  sclk_buffer_read_address <= sclk_rdaddress(sclk_rdaddress'left downto sclk_rdaddress'left-1) & sclk_rdaddress(8 downto 0) when (sclk_unpack = '1') else
                               sclk_rdaddress(sclk_rdaddress'left downto 2);
 
 
