@@ -206,7 +206,6 @@ class Test0023 extends Ctest;
 				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
-
 				///////////////////////////////////////////////////
 				// Wait for the 1 image
 				///////////////////////////////////////////////////
