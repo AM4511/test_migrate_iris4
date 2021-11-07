@@ -89,9 +89,10 @@ architecture rtl of dmawr2tlp is
 
   component axi_stream_in is
     generic (
-      AXIS_DATA_WIDTH   : integer := 64;
-      AXIS_USER_WIDTH   : integer := 4;
-      BUFFER_ADDR_WIDTH : integer := 11  -- in bits
+      AXIS_DATA_WIDTH       : integer := 64;
+      AXIS_USER_WIDTH       : integer := 4;
+      DMA_ADDR_WIDTH        : integer := 11;  -- in bits
+      BUFFER_LINE_PTR_WIDTH : integer := 2
       );
     port (
       ---------------------------------------------------------------------
@@ -127,7 +128,7 @@ architecture rtl of dmawr2tlp is
       end_of_dma      : out std_logic;
 
       line_buffer_read_en      : in  std_logic;
-      line_buffer_read_address : in  std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+      line_buffer_read_address : in  std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
       line_buffer_read_data    : out std_logic_vector(63 downto 0)
       );
   end component;
@@ -208,7 +209,10 @@ architecture rtl of dmawr2tlp is
   constant C_S_AXI_DATA_WIDTH  : integer := 32;
   constant AXIS_DATA_WIDTH     : integer := 64;
   constant AXIS_USER_WIDTH     : integer := 4;
-  constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
+  constant DMA_ADDR_WIDTH      : integer := 9+(2*COLOR);  --Mono 4KB/8 or Color 16KB/8
+  --constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
+  constant BUFFER_PTR_WIDTH    : integer := 2;
+  constant BUFFER_ADDR_WIDTH   : integer := DMA_ADDR_WIDTH+BUFFER_PTR_WIDTH;
   constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
 
@@ -222,11 +226,11 @@ architecture rtl of dmawr2tlp is
   signal line_transfered             : std_logic;
   signal end_of_dma                  : std_logic;
   signal line_buffer_read_en         : std_logic;
-  signal line_buffer_read_address    : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal line_buffer_read_address    : std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
   signal line_buffer_read_data       : std_logic_vector(63 downto 0);
   signal color_space                 : std_logic_vector(2 downto 0);
   signal clr_max_line_buffer_cnt     : std_logic;
-  signal line_ptr_width              : std_logic_vector(1 downto 0);
+  signal line_ptr_width              : std_logic_vector(BUFFER_PTR_WIDTH-1 downto 0);
   signal max_line_buffer_cnt         : std_logic_vector(3 downto 0);
   signal pcie_back_pressure_detected : std_logic;
   signal dbg_fifo_error              : std_logic;
@@ -319,11 +323,13 @@ begin
   planar_en <= '1' when (dma_context_mux.numb_plane > 1) else
                '0';
 
+
   xaxi_stream_in : axi_stream_in
     generic map(
-      AXIS_DATA_WIDTH   => AXIS_DATA_WIDTH,
-      AXIS_USER_WIDTH   => AXIS_USER_WIDTH,
-      BUFFER_ADDR_WIDTH => BUFFER_ADDR_WIDTH
+      AXIS_DATA_WIDTH       => AXIS_DATA_WIDTH,
+      AXIS_USER_WIDTH       => AXIS_USER_WIDTH,
+      DMA_ADDR_WIDTH        => DMA_ADDR_WIDTH,
+      BUFFER_LINE_PTR_WIDTH => BUFFER_PTR_WIDTH
       )
     port map(
       sclk                        => sclk,
@@ -351,7 +357,8 @@ begin
   xdma_write : dma_write
     generic map(
       NUMBER_OF_PLANE       => MAX_NUMBER_OF_PLANE,
-      READ_ADDRESS_MSB      => (BUFFER_ADDR_WIDTH-1),
+      --READ_ADDRESS_MSB      => (BUFFER_ADDR_WIDTH-1),
+      READ_ADDRESS_MSB      => (DMA_ADDR_WIDTH-1),
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )
     port map(
