@@ -61,7 +61,8 @@ class Test0025 extends Ctest;
 
 			// Start the scoreboard
 			begin
-				scoreboard.IgnorePrediction=100000;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
+				//scoreboard.IgnorePrediction=100000;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
+				scoreboard.IgnorePrediction=0;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
 			    scoreboard.run();
 			end
 

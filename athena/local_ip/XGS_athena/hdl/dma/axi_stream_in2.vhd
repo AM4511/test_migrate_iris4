@@ -12,9 +12,10 @@ use ieee.numeric_std.all;
 
 entity axi_stream_in is
   generic (
-    AXIS_DATA_WIDTH   : integer := 64;
-    AXIS_USER_WIDTH   : integer := 4;
-    BUFFER_ADDR_WIDTH : integer := 11   -- in bits
+    AXIS_DATA_WIDTH       : integer := 64;
+    AXIS_USER_WIDTH       : integer := 4;
+    DMA_ADDR_WIDTH        : integer := 11;  -- in bits
+    BUFFER_LINE_PTR_WIDTH : integer := 2
     );
   port (
     ---------------------------------------------------------------------
@@ -26,6 +27,7 @@ entity axi_stream_in is
     ----------------------------------------------------
     -- Line buffer config (Register file I/F)
     ----------------------------------------------------
+    planar_en                   : in  std_logic;
     clr_max_line_buffer_cnt     : in  std_logic;
     line_ptr_width              : in  std_logic_vector(1 downto 0);
     max_line_buffer_cnt         : out std_logic_vector(3 downto 0);
@@ -49,7 +51,7 @@ entity axi_stream_in is
     end_of_dma      : out std_logic;
 
     line_buffer_read_en      : in  std_logic;
-    line_buffer_read_address : in  std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+    line_buffer_read_address : in  std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
     line_buffer_read_data    : out std_logic_vector(63 downto 0)
     );
 end axi_stream_in;
@@ -62,8 +64,9 @@ architecture rtl of axi_stream_in is
 
   component dma_line_buffer is
     generic (
-      BUFFER_ADDR_WIDTH     : integer := 11;  -- in bits
-      BUFFER_LINE_PTR_WIDTH : integer := 3
+      DMA_ADDR_WIDTH        : integer := 11;  -- in bits
+      BUFFER_LINE_PTR_WIDTH : integer := 2;
+      BUFFER_ADDR_WIDTH     : integer := 13
       );
     port (
       ---------------------------------------------------------------------
@@ -75,11 +78,11 @@ architecture rtl of axi_stream_in is
 
       -- Info buffer
       sclk_info_wren     : in  std_logic;
-      sclk_info_wlength  : in  std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+      sclk_info_wlength  : in  std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
       sclk_info_weof     : in  std_logic;
       sclk_info_wbuff_id : in  std_logic_vector(BUFFER_LINE_PTR_WIDTH-1 downto 0);
       sclk_info_rden     : in  std_logic;
-      sclk_info_rlength  : out std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+      sclk_info_rlength  : out std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
       sclk_info_reof     : out std_logic;
       sclk_info_rbuff_id : out std_logic_vector(BUFFER_LINE_PTR_WIDTH-1 downto 0);
 
@@ -96,23 +99,22 @@ architecture rtl of axi_stream_in is
 
 
   type FSM_TYPE is (S_IDLE, S_SOF, S_SOL, S_WRITE, S_TOGGLE_BUFFER, S_PCI_BACK_PRESSURE, S_EOF);
-  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_READ_CONTEXT, S_INIT, S_TRANSFER, S_TRANSFER_WAIT, S_EOL, S_END_OF_DMA, S_DONE);
+  type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_READ_CONTEXT, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
 
-  constant BUFFER_DATA_WIDTH     : integer := 64;
-  constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
-  -- constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - BUFFER_LINE_PTR_WIDTH);
-  -- constant BUFFER_WORD_PTR_WIDTH : integer := (BUFFER_ADDR_WIDTH - 2);
+  constant BUFFER_DATA_WIDTH : integer := 64;
+  --constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
+  --constant BUFFER_LINE_PTR_WIDTH : integer := BUFFER_PTR_WIDTH;  -- in bits
+  constant BUFFER_ADDR_WIDTH : integer := DMA_ADDR_WIDTH+BUFFER_LINE_PTR_WIDTH;
 
   signal wr_state : FSM_TYPE        := S_IDLE;
   signal rd_state : OUTPUT_FSM_TYPE := S_IDLE;
 
   signal buffer_write_en      : std_logic;
   signal buffer_write_address : unsigned(BUFFER_ADDR_WIDTH - 1 downto 0);
-  signal buffer_write_ptr     : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal buffer_write_ptr     : unsigned(DMA_ADDR_WIDTH-1 downto 0);
   signal buffer_write_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
 
-  signal buffer_read_en    : std_logic;
-  signal buffer_read_en_P1 : std_logic := '0';
+  signal buffer_read_en : std_logic;
 
   signal buffer_read_address : unsigned(BUFFER_ADDR_WIDTH-1 downto 0);
   signal buffer_read_data    : std_logic_vector(BUFFER_DATA_WIDTH-1 downto 0);
@@ -124,21 +126,21 @@ architecture rtl of axi_stream_in is
   signal incr_rd_line_ptr : std_logic;
   signal wr_line_ptr      : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal rd_line_ptr      : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
-  signal line_ptr_mask    : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
+  --signal line_ptr_mask    : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal distance_cntr    : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
   signal max_distance     : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
 
   signal line_buffer_full  : std_logic;
   signal line_buffer_empty : std_logic;
   signal numb_line_buffer  : std_logic_vector(3 downto 0);
-  signal sclk_unpack       : std_logic;
+  --signal sclk_unpack       : std_logic;
 
   signal sclk_info_wren     : std_logic;
-  signal sclk_info_wlength  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal sclk_info_wlength  : std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
   signal sclk_info_weof     : std_logic;
   signal sclk_info_wbuff_id : std_logic_vector(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal sclk_info_rden     : std_logic;
-  signal sclk_info_rlength  : std_logic_vector(BUFFER_ADDR_WIDTH-1 downto 0);
+  signal sclk_info_rlength  : std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
   signal sclk_info_reof     : std_logic;
   signal sclk_info_rbuff_id : std_logic_vector(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal sclk_rd_last_data  : std_logic;
@@ -156,13 +158,12 @@ architecture rtl of axi_stream_in is
   attribute mark_debug of buffer_read_address      : signal is "true";
   attribute mark_debug of buffer_read_data         : signal is "true";
   attribute mark_debug of last_row                 : signal is "true";
-  --attribute mark_debug of read_sync                : signal is "true";
   attribute mark_debug of init_line_ptr            : signal is "true";
   attribute mark_debug of incr_wr_line_ptr         : signal is "true";
   attribute mark_debug of incr_rd_line_ptr         : signal is "true";
   attribute mark_debug of wr_line_ptr              : signal is "true";
   attribute mark_debug of rd_line_ptr              : signal is "true";
-  attribute mark_debug of line_ptr_mask            : signal is "true";
+  --attribute mark_debug of line_ptr_mask            : signal is "true";
   attribute mark_debug of distance_cntr            : signal is "true";
   attribute mark_debug of max_distance             : signal is "true";
   attribute mark_debug of line_buffer_full         : signal is "true";
@@ -206,9 +207,9 @@ begin
 
   -- Create a mask for managing the number of bits used (wrap around) in the
   -- line pointer counters below.
-  line_ptr_mask <= "111" when (line_ptr_width = "11") else  -- 8 Buffer mask, hence 3 bits
-                   "011" when (line_ptr_width = "10") else
-                   "001";
+  -- line_ptr_mask <= "111" when (line_ptr_width = "11") else  -- 8 Buffer mask, hence 3 bits
+  --                  "011" when (line_ptr_width = "10") else
+  --                  "001";
 
 
   -- Indicates the output buffer configuration vs line_ptr_width
@@ -234,7 +235,8 @@ begin
         -- Incremented after the line is completely written (@ EOL | EOF) in the current line
         -- buffer.
         elsif (incr_wr_line_ptr = '1') then
-          wr_line_ptr <= (line_ptr_mask and (wr_line_ptr + 1));
+          --wr_line_ptr <= (line_ptr_mask and (wr_line_ptr + 1));
+          wr_line_ptr <= wr_line_ptr + 1;
         end if;
       end if;
     end if;
@@ -257,7 +259,8 @@ begin
 
         -- Incremented after the line is completely evacuated by the DMA.
         elsif (incr_rd_line_ptr = '1') then
-          rd_line_ptr <= (line_ptr_mask and (rd_line_ptr + 1));
+          --rd_line_ptr <= (line_ptr_mask and (rd_line_ptr + 1));
+          rd_line_ptr <= rd_line_ptr + 1;
         end if;
       end if;
     end if;
@@ -313,7 +316,8 @@ begin
       end if;
     end if;
   end process;
-  max_line_buffer_cnt <= std_logic_vector(max_distance);
+
+  max_line_buffer_cnt(max_distance'range) <= std_logic_vector(max_distance);
 
 
   -----------------------------------------------------------------------------
@@ -472,39 +476,38 @@ begin
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_buffer_write_address : process (numb_line_buffer, wr_line_ptr, buffer_write_ptr) is
-  begin
-    case numb_line_buffer is
-      -------------------------------------------------------------------------
-      -- 8 Line buffers
-      -------------------------------------------------------------------------
-      when "1000" =>
-        buffer_write_address <= wr_line_ptr(2 downto 0) & buffer_write_ptr(buffer_write_address'left - 3 downto 0);
-      -------------------------------------------------------------------------
-      -- 4 Line buffers
-      -------------------------------------------------------------------------
-      when "0100" =>
-        buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
-      -------------------------------------------------------------------------
-      -- 2 Line buffers
-      -------------------------------------------------------------------------
-      when "0010" =>
-        buffer_write_address <= wr_line_ptr(0 downto 0) & buffer_write_ptr(buffer_write_address'left - 1 downto 0);
+  -- P_buffer_write_address : process (numb_line_buffer, wr_line_ptr, buffer_write_ptr) is
+  -- begin
+  --   case numb_line_buffer is
+  --     -------------------------------------------------------------------------
+  --     -- 4 Line buffers
+  --     -------------------------------------------------------------------------
+  --     when "0100" =>
+  --       --buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
+  --       buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
+  --     -------------------------------------------------------------------------
+  --     -- 2 Line buffers
+  --     -------------------------------------------------------------------------
+  --     when "0010" =>
+  --       buffer_write_address <= wr_line_ptr(0 downto 0) & buffer_write_ptr(buffer_write_address'left - 1 downto 0);
 
-      -------------------------------------------------------------------------
-      -- 2 Line buffers
-      -------------------------------------------------------------------------
-      when others =>
-        buffer_write_address <= buffer_write_ptr;
-    end case;
-  end process;
+  --     -------------------------------------------------------------------------
+  --     -- 
+  --     -------------------------------------------------------------------------
+  --     when others =>
+  --       --buffer_write_address <= buffer_write_ptr;
+  --       buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
+  --   end case;
+  -- end process;
 
 
-  --buffer_write_data <= "0000" & s_axis_tuser & s_axis_tdata;
+
+
+  buffer_write_address <= wr_line_ptr & buffer_write_ptr;
+
+
+
   buffer_write_data <= s_axis_tdata;
-
-
-  sclk_unpack <= '0';
 
 
 
@@ -521,7 +524,9 @@ begin
 
   xdma_line_buffer : dma_line_buffer
     generic map(
-      BUFFER_ADDR_WIDTH
+      DMA_ADDR_WIDTH        => DMA_ADDR_WIDTH,
+      BUFFER_ADDR_WIDTH     => BUFFER_ADDR_WIDTH,
+      BUFFER_LINE_PTR_WIDTH => BUFFER_LINE_PTR_WIDTH
       )
     port map(
       ---------------------------------------------------------------------
@@ -529,7 +534,7 @@ begin
       ---------------------------------------------------------------------
       sclk               => sclk,
       srst_n             => srst_n,
-      sclk_unpack        => sclk_unpack,
+      sclk_unpack        => planar_en,
       sclk_info_wren     => sclk_info_wren,
       sclk_info_wlength  => sclk_info_wlength,
       sclk_info_weof     => sclk_info_weof,
@@ -550,45 +555,44 @@ begin
                     '0';
 
 
-
-
-
   buffer_read_en <= '1' when (line_buffer_read_en = '1' and rd_state = S_TRANSFER) else '0';
 
 
   -----------------------------------------------------------------------------
   -- 
   -----------------------------------------------------------------------------
-  P_buffer_read_address : process (numb_line_buffer, rd_line_ptr, line_buffer_read_address) is
-    variable msb : integer := buffer_read_address'left;
-  begin
-    case numb_line_buffer is
-      -------------------------------------------------------------------------
-      -- 8 Line buffers
-      -------------------------------------------------------------------------
-      when "1000" =>
-        buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
+  -- P_buffer_read_address : process (numb_line_buffer, planar_en, rd_line_ptr, line_buffer_read_address) is
+  --   variable msb : integer := buffer_read_address'left;
+  -- begin
+  --   case numb_line_buffer is
+  --     -------------------------------------------------------------------------
+  --     -- 8 Line buffers
+  --     -------------------------------------------------------------------------
+  --     when "1000" =>
+  --       --buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
+  --       buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
 
-      -------------------------------------------------------------------------
-      -- 4 Line buffers
-      -------------------------------------------------------------------------
-      when "0100" =>
-        buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(msb - 2 downto 0));
+  --     -------------------------------------------------------------------------
+  --     -- 4 Line buffers
+  --     -------------------------------------------------------------------------
+  --     when "0100" =>
+  --       buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(msb - 2 downto 0));
 
-      -------------------------------------------------------------------------
-      -- 2 Line buffers
-      -------------------------------------------------------------------------
-      when "0010" =>
-        buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(msb - 1 downto 0));
+  --     -------------------------------------------------------------------------
+  --     -- 2 Line buffers
+  --     -------------------------------------------------------------------------
+  --     when "0010" =>
+  --       buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(msb - 1 downto 0));
 
-      -------------------------------------------------------------------------
-      -- 2 Line buffers
-      -------------------------------------------------------------------------
-      when others =>
-        buffer_read_address <= unsigned(line_buffer_read_address);
-    end case;
-  end process;
-
+  --     -------------------------------------------------------------------------
+  --     -- Others
+  --     -------------------------------------------------------------------------
+  --     when others =>
+  --       buffer_read_address <= "00" & unsigned(line_buffer_read_address);
+  --   end case;
+  -- end process;
+  --                     1:0
+  buffer_read_address <= rd_line_ptr & unsigned(line_buffer_read_address);
 
   -----------------------------------------------------------------------------
   -- Process     : P_rd_state
@@ -636,21 +640,7 @@ begin
           --  S_TRANSFER : the DMA transfer occurs in this state
           -------------------------------------------------------------------
           when S_TRANSFER =>
-            --if (buffer_read_en_P1='1' and (read_sync = "1000" or read_sync = "0010") ) then
-            -- If end of line or end of frame encountered
-            --if (buffer_read_en_P1 = '1' and (read_sync(3) = '1' or read_sync(1) = '1')) then
-            if (buffer_read_en_P1 = '1' and sclk_rd_last_data = '1') then
-              rd_state <= S_TRANSFER_WAIT;
-            else
-              rd_state <= S_TRANSFER;
-            end if;
-
-          -------------------------------------------------------------------
-          --  S_TRANSFER_WAIT : Wait for line_transferted to be 1
-          -------------------------------------------------------------------
-          when S_TRANSFER_WAIT =>
             if (line_transfered = '1') then
-              --if (last_row = '1') then
               if (sclk_info_reof = '1') then
                 rd_state <= S_END_OF_DMA;
               else
@@ -690,33 +680,10 @@ begin
   -----------------------------------------------------------------------------
   -- Flag indicating the we reached the last data beat of the current read line
   -----------------------------------------------------------------------------
-  sclk_rd_last_data <= '1' when (unsigned(line_buffer_read_address) = unsigned(sclk_info_rlength) - 1) else
+  sclk_rd_last_data <= '1' when ((planar_en = '1') and (unsigned(line_buffer_read_address) = unsigned(sclk_info_rlength)/4 - 1)) else
+                       '1' when ((planar_en = '0') and (unsigned(line_buffer_read_address) = unsigned(sclk_info_rlength) - 1)) else
                        '0';
 
-
-  -----------------------------------------------------------------------------
-  -- Process     : P_buffer_read_en_P1
-  -- Description : Flag used to indicate to rd_state we are evacuating the 
-  --               last row of the frame.
-  -----------------------------------------------------------------------------
-  P_buffer_read_en_P1 : process (sclk) is
-  begin
-    if (rising_edge(sclk)) then
-      if (srst_n = '0')then
-        buffer_read_en_P1 <= '0';
-      --last_row          <= '0';
-      else
-        buffer_read_en_P1 <= buffer_read_en;
-      -- If we detect an end of frame
-      -- if (rd_state = S_TRANSFER and buffer_read_en_P1 = '1' and read_sync(1) = '1') then  --READ EOF
-      --  last_row <= '1';
-      -- Cleared once the frame completely evacuated
-      --elsif (rd_state = S_END_OF_DMA) then
-      --  last_row <= '0';
-      end if;
-    end if;
-  --end if;
-  end process;
 
 
   -----------------------------------------------------------------------------
@@ -737,7 +704,6 @@ begin
     end if;
   end process;
 
-  --read_sync             <= buffer_read_data(67 downto 64);
   line_buffer_read_data <= buffer_read_data(63 downto 0);
 
   start_of_frame <= '1' when (wr_state = S_SOF) else

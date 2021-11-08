@@ -322,6 +322,9 @@ class Cvlib;
 	  //this.line_size  = P_ROI_WIDTH;
 	  this.line_size  = line_size;
 
+	  // The output line buffer is split in only 2 line buffer
+	  P_LINE_PTR_WIDTH = 1;
+	  	
 	  // DMA Grab queue enable!
      host.write(CTRL, 1);
 
