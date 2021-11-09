@@ -1,9 +1,10 @@
-//
+///////////////////////////////////////////////////////////////////////////////////////////////
 // Test0011 : XGS 12000
 //
-// Description : Send 2 monochrone frames one of full valid X size, second of only 32 pixels. This test was coded to debug a problem found by schampagne
+// Description : Send 2 monochrone frames one of full valid X size, second of only 32 pixels. 
+//               This test was coded to debug a problem found by schampagne.  See JIRA MT-3122
 //
-//
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 import core_pkg::*;
 import driver_pkg::*;
