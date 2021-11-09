@@ -52,9 +52,9 @@ proc r {args} {
     if {[llength $args] == 1} {
 	  set testnumber [lindex $args 0]
       puts "Running Simulation with defined test${testnumber}"
-	  vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=${testnumber} -wlf "vsim.wlf"
+	  vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation2/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=${testnumber} -wlf "vsim.wlf"
     } else {
-      vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -wlf "vsim.wlf"
+      vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation2/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf -wlf "vsim.wlf"
     }
 
 	run -all
@@ -77,7 +77,7 @@ proc s {args} {
 	
     foreach i $testlist {  
        puts "Running runsim with test${i}"	
-	   vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=$i  -l "test${i}_vsim.log" -wlf "test${i}_vsim.wlf"  
+	   vsim -gui work.testbench work.glbl -L unisims_ver -L secureip -do "${IP}/validation2/tcl/valid.do" -donotcollapsepartiallydriven -permit_unmatched_virtual_intf +TestNumber=$i  -l "test${i}_vsim.log" -wlf "test${i}_vsim.wlf"  
        run -all
 	   if { [examine /testbench/nb_errors] != "32'h00000000"} {
 	     puts "ERROR IN SIMULATION test${i}!!!"	
