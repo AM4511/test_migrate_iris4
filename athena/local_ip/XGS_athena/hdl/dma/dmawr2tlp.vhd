@@ -1,7 +1,22 @@
 -----------------------------------------------------------------------
+-- MODULE        : dmawr2tlp
 -- 
--- MAX_PCIE_PAYLOAD_SIZE : see PCIe 2.1 spec; section 7.8.4. Device
---                         Control Register (Offset 08h)              
+-- DESCRIPTION   : DMA write to TLP (PCI). This module receive a Matrox AXI
+--                 video stream (AXIS) and convert it in PCIe transaction
+--                 toward a MIL buffer located in the HOST memory
+--
+-----------------------------------------------------------------------
+-- PARAMETERS
+--
+-- COLOR                 : Configure the pixel processing path for a Monochrome
+--                         or color Pipeline
+--
+--                           0 : XGS_athena is configured for mono sensors (default) 
+--                           1 : XGS_athena is configured for color sensors
+-- 
+-- MAX_PCIE_PAYLOAD_SIZE : PCIe packets maximum payload size.
+--                         see PCIe 2.1 spec; section 7.8.4. Device
+--                         Control Register (Offset 08h).        
 -----------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -16,8 +31,8 @@ use work.dma_pack.all;
 
 entity dmawr2tlp is
   generic (
-    COLOR                 : integer := 0;
-    MAX_PCIE_PAYLOAD_SIZE : integer := 128
+    COLOR                 : integer := 0;  -- Boolean (0 or 1)
+    MAX_PCIE_PAYLOAD_SIZE : integer := 128 -- 128, 256 
     );
   port (
     ---------------------------------------------------------------------
@@ -210,13 +225,9 @@ architecture rtl of dmawr2tlp is
   constant AXIS_DATA_WIDTH     : integer := 64;
   constant AXIS_USER_WIDTH     : integer := 4;
   constant DMA_ADDR_WIDTH      : integer := 9+(2*COLOR);  --Mono 4KB/8 or Color 16KB/8
-  --constant BUFFER_ADDR_WIDTH   : integer := 11+(2*COLOR);
   constant BUFFER_PTR_WIDTH    : integer := 2;
   constant BUFFER_ADDR_WIDTH   : integer := DMA_ADDR_WIDTH+BUFFER_PTR_WIDTH;
-  --constant READ_ADDRESS_MSB    : integer := 10;
   constant MAX_NUMBER_OF_PLANE : integer := 3;
-
-
 
 
   signal dma_idle                    : std_logic;
@@ -249,7 +260,7 @@ architecture rtl of dmawr2tlp is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of dbg_fifo_error : signal is "true";
+  --attribute mark_debug of dbg_fifo_error : signal is "true";
 
 begin
 
@@ -264,7 +275,9 @@ begin
   dma_context_mapping.line_size      <= regfile.DMA.LINE_SIZE.VALUE;
   dma_context_mapping.reverse_y      <= regfile.DMA.CSC.REVERSE_Y;
 
-  dma_context_mapping.numb_plane <= 3 when (regfile.DMA.CSC.COLOR_SPACE = "011") else  --RGB PLANAR - 3 BUFFERS
+
+  -- RGB PLANAR - 3 BUFFERS otherwise, normal packed image
+  dma_context_mapping.numb_plane <= 3 when (regfile.DMA.CSC.COLOR_SPACE = "011") else 
                                     1;
 
 
@@ -280,8 +293,9 @@ begin
   -----------------------------------------------------------------------------
   -- Grab context pipeline
   --
-  -- Les contextes doivent etre loades sur le rising edge du signal. Il a été allongé 
-  -- a 4 clk sysclk ds le controlleur pour l'envoyer dans le domaine pclk.
+  -- DMA contexts are loaded on the rising edge of the context_strb. This pulse
+  -- is 4clk period streched in the controller to make clean safe clock domain
+  -- crossing.
   -----------------------------------------------------------------------------
   P_dma_context : process(sclk)
   begin
@@ -318,7 +332,8 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Enable the planar Mode in the line buffer of the axi_stream_in
+  -- Flag used to activate the planar Mode in the line buffer under the
+  -- axi_stream_in module
   -----------------------------------------------------------------------------
   planar_en <= '1' when (dma_context_mux.numb_plane > 1) else
                '0';
@@ -357,7 +372,6 @@ begin
   xdma_write : dma_write
     generic map(
       NUMBER_OF_PLANE       => MAX_NUMBER_OF_PLANE,
-      --READ_ADDRESS_MSB      => (BUFFER_ADDR_WIDTH-1),
       READ_ADDRESS_MSB      => (DMA_ADDR_WIDTH-1),
       MAX_PCIE_PAYLOAD_SIZE => MAX_PCIE_PAYLOAD_SIZE
       )

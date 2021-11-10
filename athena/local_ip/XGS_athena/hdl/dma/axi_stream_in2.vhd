@@ -1,7 +1,8 @@
 -----------------------------------------------------------------------
 -- MODULE        : axi_stream_in
 -- 
--- DESCRIPTION   : AXI stream input interface
+-- DESCRIPTION   : AXI stream input interface. Store incoming AXI video
+--                 stream 
 --              
 -----------------------------------------------------------------------
 library ieee;
@@ -102,8 +103,6 @@ architecture rtl of axi_stream_in is
   type OUTPUT_FSM_TYPE is (S_IDLE, S_WAIT_LINE, S_READ_CONTEXT, S_INIT, S_TRANSFER, S_EOL, S_END_OF_DMA, S_DONE);
 
   constant BUFFER_DATA_WIDTH : integer := 64;
-  --constant BUFFER_LINE_PTR_WIDTH : integer := 3;  -- in bits
-  --constant BUFFER_LINE_PTR_WIDTH : integer := BUFFER_PTR_WIDTH;  -- in bits
   constant BUFFER_ADDR_WIDTH : integer := DMA_ADDR_WIDTH+BUFFER_LINE_PTR_WIDTH;
 
   signal wr_state : FSM_TYPE        := S_IDLE;
@@ -126,14 +125,12 @@ architecture rtl of axi_stream_in is
   signal incr_rd_line_ptr : std_logic;
   signal wr_line_ptr      : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal rd_line_ptr      : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
-  --signal line_ptr_mask    : unsigned(BUFFER_LINE_PTR_WIDTH-1 downto 0);
   signal distance_cntr    : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
   signal max_distance     : unsigned(BUFFER_LINE_PTR_WIDTH downto 0);
 
   signal line_buffer_full  : std_logic;
   signal line_buffer_empty : std_logic;
   signal numb_line_buffer  : std_logic_vector(3 downto 0);
-  --signal sclk_unpack       : std_logic;
 
   signal sclk_info_wren     : std_logic;
   signal sclk_info_wlength  : std_logic_vector(DMA_ADDR_WIDTH-1 downto 0);
@@ -148,46 +145,15 @@ architecture rtl of axi_stream_in is
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of wr_state                 : signal is "true";
-  attribute mark_debug of rd_state                 : signal is "true";
-  attribute mark_debug of buffer_write_en          : signal is "true";
-  attribute mark_debug of buffer_write_address     : signal is "true";
-  attribute mark_debug of buffer_write_ptr         : signal is "true";
-  attribute mark_debug of buffer_write_data        : signal is "true";
-  attribute mark_debug of buffer_read_en           : signal is "true";
-  attribute mark_debug of buffer_read_address      : signal is "true";
-  attribute mark_debug of buffer_read_data         : signal is "true";
-  attribute mark_debug of last_row                 : signal is "true";
-  attribute mark_debug of init_line_ptr            : signal is "true";
-  attribute mark_debug of incr_wr_line_ptr         : signal is "true";
-  attribute mark_debug of incr_rd_line_ptr         : signal is "true";
-  attribute mark_debug of wr_line_ptr              : signal is "true";
-  attribute mark_debug of rd_line_ptr              : signal is "true";
-  --attribute mark_debug of line_ptr_mask            : signal is "true";
-  attribute mark_debug of distance_cntr            : signal is "true";
-  attribute mark_debug of max_distance             : signal is "true";
-  attribute mark_debug of line_buffer_full         : signal is "true";
-  attribute mark_debug of line_buffer_empty        : signal is "true";
-  attribute mark_debug of numb_line_buffer         : signal is "true";
-  attribute mark_debug of s_axis_tready            : signal is "true";
-  attribute mark_debug of s_axis_tvalid            : signal is "true";
-  attribute mark_debug of s_axis_tdata             : signal is "true";
-  attribute mark_debug of s_axis_tlast             : signal is "true";
-  attribute mark_debug of s_axis_tuser             : signal is "true";
-  attribute mark_debug of start_of_frame           : signal is "true";
-  attribute mark_debug of line_ready               : signal is "true";
-  attribute mark_debug of line_transfered          : signal is "true";
-  attribute mark_debug of end_of_dma               : signal is "true";
-  attribute mark_debug of line_buffer_read_en      : signal is "true";
-  attribute mark_debug of line_buffer_read_address : signal is "true";
-  attribute mark_debug of line_buffer_read_data    : signal is "true";
-
+  -- attribute mark_debug of wr_state                 : signal is "true";
+  
 
 begin
 
 
   -----------------------------------------------------------------------------
   -- AXI stream flow control. When asserted it means we can accept a full line
+  -- in the line buffer.
   -----------------------------------------------------------------------------
   s_axis_tready <= '1' when (wr_state = S_WRITE) else
                    '0';
@@ -204,12 +170,6 @@ begin
   incr_rd_line_ptr <= '1' when (rd_state = S_EOL or rd_state = S_END_OF_DMA) else
                       '0';
 
-
-  -- Create a mask for managing the number of bits used (wrap around) in the
-  -- line pointer counters below.
-  -- line_ptr_mask <= "111" when (line_ptr_width = "11") else  -- 8 Buffer mask, hence 3 bits
-  --                  "011" when (line_ptr_width = "10") else
-  --                  "001";
 
 
   -- Indicates the output buffer configuration vs line_ptr_width
@@ -300,7 +260,10 @@ begin
 
   -----------------------------------------------------------------------------
   -- Process     : P_max_distance
-  -- Description : 
+  -- Description : Store the maximum number of line that the line buffer hold
+  --               at the same time. This is for statistic and debug purpose
+  --               only. This value is reported to software in the register
+  --               file.
   -----------------------------------------------------------------------------
   P_max_distance : process (sclk) is
   begin
@@ -317,6 +280,10 @@ begin
     end if;
   end process;
 
+  
+  -----------------------------------------------------------------------------
+  -- This value is reported in the registerfile
+  -----------------------------------------------------------------------------
   max_line_buffer_cnt(max_distance'range) <= std_logic_vector(max_distance);
 
 
@@ -351,6 +318,7 @@ begin
           -------------------------------------------------------------------
           when S_IDLE =>
             if (s_axis_tvalid = '1') then
+              -- Start of frame detected on the AXI stream input I/F
               if (s_axis_tuser(0) = '1') then
                 wr_state <= S_SOF;
               end if;
@@ -368,14 +336,14 @@ begin
 
           -------------------------------------------------------------------
           -- S_SOL : Start of line; initialize the current buffer for a new
-          --         line storage
+          --         line storage (reset buffer write pointer)
           -------------------------------------------------------------------
           when S_SOL =>
             wr_state <= S_WRITE;
 
 
           -------------------------------------------------------------------
-          --  S_WRITE : 
+          --  S_WRITE : The incoming line data is written in the line buffer
           -------------------------------------------------------------------
           when S_WRITE =>
             -- If a end of line is detected
@@ -391,6 +359,8 @@ begin
                 assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
                 -- synthesis translate_on
 
+              -- Else we increment the line buffer pointer; ready to receive the next
+              -- line of the frame
               else
                 wr_state <= S_TOGGLE_BUFFER;
               end if;
@@ -404,19 +374,17 @@ begin
           -- line buffer gets available. 
           -------------------------------------------------------------------
           when S_PCI_BACK_PRESSURE =>
+            -- While the line buffer is full we remain in this state
             if (line_buffer_full = '1') then
               wr_state <= S_PCI_BACK_PRESSURE;
-              -- synthesis translate_off
-              -- assert false report "WARNING : PCIe DMA line buffer back pressure" severity warning;
-              -- synthesis translate_on
-
             else
               wr_state <= S_TOGGLE_BUFFER;
             end if;
 
 
           -------------------------------------------------------------------
-          -- S_TOGGLE_BUFFER : Switch line buffer
+          -- S_TOGGLE_BUFFER : Switch line buffer (Increment line
+          --                   buffer pointer)
           -------------------------------------------------------------------
           when S_TOGGLE_BUFFER =>
             wr_state <= S_SOL;
@@ -448,14 +416,15 @@ begin
 
 
   -----------------------------------------------------------------------------
-  -- Buffer write en 
+  -- Buffer write enable. When asserted, input data is written in the line buffer 
   -----------------------------------------------------------------------------
   buffer_write_en <= '1' when (wr_state = S_WRITE and s_axis_tvalid = '1') else
                      '0';
 
 
   -----------------------------------------------------------------------------
-  -- 
+  -- Process     : P_buffer_write_ptr
+  -- Description : Write data pointer inside the current line buffer
   -----------------------------------------------------------------------------
   P_buffer_write_ptr : process (sclk) is
   begin
@@ -463,8 +432,10 @@ begin
       if (srst_n = '0')then
         buffer_write_ptr <= (others => '0');
       else
+        -- Initialized to 0 at the Start of line
         if (wr_state = S_SOL) then
           buffer_write_ptr <= (others => '0');
+        -- Write pointer is incremented after each write access
         elsif (buffer_write_en = '1') then
           buffer_write_ptr <= buffer_write_ptr + 1;
         end if;
@@ -473,44 +444,33 @@ begin
   end process;
 
 
+
   -----------------------------------------------------------------------------
-  -- 
+  -- The line buffer write address of the current incomming data beat. This
+  -- address is the concatenation of the current line pointer and the data
+  -- pointer.
   -----------------------------------------------------------------------------
-  -- P_buffer_write_address : process (numb_line_buffer, wr_line_ptr, buffer_write_ptr) is
-  -- begin
-  --   case numb_line_buffer is
-  --     -------------------------------------------------------------------------
-  --     -- 4 Line buffers
-  --     -------------------------------------------------------------------------
-  --     when "0100" =>
-  --       --buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
-  --       buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
-  --     -------------------------------------------------------------------------
-  --     -- 2 Line buffers
-  --     -------------------------------------------------------------------------
-  --     when "0010" =>
-  --       buffer_write_address <= wr_line_ptr(0 downto 0) & buffer_write_ptr(buffer_write_address'left - 1 downto 0);
-
-  --     -------------------------------------------------------------------------
-  --     -- 
-  --     -------------------------------------------------------------------------
-  --     when others =>
-  --       --buffer_write_address <= buffer_write_ptr;
-  --       buffer_write_address <= wr_line_ptr(1 downto 0) & buffer_write_ptr(buffer_write_address'left - 2 downto 0);
-  --   end case;
-  -- end process;
-
-
-
-
   buffer_write_address <= wr_line_ptr & buffer_write_ptr;
 
 
-
+  -----------------------------------------------------------------------------
+  -- AXI stream data bus remapping
+  -----------------------------------------------------------------------------
   buffer_write_data <= s_axis_tdata;
 
 
-
+  -----------------------------------------------------------------------------
+  -- Info buffer fifo (Write I/F). For each line stored in the line buffer a line
+  -- context is store in the info FiFo. The line context includes the following
+  -- parameters:
+  --
+  -- weof     : (1 bit) flag indicating that current line is end of frame line
+  --
+  -- wlength  : (DMA_ADDR_WIDTH bits) Word count length of the current line
+  --
+  -- wbuff_id : (BUFFER_LINE_PTR_WIDTH bits) Buffer ID in which the current
+  --            line is stored
+  -----------------------------------------------------------------------------
   sclk_info_wren <= '1' when (wr_state = S_TOGGLE_BUFFER or wr_state = S_EOF) else
                     '0';
 
@@ -522,6 +482,9 @@ begin
   sclk_info_wbuff_id <= std_logic_vector(wr_line_ptr);
 
 
+  -----------------------------------------------------------------------------
+  -- Module line buffer (4xSynchronous dual port ram block)
+  -----------------------------------------------------------------------------
   xdma_line_buffer : dma_line_buffer
     generic map(
       DMA_ADDR_WIDTH        => DMA_ADDR_WIDTH,
@@ -551,6 +514,7 @@ begin
       sclk_rddata        => buffer_read_data
       );
 
+  
   sclk_info_rden <= '1' when (rd_state = S_READ_CONTEXT) else
                     '0';
 
@@ -558,40 +522,6 @@ begin
   buffer_read_en <= '1' when (line_buffer_read_en = '1' and rd_state = S_TRANSFER) else '0';
 
 
-  -----------------------------------------------------------------------------
-  -- 
-  -----------------------------------------------------------------------------
-  -- P_buffer_read_address : process (numb_line_buffer, planar_en, rd_line_ptr, line_buffer_read_address) is
-  --   variable msb : integer := buffer_read_address'left;
-  -- begin
-  --   case numb_line_buffer is
-  --     -------------------------------------------------------------------------
-  --     -- 8 Line buffers
-  --     -------------------------------------------------------------------------
-  --     when "1000" =>
-  --       --buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
-  --       buffer_read_address <= rd_line_ptr(2 downto 0) & unsigned(line_buffer_read_address(msb - 3 downto 0));
-
-  --     -------------------------------------------------------------------------
-  --     -- 4 Line buffers
-  --     -------------------------------------------------------------------------
-  --     when "0100" =>
-  --       buffer_read_address <= rd_line_ptr(1 downto 0) & unsigned(line_buffer_read_address(msb - 2 downto 0));
-
-  --     -------------------------------------------------------------------------
-  --     -- 2 Line buffers
-  --     -------------------------------------------------------------------------
-  --     when "0010" =>
-  --       buffer_read_address <= rd_line_ptr(0 downto 0) & unsigned(line_buffer_read_address(msb - 1 downto 0));
-
-  --     -------------------------------------------------------------------------
-  --     -- Others
-  --     -------------------------------------------------------------------------
-  --     when others =>
-  --       buffer_read_address <= "00" & unsigned(line_buffer_read_address);
-  --   end case;
-  -- end process;
-  --                     1:0
   buffer_read_address <= rd_line_ptr & unsigned(line_buffer_read_address);
 
   -----------------------------------------------------------------------------
@@ -685,9 +615,8 @@ begin
                        '0';
 
 
-
   -----------------------------------------------------------------------------
-  -- line_ready
+  -- line_ready. Indicate to the DMA that a line is ready to be evacuated.
   -----------------------------------------------------------------------------
   P_line_ready : process (sclk) is
   begin
@@ -704,14 +633,18 @@ begin
     end if;
   end process;
 
-  line_buffer_read_data <= buffer_read_data(63 downto 0);
 
+  -----------------------------------------------------------------------------
+  -- DMA I/F: Output ports
+  -----------------------------------------------------------------------------
   start_of_frame <= '1' when (wr_state = S_SOF) else
                     '0';
 
-
+  -- Full frame transfer completed
   end_of_dma <= '1' when (rd_state = S_END_OF_DMA) else
                 '0';
+
+  line_buffer_read_data <= buffer_read_data(63 downto 0);
 
 end rtl;
 

@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------
 -- MODULE        : dma_line_buffer
 -- 
--- DESCRIPTION   : 
+-- DESCRIPTION   : Line buffer of the DMA engine
 --              
 -----------------------------------------------------------------------
 library ieee;
@@ -92,9 +92,7 @@ architecture rtl of dma_line_buffer is
         );
   end component;
 
-  --constant BUFFER_ADDR_WIDTH     : integer := DMA_ADDR_WIDTH+BUFFER_LINE_PTR_WIDTH;
   constant BUFFER_WORD_PTR_WIDTH : integer := BUFFER_ADDR_WIDTH-2;
-  --constant INFO_WIDTH            : integer := BUFFER_WORD_PTR_WIDTH+BUFFER_ADDR_WIDTH+1;
   constant INFO_WIDTH            : integer := BUFFER_LINE_PTR_WIDTH+DMA_ADDR_WIDTH+1;
 
   type QWORD_ARRAY is array (natural range <>) of std_logic_vector (63 downto 0);
@@ -182,11 +180,27 @@ begin
   -----------------------------------------------------------------------------
   -- Change read buffer address scheme depending if we are in planar mode or
   -- in packed mode.
+  --
+  -- Planar mode:
+  --
+  -- sclk_buffer_read_address(10:9) : sclk_rdaddress(12:11)# Line buffer pointer (4 line buffers)
+  -- sclk_buffer_read_address(8:0)  : sclk_rdaddress(8:0)  # DMA word address (1 Word = 4x64 bits)
+  -- sck_output_mux_sel(1:0)        : sclk_rdaddress(10:9) # Plane selection
+  --
+  -- Packed mode:
+  --
+  -- sclk_buffer_read_address(10:9) : sclk_rdaddress(12:11) # Line buffer pointer (4 line buffers)
+  -- sclk_buffer_read_address(8:0)  : sclk_rdaddress(12:2)  # DMA word address (1 Word = 4x64 bits)
+  -- sck_output_mux_sel(1:0)        : sclk_rdaddress(1:0)   # Packed pixel QWORD selection
   -----------------------------------------------------------------------------
   sclk_buffer_read_address <= sclk_rdaddress(sclk_rdaddress'left downto sclk_rdaddress'left-1) & sclk_rdaddress(8 downto 0) when (sclk_unpack = '1') else
                               sclk_rdaddress(sclk_rdaddress'left downto 2);
 
 
+  -----------------------------------------------------------------------------
+  -- Process     : P_sck_output_mux_sel
+  -- Description : Multiplexor selector for the P_sclk_rddata process
+  -----------------------------------------------------------------------------
   P_sck_output_mux_sel : process (sclk) is
   begin
     if (rising_edge(sclk)) then
@@ -225,26 +239,26 @@ begin
         -- Extract QWORDs of Component 0
         -----------------------------------------------------------------------
         when "00" =>
-          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);  -- Byte 0
+          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(7 downto 0);    -- Byte 0
           sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(39 downto 32);  -- Byte 4
-          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);  -- Byte 8
+          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(7 downto 0);    -- Byte 8
           sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(39 downto 32);  -- Byte 12
-          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);  -- Byte 16
+          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(7 downto 0);    -- Byte 16
           sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(39 downto 32);  -- Byte 20
-          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);  -- Byte 24
+          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(7 downto 0);    -- Byte 24
           sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(39 downto 32);  -- Byte 28
 
         -----------------------------------------------------------------------
         -- Extract QWORDs of Component 1
         -----------------------------------------------------------------------
         when "01" =>
-          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(15 downto 8);  -- Byte 1
+          sclk_rddata(7 downto 0)   <= sclk_buffer_read_data_mux(0)(15 downto 8);   -- Byte 1
           sclk_rddata(15 downto 8)  <= sclk_buffer_read_data_mux(0)(47 downto 40);  -- Byte 5
-          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(15 downto 8);  -- Byte 9
+          sclk_rddata(23 downto 16) <= sclk_buffer_read_data_mux(1)(15 downto 8);   -- Byte 9
           sclk_rddata(31 downto 24) <= sclk_buffer_read_data_mux(1)(47 downto 40);  -- Byte 13
-          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(15 downto 8);  -- Byte 17
+          sclk_rddata(39 downto 32) <= sclk_buffer_read_data_mux(2)(15 downto 8);   -- Byte 17
           sclk_rddata(47 downto 40) <= sclk_buffer_read_data_mux(2)(47 downto 40);  -- Byte 21
-          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(15 downto 8);  -- Byte 25
+          sclk_rddata(55 downto 48) <= sclk_buffer_read_data_mux(3)(15 downto 8);   -- Byte 25
           sclk_rddata(63 downto 56) <= sclk_buffer_read_data_mux(3)(47 downto 40);  -- Byte 29
 
         -----------------------------------------------------------------------
