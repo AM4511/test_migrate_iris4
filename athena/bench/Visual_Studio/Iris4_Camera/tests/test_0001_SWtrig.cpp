@@ -128,7 +128,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s("\nThis is a color camera, what color type do you want to use? \n");
 	    printf_s("0: RGB32 \n");
 	    printf_s("1: YUV16 \n");
-	    printf_s("2: PLANAR (not supported yet) \n");
+	    printf_s("2: PLANAR \n");
 	    printf_s("3: RAW \n");
 	    printf_s("4: MONO8 Conversion \n");
 	    
@@ -181,43 +181,44 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	    //--------------------------------
 	    // PLANAR TRANSFER (NOT SUPPORTED YET)
 	    //--------------------------------
-	    else if (PLANAR == 1)
-	    {
-	    	//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-	    	//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
-	    	//
-	    	//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-	    	//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
-	    	//
-	    	//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-	    	//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
-	    
-	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
-	    
-	    	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	    
-	    	MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
-	    	MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
-	    	MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
-	    
-	    	ImageBufferAddr = LayerGetHostAddressBuffer(MilGrabBufferB);
-	    	ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
-	    	ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
-	    
-	    	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
-	    
-	    	LUT_PATTERN = 3;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-	    
-	    	printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	    	printf_s("Adresse buffer display PLANAR G(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
-	    	printf_s("Adresse buffer display PLANAR R(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
-	    	printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
-	    	//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
-	    }
-	    else if (RAW == 1)
+		else if (PLANAR == 1)
+		{   // USING 3 MONO BUFFERS
+			//ImageBufferAddr  = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);		
+			//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);			
+			//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			//
+			//ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
+			//		
+			//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 1);
+			//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 2);
+			//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 3);
+
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+
+			MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
+			MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
+			MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
+
+			ImageBufferAddr = LayerGetPhysicalAddressBuffer(MilGrabBufferB);
+			ImageBufferAddrG = LayerGetPhysicalAddressBuffer(MilGrabBufferG);
+			ImageBufferAddrR = LayerGetPhysicalAddressBuffer(MilGrabBufferR);
+
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
+
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			printf_s("Adresse buffer display PLANAR B(MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Adresse buffer display PLANAR G(MemPtr)    = 0x%llx \n", ImageBufferAddrG);
+			printf_s("Adresse buffer display PLANAR R(MemPtr)    = 0x%llx \n", ImageBufferAddrR);
+			printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
+			//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
+		}
+		else if (RAW == 1)
 	    {
 	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
 	    	LUT_PATTERN = 3;
@@ -770,8 +771,24 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
-	MbufFree(MilGrabBuffer);
-	MdispFree(MilDisplay);
+	if (SensorParams->IS_COLOR == 0 || (SensorParams->IS_COLOR == 1 && PLANAR == 0)) {
+		MbufFree(MilGrabBuffer);
+		MdispFree(MilDisplay);
+	}
+	else {
+		MbufFree(MilGrabBufferB);
+		MbufFree(MilGrabBufferG);
+		MbufFree(MilGrabBufferR);
+		MbufFree(MilGrabBuffer);
+		//MbufFree(MilGrabBufferB);
+		//MbufFree(MilGrabBufferG);
+		//MbufFree(MilGrabBufferR);
+		//MdispFree(MilDisplayB);
+		//MdispFree(MilDisplayG);
+		//MdispFree(MilDisplayR);
+		MdispFree(MilDisplay);
+
+	}
 
 
 

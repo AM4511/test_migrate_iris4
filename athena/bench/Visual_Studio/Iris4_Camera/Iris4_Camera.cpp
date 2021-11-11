@@ -515,7 +515,21 @@ int main(void)
 					  if (FlashResult == 1)
 						printf_s("\nERROR DURING FLASH UPDATE. TRYING TO PROGRAM UPDATE FIRMWARE WHERE NO GOLDEN IS PRESENT. Press 'q' to quit. \n\n");
    					  else
-					    printf_s("\nERROR DURING FLASH UPDATE. Press 'q' to quit. \n\n");
+					    if (FlashResult == 2)
+						  printf_s("\nERROR DURING FLASH UPDATE. FPGA_ERR_BADEPROM. Press 'q' to quit. \n\n");
+					    else
+							if (FlashResult == 3)
+								printf_s("\nERROR DURING FLASH UPDATE. FPGA_ERR_BADRDBACK. Press 'q' to quit. \n\n");
+							else
+								if (FlashResult == 4)
+									printf_s("\nERROR DURING FLASH UPDATE. FPGA_ERR_NOTSUPPORTED. Press 'q' to quit. \n\n");
+								else
+									if (FlashResult == 5)
+										printf_s("\nERROR DURING FLASH UPDATE. FPGA_ERR_NO_DUALBOOT. Press 'q' to quit. \n\n");
+									else
+										printf_s("\nERROR DURING FLASH UPDATE. WAF. Press 'q' to quit. \n\n");
+
+
 
 
 				//} else {

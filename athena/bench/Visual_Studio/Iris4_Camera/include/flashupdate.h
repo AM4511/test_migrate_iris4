@@ -123,7 +123,7 @@ public:
    CFpgaEeprom(unsigned long long dwPhyAddress, DWORD dwEprSize);
    ~CFpgaEeprom();
 
-   BOOL FPGAROMApiFlashFromFile(string &ImageFileName);
+   MIL_UINT8 FPGAROMApiFlashFromFile(string &ImageFileName);
    MIL_UINT8 FPGAROMApiFlashFromMemory(const std::vector<uint8_t>& Data);
 
    // Event used to terminate progress and update thread

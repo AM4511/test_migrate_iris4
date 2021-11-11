@@ -195,7 +195,7 @@ void CXGS_Ctrl::XGS12M_Check_otpm_depended_uploads() {
 
 		printf_s("XGS Loading required register uploads\n");
 		XGS12M_Req_Reg_Up_0();
-		printf_s("XGS Loading timing uploads");
+		printf_s("XGS Loading timing uploads\n");
 		XGS12M_Timing_Up();
 	}
 	else

@@ -122,7 +122,7 @@ M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysi
 		   MIL_INT(Xsize),
 		   MIL_INT(Ysize),
 		   M_UNSIGNED + 8,
-		   M_IMAGE + M_DISP + M_NON_PAGED + M_PLANAR,
+		   M_IMAGE + M_GRAB + M_DISP + M_NON_PAGED + M_RGB24 + M_PLANAR,
 		   GrabBuffer);
    }
 
@@ -142,6 +142,14 @@ M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer)
    {
    return(MbufInquire(GrabBuffer, M_HOST_ADDRESS, M_NULL));
    }
+
+//----------------------------------------------------
+// Get PHYSICAL address of buffer
+//----------------------------------------------------
+M_UINT64  LayerGetPhysicalAddressBuffer(MIL_ID GrabBuffer)
+{
+    return(MbufInquire(GrabBuffer, M_PHYSICAL_ADDRESS, M_NULL));
+}
 
 
 

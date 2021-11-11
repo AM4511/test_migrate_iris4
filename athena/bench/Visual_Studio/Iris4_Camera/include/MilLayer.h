@@ -25,7 +25,7 @@ M_UINT64  LayerCreateGrabBuffer(MIL_ID *GrabBuffer, M_UINT32 Xsize, M_UINT32 Ysi
 void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, int DisplayNum = 1);
 void LayerInitDisplay(MIL_ID GrabBuffer, MIL_ID *MilDisplay, char DisplayInfo[20]);
 M_UINT64  LayerGetHostAddressBuffer(MIL_ID GrabBuffer);
-
+M_UINT64  LayerGetPhysicalAddressBuffer(MIL_ID GrabBuffer);
 void IrisMilFree(void);
 
 #endif

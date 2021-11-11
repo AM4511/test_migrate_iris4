@@ -77,9 +77,9 @@ entity XGS_controller_top is
         curr_db_y_end_ROI1              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
         curr_db_y_size_ROI1             : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base                    
                  
-        curr_db_x_start_ROI1            : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
-        curr_db_x_end_ROI1              : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
-        curr_db_x_size_ROI1             : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
+        --curr_db_x_start_ROI1            : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
+        --curr_db_x_end_ROI1              : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
+        --curr_db_x_size_ROI1             : out   std_logic_vector(12 downto 0):= (others=>'0');     -- 1-base  
 
         --curr_db_y_start_ROI2            : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
         --curr_db_y_end_ROI2              : out   std_logic_vector(11 downto 0):= (others=>'0');     -- 1-base  
@@ -201,9 +201,9 @@ architecture arch_imp of XGS_controller_top is
            curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
            curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
-           curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
-           curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
-           curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
+           --curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
+           --curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
+           --curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
 
            --curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
            --curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
@@ -405,9 +405,9 @@ begin
            curr_db_y_end_ROI1              => curr_db_y_end_ROI1,       -- 1-base  
            curr_db_y_size_ROI1             => curr_db_y_size_ROI1,      -- 1-base
                     
-           curr_db_x_start_ROI1            => curr_db_x_start_ROI1,     -- 1-base
-           curr_db_x_end_ROI1              => curr_db_x_end_ROI1,       -- 1-base  
-           curr_db_x_size_ROI1             => curr_db_x_size_ROI1,      -- 1-base
+           --curr_db_x_start_ROI1            => curr_db_x_start_ROI1,     -- 1-base
+           --curr_db_x_end_ROI1              => curr_db_x_end_ROI1,       -- 1-base  
+           --curr_db_x_size_ROI1             => curr_db_x_size_ROI1,      -- 1-base
 					
            --curr_db_y_start_ROI2            => curr_db_y_start_ROI2,     -- 1-base  
            --curr_db_y_end_ROI2              => curr_db_y_end_ROI2,       -- 1-base  

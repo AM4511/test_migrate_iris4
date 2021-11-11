@@ -54,6 +54,9 @@ puts "Running ${myself}"
 #
 # 0.5.0 : Added support for color mode
 #          
+# 0.5.1 : Added support for Planar color mode, YUV Subsampling and RGB to Y conversion
+#         Complete universal Trim module for Mono and Color fpga
+#
 #
 
 set FPGA_MAJOR_VERSION     0

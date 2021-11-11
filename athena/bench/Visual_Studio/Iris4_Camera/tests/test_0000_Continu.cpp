@@ -21,6 +21,10 @@ using namespace std;
 void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 {
 
+	//MIL_ID MilDisplayB;
+	//MIL_ID MilDisplayG;
+	//MIL_ID MilDisplayR;
+
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
 	M_UINT64 ImageBufferAddr = 0;
@@ -137,7 +141,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s("\nThis is a color camera, what color type do you want to use? \n");
 	    printf_s(  "0: RGB32 \n");
 		printf_s(  "1: YUV16 \n");
-		printf_s(  "2: PLANAR (not supported yet) \n");
+		printf_s(  "2: PLANAR \n");
 		printf_s(  "3: RAW \n");
 		printf_s(  "4: MONO8 Conversion \n");
 
@@ -188,31 +192,32 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		}
    	    //--------------------------------
-	    // PLANAR TRANSFER (NOT SUPPORTED YET)
+	    // PLANAR TRANSFER
 	    //--------------------------------
 		else if(PLANAR == 1)         
-		{
-			//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
-			//
-			//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
-			//
+		{   // USING 3 MONO BUFFERS
+			//ImageBufferAddr  = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);		
+			//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);			
 			//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-			//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
+			//
+			//ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
+			//		
+			//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 1);
+			//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 2);
+			//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 3);
 
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
-
-			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-
-			MbufChildColor(MilGrabBuffer, M_BLUE, &MilGrabBufferB);
-			MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
-			MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
 			
-			ImageBufferAddr  = LayerGetHostAddressBuffer(MilGrabBufferB);
-			ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
-			ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
-
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			
+			MbufChildColor(MilGrabBuffer, M_BLUE,  &MilGrabBufferB);
+			MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
+			MbufChildColor(MilGrabBuffer, M_RED,   &MilGrabBufferR);
+			
+			ImageBufferAddr  = LayerGetPhysicalAddressBuffer(MilGrabBufferB);
+			ImageBufferAddrG = LayerGetPhysicalAddressBuffer(MilGrabBufferG);
+			ImageBufferAddrR = LayerGetPhysicalAddressBuffer(MilGrabBufferR);
+			
 			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
 
 			LUT_PATTERN = 3;
@@ -636,26 +641,26 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		}
 
 
-
+		//MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+		//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
+		//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
+		//printf_s("%f", DisplayLength1 - DisplayLength0);
 
 		if (DisplayOn)
 			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-			//{
-			//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength0);
-			//if (SensorParams->IS_COLOR == 0)
-			//	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
-			//else
-			//	if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
-			//		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT); //RGB32 YUV32
-			//	else
-			//	{
-			//		MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
-			//		MbufControl(MilGrabBufferG, M_MODIFIED, M_DEFAULT);
-			//		MbufControl(MilGrabBufferR, M_MODIFIED, M_DEFAULT);
-			//	}
-
-		//	//MappTimer(M_DEFAULT, M_TIMER_READ, &DisplayLength1);
-		//	//printf_s("%f", DisplayLength1 - DisplayLength0);
+		//{			
+		//	if (SensorParams->IS_COLOR == 0)
+		//		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+		//	else
+		//		if (SensorParams->IS_COLOR == 1 && PLANAR == 0)
+		//			MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT); //RGB32 YUV32
+		//		else
+		//		{
+		//			MbufControl(MilGrabBufferB, M_MODIFIED, M_DEFAULT);
+		//			MbufControl(MilGrabBufferG, M_MODIFIED, M_DEFAULT);
+		//			MbufControl(MilGrabBufferR, M_MODIFIED, M_DEFAULT);
+		//		}
+		//
 		//}
 
 
@@ -1083,10 +1088,13 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MdispFree(MilDisplay);
 	}
 	else {
-		MbufFree(MilGrabBuffer);
 		MbufFree(MilGrabBufferB);
 		MbufFree(MilGrabBufferG);
 		MbufFree(MilGrabBufferR);
+		MbufFree(MilGrabBuffer);
+		//MbufFree(MilGrabBufferB);
+		//MbufFree(MilGrabBufferG);
+		//MbufFree(MilGrabBufferR);
 		//MdispFree(MilDisplayB);
 		//MdispFree(MilDisplayG);
 		//MdispFree(MilDisplayR);

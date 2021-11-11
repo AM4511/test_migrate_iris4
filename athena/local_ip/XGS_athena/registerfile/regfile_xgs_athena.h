@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0xA9A5AAFB
+* Register file CRC32 : 0xEAA00456
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -75,8 +75,6 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_ADDRESS                0x1C8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_G_ADDRESS          0x1CC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_ADDRESS         0x1D0
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_ADDRESS           0x1D8
-#define FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_ADDRESS            0x1DC
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_ADDRESS                 0x1E0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_ADDRESS             0x1E8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_ADDRESS                 0x1F0
@@ -369,15 +367,14 @@ typedef union
 
    struct
    {
-      M_UINT32 RSVD0                  : 8;  /* Bits(7:0), Reserved */
-      M_UINT32 REVERSE_X              : 1;  /* Bits(8:8), Reverse image in X direction */
-      M_UINT32 REVERSE_Y              : 1;  /* Bits(9:9), REVERSE Y */
-      M_UINT32 SUB_X                  : 4;  /* Bits(13:10), null */
-      M_UINT32 RSVD1                  : 9;  /* Bits(22:14), Reserved */
-      M_UINT32 DUP_LAST_LINE          : 1;  /* Bits(23:23), null */
-      M_UINT32 COLOR_SPACE            : 3;  /* Bits(26:24), null */
-      M_UINT32 RSVD2                  : 5;  /* Bits(31:27), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[3] ;     /* Reserved space below */
+      M_UINT32 RSVD0                  : 8;   /* Bits(7:0), Reserved */
+      M_UINT32 REVERSE_X              : 1;   /* Bits(8:8), Reverse image in X direction */
+      M_UINT32 REVERSE_Y              : 1;   /* Bits(9:9), REVERSE Y */
+      M_UINT32 SUB_X                  : 4;   /* Bits(13:10), null */
+      M_UINT32 RSVD1                  : 10;  /* Bits(23:14), Reserved */
+      M_UINT32 COLOR_SPACE            : 3;   /* Bits(26:24), null */
+      M_UINT32 RSVD2                  : 5;   /* Bits(31:27), Reserved */
+      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_CSC_TYPE;
@@ -401,7 +398,8 @@ typedef union
       M_UINT32 ADDRESS_BUS_WIDTH     : 4;   /* Bits(23:20), Line buffer address size in bits */
       M_UINT32 LINE_PTR_WIDTH        : 2;   /* Bits(25:24), Line pointer size (in bits) */
       M_UINT32 RSVD2                 : 2;   /* Bits(27:26), Reserved */
-      M_UINT32 MAX_LINE_BUFF_CNT     : 4;   /* Bits(31:28), Maximum line buffer count */
+      M_UINT32 MAX_LINE_BUFF_CNT     : 3;   /* Bits(30:28), Maximum line buffer count */
+      M_UINT32 RSVD3                 : 1;   /* Bits(31:31), Reserved */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_DMA_OUTPUT_BUFFER_TYPE;
@@ -1096,46 +1094,10 @@ typedef union
       M_UINT32 DG_FACTOR_R            : 7;   /* Bits(14:8), null */
       M_UINT32 RESERVED1              : 1;   /* Bits(15:15), null */
       M_UINT32 RSVD0                  : 16;  /* Bits(31:16), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
+      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_TYPE;
-
-
-/**************************************************************************
-* Register name : FPGA_ROI_X_START
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 X_START : 13;  /* Bits(12:0), X START */
-      M_UINT32 RSVD0   : 19;  /* Bits(31:13), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_TYPE;
-
-
-/**************************************************************************
-* Register name : FPGA_ROI_X_SIZE
-***************************************************************************/
-typedef union
-{
-   M_UINT32 u32;
-   M_UINT16 u16;
-   M_UINT8  u8;
-
-   struct
-   {
-      M_UINT32 X_SIZE : 13;  /* Bits(12:0), X SIZE */
-      M_UINT32 RSVD0  : 19;  /* Bits(31:13), Reserved */
-   } f;
-
-} FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_TYPE;
 
 
 /**************************************************************************
@@ -2201,8 +2163,6 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_DP_B_TYPE            SENSOR_DP_B;             /* Address offset: 0xc8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_G_TYPE      SENSOR_GAIN_DIG_G;       /* Address offset: 0xcc */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_GAIN_DIG_RB_TYPE     SENSOR_GAIN_DIG_RB;      /* Address offset: 0xd0 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_START_TYPE       FPGA_ROI_X_START;        /* Address offset: 0xd8 */
-   FPGA_REGFILE_XGS_ATHENA_ACQ_FPGA_ROI_X_SIZE_TYPE        FPGA_ROI_X_SIZE;         /* Address offset: 0xdc */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_PINS_TYPE             DEBUG_PINS;              /* Address offset: 0xe0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TRIGGER_MISSED_TYPE         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS_TYPE             SENSOR_FPS;              /* Address offset: 0xf0 */

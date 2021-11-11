@@ -199,7 +199,7 @@ void CXGS_Ctrl::XGS5M_Check_otpm_depended_uploads() {
 		printf_s("\n\nLa version otpm est v%d, load de la version longue de la dcf (WIP Rev: %d)\n", otpmversion, XGS5K_WIP);
 
 		XGS5M_Req_Reg_Up_0();
-		printf_s("XGS Loading timing uploads");
+		printf_s("XGS Loading timing uploads\n");
 		XGS5M_Timing_Up();
 
 
@@ -326,7 +326,7 @@ const M_UINT32 REG_BURST10[] = { 0x640C, 0x0002, 0x001C, 0x0001, 0x0000, 0x0004,
 
 
 void CXGS_Ctrl::XGS5M_Timing_Up(void) {
-	// [Hidden:Timing_Up]
+	// [Hidden:Timing_Up]	
 	WriteSPI_BURST(REG_BURST1, sizeof(REG_BURST1) / sizeof(M_UINT32));
 	WriteSPI_BURST(REG_BURST2, sizeof(REG_BURST2) / sizeof(M_UINT32));
 	WriteSPI_BURST(REG_BURST3, sizeof(REG_BURST3) / sizeof(M_UINT32));

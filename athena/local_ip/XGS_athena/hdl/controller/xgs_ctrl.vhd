@@ -104,9 +104,9 @@ entity xgs_ctrl is
            curr_db_y_end_ROI1              : out std_logic_vector;     -- 1-base
            curr_db_y_size_ROI1             : out std_logic_vector;     -- 1-base  
 
-           curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
-           curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
-           curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
+           --curr_db_x_start_ROI1            : out std_logic_vector;     -- 1-base
+           --curr_db_x_end_ROI1              : out std_logic_vector;     -- 1-base
+           --curr_db_x_size_ROI1             : out std_logic_vector;     -- 1-base  
 
            --curr_db_y_start_ROI2            : out std_logic_vector;     -- 1-base  
            --curr_db_y_end_ROI2              : out std_logic_vector;     -- 1-base
@@ -293,9 +293,9 @@ architecture functional of xgs_ctrl is
   signal  curr_y_start           : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
   signal  curr_y_end             : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
   signal  curr_y_size            : std_logic_vector(REGFILE.ACQ.SENSOR_ROI_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
-  signal  curr_x_start           : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
-  signal  curr_x_end             : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
-  signal  curr_x_size            : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 0 );      
+  --signal  curr_x_start           : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
+  --signal  curr_x_end             : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START'high downto 0 );    
+  --signal  curr_x_size            : std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 0 );      
   --signal  curr_y_start_ROI2      : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START'high+2 downto 0 );  --XGS in kernel of 4 lignes
   --signal  curr_y_size_ROI2       : std_logic_vector(REGFILE.ACQ.SENSOR_ROI2_Y_SIZE.Y_SIZE'high+2 downto 0 );    --XGS in kernel of 4 lignes
  
@@ -1033,13 +1033,13 @@ BEGIN
         end if;   
 
         -- X: multiple de 8 pixel poursimplifier 
-        curr_x_start               <= REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000";	
-        curr_x_end                 <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000") + std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000") - '1' ;
-        if(REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X='0') then
-  	      curr_x_size              <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000");
-        else
-          curr_x_size              <= std_logic_vector('0' & REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 4) & "000") ;      
-        end if;   
+        --curr_x_start               <= REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000";	
+        --curr_x_end                 <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_START.X_START(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3) & "000") + std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000") - '1' ;
+        --if(REGFILE.ACQ.SENSOR_SUBSAMPLING.SUBSAMPLING_X='0') then
+  	    --  curr_x_size              <= std_logic_vector(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 3)  & "000");
+        --else
+        --  curr_x_size              <= std_logic_vector('0' & REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE(REGFILE.ACQ.FPGA_ROI_X_SIZE.X_SIZE'high downto 4) & "000") ;      
+        --end if;   
 
 
         --curr_y_start_ROI2          <= REGFILE.ACQ.SENSOR_ROI2_Y_START.Y_START & "00";
@@ -1070,9 +1070,9 @@ BEGIN
         curr_db_y_size_ROI1        <= curr_y_size;                            --Only used in Bayer/dcp 
         curr_db_y_end_ROI1         <= curr_y_end;                             --Only used in Bayer/dcp
 
-        curr_db_x_start_ROI1       <= curr_x_start;                           --Only used in Bayer/dcp
-        curr_db_x_size_ROI1        <= curr_x_size;                            --Only used in Bayer/dcp 
-        curr_db_x_end_ROI1         <= curr_x_end;                             --Only used in Bayer/dcp
+        --curr_db_x_start_ROI1       <= curr_x_start;                           --Only used in Bayer/dcp
+        --curr_db_x_size_ROI1        <= curr_x_size;                            --Only used in Bayer/dcp 
+        --curr_db_x_end_ROI1         <= curr_x_end;                             --Only used in Bayer/dcp
 
         --curr_db_y_start_ROI2       <= curr_y_start_ROI2;                      --Only used in Bayer/dcp
         --curr_db_y_size_ROI2        <= curr_y_size_ROI2;                       --Only used in Bayer/dcp
