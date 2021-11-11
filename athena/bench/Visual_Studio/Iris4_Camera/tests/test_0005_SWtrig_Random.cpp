@@ -178,7 +178,7 @@ void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 		printf_s("\nThis is a color camera, what color type do you want to use? \n");
 	printf_s("0: RGB32 \n");
 	printf_s("1: YUV16 \n");
-	printf_s("2: PLANAR (not supported yet) \n");
+	printf_s("2: PLANAR\n");
 	printf_s("3: RAW \n");
 	printf_s("4: MONO8 Conversion \n");
 
@@ -229,18 +229,19 @@ void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 
 	}
 	//--------------------------------
-	// PLANAR TRANSFER (NOT SUPPORTED YET)
+	// PLANAR TRANSFER
 	//--------------------------------
 	else if (PLANAR == 1)
-	{
-		//ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 2);
-		//
-		//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 3);
-		//
+	{   // USING 3 MONO BUFFERS
+		//ImageBufferAddr  = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);		
+		//ImageBufferAddrG = LayerCreateGrabBuffer(&MilGrabBufferG, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);			
 		//ImageBufferAddrR = LayerCreateGrabBuffer(&MilGrabBufferR, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-		//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 4);
+		//
+		//ImageBufferLinePitch = MbufInquire(MilGrabBufferB, M_PITCH_BYTE, M_NULL);
+		//		
+		//LayerInitDisplay(MilGrabBufferB, &MilDisplayB, 1);
+		//LayerInitDisplay(MilGrabBufferG, &MilDisplayG, 2);
+		//LayerInitDisplay(MilGrabBufferR, &MilDisplayR, 3);
 
 		ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, PlanarType);
 
@@ -250,9 +251,9 @@ void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 		MbufChildColor(MilGrabBuffer, M_GREEN, &MilGrabBufferG);
 		MbufChildColor(MilGrabBuffer, M_RED, &MilGrabBufferR);
 
-		ImageBufferAddr = LayerGetHostAddressBuffer(MilGrabBufferB);
-		ImageBufferAddrG = LayerGetHostAddressBuffer(MilGrabBufferG);
-		ImageBufferAddrR = LayerGetHostAddressBuffer(MilGrabBufferR);
+		ImageBufferAddr = LayerGetPhysicalAddressBuffer(MilGrabBufferB);
+		ImageBufferAddrG = LayerGetPhysicalAddressBuffer(MilGrabBufferG);
+		ImageBufferAddrR = LayerGetPhysicalAddressBuffer(MilGrabBufferR);
 
 		LayerInitDisplay(MilGrabBuffer, &MilDisplay, 4);
 
@@ -517,14 +518,15 @@ void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 		XGS_Ctrl->SW_snapshot(0);                 // Ici on poll trig_rdy avant d'envoyer le trigger
 
-		//Overrun detection
-		OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, DMAParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
-		if (OverrunPixel != 0)
-		{
-			Overrun++;
-			printf_s("\rDMA Overflow detected: %d\n", Overrun);
-			XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
-		}
+		// A debuger un jour avec le Planaire
+		////Overrun detection
+		//OverrunPixel = XGS_Data->GetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, DMAParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL));
+		//if (OverrunPixel != 0)
+		//{
+		//	Overrun++;
+		//	printf_s("\rDMA Overflow detected: %d\n", Overrun);
+		//	XGS_Data->SetImagePixel8(LayerGetHostAddressBuffer(MilGrabBuffer), 0, GrabParams->Y_SIZE, MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL), 0); //reset overrun pixel
+		//}
 
 
 		if(!ReleaseOsMutex(&AbortRunning_0005))
@@ -595,8 +597,24 @@ void test_0005_SWtrig_Random(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Da
 	//------------------------------
 	// Free MIL Display
 	//------------------------------
-	MbufFree(MilGrabBuffer);
-	MdispFree(MilDisplay);
+	if (SensorParams->IS_COLOR == 0 || (SensorParams->IS_COLOR == 1 && PLANAR == 0)) {
+		MbufFree(MilGrabBuffer);
+		MdispFree(MilDisplay);
+	}
+	else {
+		MbufFree(MilGrabBufferB);
+		MbufFree(MilGrabBufferG);
+		MbufFree(MilGrabBufferR);
+		MbufFree(MilGrabBuffer);
+		//MbufFree(MilGrabBufferB);
+		//MbufFree(MilGrabBufferG);
+		//MbufFree(MilGrabBufferR);
+		//MdispFree(MilDisplayB);
+		//MdispFree(MilDisplayG);
+		//MdispFree(MilDisplayR);
+		MdispFree(MilDisplay);
+
+	}
 
 
 

@@ -172,7 +172,6 @@ void CXGS_Ctrl::XGS16M_Check_otpm_depended_uploads() {
 
 		//[Hidden:Timing_Up]
 		printf_s("XGS Loading timing uploads\n");
-
 		WriteSPI_BURST(REG_BURST1,  sizeof(REG_BURST1) / sizeof(M_UINT32));
 		WriteSPI_BURST(REG_BURST2,  sizeof(REG_BURST2) / sizeof(M_UINT32));
 		WriteSPI_BURST(REG_BURST3,  sizeof(REG_BURST3) / sizeof(M_UINT32));

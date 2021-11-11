@@ -12,6 +12,7 @@ use ieee.numeric_std.all;
 
 entity dma_line_buffer is
   generic (
+    COLOR                 : integer := 0;  -- Boolean (0 or 1)
     DMA_ADDR_WIDTH        : integer := 11;  -- in bits
     BUFFER_LINE_PTR_WIDTH : integer := 2;
     BUFFER_ADDR_WIDTH     : integer := 13
@@ -193,10 +194,19 @@ begin
   -- sclk_buffer_read_address(8:0)  : sclk_rdaddress(12:2)  # DMA word address (1 Word = 4x64 bits)
   -- sck_output_mux_sel(1:0)        : sclk_rdaddress(1:0)   # Packed pixel QWORD selection
   -----------------------------------------------------------------------------
+  
+  GEN_COLOR: if COLOR=1 generate
+
   sclk_buffer_read_address <= sclk_rdaddress(sclk_rdaddress'left downto sclk_rdaddress'left-1) & sclk_rdaddress(8 downto 0) when (sclk_unpack = '1') else
-                              sclk_rdaddress(sclk_rdaddress'left downto 2);
+                                 sclk_rdaddress(sclk_rdaddress'left downto 2);
+  end generate;
 
+  GEN_MONO: if COLOR=0 generate  
 
+    sclk_buffer_read_address <= sclk_rdaddress(sclk_rdaddress'left downto 2);
+  end generate;
+
+                              
   -----------------------------------------------------------------------------
   -- Process     : P_sck_output_mux_sel
   -- Description : Multiplexor selector for the P_sclk_rddata process

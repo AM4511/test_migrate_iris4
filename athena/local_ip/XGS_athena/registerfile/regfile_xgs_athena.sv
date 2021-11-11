@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/10/04 10:10:37
+ ** Created on          : 2021/11/11 10:17:49
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0xA9A5AAFB
+ ** Register file CRC32 : 0xEAA00456
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -263,8 +263,7 @@ typedef union packed
       logic       REVERSE_X;               /* Bits(8:8), Reverse image in X direction */
       logic       REVERSE_Y;               /* Bits(9:9), REVERSE Y */
       logic [3:0] SUB_X;                   /* Bits(13:10), null */
-      logic [8:0] rsvd1;                   /* Bits(22:14), Reserved */
-      logic       DUP_LAST_LINE;           /* Bits(23:23), null */
+      logic [9:0] rsvd1;                   /* Bits(23:14), Reserved */
       logic [2:0] COLOR_SPACE;             /* Bits(26:24), null */
       logic [4:0] rsvd2;                   /* Bits(31:27), Reserved */
       logic       rsvd_register_space[3];  /* Reserved space below */
@@ -291,7 +290,8 @@ typedef union packed
       logic [3:0]  ADDRESS_BUS_WIDTH;      /* Bits(23:20), Line buffer address size in bits */
       logic [1:0]  LINE_PTR_WIDTH;         /* Bits(25:24), Line pointer size (in bits) */
       logic [1:0]  rsvd2;                  /* Bits(27:26), Reserved */
-      logic [3:0]  MAX_LINE_BUFF_CNT;      /* Bits(31:28), Maximum line buffer count */
+      logic [2:0]  MAX_LINE_BUFF_CNT;      /* Bits(30:28), Maximum line buffer count */
+      logic        rsvd3;                  /* Bits(31:31), Reserved */
    } f;
 
 } fdk_regfile_xgs_athena_DMA_OUTPUT_BUFFER_t;
@@ -986,46 +986,10 @@ typedef union packed
       logic [6:0]  DG_FACTOR_R;             /* Bits(14:8), null */
       logic        reserved1;               /* Bits(15:15), null */
       logic [15:0] rsvd0;                   /* Bits(31:16), Reserved */
-      logic        rsvd_register_space[1];  /* Reserved space below */
+      logic        rsvd_register_space[3];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_athena_ACQ_SENSOR_GAIN_DIG_RB_t;
-
-
-/**************************************************************************
-* Register name : FPGA_ROI_X_START
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [12:0] X_START;  /* Bits(12:0), X START */
-      logic [18:0] rsvd0;    /* Bits(31:13), Reserved */
-   } f;
-
-} fdk_regfile_xgs_athena_ACQ_FPGA_ROI_X_START_t;
-
-
-/**************************************************************************
-* Register name : FPGA_ROI_X_SIZE
-***************************************************************************/
-typedef union packed
-{
-   uint32_t u32;
-   uint16_t u16;
-   uint8_t  u8;
-
-   struct packed
-   {
-      logic [12:0] X_SIZE;  /* Bits(12:0), X SIZE */
-      logic [18:0] rsvd0;   /* Bits(31:13), Reserved */
-   } f;
-
-} fdk_regfile_xgs_athena_ACQ_FPGA_ROI_X_SIZE_t;
 
 
 /**************************************************************************
@@ -2093,8 +2057,6 @@ typedef struct packed
    fdk_regfile_xgs_athena_ACQ_SENSOR_DP_B_t            SENSOR_DP_B;             /* Address offset: 0xc8 */
    fdk_regfile_xgs_athena_ACQ_SENSOR_GAIN_DIG_G_t      SENSOR_GAIN_DIG_G;       /* Address offset: 0xcc */
    fdk_regfile_xgs_athena_ACQ_SENSOR_GAIN_DIG_RB_t     SENSOR_GAIN_DIG_RB;      /* Address offset: 0xd0 */
-   fdk_regfile_xgs_athena_ACQ_FPGA_ROI_X_START_t       FPGA_ROI_X_START;        /* Address offset: 0xd8 */
-   fdk_regfile_xgs_athena_ACQ_FPGA_ROI_X_SIZE_t        FPGA_ROI_X_SIZE;         /* Address offset: 0xdc */
    fdk_regfile_xgs_athena_ACQ_DEBUG_PINS_t             DEBUG_PINS;              /* Address offset: 0xe0 */
    fdk_regfile_xgs_athena_ACQ_TRIGGER_MISSED_t         TRIGGER_MISSED;          /* Address offset: 0xe8 */
    fdk_regfile_xgs_athena_ACQ_SENSOR_FPS_t             SENSOR_FPS;              /* Address offset: 0xf0 */

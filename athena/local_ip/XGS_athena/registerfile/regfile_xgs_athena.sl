@@ -81,12 +81,9 @@ Register("csc", 0x98, 4, "null");
 			FieldValue("Reserved for Mono sensor operation", 0);
 			FieldValue("BGR32", 1);
 			FieldValue("YUV 4:2:2 in full range", 2);
-			FieldValue("Reserved for Planar 8-bits (Not implemented yet)", 3);
-			FieldValue("Reserved for Y only with color sensor (Not implemented)", 4);
+			FieldValue("Planar 8-bits ", 3);
+			FieldValue("Y only with color sensor ", 4);
 			FieldValue("RAW color pixels (For color sensor only, 8bpp)", 5);
-		Field("dup_last_line", 23, 23, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-			FieldValue("normal processing", 0);
-			FieldValue("last line is duplicated", 1);
 		Field("sub_x", 13, 10, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 			FieldValue("No subsampling", 0);
 			FieldValue("1/2", 1);
@@ -101,7 +98,7 @@ Register("csc", 0x98, 4, "null");
 			FieldValue("Reverse X enabled", 1);
 
 Register("output_buffer", 0xa8, 4, "Output line buffer");
-		Field("max_line_buff_cnt", 31, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Maximum line buffer count");
+		Field("max_line_buff_cnt", 30, 28, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "Maximum line buffer count");
 		Field("line_ptr_width", 25, 24, "rd|wr", 0x0, 0x2, 0xffffffff, 0xffffffff, TEST, 0, 0, "Line pointer size (in bits)");
 			FieldValue("Not valid", 0);
 			FieldValue("The buffer is divided in 2 line buffers", 1);
@@ -402,12 +399,6 @@ Register("sensor_gain_dig_rb", 0x1d0, 4, "null");
 		Field("dg_factor_r", 14, 8, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
 		Field("reserved0", 7, 7, "rd", 0x0, 0x0, 0xffffffff, 0xffffffff, NO_TEST, 0, 0, "null");
 		Field("dg_factor_b", 6, 0, "rd|wr", 0x0, 0x20, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");
-
-Register("fpga_roi_x_start", 0x1d8, 4, "null");
-		Field("x_start", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X START");
-
-Register("fpga_roi_x_size", 0x1dc, 4, "null");
-		Field("x_size", 12, 0, "rd|wr", 0x0, 0x0, 0xffffffff, 0xffffffff, TEST, 0, 0, "X SIZE");
 
 Register("debug_pins", 0x1e0, 4, "null");
 		Field("debug3_sel", 28, 24, "rd|wr", 0x0, 0x1f, 0xffffffff, 0xffffffff, TEST, 0, 0, "null");

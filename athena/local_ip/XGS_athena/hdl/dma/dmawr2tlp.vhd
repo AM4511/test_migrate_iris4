@@ -104,6 +104,7 @@ architecture rtl of dmawr2tlp is
 
   component axi_stream_in is
     generic (
+      COLOR                 : integer := 0;  -- Boolean (0 or 1)
       AXIS_DATA_WIDTH       : integer := 64;
       AXIS_USER_WIDTH       : integer := 4;
       DMA_ADDR_WIDTH        : integer := 11;  -- in bits
@@ -122,7 +123,7 @@ architecture rtl of dmawr2tlp is
       planar_en                   : in  std_logic;
       clr_max_line_buffer_cnt     : in  std_logic;
       line_ptr_width              : in  std_logic_vector(1 downto 0);
-      max_line_buffer_cnt         : out std_logic_vector(3 downto 0);
+      max_line_buffer_cnt         : out std_logic_vector(regfile.DMA.OUTPUT_BUFFER.MAX_LINE_BUFF_CNT'range);
       pcie_back_pressure_detected : out std_logic;
 
       ----------------------------------------------------
@@ -242,7 +243,7 @@ architecture rtl of dmawr2tlp is
   signal color_space                 : std_logic_vector(2 downto 0);
   signal clr_max_line_buffer_cnt     : std_logic;
   signal line_ptr_width              : std_logic_vector(BUFFER_PTR_WIDTH-1 downto 0);
-  signal max_line_buffer_cnt         : std_logic_vector(3 downto 0);
+  signal max_line_buffer_cnt         : std_logic_vector(regfile.DMA.OUTPUT_BUFFER.MAX_LINE_BUFF_CNT'range);
   signal pcie_back_pressure_detected : std_logic;
   signal dbg_fifo_error              : std_logic;
   signal planar_en                   : std_logic;
@@ -341,6 +342,7 @@ begin
 
   xaxi_stream_in : axi_stream_in
     generic map(
+      COLOR                 => COLOR,   
       AXIS_DATA_WIDTH       => AXIS_DATA_WIDTH,
       AXIS_USER_WIDTH       => AXIS_USER_WIDTH,
       DMA_ADDR_WIDTH        => DMA_ADDR_WIDTH,
