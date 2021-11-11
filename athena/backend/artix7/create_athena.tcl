@@ -61,7 +61,7 @@ puts "Running ${myself}"
 
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     5
-set FPGA_SUB_MINOR_VERSION 0
+set FPGA_SUB_MINOR_VERSION 1
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
