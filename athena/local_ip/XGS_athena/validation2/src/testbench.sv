@@ -15,7 +15,7 @@ module testbench;
 
  	parameter AXIL_DATA_WIDTH  = 32;
 	parameter AXIL_ADDR_WIDTH  = 11;
-    parameter AXIS_DATA_WIDTH  = 64;
+  parameter AXIS_DATA_WIDTH  = 64;
 	parameter AXIS_USER_WIDTH  = 4;
 	parameter GPIO_NUMB_INPUT  = 1;
 	parameter GPIO_NUMB_OUTPUT = 3;  // [2]   = Anput Ext trigger
@@ -23,7 +23,7 @@ module testbench;
   reg tb_CLK;
   reg tb_RESETn;
  
-  int nb_errors = 1; // flag d'erreur retourne au .TCL appelant. Par defaut a 1 pour ramasser le cas ou on ne se rend pas a la fin.
+  int nb_errors = 10000; // flag d'erreur retourne au .TCL appelant. Par defaut a 1 pour ramasser le cas ou on ne se rend pas a la fin.
   
   // Define Driver
   Cdriver_axil  #(.DATA_WIDTH(AXIL_DATA_WIDTH), .ADDR_WIDTH(AXIL_ADDR_WIDTH), .NUMB_INPUT_IO(GPIO_NUMB_INPUT), .NUMB_OUTPUT_IO(GPIO_NUMB_OUTPUT)) host;
@@ -54,6 +54,11 @@ module testbench;
   Test0023 test0023;  //color RGB32 12M
   Test0024 test0024;
   Test0025 test0025;  //color 3 Planar images B8,G8,R8
+  Test0026 test0026;  //color 3 Planar w/ Sub-X = 1/2, 1/4, 1/8
+  Test0027 test0027;  //color 3 Planar w/ Sub-Y = 1/2, 1/4, 1/8 (w/32 lines)  
+  Test0028 test0028;  //color 3 Planar w/ Sub-X and Sub-Y = 1/2, 1/4, 1/8 (w/32 lines)
+  Test0029 test0029;  //color 3 Planar w/ROI-Trimming at X for 800 x 16, Full_X x 16, 800 x 16 (w/32 lines)
+  Test0030 test0030;  //color 3 Planar w/ROI-Trimming 800 x 16 and Sub-X and Sub-Y = 1/2
 
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
   Ctest t;
@@ -104,7 +109,12 @@ module testbench;
       top_string_factory["Test0022"] = objectRegistry#(Test0022)::get(); 
       top_string_factory["Test0023"] = objectRegistry#(Test0023)::get();
       top_string_factory["Test0024"] = objectRegistry#(Test0024)::get();  
-      top_string_factory["Test0025"] = objectRegistry#(Test0025)::get();                   
+      top_string_factory["Test0025"] = objectRegistry#(Test0025)::get();
+      top_string_factory["Test0026"] = objectRegistry#(Test0026)::get();
+      top_string_factory["Test0027"] = objectRegistry#(Test0027)::get();
+      top_string_factory["Test0028"] = objectRegistry#(Test0028)::get();
+      top_string_factory["Test0029"] = objectRegistry#(Test0029)::get();
+      top_string_factory["Test0030"] = objectRegistry#(Test0030)::get();
       
       tb_RESETn = 1'b0;
       repeat(20)@(posedge tb_CLK);

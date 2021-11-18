@@ -1,8 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Test0025 : XGS 12000 : BAYER COLOR DEMOSAIC : PLANAR
+// Test0028 : XGS 12000 : BAYER COLOR DEMOSAIC : PLANAR
 //
-// Description : Send one color frame of 16 lines. Destination buffer is PLANAR.
-//               (20 from the sensor because of bayer 1-line consumption)
+// Description : Send one color frame of 16 lines (20 from the sensor because of bayer 1-line consumption)
+//               Destination buffer is PLANAR w/ Sub_Y and Sub_X at:
+//				 Image 1 : 1/2 subsampling
+//               Image 2 : 1/4 subsampling
+//				 Image 3 : 1/8 subsampling
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 import core_pkg::*;
@@ -10,7 +13,7 @@ import driver_pkg::*;
 
 
 
-class Test0025 extends Ctest;
+class Test0028 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -46,7 +49,7 @@ class Test0025 extends Ctest;
 
 
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
-        super.new("Test0025", host, tx_axis_if);
+        super.new("Test0028", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
         this.scoreboard = new(tx_axis_if,this);
@@ -112,7 +115,7 @@ class Test0025 extends Ctest;
                 super.Vlib.DPC_COLOR_add_list();
 
 				///////////////////////////////////////////////////
-				// Trigger ROI #0
+				//  Trigger Image #1 w/ sub_X  and  sub_Y = 1/2
 				///////////////////////////////////////////////////
 				tx_axis_if.tready_packet_delai_cfg    = 1; //random backpressure
 				tx_axis_if.tready_packet_random_min   = 1;
@@ -171,8 +174,8 @@ class Test0025 extends Ctest;
 				///////////////////////////////////////////////////////
 				// Subsampling
 				///////////////////////////////////////////////////////
-				SUB_X       = 0;
-				SUB_Y       = 0;
+				SUB_X       = 1;
+				SUB_Y       = 1;
 				super.Vlib.Set_SUB(SUB_X, SUB_Y);
 
 				///////////////////////////////////////////////////////
@@ -214,11 +217,168 @@ class Test0025 extends Ctest;
 				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
+				///////////////////////////////////////////////////
+				//  Trigger Image #2 w/ sub_X  and  sub_Y = 1/4
+				///////////////////////////////////////////////////
+			
+	            ///////////////////////////////////////////////////////
+                // Sensor Y ROI
+	            ///////////////////////////////////////////////////////
+				XGS_ROI_Y_START = 0;           // Doit etre multiple de 4
+				XGS_ROI_Y_SIZE  = 16+4;        // Doit etre multiple de 4, (XGS_ROI_Y_START+XGS_ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030), on laisse passer 4 interpolation de plus pour consommation bayer
+				XGS_ROI_Y_END   = XGS_ROI_Y_START + XGS_ROI_Y_SIZE - 1;
+
+				XGS_ROI_X_START = 0;
+				XGS_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant)
+				XGS_ROI_X_END   = XGS_ROI_X_START + XGS_ROI_X_SIZE - 1;
+
+				//Set the XGS sensor Y ROI
+				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", XGS_ROI_X_START, XGS_ROI_X_SIZE, XGS_ROI_Y_START, XGS_ROI_Y_SIZE);
+				super.Vlib.Set_Y_ROI(XGS_ROI_Y_START/4, XGS_ROI_Y_SIZE/4);
+
+
+				///////////////////////////////////////////////////////
+				// Trim module ROI
+				///////////////////////////////////////////////////////
+				TRIM_ROI_Y_START = 0;
+				TRIM_ROI_Y_SIZE  = 16;
+				TRIM_ROI_X_START = 0;
+				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH; // Units in pixels
+
+				//Set the fpga trim module X-Y ROI
+				super.Vlib.Set_X_ROI(TRIM_ROI_X_START, TRIM_ROI_X_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE);
+
+				
+				///////////////////////////////////////////////////////
+				// Subsampling
+				///////////////////////////////////////////////////////
+				SUB_X       = 3;
+				SUB_Y       = 3;
+				super.Vlib.Set_SUB(SUB_X, SUB_Y);
+
+				///////////////////////////////////////////////////////
+				// DMA
+				///////////////////////////////////////////////////////
+				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
+				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
+
+				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
+
+				///////////////////////////////////////////////////////
+				// Exposure
+				///////////////////////////////////////////////////////
+			    EXPOSURE    = 50; // exposure=50us
+                super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
+
+                super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
+
+				
+                ///////////////////////////////////////////////////////
+                // Start the grab
+                ///////////////////////////////////////////////////////
+				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
+				super.Vlib.Grab_CMD();
+				test_nb_images++;
+
+				///////////////////////////////////////////////////////
+				// Prediction
+				///////////////////////////////////////////////////////
+
+				// To be modified with planar prediction by @GKARRAS
+                //
+                // Use:
+				// super.Vlib.fstart
+				// super.Vlib.fstartG
+				// super.Vlib.fstartR
+				//
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 				///////////////////////////////////////////////////
-				// Wait for the 1 image
+				//  Trigger Image #3 w/ sub_X  and  sub_Y = 1/8
 				///////////////////////////////////////////////////
-                super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+			
+	            ///////////////////////////////////////////////////////
+                // Sensor Y ROI
+	            ///////////////////////////////////////////////////////
+				XGS_ROI_Y_START = 0;           // Doit etre multiple de 4
+				XGS_ROI_Y_SIZE  = 16+4;        // Doit etre multiple de 4, (XGS_ROI_Y_START+XGS_ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030), on laisse passer 4 interpolation de plus pour consommation bayer
+				XGS_ROI_Y_END   = XGS_ROI_Y_START + XGS_ROI_Y_SIZE - 1;
+
+				XGS_ROI_X_START = 0;
+				XGS_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH;       // Xsize sans interpolation(pour l'instant)
+				XGS_ROI_X_END   = XGS_ROI_X_START + XGS_ROI_X_SIZE - 1;
+
+				//Set the XGS sensor Y ROI
+				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", XGS_ROI_X_START, XGS_ROI_X_SIZE, XGS_ROI_Y_START, XGS_ROI_Y_SIZE);
+				super.Vlib.Set_Y_ROI(XGS_ROI_Y_START/4, XGS_ROI_Y_SIZE/4);
+
+
+				///////////////////////////////////////////////////////
+				// Trim module ROI
+				///////////////////////////////////////////////////////
+				TRIM_ROI_Y_START = 0;
+				TRIM_ROI_Y_SIZE  = 16;
+				TRIM_ROI_X_START = 0;
+				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH; // Units in pixels
+
+				//Set the fpga trim module X-Y ROI
+				super.Vlib.Set_X_ROI(TRIM_ROI_X_START, TRIM_ROI_X_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE);
+
+				
+				///////////////////////////////////////////////////////
+				// Subsampling
+				///////////////////////////////////////////////////////
+				SUB_X       = 7;
+				SUB_Y       = 7;
+				super.Vlib.Set_SUB(SUB_X, SUB_Y);
+
+				///////////////////////////////////////////////////////
+				// DMA
+				///////////////////////////////////////////////////////
+				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
+				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
+
+				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
+
+				///////////////////////////////////////////////////////
+				// Exposure
+				///////////////////////////////////////////////////////
+			    EXPOSURE    = 50; // exposure=50us
+                super.Vlib.Set_EXPOSURE(EXPOSURE); //in us
+
+                super.Vlib.P_LINE_PTR_WIDTH=1; // est-ce q ca ameliore?
+				
+                ///////////////////////////////////////////////////////
+                // Start the grab
+                ///////////////////////////////////////////////////////
+				super.Vlib.Set_Grab_Mode(IMMEDIATE, NONE);
+				super.Vlib.Grab_CMD();
+				test_nb_images++;
+
+				///////////////////////////////////////////////////////
+				// Prediction
+				///////////////////////////////////////////////////////
+
+				// To be modified with planar prediction by @GKARRAS
+                //
+                // Use:
+				// super.Vlib.fstart
+				// super.Vlib.fstartG
+				// super.Vlib.fstartR
+				//
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
+
+
+				///////////////////////////////////////////////////
+				// Wait for the 3 image
+				///////////////////////////////////////////////////
+                super.Vlib.host.wait_events (0, 3, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;
 
 
