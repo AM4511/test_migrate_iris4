@@ -433,6 +433,12 @@ Register("debug", 0x2a0, 4, "null");
 Register("debug_cntr1", 0x2a8, 4, "null");
 		Field("sensor_frame_duration", 27, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "");
 
+Register("debug_cntr2", 0x2b0, 4, "null");
+		Field("eof_cntr", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
+Register("debug_cntr3", 0x2b4, 4, "null");
+		Field("trig_int_cntr", 31, 0, "rd", 0x0, 0x0, 0x0, 0x0, NO_TEST, 0, 0, "null");
+
 Register("exp_fot", 0x2b8, 4, "null");
 		Field("exp_fot", 16, 16, "rd|wr", 0x0, 0x1, 0xffffffff, 0xffffffff, TEST, 0, 0, "EXPosure during FOT");
 			FieldValue("Disable exposure during FOT in output exposure signal and Strobe", 0);

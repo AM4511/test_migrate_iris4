@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0xEAA00456
+* Register file CRC32 : 0xA2225BCE
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
@@ -81,6 +81,8 @@
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS2_ADDRESS                0x1F4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_ADDRESS                      0x2A0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_ADDRESS                0x2A8
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR2_ADDRESS                0x2B0
+#define FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR3_ADDRESS                0x2B4
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_ADDRESS                    0x2B8
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_ADDRESS                   0x2C0
 #define FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_ADDRESS                 0x2D0
@@ -1218,10 +1220,44 @@ typedef union
    {
       M_UINT32 SENSOR_FRAME_DURATION  : 28;  /* Bits(27:0), */
       M_UINT32 RSVD0                  : 4;   /* Bits(31:28), Reserved */
-      M_UINT32 RSVD_REGISTER_SPACE[3] ;      /* Reserved space below */
+      M_UINT32 RSVD_REGISTER_SPACE[1] ;      /* Reserved space below */
    } f;
 
 } FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_TYPE;
+
+
+/**************************************************************************
+* Register name : DEBUG_CNTR2
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 EOF_CNTR : 32;  /* Bits(31:0), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR2_TYPE;
+
+
+/**************************************************************************
+* Register name : DEBUG_CNTR3
+***************************************************************************/
+typedef union
+{
+   M_UINT32 u32;
+   M_UINT16 u16;
+   M_UINT8  u8;
+
+   struct
+   {
+      M_UINT32 TRIG_INT_CNTR : 32;  /* Bits(31:0), null */
+   } f;
+
+} FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR3_TYPE;
 
 
 /**************************************************************************
@@ -2169,6 +2205,8 @@ typedef struct
    FPGA_REGFILE_XGS_ATHENA_ACQ_SENSOR_FPS2_TYPE            SENSOR_FPS2;             /* Address offset: 0xf4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_TYPE                  DEBUG;                   /* Address offset: 0x1a0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR1_TYPE            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR2_TYPE            DEBUG_CNTR2;             /* Address offset: 0x1b0 */
+   FPGA_REGFILE_XGS_ATHENA_ACQ_DEBUG_CNTR3_TYPE            DEBUG_CNTR3;             /* Address offset: 0x1b4 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_EXP_FOT_TYPE                EXP_FOT;                 /* Address offset: 0x1b8 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_ACQ_SFNC_TYPE               ACQ_SFNC;                /* Address offset: 0x1c0 */
    FPGA_REGFILE_XGS_ATHENA_ACQ_TIMER_CTRL_TYPE             TIMER_CTRL;              /* Address offset: 0x1d0 */
