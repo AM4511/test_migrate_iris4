@@ -19,9 +19,12 @@ using namespace std;
 #include "XGS_Data.h"
 #include "Pcie.h"
 
+extern int rand1(unsigned int val_max);
+extern void srand1(unsigned int seed);
+
 void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
-   {
-	
+{
+
 	MIL_ID MilDisplay;
 	MIL_ID MilGrabBuffer;
 	M_UINT64 ImageBufferAddr = 0;
@@ -48,16 +51,19 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	int RAW = 0;
 	int COLOR_Y = 0;
 
+	int dummy = 0;
+
 	int BYTE_PER_PIXEL = 1;
 
 
 	int Sortie = 0;
+	int SortieCont = 0;
 	char ch;
 
-	bool CheckCRC   = true;
-	bool DisplayOn  = true;
-	int PolldoSleep =0;
-	bool FPS_On     = true;
+	bool CheckCRC = true;
+	bool DisplayOn = true;
+	int PolldoSleep = 0;
+	bool FPS_On = true;
 	M_UINT32 nbGrab = 0;
 
 	M_UINT32 XGSStart_Y = 0;
@@ -73,25 +79,27 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	M_UINT32 LUT_PATTERN = 0;
 
 	M_UINT32 ExposureIncr = 10;
-	M_UINT32 BlackOffset  = 0x100;
+	M_UINT32 BlackOffset = 0x100;
 
-	GrabParamStruct*   GrabParams   = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
+	GrabParamStruct* GrabParams = XGS_Ctrl->getGrabParams();         // This is a Local Pointer to grab parameter structure
 	SensorParamStruct* SensorParams = XGS_Ctrl->getSensorParams();
 	DMAParamStruct* DMAParams = XGS_Data->getDMAParams();                // This is a Local Pointer to DMA parameter structure
 
 	M_UINT32 FileDumpNum = 0;
 
 	M_UINT32 XGSTestImageMode = 0;
+	int random_num = 0;
+
 
 	printf_s("\n\n********************************\n");
-	printf_s(    "*    Executing Test0001.cpp    *\n");
-	printf_s(    "********************************\n\n");
+	printf_s("*    Executing Test0001.cpp    *\n");
+	printf_s("********************************\n\n");
 
-
+	srand1((unsigned)clock());
 
 	//------------------------------
-    // INITIALIZE XGS SENSOR
-    //------------------------------
+	// INITIALIZE XGS SENSOR
+	//------------------------------
 	XGS_Ctrl->InitXGS();
 
 	//-------------------------------------------
@@ -121,66 +129,66 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
 	}
 	else
-
+	{
 		//----------------------------------------------------
 		// This is a color camera, configure transfer type
 		//----------------------------------------------------
 		printf_s("\nThis is a color camera, what color type do you want to use? \n");
-	    printf_s("0: RGB32 \n");
-	    printf_s("1: YUV16 \n");
-	    printf_s("2: PLANAR \n");
-	    printf_s("3: RAW \n");
-	    printf_s("4: MONO8 Conversion \n");
-	    
-	    
-	    scanf_s("%d", &Color_type);
-	    printf_s("\n");
-	    
-	    if (Color_type == 0) RGB32 = 1;
-	    if (Color_type == 1) YUV = 1;
-	    if (Color_type == 2) PLANAR = 1;
-	    if (Color_type == 3) RAW = 1;
-	    if (Color_type == 4) COLOR_Y = 1;
-	    
-	    
-	    
-	    //--------------------------------
-	    // RGB24 TRANSFER
-	    //--------------------------------
-	    if (RGB32 == 1)
-	    {
-	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
-	    	LUT_PATTERN = 3;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-	    
-	    	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	    	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	    	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	    	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-	    }
-	    
-	    //--------------------------------
-	    // YUV16 TRANSFER
-	    //--------------------------------
-	    else if (YUV == 1)
-	    {
-	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
-	    	LUT_PATTERN = 3;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
-	    	XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
-	    
-	    	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	    	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
-	    	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	    	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-	    
-	    }
-	    //--------------------------------
-	    // PLANAR TRANSFER (NOT SUPPORTED YET)
-	    //--------------------------------
+		printf_s("0: RGB32 \n");
+		printf_s("1: YUV16 \n");
+		printf_s("2: PLANAR \n");
+		printf_s("3: RAW \n");
+		printf_s("4: MONO8 Conversion \n");
+
+
+		scanf_s("%d", &Color_type);
+		printf_s("\n");
+
+		if (Color_type == 0) RGB32 = 1;
+		if (Color_type == 1) YUV = 1;
+		if (Color_type == 2) PLANAR = 1;
+		if (Color_type == 3) RAW = 1;
+		if (Color_type == 4) COLOR_Y = 1;
+
+
+
+		//--------------------------------
+		// RGB24 TRANSFER
+		//--------------------------------
+		if (RGB32 == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, RGB32Type);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+		}
+
+		//--------------------------------
+		// YUV16 TRANSFER
+		//--------------------------------
+		else if (YUV == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, YUVType);
+			LUT_PATTERN = 3;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_B = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL1.f.WB_MULT_G = 0x1000;
+			XGS_Ctrl->rXGSptr.BAYER.WB_MUL2.f.WB_MULT_R = 0x1000;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 1);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+		//--------------------------------
+		// PLANAR TRANSFER (NOT SUPPORTED YET)
+		//--------------------------------
 		else if (PLANAR == 1)
 		{   // USING 3 MONO BUFFERS
 			//ImageBufferAddr  = LayerCreateGrabBuffer(&MilGrabBufferB, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);		
@@ -219,28 +227,28 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
 		}
 		else if (RAW == 1)
-	    {
-	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
-	    	LUT_PATTERN = 3;
-	    
-	    	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	    	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
-	    	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	    	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-	    
-	    }
-	    else if (COLOR_Y == 1)
-	    {
-	    	ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
-	    	LUT_PATTERN = 3;
-	    
-	    	ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
-	    	LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
-	    	printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
-	    	printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
-	    
-	    }
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
+			LUT_PATTERN = 3;
 
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+		else if (COLOR_Y == 1)
+		{
+			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full_valid, 1 * SensorParams->Ysize_Full_valid, MonoType);
+			LUT_PATTERN = 3;
+
+			ImageBufferLinePitch = MbufInquire(MilGrabBuffer, M_PITCH_BYTE, M_NULL);
+			LayerInitDisplay(MilGrabBuffer, &MilDisplay, 0);
+			printf_s("Adresse buffer display (MemPtr)    = 0x%llx \n", ImageBufferAddr);
+			printf_s("Line Pitch buffer display (MemPtr) = 0x%llx \n", ImageBufferLinePitch);
+
+		}
+	}
 
 	//---------------------
 	// GRAB PARAMETERS
@@ -468,15 +476,123 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n\n");
 
 	unsigned long fps_reg;
-	
+
 
 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG_FRAME_LINE.f.DUMMY_LINES = 0;
 
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG0_SEL = 0;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG1_SEL = 1;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG2_SEL = 16;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG_PINS.f.DEBUG3_SEL = 0xff;
 
+
+//	//---------------------
+//	// Give SPI control to FPGA
+//	//---------------------
+//	XGS_Ctrl->EnableRegUpdate();
+
+
+
+	
+//--------------------------------
+// START OF DEBUG
+
+	// DONT USE KEEP OUT FOR DEBUG
+ 	XGS_Ctrl->rXGSptr.ACQ.READOUT_CFG4.f.KEEP_OUT_TRIG_ENA = 0;
+
+	//---------------------------------------------------------------
+	// REPLACE NEW LINE BY MDH SIGANL TO SEE DATA PIPELINE IN SENSOR
+	//---------------------------------------------------------------
+	M_UINT32 monitor_0_reg = 0x6;    // 0x6 : Real Integration  , 0x2 : Integrate
+	M_UINT32 monitor_1_reg = 0x10;   // 0x10 :EFOT indication
+	//M_UINT32 monitor_2_reg = 0x1;    // New_line
+
+	//M_UINT32 monitor_2_reg = 0x00 ; //'0'
+	//M_UINT32 monitor_2_reg = 0x01 ; //new_line
+	//M_UINT32 monitor_2_reg = 0x02 ; //integrate
+	//M_UINT32 monitor_2_reg = 0x03 ; //integrate_lead
+	//M_UINT32 monitor_2_reg = 0x04 ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x05 ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x06 ; //fsm_monitor(real integration)
+	//M_UINT32 monitor_2_reg = 0x07 ; //lsm_monitor
+	//M_UINT32 monitor_2_reg = 0x08 ; //TRIG_INT Rising Edge Acceptance
+	//M_UINT32 monitor_2_reg = 0x09 ; //TRIG_INT Falling Edge Acceptance
+	//M_UINT32 monitor_2_reg = 0x0A ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x0B ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x0C ; //TRIG_RD Rising Edge Acceptance
+	//M_UINT32 monitor_2_reg = 0x0D ; //TRIG_RD Falling Edge Acceptance
+	//M_UINT32 monitor_2_reg = 0x0E ; //Global Sequence Active(FOT Overhead)
+	//M_UINT32 monitor_2_reg = 0x0F ; //SFOT Indication
+	//M_UINT32 monitor_2_reg = 0x10 ; //EFOT Indication
+	//M_UINT32 monitor_2_reg = 0x11 ; //End of Global(Frame Overhead) Sequence
+	//M_UINT32 monitor_2_reg = 0x12 ; //End of Row Overhead Sequence
+	//M_UINT32 monitor_2_reg = 0x13 ; //M - Line Active
+	//M_UINT32 monitor_2_reg = 0x14 ; //F - Line Active
+	M_UINT32 monitor_2_reg = 0x15 ; //Effective(ROI) Line Active
+	//M_UINT32 monitor_2_reg = 0x16 ; //Overrun Indication
+	//M_UINT32 monitor_2_reg = 0x17 ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x18 ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x19 ; //Integration Request
+	//M_UINT32 monitor_2_reg = 0x1A ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x1B ; //Reserved
+	//M_UINT32 monitor_2_reg = 0x1C ; //Integration End Request
+
+
+
+	//Monitor2 is debug from MDH
+	M_UINT32 MDH_monitor_2_reg = 0x1;   // line_valid 0_3
+	         MDH_monitor_2_reg = 0x0;   // frame_valid 0_3
+			 //MDH_monitor_2_reg = 0x2;   // pixel_valid 0_3
+	XGS_Ctrl->WriteSPI(0x3806, (monitor_2_reg     << 10) + (monitor_1_reg << 5) + monitor_0_reg);    // Monitor Lines
+	XGS_Ctrl->WriteSPI(0x3e40, (MDH_monitor_2_reg << 10) + (          0x0 << 5) + 0x0);              // Monitor Lines in mode MDH
+
+	//XGS_Ctrl->WriteSPI(0x3602, (3 << 6) + (2 << 3) + 2);                     // Monitor_ctrl Monitor2 is MDH 3: Botton datapath
+																			 // Monitor_ctrl Monitor1 is Sequencer
+																			 // Monitor_ctrl Monitor0 is Sequencer
 	//---------------------
 	// Give SPI control to FPGA
 	//---------------------
 	XGS_Ctrl->EnableRegUpdate();
+
+	//---------------------------------------------------------------
+	// DUMMY GRAB
+	//---------------------------------------------------------------
+	
+
+	XGS_Ctrl->WriteSPI_Bit(0x3800, 10, 1);
+
+	MbufClear(MilGrabBuffer, 0);
+	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+	Sleep(1000);
+
+	printf_s("Execute a 1ms dummy grab? 1=YES 0=NO : ");
+	scanf_s("%d", &dummy);
+	printf_s("\n");
+
+	if (dummy == 1)
+	{
+		printf_s("\nExecuting Dummy grab of 1ms\n\n");
+		XGS_Ctrl->setExposure(1000);
+		XGS_Data->SetDMA();
+		XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+		XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
+		XGS_Ctrl->WaitEndExpReadout();
+		Sleep(100);
+		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+	}
+
+
+	XGS_Ctrl->setAnalogGain(1);        //x4 analog gain   
+	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
+	XGS_Ctrl->setExposure(240);
+
+
+// END OF DEBUG
+//--------------------------------
+
+
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+	nbGrab = 0;
 
 	while (Sortie == 0)
 	{
@@ -516,7 +632,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				Sleep(100);
 				break;
 
-			case 'f':	
+			case 'f':
 				FileDumpNum++;
 				MIL_TEXT_CHAR FileName[50];
 				MosSprintf(FileName, 50, MIL_TEXT("./Images_dump/Image_Test0001_%d.tiff"), FileDumpNum);
@@ -557,7 +673,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			case 'b':
 				printf_s("\nEnter Black Offset in HEX (Data Pedestal, 0-0xfff LSB12) : 0x");
 				scanf_s("%x", &BlackOffset);
-				XGS_Ctrl->setBlackRef(BlackOffset);			
+				XGS_Ctrl->setBlackRef(BlackOffset);
 				break;
 
 			case 'r':
@@ -618,15 +734,73 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 
+			case 'c':
+
+				
+				Sortie = 0;
+				printf_s("\nContinuous SW snapshot mode, press 'q' to quit this mode and return to single mode \n");
+				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 0;
+				nbGrab=0;
+
+				while (SortieCont == 0)
+				{
+
+					XGS_Data->SetDMA();
+					XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
+					XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
+					XGS_Ctrl->WaitEndExpReadout();
+					
+					random_num = rand1(4);
+					Sleep(random_num);
+
+					MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
+
+					nbGrab++;
+
+					//if(nbGrab%100==0)
+					//  printf_s("\rGrabSnapshot completed : %d  Trig_int:%d, EOF:%d                             ", nbGrab, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR3.f.TRIG_INT_CNTR, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR2.f.EOF_CNTR);
+
+					printf_s("\rGrabSnapshot completed : %d  Trig_int:%d, EOF:%d                             ", nbGrab, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR3.f.TRIG_INT_CNTR, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR2.f.EOF_CNTR);
+
+					if (XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR3.f.TRIG_INT_CNTR != XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR2.f.EOF_CNTR)
+					{
+						printf_s("\nNumber of triggers sent to the camera is different than images received, STOP!!! GrabSnapshot completed : %d  Trig_int:%d, EOF:%d \n", nbGrab, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR3.f.TRIG_INT_CNTR, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR2.f.EOF_CNTR);
+						SortieCont = 1;
+					}
+
+					if (_kbhit())
+					{
+						ch = _getch();
+						switch (ch)
+						{
+						case 'q':
+							SortieCont = 1;
+						}
+					}
+
+				}
+				
+				printf_s("\n\nReturn to single mode... press 's' to trigger \n");
+				SortieCont = 0;
+				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+				nbGrab = 0;
+
+				break;
+
 			case 's':
+
 				Sortie = 0;
 				XGS_Data->SetDMA();
 				XGS_Ctrl->SetGrabCMD(0, PolldoSleep);     // Ici on poll grab pending, s'il est a '1' on attend qu'il descende a '0'  avant de continuer
 				XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
 				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(100);
+
 				MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 				nbGrab++;
-				printf_s("\rGrabSnapshot completed : %d           ", nbGrab);
+				printf_s("\rGrabSnapshot completed : %d  Trig_int:0x%X, EOF:0x%X                             ", nbGrab, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR3.f.TRIG_INT_CNTR, XGS_Ctrl->rXGSptr.ACQ.DEBUG_CNTR2.f.EOF_CNTR);
+
 				break;
 
 
@@ -802,7 +976,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("*    End of Test0000.cpp    *\n");
 	printf_s("********************************\n\n");
 
-   }
+}
 
 
 

@@ -5,4 +5,4 @@ XGS_CTRL*.txt
 Images_dump/**
 *.tiff
 Iris4_Camera.vcxproj.user
-
+XGSDump_All*
