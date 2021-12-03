@@ -581,10 +581,20 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 	}
 
+// Short exposure mode
+//	XGS_Ctrl->WriteSPI(0x38CA, 0x0404);
+//	XGS_Ctrl->WriteSPI(0x38CC, 0x0004);
+//	XGS_Ctrl->WriteSPI(0x38EA, 0x005C);
+//	XGS_Ctrl->WriteSPI(0x38EC, 0x005C);
+//	XGS_Ctrl->WriteSPI(0x38EE, 0x005C);
+
+
 
 	XGS_Ctrl->setAnalogGain(1);        //x4 analog gain   
 	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
-	XGS_Ctrl->setExposure(240);
+	//XGS_Ctrl->setExposure(240);
+	//XGS_Ctrl->setExposure(60);
+
 
 
 // END OF DEBUG
@@ -592,6 +602,8 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 0;
+
 	nbGrab = 0;
 
 	while (Sortie == 0)
@@ -784,6 +796,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf_s("\n\nReturn to single mode... press 's' to trigger \n");
 				SortieCont = 0;
 				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 0;
 				nbGrab = 0;
 
 				break;
