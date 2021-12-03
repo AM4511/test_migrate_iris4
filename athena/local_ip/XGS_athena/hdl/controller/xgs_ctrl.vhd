@@ -227,6 +227,7 @@ architecture functional of xgs_ctrl is
   signal keep_out_zone_cntr : std_logic_vector(REGFILE.ACQ.READOUT_CFG3.LINE_TIME'range) := (others =>'0');
   signal keep_out_zone      : std_logic := '0';
   signal xgs_trig_int_copy  : std_logic;
+  signal xgs_trig_int_copy_P1  : std_logic;
 
   
   -- synthesis translate_off
@@ -486,9 +487,10 @@ architecture functional of xgs_ctrl is
   signal fast_fps_est_DB  : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION'range); 
   
   signal debug_int        : std_logic_vector(debug_out'range);
-  
-  
-  
+
+  signal EOF_cntr         : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR2.EOF_CNTR'range);
+  signal TRIG_INT_cntr    : std_logic_vector(REGFILE.ACQ.DEBUG_CNTR3.TRIG_INT_CNTR'range); 
+  signal DEC_EOF_sys_P1   : std_logic :='0';
   -------------------------------------
   --  Signaux Chipscopables
   -------------------------------------
@@ -1476,6 +1478,41 @@ BEGIN
   end process;
     
   REGFILE.ACQ.DEBUG_CNTR1.SENSOR_FRAME_DURATION <= fast_fps_est_DB;
+  
+  
+  -----------------------------------------------
+  --  To Debug received frame
+  -----------------------------------------------
+  process(sys_clk)
+  begin
+    if(sys_clk'event and sys_clk = '1') then
+      
+      DEC_EOF_sys_P1 <= DEC_EOF_sys;
+      
+      if (sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
+        EOF_cntr  <= (others => '0');
+      elsif(DEC_EOF_sys='1' and DEC_EOF_sys_P1='0') then  --rising detected
+        EOF_cntr  <= EOF_cntr+'1';
+      else  
+        EOF_cntr  <= EOF_cntr;
+      end if;      
+
+      if (sys_reset_n='0' or regfile.ACQ.DEBUG.DEBUG_RST_CNTR='1') then
+        TRIG_INT_cntr  <= (others => '0');
+      elsif(xgs_trig_int_copy='1' and xgs_trig_int_copy_P1='0') then
+        TRIG_INT_cntr  <= TRIG_INT_cntr+'1';
+      else  
+        TRIG_INT_cntr  <= TRIG_INT_cntr;
+      end if;      
+      
+      
+    end if;
+  end process;
+  
+  regfile.ACQ.DEBUG_CNTR2.EOF_CNTR      <= EOF_cntr;
+  regfile.ACQ.DEBUG_CNTR3.TRIG_INT_CNTR <= TRIG_INT_cntr;
+
+
   
   
   ------------------------------------------
@@ -2526,7 +2563,17 @@ BEGIN
     end if;
   end process; 
    
-  
+  process(sys_clk)
+  begin
+    if(rising_edge(sys_clk)) then
+      if(sys_reset_n='0') then
+        xgs_trig_int_copy_P1 <= '0';
+      else
+        xgs_trig_int_copy_P1 <= xgs_trig_int_copy;     
+      end if;       
+    end if;
+  end process; 
+
   ------------------------------------------------------------
   -- For XGS we will calculate the readout length internally
   ------------------------------------------------------------

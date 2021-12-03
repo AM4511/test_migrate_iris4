@@ -618,11 +618,17 @@
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
     </registers>
-    <registers name="DEBUG_CNTR1" offsetFromParent="1A8" useReservedSpaceBelow="true" numberOfReservedSpacesBelow="3">
+    <registers name="DEBUG_CNTR1" offsetFromParent="1A8" useReservedSpaceBelow="true">
       <fields name="SENSOR_FRAME_DURATION" alias="" description="This is the time between the last 2 EOF received(in sys clock domain). This register can count up to 4.29 seconds. It can be used to predict sensor framerate or to verify sync between 3D profiler heads.&#xD;&#xA;This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="28" readWrite="false" readOnly="true">
         <possibleValues>&lt;matrox_column_delimiter>any_value=true&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>Any 28 bits value&lt;/matrox_column_delimiter></possibleValues>
         <possibleValues>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter>&lt;matrox_column_delimiter>&lt;/matrox_column_delimiter></possibleValues>
       </fields>
+    </registers>
+    <registers name="DEBUG_CNTR2" offsetFromParent="1B0">
+      <fields name="EOF_CNTR" description="This is the EOF CNTR. This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="32" readWrite="false" readOnly="true"/>
+    </registers>
+    <registers name="DEBUG_CNTR3" offsetFromParent="1B4">
+      <fields name="TRIG_INT_CNTR" description="This is the TRIG_INT CNTR. This feature is enabled by setting register regfile.ACQ.DEBUG.DEBUG_RST_CNTR to 0." size="32" readWrite="false" readOnly="true"/>
     </registers>
     <registers name="EXP_FOT" offsetFromParent="1B8" useReservedSpaceBelow="true">
       <fields name="EXP_FOT" alias="EXPosure during FOT" description="When set to '1' this register, the output exposure and strobe signals will take into account the exposure in the FOT of the frame. This timing must be programmed in register EXP_FOT_TIME.&#xD;&#xA;This timing must be calculated from the OnSemi setting files ." lsb="16" valueAtReset="1">

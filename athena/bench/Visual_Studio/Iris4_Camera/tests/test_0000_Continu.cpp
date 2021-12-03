@@ -471,6 +471,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	// Some measure needs PET engin Disabled, do it here . Or pres 'P' during the test to swicth form pet on-off
 	//XGS_Ctrl->GrabParams.TRIGGER_OVERLAP       = 0;
 	//XGS_Ctrl->GrabParams.TRIGGER_OVERLAP_BUFFN = 0;
+	//XGS_Ctrl->setExposure(1000);
 
 	// https://imgconf.matrox.com:8443/display/IRIS4/XGS+Controller+timings+specs
 	// 1) Setup de mesure pour FOT, ReadOutN_2_TrigN, TrigN_2_FOT, EXP_FOT, EXP_FOT_TIME	       [TEST0000 - Grab continu]

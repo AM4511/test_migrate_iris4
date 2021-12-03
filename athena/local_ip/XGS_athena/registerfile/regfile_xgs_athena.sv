@@ -2,11 +2,11 @@
  ** File                : regfile_xgs_athena.sv
  ** Project             : FDK
  ** Module              : regfile_xgs_athena
- ** Created on          : 2021/11/11 10:17:49
+ ** Created on          : 2021/11/19 15:16:23
  ** Created by          : jmansill
  ** FDK IDE Version     : 4.7.0_beta3
  ** Build ID            : I20191219-1127
- ** Register file CRC32 : 0xEAA00456
+ ** Register file CRC32 : 0xA2225BCE
  **
  **  COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
  **  All Rights Reserved
@@ -1110,10 +1110,44 @@ typedef union packed
    {
       logic [27:0] SENSOR_FRAME_DURATION;   /* Bits(27:0), */
       logic [3:0]  rsvd0;                   /* Bits(31:28), Reserved */
-      logic        rsvd_register_space[3];  /* Reserved space below */
+      logic        rsvd_register_space[1];  /* Reserved space below */
    } f;
 
 } fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR1_t;
+
+
+/**************************************************************************
+* Register name : DEBUG_CNTR2
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [31:0] EOF_CNTR;  /* Bits(31:0), null */
+   } f;
+
+} fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR2_t;
+
+
+/**************************************************************************
+* Register name : DEBUG_CNTR3
+***************************************************************************/
+typedef union packed
+{
+   uint32_t u32;
+   uint16_t u16;
+   uint8_t  u8;
+
+   struct packed
+   {
+      logic [31:0] TRIG_INT_CNTR;  /* Bits(31:0), null */
+   } f;
+
+} fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR3_t;
 
 
 /**************************************************************************
@@ -2063,6 +2097,8 @@ typedef struct packed
    fdk_regfile_xgs_athena_ACQ_SENSOR_FPS2_t            SENSOR_FPS2;             /* Address offset: 0xf4 */
    fdk_regfile_xgs_athena_ACQ_DEBUG_t                  DEBUG;                   /* Address offset: 0x1a0 */
    fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR1_t            DEBUG_CNTR1;             /* Address offset: 0x1a8 */
+   fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR2_t            DEBUG_CNTR2;             /* Address offset: 0x1b0 */
+   fdk_regfile_xgs_athena_ACQ_DEBUG_CNTR3_t            DEBUG_CNTR3;             /* Address offset: 0x1b4 */
    fdk_regfile_xgs_athena_ACQ_EXP_FOT_t                EXP_FOT;                 /* Address offset: 0x1b8 */
    fdk_regfile_xgs_athena_ACQ_ACQ_SFNC_t               ACQ_SFNC;                /* Address offset: 0x1c0 */
    fdk_regfile_xgs_athena_ACQ_TIMER_CTRL_t             TIMER_CTRL;              /* Address offset: 0x1d0 */
