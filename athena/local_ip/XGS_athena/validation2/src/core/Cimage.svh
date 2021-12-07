@@ -377,21 +377,52 @@ class Cimage;
         int new_size_x, x_factor;
 
         // determiner la nouvelle dimension
-        if(x_sub==1) begin
-          new_size_x = pgm_size_x/2;
+          if (x_sub == 1) begin
+          new_size_x = pgm_size_x/(x_sub+1);
           x_factor   = 2;
 
           //new_image = new[new_size_x*pgm_size_y];
-          for(int y = 0; y < pgm_size_y; y += 1)
-            for(int x = 0; x < new_size_x; x += 1)
+          for (int y = 0; y < pgm_size_y; y += 1) begin
+            for (int x = 0; x < new_size_x; x += 1) begin
                 image[y * new_size_x + x] = get_pixel(x*x_factor,y);
+            end
+          end
 
           // replacer dans l'image
           image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
           pgm_size_x = new_size_x;
-        end
-
+          
+          end
     endfunction : sub_X
+
+
+    function void sub_X_color(input int x_sub);
+      
+      //shortint new_image[];
+      int new_size_x, x_factor;
+      
+      // determiner la nouvelle dimension
+      
+      new_size_x = pgm_size_x/(x_sub+1);
+      x_factor   = x_sub+1;
+      
+      //new_image = new[new_size_x * pgm_size_y];
+      
+      for (int y = 0; y < pgm_size_y; y += 1) begin
+        for (int x = 0; x < pgm_size_x; x += 4) begin
+            image[y * new_size_x +  x     ] = get_pixel(x*x_factor    , y); // B[7:0]
+            image[y * new_size_x + (x + 1)] = get_pixel(x*x_factor + 1, y); // G[15:8]
+            image[y * new_size_x + (x + 2)] = get_pixel(x*x_factor + 2, y); // R[23:16] 
+            image[y * new_size_x + (x + 3)] = 0;                            // 0[31:24]
+        end
+      end
+      
+      // replacer dans l'image
+      image = new[new_size_x*pgm_size_y](image); // ici il faut faire une reallocation reduite!
+      pgm_size_x = new_size_x;
+      // new_image.delete;
+      
+    endfunction : sub_X_color
 
  
     // sub=1 , 1/2
@@ -1072,7 +1103,7 @@ class Cimage;
     //---------------------------------------------------------------------------------------------------------------------
     //  This task correct dead pixel from one COLOR image stored in Class ---- to a new corrected image stored in DPC_grab_image Class.
     //---------------------------------------------------------------------------------------------------------------------
-    task Correct_DeadPixelsColor(input int x_start, input int x_end, input int y_start, input int y_end, input int SUB_X, input int SUB_Y);
+    task Correct_DeadPixelsColor(input int x_start, input int x_end, input int y_start, input int y_end, input int SUB_Y);
 
       int HeadID=0;
 
@@ -1087,16 +1118,16 @@ class Cimage;
 
       if(SUB_Y==1) //Si subsampling, il faut enlever 1 a y_end: la derniere ligne est forcement paire!
         y_end=y_end-1;
-      if(SUB_X==1) //Si subsampling, il faut enlever 1 a x_end: la derniere ligne est forcement paire!
-        x_end=x_end-1;
+      //if(SUB_X==1) //Si subsampling, il faut enlever 1 a x_end: la derniere ligne est forcement paire!
+      //  x_end=x_end-1;
 
       for(int dpc=0; dpc < dpc_list_count; dpc+=1)
       begin
         //$display("Correct_DeadPixels loop %0d/%0d, dpc_firstlast_line_rem=%0d dpc_x=%0d dpc_y=%0d", dpc, dpc_list_count, dpc_firstlast_line_rem, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y );
         if ( dpc_list[dpc].dpc_x >= x_start &&  dpc_list[dpc].dpc_x <= x_end &&  dpc_list[dpc].dpc_y >= y_start &&  dpc_list[dpc].dpc_y <= y_end )
           begin
-            if( (SUB_Y==0 || (SUB_Y==1 && dpc_list[dpc].dpc_y%2==0))  && (SUB_X==0 || (SUB_X==1 && dpc_list[dpc].dpc_x%2==0))  ) begin
-              Translated_ROIx = (dpc_list[dpc].dpc_x - x_start)/(SUB_X+1);
+            if( (SUB_Y==0 || (SUB_Y==1 && dpc_list[dpc].dpc_y%2==0))) begin
+              Translated_ROIx = (dpc_list[dpc].dpc_x - x_start);
               Translated_ROIy = (dpc_list[dpc].dpc_y - y_start)/(SUB_Y+1);
 
               correct_pixelColor(Translated_ROIx, Translated_ROIy, dpc_list[dpc].dpc_pat, dpc_pattern_0_cfg, expected_data10);   // Correct rest of image

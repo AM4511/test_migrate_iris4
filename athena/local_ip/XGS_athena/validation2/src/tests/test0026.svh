@@ -215,8 +215,10 @@ class Test0026 extends Ctest;
 				//
 				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
-
-
+				
+				super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+				#250us;
+				
 				///////////////////////////////////////////////////
 				// Trigger Image #2 w/ sub_X = 1/4
 				///////////////////////////////////////////////////
@@ -232,7 +234,7 @@ class Test0026 extends Ctest;
 				$display("IMAGE Trigger #0, Xstart=%0d, Xsize=%0d, Ystart=%0d, Ysize=%0d", XGS_ROI_X_START, XGS_ROI_X_SIZE, XGS_ROI_Y_START, XGS_ROI_Y_SIZE);
 				super.Vlib.Set_Y_ROI(XGS_ROI_Y_START/4, XGS_ROI_Y_SIZE/4);
 
-
+				
 				///////////////////////////////////////////////////////
 				// Trim module ROI
 				///////////////////////////////////////////////////////
@@ -258,7 +260,7 @@ class Test0026 extends Ctest;
 				///////////////////////////////////////////////////////
 				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
 				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
-				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
+				DMA_LINE_SIZE = (TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1)) - 4; // Units in bytes
 
 				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
@@ -292,7 +294,8 @@ class Test0026 extends Ctest;
 				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
-
+				super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+				#250us;
 				///////////////////////////////////////////////////
 				// Trigger Image #3 w/ sub_X = 1/8
 				///////////////////////////////////////////////////
@@ -374,7 +377,6 @@ class Test0026 extends Ctest;
 				///////////////////////////////////////////////////
                 super.Vlib.host.wait_events (0, 3, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;
-
 
                 ///////////////////////////////////////////////////
                 // Stop the test

@@ -860,7 +860,7 @@ class Cvlib;
 
    	    //Si on est en RGB ou YUV, on fera la correction
     	if(bayer==1) begin
-    	  XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
+    	  XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_Y); // FPGA DPC
 		  XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC
         end 
         
@@ -876,11 +876,11 @@ class Cvlib;
             XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
             XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
 		  //Color output PLANAR
-          end else if(yuv==0 && mono8==0 && planar==1) begin                                                      // *** PLANAR
-		    XGS_image.BayerDemosaic();
+          end else if(yuv==0 && mono8==0 && planar==1) begin                                             // *** PLANAR
+		    XGS_image.BayerDemosaic();																	 // Generate RGB32				
             XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
-            XGS_image.fpga_crop_Y(TRIM_ROI_Y_START, TRIM_ROI_Y_END);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
-			XGS_image.sub_X(SUB_X);																	     // FPGA SUB X
+            XGS_image.fpga_crop_Y(TRIM_ROI_Y_START, TRIM_ROI_Y_END);                                   // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
+			XGS_image.sub_X_color(SUB_X);															     // FPGA SUB X
 			XGS_image.RGB32_To_Planar8();															     // Convert RGB32 image into three planar images B8, G8 and R8 
           //Color output packed mono8
           end else if (yuv==0 && mono8==1)begin
