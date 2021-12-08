@@ -57,11 +57,13 @@ puts "Running ${myself}"
 # 0.5.1 : Added support for Planar color mode, YUV Subsampling and RGB to Y conversion
 #         Complete universal Trim module for Mono and Color fpga
 #
+# 0.5.2 : Added support for dummy grab(enable data path), after the confirmation of Onsemi that a dummy grab must 
+#         be done after dcf load to avoid one frame lost at minimum exposure   
 #
 
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     5
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 2
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
