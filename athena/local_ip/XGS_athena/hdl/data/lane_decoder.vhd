@@ -94,11 +94,11 @@ architecture rtl of lane_decoder is
       ---------------------------------------------------------------------------
       -- HiSPi clock domain
       ---------------------------------------------------------------------------
-      hclk             : in std_logic;
-      hclk_reset       : in std_logic;
-      hclk_lane_enable : in std_logic;
-      hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
-
+      hclk                 : in std_logic;
+      hclk_reset           : in std_logic;
+      hclk_lane_enable     : in std_logic;
+      hclk_data_lane       : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+      hclk_enable_datapath : in std_logic;
       -------------------------------------------------------------------------
       -- Register file interface
       -------------------------------------------------------------------------
@@ -227,7 +227,6 @@ architecture rtl of lane_decoder is
   signal pclk_cal_busy_int       : std_logic;
   signal pclk_cal_error          : std_logic;
   signal pclk_hispi_phy_en       : std_logic;
-  signal pclk_hispi_data_path_en : std_logic;
   signal pclk_embedded           : std_logic;
   signal pclk_sof_pending        : std_logic;
   signal pclk_sof_flag           : std_logic;
@@ -277,52 +276,52 @@ architecture rtl of lane_decoder is
   signal sclk_buffer_underrun  : std_logic;
   signal sclk_lane_enable      : std_logic;
 
+  signal hclk_enable_datapath  : std_logic;
   
   -----------------------------------------------------------------------------
   -- Debug attributes 
   -----------------------------------------------------------------------------
-  attribute mark_debug of pclk_bit_locked         : signal is "true";
-  attribute mark_debug of pclk_cal_busy_int       : signal is "true";
-  attribute mark_debug of pclk_cal_error          : signal is "true";
-  attribute mark_debug of pclk_hispi_phy_en       : signal is "true";
-  attribute mark_debug of pclk_hispi_data_path_en : signal is "true";
-  attribute mark_debug of pclk_embedded           : signal is "true";
-  attribute mark_debug of pclk_sof_pending        : signal is "true";
-  attribute mark_debug of pclk_sof_flag           : signal is "true";
-  attribute mark_debug of pclk_buffer_init        : signal is "true";
-  attribute mark_debug of pclk_nxt_buffer         : signal is "true";
-  attribute mark_debug of pclk_full               : signal is "true";
-  attribute mark_debug of pclk_buffer_mux_id      : signal is "true";
-  attribute mark_debug of pclk_word_ptr           : signal is "true";
-  attribute mark_debug of pclk_init_word_ptr      : signal is "true";
-  attribute mark_debug of pclk_incr_word_ptr      : signal is "true";
-  attribute mark_debug of pclk_buffer_wen         : signal is "true";
-  attribute mark_debug of pclk_state              : signal is "true";
-  attribute mark_debug of pclk_phase_cntr         : signal is "true";
-  attribute mark_debug of pclk_packer_valid       : signal is "true";
-  attribute mark_debug of pclk_sync_error         : signal is "true";
-  attribute mark_debug of pclk_buffer_overrun     : signal is "true";
-  attribute mark_debug of pclk_eol                : signal is "true";
-  attribute mark_debug of pclk_sof                : signal is "true";
-  attribute mark_debug of pclk_cal_en             : signal is "true";
-  attribute mark_debug of pclk_cal_start_monitor  : signal is "true";
-  attribute mark_debug of pclk_tap_cntr           : signal is "true";
-  attribute mark_debug of pclk_valid              : signal is "true";
-  attribute mark_debug of pclk_cal_monitor_done   : signal is "true";
-  attribute mark_debug of pclk_cal_busy           : signal is "true";
-  attribute mark_debug of pclk_cal_tap_value      : signal is "true";
-  attribute mark_debug of pclk_tap_histogram      : signal is "true";
-
-  attribute mark_debug of sclk_buffer_empty_int : signal is "true";
-  attribute mark_debug of sclk_buffer_underrun  : signal is "true";
-  attribute mark_debug of sclk_lane_enable      : signal is "true";
-  attribute mark_debug of sclk_sof              : signal is "true";
-  attribute mark_debug of sclk_transfer_done    : signal is "true";
-  attribute mark_debug of sclk_buffer_empty     : signal is "true";
-  attribute mark_debug of sclk_buffer_read_en   : signal is "true";
-  attribute mark_debug of sclk_buffer_mux_id    : signal is "true";
-  attribute mark_debug of sclk_buffer_word_ptr  : signal is "true";
-  attribute mark_debug of sclk_buffer_data      : signal is "true";
+  --attribute mark_debug of pclk_bit_locked         : signal is "true";
+  --attribute mark_debug of pclk_cal_busy_int       : signal is "true";
+  --attribute mark_debug of pclk_cal_error          : signal is "true";
+  --attribute mark_debug of pclk_hispi_phy_en       : signal is "true";
+  --attribute mark_debug of pclk_embedded           : signal is "true";
+  --attribute mark_debug of pclk_sof_pending        : signal is "true";
+  --attribute mark_debug of pclk_sof_flag           : signal is "true";
+  --attribute mark_debug of pclk_buffer_init        : signal is "true";
+  --attribute mark_debug of pclk_nxt_buffer         : signal is "true";
+  --attribute mark_debug of pclk_full               : signal is "true";
+  --attribute mark_debug of pclk_buffer_mux_id      : signal is "true";
+  --attribute mark_debug of pclk_word_ptr           : signal is "true";
+  --attribute mark_debug of pclk_init_word_ptr      : signal is "true";
+  --attribute mark_debug of pclk_incr_word_ptr      : signal is "true";
+  --attribute mark_debug of pclk_buffer_wen         : signal is "true";
+  --attribute mark_debug of pclk_state              : signal is "true";
+  --attribute mark_debug of pclk_phase_cntr         : signal is "true";
+  --attribute mark_debug of pclk_packer_valid       : signal is "true";
+  --attribute mark_debug of pclk_sync_error         : signal is "true";
+  --attribute mark_debug of pclk_buffer_overrun     : signal is "true";
+  --attribute mark_debug of pclk_eol                : signal is "true";
+  --attribute mark_debug of pclk_sof                : signal is "true";
+  --attribute mark_debug of pclk_cal_en             : signal is "true";
+  --attribute mark_debug of pclk_cal_start_monitor  : signal is "true";
+  --attribute mark_debug of pclk_tap_cntr           : signal is "true";
+  --attribute mark_debug of pclk_valid              : signal is "true";
+  --attribute mark_debug of pclk_cal_monitor_done   : signal is "true";
+  --attribute mark_debug of pclk_cal_busy           : signal is "true";
+  --attribute mark_debug of pclk_cal_tap_value      : signal is "true";
+  --attribute mark_debug of pclk_tap_histogram      : signal is "true";
+  --
+  --attribute mark_debug of sclk_buffer_empty_int : signal is "true";
+  --attribute mark_debug of sclk_buffer_underrun  : signal is "true";
+  --attribute mark_debug of sclk_lane_enable      : signal is "true";
+  --attribute mark_debug of sclk_sof              : signal is "true";
+  --attribute mark_debug of sclk_transfer_done    : signal is "true";
+  --attribute mark_debug of sclk_buffer_empty     : signal is "true";
+  --attribute mark_debug of sclk_buffer_read_en   : signal is "true";
+  --attribute mark_debug of sclk_buffer_mux_id    : signal is "true";
+  --attribute mark_debug of sclk_buffer_word_ptr  : signal is "true";
+  --attribute mark_debug of sclk_buffer_data      : signal is "true";
 
 
 
@@ -341,19 +340,21 @@ begin
       PIXEL_SIZE       => PIXEL_SIZE
       )
     port map(
-      hclk             => hclk,
-      hclk_reset       => hclk_reset,
-      hclk_lane_enable => hclk_lane_enable,
-      hclk_data_lane   => hclk_data_lane,
-      hclk_idle_char   => async_idle_character,  -- Falsepath
-      hclk_crc_enable  => pclk_crc_enable,       -- Falsepath
-      pclk             => pclk,
-      pclk_cal_busy    => pclk_cal_busy_int,
-      pclk_bit_locked  => pclk_bit_locked,
-      pclk_valid       => pclk_valid,
-      pclk_embedded    => pclk_embedded,
-      pclk_state       => pclk_state,
-      pclk_data        => pclk_data
+      hclk                 => hclk,
+      hclk_reset           => hclk_reset,
+      hclk_lane_enable     => hclk_lane_enable,
+      hclk_data_lane       => hclk_data_lane,
+      hclk_enable_datapath => hclk_enable_datapath,
+      
+      hclk_idle_char       => async_idle_character,  -- Falsepath
+      hclk_crc_enable      => pclk_crc_enable,       -- Falsepath
+      pclk                 => pclk,
+      pclk_cal_busy        => pclk_cal_busy_int,
+      pclk_bit_locked      => pclk_bit_locked,
+      pclk_valid           => pclk_valid,
+      pclk_embedded        => pclk_embedded,
+      pclk_state           => pclk_state,
+      pclk_data            => pclk_data
       );
 
 
@@ -377,15 +378,15 @@ begin
   -----------------------------------------------------------------------------
   -- Resync  
   -----------------------------------------------------------------------------
-  M_pclk_hispi_data_path_en : mtx_resync
+  M_hclk_enable_datapath : mtx_resync
     port map
     (
       aClk  => rclk,
       aClr  => rclk_reset,
       aDin  => rclk_enable_datapath,
-      bclk  => pclk,
-      bclr  => pclk_reset,
-      bDout => pclk_hispi_data_path_en,
+      bclk  => hclk,
+      bclr  => hclk_reset,
+      bDout => hclk_enable_datapath,
       bRise => open,
       bFall => open
       );

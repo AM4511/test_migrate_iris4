@@ -10,7 +10,7 @@
 *
 * FDK IDE Version     : 4.7.0_beta3
 * Build ID            : I20191219-1127
-* Register file CRC32 : 0xA2225BCE
+* Register file CRC32 : 0x4F0D5164
 *
 * COPYRIGHT (c) 2021 Matrox Electronic Systems Ltd.
 * All Rights Reserved
