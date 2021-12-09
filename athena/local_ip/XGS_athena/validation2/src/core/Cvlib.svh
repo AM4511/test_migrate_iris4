@@ -850,7 +850,7 @@ class Cvlib;
     //---------------------------------------
     //  Task : Prediction image de grab COLOR
     //---------------------------------------
-    task Gen_predict_img_color(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END, input int TRIM_ROI_Y_START, input int TRIM_ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
+    task Gen_predict_img_color(input int ROI_X_START, input int ROI_X_END, input int ROI_Y_START, input int ROI_Y_END,  input int TRIM_ROI_X_START, input int TRIM_ROI_X_END, input int TRIM_ROI_Y_START, input int TRIM_ROI_Y_END, input int SUB_X, input int SUB_Y, input int REV_X, input int REV_Y);
    		XGS_image = XGS_imageSRC.copy;
 		XGS_image.crop_Y(ROI_Y_START, ROI_Y_END);                                                         // Sensor ROI Y
 		XGS_image.sub_Y(SUB_Y);                                                                           // Sensor SUB Y
@@ -878,8 +878,9 @@ class Cvlib;
 		  //Color output PLANAR
           end else if(yuv==0 && mono8==0 && planar==1) begin                                             // *** PLANAR
 		    XGS_image.BayerDemosaic();																	 // Generate RGB32				
-            XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                       // FPGA ROI X, in RGB32 domain
-            XGS_image.fpga_crop_Y(TRIM_ROI_Y_START, TRIM_ROI_Y_END);                                   // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
+            XGS_image.crop_X(TRIM_ROI_X_START*4, ((TRIM_ROI_X_END)*4)-1 );                             // FPGA ROI X, in RGB32 domain
+			//XGS_image.crop_X(TRIM_ROI_X_START, TRIM_ROI_X_END);									     // FPGA ROI X Cropping in Planar domain
+            XGS_image.fpga_crop_Y(TRIM_ROI_Y_START, TRIM_ROI_Y_END-1);                                   // FPGA ROI Y Cropping and Remove 1 line in Planar domain
 			XGS_image.sub_X_color(SUB_X);															     // FPGA SUB X
 			XGS_image.RGB32_To_Planar8();															     // Convert RGB32 image into three planar images B8, G8 and R8 
           //Color output packed mono8

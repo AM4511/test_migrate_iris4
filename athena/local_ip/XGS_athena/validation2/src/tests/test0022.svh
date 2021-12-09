@@ -199,7 +199,7 @@ class Test0022 extends Ctest;
 				///////////////////////////////////////////////////////
 				// Prediction
 				///////////////////////////////////////////////////////
-				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_X_START, TRIM_ROI_X_SIZE, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 

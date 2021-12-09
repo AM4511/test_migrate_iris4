@@ -65,7 +65,7 @@ class Test0026 extends Ctest;
 			// Start the scoreboard
 			begin
 				//scoreboard.IgnorePrediction=12000;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
-				scoreboard.IgnorePrediction=0;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
+				scoreboard.IgnorePrediction=10;  // 0:Stop simulation after first error   !=0: Stop simulation after X errors
 			    scoreboard.run();
 			end
 
@@ -213,7 +213,7 @@ class Test0026 extends Ctest;
 				// super.Vlib.fstartG
 				// super.Vlib.fstartR
 				//
-				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_X_START, TRIM_ROI_X_SIZE, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 				
 				super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
@@ -260,9 +260,9 @@ class Test0026 extends Ctest;
 				///////////////////////////////////////////////////////
 				DMA_NB_LINE = TRIM_ROI_Y_SIZE;
 				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
-				DMA_LINE_SIZE = (TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1)) - 4; // Units in bytes
+				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
 
-				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
+				super.Vlib.setDMAPlanar('hA1000000,'hB1000000,'hC1000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
 				///////////////////////////////////////////////////////
 				// Exposure
@@ -291,10 +291,10 @@ class Test0026 extends Ctest;
 				// super.Vlib.fstartG
 				// super.Vlib.fstartR
 				//
-				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_X_START, TRIM_ROI_X_SIZE, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
-				super.Vlib.host.wait_events (0, 2, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+				super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
 				#250us;
 				///////////////////////////////////////////////////
 				// Trigger Image #3 w/ sub_X = 1/8
@@ -339,7 +339,7 @@ class Test0026 extends Ctest;
 				DMA_PIX_WIDTH = 1;                                       // Units in bytes (1:PLANAR)
 				DMA_LINE_SIZE = TRIM_ROI_X_SIZE*DMA_PIX_WIDTH/(SUB_X+1); // Units in bytes
 
-				super.Vlib.setDMAPlanar('hA0000000,'hB0000000,'hC0000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
+				super.Vlib.setDMAPlanar('hA2000000,'hB2000000,'hC2000000, 'h4000, DMA_LINE_SIZE, REV_Y, DMA_NB_LINE);				
 
 				///////////////////////////////////////////////////////
 				// Exposure
@@ -368,14 +368,14 @@ class Test0026 extends Ctest;
 				// super.Vlib.fstartG
 				// super.Vlib.fstartR
 				//
-				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, TRIM_ROI_X_START, TRIM_ROI_X_SIZE, TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img_planar(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.fstartG, super.Vlib.fstartR, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 
 				///////////////////////////////////////////////////
 				// Wait for the 3 image
 				///////////////////////////////////////////////////
-                super.Vlib.host.wait_events (0, 3, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
+                super.Vlib.host.wait_events (0, 1, 'hfffffff); // wait for 1 in IRQ(connected to input 0 of host)
                 #250us;
 
                 ///////////////////////////////////////////////////
