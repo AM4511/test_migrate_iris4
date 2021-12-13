@@ -609,7 +609,7 @@ class Cvlib;
 
 		// XGS HiSPi : Control, 6 lanes, mux 4
 		$display("  6.2 Write CTRL register @0x%h", HISPI_CTRL_OFFSET);
-		host.write(HISPI_CTRL_OFFSET, 'h4603);
+		host.write(HISPI_CTRL_OFFSET, 'h4601);
 
 
 		// XGS HiSPi : Control, 6 lanes, mux 4
