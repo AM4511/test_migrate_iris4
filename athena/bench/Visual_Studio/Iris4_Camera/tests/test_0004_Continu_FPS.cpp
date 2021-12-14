@@ -104,7 +104,7 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 	}
 	else {
 		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid +4 ;                   // Dois etre multiple de 4 ,+ 4 lignes d'interpolation
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid + 4 ;                  // Dois etre multiple de 4 ,+ 4 lignes d'interpolation
 		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;          // On laisse passer 4 lignes d'interpolation pour le bayer
 	}
 
