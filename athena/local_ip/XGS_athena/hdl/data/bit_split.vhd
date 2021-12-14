@@ -28,10 +28,11 @@ entity bit_split is
     ---------------------------------------------------------------------------
     -- HiSPi clock domain
     ---------------------------------------------------------------------------
-    hclk             : in std_logic;
-    hclk_reset       : in std_logic;
-    hclk_lane_enable : in std_logic;
-    hclk_data_lane   : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+    hclk                 : in std_logic;
+    hclk_reset           : in std_logic;
+    hclk_lane_enable     : in std_logic;
+    hclk_data_lane       : in std_logic_vector(PHY_OUTPUT_WIDTH-1 downto 0);
+    hclk_enable_datapath : in std_logic;
 
     -------------------------------------------------------------------------
     -- Register file interface
@@ -285,8 +286,13 @@ begin
         hclk_valid          <= '0';
       else
         if (hclk_phase = '0') then
-          -- Detect if embedded data at SOF and SOL
-          if (hclk_sync_detected = '1') then
+          if(hclk_enable_datapath='0') then  --jmansill : When hclk_enable_datapath=0, detect idle char to reset lock_cntr at hsync, but do not send syncs to patapath
+            hclk_embedded       <= '0';
+            hclk_valid          <= '0';
+            hclk_idle_detect_en <= '1';        
+          
+          -- Detect if embedded data at SOF and SOL          
+          elsif (hclk_sync_detected = '1') then
             sync     := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
             embedded := hclk_aligned_pixel_mux(PIXEL_SIZE-5);
             if (sync = HCLK_SYNC_SOF or sync = HCLK_SYNC_SOL) then
@@ -367,7 +373,7 @@ begin
             -- S_IDLE : (Interline (blanking) state)
             -------------------------------------------------------------------
             when S_IDLE =>
-              if (hclk_sync_detected = '1') then
+              if (hclk_sync_detected = '1' and hclk_enable_datapath='1') then    --jmansill : do not decode sync when hclk_enable_datapath=0
                 sync := hclk_aligned_pixel_mux(PIXEL_SIZE-1 downto PIXEL_SIZE-4);
 
                 if (sync = HCLK_SYNC_SOF) then
