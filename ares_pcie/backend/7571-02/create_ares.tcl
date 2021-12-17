@@ -90,10 +90,17 @@ puts "Running ${myself}"
 #              * Hyperram running @142.8MHz and 150MHz
 #              * Cleanup .xdc timing constraints @166MHz
 #
+# 0.3.0 :  Revision increment only for MIL
+#              * MIL group is implementing a new mechanism for forcing .firmware update 
+#                without requiring an FPGA recompillation to get an distinct buildID. 
+#                The software now implements its own build ID independant from the FPGA buildID.
+#                New .firmware can now be generated from the same fpga buildID. 
+#                See JIRA : https://jira.matrox.com:8443/browse/MT-2515 for more information
+#
 # ################################################################
 set FPGA_MAJOR_VERSION     0
-set FPGA_MINOR_VERSION     2
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_MINOR_VERSION     3
+set FPGA_SUB_MINOR_VERSION 0
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
