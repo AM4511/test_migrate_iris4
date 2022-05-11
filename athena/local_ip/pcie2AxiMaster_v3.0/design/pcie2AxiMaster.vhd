@@ -173,7 +173,29 @@ entity pcie2AxiMaster is
     axim_rid    : in  std_logic_vector(AXI_ID_WIDTH-1 downto 0);
     axim_rdata  : in  std_logic_vector(31 downto 0);
     axim_rresp  : in  std_logic_vector(1 downto 0);
-    axim_rlast  : in  std_logic
+    axim_rlast  : in  std_logic;
+    
+    
+    ---------------------------------------------------------------------------
+    -- DRP, default signals init do not use eyescan
+    ---------------------------------------------------------------------------
+    user_lnk_up        : OUT STD_LOGIC;
+    ext_ch_gt_drpclk   : OUT STD_LOGIC;
+    
+    ext0_ch_gt_drpaddr : IN STD_LOGIC_VECTOR(8 DOWNTO 0) := "000000000";
+    ext0_ch_gt_drpen   : IN STD_LOGIC                    := '0';
+    ext0_ch_gt_drpdi   : IN STD_LOGIC_VECTOR(15 DOWNTO 0):= "0000000000000000";
+    ext0_ch_gt_drpwe   : IN STD_LOGIC                    := '0';
+    ext0_ch_gt_drpdo   : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    ext0_ch_gt_drprdy  : OUT STD_LOGIC;
+    
+    ext1_ch_gt_drpaddr : IN STD_LOGIC_VECTOR(8 DOWNTO 0) := "000000000";
+    ext1_ch_gt_drpen   : IN STD_LOGIC                    := '0';
+    ext1_ch_gt_drpdi   : IN STD_LOGIC_VECTOR(15 DOWNTO 0):= "0000000000000000";
+    ext1_ch_gt_drpwe   : IN STD_LOGIC                    := '0';
+    ext1_ch_gt_drpdo   : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    ext1_ch_gt_drprdy  : OUT STD_LOGIC
+    
     );
 end pcie2AxiMaster;
 
@@ -232,6 +254,7 @@ architecture struct of pcie2AxiMaster is
       CFG_SUBSYS_VEND_ID : integer := 16#102b#;
       CFG_SUBSYS_ID      : integer := 16#FFFF#;
       PCIE_NB_LANES      : integer := 1
+      
       );
     port (
       pci_exp_txp                                : out std_logic_vector(PCIE_NB_LANES-1 downto 0);
@@ -345,7 +368,15 @@ architecture struct of pcie2AxiMaster is
       cfg_aer_ecrc_gen_en                        : out std_logic;
       cfg_vc_tcvc_map                            : out std_logic_vector(6 downto 0);
       sys_clk                                    : in  std_logic;
-      sys_rst_n                                  : in  std_logic
+      sys_rst_n                                  : in  std_logic;
+      
+      ext_ch_gt_drpclk                           : OUT STD_LOGIC;
+      ext_ch_gt_drpaddr                          : IN STD_LOGIC_VECTOR(17 DOWNTO 0);
+      ext_ch_gt_drpen                            : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+      ext_ch_gt_drpdi                            : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+      ext_ch_gt_drpwe                            : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+      ext_ch_gt_drpdo                            : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+      ext_ch_gt_drprdy                           : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
       );
   end component;
 
@@ -831,7 +862,7 @@ architecture struct of pcie2AxiMaster is
   --signal pci_exp_txn                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
   --signal pci_exp_rxp                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
   --signal pci_exp_rxn                                : std_logic_vector(PCIE_NB_LANES-1 downto 0);
-  signal user_lnk_up                                : std_logic;
+  signal user_lnk_up_int                            : std_logic;
   signal user_app_rdy                               : std_logic;
   signal tx_buf_av                                  : std_logic_vector(5 downto 0);
   signal tx_cfg_req                                 : std_logic;
@@ -1032,11 +1063,38 @@ architecture struct of pcie2AxiMaster is
   -- attribute mark_debug of tlp_error_overrun    : signal is "true";
   -- attribute mark_debug of tlp_next_address     : signal is "true";
 
+ 
 
+  signal ext_ch_gt_drpaddr : STD_LOGIC_VECTOR(17 DOWNTO 0);
+  signal ext_ch_gt_drpen   : STD_LOGIC_VECTOR(1 downto 0);
+  signal ext_ch_gt_drpdi   : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal ext_ch_gt_drpwe   : STD_LOGIC_VECTOR(1 downto 0);
+  signal ext_ch_gt_drpdo   : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal ext_ch_gt_drprdy  : STD_LOGIC_VECTOR(1 downto 0);
+
+  
 
 begin
 
-
+  ----------------------------------------
+  -- DRP EYE SCAN SIGNALS --jmansill
+  ----------------------------------------
+  user_lnk_up         <= user_lnk_up_int;   --to eyescan
+  
+  ext_ch_gt_drpaddr   <= ext1_ch_gt_drpaddr & ext0_ch_gt_drpaddr;
+  ext_ch_gt_drpen     <= ext1_ch_gt_drpen   & ext0_ch_gt_drpen; 
+  ext_ch_gt_drpdi     <= ext1_ch_gt_drpdi   & ext0_ch_gt_drpdi; 
+  ext_ch_gt_drpwe     <= ext1_ch_gt_drpwe   & ext0_ch_gt_drpwe; 
+  
+  ext0_ch_gt_drprdy   <= ext_ch_gt_drprdy(0);
+  ext0_ch_gt_drpdo    <= ext_ch_gt_drpdo(15 DOWNTO 0); 
+  ext1_ch_gt_drprdy   <= ext_ch_gt_drprdy(1);
+  ext1_ch_gt_drpdo    <= ext_ch_gt_drpdo(31 DOWNTO 16);  
+  
+  ----------------------------------------
+  
+  
+  
   tlp_in_abort(1) <= '0';
   tlp_in_abort(2) <= '0';
 
@@ -1186,7 +1244,7 @@ begin
       CFG_REV_ID         => PCIE_REV_ID,
       CFG_SUBSYS_VEND_ID => PCIE_SUBSYS_VENDOR_ID,
       CFG_SUBSYS_ID      => PCIE_SUBSYS_ID,
-      PCIE_NB_LANES      => PCIE_NB_LANES
+      PCIE_NB_LANES      => PCIE_NB_LANES 
       )
     port map (
       pci_exp_txp                                => pcie_txp,
@@ -1195,7 +1253,7 @@ begin
       pci_exp_rxn                                => pcie_rxn,
       user_clk_out                               => sys_clk,
       user_reset_out                             => sys_reset,
-      user_lnk_up                                => user_lnk_up,  -- pcie_rx_axi
+      user_lnk_up                                => user_lnk_up_int,  -- pcie_rx_axi
       user_app_rdy                               => user_app_rdy,  -- Out unused
       tx_buf_av                                  => tx_buf_av,   -- Out unused
       tx_cfg_req                                 => tx_cfg_req,  -- Out unused
@@ -1300,7 +1358,17 @@ begin
       cfg_aer_ecrc_gen_en                        => cfg_aer_ecrc_gen_en,  -- Out unused
       cfg_vc_tcvc_map                            => cfg_vc_tcvc_map,  -- Out unused
       sys_clk                                    => pcie_sys_clk,
-      sys_rst_n                                  => pcie_sys_rst_n
+      sys_rst_n                                  => pcie_sys_rst_n,
+      
+      ext_ch_gt_drpclk                           => ext_ch_gt_drpclk,
+      ext_ch_gt_drpaddr                          => ext_ch_gt_drpaddr,
+      ext_ch_gt_drpen                            => ext_ch_gt_drpen, 
+      ext_ch_gt_drpdi                            => ext_ch_gt_drpdi, 
+      ext_ch_gt_drpwe                            => ext_ch_gt_drpwe, 
+      ext_ch_gt_drpdo                            => ext_ch_gt_drpdo, 
+      ext_ch_gt_drprdy                           => ext_ch_gt_drprdy
+
+      
       );
 
 
@@ -1353,7 +1421,7 @@ begin
     port map (
       sys_clk                => sys_clk,
       sys_reset_n            => sys_reset_n,
-      user_lnk_up            => user_lnk_up,
+      user_lnk_up            => user_lnk_up_int,
       m_axis_rx_tdata        => m_axis_rx_tdata,
       m_axis_rx_tkeep        => m_axis_rx_tkeep,
       m_axis_rx_tlast        => m_axis_rx_tlast,

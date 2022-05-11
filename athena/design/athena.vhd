@@ -167,12 +167,15 @@ component system_pb_wrapper
     xgs_ctrl_xgs_sdout : out STD_LOGIC;
     xgs_ctrl_xgs_trig_int : out STD_LOGIC;
     xgs_ctrl_xgs_trig_rd : out STD_LOGIC;
-    debug_out            : out STD_LOGIC_VECTOR(3 downto 0)  
+    debug_out            : out STD_LOGIC_VECTOR(3 downto 0);
+    ext_ch_gt_drpclk_in : in STD_LOGIC;
+    ext_ch_gt_drpclk_out : out STD_LOGIC  
   );
   end component;
 
   signal pcie_clk_100MHz : std_logic;
   signal info_board_info : std_logic_vector(3 downto 0);
+  signal ext_ch_gt_drpclk: std_logic;
   
 begin
 
@@ -258,7 +261,10 @@ begin
     xgs_ctrl_xgs_sdout      => xgs_sdout,
     xgs_ctrl_xgs_trig_int   => xgs_trig_int,
     xgs_ctrl_xgs_trig_rd    => xgs_trig_rd,
-    debug_out               => debug_data  
+    debug_out               => debug_data,
+    
+    ext_ch_gt_drpclk_in    => ext_ch_gt_drpclk,
+    ext_ch_gt_drpclk_out   => ext_ch_gt_drpclk  
 
   );
 
