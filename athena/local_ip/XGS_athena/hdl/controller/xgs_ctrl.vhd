@@ -2233,8 +2233,10 @@ BEGIN
   -- DEBUG PINS
   --
   -------------------------------------------------------------------------------
-  debug_ctrl32_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
-  debug_ctrl32_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
+  debug_ctrl32_int(0)  <=  '0'; 
+  debug_ctrl32_int(1)  <=  '1';
+  --debug_ctrl32_int(0)  <=  xgs_exposure; --python_monitor0;  --resync to sysclk
+  --debug_ctrl32_int(1)  <=  xgs_FOT;      --python_monitor1;  --resync to sysclk
   debug_ctrl32_int(2)  <=  grab_mngr_trig_rdy;
   debug_ctrl32_int(3)  <=  readout_cntr_FOT;         
   debug_ctrl32_int(4)  <=  readout_cntr_EO_FOT;

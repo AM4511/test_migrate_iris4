@@ -13,7 +13,7 @@ module pcie_7x_0_mtx_wrapper # (
 				parameter         CFG_REV_ID         =  8'hFF,
 				parameter         CFG_SUBSYS_VEND_ID = 16'h102b,
 				parameter         CFG_SUBSYS_ID      = 16'hffff,
-				parameter         PCIE_NB_LANES      = 2'h1 
+				parameter         PCIE_NB_LANES      = 2'h1             
 				)
    (
     pci_exp_txp,
@@ -127,10 +127,24 @@ module pcie_7x_0_mtx_wrapper # (
     cfg_aer_ecrc_gen_en,
     cfg_vc_tcvc_map,
     sys_clk,
-    sys_rst_n
+    sys_rst_n,
+    
+    ext_ch_gt_drpclk,
+    ext_ch_gt_drpaddr,
+    ext_ch_gt_drpen,
+    ext_ch_gt_drpdi,
+    ext_ch_gt_drpwe,
+    ext_ch_gt_drpdo,
+    ext_ch_gt_drprdy 
     );
 
-
+   output wire ext_ch_gt_drpclk;
+   input wire [17 : 0] ext_ch_gt_drpaddr;
+   input wire [1 : 0] ext_ch_gt_drpen;
+   input wire [31 : 0] ext_ch_gt_drpdi;
+   input wire [1 : 0] ext_ch_gt_drpwe;
+   output wire [31 : 0] ext_ch_gt_drpdo;
+   output wire [1 : 0] ext_ch_gt_drprdy;
 
 
    output wire [PCIE_NB_LANES-1 : 0] pci_exp_txp;
@@ -246,14 +260,49 @@ module pcie_7x_0_mtx_wrapper # (
    input wire 		sys_clk;
    input wire 		sys_rst_n;
   
-  // OVERWRITE XILINX PARAMETERS SET BY THE WIZARD
+  
+
+
+   // OVERWRITE XILINX PARAMETERS SET BY THE WIZARD
    defparam pcie_7x_0_xil_wrapper.inst.inst.CFG_VEND_ID         =   CFG_VEND_ID;
    defparam pcie_7x_0_xil_wrapper.inst.inst.CFG_DEV_ID          =   CFG_DEV_ID;
    defparam pcie_7x_0_xil_wrapper.inst.inst.CFG_REV_ID          =   CFG_REV_ID;
    defparam pcie_7x_0_xil_wrapper.inst.inst.CFG_SUBSYS_VEND_ID  =   CFG_SUBSYS_VEND_ID;
    defparam pcie_7x_0_xil_wrapper.inst.inst.CFG_SUBSYS_ID       =   CFG_SUBSYS_ID;
    
+   
+   
+   //----------------------------------------
+   // DRP EYE SCAN SIGNALS --jmansill
+   //
+   // Uncomment this section when Eye Scanning
+   //
+   //----------------------------------------
+   //  //Eye scan lane 0
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.PMA_RSV2       = 32'h00002060; //bit5 must be set to 1  
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_CONTROL     = 6'b000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_ERRDET_EN   = "TRUE"; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_EYE_SCAN_EN = "TRUE"; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_HORZ_OFFSET = 12'b000000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_PMA_CFG     = 10'b0000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_PRESCALE    = 5'b00001; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_QUALIFIER   = 80'b00000000000000000000000000000000000000000000000000000000000000000000000000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_QUAL_MASK   = 80'hffffffffffffffffffff; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[0].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_SDATA_MASK  = 80'hffffffffff00000fffff; 
+   //  
+   //  //Eye scan lane 1  
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.PMA_RSV2       = 32'h00002060;
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_CONTROL     = 6'b000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_ERRDET_EN   = "TRUE"; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_EYE_SCAN_EN = "TRUE"; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_HORZ_OFFSET = 12'b000000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_PMA_CFG     = 10'b0000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_PRESCALE    = 5'b00001; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_QUALIFIER   = 80'b00000000000000000000000000000000000000000000000000000000000000000000000000000000; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_QUAL_MASK   = 80'hffffffffffffffffffff; 
+   //  defparam pcie_7x_0_xil_wrapper.inst.inst.gt_top_i.pipe_wrapper_i.pipe_lane[1].gt_wrapper_i.gtp_channel.gtpe2_channel_i.ES_SDATA_MASK  = 80'hffffffffff00000fffff; 
 
+   
 /* -----\/----- EXCLUDED -----\/-----
 pcie_7x_0 pcie_7x_0_xil_wrapper (
   .pci_exp_txp(pci_exp_txp),                                                                // output wire [0 : 0] pci_exp_txp
@@ -474,7 +523,17 @@ pcie_7x_0 pcie_7x_0_xil_wrapper (
   .cfg_aer_ecrc_gen_en(cfg_aer_ecrc_gen_en),                                                // output wire cfg_aer_ecrc_gen_en
   .cfg_vc_tcvc_map(cfg_vc_tcvc_map),                                                        // output wire [6 : 0] cfg_vc_tcvc_map
   .sys_clk(sys_clk),                                                                        // input wire sys_clk
-  .sys_rst_n(sys_rst_n)                                                                    // input wire sys_rst_n
+  .sys_rst_n(sys_rst_n),                                                                    // input wire sys_rst_n
+  
+  .ext_ch_gt_drpclk    (ext_ch_gt_drpclk),
+  .ext_ch_gt_drpaddr   (ext_ch_gt_drpaddr), 
+  .ext_ch_gt_drpen     (ext_ch_gt_drpen),   
+  .ext_ch_gt_drpdi     (ext_ch_gt_drpdi),   
+  .ext_ch_gt_drpwe     (ext_ch_gt_drpwe),   
+  .ext_ch_gt_drpdo     (ext_ch_gt_drpdo),   
+  .ext_ch_gt_drprdy    (ext_ch_gt_drprdy)   
+  
+  
 );
 
 endmodule

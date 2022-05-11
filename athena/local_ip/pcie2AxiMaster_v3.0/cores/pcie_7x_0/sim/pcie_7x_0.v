@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2022 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -165,7 +165,14 @@ module pcie_7x_0 (
   cfg_aer_ecrc_gen_en,
   cfg_vc_tcvc_map,
   sys_clk,
-  sys_rst_n
+  sys_rst_n,
+  ext_ch_gt_drpclk,
+  ext_ch_gt_drpaddr,
+  ext_ch_gt_drpen,
+  ext_ch_gt_drpdi,
+  ext_ch_gt_drpwe,
+  ext_ch_gt_drpdo,
+  ext_ch_gt_drprdy
 );
 
 (* X_INTERFACE_INFO = "xilinx.com:interface:pcie_7x_mgt:1.0 pcie_7x_mgt txp" *)
@@ -396,6 +403,19 @@ input wire sys_clk;
 (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST.sys_rst_n, POLARITY ACTIVE_LOW, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST.sys_rst_n RST" *)
 input wire sys_rst_n;
+output wire ext_ch_gt_drpclk;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DADDR" *)
+input wire [17 : 0] ext_ch_gt_drpaddr;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DEN" *)
+input wire [1 : 0] ext_ch_gt_drpen;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DI" *)
+input wire [31 : 0] ext_ch_gt_drpdi;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DWE" *)
+input wire [1 : 0] ext_ch_gt_drpwe;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DO" *)
+output wire [31 : 0] ext_ch_gt_drpdo;
+(* X_INTERFACE_INFO = "xilinx.com:interface:drp:1.0 pcie_ext_ch_gt DRDY" *)
+output wire [1 : 0] ext_ch_gt_drprdy;
 
   pcie_7x_0_pcie2_top #(
     .c_component_name("pcie_7x_0"),
@@ -595,7 +615,7 @@ input wire sys_rst_n;
     .PIPE_SIM("FALSE"),
     .PCIE_EXT_CLK("FALSE"),
     .PCIE_EXT_GT_COMMON("FALSE"),
-    .EXT_CH_GT_DRP("FALSE"),
+    .EXT_CH_GT_DRP("TRUE"),
     .TRANSCEIVER_CTRL_STATUS_PORTS("FALSE"),
     .SHARED_LOGIC_IN_CORE("FALSE"),
     .ERR_REPORTING_IF("TRUE"),
@@ -869,13 +889,13 @@ input wire sys_rst_n;
     .pipe_debug_8(),
     .pipe_debug_9(),
     .pipe_debug(),
-    .ext_ch_gt_drpclk(),
-    .ext_ch_gt_drpaddr(18'B0),
-    .ext_ch_gt_drpen(2'B0),
-    .ext_ch_gt_drpdi(32'B0),
-    .ext_ch_gt_drpwe(2'B0),
-    .ext_ch_gt_drpdo(),
-    .ext_ch_gt_drprdy(),
+    .ext_ch_gt_drpclk(ext_ch_gt_drpclk),
+    .ext_ch_gt_drpaddr(ext_ch_gt_drpaddr),
+    .ext_ch_gt_drpen(ext_ch_gt_drpen),
+    .ext_ch_gt_drpdi(ext_ch_gt_drpdi),
+    .ext_ch_gt_drpwe(ext_ch_gt_drpwe),
+    .ext_ch_gt_drpdo(ext_ch_gt_drpdo),
+    .ext_ch_gt_drprdy(ext_ch_gt_drprdy),
     .pcie_drp_clk(1'B1),
     .pcie_drp_en(1'B0),
     .pcie_drp_we(1'B0),

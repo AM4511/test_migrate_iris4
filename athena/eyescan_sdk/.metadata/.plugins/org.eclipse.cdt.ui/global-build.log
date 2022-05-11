@@ -1,0 +1,128 @@
+10:34:00 **** Incremental Build of configuration Debug for project eyescan_software ****
+make all 
+make: Nothing to be done for 'all'.
+10:34:34 **** Auto Build of project eyescan_software_bsp ****
+make -k all 
+"Running Make include in eyescan_microblaze_system_microblaze_0/libsrc/bram_v4_3/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/bram_v4_3/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in eyescan_microblaze_system_microblaze_0/libsrc/cpu_v2_9/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/cpu_v2_9/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make include in eyescan_microblaze_system_microblaze_0/libsrc/standalone_v7_0/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/standalone_v7_0/src -s include  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Running Make libs in eyescan_microblaze_system_microblaze_0/libsrc/bram_v4_3/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/bram_v4_3/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling bram"
+mb-ar: creating ../../../lib/libxil.a
+"Running Make libs in eyescan_microblaze_system_microblaze_0/libsrc/cpu_v2_9/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/cpu_v2_9/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling cpu"
+"Running Make libs in eyescan_microblaze_system_microblaze_0/libsrc/standalone_v7_0/src"
+make -C eyescan_microblaze_system_microblaze_0/libsrc/standalone_v7_0/src -s libs  "SHELL=CMD" "COMPILER=mb-gcc" "ARCHIVER=mb-ar" "COMPILER_FLAGS=  -O2 -c -mcpu=v11.0 -mlittle-endian -mxl-soft-mul" "EXTRA_COMPILER_FLAGS=-ffunction-sections -fdata-sections -Wall -Wextra"
+"Compiling standalone";
+inbyte.c: In function 'inbyte':
+inbyte.c:11:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+outbyte.c: In function 'outbyte':
+outbyte.c:11:19: warning: unused parameter 'c' [-Wunused-parameter]
+ void outbyte(char c) {
+              ~~~~~^
+microblaze_sleep.c:77:9: note: #pragma message: For the sleep routines, assembly instructions are used
+ #pragma message ("For the sleep routines, assembly instructions are used")
+         ^~~~~~~
+'Finished building libraries'
+10:34:37 **** Clean-only build of configuration Debug for project eyescan_software ****
+make clean 
+rm -rf  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o  ./src/drp.d ./src/es_simple_eye_acq.d ./src/eyescan_main.d ./src/platform.d  eyescan_software.elf.size  eyescan_software.elf
+' '
+10:34:38 **** Auto Build of configuration Debug for project eyescan_software ****
+make all 
+'Building file: ../src/drp.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/drp.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/drp.d" -MT"src/drp.o" -o "src/drp.o" "../src/drp.c"
+'Finished building: ../src/drp.c'
+' '
+'Building file: ../src/es_simple_eye_acq.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/es_simple_eye_acq.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/es_simple_eye_acq.d" -MT"src/es_simple_eye_acq.o" -o "src/es_simple_eye_acq.o" "../src/es_simple_eye_acq.c"
+../src/es_simple_eye_acq.c: In function 'es_simple_eye_acq':
+../src/es_simple_eye_acq.c:157:16: warning: implicit declaration of function 'abs' [-Wimplicit-function-declaration]
+   vert_value = abs(eye_struct->vert_offset) + eye_struct->ut_sign * 256; //256 = 2^8 ut_sign is bit[8]
+                ^~~
+'Finished building: ../src/es_simple_eye_acq.c'
+' '
+'Building file: ../src/eyescan_main.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/eyescan_main.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/eyescan_main.d" -MT"src/eyescan_main.o" -o "src/eyescan_main.o" "../src/eyescan_main.c"
+'Finished building: ../src/eyescan_main.c'
+' '
+'Building file: ../src/platform.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/platform.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/platform.d" -MT"src/platform.o" -o "src/platform.o" "../src/platform.c"
+'Finished building: ../src/platform.c'
+' '
+'Building target: eyescan_software.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/lib -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "eyescan_software.elf"  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: eyescan_software.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size eyescan_software.elf  |tee "eyescan_software.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+   9282	    268	   2090	  11640	   2d78	eyescan_software.elf
+'Finished building: eyescan_software.elf.size'
+' '
+10:45:09 **** Auto Build of configuration Debug for project eyescan_software ****
+make all 
+'Building file: ../src/es_simple_eye_acq.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/es_simple_eye_acq.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/es_simple_eye_acq.d" -MT"src/es_simple_eye_acq.o" -o "src/es_simple_eye_acq.o" "../src/es_simple_eye_acq.c"
+'Finished building: ../src/es_simple_eye_acq.c'
+' '
+'Building target: eyescan_software.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/lib -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "eyescan_software.elf"  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: eyescan_software.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size eyescan_software.elf  |tee "eyescan_software.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+   9282	    268	   2090	  11640	   2d78	eyescan_software.elf
+'Finished building: eyescan_software.elf.size'
+' '
+10:45:26 **** Auto Build of configuration Debug for project eyescan_software ****
+make all 
+'Building file: ../src/es_simple_eye_acq.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/es_simple_eye_acq.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/es_simple_eye_acq.d" -MT"src/es_simple_eye_acq.o" -o "src/es_simple_eye_acq.o" "../src/es_simple_eye_acq.c"
+'Finished building: ../src/es_simple_eye_acq.c'
+' '
+'Building target: eyescan_software.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/lib -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "eyescan_software.elf"  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: eyescan_software.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size eyescan_software.elf  |tee "eyescan_software.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+   9282	    268	   2090	  11640	   2d78	eyescan_software.elf
+'Finished building: eyescan_software.elf.size'
+' '
+11:10:37 **** Auto Build of configuration Debug for project eyescan_software ****
+make all 
+'Building file: ../src/es_simple_eye_acq.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/es_simple_eye_acq.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/es_simple_eye_acq.d" -MT"src/es_simple_eye_acq.o" -o "src/es_simple_eye_acq.o" "../src/es_simple_eye_acq.c"
+'Finished building: ../src/es_simple_eye_acq.c'
+' '
+'Building target: eyescan_software.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/lib -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "eyescan_software.elf"  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: eyescan_software.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size eyescan_software.elf  |tee "eyescan_software.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+   9282	    268	   2090	  11640	   2d78	eyescan_software.elf
+'Finished building: eyescan_software.elf.size'
+' '

@@ -300,7 +300,7 @@ module pcie_7x_0_core_top # (
   parameter         PCIE_EXT_CLK = "FALSE",
 
   parameter         PCIE_EXT_GT_COMMON = "FALSE",
-  parameter         EXT_CH_GT_DRP      = "FALSE",
+  parameter         EXT_CH_GT_DRP      = "TRUE",
   parameter         TRANSCEIVER_CTRL_STATUS_PORTS = "FALSE", 
   parameter         SHARED_LOGIC_IN_CORE = "FALSE",
 

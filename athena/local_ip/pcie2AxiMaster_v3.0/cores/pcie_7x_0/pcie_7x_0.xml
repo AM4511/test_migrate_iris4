@@ -2832,7 +2832,7 @@
       <spirit:vendorExtensions>
         <xilinx:busInterfaceInfo>
           <xilinx:enablement>
-            <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="BUSIF_ENABLEMENT.pcie_ext_ch_gt" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+            <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="BUSIF_ENABLEMENT.pcie_ext_ch_gt" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
           </xilinx:enablement>
         </xilinx:busInterfaceInfo>
       </spirit:vendorExtensions>
@@ -3330,7 +3330,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:6c81576b</spirit:value>
+            <spirit:value>9:8c268177</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3345,11 +3345,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:44 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:03 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:61e97741</spirit:value>
+            <spirit:value>9:e185e048</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3365,11 +3365,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:07 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:61e97741</spirit:value>
+            <spirit:value>9:e185e048</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3380,7 +3380,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:61e97741</spirit:value>
+            <spirit:value>9:e185e048</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3396,11 +3396,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:07 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:61e97741</spirit:value>
+            <spirit:value>9:e185e048</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3416,11 +3416,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:47 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:07 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:35420393</spirit:value>
+            <spirit:value>9:ca172ba6</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3436,11 +3436,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:48 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:08 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:35420393</spirit:value>
+            <spirit:value>9:ca172ba6</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -3454,11 +3454,11 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Tue Dec 08 15:20:48 UTC 2020</spirit:value>
+            <spirit:value>Mon May 09 18:54:08 UTC 2022</spirit:value>
           </spirit:parameter>
           <spirit:parameter>
             <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:61e97741</spirit:value>
+            <spirit:value>9:e185e048</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -9133,7 +9133,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpclk" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpclk" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9160,7 +9160,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpaddr" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpaddr" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9187,7 +9187,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpen" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpen" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9214,7 +9214,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpdi" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpdi" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9241,7 +9241,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpwe" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpwe" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9265,7 +9265,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpdo" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drpdo" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -9289,7 +9289,7 @@
         <spirit:vendorExtensions>
           <xilinx:portInfo>
             <xilinx:enablement>
-              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drprdy" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">false</xilinx:isEnabled>
+              <xilinx:isEnabled xilinx:resolve="dependent" xilinx:id="PORT_ENABLEMENT.ext_ch_gt_drprdy" xilinx:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.EXT_CH_GT_DRP&apos;)) = &quot;TRUE&quot;)">true</xilinx:isEnabled>
             </xilinx:enablement>
           </xilinx:portInfo>
         </spirit:vendorExtensions>
@@ -10714,7 +10714,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>EXT_CH_GT_DRP</spirit:name>
-        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.EXT_CH_GT_DRP">FALSE</spirit:value>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.EXT_CH_GT_DRP">TRUE</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="string">
         <spirit:name>TRANSCEIVER_CTRL_STATUS_PORTS</spirit:name>
@@ -12431,7 +12431,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>en_ext_ch_gt_drp</spirit:name>
-      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.en_ext_ch_gt_drp" spirit:order="1049">false</spirit:value>
+      <spirit:value spirit:format="bool" spirit:resolve="user" spirit:id="PARAM_VALUE.en_ext_ch_gt_drp" spirit:order="1049">true</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>en_transceiver_status_ports</spirit:name>
