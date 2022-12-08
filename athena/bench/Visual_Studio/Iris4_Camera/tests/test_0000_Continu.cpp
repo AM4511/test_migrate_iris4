@@ -120,7 +120,14 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//
 	//---------------------
 	// Init Display with correct X-Y parameters 
+
+
+	if (SensorParams->IS_COLOR == 0 and (Pcie->rPcie_ptr.fpga.device.f.id == 2 || Pcie->rPcie_ptr.fpga.device.f.id == 3)) {
+		printf_s("FPGA IS COLOR AND SENSOR IS MONO, TO AVOID FPGA FAILURE SET SENSOR AS COLOR\n");
+		SensorParams->IS_COLOR == 1;
+	}
 	
+
 	//--------------------------------
 	// MONO TRANSFER
 	//--------------------------------
