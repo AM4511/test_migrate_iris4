@@ -167,7 +167,7 @@ module pcie_7x_0_pipe_wrapper #
     parameter PCIE_LPM_DFE_GEN3             = "DFE",        // PCIe LPM or DFE mode for Gen3      only
     parameter PCIE_EXT_CLK                  = "FALSE",      // PCIe external clock
     parameter PCIE_EXT_GT_COMMON            = "FALSE",      // PCIe external GT COMMON
-    parameter EXT_CH_GT_DRP                 = "FALSE",      // PCIe external CH DRP
+    parameter EXT_CH_GT_DRP                 = "TRUE",      // PCIe external CH DRP
 
     parameter TX_MARGIN_FULL_0              = 7'b1001111,                          // 1000 mV
     parameter TX_MARGIN_FULL_1              = 7'b1001110,                          // 950 mV

@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2022 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -165,7 +165,14 @@ COMPONENT pcie_7x_0
     cfg_aer_ecrc_gen_en : OUT STD_LOGIC;
     cfg_vc_tcvc_map : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
     sys_clk : IN STD_LOGIC;
-    sys_rst_n : IN STD_LOGIC
+    sys_rst_n : IN STD_LOGIC;
+    ext_ch_gt_drpclk : OUT STD_LOGIC;
+    ext_ch_gt_drpaddr : IN STD_LOGIC_VECTOR(17 DOWNTO 0);
+    ext_ch_gt_drpen : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    ext_ch_gt_drpdi : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    ext_ch_gt_drpwe : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    ext_ch_gt_drpdo : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    ext_ch_gt_drprdy : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
   );
 END COMPONENT;
 -- COMP_TAG_END ------ End COMPONENT Declaration ------------
@@ -287,7 +294,14 @@ your_instance_name : pcie_7x_0
     cfg_aer_ecrc_gen_en => cfg_aer_ecrc_gen_en,
     cfg_vc_tcvc_map => cfg_vc_tcvc_map,
     sys_clk => sys_clk,
-    sys_rst_n => sys_rst_n
+    sys_rst_n => sys_rst_n,
+    ext_ch_gt_drpclk => ext_ch_gt_drpclk,
+    ext_ch_gt_drpaddr => ext_ch_gt_drpaddr,
+    ext_ch_gt_drpen => ext_ch_gt_drpen,
+    ext_ch_gt_drpdi => ext_ch_gt_drpdi,
+    ext_ch_gt_drpwe => ext_ch_gt_drpwe,
+    ext_ch_gt_drpdo => ext_ch_gt_drpdo,
+    ext_ch_gt_drprdy => ext_ch_gt_drprdy
   );
 -- INST_TAG_END ------ End INSTANTIATION Template ---------
 

@@ -104,8 +104,8 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 	}
 	else {
 		GrabParams->Y_START = SensorParams->Ystart_valid;                          // Dois etre multiple de 4	
-		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid;                       // Dois etre multiple de 4
-		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1 + 4;      // On laisse passer 4 lignes d'interpolation pour le bayer
+		GrabParams->Y_SIZE = SensorParams->Ysize_Full_valid + 4 ;                  // Dois etre multiple de 4 ,+ 4 lignes d'interpolation
+		GrabParams->Y_END = GrabParams->Y_START + GrabParams->Y_SIZE - 1;          // On laisse passer 4 lignes d'interpolation pour le bayer
 	}
 
 	XGS_Ctrl->setBlackRef(0xff); //lets put a base pixel value so even in the black a overpix pixel will be detected !
@@ -186,6 +186,10 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 	vector<double> ROI_Y_SIZE_vector_ExpMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
 	vector<double> ROI_Y_SIZE_vector_FPSMax(ROI_Y_SIZE_vector.begin(), ROI_Y_SIZE_vector.end());
 
+	int Interpolation = 0;
+	if(SensorParams->IS_COLOR == 1 )
+	  Interpolation = 4;
+
 
 	while (Sortie == 0)
 	{
@@ -217,11 +221,15 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 				printf_s("1) Minimum ExposureTime FPS test\n\n");
 
 				for (i = 0; i < ROI_Y_SIZE_vector.size(); i++) {
-					XGS_Ctrl->setExposure_(100);
+					if (SensorParams->IS_COLOR == 0)
+					  XGS_Ctrl->setExposure_(100);
+					else
+   					  XGS_Ctrl->setExposure_(240);
+
 					GrabCmdCnt = 0;
 					MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 					GrabParams->Y_START = SensorParams->Ystart_valid;
-					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+					GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i]+ Interpolation;
 					GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 
@@ -278,7 +286,7 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = SensorParams->Ystart_valid;
-						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i] + Interpolation;
 						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 						// Run each  for TimePesequencerLoop seconds
@@ -338,7 +346,7 @@ void test_0004_Continu_FPS(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data
 						GrabCmdCnt = 0;
 						MbufClear(MilGrabBuffer, 0);  //clear to detect overruns of image at image+1 pixel
 						GrabParams->Y_START = SensorParams->Ystart_valid;
-						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i];
+						GrabParams->Y_END   = GrabParams->Y_START + ROI_Y_SIZE_vector[i] + Interpolation;
 						GrabParams->Y_SIZE  = GrabParams->Y_END - GrabParams->Y_START;          // 1-base Here - Dois etre multiple de 4
 
 						// Run each sequence for TimePerLoop seconds

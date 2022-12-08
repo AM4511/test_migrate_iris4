@@ -1,0 +1,21 @@
+11:10:37 **** Auto Build of configuration Debug for project eyescan_software ****
+make all 
+'Building file: ../src/es_simple_eye_acq.c'
+'Invoking: MicroBlaze gcc compiler'
+mb-gcc -Wall -O0 -g3 -IC:/work/iris4/athena/eyescan_sdk/eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -c -fmessage-length=0 -MT"src/es_simple_eye_acq.o" -I../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/include -mno-xl-reorder -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/es_simple_eye_acq.d" -MT"src/es_simple_eye_acq.o" -o "src/es_simple_eye_acq.o" "../src/es_simple_eye_acq.c"
+'Finished building: ../src/es_simple_eye_acq.c'
+' '
+'Building target: eyescan_software.elf'
+'Invoking: MicroBlaze gcc linker'
+mb-gcc -Wl,-T -Wl,../src/lscript.ld -L../../eyescan_software_bsp/eyescan_microblaze_system_microblaze_0/lib -mlittle-endian -mcpu=v9.2 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "eyescan_software.elf"  ./src/drp.o ./src/es_simple_eye_acq.o ./src/eyescan_main.o ./src/platform.o   -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+'Finished building target: eyescan_software.elf'
+' '
+'Invoking: MicroBlaze Print Size'
+mb-size eyescan_software.elf  |tee "eyescan_software.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+   9282	    268	   2090	  11640	   2d78	eyescan_software.elf
+'Finished building: eyescan_software.elf.size'
+' '
+
+11:10:38 Build Finished (took 641ms)
+

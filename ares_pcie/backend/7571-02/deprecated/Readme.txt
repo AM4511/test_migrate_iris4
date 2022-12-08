@@ -1,0 +1,1 @@
+This folder contains old scripts for generating a system with hyperram at lowerspeed than 166.67MHz. we didn`t want to erase them yet, however this folder might be erase eventually. We do not expect running Hyperram at lower speed.

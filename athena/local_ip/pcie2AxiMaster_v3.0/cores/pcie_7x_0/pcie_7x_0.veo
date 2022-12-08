@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2022 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -166,7 +166,14 @@ pcie_7x_0 your_instance_name (
   .cfg_aer_ecrc_gen_en(cfg_aer_ecrc_gen_en),                                                // output wire cfg_aer_ecrc_gen_en
   .cfg_vc_tcvc_map(cfg_vc_tcvc_map),                                                        // output wire [6 : 0] cfg_vc_tcvc_map
   .sys_clk(sys_clk),                                                                        // input wire sys_clk
-  .sys_rst_n(sys_rst_n)                                                                    // input wire sys_rst_n
+  .sys_rst_n(sys_rst_n),                                                                    // input wire sys_rst_n
+  .ext_ch_gt_drpclk(ext_ch_gt_drpclk),                                                      // output wire ext_ch_gt_drpclk
+  .ext_ch_gt_drpaddr(ext_ch_gt_drpaddr),                                                    // input wire [17 : 0] ext_ch_gt_drpaddr
+  .ext_ch_gt_drpen(ext_ch_gt_drpen),                                                        // input wire [1 : 0] ext_ch_gt_drpen
+  .ext_ch_gt_drpdi(ext_ch_gt_drpdi),                                                        // input wire [31 : 0] ext_ch_gt_drpdi
+  .ext_ch_gt_drpwe(ext_ch_gt_drpwe),                                                        // input wire [1 : 0] ext_ch_gt_drpwe
+  .ext_ch_gt_drpdo(ext_ch_gt_drpdo),                                                        // output wire [31 : 0] ext_ch_gt_drpdo
+  .ext_ch_gt_drprdy(ext_ch_gt_drprdy)                                                      // output wire [1 : 0] ext_ch_gt_drprdy
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 

@@ -57,11 +57,18 @@ puts "Running ${myself}"
 # 0.5.1 : Added support for Planar color mode, YUV Subsampling and RGB to Y conversion
 #         Complete universal Trim module for Mono and Color fpga
 #
+# 0.5.2 : Added support for dummy grab(enable data path), after the confirmation of Onsemi that a dummy grab must 
+#         be done after dcf load to avoid one frame lost at minimum exposure   
+#
+# 0.5.3 : Fix support for dummy grab(enable data path), when activating dummy grab, fpga generates phy_bit_locked_error because   
+#         signal hclk_idle_detected was masked by logic.  
 #
 
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     5
-set FPGA_SUB_MINOR_VERSION 1
+set FPGA_SUB_MINOR_VERSION 3
+
+set EYE_SCAN               0
 
 set SYNTH_RUN "synth_1"
 set IMPL_RUN  "impl_1"
@@ -80,8 +87,16 @@ set XDC_DIR      ${BACKEND_DIR}
 set ARCHIVE_SCRIPT     ${TCL_DIR}/archive.tcl
 set FIRMWARE_SCRIPT    ${TCL_DIR}/firmwares.tcl
 set FILESET_SCRIPT     ${TCL_DIR}/add_files.tcl
-set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
 set REPORT_FILE        ${BACKEND_DIR}/report_implementation.tcl
+
+#---------------------------
+# Source GTX Block Design
+#---------------------------
+if {$EYE_SCAN == 0} {
+  set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system.tcl
+} else {
+  set AXI_SYSTEM_BD_FILE ${SYSTEM_DIR}/system_EyeScan.tcl
+}
 
 set FPGA_FULL_VERSION  "v${FPGA_MAJOR_VERSION}.${FPGA_MINOR_VERSION}.${FPGA_SUB_MINOR_VERSION}"
 set VIVADO_DIR         ${WORKDIR}/vivado/${FPGA_FULL_VERSION}
@@ -105,10 +120,11 @@ if {$COLOR_FPGA == 0} {
     set PROJECT_DIR  ${VIVADO_DIR}/upgrade/${PROJECT_NAME}
   }
 } else {
+  #_changed _color to _rgb in order to reduce path length
   if {$FPGA_IS_NPI_GOLDEN==1} {
-    set PROJECT_DIR  ${VIVADO_DIR}/golden/${PROJECT_NAME}_color
+    set PROJECT_DIR  ${VIVADO_DIR}/golden/${PROJECT_NAME}_rgb
   } else {
-    set PROJECT_DIR  ${VIVADO_DIR}/upgrade/${PROJECT_NAME}_color
+    set PROJECT_DIR  ${VIVADO_DIR}/upgrade/${PROJECT_NAME}_rgb
   }
 }
 
@@ -167,7 +183,14 @@ set_property -dict [list CONFIG.COLOR ${COLOR_FPGA}] [get_bd_cells XGS_athena_0]
 set_property synth_checkpoint_mode None [get_files ${BD_FILE}]
 generate_target all ${BD_FILE}
 
-
+#######################################################
+# Assign .elf to microblaze if EYE_SCAM IS ENABLED :)
+#######################################################
+if {$EYE_SCAN == 1} {
+  add_files -norecurse C:/work/iris4/athena/backend/artix7/eyescan_software.elf
+  set_property SCOPED_TO_REF system_pb [get_files -all -of_objects [get_fileset sources_1] {C:/work/iris4/athena/backend/artix7/eyescan_software.elf}]
+  set_property SCOPED_TO_CELLS { eyescan_microblaze_system/microblaze_0 } [get_files -all -of_objects [get_fileset sources_1] {C:/work/iris4/athena/backend/artix7/eyescan_software.elf}]
+}
 
 ################################################
 # Top level Generics

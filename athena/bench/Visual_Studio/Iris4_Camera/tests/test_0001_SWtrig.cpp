@@ -557,10 +557,6 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	//---------------------------------------------------------------
 	// DUMMY GRAB
 	//---------------------------------------------------------------
-	
-
-	XGS_Ctrl->WriteSPI_Bit(0x3800, 10, 1);
-
 	MbufClear(MilGrabBuffer, 0);
 	MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 	Sleep(1000);
@@ -571,6 +567,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	if (dummy == 1)
 	{
+		XGS_Ctrl->rXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 0;
 		printf_s("\nExecuting Dummy grab of 1ms\n\n");
 		XGS_Ctrl->setExposure(1000);
 		XGS_Data->SetDMA();
@@ -578,20 +575,21 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		XGS_Ctrl->SW_snapshot(0);                  // Ici on poll trig_rdy avant d'envoyer le trigger
 		XGS_Ctrl->WaitEndExpReadout();
 		Sleep(100);
+		XGS_Ctrl->rXGSptr.HISPI.CTRL.f.ENABLE_DATA_PATH = 1;
 		MbufControl(MilGrabBuffer, M_MODIFIED, M_DEFAULT);
 	}
 
 
+
 	XGS_Ctrl->setAnalogGain(1);        //x4 analog gain   
 	XGS_Ctrl->setDigitalGain(0x20);    //unitary digital gain
-	XGS_Ctrl->setExposure(240);
+	XGS_Ctrl->setExposure(8000);
 
-
-// END OF DEBUG
-//--------------------------------
 
 
 	XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+	XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 0;
+
 	nbGrab = 0;
 
 	while (Sortie == 0)
@@ -784,6 +782,7 @@ void test_0001_SWtrig(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				printf_s("\n\nReturn to single mode... press 's' to trigger \n");
 				SortieCont = 0;
 				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 1;
+				XGS_Ctrl->rXGSptr.ACQ.DEBUG.f.DEBUG_RST_CNTR = 0;
 				nbGrab = 0;
 
 				break;
