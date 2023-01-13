@@ -1072,7 +1072,7 @@ class Cimage;
     //---------------------------------------------------------------------------------------------------------------------
     //  This task correct dead pixel from one COLOR image stored in Class ---- to a new corrected image stored in DPC_grab_image Class.
     //---------------------------------------------------------------------------------------------------------------------
-    task Correct_DeadPixelsColor(input int x_start, input int x_end, input int y_start, input int y_end, input int SUB_X, input int SUB_Y);
+    task Correct_DeadPixelsColor(input int x_start, input int x_end, input int y_start, input int y_end, input int SUB_X, input int SUB_Y, input higlight=0);
 
       int HeadID=0;
 
@@ -1101,9 +1101,12 @@ class Cimage;
 
               correct_pixelColor(Translated_ROIx, Translated_ROIy, dpc_list[dpc].dpc_pat, dpc_pattern_0_cfg, expected_data10);   // Correct rest of image
 
-              $display("HeadID %0d, Correct_DeadPixels: x=%0d, y=%0d Expected=%0d", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y, expected_data10);
-
-              set_pixel(Translated_ROIx, Translated_ROIy, expected_data10);
+              $display("HeadID %0d, Correct_DeadPixels: x=%0d, y=%0d Expected=%0d dec 10bpp", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y, expected_data10);
+              if(higlight==0)
+                set_pixel(Translated_ROIx, Translated_ROIy, expected_data10);
+              if(higlight==1)
+                set_pixel(Translated_ROIx, Translated_ROIy, 32'h3ff);  //highligth
+            
             end else
               begin
                 $display("HeadID %0d, Correct_DeadPixels: Pixel x=%0d, y=%0d not corrected because Subsampling Y applied", HeadID, dpc_list[dpc].dpc_x, dpc_list[dpc].dpc_y);

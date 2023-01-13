@@ -51,7 +51,10 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	int YUV    = 0;
 	int RAW    = 0;
 	int COLOR_Y = 0;
+	int RAW_DPC = 0;
 
+	int highlight = 0;
+	
 	int BYTE_PER_PIXEL = 1;
 
 	int Sortie = 0;
@@ -124,7 +127,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	if (SensorParams->IS_COLOR == 0 and (Pcie->rPcie_ptr.fpga.device.f.id == 2 || Pcie->rPcie_ptr.fpga.device.f.id == 3)) {
 		printf_s("FPGA IS COLOR AND SENSOR IS MONO, TO AVOID FPGA FAILURE SET SENSOR AS COLOR\n");
-		SensorParams->IS_COLOR == 1;
+		SensorParams->IS_COLOR = 1;
 	}
 	
 
@@ -151,16 +154,18 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		printf_s(  "2: PLANAR \n");
 		printf_s(  "3: RAW \n");
 		printf_s(  "4: MONO8 Conversion \n");
+		printf_s(  "5: RAW + DPC \n");
 
 
 	    scanf_s("%d", &Color_type);
 	    printf_s("\n");
 
-		if (Color_type == 0) RGB32  = 1;
-		if (Color_type == 1) YUV    = 1;
-		if (Color_type == 2) PLANAR = 1; 
-		if (Color_type == 3) RAW    = 1;
+		if (Color_type == 0) RGB32   = 1;
+		if (Color_type == 1) YUV     = 1;
+		if (Color_type == 2) PLANAR  = 1; 
+		if (Color_type == 3) RAW     = 1;
 		if (Color_type == 4) COLOR_Y = 1;
+		if (Color_type == 5) RAW_DPC = 1;
 
 
 
@@ -238,7 +243,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			printf_s("Line Pitch buffer display (MemPtr)         = 0x%llx \n", ImageBufferLinePitch);
 			//printf_s("Offset between Bands                       = 0x%llx \n", SensorParams->Ysize_Full_valid * ImageBufferLinePitch);
 		}
-		else if (RAW == 1)
+		else if (RAW == 1 or RAW_DPC == 1)
 		{
 			ImageBufferAddr = LayerCreateGrabBuffer(&MilGrabBuffer, SensorParams->Xsize_Full, 1 * SensorParams->Ysize_Full, MonoType);  //include interpolation for DPC
 			LUT_PATTERN = 3;
@@ -295,7 +300,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 		GrabParams->Y_SIZE  = SensorParams->Ysize_Full_valid+ OVERSCAN_Y;          // Dois etre multiple de 4
 		GrabParams->Y_END   = GrabParams->Y_START + GrabParams->Y_SIZE - 1 ;       // On laisse passer 4 lignes d'interpolation pour le bayer, elles se feront couper au trim
 	}
-	else if (RAW == 1) 	{                                                          // Le raw est utilise pour le calcul du DPC, on va charcher la full surface
+	else if (RAW == 1 || RAW_DPC == 1) 	{                                          // Le raw est utilise pour le calcul du DPC, on va charcher la full surface
 		OVERSCAN_Y          = 0;
 		GrabParams->Y_START = 0;                                                   // Dois etre multiple de 4	
 		GrabParams->Y_SIZE  = SensorParams->Ysize_Full;                            // Dois etre multiple de 4
@@ -334,10 +339,62 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 	DMAParams->LINE_PITCH = (M_UINT32)ImageBufferLinePitch; // Adresse Mono?BGR32 pour DMA  
 
+
+	//-----------------------------------------------------------------
+	//  Program DPC
+	//-----------------------------------------------------------------
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_WRN = 1;   // Write to list 
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA2.f.DPC_LIST_CORR_PATTERN = 0x11; // X-o-X
+
+	//for (int i = 0; i < 510; i++) {
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD     = i;
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = i;  //0-based
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = i;  //0-based
+	//	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS      = 1;
+	//}
+	//
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL = 1;
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = 511;
+	//XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD = 0;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = 3489;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = 16;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = 2461;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = 19;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD = 2;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = 1992;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = 99;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD = 3;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = 3985;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = 109;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_ADD = 4;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_X = 3105;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_DATA1.f.DPC_LIST_CORR_Y = 136;  //0-based
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_SS = 1;
+
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL = 1;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_LIST_COUNT = 5;
+	XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+
+
+
+
 	if (SensorParams->IS_COLOR == 0) {
 
 		BYTE_PER_PIXEL             = 1;
-		SensorParams->Xstart_valid = 4;                        // When color and DPC enabled, then only remove 2 pix  
+		SensorParams->Xstart_valid = 4;                        // remove 4 interpolation pixels  
 
 		DMAParams->ROI_X_EN = 1;
 		DMAParams->X_START  = SensorParams->Xstart_valid;      // To remove interpolation pixels
@@ -353,6 +410,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	}
 	else
 		if (RGB32==1) {
+
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
 
 			BYTE_PER_PIXEL = 4;
 			SensorParams->Xstart_valid = 2;                        // When color and DPC enabled, then only remove 2 pix instead of 4, DPC consumes 2 front and 2 back  
@@ -378,6 +437,8 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 		else if(PLANAR == 1)
 		{
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
 			BYTE_PER_PIXEL             = 1;
 			SensorParams->Xstart_valid = 2;                        // When color and DPC enabled, then only remove 2 pix instead of 4, DPC consumes 2 front and 2 back  
 
@@ -393,6 +454,9 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;
 		}
 		else if (YUV == 1) {
+
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
 			BYTE_PER_PIXEL             = 2;
 			SensorParams->Xstart_valid = 2;                        // When color and DPC enabled, then only remove 2 pix instead of 4, DPC consumes 2 front and 2 back  
 
@@ -408,22 +472,50 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			DMAParams->Y_SIZE   = SensorParams->Ysize_Full_valid;
 		}
 		else if (RAW == 1) {
+
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+
 			BYTE_PER_PIXEL             = 1;
-			SensorParams->Xstart_valid = 0;                        // In RAW mode exit all full pixels to identify DPC 
+			SensorParams->Xstart_valid = 0;                        // In RAW mode exit all full pixels (valid+interpol) to identify DPC 
 
 			DMAParams->ROI_X_EN = 0;
-			DMAParams->X_START  = SensorParams->Xstart_valid;       // On laisse passer le full-X avec toutes les interpolations  
-			DMAParams->X_SIZE    = SensorParams->Xsize_Full;       // On laisse passer le full-X avec toutes les interpolations  
+			DMAParams->X_START  = SensorParams->Xstart_valid;       // Le DMA laisse passer le full-X avec toutes les interpolations pour trouver les pixels defectueux 
+			DMAParams->X_SIZE    = SensorParams->Xsize_Full;        // Le DMA laisse passer le full-X avec toutes les interpolations pour trouver les pixels defectueux   
 
 			DMAParams->LINE_SIZE = BYTE_PER_PIXEL * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
 			DMAParams->CSC = 5; // RAW
 
 			DMAParams->ROI_Y_EN = 0;
-			DMAParams->Y_START = 0;                                // On laisse passer le full-Y avec toutes les interpolations  
-			DMAParams->Y_SIZE = SensorParams->Ysize_Full;          // On laisse passer le full-Y avec toutes les interpolations    
+			DMAParams->Y_START = 0;                                // On laisse passer le full-Y avec toutes les interpolations pour trouver les pixels defectueux   
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full;          // On laisse passer le full-Y avec toutes les interpolations pour trouver les pixels defectueux     
+
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+		}
+		else if (RAW_DPC == 1) {
+
+			XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
+			BYTE_PER_PIXEL = 1;
+			SensorParams->Xstart_valid = 0;                        // In RAW mode + DPC exit all full pixels -4 absorbed by DPC
+
+			DMAParams->ROI_X_EN = 1;
+			DMAParams->X_START = SensorParams->Xstart_valid;       // Le dma laisse passer toute l'image qu'il recoit
+			DMAParams->X_SIZE = SensorParams->Xsize_Full - 4;      // On laisse passer le full-X -4 (consomme par le DPC) 
+
+			DMAParams->LINE_SIZE = BYTE_PER_PIXEL * (DMAParams->X_SIZE) / (DMAParams->SUB_X + 1);  //pour le moment
+			DMAParams->CSC = 5; // RAW
+
+			DMAParams->ROI_Y_EN = 0;
+			DMAParams->Y_START = 0;                                // Le DMA laisse passer le full-Y avec toutes les interpolations  
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full;          // Le DMA laisse passer le full-Y avec toutes les interpolations    
+
 
 		}
+
 		else if (COLOR_Y == 1) {
+
+   		    XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
 			BYTE_PER_PIXEL             = 1;
 			SensorParams->Xstart_valid = 2;                        // When color and DPC enabled, then only remove 2 pix instead of 4, DPC consumes 2 front and 2 back  
 
@@ -435,10 +527,11 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 			DMAParams->CSC       = 4; // Y
 
 			DMAParams->ROI_Y_EN = 1;
-			DMAParams->Y_START = 0;
-			DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;
+			DMAParams->Y_START = 0;                               // Le DMA laisse passer le Y valide 
+			DMAParams->Y_SIZE = SensorParams->Ysize_Full_valid;	  // Le DMA laisse passer le Y valide 
 		}
 	
+
 
 
 	//Transparent LUTs
@@ -546,6 +639,12 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 	printf_s("\n  (S) Subsampling Y mode");
 	printf_s("\n");
 	printf_s("\n  (D) Disable Image Display transfer (Max fps)");
+	printf_s("\n  (5) Enable  RAW DPC");
+	printf_s("\n  (6) Disable RAW DPC");
+	printf_s("\n  (7) Enable  BAYER DPC");
+	printf_s("\n  (8) Disable BAYER DPC");
+	printf_s("\n  (h) DCP Highlight ON/OFF");
+
 	printf_s("\n  (T) Fpga Monitor(Temp and Supplies)");
 	printf_s("\n  (l) Program LUT");
 	printf_s("\n  (2) Digital Gain +1 (XGS Dig Gain)");
@@ -1078,6 +1177,86 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 
 				break;
 
+
+            // RAW MODE
+            // Le display affiche une taille X : valide + interpolation
+            // Avec un mode RAW 
+ 			case '5':
+				cout << "\nDPC enable";
+
+				if (XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL == 1)  cout << " highlight is ON\n";
+				if (XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL == 0)  cout << " highlight is OFF\n";
+
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+				XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+				SensorParams->Xstart_valid = 0;
+				DMAParams->ROI_X_EN = 1;
+				DMAParams->X_START = SensorParams->Xstart_valid;           // Le DMA laisse passer tout le data qu'il recoit
+				DMAParams->X_SIZE = SensorParams->Xsize_Full;              // Le DMA laisse passer tout le data qu'il recoit  
+
+				Sleep(200);
+				break;
+
+			case '6':
+				cout << "\nRAW DPC disable, but cropping 2 front pixel to map pixel-pixel with RAW+DPC\n";
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+				XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+				SensorParams->Xstart_valid = 2;                           // Pour mapper les pixels au display a la meme place que le RAW+DPC, on offset de 2 
+				DMAParams->ROI_X_EN = 1;
+				DMAParams->X_START = SensorParams->Xstart_valid;          //   
+				DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;       //   
+				Sleep(200);
+				break;
+
+
+			case '7':
+				cout << "\nBAYER DPC enable";
+				if (XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL == 1)  cout << " highlight is ON\n";
+				if (XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL == 0)  cout << " highlight is OFF\n";
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+				XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 1;
+
+				SensorParams->Xstart_valid = 2;            
+				DMAParams->ROI_X_EN = 1;
+				DMAParams->X_START = SensorParams->Xstart_valid;           // On laisse passer le full-X avec toutes les interpolations  
+				DMAParams->X_SIZE = SensorParams->Xsize_Full_valid ;       // On laisse passer le full-X avec toutes les interpolations  
+
+ 			    Sleep(200);
+				break;
+
+			case '8':
+				cout << "\nBAYER DPC disable\n";
+				XGS_Ctrl->WaitEndExpReadout();
+				Sleep(200);
+				XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE = 0;
+
+				SensorParams->Xstart_valid = 4;                           // Pour mapper les pixels au display a la meme place que le RGB+DPC 
+				DMAParams->ROI_X_EN = 1;
+				DMAParams->X_START = SensorParams->Xstart_valid;                                       // On laisse passer le full-X avec toutes les interpolations  
+				DMAParams->X_SIZE  = SensorParams->Xsize_Full_valid;       // On laisse passer le full-X avec toutes les interpolations  
+
+				Sleep(200);
+				break;
+
+			case 'h':
+				if (XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_ENABLE == 1) {
+					if (highlight == 1) {
+						highlight = 0;
+						cout << "\nDPC mode, highlight=OFF\n";
+					} else
+					{
+						highlight = 1;
+						cout << "\nDPC mode, highlight=ON\n";
+					}
+					XGS_Data->rXGSptr.DPC.DPC_LIST_CTRL.f.DPC_HIGHLIGHT_ALL = highlight;
+				} else
+				{
+					cout << "\nDPC is OFF\n";
+				}
+				break;
 
 
 			}

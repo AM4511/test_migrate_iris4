@@ -63,10 +63,11 @@ puts "Running ${myself}"
 # 0.5.3 : Fix support for dummy grab(enable data path), when activating dummy grab, fpga generates phy_bit_locked_error because   
 #         signal hclk_idle_detected was masked by logic.  
 #
-
+# 0.5.4 : COLOR FPGA : Add support for DPC with Raw images (for NPI) and also add support for Bayer images with DPC disabled.
+#
 set FPGA_MAJOR_VERSION     0
 set FPGA_MINOR_VERSION     5
-set FPGA_SUB_MINOR_VERSION 3
+set FPGA_SUB_MINOR_VERSION 4
 
 set EYE_SCAN               0
 

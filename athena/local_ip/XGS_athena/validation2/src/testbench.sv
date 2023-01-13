@@ -15,7 +15,7 @@ module testbench;
 
  	parameter AXIL_DATA_WIDTH  = 32;
 	parameter AXIL_ADDR_WIDTH  = 11;
-    parameter AXIS_DATA_WIDTH  = 64;
+  parameter AXIS_DATA_WIDTH  = 64;
 	parameter AXIS_USER_WIDTH  = 4;
 	parameter GPIO_NUMB_INPUT  = 1;
 	parameter GPIO_NUMB_OUTPUT = 3;  // [2]   = Anput Ext trigger
@@ -54,6 +54,7 @@ module testbench;
   Test0023 test0023;  //color RGB32 12M
   Test0024 test0024;
   Test0025 test0025;  //color 3 Planar images B8,G8,R8
+  Test0026 test0026;  //color RAW+DPC   5M
 
   // un jour je trouverai comment faire l'auto-registration dans chaque objet...  
   Ctest t;
@@ -104,7 +105,8 @@ module testbench;
       top_string_factory["Test0022"] = objectRegistry#(Test0022)::get(); 
       top_string_factory["Test0023"] = objectRegistry#(Test0023)::get();
       top_string_factory["Test0024"] = objectRegistry#(Test0024)::get();  
-      top_string_factory["Test0025"] = objectRegistry#(Test0025)::get();                   
+      top_string_factory["Test0025"] = objectRegistry#(Test0025)::get();  
+      top_string_factory["Test0026"] = objectRegistry#(Test0026)::get();     
       
       tb_RESETn = 1'b0;
       repeat(20)@(posedge tb_CLK);

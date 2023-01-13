@@ -121,7 +121,7 @@ class Cvlib;
     int yuv = 0;
     int mono8 = 0;
     int planar = 0;
-
+    int DPC_enabled =0;
 
     /////////////////////////////
 	// DMA parameter
@@ -859,17 +859,18 @@ class Cvlib;
  		XGS_image.cropXdummy(MODEL_X_START, MODEL_X_END);                                                 // FPGA Remove all dummies and black ref from PGM image, so X is 0 reference!
 
    	    //Si on est en RGB ou YUV, on fera la correction
-    	if(bayer==1) begin
-    	  XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y); // FPGA DPC
+    	if(bayer==1 || (bayer==0 && DPC_enabled==1) ) begin
+    	  XGS_image.Correct_DeadPixelsColor(ROI_X_START, ROI_X_END , ROI_Y_START, ROI_Y_END, SUB_X, SUB_Y, 1); // FPGA DPC
 		  XGS_image.cropXdummy(2, (XGS_image.pgm_size_x-1)-2);                                              // remove 2 first columns and 2 last columns after color DPC
         end 
         
         XGS_image.reduce_bit_depth(8);                                                                    // FPGA 10bpp to 8bpp
 
-        // A partir d'ici les images generes par BayerDemosaic, mono8_2_mono3 et Bayer2YUV 
+        // A partir d'ici les images generes par BayerDemosaic, mono8_2_mono32 et Bayer2YUV 
         // ne sont plus representes en pixels mais en bytes!
          
-		if(bayer==1)
+		if(bayer==1) begin
+
 		  //Color output packed BGR32
           if(yuv==0 && mono8==0 && planar==0) begin                                                       // *** RGB32 
 		    XGS_image.BayerDemosaic();
@@ -896,7 +897,7 @@ class Cvlib;
             XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END-4);                                             // FPGA ROI Y (-4 lignes) Remove 4 lines more of expected (transfered 4 interpolation lines for bayer)
             XGS_image.yuv32_2_yuv16();                                                                   // FPGA YUV32 to YUV16 pack 
 		  end                                                          
-		else begin                                                                                       // *** RAW
+		end else begin                                                                                       // *** RAW
 		  XGS_image.mono8_2_mono32();                                                                    // RAW Mono8 to MONO32
           XGS_image.crop_X(ROI_X_START*4, ((ROI_X_END+1)*4)-1 );                                         // FPGA ROI X
           XGS_image.fpga_crop_Y(ROI_Y_START, ROI_Y_END);                                                 // FPGA ROI Y 
@@ -928,9 +929,10 @@ class Cvlib;
 	// DPC ENABLE
 	///////////////////////////////////////////////////
     task DPC_en(input int Enable, input int REG_DPC_PATTERN0_CFG);
-    	host.write(DPC_LIST_CTRL,  (DPC_list_count<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
+    	host.write(DPC_LIST_CTRL,  (1<<31) +(DPC_list_count<<16) + (REG_DPC_PATTERN0_CFG<<15)+(1<<14) );  // DPC_LIST_COUNT() + DPC_PATTERN0_CFG(15), DCP ENABLE(14)=1
 	    XGS_imageSRC.DPC_set_pattern_0_cfg(REG_DPC_PATTERN0_CFG);                                           // Pour la prediction
-	    XGS_imageSRC.DPC_set_firstlast_line_rem(0);                                                         // Pour la prediction
+	    XGS_imageSRC.DPC_set_firstlast_line_rem(0);   
+	    DPC_enabled =1 ; // Pour la prediction
     endtask : DPC_en
 
 

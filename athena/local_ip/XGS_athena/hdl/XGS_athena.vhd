@@ -843,6 +843,10 @@ architecture struct of XGS_athena is
   end component;
 
 
+  --attribute mark_debug : string;
+  --attribute keep       : string;
+
+  
   -----------------------------------------------------------------------------
   -- HW_VERSION :
   --
@@ -985,6 +989,18 @@ architecture struct of XGS_athena is
 
   signal trim_x_scale : std_logic_vector(regfile.DMA.CSC.SUB_X'range);
 
+  
+  --attribute mark_debug of conv_tvalid : signal is "true";
+  --attribute mark_debug of conv_tready : signal is "true";
+  --attribute mark_debug of conv_tuser  : signal is "true";
+  --attribute mark_debug of conv_tlast  : signal is "true";
+  --attribute mark_debug of conv_tdata  : signal is "true";
+  --
+  --attribute mark_debug of trim_tready : signal is "true";
+  --attribute mark_debug of trim_tvalid : signal is "true";
+  --attribute mark_debug of trim_tdata  : signal is "true";
+  --attribute mark_debug of trim_tuser  : signal is "true";
+  --attribute mark_debug of trim_tlast  : signal is "true";
 
 
 begin
