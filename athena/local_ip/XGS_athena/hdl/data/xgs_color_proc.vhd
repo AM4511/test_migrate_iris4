@@ -421,7 +421,7 @@ signal m_axis_tdata_int         : std_logic_vector(63 downto 0);
 signal m_axis_tuser_int         : std_logic_vector(3 downto 0);
 signal m_axis_wait_data         : std_logic_vector(63 downto 0);
 signal m_axis_wait              : std_logic :='0';
-signal m_axis_in_use            : std_logic :='0';
+signal m_axis_in_use            : std_logic_vector(1 downto 0) :="00";
 
 
 -- AXI to Matrox IF
@@ -791,8 +791,10 @@ BEGIN
         s_axis_line_wait      <= '0'; 
         s_axis_frame_done     <= '0'; 
 
-      elsif(BAYER_EN='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
-	       (BAYER_EN='0' and s_axis_first_prefetch="01" and s_axis_tvalid='1' ) then -- RAW this gives 2 rdy at SOF detection - remove rdy and then listen to master interface to be ready
+      elsif(BAYER_EN='1' and REG_dpc_enable='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RGB + DPC this gives 4 rdy at SOL detection - remove rdy and then listen to master interface to be ready
+	       (BAYER_EN='1' and REG_dpc_enable='0' and s_axis_first_prefetch="01" and s_axis_tvalid='1' ) or   -- RGB this gives 2 rdy at SOL detection - remove rdy and then listen to master interface to be ready
+           (BAYER_EN='0' and REG_dpc_enable='1' and s_axis_first_prefetch="11" and s_axis_tvalid='1' ) or   -- RAW + DPC this gives 4 rdy at SOF detection - remove rdy and then listen to master interface to be ready
+	       (BAYER_EN='0' and REG_dpc_enable='0' and s_axis_first_prefetch="01" and s_axis_tvalid='1' ) then -- RAW this gives 2 rdy at SOF detection - remove rdy and then listen to master interface to be ready
 	    s_axis_tready_int     <= '0';		
 	    s_axis_first_line     <= '0'; 
 		s_axis_first_prefetch <= "00";  	  
@@ -808,7 +810,11 @@ BEGIN
         s_axis_line_wait      <= '1'; 	 
         s_axis_frame_done     <= '0'; 
 
-      elsif(s_axis_line_wait='1' and m_axis_tvalid_int='1' and m_axis_tready='1' and m_axis_in_use='0') then  -- wait for master to be rdy on master to give slave ready to burst   
+      elsif(s_axis_line_wait='1' and m_axis_tvalid_int='1' and m_axis_tready='1' and 
+            (  (m_axis_in_use="00" and BAYER_EN='1') or   -- wait for master to Absorb the 1 QW data in BAYER RGB,
+               (m_axis_in_use="01" and BAYER_EN='0')      -- wait for master to Absorb the 2 QW data in RAW
+            ) 
+         ) then  -- wait for master to Absorb the 2 first data in RAW or 1 data in BAYER, to absorb axis waitstate generate by trim_y  
 	    s_axis_tready_int     <= '1';		
 	    s_axis_first_line     <= '0'; 
 	 	s_axis_first_prefetch <= "00";  	  
@@ -2051,10 +2057,13 @@ bayer_data      <= "--------" & C1_R_PIX_end_mosaic & C1_G_PIX_end_mosaic & C1_B
   process(axi_clk)
   begin
     if rising_edge(axi_clk) then
-      if(m_axis_tvalid_int='1' and m_axis_tready='1' and (m_axis_tuser_int(0)='1' or m_axis_tuser_int(2)='1' ) ) then  -- Start of line  
-        m_axis_in_use <='1';
+      if(m_axis_tvalid_int='1' and m_axis_tready='1' and (m_axis_tuser_int(0)='1' or m_axis_tuser_int(2)='1' ) ) then     --First data is passed to master  
+        m_axis_in_use <= "01";                                                                      	  
+      elsif(m_axis_tvalid_int='1' and m_axis_tready='1' and m_axis_in_use ="01" ) then                                    --Second data is passed to master
+        m_axis_in_use <= "10";
 	  elsif(m_axis_tvalid_int='1' and m_axis_tready='1' and (m_axis_tuser_int(1)='1' or m_axis_tuser_int(3)='1' ) ) then  -- End of line
-        m_axis_in_use <='0';	  	  
+        m_axis_in_use <= "00";	  	  
+        
       end if;	  
     end if;
   end process;  

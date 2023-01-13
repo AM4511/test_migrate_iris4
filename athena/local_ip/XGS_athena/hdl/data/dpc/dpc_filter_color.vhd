@@ -191,6 +191,8 @@ component dpc_kernel_proc_color
   );
 end component;
 
+--attribute mark_debug : string;
+--attribute keep       : string;
 
 constant nb_pixels  : integer := ((axi_data'high+1)/10)-1;      
 
@@ -292,6 +294,34 @@ signal kernel_sol_P2         : std_logic:= '0';
 signal kernel_data_val_P2    : std_logic:= '0';
 signal kernel_eol_P2         : std_logic:= '0';	
 signal kernel_eof_P2         : std_logic:= '0';
+
+--signal debug_dpc_sof         : std_logic:= '0';
+--signal debug_dpc_sol         : std_logic:= '0';
+--signal debug_dpc_data_val    : std_logic:= '0';
+--signal debug_dpc_data16      : std_logic_vector(15 downto 0);
+--signal debug_dpc_eol         : std_logic:= '0';
+--signal debug_dpc_eof         : std_logic:= '0'; 
+--signal debug_dpc_line_num    : std_logic_vector(12 downto 0):= "0000000000000";
+--
+--
+-------------------------------------------------------------------------------
+---- Debug attributes 
+-------------------------------------------------------------------------------
+--attribute mark_debug of debug_dpc_sof      : signal is "true";
+--attribute mark_debug of debug_dpc_sol      : signal is "true";
+--attribute mark_debug of debug_dpc_data_val : signal is "true";
+--attribute mark_debug of debug_dpc_data16   : signal is "true";
+--attribute mark_debug of debug_dpc_eol      : signal is "true";
+--attribute mark_debug of debug_dpc_eof      : signal is "true";
+--attribute mark_debug of debug_dpc_line_num : signal is "true";
+--
+--attribute keep of debug_dpc_sof            : signal is "true";
+--attribute keep of debug_dpc_sol            : signal is "true";
+--attribute keep of debug_dpc_data_val       : signal is "true";
+--attribute keep of debug_dpc_data16         : signal is "true";
+--attribute keep of debug_dpc_eol            : signal is "true";
+--attribute keep of debug_dpc_eof            : signal is "true";
+--attribute keep of debug_dpc_line_num       : signal is "true";
 
 
 begin
@@ -663,6 +693,23 @@ dpc_eof_m1        <= kernel_eof_P1;
 dpc_eof           <= kernel_eof_P2;      
 
 
+--debug_dpc_sof           <= kernel_sof_P2;           
+--debug_dpc_sol           <= kernel_sol_P2;            
+--debug_dpc_data_val      <= kernel_data_val_P2;        
+--debug_dpc_data16        <= dpc_kernel_proc_data_out(19 downto 12) & dpc_kernel_proc_data_out(9 downto 2);
+--debug_dpc_eol           <= kernel_eol_P2;      
+--debug_dpc_eof           <= kernel_eof_P2;  
+-- 
+--process(axi_clk)
+--begin
+--  if (axi_clk'event and axi_clk='1') then        
+--    if(kernel_sof_P2='1') then 
+--      debug_dpc_line_num <= (others=>'0');
+--    elsif(kernel_eol_P2='1') then 
+--      debug_dpc_line_num <= debug_dpc_line_num +'1';
+--    end if;
+--  end if;
+--end process;
 
   
   

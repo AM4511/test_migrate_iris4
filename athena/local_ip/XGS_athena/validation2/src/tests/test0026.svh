@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Test0021 : XGS 5000 : BAYER RAW MONO : MONO32
+// Test0026 : XGS 5000 : BAYER RAW MONO + DPC enabled : MONO32
 //
-// Description : Send one color frame of 16 lines. Destination buffer is RAW.
-//               (20 from the sensor because of bayer 1-line consumption)
+// Description : Send one RAW frame of 16 lines. Destination buffer is RAW.
+//           
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 import core_pkg::*;
@@ -10,7 +10,7 @@ import driver_pkg::*;
 
 
 
-class Test0021 extends Ctest;
+class Test0026 extends Ctest;
 
     parameter AXIS_DATA_WIDTH  = 64;
     parameter AXIS_USER_WIDTH  = 4;
@@ -46,7 +46,7 @@ class Test0021 extends Ctest;
 
 
     function new(Cdriver_axil host, virtual axi_stream_interface tx_axis_if);
-        super.new("Test0021", host, tx_axis_if);
+        super.new("Test0026", host, tx_axis_if);
         this.host       = host;
         this.tx_axis_if = tx_axis_if;
         this.scoreboard = new(tx_axis_if,this);
@@ -109,6 +109,10 @@ class Test0021 extends Ctest;
 				// DPC : COLOR LIST, NO DPC in RAW mode, Raw serves to identify DP
 				////////////////////////////////////////////////////////////////////
                 //super.Vlib.DPC_COLOR_add_list();
+                super.Vlib.DPC_add(4, 4, 'h11);
+                super.Vlib.DPC_add(6, 6, 'h11);
+                super.Vlib.DPC_add(7, 7, 'h11);
+                super.Vlib.DPC_en(1, 1);
 
 				///////////////////////////////////////////////////
 				// Trigger ROI #0
@@ -139,7 +143,7 @@ class Test0021 extends Ctest;
                 // Sensor Y ROI
 	            ///////////////////////////////////////////////////////
 				XGS_ROI_Y_START = 0;           // Doit etre multiple de 4
-				XGS_ROI_Y_SIZE  = 16+4;        // Doit etre multiple de 4, (XGS_ROI_Y_START+XGS_ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
+				XGS_ROI_Y_SIZE  = 16;          // Doit etre multiple de 4, (XGS_ROI_Y_START+XGS_ROI_Y_SIZE) < (5M:2078, 12M:3102, 16M:4030)
 				XGS_ROI_Y_END   = XGS_ROI_Y_START + XGS_ROI_Y_SIZE - 1;
 
 				XGS_ROI_X_START = 0;
@@ -157,11 +161,11 @@ class Test0021 extends Ctest;
 				TRIM_ROI_Y_START = 0;
 				TRIM_ROI_Y_SIZE  = 16;
 				TRIM_ROI_X_START = 0;
-				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH + 2*(super.Vlib.P_INTERPOLATION); // Units in pixels
+				TRIM_ROI_X_SIZE  = super.Vlib.P_ROI_WIDTH + (2*super.Vlib.P_INTERPOLATION) - 4 ; // Units in pixels, (raw+DPC : remove 2 front and 2 rear pixels!) 
 
 				//Set the fpga trim module X-Y ROI
 				super.Vlib.Set_X_ROI(TRIM_ROI_X_START, TRIM_ROI_X_SIZE);
-				super.Vlib.Set_DMA_Trim_Y_ROI(TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE);
+				super.Vlib.Set_DMA_Trim_Y_ROI(TRIM_ROI_Y_START, TRIM_ROI_Y_SIZE, 1);
 
 				
 				///////////////////////////////////////////////////////
@@ -198,9 +202,9 @@ class Test0021 extends Ctest;
 				test_nb_images++;
 
 				///////////////////////////////////////////////////////
-				// Prediction
+				// Prediction (raw+DPC : remove 2 front and 2 rear pixels, consummed by DPC(-4) ) this function must be redone as we should send trim_ROI_X also!
 				///////////////////////////////////////////////////////
-				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END , XGS_ROI_Y_START, XGS_ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
+				super.Vlib.Gen_predict_img_color(XGS_ROI_X_START, XGS_ROI_X_END-4 , XGS_ROI_Y_START, XGS_ROI_Y_END, SUB_X, SUB_Y, REV_X, REV_Y);   // This proc generate the super.Vlib.XGS_image to the scoreboard
 				scoreboard.predict_img(super.Vlib.XGS_image, super.Vlib.fstart, super.Vlib.line_size, super.Vlib.line_pitch, REV_Y);
 
 

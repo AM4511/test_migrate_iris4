@@ -17,7 +17,7 @@ Test0022    XGS 5000   BAYER YUV
 Test0023    XGS 16000  BAYER RGB32 
 Test0024    XGS 12000  BAYER RGB32 
 Test0025    XGS 12000  BAYER PLANAR
-
+Test0026    XGS 12000  BAYER RAW MONO + DPC: MONO32
 
 # ---------------------------------
 #  Results of testlist simulation  
