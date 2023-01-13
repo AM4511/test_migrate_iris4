@@ -1206,7 +1206,7 @@ void test_0000_Continu(CPcie* Pcie, CXGS_Ctrl* XGS_Ctrl, CXGS_Data* XGS_Data)
 				SensorParams->Xstart_valid = 2;                           // Pour mapper les pixels au display a la meme place que le RAW+DPC, on offset de 2 
 				DMAParams->ROI_X_EN = 1;
 				DMAParams->X_START = SensorParams->Xstart_valid;          //   
-				DMAParams->X_SIZE = SensorParams->Xsize_Full_valid;       //   
+				DMAParams->X_SIZE = SensorParams->Xsize_Full;       //   
 				Sleep(200);
 				break;
 
