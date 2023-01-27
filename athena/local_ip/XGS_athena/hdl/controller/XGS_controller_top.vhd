@@ -46,6 +46,8 @@ entity XGS_controller_top is
         anput_ext_trig         : in    std_logic;    
         
         anput_strobe_out       : out   std_logic;                       --
+        anput_strobe_A_out     : out   std_logic;
+        anput_strobe_B_out     : out   std_logic;
         anput_exposure_out     : out   std_logic;                       --
         anput_trig_rdy_out     : out   std_logic;                       --
         
@@ -356,8 +358,8 @@ begin
            --  OUTPUTS TO other fpga
            ---------------------------------------------------------------------------
            strobe_out                      => anput_strobe_out,
-           strobe_A_out                    => open,
-           strobe_B_out                    => open,
+           strobe_A_out                    => anput_strobe_A_out,
+           strobe_B_out                    => anput_strobe_B_out,
            exposure_out                    => anput_exposure_out,
            trig_rdy_out                    => anput_trig_rdy_out,
            
